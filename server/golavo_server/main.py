@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Any
 
@@ -22,16 +21,8 @@ app.add_middleware(
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-
-
-def _artifact_dir() -> Path:
-    return Path(os.environ.get("GOLAVO_ARTIFACT_DIR", REPO_ROOT / "data/artifacts"))
-
-
-def _eval_path() -> Path:
-    return Path(
-        os.environ.get("GOLAVO_EVAL_SUMMARY", REPO_ROOT / "docs/handoff/eval_summary.json")
-    )
+ARTIFACT_DIR = REPO_ROOT / "data/artifacts"
+EVAL_SUMMARY_PATH = REPO_ROOT / "docs/handoff/eval_summary.json"
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -47,10 +38,9 @@ def health() -> dict[str, str]:
 @app.get("/api/v1/forecasts")
 def list_forecasts() -> list[dict[str, Any]]:
     """List immutable forecast artifacts, newest first."""
-    directory = _artifact_dir()
-    if not directory.exists():
+    if not ARTIFACT_DIR.exists():
         return []
-    artifacts = [_read_json(path) for path in directory.glob("fa_*.json")]
+    artifacts = [_read_json(path) for path in ARTIFACT_DIR.glob("fa_*.json")]
     return sorted(
         artifacts,
         key=lambda item: (item["provenance"]["created_at_utc"], item["artifact_id"]),
@@ -61,10 +51,9 @@ def list_forecasts() -> list[dict[str, Any]]:
 @app.get("/api/v1/forecasts/{artifact_id}")
 def get_forecast(artifact_id: str) -> dict[str, Any]:
     """Return one artifact by canonical id."""
-    if not artifact_id.startswith("fa_") or not artifact_id[3:].isalnum():
-        raise HTTPException(status_code=404, detail="forecast not found")
-    path = _artifact_dir() / f"{artifact_id}.json"
-    if not path.is_file():
+    known_paths = {path.stem: path for path in ARTIFACT_DIR.glob("fa_*.json")}
+    path = known_paths.get(artifact_id)
+    if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")
     return _read_json(path)
 
@@ -72,7 +61,6 @@ def get_forecast(artifact_id: str) -> dict[str, Any]:
 @app.get("/api/v1/eval/summary")
 def eval_summary() -> dict[str, Any]:
     """Serve the frozen Phase 0 evaluation summary."""
-    path = _eval_path()
-    if not path.is_file():
+    if not EVAL_SUMMARY_PATH.is_file():
         raise HTTPException(status_code=404, detail="evaluation summary not found")
-    return _read_json(path)
+    return _read_json(EVAL_SUMMARY_PATH)

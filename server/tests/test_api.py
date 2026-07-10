@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from golavo_server.main import app
+from golavo_server import main as server_main
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -12,9 +12,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 def test_read_only_forecast_and_eval_routes(monkeypatch) -> None:
     samples = REPO_ROOT / "data/fixtures/sample_artifacts"
     summary = REPO_ROOT / "docs/handoff/eval_summary.json"
-    monkeypatch.setenv("GOLAVO_ARTIFACT_DIR", str(samples))
-    monkeypatch.setenv("GOLAVO_EVAL_SUMMARY", str(summary))
-    client = TestClient(app)
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", samples)
+    monkeypatch.setattr(server_main, "EVAL_SUMMARY_PATH", summary)
+    client = TestClient(server_main.app)
 
     response = client.get(
         "/api/v1/forecasts", headers={"Origin": "http://127.0.0.1:5173"}
@@ -33,6 +33,6 @@ def test_read_only_forecast_and_eval_routes(monkeypatch) -> None:
 
 
 def test_health_remains_available() -> None:
-    response = TestClient(app).get("/health")
+    response = TestClient(server_main.app).get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
