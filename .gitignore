@@ -8,7 +8,7 @@ desktop.ini
 .env.*
 !.env.example
 *.local
-.claude/settings.local.json
+.claude/
 secrets/
 *.key
 *.pem
