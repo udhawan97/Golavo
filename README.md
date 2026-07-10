@@ -8,8 +8,8 @@
 
 ### The numbers remember everything. The beautiful game still keeps the last word.
 
-**Local-first, open-source soccer match intelligence.**
-A deterministic engine owns every probability. AI only ever cites, explains, and researches — it never edits a number. Every forecast is *sealed before kickoff* and *scored after full time*.
+**Open-source soccer forecasting engine built on the Dixon-Coles model.**
+A deterministic engine owns every probability — AI can only cite and explain it, never edit it. Every forecast is *sealed before kickoff* and *scored after full time*, so the record is always judged against what actually happened.
 
 <!-- Badges resolve once the repo is public on GitHub. -->
 [![CI](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml/badge.svg)](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml)
