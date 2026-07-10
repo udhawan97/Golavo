@@ -79,7 +79,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
       - name: Upload build artifacts
         if: steps.guard.outputs.ready == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: golavo-${{ matrix.target }}
           path: packaging/out/**
