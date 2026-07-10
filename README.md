@@ -15,8 +15,7 @@ A deterministic engine owns every probability. AI only ever cites, explains, and
 [![CI](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml/badge.svg)](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml)
 [![Release](https://github.com/udhawan97/Golavo/actions/workflows/release.yml/badge.svg)](https://github.com/udhawan97/Golavo/actions/workflows/release.yml)
 [![Docs](https://github.com/udhawan97/Golavo/actions/workflows/pages.yml/badge.svg)](https://udhawan97.github.io/Golavo)
-[![License: AGPL v3](https://img.shields.io/badge/app-AGPL--3.0-blue.svg)](LICENSE)
-[![core: Apache 2.0](https://img.shields.io/badge/core-Apache--2.0-green.svg)](LICENSE-APACHE)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 [**Website & Docs**](https://udhawan97.github.io/Golavo) · [Methodology](https://udhawan97.github.io/Golavo/methodology/prediction/) · [Coverage](https://udhawan97.github.io/Golavo/data/coverage/) · [Roadmap](#roadmap)
 
@@ -85,9 +84,9 @@ Tauri 2 desktop shell with a FastAPI/Python sidecar; React + TypeScript UI; a Pa
 
 ```
 core/       Python modeling library — ingest, warehouse, models, ledger, facts   (Apache-2.0)
-server/     FastAPI app — routes, jobs, evidence bundles, AI gateway             (AGPL-3.0)
-ui/         React + TypeScript + Vite                                            (AGPL-3.0)
-desktop/    Tauri 2 shell, capabilities, signed updater                          (AGPL-3.0)
+server/     FastAPI app — routes, jobs, evidence bundles, AI gateway             (Apache-2.0)
+ui/         React + TypeScript + Vite                                            (Apache-2.0)
+desktop/    Tauri 2 shell, capabilities, signed updater                          (Apache-2.0)
 packs/      versioned, signed data packs — core-cc0 and overlay-odbl kept apart
 docs-site/  Astro + Starlight product site (GitHub Pages)
 ```
@@ -132,11 +131,11 @@ Full detail with entry/exit criteria and kill switches: [Roadmap](https://udhawa
 
 ## Contributing
 
-Issues and PRs welcome — start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Good first issues are labeled in the tracker. The modeling library (`core/`) is Apache-2.0 so the science stays reusable; the app is AGPL-3.0.
+Issues and PRs welcome — start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Good first issues are labeled in the tracker. All of Golavo is Apache-2.0, so the code and the science stay freely reusable.
 
 ## License
 
-App and UI: **AGPL-3.0-or-later** ([LICENSE](LICENSE)). Modeling library under `core/`: **Apache-2.0** ([LICENSE-APACHE](LICENSE-APACHE)).
+Golavo is licensed under the **Apache License 2.0** ([LICENSE](LICENSE)).
 
 ---
 

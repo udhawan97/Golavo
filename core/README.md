@@ -1,7 +1,7 @@
 # golavo-core
 
 The Golavo modeling library. **Apache-2.0** licensed so the science stays reusable,
-independent of the AGPL-3.0 application.
+independent of any application that uses it.
 
 ## Boundaries
 

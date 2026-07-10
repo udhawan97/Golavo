@@ -1,6 +1,6 @@
 # desktop
 
-The Golavo desktop shell (**Tauri 2**). **AGPL-3.0.** Lands in **Phase 4** — see
+The Golavo desktop shell (**Tauri 2**). **Apache-2.0.** Lands in **Phase 4** — see
 [ADR-0001](../docs/adr/0001-architecture.md).
 
 Responsibilities when built:

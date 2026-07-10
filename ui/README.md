@@ -1,6 +1,6 @@
 # golavo-ui
 
-The Golavo interface: React + TypeScript + Vite. **AGPL-3.0.**
+The Golavo interface: React + TypeScript + Vite. **Apache-2.0.**
 
 ```bash
 npm install

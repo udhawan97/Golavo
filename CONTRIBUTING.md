@@ -15,14 +15,14 @@ Thanks for helping build an honest football forecaster. This guide covers how th
 | Path | What | License |
 |---|---|---|
 | `core/` | Python modeling library (ingest, warehouse, models, ledger, facts) | Apache-2.0 |
-| `server/` | FastAPI app (routes, jobs, evidence bundles, AI gateway) | AGPL-3.0 |
-| `ui/` | React + TypeScript + Vite | AGPL-3.0 |
-| `desktop/` | Tauri 2 shell (Phase 4) | AGPL-3.0 |
+| `server/` | FastAPI app (routes, jobs, evidence bundles, AI gateway) | Apache-2.0 |
+| `ui/` | React + TypeScript + Vite | Apache-2.0 |
+| `desktop/` | Tauri 2 shell (Phase 4) | Apache-2.0 |
 | `packs/` | data-pack build definitions (`core-cc0`, `overlay-odbl`) | per-source |
 | `docs-site/` | Astro + Starlight product site | docs |
 | `docs/adr/` | architecture decision records | docs |
 
-New code under `core/` is Apache-2.0; everything else is AGPL-3.0. By contributing you agree your contribution is licensed under the license of the directory it lands in.
+All of Golavo is licensed under Apache-2.0. By contributing you agree your contribution is licensed under Apache-2.0.
 
 ## Development setup
 

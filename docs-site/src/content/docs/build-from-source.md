@@ -26,9 +26,9 @@ make lint                 # ruff + mypy + eslint
 | Path | What | License |
 |---|---|---|
 | `core/` | Python modeling library | Apache-2.0 |
-| `server/` | FastAPI app | AGPL-3.0 |
-| `ui/` | React + TypeScript + Vite | AGPL-3.0 |
-| `desktop/` | Tauri 2 shell (Phase 4) | AGPL-3.0 |
+| `server/` | FastAPI app | Apache-2.0 |
+| `ui/` | React + TypeScript + Vite | Apache-2.0 |
+| `desktop/` | Tauri 2 shell (Phase 4) | Apache-2.0 |
 | `docs-site/` | this documentation site | docs |
 
 :::note

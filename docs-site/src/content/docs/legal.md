@@ -5,8 +5,7 @@ description: Licensing, non-affiliation, and how Golavo celebrates great footbal
 
 ## Software license
 
-- The application and UI are licensed under **AGPL-3.0-or-later**.
-- The reusable modeling library under `core/` is additionally available under **Apache-2.0**, so the science stays reusable.
+- All of Golavo is licensed under the **Apache License 2.0** — the app and the reusable modeling library alike, so anyone can build on it.
 
 ## Data licenses
 

@@ -1,6 +1,6 @@
 # golavo-server
 
-The Golavo local server (FastAPI). **AGPL-3.0.** It orchestrates the `core`
+The Golavo local server (FastAPI). **Apache-2.0.** It orchestrates the `core`
 library, serves the UI, builds AI evidence bundles, and runs background jobs.
 It never computes statistics inline — it calls `golavo-core`.
 

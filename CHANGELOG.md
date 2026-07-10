@@ -7,7 +7,7 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
-- Initial repository scaffold: README, licenses (AGPL-3.0 app + Apache-2.0 core),
+- Initial repository scaffold: README, Apache-2.0 license,
   animated brand marks, contributing/security/conduct policies.
 - CI/CD workflows: continuous integration, signed release pipeline (stable + beta),
   and GitHub Pages docs deployment.

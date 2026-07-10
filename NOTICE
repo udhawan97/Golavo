@@ -1,9 +1,7 @@
 Golavo
 Copyright (c) 2026 Umang Dhawan and Golavo contributors.
 
-This product is licensed under the GNU Affero General Public License v3.0
-or later (see LICENSE). The reusable modeling library under `core/` is
-additionally available under the Apache License 2.0 (see LICENSE-APACHE).
+This product is licensed under the Apache License 2.0 (see LICENSE).
 
 --------------------------------------------------------------------------
 DATA SOURCE ATTRIBUTIONS

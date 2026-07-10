@@ -24,6 +24,6 @@ keywords:
   - probability-calibration
   - local-first
   - open-data
-license: AGPL-3.0-or-later
+license: Apache-2.0
 version: 0.0.0
 date-released: "2026-07-09"
