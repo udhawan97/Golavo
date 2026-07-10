@@ -1,6 +1,6 @@
 # Free & open football data sources — verification sweep
 
-**Verified:** 2026-07-10. **Method:** four-round discovery + adversarial verification (40 sources fetched and checked against their primary license/terms pages across rounds 1–3; round 4 and the auto-synthesis step were cut short by an account spend limit, so a handful of round-4 candidates remain unverified — noted below). Verdicts come from reading each source's actual license, not its marketing.
+**Verified:** 2026-07-10. **Method:** four-round discovery + adversarial verification — **46 sources** fetched and checked against their primary license/terms pages (40 in rounds 1–3, 6 more in round 4). Verdicts come from reading each source's actual license, not its marketing.
 
 This extends the original licensing audit (openfootball, martj42, Wikidata, Wyscout/figshare, OpenLigaDB, football-data.org, API-Football, StatsBomb, Open-Meteo). The big result: several **genuinely open, redistributable** sources turned up that the first pass missed, and a whole **free-but-not-redistributable** tier came into focus.
 
@@ -17,6 +17,11 @@ This extends the original licensing audit (openfootball, martj42, Wikidata, Wysc
 | **[DFL / Bassek et al. 2025 (Nature Sci Data)](https://www.nature.com/articles/s41597-025-04505-y)** | **CC-BY 4.0** | **tracking (1M+ frames) + event data** | elite (Bundesliga), ~2022, small sample | Static | ⭐ Genuinely open event **and** tracking data — but research-scale (a few matches). |
 | **[DBpedia](https://www.dbpedia.org)** | CC-BY-SA-3.0 | reference facts (entities, relations) | all eras with Wikipedia articles | Quarterly (2025-06) | Complements Wikidata; note the ShareAlike copyleft. |
 | **[SoccerMon (Zenodo)](https://zenodo.org/records/10033832)** | CC-BY 4.0 | women's athlete GPS/HR monitoring | Toppserien, 2020–21 | Static | Niche (fitness, not match data). |
+| **[Transfermarkt datasets (davidcariboo/player-scores)](https://www.kaggle.com/datasets/davidcariboo/player-scores)** | **CC0** | 12 relational tables: games, **lineups**, **events (goals/cards/subs)**, appearances, valuations, transfers, players, clubs | 40+ comps incl. **WC 2026, Euro, Copa América, AFCON, Asian Cup**; ~79k games, 37k players | **CURRENT** (weekly auto-refresh) | ⭐⭐ Keystone find — CC0, current, with **lineups + events**. Transfermarkt-derived: license-laundering / provenance risk (facts are non-copyrightable, but Transfermarkt's ToS bars scraping). |
+| **[football-matches-2025 (HF, tarekmasryo)](https://huggingface.co/datasets/tarekmasryo/football-matches-2025-dataset)** | CC-BY 4.0 | results, FT/HT scores, referee | top-5 + UCL, 2024/25 only (1,941) | Static | Derived from football-data.org; dual attribution required. |
+| **[SoccerTrack v2 (atomscott)](https://atomscott.github.io/SoccerTrack-v2/)** | CC-BY 4.0 + MIT | tracking, ball-action spotting, 4K video | 10 amateur JP university matches | Static (2025) | Research/CV benchmark, not pro data. |
+| **[Harvard Dataverse — national-team diversification](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/IMVEA1)** | CC0 | migration corridors / nationality changes | World Cup only, 1930–2018 | Static | Niche (no scores/fixtures). |
+| **[Mendeley — Brazilian Série A (Czekster)](https://data.mendeley.com/datasets/thsvj4sycn/1)** | CC-BY 4.0 | results, attendance, standings | Brazil Série A, 2003–2019 | Static | Historical single-league. |
 
 **Open context/reference (not football, but useful complements):**
 
@@ -45,6 +50,7 @@ Free (often keyless) but granting **no redistribution right**. The user fetches 
 - **Sofascore**, **FotMob** — rich real-time (lineups, xG, corners) but explicitly forbid scraping/redistribution.
 - **EasySoccerData** — code with a conflicting MIT/GPL license that scrapes Sofascore; data not safe to use.
 - **sportsopendata.net** — CC-BY, but abandoned at 2016/17 — effectively unavailable.
+- **eatpizzanot/soccer-dataset** — self-declares CC-BY 4.0 but it is **license-laundering** over API-Football + football-data.co.uk (whose ToS bar redistribution); broad stats + a *coarse* provider xG estimate for 128k fixtures, but the stated license is invalid. Avoid — and a cautionary example of the provenance risk that also touches DataHub-PDDL and the Transfermarkt datasets.
 
 ## Gap check — open, redistributable, AND current
 
@@ -52,16 +58,17 @@ Free (often keyless) but granting **no redistribution right**. The user fetches 
 |---|---|
 | Results / tables | ✅ improved — DataHub PDDL (current) + the CC0 backbone |
 | **Corners / shots / cards** | ✅ **now open + current** via DataHub PDDL (was "unavailable"); also free-local via football-data.co.uk; historical via European Soccer DB (ODbL) |
-| Club lineups / minutes | ⚠️ gap for open+current (historical via European Soccer DB; free-local via FBref/FPL) |
-| Club **xG** | ❌ still no open+redistributable current source — free-local only (Understat/FBref); research-scale open (DFL tracking); StatsBomb excluded |
-| Injuries / suspensions | ❌ no open source found |
-| Scorers (club) | ⚠️ historical via European Soccer DB; free-local via FBref |
+| Club lineups / minutes | ✅ **now open + current** — Transfermarkt datasets (CC0, weekly) `game_lineups`; also historical via European Soccer DB; free-local via FBref/FPL (Transfermarkt-provenance caveat) |
+| Scorers / events (club) | ✅ **now open + current** — Transfermarkt datasets (CC0) `game_events` goals/cards/subs; historical via European Soccer DB; free-local via FBref |
+| Club **xG** | ❌ still no open+redistributable source — free-local only (Understat/FBref); research-scale open (DFL/SoccerTrack tracking); StatsBomb excluded; eatpizzanot's "xG" is coarse and its license invalid |
+| Injuries / suspensions | ❌ no open source found (round 4 confirmed none) |
+| Women's football | ❌ no dedicated open match/event source (only SoccerMon fitness data, SoccerTrack amateur) |
 
 ## Recommendation — adopt a three-tier data model
 
 The single most useful outcome of this sweep: replace the old binary "open core vs BYOK" with **three** tiers, each legally isolated (enforced in CI like the ODbL guard):
 
-1. **Open core** (redistributable, shippable): openfootball, martj42, Wikidata, DBpedia, ISDB, footballcsv, **DataHub PDDL (current results + corners/shots/cards)**, European Soccer DB (ODbL, isolated), DFL tracking (dev), weather (CC-BY), GeoNames/OSM.
+1. **Open core** (redistributable, shippable): openfootball, martj42, Wikidata, DBpedia, ISDB, footballcsv, **Transfermarkt datasets (CC0 — current lineups + events + appearances)**, **DataHub PDDL (current results + corners/shots/cards)**, European Soccer DB (ODbL, isolated), DFL/SoccerTrack tracking (dev), weather (CC-BY), GeoNames/OSM. Flag the Transfermarkt/DataHub *provenance* risk explicitly (both re-license third-party-sourced facts).
 2. **Local personal fetch** (free, NOT redistributable — new): football-data.co.uk, Understat, FPL, FBref (rate-limited), ClubElo, ASA — pulled to the user's machine, shown locally, never exported or re-published.
 3. **BYOK keyed** (unchanged): football-data.org, API-Football.
 
