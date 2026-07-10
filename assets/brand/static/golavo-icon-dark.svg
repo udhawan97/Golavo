@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="gDt gDd">
+<title id="gDt">GOLAVO</title>
+<desc id="gDd">A sumi brushstroke ball trajectory draws the letter G and curls into the top corner of a minimal goal under a rising gold sun, above a drifting seigaiha wave ground. Loops every 6.5s; honors prefers-reduced-motion with the composed static frame.</desc>
+
+<defs>
+<clipPath id="tD"><rect width="512" height="512" rx="112"></rect></clipPath>
+<pattern id="hD" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(18)"><circle cx="2.2" cy="2.2" r="1" fill="rgba(16,19,18,.4)"></circle></pattern>
+<g id="fD" stroke="rgba(96,130,184,.45)" stroke-width="2.4"><circle r="58" fill="#101312"></circle><circle r="44" fill="none"></circle><circle r="30" fill="none"></circle><circle r="16" fill="none"></circle></g>
+</defs>
+<rect fill="#101312" width="512" height="512" rx="112"></rect>
+<g clip-path="url(#tD)"><g class="drift"><use href="#fD" x="16" y="486"></use><use href="#fD" x="144" y="486"></use><use href="#fD" x="272" y="486"></use><use href="#fD" x="400" y="486"></use><use href="#fD" x="528" y="486"></use><use href="#fD" x="656" y="486"></use>
+<use href="#fD" x="-48" y="524"></use><use href="#fD" x="80" y="524"></use><use href="#fD" x="208" y="524"></use><use href="#fD" x="336" y="524"></use><use href="#fD" x="464" y="524"></use><use href="#fD" x="592" y="524"></use><use href="#fD" x="720" y="524"></use></g></g>
+<g class="sunG" style="transform-box:fill-box;transform-origin:center"><circle fill="#C9A227" cx="352" cy="296" r="100"></circle><circle cx="352" cy="296" r="100" fill="url(#hD)"></circle></g>
+<circle class="ringP" fill="none" stroke="rgba(201,162,39,.45)" stroke-width="3" opacity="0" style="transform-box:fill-box;transform-origin:center" cx="352" cy="296" r="102"></circle>
+<g class="mainG">
+<path class="ink" pathLength="1000" fill="none" stroke="#F4EFE6" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1000 1000" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+<path class="seam" pathLength="1000" fill="none" stroke="#C9A227" stroke-width="5" stroke-linecap="round" stroke-dasharray="1000 1000" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+<path class="glint" pathLength="1000" fill="none" stroke="#FFF8E1" stroke-width="6" stroke-linecap="round" stroke-dasharray="70 1930" stroke-dashoffset="80" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+</g>
+<g>
+<path fill="none" stroke="#1A1A1A" stroke-width="12" d="M398 290V258H306V354"></path>
+<g class="net" style="transform-box:fill-box;transform-origin:50% 0%" fill="none" stroke="rgba(26,26,26,.55)" stroke-width="2.2" stroke-linecap="round">
+<path d="M332 260Q322 300 308 316"></path>
+<path d="M356 260Q348 306 310 338"></path>
+<path d="M380 260Q376 310 314 352"></path>
+<path d="M306 306Q340 318 372 302"></path>
+</g>
+</g>
+<g class="speed" opacity="0" fill="none" stroke="#BC002D" stroke-linecap="round">
+<path stroke-width="6" d="M403 314L419 334"></path>
+<path stroke-width="5" d="M410 296L428 308"></path>
+<path stroke-width="4" d="M400 332L410 350"></path>
+</g>
+<path class="smear" pathLength="1000" fill="none" stroke="rgba(217,98,43,.5)" stroke-width="16" stroke-linecap="round" stroke-dasharray="30 1970" stroke-dashoffset="38" opacity="0" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+<path class="dot" pathLength="1000" fill="none" stroke="#D9622B" stroke-width="26" stroke-linecap="round" stroke-dasharray="1 999" stroke-dashoffset="-999" opacity="0" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+<g class="ball" style="transform-box:fill-box;transform-origin:center">
+<circle fill="#F4EFE6" stroke="#1A1A1A" stroke-width="2.6" cx="376" cy="286" r="15"></circle>
+<path fill="#1A1A1A" d="M376 280L381.7 284.1L379.5 290.9L372.5 290.9L370.3 284.1Z"></path>
+<path fill="none" stroke="#1A1A1A" stroke-width="1.8" stroke-linecap="round" d="M376 280V274M381.7 284.1L387 282M379.5 290.9L382.5 296M372.5 290.9L369.5 296M370.3 284.1L365 282"></path>
+</g>
+</svg>

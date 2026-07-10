@@ -1,9 +1,9 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/golavo-lockup-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="assets/brand/golavo-lockup-light.svg">
-  <img src="assets/brand/golavo-lockup-light.svg" alt="Golavo" width="360">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/animated/golavo-lockup-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/brand/animated/golavo-lockup-light.svg">
+  <img src="assets/brand/animated/golavo-lockup-light.svg" alt="Golavo" width="440">
 </picture>
 
 ### The numbers remember everything. The beautiful game still keeps the last word.

@@ -6,12 +6,15 @@ export default function App() {
         maxWidth: 640,
         margin: "12vh auto",
         padding: "0 1.5rem",
-        color: "#101312",
+        color: "#1a1a1a",
         lineHeight: 1.5,
       }}
     >
-      <h1 style={{ letterSpacing: 3, fontWeight: 800 }}>GOLAVO</h1>
-      <p style={{ fontStyle: "italic", color: "#0b6e4f", marginTop: "-0.4rem" }}>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcSet="/brand/golavo-lockup-dark.svg" />
+        <img src="/brand/golavo-lockup-light.svg" alt="Golavo" width={380} />
+      </picture>
+      <p style={{ fontStyle: "italic", color: "#bc002d", marginTop: "0.4rem" }}>
         The numbers remember everything. The beautiful game still keeps the last word.
       </p>
       <p>
