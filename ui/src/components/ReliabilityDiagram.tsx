@@ -15,7 +15,11 @@ export function ReliabilityDiagram({
   const y = (r: number) => padT + (1 - r) * plotH;
 
   const maxN = Math.max(...bins.map((b) => b.n), 1);
-  const radius = (n: number) => 3.5 + Math.sqrt(n / maxN) * 8.5;
+  // Area-proportional with a visibility floor: area = π·r² is affine in n, so
+  // r = √(rMin² + (n/maxN)·(rMax² − rMin²)). A tiny bin stays visible without
+  // overstating its weight.
+  const rMin = 3.5, rMax = 12;
+  const radius = (n: number) => Math.sqrt(rMin * rMin + (n / maxN) * (rMax * rMax - rMin * rMin));
   const ticks = [0, 0.25, 0.5, 0.75, 1];
   const sorted = [...bins].sort((a, b) => a.p_mid - b.p_mid);
   const poly = sorted.map((b) => `${x(b.p_mid).toFixed(1)},${y(b.observed_rate).toFixed(1)}`).join(" ");
@@ -60,7 +64,7 @@ export function ReliabilityDiagram({
       </svg>
       <figcaption className="small muted" style={{ marginTop: ".5rem", display: "flex", gap: ".9rem", flexWrap: "wrap" }}>
         <span><span className="mono">— —</span> perfect calibration</span>
-        <span>● point area ∝ sample count</span>
+        <span>● point size scales with sample count</span>
         {caption && <span className="dim">{caption}</span>}
       </figcaption>
     </figure>

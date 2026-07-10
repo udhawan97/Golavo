@@ -116,7 +116,9 @@ function Calibration({ folds }: { folds: Fold[] }) {
             </select>
           </label>
           <label className="field">Model
-            <select className="select" value={modelId} onChange={(e) => setModelId(e.target.value)}>
+            {/* Bind to the resolved model so the value always matches an option,
+                even if the retained selection is absent from a newly picked fold. */}
+            <select className="select" value={model?.model_id ?? ""} onChange={(e) => setModelId(e.target.value)}>
               {fold.models.map((m) => <option key={m.model_id} value={m.model_id}>{modelLabel(m.model_id)}</option>)}
             </select>
           </label>

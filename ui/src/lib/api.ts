@@ -69,7 +69,10 @@ async function getJson(path: string): Promise<unknown> {
 }
 
 export async function fetchForecasts(): Promise<ForecastArtifact[]> {
-  if (!API_BASE) return loadMockForecasts();
+  if (!API_BASE) {
+    // Validate mocks too — the contract guard is the point, not a live-only luxury.
+    return (await loadMockForecasts()).map((a, i) => assertForecast(a, `mock forecasts[${i}]`));
+  }
   const body = await getJson("/api/v1/forecasts");
   // Accept either a bare array or a { forecasts: [...] } envelope.
   const list = Array.isArray(body)
@@ -85,7 +88,10 @@ export async function fetchForecasts(): Promise<ForecastArtifact[]> {
 }
 
 export async function fetchForecast(id: string): Promise<ForecastArtifact | null> {
-  if (!API_BASE) return loadMockForecast(id);
+  if (!API_BASE) {
+    const a = await loadMockForecast(id);
+    return a ? assertForecast(a, `mock forecast ${id}`) : null;
+  }
   try {
     const body = await getJson(`/api/v1/forecasts/${encodeURIComponent(id)}`);
     return assertForecast(body, `forecast ${id}`);
