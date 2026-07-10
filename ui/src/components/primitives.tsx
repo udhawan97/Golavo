@@ -82,7 +82,7 @@ export function Hash({ value, mono = true, truncate = true }: { value: string; m
         type="button"
         className={`hash__btn${copied ? " copied" : ""}`}
         onClick={() => copy(value, "h")}
-        aria-label={copied ? "Copied" : `Copy ${value}`}
+        aria-label={copied ? "Copied to clipboard" : "Copy to clipboard"}
       >
         {copied ? <CheckIcon /> : <CopyIcon />}
       </button>

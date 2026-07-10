@@ -16,7 +16,18 @@ export function Layout({
   const lockup = theme === "dark" ? "/brand/golavo-lockup-dark.svg" : "/brand/golavo-lockup-light.svg";
   return (
     <>
-      <a className="skip-link" href="#main">Skip to content</a>
+      {/* Intercept the click so the fragment does not drive the hash router. */}
+      <a
+        className="skip-link"
+        href="#main"
+        onClick={(e) => {
+          e.preventDefault();
+          const m = document.getElementById("main");
+          if (m) { m.focus(); m.scrollIntoView(); }
+        }}
+      >
+        Skip to content
+      </a>
       <header className="site-header">
         <div className="container site-header__inner">
           <a className="brand-link" href="#/" aria-label="Golavo — home">
@@ -39,7 +50,7 @@ export function Layout({
         </div>
       </header>
 
-      <main id="main" className="page">
+      <main id="main" className="page" tabIndex={-1}>
         <div className="container">{children}</div>
       </main>
 
