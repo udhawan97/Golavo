@@ -1,26 +1,333 @@
-/* Golavo brand tokens applied to Starlight. */
+/* =========================================================================
+   Golavo — brand theme for Starlight
+   Theme: soccer · japan · zen.  Ink & paper, a rising sun, calligraphic type.
+   Palette is drawn straight from the logo: sumi ink, trophy gold, hinomaru red,
+   sunset orange, pitch green, seigaiha wave blue.
+   ========================================================================= */
+
+/* ---- Brand constants + type stacks (fonts are loaded via astro.config head) ---- */
+:root {
+  --golavo-ink: #101312;
+  --golavo-paper: #f4efe6;
+  --golavo-gold: #c9a227;
+  --golavo-red: #bc002d;
+  --golavo-orange: #d9622b;
+  --golavo-green: #0b6e4f;
+  --golavo-wave: #6082b8;
+
+  --gv-serif: "Shippori Mincho", Georgia, "Times New Roman", serif;
+  --gv-sans: "Zen Kaku Gothic New", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, "Apple Color Emoji", sans-serif;
+  --gv-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, monospace;
+
+  --sl-font: var(--gv-sans);
+  --sl-font-mono: var(--gv-mono);
+
+  --gv-ease: cubic-bezier(0.16, 0.7, 0.3, 1);
+}
+
+/* ---- Dark theme (default) — warm ink & cream ---- */
 :root {
   --sl-color-accent-low: #0c2a20;
-  --sl-color-accent: #0b6e4f; /* Pitch Green */
-  --sl-color-accent-high: #e7d9a6; /* Trophy Gold, tinted for contrast on dark */
-  --golavo-gold: #c9a227;
-  --golavo-orange: #d9622b;
-  --golavo-cream: #f4efe6;
-  --golavo-black: #101312;
+  --sl-color-accent: #2f9e73; /* pitch-green, tuned to read as link text on ink */
+  --sl-color-accent-high: #d8efe4;
+
+  --sl-color-white: #f6f3ec;
+  --sl-color-gray-1: #e6e2d9;
+  --sl-color-gray-2: #bdb9b0;
+  --sl-color-gray-3: #928f88;
+  --sl-color-gray-4: #5f5d57;
+  --sl-color-gray-5: #3a3a36;
+  --sl-color-gray-6: #262524;
+  --sl-color-black: #0c0e0d;
+
+  --sl-color-bg: #101312;
+  --sl-color-bg-nav: color-mix(in srgb, #101312 78%, transparent);
+  --sl-color-bg-sidebar: #0d100f;
+  --sl-color-bg-inline-code: #22221f;
+  --sl-color-hairline: #232522;
+  --sl-color-hairline-light: #2c2e2b;
+  --sl-color-hairline-shade: #1a1c1a;
+
+  --sl-color-text-accent: #e7c34e; /* gold for in-content accent text */
 }
 
+/* ---- Light theme — paper & sumi ---- */
 :root[data-theme="light"] {
-  --sl-color-accent-low: #dceee6;
+  --sl-color-accent-low: #d7efe6;
   --sl-color-accent: #0b6e4f;
-  --sl-color-accent-high: #7a5f12;
+  --sl-color-accent-high: #08402f;
+
+  --sl-color-white: #171614;
+  --sl-color-gray-1: #2a2a27;
+  --sl-color-gray-2: #46443f;
+  --sl-color-gray-3: #6c6a62;
+  --sl-color-gray-4: #9a978d;
+  --sl-color-gray-5: #cfcabc;
+  --sl-color-gray-6: #ece7db;
+  --sl-color-gray-7: #f6f2e9;
+
+  --sl-color-bg: #faf7f0;
+  --sl-color-bg-nav: color-mix(in srgb, #faf7f0 78%, transparent);
+  --sl-color-bg-sidebar: #f3eee2;
+  --sl-color-bg-inline-code: #eee7d6;
+  --sl-color-hairline: #e3dccb;
+  --sl-color-hairline-light: #e9e3d4;
+  --sl-color-hairline-shade: #efe9db;
+
+  --sl-color-text-accent: #9a6b12;
 }
 
-/* Scoreboard-style numerals should not jiggle. */
+/* ---- Global rhythm ---- */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+/* Display serif for the biggest editorial moments. */
+.hero h1,
+.sl-markdown-content h1,
+.sl-markdown-content h2 {
+  font-family: var(--gv-serif);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+.sl-markdown-content h1 { line-height: 1.12; }
+
+/* Top nav: quiet glass, a hairline of gold on the underside. */
+.header {
+  backdrop-filter: blur(12px) saturate(1.2);
+  border-bottom: 1px solid var(--sl-color-hairline);
+  box-shadow: 0 1px 0 0 color-mix(in srgb, var(--golavo-gold) 14%, transparent);
+}
+.site-title { font-weight: 600; letter-spacing: 0.01em; }
+/* Header logo (the lockup) — give it room to breathe. */
+.site-title img { height: 1.85rem; width: auto; }
+
+/* Links: refined underline that lifts on hover. */
+.sl-markdown-content a:not(:where(.not-content *)) {
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+.sl-markdown-content a:not(:where(.not-content *)):hover {
+  text-decoration-color: currentColor;
+}
+
+/* Sidebar: calmer, with a gold marker on the current page. */
+.sidebar-content a[aria-current="page"] {
+  background: color-mix(in srgb, var(--golavo-gold) 14%, transparent);
+  border-left: 2px solid var(--golavo-gold);
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+.sidebar-content a { transition: background 0.18s ease, color 0.18s ease; }
+
+/* Scoreboard numerals never jiggle. */
+.sl-markdown-content table { border-collapse: collapse; }
 .sl-markdown-content table td,
-.sl-markdown-content table th {
-  font-variant-numeric: tabular-nums;
+.sl-markdown-content table th { font-variant-numeric: tabular-nums; }
+.sl-markdown-content table thead th {
+  background: color-mix(in srgb, var(--golavo-gold) 9%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--golavo-gold) 40%, var(--sl-color-hairline));
+}
+.sl-markdown-content table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--sl-color-gray-6) 40%, transparent);
 }
 
-.hero .tagline {
-  font-style: italic;
+/* Inline code / kbd carry the ledger's technical voice. */
+.sl-markdown-content :not(pre) > code {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 0.4em;
+  font-size: 0.9em;
+}
+
+/* Expressive-code frames: soften and warm the border. */
+.expressive-code .frame {
+  border-radius: 0.8rem;
+}
+.expressive-code .frame .header { font-family: var(--gv-mono); }
+
+/* Asides / callouts: brand-tinted left rule. */
+.starlight-aside { border-radius: 0 0.6rem 0.6rem 0; }
+.starlight-aside--caution { --sl-color-asides-border: var(--golavo-orange); }
+.starlight-aside--tip { --sl-color-asides-border: var(--golavo-green); }
+.starlight-aside--note { --sl-color-asides-border: var(--golavo-wave); }
+
+.hero .tagline { font-style: italic; font-family: var(--gv-serif); }
+
+/* =========================================================================
+   Cards (Starlight <Card> / <CardGrid>) — brand glass with a gold corner.
+   ========================================================================= */
+.card {
+  position: relative;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--sl-color-white) 3%, transparent), transparent);
+  background-color: var(--sl-color-bg-sidebar);
+  overflow: hidden;
+  transition: transform 0.35s var(--gv-ease), border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 42%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--golavo-gold), transparent);
+  opacity: 0.7;
+  transition: width 0.4s var(--gv-ease);
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--golavo-gold) 45%, var(--sl-color-hairline));
+  box-shadow: 0 18px 40px -24px color-mix(in srgb, var(--golavo-gold) 60%, transparent);
+}
+.card:hover::before { width: 78%; }
+.card .icon {
+  color: var(--golavo-gold);
+  background: color-mix(in srgb, var(--golavo-gold) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--golavo-gold) 28%, transparent);
+}
+.card .title { font-family: var(--gv-serif); font-weight: 600; }
+
+/* =========================================================================
+   Custom landing sections (authored in index.mdx as raw HTML)
+   ========================================================================= */
+.gv-section { margin-block: clamp(3.5rem, 8vw, 6rem); }
+
+.gv-kicker {
+  font-family: var(--gv-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--golavo-gold);
+  margin-bottom: 0.6rem;
+}
+.gv-section-title {
+  font-family: var(--gv-serif);
+  font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  margin: 0 0 0.8rem;
+  color: var(--sl-color-white);
+}
+.gv-section-lead {
+  max-width: 42rem;
+  color: var(--sl-color-gray-2);
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+/* Zen rule: a hairline crossed by a single ball. */
+.gv-rule {
+  --c: color-mix(in srgb, var(--golavo-gold) 55%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: clamp(3rem, 7vw, 5rem) auto;
+  color: var(--sl-color-gray-4);
+}
+.gv-rule::before, .gv-rule::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  max-width: 12rem;
+  background: linear-gradient(90deg, transparent, var(--c));
+}
+.gv-rule::after { background: linear-gradient(90deg, var(--c), transparent); }
+.gv-rule svg { width: 22px; height: 22px; display: block; }
+
+/* The Local vs AI contract — a split “stele”. */
+.gv-contract {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.8rem;
+}
+.gv-pillar {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 1rem;
+  padding: 1.6rem;
+  background: var(--sl-color-bg-sidebar);
+}
+.gv-pillar h3 {
+  font-family: var(--gv-serif);
+  margin: 0.2rem 0 0.9rem;
+  font-size: 1.25rem;
+}
+.gv-pillar--engine { border-top: 3px solid var(--golavo-green); }
+.gv-pillar--ai { border-top: 3px solid var(--golavo-gold); }
+.gv-pillar ul { margin: 0; padding-left: 1.1rem; }
+.gv-pillar li { margin: 0.4rem 0; color: var(--sl-color-gray-2); }
+.gv-pillar .tag {
+  display: inline-block;
+  font-family: var(--gv-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+.gv-pillar--engine .tag { color: var(--golavo-green); background: color-mix(in srgb, var(--golavo-green) 16%, transparent); }
+.gv-pillar--ai .tag { color: var(--golavo-gold); background: color-mix(in srgb, var(--golavo-gold) 16%, transparent); }
+.gv-delta {
+  margin-top: 1.4rem;
+  font-family: var(--gv-mono);
+  font-size: 0.95rem;
+  text-align: center;
+  color: var(--sl-color-gray-2);
+}
+.gv-delta b { color: var(--golavo-green); }
+
+/* The forecast pipeline — a horizontal ma-spaced flow. */
+.gv-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.6rem;
+  margin-top: 1.8rem;
+}
+.gv-step {
+  flex: 1 1 8rem;
+  min-width: 8rem;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 0.9rem;
+  padding: 1.1rem 1rem;
+  background: var(--sl-color-bg-sidebar);
+}
+.gv-step .n {
+  font-family: var(--gv-mono);
+  font-size: 0.72rem;
+  color: var(--golavo-gold);
+  letter-spacing: 0.1em;
+}
+.gv-step h4 { margin: 0.3rem 0 0.3rem; font-size: 1rem; }
+.gv-step p { margin: 0; font-size: 0.85rem; color: var(--sl-color-gray-3); line-height: 1.5; }
+.gv-arrow { align-self: center; color: var(--golavo-gold); opacity: 0.6; flex: 0 0 auto; }
+@media (max-width: 46rem) {
+  .gv-contract { grid-template-columns: 1fr; }
+  .gv-arrow { transform: rotate(90deg); }
+}
+
+/* =========================================================================
+   Scroll-reveal (paired with the observer in Hero.astro)
+   ========================================================================= */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.8s var(--gv-ease), transform 0.8s var(--gv-ease);
+  transition-delay: var(--rd, 0ms);
+  will-change: opacity, transform;
+}
+[data-reveal].in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .card { transition: none; }
 }

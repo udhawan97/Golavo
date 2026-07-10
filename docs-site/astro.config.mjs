@@ -15,7 +15,42 @@ export default defineConfig({
         "Local-first, open-source soccer match intelligence. A deterministic engine owns every probability; AI only cites and explains. Every forecast is sealed before kickoff and scored after full time.",
       tagline:
         "The numbers remember everything. The beautiful game still keeps the last word.",
+      logo: {
+        light: "./src/assets/golavo-lockup-light.svg",
+        dark: "./src/assets/golavo-lockup-dark.svg",
+        replacesTitle: true,
+      },
       customCss: ["./src/styles/custom.css"],
+      // Bespoke animated landing hero (soccer · japan · zen).
+      components: {
+        Hero: "./src/components/Hero.astro",
+      },
+      head: [
+        {
+          tag: "link",
+          attrs: { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "preconnect",
+            href: "https://fonts.gstatic.com",
+            crossorigin: true,
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "stylesheet",
+            href: "https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap",
+          },
+        },
+        { tag: "meta", attrs: { name: "theme-color", content: "#101312" } },
+        {
+          tag: "meta",
+          attrs: { property: "og:image", content: "/Golavo/brand/golavo-icon.svg" },
+        },
+      ],
       social: [
         {
           icon: "github",

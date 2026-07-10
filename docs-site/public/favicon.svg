@@ -1,5 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
-  <circle cx="60" cy="58" r="30" fill="#EB6101" opacity="0.12"/>
-  <path fill="none" stroke="#C9A227" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"
-        d="M90.8 45.6 A34 34 0 1 0 90.8 74.4 L74 74.4 L74 66"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Golavo">
+  <title>Golavo</title>
+  <rect width="512" height="512" rx="112" fill="#101312"/>
+  <circle cx="352" cy="300" r="96" fill="#C9A227"/>
+  <!-- goal corner -->
+  <path fill="none" stroke="#0B0D0C" stroke-width="14" d="M398 292V260H300V360"/>
+  <!-- brushstroke G (bold for legibility at small sizes) -->
+  <path fill="none" stroke="#F4EFE6" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"
+        d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"/>
+  <path fill="none" stroke="#C9A227" stroke-width="7" stroke-linecap="round"
+        d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"/>
+  <!-- ball resting in the corner -->
+  <circle cx="376" cy="286" r="17" fill="#F4EFE6" stroke="#1A1A1A" stroke-width="3"/>
+  <path fill="#1A1A1A" d="M376 279L382.5 283.7L380 291.4H372L369.5 283.7Z"/>
 </svg>

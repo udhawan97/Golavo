@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 648 160" role="img" aria-labelledby="kLt kLd">
+<title id="kLt">GOLAVO</title>
+<desc id="kLd">GOLAVO horizontal lockup: the animated mark and a scoreboard-style wordmark.</desc>
+
+<g transform="translate(4 12) scale(.28)">
+<g class="sunG" style="transform-box:fill-box;transform-origin:center"><circle fill="#BC002D" cx="352" cy="296" r="100"></circle></g>
+<circle class="ringP" fill="none" stroke="rgba(188,0,45,.4)" stroke-width="3" opacity="0" style="transform-box:fill-box;transform-origin:center" cx="352" cy="296" r="102"></circle>
+<g class="mainG">
+<path class="ink" pathLength="1000" fill="none" stroke="#1A1A1A" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1000 1000" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+<path class="seam" pathLength="1000" fill="none" stroke="#C9A227" stroke-width="5" stroke-linecap="round" stroke-dasharray="1000 1000" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+<path class="glint" pathLength="1000" fill="none" stroke="#F6ECC8" stroke-width="6" stroke-linecap="round" stroke-dasharray="70 1930" stroke-dashoffset="80" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+</g>
+<g>
+<path fill="none" stroke="#1A1A1A" stroke-width="12" d="M398 290V258H306V354"></path>
+<g class="net" style="transform-box:fill-box;transform-origin:50% 0%" fill="none" stroke="rgba(244,239,230,.6)" stroke-width="2.2" stroke-linecap="round">
+<path d="M332 260Q322 300 308 316"></path>
+<path d="M356 260Q348 306 310 338"></path>
+<path d="M380 260Q376 310 314 352"></path>
+<path d="M306 306Q340 318 372 302"></path>
+</g>
+</g>
+<g class="speed" opacity="0" fill="none" stroke="#F4EFE6" stroke-linecap="round">
+<path stroke-width="6" d="M403 314L419 334"></path>
+<path stroke-width="5" d="M410 296L428 308"></path>
+<path stroke-width="4" d="M400 332L410 350"></path>
+</g>
+<path class="smear" pathLength="1000" fill="none" stroke="rgba(217,98,43,.5)" stroke-width="16" stroke-linecap="round" stroke-dasharray="30 1970" stroke-dashoffset="38" opacity="0" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+<path class="dot" pathLength="1000" fill="none" stroke="#D9622B" stroke-width="26" stroke-linecap="round" stroke-dasharray="1 999" stroke-dashoffset="-999" opacity="0" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"></path>
+<g class="ball" style="transform-box:fill-box;transform-origin:center">
+<circle fill="#F4EFE6" stroke="#1A1A1A" stroke-width="2.6" cx="376" cy="286" r="15"></circle>
+<path fill="#1A1A1A" d="M376 280L381.7 284.1L379.5 290.9L372.5 290.9L370.3 284.1Z"></path>
+<path fill="none" stroke="#1A1A1A" stroke-width="1.8" stroke-linecap="round" d="M376 280V274M381.7 284.1L387 282M379.5 290.9L382.5 296M372.5 290.9L369.5 296M370.3 284.1L365 282"></path>
+</g>
+</g>
+<g fill="none" stroke="#1A1A1A" stroke-width="11">
+<path pathLength="100" d="M227.3 57A30 30 0 1 0 238 80L210 80"></path>
+<circle pathLength="100" cx="284" cy="80" r="30"></circle>
+<path pathLength="100" d="M338 50V110H386"></path>
+<path pathLength="100" d="M399 110L426 50L453 110M409 90H443"></path>
+<path pathLength="100" d="M479 50L506 110L533 50"></path>
+<circle pathLength="100" cx="582" cy="80" r="30"></circle>
+</g>
+<g fill="none" stroke="#C9A227" stroke-width="11" stroke-dasharray="30 170" stroke-dashoffset="32">
+<path class="gw1" pathLength="100" d="M227.3 57A30 30 0 1 0 238 80L210 80"></path>
+<circle class="gw2" pathLength="100" cx="284" cy="80" r="30"></circle>
+<path class="gw3" pathLength="100" d="M338 50V110H386"></path>
+<path class="gw4" pathLength="100" d="M399 110L426 50L453 110M409 90H443"></path>
+<path class="gw5" pathLength="100" d="M479 50L506 110L533 50"></path>
+<circle class="gw6" pathLength="100" cx="582" cy="80" r="30"></circle>
+</g>
+</svg>

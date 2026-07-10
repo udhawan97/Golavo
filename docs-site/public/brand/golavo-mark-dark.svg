@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="mDt mDd">
+<title id="mDt">GOLAVO</title>
+<desc id="mDd">A sumi brushstroke ball trajectory draws the letter G and curls into the top corner of a minimal goal under a rising gold sun. Loops every 6.5s; honors prefers-reduced-motion.</desc>
+<style>
+.sunG{animation:kSun 6.5s ease-in-out infinite}
+.ringP{animation:kRingT 6.5s linear infinite,kRingO 6.5s linear infinite}
+.mainG{animation:kMainG 6.5s linear infinite}
+.ink{animation:kDraw 6.5s linear infinite}
+.seam{animation:kSeam 6.5s linear infinite}
+.glint{animation:kGlint 6.5s linear infinite}
+.net{animation:kNet 6.5s linear infinite}
+.speed{animation:kSpeedO 6.5s linear infinite,kSpeedT 6.5s linear infinite}
+.dot{animation:kDot 6.5s linear infinite,kDotO 6.5s linear infinite}
+.smear{animation:kSmear 6.5s linear infinite,kSmearO 6.5s linear infinite}
+.ball{animation:kBallT 6.5s linear infinite,kBallO 6.5s linear infinite}
+@keyframes kSun{0%{transform:scale(1)}50%{transform:scale(1.045)}100%{transform:scale(1)}}
+@keyframes kRingT{0%{transform:scale(.94)}40%{transform:scale(.94);animation-timing-function:cubic-bezier(.16,.7,.3,1)}58%{transform:scale(1.3)}100%{transform:scale(1.3)}}
+@keyframes kRingO{0%,40.4%{opacity:0}42.5%{opacity:.5}58%,100%{opacity:0}}
+@keyframes kMainG{0%,6%{opacity:0}7.5%{opacity:1}88%{opacity:1}96.5%,100%{opacity:0}}
+@keyframes kDraw{0%{stroke-dashoffset:1000}8%{stroke-dashoffset:1000;animation-timing-function:cubic-bezier(.55,.06,.26,1)}40%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes kDot{0%{stroke-dashoffset:0}8%{stroke-dashoffset:0;animation-timing-function:cubic-bezier(.55,.06,.26,1)}40%{stroke-dashoffset:-999}100%{stroke-dashoffset:-999}}
+@keyframes kDotO{0%,7.8%{opacity:0}8.6%{opacity:1}39.5%{opacity:1}40.1%,100%{opacity:0}}
+@keyframes kSmear{0%{stroke-dashoffset:38}8%{stroke-dashoffset:38;animation-timing-function:cubic-bezier(.55,.06,.26,1)}40%{stroke-dashoffset:-961}100%{stroke-dashoffset:-961}}
+@keyframes kSmearO{0%,9%{opacity:0}12%{opacity:.55}38%{opacity:.55}40%,100%{opacity:0}}
+@keyframes kSeam{0%{stroke-dashoffset:1000}46%{stroke-dashoffset:1000;animation-timing-function:cubic-bezier(.4,0,.2,1)}60%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes kGlint{0%{stroke-dashoffset:80}47%{stroke-dashoffset:80;animation-timing-function:cubic-bezier(.5,0,.4,1)}61%{stroke-dashoffset:-1000}100%{stroke-dashoffset:-1000}}
+@keyframes kNet{0%,40%{transform:rotate(0deg)}43%{transform:rotate(-2.6deg)}46.5%{transform:rotate(1.5deg)}50%{transform:rotate(-.7deg)}54%,100%{transform:rotate(0deg)}}
+@keyframes kSpeedO{0%,40.3%{opacity:0}41.3%{opacity:.95}49%,100%{opacity:0}}
+@keyframes kSpeedT{0%,40%{transform:translate(10px,8px)}49%,100%{transform:translate(-7px,-6px)}}
+@keyframes kBallT{0%,40%{transform:scale(.3);animation-timing-function:cubic-bezier(.2,.8,.3,1)}44%{transform:scale(1.15)}47.5%{transform:scale(1)}100%{transform:scale(1)}}
+@keyframes kBallO{0%,40.2%{opacity:0}40.7%{opacity:1}88%{opacity:1}96%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<defs>
+<pattern id="hMD" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(18)"><circle cx="2.2" cy="2.2" r="1" fill="rgba(16,19,18,.4)"/></pattern>
+</defs>
+<g class="sunG" style="transform-box:fill-box;transform-origin:center"><circle fill="#C9A227" cx="352" cy="296" r="100"/><circle cx="352" cy="296" r="100" fill="url(#hMD)"/></g>
+<circle class="ringP" fill="none" stroke="rgba(201,162,39,.45)" stroke-width="3" opacity="0" style="transform-box:fill-box;transform-origin:center" cx="352" cy="296" r="102"/>
+<g class="mainG">
+<path class="ink" pathLength="1000" fill="none" stroke="#F4EFE6" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1000 1000" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"/>
+<path class="seam" pathLength="1000" fill="none" stroke="#C9A227" stroke-width="5" stroke-linecap="round" stroke-dasharray="1000 1000" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"/>
+<path class="glint" pathLength="1000" fill="none" stroke="#FFF8E1" stroke-width="6" stroke-linecap="round" stroke-dasharray="70 1930" stroke-dashoffset="80" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"/>
+</g>
+<g>
+<path fill="none" stroke="#1A1A1A" stroke-width="12" d="M398 290V258H306V354"/>
+<g class="net" style="transform-box:fill-box;transform-origin:50% 0%" fill="none" stroke="rgba(26,26,26,.55)" stroke-width="2.2" stroke-linecap="round">
+<path d="M332 260Q322 300 308 316"/>
+<path d="M356 260Q348 306 310 338"/>
+<path d="M380 260Q376 310 314 352"/>
+<path d="M306 306Q340 318 372 302"/>
+</g>
+</g>
+<g class="speed" opacity="0" fill="none" stroke="#BC002D" stroke-linecap="round">
+<path stroke-width="6" d="M403 314L419 334"/>
+<path stroke-width="5" d="M410 296L428 308"/>
+<path stroke-width="4" d="M400 332L410 350"/>
+</g>
+<path class="smear" pathLength="1000" fill="none" stroke="rgba(217,98,43,.5)" stroke-width="16" stroke-linecap="round" stroke-dasharray="30 1970" stroke-dashoffset="38" opacity="0" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"/>
+<path class="dot" pathLength="1000" fill="none" stroke="#D9622B" stroke-width="26" stroke-linecap="round" stroke-dasharray="1 999" stroke-dashoffset="-999" opacity="0" d="M348 150A150 150 0 1 0 397 319C404 306 394 290 376 286"/>
+<g class="ball" style="transform-box:fill-box;transform-origin:center">
+<circle fill="#F4EFE6" stroke="#1A1A1A" stroke-width="2.6" cx="376" cy="286" r="15"/>
+<path fill="#1A1A1A" d="M376 280L381.7 284.1L379.5 290.9L372.5 290.9L370.3 284.1Z"/>
+<path fill="none" stroke="#1A1A1A" stroke-width="1.8" stroke-linecap="round" d="M376 280V274M381.7 284.1L387 282M379.5 290.9L382.5 296M372.5 290.9L369.5 296M370.3 284.1L365 282"/>
+</g>
+</svg>
