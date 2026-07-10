@@ -67,7 +67,8 @@ jobs:
         with: { node-version: "20" }
       - uses: dtolnay/rust-toolchain@stable
         if: steps.guard.outputs.ready == 'true'
-        with: { targets: ${{ matrix.target }} }
+        with:
+          targets: ${{ matrix.target }}
       - name: Build sidecar (PyInstaller) + Tauri bundle
         if: steps.guard.outputs.ready == 'true'
         shell: bash
@@ -87,6 +88,8 @@ jobs:
     needs: [prepare, build]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    env:
+      MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -97,9 +100,7 @@ jobs:
           mkdir -p dist && cd dist
           if ls * >/dev/null 2>&1; then sha256sum * > SHA256SUMS.txt || true; fi
       - name: Sign checksums (minisign, if key configured)
-        if: ${{ env.MINISIGN_SECRET_KEY != '' }}
-        env:
-          MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
+        if: env.MINISIGN_SECRET_KEY != ''
         run: echo "minisign signing step runs when the secret is present"
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
