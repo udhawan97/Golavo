@@ -1,0 +1,345 @@
+---
+/**
+ * Golavo — bespoke landing hero (overrides Starlight's default Hero on the splash page).
+ * Theme: soccer · japan · zen. A rising sun, drifting seigaiha waves, and the
+ * sumi brushstroke mark drawing itself in. All motion honors prefers-reduced-motion.
+ */
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// Seigaiha ground: the logo's concentric-circle motif tiled in two offset rows,
+// drifting left one 128px unit for a seamless loop (matches the mark's kDrift).
+const unit = 128;
+const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
+---
+
+<section class="gh" aria-labelledby="gh-title">
+  <div class="gh-atmos" aria-hidden="true">
+    <div class="gh-sun" data-par="0.18"></div>
+    <div class="gh-grain"></div>
+
+    <!-- Floating "ball orbit" glyphs (the mark's seigaiha unit, set adrift) -->
+    <svg class="gh-orbit gh-orbit--1" data-par="0.42" viewBox="0 0 120 120" fill="none">
+      <circle cx="60" cy="60" r="58" /><circle cx="60" cy="60" r="44" />
+      <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
+    </svg>
+    <svg class="gh-orbit gh-orbit--2" data-par="0.62" viewBox="0 0 120 120" fill="none">
+      <circle cx="60" cy="60" r="58" /><circle cx="60" cy="60" r="44" />
+      <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
+    </svg>
+    <svg class="gh-orbit gh-orbit--3" data-par="0.3" viewBox="0 0 120 120" fill="none">
+      <circle cx="60" cy="60" r="58" /><circle cx="60" cy="60" r="44" />
+      <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
+    </svg>
+
+    <!-- Seigaiha wave field along the base -->
+    <svg class="gh-waves" viewBox="0 0 2048 300" preserveAspectRatio="xMidYMax slice" fill="none">
+      <defs>
+        <g id="gh-wv" stroke="var(--gh-wave)" stroke-width="2.4">
+          <circle cx="60" cy="60" r="58" /><circle cx="60" cy="60" r="44" />
+          <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
+        </g>
+      </defs>
+      <g class="gh-waveDrift gh-waveDrift--back">
+        {cols.map((x) => <use href="#gh-wv" x={x} y="150" />)}
+        {cols.map((x) => <use href="#gh-wv" x={x + unit / 2} y="188" />)}
+      </g>
+      <g class="gh-waveDrift gh-waveDrift--front">
+        {cols.map((x) => <use href="#gh-wv" x={x - 40} y="196" />)}
+        {cols.map((x) => <use href="#gh-wv" x={x + unit / 2 - 40} y="234" />)}
+      </g>
+    </svg>
+    <div class="gh-fade"></div>
+  </div>
+
+  <div class="gh-inner">
+    <p class="gh-status gh-rise" style="--d:0ms">
+      <span class="gh-status-dot"></span>Phase 0 · pre-alpha — the data-feasibility spike
+    </p>
+
+    <div class="gh-mark gh-rise" style="--d:60ms">
+      <img class="gh-mark-img gh-mark-img--dark" src={`${base}/brand/golavo-mark-dark.svg`}
+        alt="Golavo — a sumi brushstroke ball tracing the letter G into the top corner of a goal beneath a rising sun"
+        width="220" height="220" loading="eager" decoding="async" />
+      <img class="gh-mark-img gh-mark-img--light" src={`${base}/brand/golavo-mark-light.svg`}
+        alt="" aria-hidden="true" width="220" height="220" loading="eager" decoding="async" />
+    </div>
+
+    <p class="gh-eyebrow gh-rise" style="--d:150ms">Local-first soccer match intelligence</p>
+
+    <h1 id="gh-title" class="gh-title">
+      <span class="gh-line gh-rise" style="--d:220ms">The numbers remember everything.</span>
+      <span class="gh-line gh-rise" style="--d:340ms">The beautiful game keeps the <em class="gh-em">last word<svg class="gh-underline" viewBox="0 0 240 18" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M4 12C56 4 150 4 236 9" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg></em>.</span>
+    </h1>
+
+    <p class="gh-sub gh-rise" style="--d:460ms">
+      A deterministic engine owns every probability. AI only cites, explains, and
+      researches — it never edits a number. Every forecast is <strong>sealed before
+      kickoff</strong> and <strong>scored after full time</strong>.
+    </p>
+
+    <div class="gh-actions gh-rise" style="--d:580ms">
+      <a class="gh-btn gh-btn--primary" href={`${base}/methodology/prediction/`}>
+        Read the methodology
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="gh-btn gh-btn--ghost" href={`${base}/data/coverage/`}>See honest coverage</a>
+      <a class="gh-btn gh-btn--text" href="https://github.com/udhawan97/Golavo" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.72-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.36 9.36 0 015 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.480-.01 2.82 0 .27.18.6.69.49A10.26 10.26 0 0022 12.25C22 6.58 17.52 2 12 2z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+
+  <a class="gh-scroll gh-rise" style="--d:760ms" href="#below" aria-label="Scroll to learn more">
+    <span>90 minutes of evidence</span>
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+  <span id="below"></span>
+</section>
+
+<script>
+  // Progressive enhancement: parallax the atmosphere + reveal sections on scroll.
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  if (!reduce.matches) {
+    const layers = Array.from(document.querySelectorAll<HTMLElement>(".gh [data-par]"));
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        for (const el of layers) {
+          const speed = parseFloat(el.dataset.par || "0");
+          el.style.transform = `translate3d(0, ${y * speed}px, 0)`;
+        }
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+
+  // Reveal-on-scroll for any element marked data-reveal (custom landing sections).
+  const revealables = document.querySelectorAll("[data-reveal]");
+  if (revealables.length) {
+    if (reduce.matches || !("IntersectionObserver" in window)) {
+      revealables.forEach((el) => el.classList.add("in"));
+    } else {
+      const io = new IntersectionObserver(
+        (entries, obs) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              (e.target as HTMLElement).style.setProperty(
+                "--rd",
+                `${(e.target as HTMLElement).dataset.reveal || "0"}ms`,
+              );
+              e.target.classList.add("in");
+              obs.unobserve(e.target);
+            }
+          }
+        },
+        { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
+      );
+      revealables.forEach((el) => io.observe(el));
+    }
+  }
+</script>
+
+<style>
+  /* ---- Full-bleed break-out of Starlight's splash container ---- */
+  .gh {
+    position: relative;
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    min-height: min(86vh, 820px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(2rem, 5vh, 4.5rem) 1.5rem 4rem;
+    overflow: clip;
+    isolation: isolate;
+    /* theme-tuned atmosphere tokens (dark default) */
+    --gh-wave: rgba(96, 130, 184, 0.26);
+    --gh-orbit: rgba(96, 130, 184, 0.16);
+    --gh-sun-a: rgba(201, 162, 39, 0.5);
+    --gh-sun-b: rgba(217, 98, 43, 0.16);
+    --gh-em: var(--golavo-gold, #c9a227);
+  }
+  :global([data-theme="light"]) .gh {
+    --gh-wave: rgba(34, 58, 94, 0.16);
+    --gh-orbit: rgba(34, 58, 94, 0.12);
+    --gh-sun-a: rgba(188, 0, 45, 0.16);
+    --gh-sun-b: rgba(217, 98, 43, 0.12);
+    --gh-em: #b7411f;
+  }
+
+  /* ---- Atmosphere ---- */
+  .gh-atmos { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+
+  .gh-sun {
+    position: absolute;
+    left: 50%; top: 46%;
+    width: min(120vw, 1100px); aspect-ratio: 1;
+    translate: -50% -50%;
+    background:
+      radial-gradient(circle at 50% 50%, var(--gh-sun-a) 0%, transparent 42%),
+      radial-gradient(circle at 50% 62%, var(--gh-sun-b) 0%, transparent 55%);
+    filter: blur(6px);
+    animation: ghBreathe 9s ease-in-out infinite;
+  }
+
+  .gh-grain {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(currentColor 0.6px, transparent 0.6px);
+    background-size: 7px 7px;
+    color: var(--gh-orbit);
+    opacity: 0.5;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 78%);
+  }
+
+  .gh-orbit { position: absolute; width: 120px; color: var(--gh-orbit); }
+  .gh-orbit circle { stroke: currentColor; stroke-width: 2.4; }
+  .gh-orbit--1 { top: 14%; left: 8%;  width: 86px; animation: ghFloat 13s ease-in-out infinite; }
+  .gh-orbit--2 { top: 22%; right: 9%; width: 120px; animation: ghFloat 17s ease-in-out infinite reverse; }
+  .gh-orbit--3 { bottom: 26%; left: 15%; width: 64px; opacity: 0.7; animation: ghFloat 11s ease-in-out infinite; }
+
+  .gh-waves {
+    position: absolute; left: 50%; bottom: -2px; translate: -50% 0;
+    width: 100%; min-width: 1200px; height: clamp(150px, 26vh, 280px);
+  }
+  .gh-waveDrift--back  { animation: ghDrift 26s linear infinite; opacity: 0.7; }
+  .gh-waveDrift--front { animation: ghDrift 18s linear infinite; }
+
+  .gh-fade {
+    position: absolute; inset-inline: 0; bottom: 0; height: 44%;
+    background: linear-gradient(to bottom, transparent, var(--sl-color-bg));
+  }
+
+  /* ---- Content ---- */
+  .gh-inner {
+    position: relative; z-index: 1;
+    max-width: 58rem; text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  .gh-status {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    margin: 0 0 1.6rem;
+    padding: 0.36rem 0.9rem;
+    font-family: var(--gv-mono);
+    font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--sl-color-gray-2);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--sl-color-bg) 60%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .gh-status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--golavo-gold, #c9a227);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--golavo-gold) 60%, transparent);
+    animation: ghPulse 3.2s ease-out infinite;
+  }
+
+  .gh-mark { width: clamp(140px, 22vw, 216px); aspect-ratio: 1; margin-bottom: 1.2rem; }
+  .gh-mark-img { width: 100%; height: 100%; display: block; }
+  .gh-mark-img--light { display: none; }
+  :global([data-theme="light"]) .gh-mark-img--dark { display: none; }
+  :global([data-theme="light"]) .gh-mark-img--light { display: block; }
+
+  .gh-eyebrow {
+    margin: 0 0 0.9rem;
+    font-family: var(--gv-mono);
+    font-size: 0.8rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--golavo-gold, #c9a227);
+  }
+
+  .gh-title {
+    margin: 0; font-family: var(--gv-serif);
+    font-weight: 600; line-height: 1.12; letter-spacing: -0.012em;
+    font-size: clamp(1.85rem, 4.2vw, 2.85rem);
+    color: var(--sl-color-white);
+    text-wrap: balance;
+  }
+  .gh-line { display: block; }
+  .gh-em { position: relative; font-style: italic; color: var(--gh-em); white-space: nowrap; }
+  .gh-underline {
+    position: absolute; left: 0; right: 0; bottom: -0.18em; width: 100%; height: 0.42em;
+    color: var(--gh-em); opacity: 0.55;
+    stroke-dasharray: 260; stroke-dashoffset: 260;
+    animation: ghInk 1s ease-out forwards; animation-delay: 1.1s;
+  }
+
+  .gh-sub {
+    margin: 1.5rem auto 0; max-width: 40rem;
+    font-size: clamp(1.02rem, 1.6vw, 1.22rem); line-height: 1.65;
+    color: var(--sl-color-gray-2);
+  }
+  .gh-sub strong { color: var(--sl-color-white); font-weight: 600; }
+
+  .gh-actions {
+    margin-top: 2.2rem;
+    display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; align-items: center;
+  }
+  .gh-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.72rem 1.35rem; border-radius: 999px;
+    font-weight: 600; font-size: 0.98rem; text-decoration: none;
+    transition: transform 0.25s cubic-bezier(.16,.7,.3,1), box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    will-change: transform;
+  }
+  .gh-btn svg { transition: transform 0.25s cubic-bezier(.16,.7,.3,1); }
+  .gh-btn--primary {
+    color: #16130a;
+    background: linear-gradient(135deg, #e7c34e, var(--golavo-gold, #c9a227));
+    box-shadow: 0 8px 26px -10px color-mix(in srgb, var(--golavo-gold) 75%, transparent);
+  }
+  .gh-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -12px color-mix(in srgb, var(--golavo-gold) 85%, transparent); }
+  .gh-btn--primary:hover svg { transform: translateX(3px); }
+  .gh-btn--ghost {
+    color: var(--sl-color-white);
+    border: 1px solid var(--sl-color-gray-4);
+    background: color-mix(in srgb, var(--sl-color-bg) 55%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .gh-btn--ghost:hover { transform: translateY(-2px); border-color: var(--golavo-gold, #c9a227); }
+  .gh-btn--text { color: var(--sl-color-gray-1); padding-inline: 0.9rem; }
+  .gh-btn--text:hover { color: var(--sl-color-white); }
+  .gh-btn--text svg { transition: transform 0.25s ease; }
+  .gh-btn--text:hover svg { transform: translateY(-1px) scale(1.05); }
+
+  .gh-scroll {
+    position: absolute; bottom: 1.4rem; left: 50%; translate: -50% 0;
+    z-index: 1;
+    display: inline-flex; flex-direction: column; align-items: center; gap: 0.25rem;
+    font-family: var(--gv-mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--sl-color-gray-3); text-decoration: none;
+  }
+  .gh-scroll:hover { color: var(--golavo-gold, #c9a227); }
+  .gh-scroll svg { animation: ghNudge 2.4s ease-in-out infinite; }
+
+  /* ---- Entrance ---- */
+  .gh-rise { opacity: 0; transform: translateY(18px); animation: ghRise 0.85s cubic-bezier(.16,.7,.3,1) forwards; animation-delay: var(--d, 0ms); }
+
+  @keyframes ghRise { to { opacity: 1; transform: none; } }
+  @keyframes ghInk { to { stroke-dashoffset: 0; } }
+  @keyframes ghBreathe { 0%,100% { opacity: 0.85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+  @keyframes ghDrift { to { transform: translateX(-128px); } }
+  @keyframes ghFloat { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-16px) rotate(6deg); } }
+  @keyframes ghPulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--golavo-gold) 55%, transparent); } 70%,100% { box-shadow: 0 0 0 8px transparent; } }
+  @keyframes ghNudge { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gh-rise { opacity: 1; transform: none; animation: none; }
+    .gh-sun, .gh-orbit, .gh-waveDrift--back, .gh-waveDrift--front,
+    .gh-status-dot, .gh-scroll svg, .gh-underline { animation: none; }
+    .gh-underline { stroke-dashoffset: 0; }
+  }
+
+  @media (max-width: 50rem) {
+    .gh { min-height: auto; padding-top: 2.5rem; }
+    .gh-orbit--1, .gh-orbit--3 { display: none; }
+    .gh-scroll { display: none; }
+  }
+</style>
