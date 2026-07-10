@@ -1,0 +1,84 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_id": "fa_c940742dfd8ee148",
+  "status": "scored",
+  "supersedes": null,
+  "match": {
+    "match_id": "wc2026_r16_por_jpn",
+    "competition": "FIFA World Cup 2026",
+    "stage": "Round of 16",
+    "kickoff_utc": "2026-07-05T20:00:00Z",
+    "home_team": "Portugal",
+    "away_team": "Japan",
+    "neutral_venue": true,
+    "city": "Seattle",
+    "country": "United States"
+  },
+  "forecast": {
+    "market": "1x2_regulation",
+    "sealed_at_utc": "2026-07-04T20:00:00Z",
+    "horizon": "T-24h",
+    "probs": {
+      "home": 0.55,
+      "draw": 0.26,
+      "away": 0.19
+    },
+    "expected_goals": {
+      "home": 1.6,
+      "away": 0.8
+    },
+    "abstained": false,
+    "abstain_reason": null,
+    "uncertainty": "medium"
+  },
+  "model": {
+    "model_id": "elo-v2.3.0",
+    "family": "elo_ordlogit",
+    "version": "2.3.0",
+    "params_hash": "e4ac99fc87737852b1f4eb6c0eb834b42cdde0badeb75abee6ff070831527d71",
+    "code_git_sha": "0533b20be91f4919450544253d7a57cb419ce5fb",
+    "seed": 20260605
+  },
+  "inputs": {
+    "training_cutoff_utc": "2026-06-01T00:00:00Z",
+    "snapshots": [
+      {
+        "snapshot_id": "snap_a8d8e5c81c5f",
+        "source_id": "martj42/international_results",
+        "url": "https://github.com/martj42/international_results",
+        "upstream_ref": "d0a91c7",
+        "retrieved_at_utc": "2026-07-04T19:10:00Z",
+        "sha256": "402a05ca37f389d22ea7f6ddd8ebcd271b79496ce5a3f050f336042b497d4142",
+        "license": "CC0-1.0"
+      },
+      {
+        "snapshot_id": "snap_8494b3f547f5",
+        "source_id": "golavo/elo_ratings",
+        "url": "https://github.com/udhawan97/Golavo/tree/main/packs/ratings",
+        "upstream_ref": "2026-07-02",
+        "retrieved_at_utc": "2026-07-04T19:11:00Z",
+        "sha256": "1fb28ea701451e1094c96e3d7ab401cb0d870075ec1b41f66735a461f5e72a88",
+        "license": "CC0-1.0"
+      }
+    ]
+  },
+  "provenance": {
+    "created_at_utc": "2026-07-04T20:00:00Z",
+    "generator": "golavo-engine 0533b20",
+    "deterministic": true,
+    "payload_sha256": "99ccb0f3982f89afb2eab45fb9337d75868e8706c25fa94bc0278e640c91b485"
+  },
+  "evaluation": {
+    "actual": {
+      "home_goals": 0,
+      "away_goals": 1,
+      "outcome": "away"
+    },
+    "scored_at_utc": "2026-07-05T22:00:00Z",
+    "metrics": {
+      "log_loss": 1.661,
+      "brier": 1.026,
+      "prob_assigned_to_outcome": 0.19
+    }
+  }
+}

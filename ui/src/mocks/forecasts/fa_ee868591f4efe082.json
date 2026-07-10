@@ -1,0 +1,56 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_id": "fa_ee868591f4efe082",
+  "status": "abstained",
+  "supersedes": null,
+  "match": {
+    "match_id": "wc2026_qf_jor_uzb",
+    "competition": "FIFA World Cup 2026",
+    "stage": "Quarter-final",
+    "kickoff_utc": "2026-07-11T16:00:00Z",
+    "home_team": "Jordan",
+    "away_team": "Uzbekistan",
+    "neutral_venue": true,
+    "city": "Vancouver",
+    "country": "Canada"
+  },
+  "forecast": {
+    "market": "1x2_regulation",
+    "sealed_at_utc": "2026-07-08T16:00:00Z",
+    "horizon": "T-72h",
+    "probs": null,
+    "expected_goals": null,
+    "abstained": true,
+    "abstain_reason": "Insufficient matches: both sides are World Cup debutants with fewer than the required 12 rated internationals inside the training window (Jordan 9, Uzbekistan 7). The model declines to forecast rather than extrapolate from a thin sample.",
+    "uncertainty": "high"
+  },
+  "model": {
+    "model_id": "dc-v3.1.0",
+    "family": "dixon_coles",
+    "version": "3.1.0",
+    "params_hash": "58a18df017c79f1e02a643e43fdc336deb4f61fbcde2dada47a44b422b1dbaaa",
+    "code_git_sha": "0533b20be91f4919450544253d7a57cb419ce5fb",
+    "seed": 20260606
+  },
+  "inputs": {
+    "training_cutoff_utc": "2026-06-01T00:00:00Z",
+    "snapshots": [
+      {
+        "snapshot_id": "snap_a8d8e5c81c5f",
+        "source_id": "martj42/international_results",
+        "url": "https://github.com/martj42/international_results",
+        "upstream_ref": "d0a91c7",
+        "retrieved_at_utc": "2026-07-08T15:05:00Z",
+        "sha256": "402a05ca37f389d22ea7f6ddd8ebcd271b79496ce5a3f050f336042b497d4142",
+        "license": "CC0-1.0"
+      }
+    ]
+  },
+  "provenance": {
+    "created_at_utc": "2026-07-08T16:00:00Z",
+    "generator": "golavo-engine 0533b20",
+    "deterministic": true,
+    "payload_sha256": "63b7adf76e49d8fadf478f78e426fdb610de111683f83ffde3cdcb86d7a6b34d"
+  },
+  "evaluation": null
+}

@@ -1,29 +1,36 @@
+import { useEffect } from "react";
+import { Layout } from "./components/Layout";
+import { useHashRoute, useTheme } from "./lib/hooks";
+import { EmptyState } from "./components/states";
+import { MatchdayList } from "./views/MatchdayList";
+import { ForecastDetail } from "./views/ForecastDetail";
+import { EvaluationSummary } from "./views/EvaluationSummary";
+
 export default function App() {
+  const [path] = useHashRoute();
+  const [theme, toggleTheme] = useTheme();
+
+  // Calm scroll reset on navigation (respects reduced-motion via CSS).
+  useEffect(() => { window.scrollTo({ top: 0 }); }, [path]);
+
   return (
-    <main
-      style={{
-        fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif",
-        maxWidth: 640,
-        margin: "12vh auto",
-        padding: "0 1.5rem",
-        color: "#1a1a1a",
-        lineHeight: 1.5,
-      }}
-    >
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcSet="/brand/golavo-lockup-dark.svg" />
-        <img src="/brand/golavo-lockup-light.svg" alt="Golavo" width={380} />
-      </picture>
-      <p style={{ fontStyle: "italic", color: "#bc002d", marginTop: "0.4rem" }}>
-        The numbers remember everything. The beautiful game still keeps the last word.
-      </p>
-      <p>
-        Pre-alpha scaffold. The forecast engine and interface arrive in Phase 2 — see the{" "}
-        <a href="https://udhawan97.github.io/Golavo" style={{ color: "#c9a227" }}>
-          documentation
-        </a>
-        .
-      </p>
-    </main>
+    <Layout path={path} theme={theme} onToggleTheme={toggleTheme}>
+      <Route path={path} />
+    </Layout>
+  );
+}
+
+function Route({ path }: { path: string }) {
+  if (path === "/" || path === "") return <MatchdayList />;
+
+  const forecast = path.match(/^\/forecast\/(.+)$/);
+  if (forecast) return <ForecastDetail id={decodeURIComponent(forecast[1])} />;
+
+  if (path === "/eval") return <EvaluationSummary />;
+
+  return (
+    <EmptyState title="Page not found">
+      That route doesn’t exist. <a href="#/">Back to matchday ›</a>
+    </EmptyState>
   );
 }

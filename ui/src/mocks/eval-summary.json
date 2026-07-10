@@ -1,0 +1,598 @@
+{
+  "schema_version": "0.1.0",
+  "folds": [
+    {
+      "fold_id": "WC2022",
+      "n_matches": 64,
+      "models": [
+        {
+          "model_id": "clim-v-eval",
+          "log_loss": 1.032,
+          "brier": 0.641,
+          "ece": 0.018,
+          "rps": 0.212,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 12,
+              "observed_rate": 0.07
+            },
+            {
+              "p_mid": 0.15,
+              "n": 27,
+              "observed_rate": 0.177
+            },
+            {
+              "p_mid": 0.25,
+              "n": 38,
+              "observed_rate": 0.232
+            },
+            {
+              "p_mid": 0.35,
+              "n": 35,
+              "observed_rate": 0.342
+            },
+            {
+              "p_mid": 0.45,
+              "n": 27,
+              "observed_rate": 0.42
+            },
+            {
+              "p_mid": 0.55,
+              "n": 19,
+              "observed_rate": 0.506
+            },
+            {
+              "p_mid": 0.65,
+              "n": 15,
+              "observed_rate": 0.682
+            },
+            {
+              "p_mid": 0.75,
+              "n": 12,
+              "observed_rate": 0.771
+            },
+            {
+              "p_mid": 0.85,
+              "n": 8,
+              "observed_rate": 0.869
+            }
+          ]
+        },
+        {
+          "model_id": "elo-v-eval",
+          "log_loss": 0.978,
+          "brier": 0.612,
+          "ece": 0.031,
+          "rps": 0.199,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 12,
+              "observed_rate": 0.02
+            },
+            {
+              "p_mid": 0.15,
+              "n": 27,
+              "observed_rate": 0.194
+            },
+            {
+              "p_mid": 0.25,
+              "n": 38,
+              "observed_rate": 0.284
+            },
+            {
+              "p_mid": 0.35,
+              "n": 35,
+              "observed_rate": 0.311
+            },
+            {
+              "p_mid": 0.45,
+              "n": 27,
+              "observed_rate": 0.417
+            },
+            {
+              "p_mid": 0.55,
+              "n": 19,
+              "observed_rate": 0.592
+            },
+            {
+              "p_mid": 0.65,
+              "n": 15,
+              "observed_rate": 0.675
+            },
+            {
+              "p_mid": 0.75,
+              "n": 12,
+              "observed_rate": 0.772
+            },
+            {
+              "p_mid": 0.85,
+              "n": 8,
+              "observed_rate": 0.827
+            }
+          ]
+        },
+        {
+          "model_id": "poi-v-eval",
+          "log_loss": 0.985,
+          "brier": 0.617,
+          "ece": 0.035,
+          "rps": 0.201,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 12,
+              "observed_rate": 0.076
+            },
+            {
+              "p_mid": 0.15,
+              "n": 27,
+              "observed_rate": 0.144
+            },
+            {
+              "p_mid": 0.25,
+              "n": 38,
+              "observed_rate": 0.233
+            },
+            {
+              "p_mid": 0.35,
+              "n": 35,
+              "observed_rate": 0.372
+            },
+            {
+              "p_mid": 0.45,
+              "n": 27,
+              "observed_rate": 0.46
+            },
+            {
+              "p_mid": 0.55,
+              "n": 19,
+              "observed_rate": 0.532
+            },
+            {
+              "p_mid": 0.65,
+              "n": 15,
+              "observed_rate": 0.661
+            },
+            {
+              "p_mid": 0.75,
+              "n": 12,
+              "observed_rate": 0.765
+            },
+            {
+              "p_mid": 0.85,
+              "n": 8,
+              "observed_rate": 0.823
+            }
+          ]
+        },
+        {
+          "model_id": "dc-v-eval",
+          "log_loss": 0.971,
+          "brier": 0.608,
+          "ece": 0.028,
+          "rps": 0.197,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 12,
+              "observed_rate": 0.021
+            },
+            {
+              "p_mid": 0.15,
+              "n": 27,
+              "observed_rate": 0.118
+            },
+            {
+              "p_mid": 0.25,
+              "n": 38,
+              "observed_rate": 0.24
+            },
+            {
+              "p_mid": 0.35,
+              "n": 35,
+              "observed_rate": 0.336
+            },
+            {
+              "p_mid": 0.45,
+              "n": 27,
+              "observed_rate": 0.416
+            },
+            {
+              "p_mid": 0.55,
+              "n": 19,
+              "observed_rate": 0.588
+            },
+            {
+              "p_mid": 0.65,
+              "n": 15,
+              "observed_rate": 0.611
+            },
+            {
+              "p_mid": 0.75,
+              "n": 12,
+              "observed_rate": 0.794
+            },
+            {
+              "p_mid": 0.85,
+              "n": 8,
+              "observed_rate": 0.887
+            }
+          ]
+        },
+        {
+          "model_id": "bvp-v-eval",
+          "log_loss": 0.969,
+          "brier": 0.606,
+          "ece": 0.027,
+          "rps": 0.196,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 12,
+              "observed_rate": 0.076
+            },
+            {
+              "p_mid": 0.15,
+              "n": 27,
+              "observed_rate": 0.175
+            },
+            {
+              "p_mid": 0.25,
+              "n": 38,
+              "observed_rate": 0.283
+            },
+            {
+              "p_mid": 0.35,
+              "n": 35,
+              "observed_rate": 0.353
+            },
+            {
+              "p_mid": 0.45,
+              "n": 27,
+              "observed_rate": 0.478
+            },
+            {
+              "p_mid": 0.55,
+              "n": 19,
+              "observed_rate": 0.518
+            },
+            {
+              "p_mid": 0.65,
+              "n": 15,
+              "observed_rate": 0.689
+            },
+            {
+              "p_mid": 0.75,
+              "n": 12,
+              "observed_rate": 0.736
+            },
+            {
+              "p_mid": 0.85,
+              "n": 8,
+              "observed_rate": 0.805
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fold_id": "EURO2024",
+      "n_matches": 51,
+      "models": [
+        {
+          "model_id": "clim-v-eval",
+          "log_loss": 1.048,
+          "brier": 0.649,
+          "ece": 0.021,
+          "rps": 0.216
+        },
+        {
+          "model_id": "elo-v-eval",
+          "log_loss": 0.995,
+          "brier": 0.62,
+          "ece": 0.034,
+          "rps": 0.203
+        },
+        {
+          "model_id": "poi-v-eval",
+          "log_loss": 1.001,
+          "brier": 0.624,
+          "ece": 0.038,
+          "rps": 0.205
+        },
+        {
+          "model_id": "dc-v-eval",
+          "log_loss": 0.99,
+          "brier": 0.618,
+          "ece": 0.03,
+          "rps": 0.202
+        },
+        {
+          "model_id": "bvp-v-eval",
+          "log_loss": 0.988,
+          "brier": 0.617,
+          "ece": 0.029,
+          "rps": 0.201
+        }
+      ]
+    },
+    {
+      "fold_id": "WC2026",
+      "n_matches": 40,
+      "models": [
+        {
+          "model_id": "clim-v-eval",
+          "log_loss": 1.019,
+          "brier": 0.636,
+          "ece": 0.016,
+          "rps": 0.209,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 7,
+              "observed_rate": 0.09
+            },
+            {
+              "p_mid": 0.15,
+              "n": 17,
+              "observed_rate": 0.192
+            },
+            {
+              "p_mid": 0.25,
+              "n": 24,
+              "observed_rate": 0.21
+            },
+            {
+              "p_mid": 0.35,
+              "n": 22,
+              "observed_rate": 0.317
+            },
+            {
+              "p_mid": 0.45,
+              "n": 17,
+              "observed_rate": 0.455
+            },
+            {
+              "p_mid": 0.55,
+              "n": 12,
+              "observed_rate": 0.531
+            },
+            {
+              "p_mid": 0.65,
+              "n": 10,
+              "observed_rate": 0.651
+            },
+            {
+              "p_mid": 0.75,
+              "n": 7,
+              "observed_rate": 0.717
+            },
+            {
+              "p_mid": 0.85,
+              "n": 5,
+              "observed_rate": 0.819
+            }
+          ]
+        },
+        {
+          "model_id": "elo-v-eval",
+          "log_loss": 0.962,
+          "brier": 0.603,
+          "ece": 0.029,
+          "rps": 0.195,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 7,
+              "observed_rate": 0.049
+            },
+            {
+              "p_mid": 0.15,
+              "n": 17,
+              "observed_rate": 0.189
+            },
+            {
+              "p_mid": 0.25,
+              "n": 24,
+              "observed_rate": 0.27
+            },
+            {
+              "p_mid": 0.35,
+              "n": 22,
+              "observed_rate": 0.339
+            },
+            {
+              "p_mid": 0.45,
+              "n": 17,
+              "observed_rate": 0.448
+            },
+            {
+              "p_mid": 0.55,
+              "n": 12,
+              "observed_rate": 0.576
+            },
+            {
+              "p_mid": 0.65,
+              "n": 10,
+              "observed_rate": 0.645
+            },
+            {
+              "p_mid": 0.75,
+              "n": 7,
+              "observed_rate": 0.768
+            },
+            {
+              "p_mid": 0.85,
+              "n": 5,
+              "observed_rate": 0.887
+            }
+          ]
+        },
+        {
+          "model_id": "poi-v-eval",
+          "log_loss": 0.97,
+          "brier": 0.607,
+          "ece": 0.033,
+          "rps": 0.198,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 7,
+              "observed_rate": 0.08
+            },
+            {
+              "p_mid": 0.15,
+              "n": 17,
+              "observed_rate": 0.124
+            },
+            {
+              "p_mid": 0.25,
+              "n": 24,
+              "observed_rate": 0.267
+            },
+            {
+              "p_mid": 0.35,
+              "n": 22,
+              "observed_rate": 0.348
+            },
+            {
+              "p_mid": 0.45,
+              "n": 17,
+              "observed_rate": 0.477
+            },
+            {
+              "p_mid": 0.55,
+              "n": 12,
+              "observed_rate": 0.512
+            },
+            {
+              "p_mid": 0.65,
+              "n": 10,
+              "observed_rate": 0.64
+            },
+            {
+              "p_mid": 0.75,
+              "n": 7,
+              "observed_rate": 0.717
+            },
+            {
+              "p_mid": 0.85,
+              "n": 5,
+              "observed_rate": 0.812
+            }
+          ]
+        },
+        {
+          "model_id": "dc-v-eval",
+          "log_loss": 0.958,
+          "brier": 0.601,
+          "ece": 0.026,
+          "rps": 0.193,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 7,
+              "observed_rate": 0.061
+            },
+            {
+              "p_mid": 0.15,
+              "n": 17,
+              "observed_rate": 0.142
+            },
+            {
+              "p_mid": 0.25,
+              "n": 24,
+              "observed_rate": 0.264
+            },
+            {
+              "p_mid": 0.35,
+              "n": 22,
+              "observed_rate": 0.314
+            },
+            {
+              "p_mid": 0.45,
+              "n": 17,
+              "observed_rate": 0.423
+            },
+            {
+              "p_mid": 0.55,
+              "n": 12,
+              "observed_rate": 0.528
+            },
+            {
+              "p_mid": 0.65,
+              "n": 10,
+              "observed_rate": 0.648
+            },
+            {
+              "p_mid": 0.75,
+              "n": 7,
+              "observed_rate": 0.734
+            },
+            {
+              "p_mid": 0.85,
+              "n": 5,
+              "observed_rate": 0.89
+            }
+          ]
+        },
+        {
+          "model_id": "bvp-v-eval",
+          "log_loss": 0.955,
+          "brier": 0.599,
+          "ece": 0.025,
+          "rps": 0.192,
+          "reliability_bins": [
+            {
+              "p_mid": 0.05,
+              "n": 7,
+              "observed_rate": 0.052
+            },
+            {
+              "p_mid": 0.15,
+              "n": 17,
+              "observed_rate": 0.176
+            },
+            {
+              "p_mid": 0.25,
+              "n": 24,
+              "observed_rate": 0.214
+            },
+            {
+              "p_mid": 0.35,
+              "n": 22,
+              "observed_rate": 0.349
+            },
+            {
+              "p_mid": 0.45,
+              "n": 17,
+              "observed_rate": 0.426
+            },
+            {
+              "p_mid": 0.55,
+              "n": 12,
+              "observed_rate": 0.52
+            },
+            {
+              "p_mid": 0.65,
+              "n": 10,
+              "observed_rate": 0.61
+            },
+            {
+              "p_mid": 0.75,
+              "n": 7,
+              "observed_rate": 0.775
+            },
+            {
+              "p_mid": 0.85,
+              "n": 5,
+              "observed_rate": 0.811
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_id": "fa_2094ddf078fd973a",
+  "status": "scored",
+  "supersedes": null,
+  "match": {
+    "match_id": "wc2026_qf_fra_mar",
+    "competition": "FIFA World Cup 2026",
+    "stage": "Quarter-final",
+    "kickoff_utc": "2026-07-09T20:00:00Z",
+    "home_team": "France",
+    "away_team": "Morocco",
+    "neutral_venue": true,
+    "city": "Arlington",
+    "country": "United States"
+  },
+  "forecast": {
+    "market": "1x2_regulation",
+    "sealed_at_utc": "2026-07-08T20:00:00Z",
+    "horizon": "T-24h",
+    "probs": {
+      "home": 0.492,
+      "draw": 0.271,
+      "away": 0.237
+    },
+    "expected_goals": {
+      "home": 1.7,
+      "away": 0.9
+    },
+    "abstained": false,
+    "abstain_reason": null,
+    "uncertainty": "low"
+  },
+  "model": {
+    "model_id": "dc-v3.1.0",
+    "family": "dixon_coles",
+    "version": "3.1.0",
+    "params_hash": "41012e3194cef7b0729fa0f2a4e8353c6bcfa6e81e29860e14c220990b1488fd",
+    "code_git_sha": "0533b20be91f4919450544253d7a57cb419ce5fb",
+    "seed": 20260603
+  },
+  "inputs": {
+    "training_cutoff_utc": "2026-06-01T00:00:00Z",
+    "snapshots": [
+      {
+        "snapshot_id": "snap_7a0eadaa4f62",
+        "source_id": "martj42/international_results",
+        "url": "https://github.com/martj42/international_results",
+        "upstream_ref": "c33f8b2",
+        "retrieved_at_utc": "2026-07-08T19:20:00Z",
+        "sha256": "ff6b4c2f09f281c7b00bc386f4326efbaf4a1c6b596a750b60d6c600b8649d6c",
+        "license": "CC0-1.0"
+      }
+    ]
+  },
+  "provenance": {
+    "created_at_utc": "2026-07-08T20:00:00Z",
+    "generator": "golavo-engine 0533b20",
+    "deterministic": true,
+    "payload_sha256": "2547d550f810adc2061b41499896acb3a3fc2a19cd5f7cec1ea8b86666cfc479"
+  },
+  "evaluation": {
+    "actual": {
+      "home_goals": 2,
+      "away_goals": 0,
+      "outcome": "home"
+    },
+    "scored_at_utc": "2026-07-09T22:05:00Z",
+    "metrics": {
+      "log_loss": 0.709,
+      "brier": 0.388,
+      "prob_assigned_to_outcome": 0.492
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_id": "fa_8aea566bea4392f6",
+  "status": "sealed",
+  "supersedes": null,
+  "match": {
+    "match_id": "wc2026_qf_esp_ger",
+    "competition": "FIFA World Cup 2026",
+    "stage": "Quarter-final",
+    "kickoff_utc": "2026-07-12T19:00:00Z",
+    "home_team": "Spain",
+    "away_team": "Germany",
+    "neutral_venue": true,
+    "city": "Los Angeles",
+    "country": "United States"
+  },
+  "forecast": {
+    "market": "1x2_regulation",
+    "sealed_at_utc": "2026-07-09T19:00:00Z",
+    "horizon": "T-72h",
+    "probs": {
+      "home": 0.44,
+      "draw": 0.27,
+      "away": 0.29
+    },
+    "expected_goals": {
+      "home": 1.5,
+      "away": 1.2
+    },
+    "abstained": false,
+    "abstain_reason": null,
+    "uncertainty": "medium"
+  },
+  "model": {
+    "model_id": "elo-v2.3.0",
+    "family": "elo_ordlogit",
+    "version": "2.3.0",
+    "params_hash": "14bf292f575dd0c3f1fe4af7595c4da55eb7871f3ba2854dc26da783129ac2ac",
+    "code_git_sha": "0533b20be91f4919450544253d7a57cb419ce5fb",
+    "seed": 20260601
+  },
+  "inputs": {
+    "training_cutoff_utc": "2026-06-01T00:00:00Z",
+    "snapshots": [
+      {
+        "snapshot_id": "snap_84600f200a18",
+        "source_id": "martj42/international_results",
+        "url": "https://github.com/martj42/international_results",
+        "upstream_ref": "a1f4c9d",
+        "retrieved_at_utc": "2026-07-09T18:40:00Z",
+        "sha256": "1a94ba84b955a9270220243fd99380c01b823a4ab0cf4423ea9020b4b49b132f",
+        "license": "CC0-1.0"
+      },
+      {
+        "snapshot_id": "snap_6b8ff133f270",
+        "source_id": "golavo/elo_ratings",
+        "url": "https://github.com/udhawan97/Golavo/tree/main/packs/ratings",
+        "upstream_ref": "2026-06-30",
+        "retrieved_at_utc": "2026-07-09T18:41:00Z",
+        "sha256": "af6d184fab37554e727e9e5731d1d06b36ac3abb69ef5333738bb260f68547be",
+        "license": "CC0-1.0"
+      }
+    ]
+  },
+  "provenance": {
+    "created_at_utc": "2026-07-09T19:00:00Z",
+    "generator": "golavo-engine 0533b20",
+    "deterministic": true,
+    "payload_sha256": "dfc9b0eeabb2e20e5fbf4d29b5d98ad935e70941bc2fba162d252b7614c8e015"
+  },
+  "evaluation": null
+}
