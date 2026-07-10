@@ -1,0 +1,8 @@
+# Default owner for everything in the repo.
+*                   @udhawan97
+
+# Modeling library and data licensing get extra scrutiny.
+/core/              @udhawan97
+/packs/             @udhawan97
+/docs/adr/          @udhawan97
+NOTICE              @udhawan97

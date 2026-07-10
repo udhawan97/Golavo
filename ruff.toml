@@ -1,0 +1,6 @@
+line-length = 100
+target-version = "py311"
+extend-exclude = ["docs-site", "ui", "**/build", "**/dist", "**/.astro"]
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]

@@ -1,0 +1,26 @@
+/* Golavo brand tokens applied to Starlight. */
+:root {
+  --sl-color-accent-low: #0c2a20;
+  --sl-color-accent: #0b6e4f; /* Pitch Green */
+  --sl-color-accent-high: #e7d9a6; /* Trophy Gold, tinted for contrast on dark */
+  --golavo-gold: #c9a227;
+  --golavo-orange: #d9622b;
+  --golavo-cream: #f4efe6;
+  --golavo-black: #101312;
+}
+
+:root[data-theme="light"] {
+  --sl-color-accent-low: #dceee6;
+  --sl-color-accent: #0b6e4f;
+  --sl-color-accent-high: #7a5f12;
+}
+
+/* Scoreboard-style numerals should not jiggle. */
+.sl-markdown-content table td,
+.sl-markdown-content table th {
+  font-variant-numeric: tabular-nums;
+}
+
+.hero .tagline {
+  font-style: italic;
+}

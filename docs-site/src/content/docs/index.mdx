@@ -1,0 +1,49 @@
+---
+title: Golavo
+description: Local-first, open-source soccer match intelligence. The engine owns the numbers; AI only cites and explains. Every forecast is sealed before kickoff and scored after full time.
+template: splash
+hero:
+  tagline: The numbers remember everything. The beautiful game still keeps the last word.
+  image:
+    html: |
+      <picture>
+        <img src="/Golavo/brand/golavo-icon.svg" alt="Golavo" width="220" height="220" />
+      </picture>
+  actions:
+    - text: Read the methodology
+      link: /Golavo/methodology/prediction/
+      icon: right-arrow
+    - text: See honest coverage
+      link: /Golavo/data/coverage/
+      icon: document
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/udhawan97/Golavo
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## 90 minutes of evidence
+
+Golavo is the football app whose headline feature is that **it can be checked**. It seals a forecast before kickoff — with its model version, feature snapshot, and the content hashes of every source it used — and scores it after full time. No revisionism. No "AI predictions." Just numbers that keep a receipt.
+
+<CardGrid stagger>
+  <Card title="The engine owns the numbers" icon="approve-check">
+    A deterministic Dixon-Coles / bivariate-Poisson model produces every probability. AI never edits a number — it cites, explains, and researches. [Methodology →](/Golavo/methodology/prediction/)
+  </Card>
+  <Card title="Honest about data" icon="warning">
+    Open-core data is results-grade and redistributable. Depth (lineups, corners, xG) is bring-your-own-key and stays on your machine. [Coverage →](/Golavo/data/coverage/)
+  </Card>
+  <Card title="Local-first & private" icon="laptop">
+    No account, no telemetry, no ads. Keys live in your OS keychain. The only default network call is the update check — and you can turn it off. [Privacy →](/Golavo/privacy-security/)
+  </Card>
+  <Card title="Not a betting product" icon="close">
+    No odds, no picks, no "locks," no bankroll advice, no affiliate links. Ever. [Principles →](/Golavo/introduction/)
+  </Card>
+</CardGrid>
+
+:::caution[Pre-alpha]
+Golavo is in Phase 0 (data-feasibility spike). There is no installable build yet. These docs describe the designed product and its verified data/licensing constraints. See the [Roadmap](/Golavo/roadmap/).
+:::

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & ideas (Discussions)
+    url: https://github.com/udhawan97/Golavo/discussions
+    about: Ask questions, share forecasts, or discuss methodology.
+  - name: Security vulnerability
+    url: https://github.com/udhawan97/Golavo/security/advisories/new
+    about: Report privately. Please do not open a public issue for security problems.

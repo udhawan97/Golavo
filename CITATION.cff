@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "Golavo — local-first, open soccer match intelligence"
+message: "If you use Golavo or its methodology in research, please cite it."
+type: software
+authors:
+  - family-names: Dhawan
+    given-names: Umang
+repository-code: "https://github.com/udhawan97/Golavo"
+url: "https://udhawan97.github.io/Golavo"
+abstract: >-
+  Golavo is a local-first, open-source soccer match-intelligence application.
+  A deterministic statistical engine (time-decayed Dixon-Coles / bivariate
+  Poisson with an Elo baseline) owns all probabilities; optional local or
+  bring-your-own-key cloud AI provides cited narrative and research only and
+  never alters a probability. Every forecast is sealed before kickoff with its
+  model version, feature snapshot, and source hashes, then scored after full
+  time to build a public calibration record.
+keywords:
+  - football
+  - soccer
+  - forecasting
+  - dixon-coles
+  - bivariate-poisson
+  - probability-calibration
+  - local-first
+  - open-data
+license: AGPL-3.0-or-later
+version: 0.0.0
+date-released: "2026-07-09"

@@ -1,0 +1,73 @@
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Secrets / local config (NEVER commit real values) ----
+.env
+.env.*
+!.env.example
+*.local
+.claude/settings.local.json
+secrets/
+*.key
+*.pem
+# ...but signing PUBLIC keys are meant to be committed:
+!packaging/**/*.pub
+!packs/**/*.pub
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ---- Node / UI / Docs ----
+node_modules/
+ui/dist/
+docs-site/dist/
+docs-site/.astro/
+.pnpm-store/
+*-debug.log*
+
+# ---- Tauri / Rust ----
+target/
+desktop/gen/
+
+# ---- Golavo runtime data (user data + build output; never committed) ----
+warehouse/
+*.duckdb
+*.duckdb.wal
+*.parquet
+golavo.db
+golavo.db-*
+ledger.db
+ledger.db-*
+backups/
+data/raw/
+data/snapshots/
+packs/**/build/
+# Frozen, lawful CC0 demo bundles ARE tracked:
+!data/fixtures/
+!data/fixtures/**
+
+# ---- Packaging / release output ----
+*.dmg
+*.exe
+*.msi
+*.app/
+*.tar.gz
+SBOM*.json
+SHA256SUMS*
+*.minisig

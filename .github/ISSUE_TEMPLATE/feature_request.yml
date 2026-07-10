@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest an idea or improvement.
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and where does Golavo get in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Prediction / models, Data & coverage, AI layer, UI / UX, Desktop / updates, Docs, Other]
+    validations:
+      required: true
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Fit with Golavo's principles
+      options:
+        - label: This does not ask AI to change probabilities, and it does not turn Golavo into a betting product.
+          required: true
+        - label: If it needs data, I understand open-core data is results-grade and depth is bring-your-own-key.
+          required: false

@@ -1,0 +1,25 @@
+# Normalize line endings; keep the repo LF-first.
+* text=auto eol=lf
+
+# Windows-only shell scripts stay CRLF.
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.dmg binary
+*.exe binary
+*.msi binary
+
+# SVGs are text (our animated brand marks are hand-edited).
+*.svg text
+
+# GitHub Linguist hints.
+docs-site/** linguist-documentation
+*.mdx linguist-documentation
+data/fixtures/** linguist-generated

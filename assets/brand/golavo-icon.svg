@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Golavo icon">
+  <title>Golavo</title>
+  <style>
+    .frame { fill:none; stroke:#0B6E4F; stroke-opacity:.35; stroke-width:2.4; stroke-linecap:round; }
+    .gbowl { fill:none; stroke:#C9A227; stroke-width:8; stroke-linecap:round; stroke-linejoin:round;
+             stroke-dasharray:100; stroke-dashoffset:0; }
+    .ball  { opacity:0; }
+    .sun   { fill:#EB6101; opacity:.12; transform-box:fill-box; transform-origin:center; }
+    @media (prefers-reduced-motion: no-preference) {
+      .gbowl{ animation:gdraw 6s ease-in-out infinite; }
+      .ball { animation:ballrun 6s ease-in-out infinite; }
+      .sun  { animation:breath 4.8s ease-in-out infinite; }
+    }
+    @keyframes gdraw  { 0%{stroke-dashoffset:100} 35%{stroke-dashoffset:0} 90%{stroke-dashoffset:0} 100%{stroke-dashoffset:100} }
+    @keyframes ballrun{ 0%{offset-distance:0%;opacity:0} 5%{opacity:1} 33%{offset-distance:100%;opacity:1} 41%{opacity:0} 100%{offset-distance:100%;opacity:0} }
+    @keyframes breath { 0%,100%{opacity:.12;transform:scale(1)} 50%{opacity:.20;transform:scale(1.05)} }
+  </style>
+  <circle class="sun" cx="60" cy="58" r="31"/>
+  <path class="frame" d="M26 24 H94 M26 24 V96 M94 24 V96 M22 96 H98"/>
+  <path id="bowl" class="gbowl" pathLength="100" d="M90.8 45.6 A34 34 0 1 0 90.8 74.4 L74 74.4 L74 66"/>
+  <g class="ball" style="offset-path:path('M90.8 45.6 A34 34 0 1 0 90.8 74.4 L74 74.4 L74 66');">
+    <circle r="6" fill="#101312"/>
+    <circle r="1.9" cx="-1.5" cy="-1.5" fill="#F4EFE6"/>
+  </g>
+</svg>
