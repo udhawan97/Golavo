@@ -1,48 +1,32 @@
 Golavo
 Copyright (c) 2026 Umang Dhawan and Golavo contributors.
 
-This product is licensed under the Apache License 2.0 (see LICENSE).
+Golavo code is licensed under the Apache License 2.0 (see LICENSE). Data packs
+carry their own licenses.
 
 --------------------------------------------------------------------------
-DATA SOURCE ATTRIBUTIONS
+PHASE 0 DATA PACK
 --------------------------------------------------------------------------
-Golavo does not redistribute proprietary data. The open-core dataset is
-built only from public-domain / open sources. Attribution requirements per
-source (shown in-app on the screens that use them):
 
-* openfootball (football.json)   — CC0-1.0 (public domain). No attribution
-                                    required; credited voluntarily.
-* martj42/international_results   — CC0-1.0 (public domain).
-* Wikidata (structured data)      — CC0-1.0.
-* Wyscout public event dataset    — CC BY 4.0. Cite: Pappalardo, L. et al.
-  (Pappalardo et al., 2019)         "A public data set of spatio-temporal
-                                    match events in soccer competitions."
-                                    Scientific Data 6, 236 (2019).
-* Open-Meteo (optional weather)   — Weather data CC BY 4.0. "Weather data by
-                                    Open-Meteo.com". Free API is
-                                    non-commercial use only.
-* OpenLigaDB (optional overlay)   — Open Database License (ODbL) 1.0. Kept
-                                    physically ISOLATED from CC0 data; its
-                                    share-alike terms never contaminate the
-                                    open-core warehouse. See docs: Legal.
+martj42/international_results — CC0-1.0 (public domain dedication).
+Source: https://github.com/martj42/international_results
+
+The exact upstream commit, retrieval timestamp, filenames, and SHA-256 digests
+are recorded in packs/martj42-internationals/manifest.json. A copy of the CC0
+1.0 legal text is vendored beside the data.
 
 --------------------------------------------------------------------------
-BYOK ADAPTERS (data stays on the user's machine; never redistributed)
+REJECTED DEPENDENCIES
 --------------------------------------------------------------------------
-* Football-Data.org — when a user supplies their own key, the app displays
-  the required attribution: "Football data provided by the Football-Data.org
-  API". Data is not exported or redistributed and is purged when the key is
-  removed.
-* API-Football / api-sports.io — user-key only; data rendered in the
-  key holder's private local session and never redistributed.
 
---------------------------------------------------------------------------
-EXCLUDED FROM THE PRODUCT
---------------------------------------------------------------------------
-* StatsBomb Open Data is NOT bundled, redistributed, or used to train any
-  shipped model weights. Its user agreement prohibits redistribution and
-  commercial exploitation of derived analysis. Research use only, with the
-  StatsBomb logo credited, outside this repository.
+Phase 0 does not bundle or add adapters for Transfermarkt-derived Kaggle data,
+DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL
+endpoints, European Soccer DB, or eatpizzanot. Downstream CC0/PDDL labels do not
+cure upstream ToS or database-provenance problems.
+
+OpenFootball, Wikidata, Wyscout, weather sources, ODbL overlays,
+Football-Data.org, and API-Football are not Phase 0 dependencies. Future use
+requires a fresh license and provenance review.
 
 Golavo is not affiliated with, endorsed by, or sponsored by FIFA, UEFA, any
 league, club, or competition organizer. Competition names are used factually

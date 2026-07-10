@@ -1,15 +1,24 @@
 [project]
 name = "golavo-core"
-version = "0.0.0"
+version = "0.1.0"
 description = "Golavo modeling library: ingest, warehouse, models, ledger, facts."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 authors = [{ name = "Umang Dhawan" }]
-dependencies = []
+dependencies = [
+  "jsonschema==4.26.0",
+  "numpy==2.4.6",
+  "pandas==3.0.3",
+  "pyarrow==24.0.0",
+  "scipy==1.18.0",
+]
+
+[project.scripts]
+golavo = "golavo_core.cli:main"
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff", "mypy"]
+dev = ["pytest==9.1.1", "ruff==0.15.5", "mypy==1.19.1"]
 
 [build-system]
 requires = ["hatchling"]

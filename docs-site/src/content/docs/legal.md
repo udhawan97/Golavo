@@ -5,11 +5,11 @@ description: Licensing, non-affiliation, and how Golavo celebrates great footbal
 
 ## Software license
 
-- All of Golavo is licensed under the **Apache License 2.0** — the app and the reusable modeling library alike, so anyone can build on it.
+- Golavo's **code** is licensed under the **Apache License 2.0**. Data packs are separate works and state their own license in each manifest.
 
 ## Data licenses
 
-Golavo builds its open core only from CC0/CC-BY sources and never redistributes proprietary feeds. See [Sources & licenses](/Golavo/data/sources/) for the field-level matrix, attribution strings, the isolated ODbL overlay, and the StatsBomb exclusion.
+Phase 0 vendors one pinned CC0-1.0 pack from `martj42/international_results`. Transfermarkt-derived and DataHub football datasets are rejected because a downstream CC0/PDDL label does not cure upstream ToS and database-provenance risk. Other sources and license-isolated overlays are planned (ADR-0001), not shipped.
 
 ## Non-affiliation
 

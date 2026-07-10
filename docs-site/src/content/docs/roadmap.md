@@ -9,10 +9,10 @@ Golavo is built data-first. The first phase is a feasibility spike with a real k
 
 | Phase | Deliverable | Exit criteria | Kill criterion |
 |---|---|---|---|
-| **0 — Data-feasibility spike** | ingest real matches, one reproducible sealed forecast, backtested & scored, every fact cited | Dixon-Coles beats baselines on forward RPS; forecasts are deterministic; provenance complete; CC0 data error rate < 2% | Model can't beat baselines, or open data fails the quality audit → stop and rethink data strategy |
-| **1 — Engine + ledger** | Parquet/DuckDB warehouse, hash-chained ledger, calibration harness, 5 leagues + internationals | calibration within bands; abstention gates fire correctly | calibration unfixable in ≥2 leagues |
+| **0 — Data-feasibility spike** | men's senior full-international ingest; deterministic candidate models; sealed/scored artifacts; read-only API | provenance, schema, determinism, leakage, and chronological evaluation gates pass | accepted open data or a calibration-first baseline proves unusable → rethink scope |
+| **1 — Engine + ledger** | expanded warehouse, planned hash-chained ledger, calibration harness | calibration within bands; abstention gates fire correctly | calibration remains unfixable in the chosen scope |
 | **2 — Source-mode web app** | Matchday, Fixture Room, Forecast Theatre, After the Whistle; casual/expert; all data states | performance & a11y budgets met; a live matchday sealed and scored | — |
-| **3 — BYOK depth** | football-data.org + API-Football typed-feature adapters; confirmed-lineup forecasts | confirmed-lineup seal works; keys never leave the keychain | live API terms prohibit local caching → adapter degraded |
+| **3 — BYOK depth** | evaluate lawful typed-feature adapters; confirmed-lineup forecasts only if terms allow | confirmed-lineup seal works; keys never leave the keychain | live API terms prohibit the required use → adapter rejected |
 | **4 — Desktop + release** | Tauri shell, signed updater (stable/beta), notarized DMG + signed EXE, docs site | install/update/rollback matrix green on macOS + Windows | sidecar packaging unresolved after 2 focused weeks → fallback shell |
 
 ## Full aspirational Golavo

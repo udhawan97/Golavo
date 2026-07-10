@@ -1,6 +1,19 @@
-"""Source adapters and the immutable, content-addressed snapshotter.
+"""Pinned sourcepack ingestion. Runtime ingestion performs no network I/O."""
 
-The only part of `core` allowed to perform network I/O. Every fetch is stored as
-a content-addressed blob with a manifest (source, url, license, retrieved_at) so
-forecasts remain fully replayable.
-"""
+from .snapshot import (
+    assert_no_future_rows,
+    load_match_table,
+    snapshot_descriptor,
+    training_rows,
+    validate_pack,
+    write_parquet,
+)
+
+__all__ = [
+    "assert_no_future_rows",
+    "load_match_table",
+    "snapshot_descriptor",
+    "training_rows",
+    "validate_pack",
+    "write_parquet",
+]

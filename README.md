@@ -8,8 +8,8 @@
 
 ### The numbers remember everything. The beautiful game still keeps the last word.
 
-**Open-source soccer forecasting engine built on the Dixon-Coles model.**
-A deterministic engine owns every probability — AI can only cite and explain it, never edit it. Every forecast is *sealed before kickoff* and *scored after full time*, so the record is always judged against what actually happened.
+**Open-source, local-first soccer forecasting for full internationals.**
+Phase 0 is a deterministic, local forecasting spike for men's senior full internationals. Broader coverage, AI narration, and desktop distribution are planned in [ADR-0001](docs/adr/0001-architecture.md).
 
 <!-- Badges resolve once the repo is public on GitHub. -->
 [![CI](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml/badge.svg)](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml)
@@ -28,7 +28,7 @@ A deterministic engine owns every probability — AI can only cite and explain i
 
 ## What Golavo is
 
-Golavo is the football app whose headline feature is that **it can be checked**. It builds a probabilistic forecast for a match — result, exact-score matrix, and (where data allows) goalscorers and corners — then **seals** that forecast with its model version, feature snapshot, and the content hashes of every source it used. After the match it scores the sealed forecast and adds the result to a public calibration record. Every fact it tells you carries a citation, and missing data is shown as missing, never guessed.
+Golavo's Phase 0 engine builds a reproducible 1X2 forecast for a men's senior full international, then **seals** a versioned JSON artifact with its model and source snapshot. A later result snapshot can produce a new scored artifact without rewriting the seal. Exact-score presentation, goalscorers, corners, broader competitions, and a public calibration ledger are planned in [ADR-0001](docs/adr/0001-architecture.md).
 
 **What Golavo is not:** a livescore app (open-core results are delayed), a betting tool (no odds, no picks, no "locks," no bankroll advice), a redistributor of licensed data feeds, or an "AI predictor" (the statistics own the numbers).
 
@@ -40,60 +40,60 @@ Golavo is the football app whose headline feature is that **it can be checked**.
 | **May** | Rerun when a *confirmed* new fact becomes a typed feature | Surface cited facts and propose typed features for the engine |
 | **May never** | — | Silently change a probability, or state a number not in its evidence bundle |
 
-When AI research confirms a fact (e.g. a key player ruled out), it becomes a **typed feature**, the statistical model **reruns**, and the UI shows the delta — e.g. `P(home) 42% → 45% · Kane confirmed out ✓`. Silent adjustment is structurally impossible, not merely discouraged.
+The optional AI layer and typed-feature reruns are **planned (ADR-0001)** and are out of Phase 0. Their contract is fixed now so future AI work cannot become a second forecasting oracle.
 
 ## How a forecast is made
 
 ```
-sources ──► immutable snapshot (sha256) ──► typed features ──► statistical model
-   │                                                                   │
-   └── every value keeps its source id ─────────────────►  sealed forecast (hash-chained)
-                                                                       │
-                                              full time ──►  scored vs actual ──► calibration record
+pinned CC0 snapshot ──► typed match table ──► candidate statistical model
+         │                                           │
+         └── manifest + sha256 ─────────────► sealed forecast artifact
+                                                     │
+                         newer result snapshot ──────► new scored artifact
 ```
 
 ## Coverage — the honest version
 
-Open-core data is **results-grade and redistributable**. Depth (lineups, injuries, corners, xG) is **bring-your-own-key (BYOK)**: it stays on your machine and is never redistributed. Free access is not the same as open data — see [Data sources & coverage](https://udhawan97.github.io/Golavo/data/coverage/).
+Phase 0 uses one vendored, pinned CC0 snapshot of `martj42/international_results`. It covers men's senior full-international results, goalscorers, shootouts, and former names; the engine currently consumes results and former names. Club data, lineups, injuries, corners, xG, and BYOK adapters are out of scope. Free access is not the same as lawful open data — see [Data sources & coverage](https://udhawan97.github.io/Golavo/data/coverage/).
 
-| Scope | Results / tables | Goalscorers | Lineups / injuries / corners / xG |
+| Phase 0 scope | Results | Goalscorers / shootouts | Lineups / injuries / corners / xG |
 |---|---|---|---|
-| **World Cup, Euros, Copa América, AFCON, Asian Cup, Nations League + qualifiers** | ✅ open (CC0) | ✅ open (CC0) | ⛑️ BYOK / partial |
-| **Top-5 leagues (PL, La Liga, Bundesliga, Serie A, Ligue 1)** | ✅ open (delayed) | ⛑️ BYOK | ⛑️ BYOK |
-| **Champions League** | ✅ open | ⛑️ BYOK | ⛑️ BYOK |
-| **Domestic cups, Europa/Conference League, Club World Cup** | 🟡 partial / BYOK | ⛑️ BYOK | ⛑️ BYOK |
+| **Men's senior full internationals** | ✅ CC0, ingested | ✅ CC0 snapshot, not modeled | 🚫 no accepted open source |
+| **Club competitions** | 🚫 out of Phase 0 | 🚫 out of Phase 0 | 🚫 no accepted open source |
 
-International football is Golavo's flagship: **results, scorers, and shootouts are open (CC0) and fresh**. xG appears nowhere in the open core — no legal free source exists.
+The snapshot is reproducible and pinned, not a live feed. xG does not appear in the accepted Phase 0 source.
 
 ## Run modes
 
 | Mode | Who it's for | Status |
 |---|---|---|
-| **Source (local web app)** | developers, researchers | Phase 2 |
-| **Desktop (macOS DMG / Windows EXE)** | everyone; signed auto-updates, backup & rollback | Phase 4 |
+| **Source (local API + core)** | developers, researchers | Phase 0 |
+| **Source web app** | developers, researchers | planned (ADR-0001, Phase 2) |
+| **Desktop (macOS DMG / Windows EXE)** | everyone | planned (ADR-0001, Phase 4) |
 
 ```bash
-# Source mode (planned developer workflow)
+# Source-mode API (Phase 0)
 git clone https://github.com/udhawan97/Golavo.git && cd Golavo
-make dev          # starts the FastAPI core + Vite UI locally on 127.0.0.1
+make setup
+uvicorn golavo_server.main:app --host 127.0.0.1 --port 8000 --app-dir server
 ```
 
 ## Architecture
 
-Tauri 2 desktop shell with a FastAPI/Python sidecar; React + TypeScript UI; a Parquet + DuckDB analytics warehouse; SQLite for settings, provenance, jobs, and an immutable forecast ledger. See [ADR-0001](docs/adr/0001-architecture.md) and the [Architecture docs](https://udhawan97.github.io/Golavo/architecture/).
+Phase 0 ships a Python core, a Parquet typed-match table, JSON forecast artifacts, and a read-only FastAPI surface. A Tauri 2 desktop shell, React UI integration, DuckDB views, SQLite state, and a hash-chained ledger are **planned (ADR-0001)**.
 
 ```
 core/       Python modeling library — ingest, warehouse, models, ledger, facts   (Apache-2.0)
 server/     FastAPI app — routes, jobs, evidence bundles, AI gateway             (Apache-2.0)
 ui/         React + TypeScript + Vite                                            (Apache-2.0)
-desktop/    Tauri 2 shell, capabilities, signed updater                          (Apache-2.0)
-packs/      versioned, signed data packs — core-cc0 and overlay-odbl kept apart
+desktop/    planned Tauri 2 shell and updater (ADR-0001)                         (Apache-2.0 code)
+packs/      data packs with their own per-pack licenses
 docs-site/  Astro + Starlight product site (GitHub Pages)
 ```
 
 ## Prediction methodology
 
-A time-decayed **Dixon-Coles** / **bivariate Poisson** champion over an **Elo** and league-average baseline. Goalscorer allocation is coherent with the team-goal matrix; corners use a negative-binomial model. Everything is forward-backtested with a leakage audit; nothing ships unless it beats the baselines on out-of-sample Rank Probability Score and log loss. Full math and model cards: [Methodology](https://udhawan97.github.io/Golavo/methodology/prediction/).
+Phase 0 evaluates five deterministic **candidates**: climatological, Elo ordinal-logit, independent Poisson, time-decayed Dixon-Coles, and bivariate Poisson. Log loss is primary; Brier, ECE with reliability bins, and RPS are also reported on chronological tournament folds. No candidate is called a champion until forward evidence earns that status. Full methodology: [Methodology](https://udhawan97.github.io/Golavo/methodology/prediction/).
 
 > We do **not** claim AI, deep learning, head-to-head records, or a "new-manager bounce" improve accuracy without forward evidence.
 
@@ -101,27 +101,23 @@ A time-decayed **Dixon-Coles** / **bivariate Poisson** champion over an **Elo** 
 
 | Source | Role | License | In product? |
 |---|---|---|---|
-| [openfootball](https://github.com/openfootball/football.json) | club fixtures/results backbone | CC0-1.0 | ✅ |
-| [martj42/international_results](https://github.com/martj42/international_results) | internationals: results, scorers, shootouts | CC0-1.0 | ✅ |
-| [Wikidata](https://www.wikidata.org/wiki/Wikidata:Licensing) | entity resolution & historical facts | CC0-1.0 | ✅ |
-| [Wyscout public events](https://figshare.com/collections/Soccer_match_event_dataset/4415000/5) | model development priors | CC BY 4.0 | 🔬 dev only |
-| [Open-Meteo](https://open-meteo.com/en/terms) | optional weather features | data CC BY 4.0 | ✅ optional |
-| [OpenLigaDB](https://www.openligadb.de) | optional Bundesliga/DFB-Pokal overlay | ODbL 1.0 | 🧱 isolated overlay |
-| Football-Data.org · API-Football | depth (lineups, stats) | proprietary ToS | 🔑 BYOK only |
-| StatsBomb Open Data | — | restrictive user agreement | 🚫 excluded |
+| [martj42/international_results](https://github.com/martj42/international_results) | men's senior full internationals | CC0-1.0 | ✅ Phase 0 pinned pack |
+| Transfermarkt-derived datasets · DataHub football mirrors | rejected: downstream labels do not cure upstream provenance/ToS risk | — | 🚫 rejected |
+| OpenFootball · Wikidata · Wyscout · OpenLigaDB | possible later research/adapters | varies | ⏳ out of Phase 0 |
+| Football-Data.org · API-Football | proprietary data adapters | proprietary ToS | ⏳ out of Phase 0 |
 
 Attribution strings and the full field-level license matrix live in [NOTICE](NOTICE) and the [Legal & brand docs](https://udhawan97.github.io/Golavo/legal/).
 
 ## Privacy & security
 
-No account. No telemetry. No ads. The only default network call is the update check, and you can turn it off. BYOK keys live in your OS keychain — never in the database, logs, or exports. Localhost sidecar is bound to `127.0.0.1` behind an ephemeral port and a per-launch token. Data/model packs and updates are signature-verified. See [SECURITY.md](SECURITY.md).
+Phase 0 has no account, telemetry, ads, BYOK keys, AI calls, or updater. Sourcepack construction performs an explicit network download; normal core and API reads use local files. Keychain storage, authenticated desktop sidecars, signed packs, and signed updates are **planned (ADR-0001)**. See [SECURITY.md](SECURITY.md).
 
 ## Roadmap
 
 | Phase | Deliverable |
 |---|---|
 | **0 — Data-feasibility spike** | ingest real matches, one reproducible sealed forecast, backtested & scored, every fact cited |
-| **1 — Engine + ledger** | warehouse, hash-chained ledger, calibration harness, all 5 leagues + internationals |
+| **1 — Engine + ledger** | expanded warehouse, planned hash-chained ledger, calibration harness |
 | **2 — Source-mode web app** | Matchday, Fixture Room, Forecast Theatre, After the Whistle |
 | **3 — BYOK depth** | football-data.org + API-Football typed-feature adapters, confirmed-lineup forecasts |
 | **4 — Desktop + release** | Tauri shell, signed updater, notarized DMG + signed EXE, docs site |
@@ -131,11 +127,11 @@ Full detail with entry/exit criteria and kill switches: [Roadmap](https://udhawa
 
 ## Contributing
 
-Issues and PRs welcome — start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Good first issues are labeled in the tracker. All of Golavo is Apache-2.0, so the code and the science stay freely reusable.
+Issues and PRs welcome — start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Golavo's **code** is Apache-2.0; data packs carry their own licenses and manifests.
 
 ## License
 
-Golavo is licensed under the **Apache License 2.0** ([LICENSE](LICENSE)).
+Golavo's code is licensed under the **Apache License 2.0** ([LICENSE](LICENSE)). Data packs are licensed separately; the Phase 0 martj42 pack is CC0-1.0.
 
 ---
 

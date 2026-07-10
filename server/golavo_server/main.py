@@ -1,22 +1,78 @@
-"""FastAPI application entry point.
-
-Run in source mode:
-    uvicorn golavo_server.main:app --host 127.0.0.1 --port 8000 --app-dir server
-
-Only a health probe exists during the scaffold phase. The desktop shell will
-spawn this server on an ephemeral loopback port with a per-launch token.
-"""
+"""Read-only FastAPI surface for Golavo Phase 0 artifacts."""
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+import json
+import os
+from pathlib import Path
+from typing import Any
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from golavo_server import __version__
 
 app = FastAPI(title="Golavo", version=__version__)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
+    allow_credentials=False,
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _artifact_dir() -> Path:
+    return Path(os.environ.get("GOLAVO_ARTIFACT_DIR", REPO_ROOT / "data/artifacts"))
+
+
+def _eval_path() -> Path:
+    return Path(
+        os.environ.get("GOLAVO_EVAL_SUMMARY", REPO_ROOT / "docs/handoff/eval_summary.json")
+    )
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
     """Liveness probe used by the desktop shell and CI smoke tests."""
     return {"status": "ok", "app": "golavo", "version": __version__}
+
+
+@app.get("/api/v1/forecasts")
+def list_forecasts() -> list[dict[str, Any]]:
+    """List immutable forecast artifacts, newest first."""
+    directory = _artifact_dir()
+    if not directory.exists():
+        return []
+    artifacts = [_read_json(path) for path in directory.glob("fa_*.json")]
+    return sorted(
+        artifacts,
+        key=lambda item: (item["provenance"]["created_at_utc"], item["artifact_id"]),
+        reverse=True,
+    )
+
+
+@app.get("/api/v1/forecasts/{artifact_id}")
+def get_forecast(artifact_id: str) -> dict[str, Any]:
+    """Return one artifact by canonical id."""
+    if not artifact_id.startswith("fa_") or not artifact_id[3:].isalnum():
+        raise HTTPException(status_code=404, detail="forecast not found")
+    path = _artifact_dir() / f"{artifact_id}.json"
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="forecast not found")
+    return _read_json(path)
+
+
+@app.get("/api/v1/eval/summary")
+def eval_summary() -> dict[str, Any]:
+    """Serve the frozen Phase 0 evaluation summary."""
+    path = _eval_path()
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="evaluation summary not found")
+    return _read_json(path)

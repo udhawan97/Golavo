@@ -1,9 +1,9 @@
 ---
 title: Model cards & calibration
-description: Every shipped model carries a card with its data window, features, metrics, and calibration diagrams.
+description: Planned Phase 1 model cards and the evaluation evidence Phase 0 emits today.
 ---
 
-Every model Golavo ships carries a **model card**, generated per release. Model cards are how you audit the engine.
+Phase 0 emits `eval_report.md` and a schema-validated `eval_summary.json`. Full per-release **model cards** are planned for Phase 1; the fields below are their acceptance contract.
 
 ## What a model card contains
 
@@ -13,12 +13,12 @@ Every model Golavo ships carries a **model card**, generated per release. Model 
 - **Metrics** — out-of-sample RPS, log loss, Brier, and (for counts) CRPS, per competition.
 - **Calibration** — reliability diagrams with Wilson confidence intervals.
 - **Baselines** — head-to-head vs league-average, Elo, and independent Poisson.
-- **Data era** — for models using the CC-BY Wyscout priors (frozen at 2017/18), the era is stamped so drift is visible.
+- **Data era** — snapshot commit, retrieval timestamp, and evaluation window. Wyscout is not a Phase 0 dependency.
 - **Known limits** — where the model abstains or widens.
 
 ## Promotion criteria for challengers
 
-A black-box challenger (e.g. gradient boosting on engineered features, including the Dixon-Coles outputs) may replace or augment the champion only after:
+A black-box challenger (e.g. gradient boosting on engineered features, including Dixon-Coles outputs) may be considered only after:
 
 1. at least **two full forward seasons** of evaluation,
 2. better RPS **and** log loss (paired bootstrap, p < 0.05),
@@ -28,5 +28,5 @@ A black-box challenger (e.g. gradient boosting on engineered features, including
 Until then it stays a lab exhibit, not a shipped model.
 
 :::note[Status]
-Model cards are generated starting in Phase 1, once the calibration harness lands. See the [Roadmap](/Golavo/roadmap/).
+Phase 0 emits an evaluation report and machine-readable summary. Full release model cards remain planned for Phase 1. See the [Roadmap](/Golavo/roadmap/).
 :::

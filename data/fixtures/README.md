@@ -1,16 +1,14 @@
-# data/fixtures
+# Phase 0 fixtures
 
-**Frozen, lawful, CC0-only** demo bundles used by the documentation site,
-screenshots, and tests. These are the *only* data files tracked in the repo.
+`martj42-results-subset.csv` is a small CC0-1.0 excerpt from the pinned
+`martj42/international_results` sourcepack. It covers completed, neutral,
+non-neutral, and scheduled-row parsing without making tests read the full pack.
 
-Rules:
+`sample_artifacts/` contains deterministic **synthetic contract fixtures**. They
+are not historical forecasts and must never be presented as model results. The
+set exercises sealed, scored, abstained, and voided states for schema, API, and
+UI integration tests.
 
-- CC0 sources only (openfootball, martj42, Wikidata). No BYOK data, no ODbL data,
-  no StatsBomb data, no scraped feeds.
-- Small and frozen — a handful of matches, pinned by snapshot hash, never
-  auto-refreshed.
-- Used to demonstrate a full sealed-forecast → after-the-whistle flow without any
-  provider key or live backend (this is what the public website renders).
-
-Runtime user data (the warehouse, ledger, and settings) lives in the OS
-app-data directory and is never committed — see `.gitignore`.
+The authoritative vendored source snapshot and license are in
+`packs/martj42-internationals/`. Phase 0 accepts no club, BYOK, ODbL, or scraped
+data dependency.

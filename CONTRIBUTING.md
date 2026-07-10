@@ -22,7 +22,7 @@ Thanks for helping build an honest football forecaster. This guide covers how th
 | `docs-site/` | Astro + Starlight product site | docs |
 | `docs/adr/` | architecture decision records | docs |
 
-All of Golavo is licensed under Apache-2.0. By contributing you agree your contribution is licensed under Apache-2.0.
+Golavo code is licensed under Apache-2.0; data packs carry separate licenses. By contributing code or documentation you agree that contribution is licensed under Apache-2.0. Data contributions must declare their provenance and license explicitly.
 
 ## Development setup
 

@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "name": "results.csv",
+      "sha256": "5ddddc5ab73edb08bf65829d48f2a13b54b873b6abd29eea879086c12f977687"
+    },
+    {
+      "name": "goalscorers.csv",
+      "sha256": "31393fd5c0c0970778c662d01fdef0805bfc231828f781b785df5555e97b2659"
+    },
+    {
+      "name": "shootouts.csv",
+      "sha256": "9576c12d5ec5d8d446334443a0f68c94c663e5a56f92e20948313cb47cc36dd8"
+    },
+    {
+      "name": "former_names.csv",
+      "sha256": "2d57f59a3ac13b24c2fcf208ced5a38710529d122da38929838d0980b002677e"
+    },
+    {
+      "name": "CC0-1.0.txt",
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-10T19:35:25Z",
+  "source_id": "martj42-international-results",
+  "upstream_ref": "ddd7249ac0c24c44a5bd8c3af1bf16fc971bebe9",
+  "url": "https://github.com/martj42/international_results"
+}

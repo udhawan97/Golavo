@@ -3,13 +3,13 @@ title: Introduction
 description: What Golavo is, what it is not, and the principles that keep it trustworthy.
 ---
 
-Golavo is a local-first, open-source soccer match-intelligence application. It builds a probabilistic forecast for a match, **seals** it before kickoff, and **scores** it after full time — building a public calibration record of how well-calibrated it actually is.
+Golavo is a local-first, open-source football forecasting project. Phase 0 implements reproducible sealing and scoring for men's senior full internationals; a public calibration ledger and desktop application are planned (ADR-0001).
 
 ## What Golavo is
 
-- A **forecast ledger**: sealed pre-kickoff predictions, hash-chained and replayable.
-- A **cited fact engine**: every commentator-style fact carries a source id and a base rate.
-- A **local-first desktop app**: your data and keys stay on your machine.
+- A **Phase 0 forecast artifact pipeline**: sealed pre-kickoff JSON artifacts are replayable and never mutated when scored.
+- A **provenance-first engine**: each artifact records the pinned source snapshot and content hashes.
+- A **local source-mode core and API**. The hash-chained ledger, fact engine, AI layer, and desktop app are planned (ADR-0001).
 
 ## What Golavo is not
 
@@ -33,8 +33,8 @@ Golavo is a local-first, open-source soccer match-intelligence application. It b
 | Term | What it means in Golavo |
 |---|---|
 | **Local** | All computation runs on your machine over data already synced to disk. Staleness is always shown. |
-| **Offline** | Everything works without network except sync, BYOK fetches, and cloud AI — and those degrade *labeled*, never silently. |
-| **AI** | Optional local or cloud language models that write cited narrative. They never change a probability. |
-| **Open** | The code is open source; the open-core dataset is CC0/CC-BY and redistributable. BYOK data is *not* open — it stays with you. |
+| **Offline** | Phase 0 forecasting and API reads work from the vendored snapshot; rebuilding a sourcepack requires network access. |
+| **AI** | Planned (ADR-0001), out of Phase 0. Its contract permits cited narrative, never probability ownership. |
+| **Open** | The code is Apache-2.0; data packs declare their own license. The Phase 0 pack is CC0-1.0. |
 | **Free** | No payment to Golavo, ever. Optional third-party keys/AI are paid by you, to those providers. |
-| **Live** | Golavo is not live. Free-core results are delayed; "as of" timestamps appear everywhere. |
+| **Live** | Golavo is not live. Phase 0 uses a pinned snapshot and records its retrieval time. |

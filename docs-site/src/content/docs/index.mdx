@@ -1,6 +1,6 @@
 ---
 title: Golavo
-description: Local-first, open-source soccer match intelligence. The engine owns the numbers; AI only cites and explains. Every forecast is sealed before kickoff and scored after full time.
+description: Phase 0 local-first forecasting for men's senior full internationals, with deterministic sealed and scored artifacts.
 template: splash
 hero:
   tagline: The numbers remember everything. The beautiful game still keeps the last word.
@@ -12,7 +12,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   <p class="gv-kicker">90 minutes of evidence</p>
   <h2 class="gv-section-title">A forecast you can check — not just read.</h2>
   <p class="gv-section-lead">
-    Golavo seals a forecast before kickoff — with its model version, feature
+    Phase 0 can seal a forecast artifact before kickoff — with its model version,
     snapshot, and the content hashes of every source it used — then scores it
     after full time. No revisionism. No “AI predictions.” Just numbers that keep a
     receipt.
@@ -21,17 +21,17 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
   <Card title="The engine owns the numbers" icon="approve-check">
-    A deterministic Dixon-Coles / bivariate-Poisson model produces every
-    probability. AI never edits a number — it cites, explains, and researches.
+    Five deterministic candidates produce Phase 0 probabilities. No model is a
+    declared champion; the optional evidence-only AI layer is planned (ADR-0001).
     [Methodology →](/Golavo/methodology/prediction/)
   </Card>
   <Card title="Honest about data" icon="warning">
-    Open-core data is results-grade and redistributable. Depth — lineups, corners,
-    xG — is bring-your-own-key and stays on your machine. [Coverage →](/Golavo/data/coverage/)
+    Phase 0 accepts one pinned CC0 internationals sourcepack. Club data, lineups,
+    corners, xG, and BYOK adapters are out of scope. [Coverage →](/Golavo/data/coverage/)
   </Card>
   <Card title="Local-first & private" icon="laptop">
-    No account, no telemetry, no ads. Keys live in your OS keychain. The only
-    default network call is the update check — and you can turn it off. [Privacy →](/Golavo/privacy-security/)
+    Phase 0 has no account, telemetry, ads, keys, AI, or updater. Runtime reads
+    local files; sourcepack rebuilding is explicit. [Privacy →](/Golavo/privacy-security/)
   </Card>
   <Card title="Not a betting product" icon="close">
     No odds, no picks, no “locks,” no bankroll advice, no affiliate links. Ever.
@@ -45,11 +45,10 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <div class="gv-section" data-reveal>
   <p class="gv-kicker">The contract</p>
-  <h2 class="gv-section-title">The engine owns the numbers. AI only ever cites.</h2>
+  <h2 class="gv-section-title">The engine owns the numbers. That contract is frozen now.</h2>
   <p class="gv-section-lead">
-    Two layers, one hard rule between them. The statistics own every probability.
-    The AI can research and explain — but it can never silently change a number.
-    That separation is structural, not a promise.
+    Phase 0 implements only the statistical layer. The planned AI layer may
+    research and explain, but it may never silently change a number (ADR-0001).
   </p>
 
   <div class="gv-contract">
@@ -57,13 +56,13 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
       <span class="tag">Statistical engine</span>
       <h3>Owns the probabilities</h3>
       <ul>
-        <li>Every probability, score matrix, and count distribution</li>
-        <li>Reruns only when a <em>confirmed</em> fact becomes a typed feature</li>
-        <li>Forward-backtested; nothing ships unless it beats the baselines</li>
+        <li>Phase 0 1X2 probabilities for full internationals</li>
+        <li>Five deterministic, chronologically evaluated candidates</li>
+        <li>Log loss primary; losing candidates remain visible</li>
       </ul>
     </div>
     <div class="gv-pillar gv-pillar--ai">
-      <span class="tag">AI layer · optional</span>
+      <span class="tag">AI layer · planned (ADR-0001)</span>
       <h3>Cites, explains, researches</h3>
       <ul>
         <li>Narrative, scenario explanation, sourced research</li>
@@ -74,7 +73,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   </div>
 
   <p class="gv-delta">
-    Confirmed fact → model reruns → the UI shows the delta:&nbsp;
+    Planned typed-feature flow → model reruns → the UI shows the delta:&nbsp;
     <b>P(home) 42% → 45% · Kane confirmed out ✓</b>
   </p>
 </div>
@@ -87,20 +86,20 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   <p class="gv-kicker">How a forecast is made</p>
   <h2 class="gv-section-title">Sources in. A sealed, scored forecast out.</h2>
   <p class="gv-section-lead">
-    Every value carries its source id the whole way through. The seal is
-    hash-chained, so a forecast can’t be quietly rewritten after the fact.
+    Every artifact records its pinned source snapshot. Canonical payload hashing
+    makes changes detectable; scoring writes a new file instead of rewriting a seal.
   </p>
 
   <div class="gv-flow">
-    <div class="gv-step"><span class="n">01</span><h4>Sources</h4><p>Open CC0 feeds + optional BYOK depth.</p></div>
+    <div class="gv-step"><span class="n">01</span><h4>Source</h4><p>One pinned CC0 internationals pack.</p></div>
     <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <div class="gv-step"><span class="n">02</span><h4>Snapshot</h4><p>Immutable, sha256-addressed.</p></div>
     <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="gv-step"><span class="n">03</span><h4>Typed features</h4><p>Every value keeps its source id.</p></div>
+    <div class="gv-step"><span class="n">03</span><h4>Typed matches</h4><p>Dates, teams, scores, venue state.</p></div>
     <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="gv-step"><span class="n">04</span><h4>Model</h4><p>Dixon-Coles / bivariate Poisson.</p></div>
+    <div class="gv-step"><span class="n">04</span><h4>Candidate</h4><p>Five deterministic model families.</p></div>
     <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="gv-step"><span class="n">05</span><h4>Sealed</h4><p>Hash-chained before kickoff.</p></div>
+    <div class="gv-step"><span class="n">05</span><h4>Sealed</h4><p>Canonical JSON + SHA-256.</p></div>
     <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <div class="gv-step"><span class="n">06</span><h4>Scored</h4><p>Vs actual → calibration record.</p></div>
   </div>

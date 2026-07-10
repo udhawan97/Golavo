@@ -7,6 +7,10 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Phase 0 pinned martj42 internationals sourcepack with byte-level provenance validation.
+- Deterministic climatological, Elo ordinal-logit, independent Poisson, Dixon-Coles,
+  and bivariate-Poisson candidates with chronological WC2022/EURO2024/WC2026 evaluation.
+- ForecastArtifact schema 0.1.0, immutable seal/score CLI, sample artifacts, and read-only API routes.
 - Initial repository scaffold: README, Apache-2.0 license,
   animated brand marks, contributing/security/conduct policies.
 - CI/CD workflows: continuous integration, signed release pipeline (stable + beta),
