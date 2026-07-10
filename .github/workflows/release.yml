@@ -103,7 +103,7 @@ jobs:
         if: env.MINISIGN_SECRET_KEY != ''
         run: echo "minisign signing step runs when the secret is present"
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           prerelease: ${{ needs.prepare.outputs.channel != 'stable' }}
           generate_release_notes: true
