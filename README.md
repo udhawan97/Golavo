@@ -131,7 +131,7 @@ betting-language filter. A failed response becomes `local_only`; the forecast ca
 on untouched. The AI may explain the scorecard. It may not borrow the pen.
 
 <p align="center">
-  <img src="docs-site/public/assets/golavo-intelligence-boundary.svg" alt="Golavo intelligence boundary: the deterministic engine owns every number; source-backed facts cannot import forecast writers; optional AI receives only an allowed evidence bundle and is discarded on guard failure" width="980">
+  <a href="docs-site/public/assets/golavo-intelligence-boundary.svg"><img src="docs-site/public/assets/golavo-intelligence-boundary.svg" alt="Who controls a Golavo forecast: the local deterministic engine makes every number, evidence adds sourced context, and optional AI may explain but cannot edit the sealed forecast" width="980"></a>
 </p>
 
 More detail: [Local Intelligence](https://udhawan97.github.io/Golavo/local-intelligence/) ·
@@ -141,7 +141,7 @@ More detail: [Local Intelligence](https://udhawan97.github.io/Golavo/local-intel
 ## How a forecast earns the right to exist
 
 <p align="center">
-  <img src="docs-site/public/assets/golavo-forecast-lifecycle.svg" alt="Golavo forecast lifecycle: a pinned snapshot is normalized and modeled, passes strict pre-kickoff seal gates, then a strictly newer snapshot writes a separate scored or voided successor and updates forward calibration" width="980">
+  <a href="docs-site/public/assets/golavo-forecast-lifecycle.svg"><img src="docs-site/public/assets/golavo-forecast-lifecycle.svg" alt="Golavo's six-step forecast lifecycle: collect, prepare, predict, lock before kickoff, score with a newer source snapshot, and learn through forward calibration without rewriting the original seal" width="980"></a>
 </p>
 
 1. **Retain the source state.** A refresh writes a new pack; old packs stay put.
@@ -282,7 +282,7 @@ cookie banners.
 | **Distribution** | GitHub Actions · unsigned DMG / MSI / EXE · checksums · signing-capable gated path |
 
 <p align="center">
-  <img src="docs-site/public/assets/golavo-system-architecture.svg" alt="Golavo architecture: a Tauri supervisor launches a token-protected FastAPI sidecar; React reads validated contracts; the deterministic Python core owns all numbers and local artifacts; optional AI and release automation stay outside the numeric authority boundary" width="980">
+  <a href="docs-site/public/assets/golavo-system-architecture.svg"><img src="docs-site/public/assets/golavo-system-architecture.svg" alt="How Golavo works for users and developers: the desktop shell starts a private local service, React presents read-only views, FastAPI serves validated contracts, and the deterministic Python core owns every forecast number while optional AI stays outside" width="980"></a>
 </p>
 
 The packaged request path is deliberately boring:

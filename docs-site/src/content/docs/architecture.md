@@ -16,7 +16,11 @@ they are not presented here as shipped components.
 
 ## System map
 
-![Golavo system architecture: the Tauri shell supervises a token-protected loopback FastAPI sidecar; the React workbench reads the API; the deterministic Python core owns all numbers and immutable local data; optional model providers and release automation sit outside the numeric authority boundary.](/Golavo/assets/golavo-system-architecture.svg)
+The top row is the five-second explanation; the lower map names the actual
+processes, boundaries, and source directories. Follow the moving gold signal, or
+ignore it entirely when reduced motion is enabled.
+
+[![How Golavo works for users and developers: the desktop shell starts a private local service, React presents read-only views, FastAPI serves validated contracts, and the deterministic Python core owns every forecast number while optional AI stays outside.](/Golavo/assets/golavo-system-architecture.svg)](/Golavo/assets/golavo-system-architecture.svg)
 
 ### Responsibility boundaries
 
@@ -107,7 +111,10 @@ dependencies.
 
 ## Forecast lifecycle and integrity
 
-![Golavo forecast lifecycle: a pinned source snapshot is normalized and modeled, must pass strict pre-kickoff seal gates, and creates an immutable ForecastArtifact; a strictly newer snapshot later creates a separate scored or voided successor and updates the forward calibration record.](/Golavo/assets/golavo-forecast-lifecycle.svg)
+Read the upper rail as a user journey — **collect, prepare, predict, lock,
+score, learn**. The lower row is the developer receipt for those same six steps.
+
+[![Golavo's six-step forecast lifecycle: collect a pinned source snapshot, prepare typed matches, predict chronologically, lock the claim before kickoff, score it from a strictly newer state, and learn through forward calibration without rewriting the original seal.](/Golavo/assets/golavo-forecast-lifecycle.svg)](/Golavo/assets/golavo-forecast-lifecycle.svg)
 
 The crucial design decision is that a forecast is a **claim with immutable
 bytes**, not the current row in a mutable predictions table.
@@ -176,7 +183,11 @@ presented as accumulated pre-kickoff evidence.
 
 ## Local Intelligence and optional AI
 
-![Golavo intelligence boundary: the deterministic engine owns every probability; facts and the evidence compiler cannot write forecasts; optional AI receives only an allowlisted evidence bundle and is discarded on guard failure; Casual, Expert, Ledger and AI Deep Read share the same sealed numbers.](/Golavo/assets/golavo-intelligence-boundary.svg)
+The upper row answers the ordinary question — *who decides what the forecast
+says?* The lower contract shows exactly how code prevents explanation layers from
+becoming a second model.
+
+[![Who controls a Golavo forecast: the local deterministic engine makes every number, facts and evidence add sourced context without writer access, and optional AI may explain an allowlisted bundle but cannot edit the sealed forecast.](/Golavo/assets/golavo-intelligence-boundary.svg)](/Golavo/assets/golavo-intelligence-boundary.svg)
 
 Golavo has three intelligence layers, but only one numeric authority.
 
