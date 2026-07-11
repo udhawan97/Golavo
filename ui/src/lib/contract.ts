@@ -51,6 +51,32 @@ export interface ExpectedGoals {
   away: number;
 }
 
+/**
+ * Exact-score distribution the sealed 1X2 forecast already implies (Phase 8,
+ * additive). Present only for goal-based families (independent / Dixon-Coles /
+ * bivariate Poisson); absent for climatological/elo and abstained seals. grid[i][j]
+ * is P(home=i, away=j) for 0..max_goals per side; everything beyond folds into the
+ * outcome-decomposed tail. grid + tail is an exact partition, so its win/draw/loss
+ * marginals reproduce forecast.probs (the engine enforces this on every load).
+ */
+export interface ScoreMatrix {
+  max_goals: number;
+  resolution: number;
+  grid: number[][];
+  tail: {
+    probability: number;
+    home: number;
+    draw: number;
+    away: number;
+  };
+  most_likely: {
+    home: number;
+    away: number;
+    probability: number;
+  };
+  total_probability: number;
+}
+
 export interface ForecastBlock {
   market: Market;
   sealed_at_utc: string;
@@ -60,6 +86,8 @@ export interface ForecastBlock {
   abstained: boolean;
   abstain_reason: string | null;
   uncertainty: Uncertainty;
+  /** Optional exact-score distribution (Phase 8). Absent → no goal model / abstained. */
+  score_matrix?: ScoreMatrix | null;
 }
 
 export interface ModelBlock {

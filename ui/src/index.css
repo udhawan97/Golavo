@@ -491,3 +491,37 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
   font-size: .82rem; text-decoration: underline; padding: 0;
 }
 .ai-fallback { font-size: .9rem; }
+
+/* ------------------------------------------- Casual/Expert + score grid --- */
+/* Depth toggle: a segmented pill. It changes how much is shown, never the
+   probabilities — styled as a quiet control, not a headline. */
+.mode-toggle { display: inline-flex; gap: 2px; padding: 2px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); }
+.mode-toggle__btn {
+  border: 1px solid transparent; background: transparent; color: var(--text-muted);
+  font-size: .76rem; font-weight: 650; letter-spacing: .02em; padding: .26rem .72rem;
+  border-radius: 999px; cursor: pointer;
+}
+.mode-toggle__btn:hover { color: var(--text); }
+.mode-toggle__btn.is-active { background: var(--gold-soft); color: var(--text); border-color: var(--gold-line); }
+
+/* Plain-language verdict — prominent but never louder than the numbers. */
+.verdict { font-size: 1.16rem; font-weight: 650; line-height: 1.3; letter-spacing: -0.01em; }
+.casual-detail { color: var(--text-muted); line-height: 1.5; }
+
+/* Cited, sealed-number facts (Casual). Clearly the engine's, clearly not AI. */
+.cited { border: 1px solid var(--border); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--surface-2) 55%, transparent); padding: .7rem .85rem; }
+.cited__cap { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); margin-bottom: .5rem; }
+.cited__list { display: flex; flex-direction: column; gap: .4rem; }
+.cited__list li { display: flex; flex-wrap: wrap; gap: .3rem; align-items: baseline; font-size: .92rem; color: var(--text-muted); padding-left: .9rem; position: relative; }
+.cited__list li::before { content: ""; position: absolute; left: 0; top: .5em; width: 5px; height: 5px; border-radius: 50%; background: var(--gold-line); }
+.cited__list b { color: var(--text); font-weight: 650; }
+
+/* Exact-score heatmap. Reuses table.grid, but every cell is a centred, tinted
+   probability with the most-likely score outlined. */
+table.grid.heatmap { min-width: 480px; font-size: .82rem; }
+.heatmap th, .heatmap td { text-align: center; padding: .4rem .5rem; white-space: nowrap; }
+.heatmap thead th, .heatmap tbody th[scope="row"] { color: var(--text-muted); font-weight: 700; background: var(--surface-1); }
+.heatmap__corner { font-size: .66rem; color: var(--text-dim); font-weight: 600; }
+.heatmap td.heat { color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
+.heatmap td.heat--ml { outline: 2px solid var(--gold); outline-offset: -2px; font-weight: 750; }
+.heat__star { color: var(--gold); font-size: .7em; margin-left: .15em; vertical-align: .1em; }

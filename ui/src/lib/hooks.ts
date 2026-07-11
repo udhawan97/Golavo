@@ -61,6 +61,27 @@ export function useTheme(): [Theme, () => void] {
   return [theme, toggle];
 }
 
+export type ForecastMode = "casual" | "expert";
+const MODE_KEY = "golavo-forecast-mode";
+
+/** Casual vs Expert presentation depth over the SAME sealed numbers. Casual by
+ *  default; the choice persists in localStorage. The mode only changes how much
+ *  detail is shown — never the displayed probabilities. */
+export function useForecastMode(): [ForecastMode, (m: ForecastMode) => void] {
+  const [mode, setMode] = useState<ForecastMode>(() => {
+    try {
+      const stored = localStorage.getItem(MODE_KEY);
+      if (stored === "casual" || stored === "expert") return stored;
+    } catch { /* ignore */ }
+    return "casual";
+  });
+  const set = useCallback((m: ForecastMode) => {
+    setMode(m);
+    try { localStorage.setItem(MODE_KEY, m); } catch { /* ignore */ }
+  }, []);
+  return [mode, set];
+}
+
 /** Copy-to-clipboard with a transient "copied" flag keyed by an id.
  *  Failed writes deliberately leave the flag unset: the UI must never claim a
  *  value reached the clipboard when the browser rejected it. */
