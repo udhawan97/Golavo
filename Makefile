@@ -1,4 +1,4 @@
-.PHONY: setup dev ingest evaluate test lint validate build clean
+.PHONY: setup dev ingest evaluate test lint validate build clean release-bump
 
 setup:  ## Install core + server + ui + docs dev dependencies
 	python -m pip install -e "core[dev]" || python -m pip install -e core
@@ -31,6 +31,9 @@ lint:  ## Lint python + ui
 build:  ## Build the UI and docs site
 	cd ui && npm run build
 	cd docs-site && npm run build
+
+release-bump:  ## Sync the project version everywhere (VERSION=x.y.z), then verify agreement
+	python scripts/bump_version.py "$(VERSION)"
 
 clean:  ## Remove build output and caches
 	rm -rf ui/dist docs-site/dist docs-site/.astro
