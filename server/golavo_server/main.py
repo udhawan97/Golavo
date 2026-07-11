@@ -9,8 +9,15 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from jsonschema import ValidationError
 
 from golavo_server import __version__, runtime
+
+# Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
+# (ValueError), missing field (KeyError), unreadable file (OSError), or a broken
+# schema (ValidationError, which is NOT a ValueError). A read path treats any of
+# these as "do not serve this artifact" and fails closed.
+_BAD_ARTIFACT = (ValueError, KeyError, OSError, ValidationError)
 
 # NB: golavo_core.calibration pulls in numpy/pandas/scipy, which cost ~25s to
 # import from the frozen onefile sidecar. It is imported lazily inside the
@@ -108,7 +115,7 @@ def list_forecasts() -> list[dict[str, Any]]:
     for path in ARTIFACT_DIR.glob("fa_*.json"):
         try:
             artifacts.append(_load_artifact(path))
-        except (ValueError, KeyError, OSError):
+        except _BAD_ARTIFACT:
             continue
     return sorted(
         artifacts,
@@ -126,7 +133,7 @@ def get_forecast(artifact_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="forecast not found")
     try:
         return _load_artifact(path)
-    except (ValueError, KeyError, OSError) as exc:
+    except _BAD_ARTIFACT as exc:
         raise HTTPException(
             status_code=500, detail="forecast failed integrity verification"
         ) from exc
@@ -184,7 +191,7 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="forecast not found")
     try:
         artifact = _load_artifact(path)
-    except (ValueError, KeyError, OSError) as exc:
+    except _BAD_ARTIFACT as exc:
         raise HTTPException(
             status_code=500, detail="forecast failed integrity verification"
         ) from exc

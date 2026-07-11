@@ -6,6 +6,12 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- Harden the read-only forecast list against a schema-broken artifact on disk: a
+  `jsonschema.ValidationError` (not a `ValueError`) is now caught alongside the
+  other bad-artifact errors, so one corrupt `fa_*.json` is omitted rather than
+  failing the whole `/api/v1/forecasts` request. Follow-up to H1.
+
 ## [0.2.0] - 2026-07-11
 
 **Hardening capstone.** An adversarial self-review of the shipped v0.1.0 product

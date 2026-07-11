@@ -68,6 +68,25 @@ def test_api_fails_closed_on_a_tampered_artifact(monkeypatch, tmp_path) -> None:
     assert client.get(f"/api/v1/forecasts/{tampered_id}").status_code == 500
 
 
+def test_list_survives_a_schema_broken_artifact(monkeypatch, tmp_path) -> None:
+    """A schema-invalid file raises jsonschema.ValidationError (not a ValueError);
+    the list endpoint must omit it, not crash on the whole request."""
+    monkeypatch.delenv("GOLAVO_TOKEN", raising=False)
+    ledger = tmp_path / "ledger"
+    genuine_id = _seal_genuine(ledger)
+    broken = json.loads((ledger / f"{genuine_id}.json").read_text(encoding="utf-8"))
+    del broken["match"]  # required field -> ValidationError on load
+    (ledger / "fa_schemabroken000000.json").write_bytes(canonical_bytes(broken) + b"\n")
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", ledger)
+    client = TestClient(server_main.app)
+
+    resp = client.get("/api/v1/forecasts")
+    assert resp.status_code == 200
+    ids = [item["artifact_id"] for item in resp.json()]
+    assert ids == [genuine_id]  # broken file omitted, genuine still served
+    assert client.get("/api/v1/forecasts/fa_schemabroken000000").status_code == 500
+
+
 # --- H3: platform-correct sidecar parent-watch --------------------------------
 
 def test_pid_alive_true_for_self() -> None:
