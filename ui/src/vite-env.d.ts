@@ -9,3 +9,12 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/** Injected by the desktop shell (Tauri) before the app scripts run: the
+ *  sidecar's ephemeral base URL and per-launch token. Absent in browser dev. */
+interface Window {
+  __GOLAVO_RUNTIME__?: {
+    apiBase?: string;
+    token?: string;
+  };
+}

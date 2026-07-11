@@ -1,0 +1,42 @@
+[package]
+name = "golavo-desktop"
+version = "0.1.0"
+description = "Golavo desktop shell (Tauri 2) — spawns and supervises the FastAPI sidecar."
+authors = ["Umang Dhawan"]
+license = "Apache-2.0"
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+# Tauri v2 keeps app logic in a lib so mobile targets can reuse it.
+name = "golavo_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+getrandom = "0.2"
+
+# The updater is wired but gated behind this feature: a default local/CI build
+# has NO active updater (no signing key exists). Maintainers holding the keys
+# build with `--features updater`. See src/updater.rs and docs/updates-rollback.md.
+[dependencies.tauri-plugin-updater]
+version = "2"
+optional = true
+
+[features]
+default = []
+updater = ["dep:tauri-plugin-updater"]
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

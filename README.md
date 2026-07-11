@@ -76,7 +76,7 @@ The snapshots are reproducible and pinned, not live feeds; every league's partia
 |---|---|---|
 | **Source (local API + core)** | developers, researchers | Phase 0 |
 | **Source web app** | developers, researchers | planned (ADR-0001, Phase 2) |
-| **Desktop (macOS DMG / Windows EXE)** | everyone | planned (ADR-0001, Phase 4) |
+| **Desktop (macOS DMG / Windows MSI+EXE)** | everyone | Phase 4 — **unsigned build works**; signing gated |
 
 ```bash
 # Source-mode API (Phase 0)
@@ -85,15 +85,39 @@ make setup
 uvicorn golavo_server.main:app --host 127.0.0.1 --port 8000 --app-dir server
 ```
 
+## Desktop app (Phase 4)
+
+Golavo builds into a [Tauri 2](https://tauri.app) desktop app that launches a
+bundled Python **sidecar** (the FastAPI core, frozen with PyInstaller) on a
+private loopback port with a per-launch token, waits for its `/health`, shows the
+workbench, and kills the sidecar on quit.
+
+```bash
+# Build an unsigned desktop bundle for your platform (repo root):
+packaging/build.sh aarch64-apple-darwin     # macOS  -> packaging/out/*.dmg
+packaging/build.sh x86_64-pc-windows-msvc    # Windows -> packaging/out/*.msi + *.exe
+```
+
+The bundle is **unsigned**, so macOS Gatekeeper / Windows SmartScreen warn on
+first launch (right-click → Open on macOS; "More info → Run anyway" on Windows).
+Notarization needs the Apple Developer Program and signed auto-update needs the
+updater key — both are wired and **gated on secrets**, never faked. See
+[Installation](docs-site/src/content/docs/installation.md) and
+[Updates & rollback](docs-site/src/content/docs/updates-rollback.md).
+
 ## Architecture
 
-Phase 0 ships a Python core, a Parquet typed-match table, JSON forecast artifacts, and a read-only FastAPI surface. A Tauri 2 desktop shell, React UI integration, DuckDB views, SQLite state, and a hash-chained ledger are **planned (ADR-0001)**.
+Golavo ships a Python core, a Parquet typed-match table, JSON forecast artifacts,
+and a read-only FastAPI surface. Phase 4 adds the Tauri 2 desktop shell + frozen
+sidecar. DuckDB views, SQLite state, and a hash-chained ledger are **planned
+(ADR-0001)**.
 
 ```
 core/       Python modeling library — ingest, warehouse, models, ledger, facts   (Apache-2.0)
 server/     FastAPI app — routes, jobs, evidence bundles, AI gateway             (Apache-2.0)
 ui/         React + TypeScript + Vite                                            (Apache-2.0)
-desktop/    planned Tauri 2 shell and updater (ADR-0001)                         (Apache-2.0 code)
+desktop/    Tauri 2 shell + gated signed updater (Phase 4)                       (Apache-2.0 code)
+packaging/  PyInstaller sidecar + Tauri bundle + checksums                       (Apache-2.0)
 packs/      data packs with their own per-pack licenses
 docs-site/  Astro + Starlight product site (GitHub Pages)
 ```

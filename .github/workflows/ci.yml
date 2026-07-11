@@ -76,3 +76,34 @@ jobs:
       - uses: actions/checkout@v7
       - name: ODbL must never contaminate the CC0 core
         run: bash scripts/check_license_isolation.sh
+
+  sidecar-smoke:
+    name: sidecar smoke (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install sidecar deps
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e core -e server pyinstaller
+      - name: Freeze the sidecar (PyInstaller onefile)
+        shell: bash
+        run: |
+          python -m PyInstaller --clean --noconfirm packaging/golavo-sidecar.spec \
+            --distpath packaging/out --workpath packaging/build
+      - name: Smoke test the frozen bundle (must exit 0)
+        shell: bash
+        run: |
+          BIN="packaging/out/golavo-sidecar"
+          [ -f "$BIN.exe" ] && BIN="$BIN.exe"
+          "$BIN" --version
+          "$BIN" --smoke

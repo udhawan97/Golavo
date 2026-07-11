@@ -6,15 +6,37 @@ import json
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from golavo_core.calibration import calibration_summary
+from fastapi.responses import JSONResponse
 
-from golavo_server import __version__
+from golavo_server import __version__, runtime
+
+# NB: golavo_core.calibration pulls in numpy/pandas/scipy, which cost ~25s to
+# import from the frozen onefile sidecar. It is imported lazily inside the
+# calibration handler so /health, /forecasts and /eval/summary — and thus the
+# desktop shell's readiness gate and window — come up in a couple of seconds.
 
 app = FastAPI(title="Golavo", version=__version__)
-# Loopback dev origins only: 5173 is the primary Vite port, 5174 the secondary
-# dev instance (e.g. a live-API session next to the mock one).
+
+
+# Per-launch token gate. Registered BEFORE the CORS middleware so CORS stays
+# outermost (and thus still tags responses). When GOLAVO_TOKEN is unset — source
+# mode and CI — this is a no-op, keeping the API open for `npm run dev` + pytest.
+# Preflight (OPTIONS) and the /health liveness probe are always exempt so the
+# browser preflight and the shell's readiness gate never need the token.
+@app.middleware("http")
+async def _require_launch_token(request: Request, call_next: Any) -> Any:
+    token = runtime.launch_token()
+    if token is not None and request.method != "OPTIONS" and request.url.path.startswith("/api/"):
+        if request.headers.get(runtime.TOKEN_HEADER) != token:
+            return JSONResponse({"detail": "missing or invalid launch token"}, status_code=401)
+    return await call_next(request)
+
+
+# Loopback dev origins (5173 primary Vite port, 5174 a secondary dev instance)
+# plus the Tauri webview origins used by the packaged desktop shell
+# (tauri://localhost on macOS/Linux, http(s)://tauri.localhost on Windows).
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -22,25 +44,20 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5174",
         "http://localhost:5174",
+        "tauri://localhost",
+        "http://tauri.localhost",
+        "https://tauri.localhost",
     ],
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "OPTIONS"],
     allow_headers=["*"],
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-ARTIFACT_DIR = REPO_ROOT / "data/artifacts"
-# Internationals first, then club leagues in customary big-five order. Each file
-# is one league's frozen chronological evaluation; leagues are modeled
-# independently (no cross-league strength calibration).
-EVAL_SUMMARY_PATHS = (
-    REPO_ROOT / "docs/handoff/eval_summary.json",
-    REPO_ROOT / "docs/handoff/eval_summary_epl.json",
-    REPO_ROOT / "docs/handoff/eval_summary_laliga.json",
-    REPO_ROOT / "docs/handoff/eval_summary_bundesliga.json",
-    REPO_ROOT / "docs/handoff/eval_summary_seriea.json",
-    REPO_ROOT / "docs/handoff/eval_summary_ligue1.json",
-)
+# Resolved through the bundle-aware resolver so the frozen sidecar finds these
+# under sys._MEIPASS. Kept as module globals because the API tests monkeypatch
+# them directly; the request handlers read the globals on each call.
+ARTIFACT_DIR = runtime.data_dir()
+EVAL_SUMMARY_PATHS = runtime.eval_summary_paths()
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -84,6 +101,8 @@ def calibration() -> dict[str, Any]:
     can never drift from the artifacts it summarizes. An empty ledger yields an
     honest zero-count record rather than an error.
     """
+    from golavo_core.calibration import calibration_summary  # lazy: see import note above
+
     return calibration_summary(ARTIFACT_DIR)
 
 

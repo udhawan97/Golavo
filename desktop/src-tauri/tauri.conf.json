@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Golavo",
+  "version": "0.1.0",
+  "identifier": "com.golavo.app",
+  "build": {
+    "frontendDist": "../../ui/dist",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeDevCommand": "npm --prefix ../../ui run dev",
+    "beforeBuildCommand": ""
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost http://127.0.0.1:* http://localhost:*; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": ["binaries/golavo-sidecar"],
+    "createUpdaterArtifacts": false,
+    "category": "Utility",
+    "shortDescription": "Forecast Audit Workbench",
+    "longDescription": "Golavo bundles a local FastAPI sidecar and a read-only workbench over deterministic football forecasts sealed before kickoff and scored after full time."
+  }
+}

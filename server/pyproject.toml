@@ -12,6 +12,10 @@ dependencies = [
   "golavo-core",
 ]
 
+[project.scripts]
+# Frozen by PyInstaller into golavo-sidecar-<target-triple> for the desktop shell.
+golavo-sidecar = "golavo_server.sidecar:main"
+
 [project.optional-dependencies]
 dev = ["pytest>=8", "httpx", "ruff", "mypy"]
 

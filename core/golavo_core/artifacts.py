@@ -41,7 +41,11 @@ def _iso(value: datetime) -> str:
 
 
 def _schema_path() -> Path:
-    return Path(__file__).resolve().parents[2] / "docs/contracts/forecast_artifact.schema.json"
+    # Delegated so the schema resolves both in source checkouts and inside the
+    # frozen PyInstaller sidecar (see golavo_core.resources).
+    from golavo_core.resources import schema_path
+
+    return schema_path()
 
 
 def validate_artifact(artifact: dict[str, Any], schema_path: Path | None = None) -> None:

@@ -20,17 +20,33 @@ import {
   loadMockForecasts,
 } from "../mocks";
 
-const RAW_BASE = import.meta.env.VITE_GOLAVO_API as string | undefined;
+/**
+ * Backend selection, in priority order:
+ *   1. window.__GOLAVO_RUNTIME__ — injected by the desktop shell at launch with
+ *      the sidecar's ephemeral {apiBase, token}. Never hardcoded; the port and
+ *      token change every launch.
+ *   2. VITE_GOLAVO_API — a build-time base for source-mode dev against a local
+ *      server started by hand.
+ *   3. neither — bundled mock fixtures, labelled honestly as such.
+ */
+type RuntimeConfig = { apiBase?: string; token?: string };
+
+const RUNTIME: RuntimeConfig =
+  (globalThis as { __GOLAVO_RUNTIME__?: RuntimeConfig }).__GOLAVO_RUNTIME__ ?? {};
+
+const RAW_BASE =
+  RUNTIME.apiBase ?? (import.meta.env.VITE_GOLAVO_API as string | undefined);
 const API_BASE = RAW_BASE ? RAW_BASE.replace(/\/+$/, "") : undefined;
+const API_TOKEN = RUNTIME.token;
+const IS_DESKTOP = typeof RUNTIME.apiBase === "string";
 
 export type DataSource = "live" | "mock";
 export const DATA_SOURCE: DataSource = API_BASE ? "live" : "mock";
 
 /** A human-facing description of where the data came from — used honestly in UI. */
 export function sourceDescription(): string {
-  return API_BASE
-    ? `Live: ${API_BASE}`
-    : "Bundled sample artifacts (no backend connected)";
+  if (!API_BASE) return "Bundled sample artifacts (no backend connected)";
+  return IS_DESKTOP ? `Live: bundled sidecar (${API_BASE})` : `Live: ${API_BASE}`;
 }
 
 export class ContractError extends Error {}
@@ -92,7 +108,11 @@ function assertCalibration(x: unknown, ctx: string): CalibrationSummary {
 }
 
 async function getJson(path: string): Promise<unknown> {
-  const res = await fetch(`${API_BASE}${path}`, { headers: { accept: "application/json" } });
+  const headers: Record<string, string> = { accept: "application/json" };
+  // Every request to the sidecar carries the per-launch token when the shell
+  // injected one; source-mode dev servers run open and simply omit it.
+  if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
+  const res = await fetch(`${API_BASE}${path}`, { headers });
   if (!res.ok) throw new Error(`GET ${path} → HTTP ${res.status}`);
   return res.json();
 }

@@ -7,6 +7,24 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Phase 4 desktop app: a Tauri 2 shell that packages the FastAPI core as a
+  PyInstaller **onefile sidecar** (`golavo-sidecar-<target-triple>`). On launch it
+  picks a free `127.0.0.1` port, mints a per-launch token, spawns the sidecar,
+  waits for `/health`, then shows the workbench with `window.__GOLAVO_RUNTIME__`
+  injected so the UI talks to the ephemeral port + token (nothing hardcoded); on
+  quit it kills the sidecar. A frozen-vs-source resource resolver
+  (`golavo_core.resources`) finds the bundled schema/eval summaries under
+  `sys._MEIPASS`. The read-only API gains an `x-golavo-token` gate on `/api/*`
+  (open in source mode; `/health` + CORS preflight exempt) and Tauri CORS origins.
+- Orphan-proof sidecar lifecycle: the sidecar watches the shell pid
+  (`--parent-pid`) and self-exits if orphaned — needed because the onefile
+  bootloader forks a Python child the shell's kill can't reach directly.
+- Packaging + CI: `packaging/build.sh` and `packaging/golavo-sidecar.spec` produce
+  unsigned `.dmg` (macOS) and `.msi`/`.exe` (Windows) with `SHA256SUMS`;
+  `release.yml` builds them on native runners; `ci.yml` gains a frozen-bundle
+  `--smoke` job on macOS + Windows. Signing/notarization and the signed
+  auto-updater (pre-update backup + health check + rollback) are wired but
+  **gated on secrets** (`TAURI_SIGNING_PRIVATE_KEY`, `APPLE_*`), never fabricated.
 - Phase 3 forward sealed-forecast loop (internationals only): seal a genuinely scheduled
   fixture before its conservative day-proxy kickoff (the source has dates, not kickoff
   times), score it from a strictly newer retained snapshot, or void it with a recorded
