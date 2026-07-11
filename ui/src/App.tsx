@@ -10,19 +10,32 @@ import { Settings } from "./views/Settings";
 import { UpdaterContext } from "./lib/updater-context";
 import { useUpdaterController } from "./lib/updater";
 import { UpdateConsentCard, UpdateSheet, UpdatedToast } from "./components/updates";
+import { useBackendReady, useForecastSource } from "./lib/startup";
+import { StartupSplash } from "./components/StartupSplash";
 
 export default function App() {
   const [path] = useHashRoute();
   const [theme, toggleTheme] = useTheme();
+  const backendReady = useBackendReady();
+  const forecastSource = useForecastSource(backendReady);
   // One controller for the whole app: header pill, sheet, settings, toast.
   const updater = useUpdaterController();
 
   // Calm scroll reset on navigation (respects reduced-motion via CSS).
   useEffect(() => { window.scrollTo({ top: 0 }); }, [path]);
 
+  // Hold the app behind a splash until the (slow-to-extract) engine is up, so a
+  // long first launch never looks like a broken window.
+  if (!backendReady) return <StartupSplash theme={theme} />;
+
   return (
     <UpdaterContext.Provider value={updater}>
-      <Layout path={path} theme={theme} onToggleTheme={toggleTheme}>
+      <Layout
+        path={path}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        forecastSource={forecastSource}
+      >
         <Route path={path} />
       </Layout>
       <UpdateSheet />

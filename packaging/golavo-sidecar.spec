@@ -12,6 +12,7 @@ Build (from the repo root):
         --distpath packaging/out --workpath packaging/build
 """
 
+import glob
 import os
 
 from PyInstaller.utils.hooks import collect_submodules
@@ -38,6 +39,13 @@ datas = [
 ]
 datas += [
     (os.path.join(ROOT, "docs", "handoff", name), "docs/handoff") for name in _EVAL_SUMMARIES
+]
+# Synthetic sample forecasts: a fresh desktop install has an empty ledger, so
+# the API serves these until the user has real seals (see runtime.sample_
+# artifacts_dir). Kept at their repo-relative layout so the resolver finds them.
+datas += [
+    (path, "data/fixtures/sample_artifacts")
+    for path in glob.glob(os.path.join(ROOT, "data", "fixtures", "sample_artifacts", "*.json"))
 ]
 
 # uvicorn and the golavo packages import submodules dynamically; collect them so

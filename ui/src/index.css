@@ -623,3 +623,38 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 .settings__row input[type="checkbox"] { width: 1.05rem; height: 1.05rem; accent-color: var(--gold-brand); }
 .settings__hint { font-size: .84rem; margin-top: -.35rem; }
+
+/* ------------------------------------------------------ startup splash ---- */
+.splash {
+  position: fixed; inset: 0; z-index: 40;
+  display: grid; place-items: center; padding: 2rem;
+  background: var(--ink);
+}
+.splash__inner {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 1.1rem; max-width: 30rem;
+}
+.splash__logo { opacity: .95; }
+.splash__spinner {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 3px solid var(--border-strong);
+  border-top-color: var(--gold);
+  animation: splash-spin .9s linear infinite;
+  margin: .3rem 0 .1rem;
+}
+@keyframes splash-spin { to { transform: rotate(360deg); } }
+.splash__title { font-size: 1.02rem; font-weight: 600; color: var(--text); }
+.splash__hint { font-size: .9rem; color: var(--text-muted); line-height: 1.5; min-height: 2.6em; }
+@media (prefers-reduced-motion: reduce) {
+  .splash__spinner { animation-duration: 2.4s; }
+}
+
+/* ---------------------------------------------------- sample banner ------- */
+.sample-banner {
+  background: var(--gold-soft);
+  border-bottom: 1px solid var(--gold-line);
+  font-size: .88rem; color: var(--text-muted);
+}
+.sample-banner .container { padding-top: .7rem; padding-bottom: .7rem; }
+.sample-banner strong { color: var(--text); font-weight: 650; }
+:root[data-theme="light"] .sample-banner { color: #6b5a1e; }

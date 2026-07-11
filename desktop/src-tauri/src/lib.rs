@@ -1,15 +1,17 @@
 //! Golavo desktop shell.
 //!
-//! Launch sequence (all before any window is shown):
+//! Launch sequence:
 //!   1. pick a free 127.0.0.1 port and mint a per-launch token;
 //!   2. spawn the PyInstaller sidecar (`golavo-sidecar-<target-triple>`) with them;
-//!   3. block on the sidecar's /health until ready (bounded timeout). A healthy
-//!      boot finalizes any pending update (retires the backup, records success);
-//!      a failed boot repairs it (restores the ledger IF this is the first boot
-//!      after an install) and explains itself in a native dialog instead of
-//!      dying as an invisible panic;
-//!   4. build the window, injecting {apiBase, token, appVersion} so the bundled
-//!      UI talks to the ephemeral port — nothing is hardcoded;
+//!   3. build the window IMMEDIATELY, injecting {apiBase, token, appVersion} so
+//!      the UI renders a "starting" splash at once — the onefile sidecar takes
+//!      ~30-40s to self-extract, and a blank window that whole time reads as
+//!      broken;
+//!   4. wait for /health OFF the main thread. On ready, finalize any pending
+//!      update (retire backup, record success) and emit `backend://ready` so the
+//!      UI swaps the splash for the app. On failure, repair (restore the ledger
+//!      if this is the first boot after an install) and show a native dialog
+//!      instead of dying as an invisible panic, then exit;
 //!   5. on any exit, kill the sidecar (RunEvent::ExitRequested/Exit). Updates
 //!      additionally stop it FIRST via stop_sidecar_for_install: the Windows
 //!      installer path exits the process without firing those events, and the
@@ -22,22 +24,21 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-use tauri::{AppHandle, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
+use tauri::{AppHandle, Emitter, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
 
 /// Show a native error dialog and BLOCK until the user dismisses it. Called from
-/// the fatal-launch path inside setup(), on the main thread, before the Tauri
-/// event loop runs.
+/// the launch path's background health thread (see run()); the CALLER marshals
+/// the non-macOS branch onto the main thread because rfd touches native UI.
 ///
-/// macOS is special: this early, the app is not yet a fully-activated foreground
-/// app, so `NSAlert.runModal` (what rfd and tauri-plugin-dialog both use) does
-/// NOT block — the dialog flashes and the process exits, orphaning the window.
-/// Verified empirically. `osascript` shows its OWN modal in a separate process
-/// that blocks until dismissed regardless of our run-loop state, so we keep the
-/// process alive (and the message on screen) until the user clicks OK, then
-/// exit. rfd is retained for Windows/Linux, where MessageBox-style dialogs block
-/// correctly without a running loop.
+/// macOS uses `osascript` (a subprocess), which blocks until dismissed and is
+/// safe to invoke from any thread — and it also sidesteps the empirically-
+/// verified issue that `NSAlert.runModal` does NOT block when the app isn't a
+/// fully-activated foreground app, flashing the dialog and orphaning the window.
+/// rfd is retained for Windows/Linux, where MessageBox-style dialogs block
+/// correctly — but must run on the main thread (GTK on Linux), hence the caller's
+/// run_on_main_thread for that branch.
 fn show_fatal_dialog(title: &str, message: &str) {
     #[cfg(target_os = "macos")]
     {
@@ -140,33 +141,12 @@ pub fn run() {
                 token: token.clone(),
             });
 
-            // 3. readiness gate — block until /health is ok or we time out.
-            match health::wait_for_health(port, &token, HEALTH_TIMEOUT) {
-                Ok(elapsed) => {
-                    eprintln!("[golavo] sidecar healthy on 127.0.0.1:{port} after {elapsed:?}");
-                    updater::finalize_update_if_pending(&handle);
-                }
-                Err(err) => {
-                    // Never leave an orphan: kill before anything else.
-                    kill_sidecar(&handle);
-                    let message = updater::repair_failed_launch(&handle, &err);
-                    eprintln!("[golavo] launch failed: {message}");
-                    // A double-click user never sees stderr — tell them what
-                    // happened and where to go in a real dialog, then exit cleanly
-                    // instead of panicking. We're inside setup(), on the main
-                    // thread, BEFORE the Tauri event loop runs — so tauri-plugin-
-                    // dialog's blocking_show (which dispatches the alert to the
-                    // main thread and then blocks it) would deadlock on macOS.
-                    // rfd's native dialog runs its own modal loop on the calling
-                    // thread, so it is safe here.
-                    show_fatal_dialog("Golavo could not start", &message);
-                    std::process::exit(1);
-                }
-            }
-
-            // 4. build the window with the runtime config injected. The script runs
-            //    before the page's own scripts, so window.__GOLAVO_RUNTIME__ is set
-            //    by the time the UI's data layer reads it.
+            // 3. Build the window IMMEDIATELY with the runtime config injected —
+            //    the port and token are already known, so the UI can render a
+            //    "starting" splash right away instead of the user staring at a
+            //    blank screen for ~30-40s while the onefile sidecar self-extracts.
+            //    The script runs before the page's own scripts, so
+            //    window.__GOLAVO_RUNTIME__ is set by the time the UI reads it.
             let config = serde_json::json!({
                 "apiBase": format!("http://127.0.0.1:{port}"),
                 "token": token,
@@ -180,6 +160,50 @@ pub fn run() {
                 .min_inner_size(880.0, 600.0)
                 .initialization_script(&init_script)
                 .build()?;
+
+            // 4. Wait for the sidecar's /health OFF the main thread so the window
+            //    stays responsive and shows its loading state. On ready, tell the
+            //    UI to swap the splash for the app; on failure, repair and show the
+            //    fatal dialog (osascript, safe from any thread) then exit.
+            let bg = handle.clone();
+            std::thread::spawn(move || {
+                match health::wait_for_health(port, &token, HEALTH_TIMEOUT) {
+                    Ok(elapsed) => {
+                        eprintln!("[golavo] sidecar healthy on 127.0.0.1:{port} after {elapsed:?}");
+                        updater::finalize_update_if_pending(&bg);
+                        let _ = bg.emit("backend://ready", ());
+                    }
+                    Err(err) => {
+                        kill_sidecar(&bg);
+                        let message = updater::repair_failed_launch(&bg, &err);
+                        eprintln!("[golavo] launch failed: {message}");
+                        // macOS shows the dialog via osascript (a subprocess),
+                        // which is safe from this background thread and keeps the
+                        // window responsive. Elsewhere rfd touches native UI that
+                        // must run on the main thread, so marshal the dialog there.
+                        #[cfg(target_os = "macos")]
+                        {
+                            show_fatal_dialog("Golavo could not start", &message);
+                            std::process::exit(1);
+                        }
+                        #[cfg(not(target_os = "macos"))]
+                        {
+                            // If marshaling fails (event loop already gone), still
+                            // exit — never leave a windowed process with a dead
+                            // sidecar and no dialog.
+                            if bg
+                                .run_on_main_thread(move || {
+                                    show_fatal_dialog("Golavo could not start", &message);
+                                    std::process::exit(1);
+                                })
+                                .is_err()
+                            {
+                                std::process::exit(1);
+                            }
+                        }
+                    }
+                }
+            });
 
             Ok(())
         })

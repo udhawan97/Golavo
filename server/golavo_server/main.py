@@ -66,7 +66,39 @@ app.add_middleware(
 # under sys._MEIPASS. Kept as module globals because the API tests monkeypatch
 # them directly; the request handlers read the globals on each call.
 ARTIFACT_DIR = runtime.data_dir()
+SAMPLE_DIR = runtime.sample_artifacts_dir()
 EVAL_SUMMARY_PATHS = runtime.eval_summary_paths()
+
+
+def _forecasts_dir() -> Path:
+    """Where the forecast surface reads from.
+
+    Serves the live ledger once it holds a real seal; until then falls back to
+    the bundled synthetic samples so a fresh install shows how Golavo works
+    instead of an empty shell. Calibration always reads the real ledger
+    (ARTIFACT_DIR), so the samples never skew the forward record.
+
+    The ledger is chosen only when it holds at least one WELL-FORMED artifact:
+    a crash that left a single truncated ``fa_*.json`` must not switch us off the
+    samples and leave the user staring at a blank Matchday. (Full integrity is
+    still enforced per-artifact at serve time; this is just a cheap gate to pick
+    the source.)
+    """
+    if ARTIFACT_DIR.exists():
+        for path in ARTIFACT_DIR.glob("fa_*.json"):
+            try:
+                obj = json.loads(path.read_text(encoding="utf-8"))
+            except (ValueError, OSError):
+                continue
+            if isinstance(obj, dict) and "artifact_id" in obj:
+                return ARTIFACT_DIR
+    return SAMPLE_DIR
+
+
+def showing_samples() -> bool:
+    """True when the forecast surface is serving bundled synthetic samples (a
+    fresh install with an empty ledger) rather than the user's real seals."""
+    return _forecasts_dir() == SAMPLE_DIR
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -88,7 +120,7 @@ def _load_artifact(path: Path) -> dict[str, Any]:
 
 def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
     """Evidence facts + numbers from a precomputed notebook, or ((), ()) if none."""
-    notebook_path = ARTIFACT_DIR / "notebooks" / f"{artifact_id}.json"
+    notebook_path = _forecasts_dir() / "notebooks" / f"{artifact_id}.json"
     if not notebook_path.is_file():
         return [], []
     from golavo_core.facts import notebook_to_evidence  # lazy: pulls the AI guards
@@ -100,6 +132,17 @@ def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
 def health() -> dict[str, str]:
     """Liveness probe used by the desktop shell and CI smoke tests."""
     return {"status": "ok", "app": "golavo", "version": __version__}
+
+
+@app.get("/api/v1/meta")
+def meta() -> dict[str, Any]:
+    """UI hints the frontend can't infer on its own — chiefly whether the
+    forecast surface is showing bundled synthetic samples (fresh install) so the
+    UI can label them honestly instead of as live data."""
+    return {
+        "version": __version__,
+        "forecast_source": "sample" if showing_samples() else "ledger",
+    }
 
 
 @app.post("/api/v1/shutdown")
@@ -132,10 +175,11 @@ def list_forecasts() -> list[dict[str, Any]]:
     Fails closed: an artifact whose sealed identity does not match its bytes is
     omitted rather than shown as a genuine forecast.
     """
-    if not ARTIFACT_DIR.exists():
+    source = _forecasts_dir()
+    if not source.exists():
         return []
     artifacts: list[dict[str, Any]] = []
-    for path in ARTIFACT_DIR.glob("fa_*.json"):
+    for path in source.glob("fa_*.json"):
         try:
             artifacts.append(_load_artifact(path))
         except _BAD_ARTIFACT:
@@ -150,7 +194,7 @@ def list_forecasts() -> list[dict[str, Any]]:
 @app.get("/api/v1/forecasts/{artifact_id}")
 def get_forecast(artifact_id: str) -> dict[str, Any]:
     """Return one artifact by canonical id."""
-    known_paths = {path.stem: path for path in ARTIFACT_DIR.glob("fa_*.json")}
+    known_paths = {path.stem: path for path in _forecasts_dir().glob("fa_*.json")}
     path = known_paths.get(artifact_id)
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")
@@ -172,10 +216,11 @@ def forecast_facts(artifact_id: str) -> dict[str, Any]:
     empty envelope rather than fabricating facts. Coincidences that ARE present
     stay labelled so the UI can quarantine them.
     """
-    known = {path.stem for path in ARTIFACT_DIR.glob("fa_*.json")}
+    source = _forecasts_dir()
+    known = {path.stem for path in source.glob("fa_*.json")}
     if artifact_id not in known:
         raise HTTPException(status_code=404, detail="forecast not found")
-    notebook_path = ARTIFACT_DIR / "notebooks" / f"{artifact_id}.json"
+    notebook_path = source / "notebooks" / f"{artifact_id}.json"
     if not notebook_path.is_file():
         return {"artifact_id": artifact_id, "available": False, "notebook": None}
     return {"artifact_id": artifact_id, "available": True, "notebook": _read_json(notebook_path)}
@@ -208,7 +253,7 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
 
     from golavo_server import ai_gateway
 
-    known_paths = {path.stem: path for path in ARTIFACT_DIR.glob("fa_*.json")}
+    known_paths = {path.stem: path for path in _forecasts_dir().glob("fa_*.json")}
     path = known_paths.get(artifact_id)
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")

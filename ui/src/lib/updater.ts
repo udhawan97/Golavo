@@ -205,17 +205,28 @@ export function useUpdaterController(): UpdaterController {
     let alive = true;
     const unlistens: Array<() => void> = [];
 
-    invoke<UpdaterStatus>("updater_status").then((s) => {
-      if (!alive) return;
-      setStatus(s);
-      if (s.justUpdated) {
-        const stamp = `${s.justUpdated.to}:${s.justUpdated.atEpoch}`;
-        if (readStore(TOAST_SEEN_KEY) !== stamp) setFreshUpdateToast(s.justUpdated);
-      }
-    }).catch(() => { /* status is best-effort; the UI just stays quiet */ });
+    const refreshStatus = () => {
+      invoke<UpdaterStatus>("updater_status").then((s) => {
+        if (!alive) return;
+        setStatus(s);
+        if (s.justUpdated) {
+          const stamp = `${s.justUpdated.to}:${s.justUpdated.atEpoch}`;
+          if (readStore(TOAST_SEEN_KEY) !== stamp) setFreshUpdateToast(s.justUpdated);
+        }
+      }).catch(() => { /* status is best-effort; the UI just stays quiet */ });
+    };
+    refreshStatus();
 
     const bridge = tauri();
     if (bridge) {
+      // finalize_update_if_pending now runs on the shell's background health
+      // thread (after the ~30-40s sidecar warm-up), so the just-updated record
+      // may not exist at first mount. Re-read status once the backend signals
+      // ready, otherwise the one-time "Updated to X" toast is missed.
+      bridge.event.listen("backend://ready", () => {
+        if (alive) refreshStatus();
+      }).then((un) => unlistens.push(un));
+
       bridge.event.listen("updater://progress", (e) => {
         if (!alive) return;
         const p = e.payload as { downloaded: number; total: number | null };

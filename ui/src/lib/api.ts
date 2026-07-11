@@ -50,9 +50,51 @@ const IS_DESKTOP = typeof RUNTIME.apiBase === "string";
 export type DataSource = "live" | "mock";
 export const DATA_SOURCE: DataSource = API_BASE ? "live" : "mock";
 
+/** Whether the UI depends on a backend that may still be starting up. In mock
+ *  mode there is nothing to wait for. */
+export const HAS_BACKEND = !!API_BASE;
+
+/** Cheap liveness probe against the sidecar/server `/health` — used by the
+ *  startup splash to know when the (slow-to-extract) engine is actually up.
+ *  Returns true immediately in mock mode. Never throws. */
+export async function pingHealth(): Promise<boolean> {
+  if (!API_BASE) return true;
+  try {
+    const headers: Record<string, string> = { accept: "application/json" };
+    if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
+    const res = await fetch(`${API_BASE}/health`, { headers });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export type ForecastSource = "mock" | "sample" | "ledger";
+
+/** Whether the forecast list is real user seals ("ledger") or bundled synthetic
+ *  samples ("sample", a fresh install with an empty ledger), or the web-mock
+ *  bundle ("mock"). Drives the honest data-source badge + first-run banner so
+ *  synthetic samples are never passed off as live forecasts. Never throws;
+ *  falls back to "ledger" if the meta route can't be read (avoids a false
+ *  "sample" label). */
+export async function fetchForecastSource(): Promise<ForecastSource> {
+  if (!API_BASE) return "mock";
+  try {
+    const headers: Record<string, string> = { accept: "application/json" };
+    if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
+    const res = await fetch(`${API_BASE}/api/v1/meta`, { headers });
+    if (!res.ok) return "ledger";
+    const body = (await res.json()) as { forecast_source?: string };
+    return body.forecast_source === "sample" ? "sample" : "ledger";
+  } catch {
+    return "ledger";
+  }
+}
+
 /** A human-facing description of where the data came from — used honestly in UI. */
-export function sourceDescription(): string {
+export function sourceDescription(source?: ForecastSource): string {
   if (!API_BASE) return "Bundled sample artifacts (no backend connected)";
+  if (source === "sample") return "Sample forecasts (your sealed forecasts will replace these)";
   return IS_DESKTOP ? `Live: bundled sidecar (${API_BASE})` : `Live: ${API_BASE}`;
 }
 

@@ -6,6 +6,20 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- **Desktop first-run UX.** The window now opens **immediately** with a
+  "Starting the local engine…" splash instead of ~30–40s of blank screen while
+  the onefile Python sidecar self-extracts — the health gate moved off the main
+  thread and the UI holds behind the splash until a `backend://ready` signal (or
+  a `/health` poll). A fresh install also **shows the 8 bundled synthetic sample
+  forecasts** when the ledger is empty (it read the empty ledger before, so the
+  app looked broken), labelled honestly — a "Sample data" badge and a first-run
+  banner, and `/api/v1/meta` tells the UI which mode it's in. Samples never reach
+  the forward calibration record (that always reads the real ledger), a lone
+  corrupt seal no longer blanks Matchday, and the post-update "Updated to X"
+  toast is re-checked after the late (background-thread) finalize so it isn't
+  missed. Two review loops over the change.
+
 ## [0.2.1] - 2026-07-11
 
 **First updater-enabled release.** Installs of v0.2.1 and later update themselves
