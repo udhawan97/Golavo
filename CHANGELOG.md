@@ -7,6 +7,29 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Phase 8 — Exact-score distribution + Casual/Expert presentation.** Goal-based
+  families (independent / Dixon-Coles / bivariate Poisson) now seal the
+  exact-score distribution the 1X2 forecast already implied, as an additive
+  `forecast.score_matrix`: a display grid of concrete scorelines `0..7` per side
+  plus an outcome-decomposed `8+` tail bucket. The sealed probabilities, expected
+  goals, and grid are all derived from **one** matrix (integrated to 20 goals/
+  side), so they are coherent by shared source. A **machine-checked coherence
+  invariant** enforces it: `validate_artifact` reproduces win/draw/loss from
+  `grid + tail` on every load (rejecting any incoherent matrix), and `seal_forecast`
+  additionally proves the matrix mean reproduces `expected_goals` before writing —
+  an incoherent matrix aborts the seal rather than being shown. Goal-less families
+  (climatological / Elo) and abstained seals carry **no** matrix: an honest
+  "no exact-score distribution" state, never a fabricated grid. The schema bumps
+  additively within `0.2.0` (existing `0.1.0`/`0.2.0` artifacts still validate);
+  sample fixtures regenerated coherently. The AI evidence bundle gains the top-3
+  scorelines and the tail as whitelisted `allowed_numbers`, so the AI may cite
+  e.g. "most likely 1-1 at 12.6%" — the numeric whitelist still governs, so it
+  cannot invent a scoreline or a percentage. A new **Casual ⇄ Expert** toggle
+  presents the same sealed numbers at two depths (the toggle never changes
+  displayed certainty): Casual = verdict bar + a band-generated plain-language
+  summary (not AI) + cited sealed-number facts; Expert = an accessible score-matrix
+  heatmap (table semantics, most-likely highlighted, theme-aware, reduced-motion
+  safe) with the tail, the model's spread, versions, and calibration context.
 - **Phase 7 — Fact & Coincidence engine (the Commentator's Notebook).** A new,
   deterministic `golavo_core.facts` package computes source-backed match facts
   over the vendored CC0 packs. A fixed, pre-registered family of templates

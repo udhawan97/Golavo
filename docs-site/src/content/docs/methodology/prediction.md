@@ -28,9 +28,24 @@ predict(home, away, venue, features):
 
 Identifiability is fixed with `Σ attack = Σ defence = 0`. The decay rate `ξ`, dependence `ρ`, and home advantage `γ` are chosen by **forward** grid-search, never in-sample.
 
+## Exact-score distribution & coherence (Phase 8)
+
+For the goal-based families (independent, Dixon-Coles, bivariate Poisson) the score matrix `M` above is not a throwaway intermediate — the sealed artifact carries it as an additive `forecast.score_matrix`. It is the exact-score distribution the 1X2 numbers **already implied**, surfaced honestly rather than recomputed.
+
+**Representation.** A display grid of concrete scorelines `0..N` per side (`N = 7`) plus a single **`N+` tail bucket** decomposed by outcome (`home / draw / away`). Grid + tail is an exact re-bucketing of `M`, so the win/draw/loss cells reconstruct without ambiguity — no aggregated corner is left un-attributable.
+
+**Coherence by shared source.** The sealed 1X2 probabilities, the expected goals, and the grid are all derived from **one** matrix, integrated to 20 goals per side (so truncation is below `1e-7` even at the rate clip). Because they come from the same object, they cannot drift apart. This is enforced as a machine-checked invariant, not a convention:
+
+- **Artifact-level** (needs only the stored JSON): `validate_artifact` reproduces W/D/L from `grid + tail` on **every load** and rejects any matrix whose marginals miss `forecast.probs` by more than `1e-5`. A hand-edited or incoherent grid never renders.
+- **Model-level** (checked at seal time and in tests): the matrix mean reproduces `forecast.expected_goals` to within `1e-4`, and re-deriving the model yields a byte-identical grid. An incoherent matrix **aborts the seal** rather than being written.
+
+**No calibration transform to desync.** Golavo applies no post-hoc probability re-scaler to a seal; its "calibration" is the empirical reliability ledger (below), not a transform. The grid and the 1X2 are therefore both raw outputs of the same fitted model — there is nothing that could be applied to one and not the other. If a secondary calibration transform is ever introduced, it must act on the joint distribution and re-derive the marginals; the coherence checks would catch any asymmetric application.
+
+**Honest absence.** Families that model outcomes rather than goals (climatological, Elo ordinal-logit) imply no exact-score distribution, so the field is **absent** — the UI shows "no grid for this model," never a fabricated one. Abstained seals carry no matrix at all.
+
 ## Coherent downstream markets
 
-- **Goalscorers, corners, shots, and lineups** — out of Phase 0. No accepted open source supplies the required full set of fields.
+- **Goalscorers, corners, shots, and lineups** — still out. No accepted open source supplies the required full set of fields (club goalscorers, corners, and xG have **no** open feed at all; martj42 ships goalscorers for internationals only). The exact-score grid is the one coherent downstream market Phase 8 could derive from the sealed model without new data.
 
 ## Typed features (candidate inputs, all behind a gate)
 
