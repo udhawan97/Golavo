@@ -1,6 +1,6 @@
 [project]
 name = "golavo-server"
-version = "0.2.1"
+version = "0.2.2"
 description = "Golavo local server (FastAPI): routes, jobs, evidence bundles, AI gateway."
 readme = "README.md"
 requires-python = ">=3.12"

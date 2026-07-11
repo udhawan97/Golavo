@@ -6,19 +6,31 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-07-11
+
+**Desktop first-run UX fixes.** Two problems a fresh desktop install hit:
+a ~30-40s blank window while the engine unpacked (felt broken, no feedback),
+and an empty Matchday (the sidecar read the empty per-user ledger instead of
+showing anything).
+
 ### Fixed
-- **Desktop first-run UX.** The window now opens **immediately** with a
-  "Starting the local engine…" splash instead of ~30–40s of blank screen while
-  the onefile Python sidecar self-extracts — the health gate moved off the main
-  thread and the UI holds behind the splash until a `backend://ready` signal (or
-  a `/health` poll). A fresh install also **shows the 8 bundled synthetic sample
-  forecasts** when the ledger is empty (it read the empty ledger before, so the
-  app looked broken), labelled honestly — a "Sample data" badge and a first-run
-  banner, and `/api/v1/meta` tells the UI which mode it's in. Samples never reach
+- **Instant window + honest loading state.** The window now opens
+  **immediately** with a "Starting the local engine…" splash instead of
+  ~30-40s of blank screen — the health gate moved off the main thread and the
+  UI holds behind the splash until a `backend://ready` signal (or a `/health`
+  poll). Time-to-window measured ~2-3s (was ~45s).
+- **Sample forecasts on a fresh install.** The desktop app now **shows the 8
+  bundled synthetic sample forecasts** when the ledger is empty, labelled
+  honestly — a "Sample data" badge and a first-run banner, driven by a new
+  `GET /api/v1/meta` (`forecast_source: sample|ledger`). Samples never reach
   the forward calibration record (that always reads the real ledger), a lone
   corrupt seal no longer blanks Matchday, and the post-update "Updated to X"
-  toast is re-checked after the late (background-thread) finalize so it isn't
-  missed. Two review loops over the change.
+  toast is re-checked after the (now background-thread) finalize so it isn't
+  missed. The badge stays neutral until the source resolves rather than
+  flashing "Live" over synthetic data.
+
+Two independent review loops (four adversarial passes) ran over this change;
+all findings closed and verified before release.
 
 ## [0.2.1] - 2026-07-11
 

@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.2.1" src="https://img.shields.io/badge/version-v0.2.1-6082b8?style=flat-square">
+  <img alt="version v0.2.2" src="https://img.shields.io/badge/version-v0.2.2-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -42,7 +42,7 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.2.1 pre-alpha** with OS-unsigned installers, built in the open. The deterministic
+> Golavo is a **v0.2.2 pre-alpha** with OS-unsigned installers, built in the open. The deterministic
 > engine, historical backtests, international seal→score loop, calibration record,
 > optional guarded AI narration, and desktop packaging are implemented. Signing,
 > notarization, confirmed-lineup adapters, scorers, corners, cups, and a club forward
