@@ -21,9 +21,10 @@ export default defineConfig({
         replacesTitle: true,
       },
       customCss: ["./src/styles/custom.css"],
-      // Bespoke animated landing hero (soccer · japan · zen).
+      // Bespoke animated landing hero (soccer · japan · zen) + expanding search.
       components: {
         Hero: "./src/components/Hero.astro",
+        Search: "./src/components/Search.astro",
       },
       head: [
         {
