@@ -56,7 +56,7 @@ tests (tmp dirs) and are never published as forecasts.
 
 ## The reproducible forward-loop test (task 4, the crux)
 
-`core/tests/test_phase3.py` (14 tests) replays the loop offline from the two retained
+`core/tests/test_phase3.py` (13 tests) replays the loop offline from the two retained
 packs: **France v Morocco, 2026-07-09** is scheduled (NA) at T0 and completed **2–0** at
 T1 with byte-identical identity fields (same `match_id`). The test seals at
 `as_of = 2026-07-08T00:00:00Z` (T-24h against the 00:00 UTC day proxy; 59 min after T0's
