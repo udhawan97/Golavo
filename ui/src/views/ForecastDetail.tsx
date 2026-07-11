@@ -9,6 +9,7 @@ import { SealStamp } from "../components/SealStamp";
 import { Provenance } from "../components/Provenance";
 import { ScoredPanel } from "../components/ScoredPanel";
 import { AiDeepRead } from "../components/AiDeepRead";
+import { CommentatorsNotebook } from "../components/CommentatorsNotebook";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
 export function ForecastDetail({ id }: { id: string }) {
@@ -93,6 +94,9 @@ function Detail({ artifact, supersededBy }: { artifact: ForecastArtifact; supers
           </p>
         </div>
       </div>
+
+      {/* Deterministic, source-backed match facts — subordinate to the seal. */}
+      <CommentatorsNotebook artifact={artifact} />
 
       {/* Optional, off by default, and subordinate to the sealed numbers above. */}
       <AiDeepRead artifact={artifact} />

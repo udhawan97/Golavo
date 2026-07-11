@@ -66,6 +66,16 @@ def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
+    """Evidence facts + numbers from a precomputed notebook, or ((), ()) if none."""
+    notebook_path = ARTIFACT_DIR / "notebooks" / f"{artifact_id}.json"
+    if not notebook_path.is_file():
+        return [], []
+    from golavo_core.facts import notebook_to_evidence  # lazy: pulls the AI guards
+
+    return notebook_to_evidence(_read_json(notebook_path))
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     """Liveness probe used by the desktop shell and CI smoke tests."""
@@ -93,6 +103,25 @@ def get_forecast(artifact_id: str) -> dict[str, Any]:
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")
     return _read_json(path)
+
+
+@app.get("/api/v1/forecasts/{artifact_id}/facts")
+def forecast_facts(artifact_id: str) -> dict[str, Any]:
+    """Serve the deterministic Commentator's Notebook precomputed for one artifact.
+
+    Read-only and pack-free: it reads a sibling ``notebooks/<artifact_id>.json``
+    (written offline by ``golavo notebook``); the forecast surface never computes
+    facts on the fly. When no notebook has been precomputed it returns an honest
+    empty envelope rather than fabricating facts. Coincidences that ARE present
+    stay labelled so the UI can quarantine them.
+    """
+    known = {path.stem for path in ARTIFACT_DIR.glob("fa_*.json")}
+    if artifact_id not in known:
+        raise HTTPException(status_code=404, detail="forecast not found")
+    notebook_path = ARTIFACT_DIR / "notebooks" / f"{artifact_id}.json"
+    if not notebook_path.is_file():
+        return {"artifact_id": artifact_id, "available": False, "notebook": None}
+    return {"artifact_id": artifact_id, "available": True, "notebook": _read_json(notebook_path)}
 
 
 @app.get("/api/v1/calibration")
@@ -139,7 +168,13 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    bundle = build_evidence_bundle(_read_json(path))
+    # Fold any precomputed notebook's context/predictive facts into the bundle so
+    # the model may cite them; coincidences are excluded and the numeric whitelist
+    # still governs. Absent a notebook, the bundle is exactly as before.
+    extra_facts, extra_numbers = _notebook_evidence(artifact_id)
+    bundle = build_evidence_bundle(
+        _read_json(path), extra_facts=extra_facts, extra_numbers=extra_numbers
+    )
     envelope = ai_gateway.generate_narration(bundle, config)
     # The UI resolves a claim's source_ids/number_refs against these trusted
     # bundle lookups to render citation chips with the exact engine display value.

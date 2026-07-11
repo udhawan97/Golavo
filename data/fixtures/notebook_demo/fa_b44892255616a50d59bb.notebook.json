@@ -1,0 +1,737 @@
+{
+  "as_of_utc": "2026-07-08T00:00:00Z",
+  "coincidence_cap": 3,
+  "facts": [
+    {
+      "base_rate": 0.61194,
+      "date_range": [
+        "1930-07-18",
+        "2026-07-06"
+      ],
+      "denominator": 134,
+      "freshness": {
+        "age_days": 2,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-06T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "home_advantage_base_rate",
+      "label": "predictive",
+      "min_sample": 100,
+      "numbers": [
+        {
+          "display": "61.2%",
+          "key": "home_win_rate",
+          "unit": "percent",
+          "value": 61.19403
+        },
+        {
+          "display": "134",
+          "key": "matches",
+          "unit": "count",
+          "value": 134
+        }
+      ],
+      "sample_n": 134,
+      "scope": "competition",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.557214,
+      "subject": "FIFA World Cup",
+      "text": "In FIFA World Cup, the home side has won 61.2% of 134 non-neutral matches in this data.",
+      "values": {
+        "home_wins": 82,
+        "matches": 134
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.2625,
+      "date_range": [
+        "1934-05-27",
+        "2026-07-03"
+      ],
+      "denominator": 240,
+      "freshness": {
+        "age_days": 5,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-03T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "competition_debut_base_rate",
+      "label": "predictive",
+      "min_sample": 200,
+      "numbers": [
+        {
+          "display": "26.2%",
+          "key": "debut_win_rate",
+          "unit": "percent",
+          "value": 26.25
+        },
+        {
+          "display": "240",
+          "key": "matches",
+          "unit": "count",
+          "value": 240
+        },
+        {
+          "display": "73",
+          "key": "teams",
+          "unit": "count",
+          "value": 73
+        }
+      ],
+      "sample_n": 240,
+      "scope": "competition",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.141667,
+      "subject": "FIFA World Cup",
+      "text": "In FIFA World Cup, teams in their first year after arriving have won 26.2% of 240 matches (across 73 first-time teams) in this data.",
+      "values": {
+        "matches": 240,
+        "note": "debut-window proxy; not promotion (no tier data in pack)",
+        "teams": 73,
+        "wins": 63
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "1904-05-01",
+        "2026-07-04"
+      ],
+      "denominator": 940,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "biggest_win",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {
+          "display": "14",
+          "key": "goals_for",
+          "unit": "count",
+          "value": 14
+        },
+        {
+          "display": "0",
+          "key": "goals_against",
+          "unit": "count",
+          "value": 0
+        }
+      ],
+      "sample_n": 940,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 1.0,
+      "subject": "France",
+      "text": "France's biggest win in this data was by 14\u20130.",
+      "values": {
+        "goals_against": 0,
+        "goals_for": 14,
+        "margin": 14,
+        "match_date": "2023-11-18",
+        "opponent": "Gibraltar"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "2024-03-22",
+        "2026-07-04"
+      ],
+      "denominator": 43,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "unbeaten_run",
+      "label": "context",
+      "min_sample": 3,
+      "numbers": [
+        {
+          "display": "43",
+          "key": "run",
+          "unit": "count",
+          "value": 43
+        },
+        {
+          "display": "35",
+          "key": "wins",
+          "unit": "count",
+          "value": 35
+        },
+        {
+          "display": "8",
+          "key": "draws",
+          "unit": "count",
+          "value": 8
+        }
+      ],
+      "sample_n": 43,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 1.0,
+      "subject": "Morocco",
+      "text": "Morocco are unbeaten in their last 43 matches (35 won, 8 drawn).",
+      "values": {
+        "draws": 8,
+        "run": 43,
+        "wins": 35
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "1988-02-05",
+        "2022-12-14"
+      ],
+      "denominator": 6,
+      "freshness": {
+        "age_days": 1302,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2022-12-14T00:00:00Z",
+        "stale": false,
+        "staleness_days": 4380
+      },
+      "id": "head_to_head_record",
+      "label": "context",
+      "min_sample": 3,
+      "numbers": [
+        {
+          "display": "6",
+          "key": "meetings",
+          "unit": "count",
+          "value": 6
+        },
+        {
+          "display": "4",
+          "key": "home_wins",
+          "unit": "count",
+          "value": 4
+        },
+        {
+          "display": "2",
+          "key": "draws",
+          "unit": "count",
+          "value": 2
+        },
+        {
+          "display": "0",
+          "key": "home_losses",
+          "unit": "count",
+          "value": 0
+        },
+        {
+          "display": "2",
+          "key": "last_home_goals",
+          "unit": "count",
+          "value": 2
+        },
+        {
+          "display": "0",
+          "key": "last_away_goals",
+          "unit": "count",
+          "value": 0
+        }
+      ],
+      "sample_n": 6,
+      "scope": "head_to_head",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.766667,
+      "subject": "France v Morocco",
+      "text": "In 6 previous meetings, France have 4 wins, 2 draws and 0 losses against Morocco. Their most recent meeting finished 2\u20130.",
+      "values": {
+        "draws": 2,
+        "home_losses": 0,
+        "home_wins": 4,
+        "last_away_team": "Morocco",
+        "last_home_team": "France",
+        "last_meeting_date": "2022-12-14",
+        "last_score": "2-0",
+        "meetings": 6
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "1958-04-03",
+        "2026-07-04"
+      ],
+      "denominator": 622,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "biggest_win",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {
+          "display": "7",
+          "key": "goals_for",
+          "unit": "count",
+          "value": 7
+        },
+        {
+          "display": "0",
+          "key": "goals_against",
+          "unit": "count",
+          "value": 0
+        }
+      ],
+      "sample_n": 622,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.7,
+      "subject": "Morocco",
+      "text": "Morocco's biggest win in this data was by 7\u20130.",
+      "values": {
+        "goals_against": 0,
+        "goals_for": 7,
+        "margin": 7,
+        "match_date": "2024-11-18",
+        "opponent": "Lesotho"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.8,
+      "date_range": [
+        "2024-11-14",
+        "2026-06-30"
+      ],
+      "denominator": 10,
+      "freshness": {
+        "age_days": 8,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-06-30T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "home_away_form",
+      "label": "context",
+      "min_sample": 5,
+      "numbers": [
+        {
+          "display": "10",
+          "key": "matches",
+          "unit": "count",
+          "value": 10
+        },
+        {
+          "display": "8",
+          "key": "wins",
+          "unit": "count",
+          "value": 8
+        },
+        {
+          "display": "1",
+          "key": "draws",
+          "unit": "count",
+          "value": 1
+        },
+        {
+          "display": "1",
+          "key": "losses",
+          "unit": "count",
+          "value": 1
+        }
+      ],
+      "sample_n": 10,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.7,
+      "subject": "France",
+      "text": "At home, France have a 8\u20131\u20131 win\u2013draw\u2013loss record from their last 10 home matches.",
+      "values": {
+        "draws": 1,
+        "leg": "home",
+        "losses": 1,
+        "matches": 10,
+        "wins": 8
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.7,
+      "date_range": [
+        "2023-11-21",
+        "2026-07-04"
+      ],
+      "denominator": 10,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "home_away_form",
+      "label": "context",
+      "min_sample": 5,
+      "numbers": [
+        {
+          "display": "10",
+          "key": "matches",
+          "unit": "count",
+          "value": 10
+        },
+        {
+          "display": "7",
+          "key": "wins",
+          "unit": "count",
+          "value": 7
+        },
+        {
+          "display": "3",
+          "key": "draws",
+          "unit": "count",
+          "value": 3
+        },
+        {
+          "display": "0",
+          "key": "losses",
+          "unit": "count",
+          "value": 0
+        }
+      ],
+      "sample_n": 10,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.7,
+      "subject": "Morocco",
+      "text": "Away from home, Morocco have a 7\u20133\u20130 win\u2013draw\u2013loss record from their last 10 away matches.",
+      "values": {
+        "draws": 3,
+        "leg": "away",
+        "losses": 0,
+        "matches": 10,
+        "wins": 7
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "2026-06-08",
+        "2026-07-04"
+      ],
+      "denominator": 6,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "win_streak",
+      "label": "context",
+      "min_sample": 3,
+      "numbers": [
+        {
+          "display": "6",
+          "key": "run",
+          "unit": "count",
+          "value": 6
+        }
+      ],
+      "sample_n": 6,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.6,
+      "subject": "France",
+      "text": "France have won each of their last 6 matches in a row.",
+      "values": {
+        "run": 6
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "2026-06-08",
+        "2026-07-04"
+      ],
+      "denominator": 6,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "unbeaten_run",
+      "label": "context",
+      "min_sample": 3,
+      "numbers": [
+        {
+          "display": "6",
+          "key": "run",
+          "unit": "count",
+          "value": 6
+        },
+        {
+          "display": "6",
+          "key": "wins",
+          "unit": "count",
+          "value": 6
+        },
+        {
+          "display": "0",
+          "key": "draws",
+          "unit": "count",
+          "value": 0
+        }
+      ],
+      "sample_n": 6,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.4,
+      "subject": "France",
+      "text": "France are unbeaten in their last 6 matches (6 won, 0 drawn).",
+      "values": {
+        "draws": 0,
+        "run": 6,
+        "wins": 6
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.541985,
+      "date_range": [
+        "1908-10-22",
+        "2026-07-04"
+      ],
+      "denominator": 131,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "neutral_venue_record",
+      "label": "context",
+      "min_sample": 5,
+      "numbers": [
+        {
+          "display": "131",
+          "key": "matches",
+          "unit": "count",
+          "value": 131
+        },
+        {
+          "display": "71",
+          "key": "wins",
+          "unit": "count",
+          "value": 71
+        },
+        {
+          "display": "28",
+          "key": "draws",
+          "unit": "count",
+          "value": 28
+        },
+        {
+          "display": "32",
+          "key": "losses",
+          "unit": "count",
+          "value": 32
+        },
+        {
+          "display": "54.2%",
+          "key": "win_rate",
+          "unit": "percent",
+          "value": 54.198473
+        }
+      ],
+      "sample_n": 131,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.29771,
+      "subject": "France",
+      "text": "At neutral venues, France have a 71\u201328\u201332 record in 131 matches (54.2% won).",
+      "values": {
+        "draws": 28,
+        "losses": 32,
+        "matches": 131,
+        "wins": 71
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.467532,
+      "date_range": [
+        "1961-01-22",
+        "2026-07-04"
+      ],
+      "denominator": 154,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "neutral_venue_record",
+      "label": "context",
+      "min_sample": 5,
+      "numbers": [
+        {
+          "display": "154",
+          "key": "matches",
+          "unit": "count",
+          "value": 154
+        },
+        {
+          "display": "72",
+          "key": "wins",
+          "unit": "count",
+          "value": 72
+        },
+        {
+          "display": "49",
+          "key": "draws",
+          "unit": "count",
+          "value": 49
+        },
+        {
+          "display": "33",
+          "key": "losses",
+          "unit": "count",
+          "value": 33
+        },
+        {
+          "display": "46.8%",
+          "key": "win_rate",
+          "unit": "percent",
+          "value": 46.753247
+        }
+      ],
+      "sample_n": 154,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.253247,
+      "subject": "Morocco",
+      "text": "At neutral venues, Morocco have a 72\u201349\u201333 record in 154 matches (46.8% won).",
+      "values": {
+        "draws": 49,
+        "losses": 33,
+        "matches": 154,
+        "wins": 72
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "1960-07-09",
+        "2024-07-09"
+      ],
+      "denominator": 3,
+      "freshness": {
+        "age_days": 729,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2024-07-09T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "calendar_date_repeat",
+      "label": "coincidence",
+      "min_sample": 3,
+      "numbers": [
+        {
+          "display": "3",
+          "key": "appearances",
+          "unit": "count",
+          "value": 3
+        },
+        {
+          "display": "0",
+          "key": "wins",
+          "unit": "count",
+          "value": 0
+        }
+      ],
+      "sample_n": 3,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.5,
+      "subject": "France",
+      "text": "France have played on this calendar date 3 times before, winning 0.",
+      "values": {
+        "appearances": 3,
+        "day": 9,
+        "month": 7,
+        "wins": 0
+      },
+      "version": "1.0.0"
+    }
+  ],
+  "family_size": 26,
+  "generator": "golavo-core/0.1.0",
+  "match": {
+    "away_team": "Morocco",
+    "competition": "FIFA World Cup",
+    "home_team": "France",
+    "kickoff_utc": "2026-07-09T00:00:00Z",
+    "neutral_venue": true
+  },
+  "notebook_id": "nb_6aafbe514aebe8104331",
+  "registry_version": "2026.07.11",
+  "schema_version": "0.1.0",
+  "source_ids": [
+    "sp_273c731492df"
+  ],
+  "suppressed": [
+    {
+      "detail": "sample_n=2 < min_sample=3",
+      "id": "clean_sheet_run",
+      "reason": "min_sample",
+      "subject": "France"
+    }
+  ]
+}

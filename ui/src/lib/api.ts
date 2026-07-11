@@ -12,13 +12,19 @@
  *   GET {base}/api/v1/calibration         -> CalibrationSummary
  */
 import { ACCEPTED_SCHEMA_VERSIONS } from "./contract";
-import type { CalibrationSummary, EvalSummary, ForecastArtifact } from "./contract";
+import type {
+  CalibrationSummary,
+  EvalSummary,
+  ForecastArtifact,
+  NotebookResponse,
+} from "./contract";
 import type { AiProvider, NarrativeResponse } from "./ai";
 import {
   loadMockCalibration,
   loadMockEval,
   loadMockForecast,
   loadMockForecasts,
+  loadMockNotebook,
 } from "../mocks";
 
 /**
@@ -147,6 +153,25 @@ export async function fetchForecast(id: string): Promise<ForecastArtifact | null
     return assertForecast(body, `forecast ${id}`);
   } catch (err) {
     if (err instanceof Error && /HTTP 404/.test(err.message)) return null;
+    throw err;
+  }
+}
+
+/**
+ * Fetch the read-only Commentator's Notebook for an artifact.
+ *
+ * Deterministic, source-backed facts precomputed by the engine — not a model
+ * output, so (unlike the AI narration) it is shown from the bundled mocks in
+ * sample-data mode. A 404 or a missing mock yields an honest unavailable
+ * envelope rather than an error. This call can never change a probability.
+ */
+export async function fetchNotebook(id: string): Promise<NotebookResponse> {
+  if (!API_BASE) return loadMockNotebook(id);
+  try {
+    return (await getJson(`/api/v1/forecasts/${encodeURIComponent(id)}/facts`)) as NotebookResponse;
+  } catch (err) {
+    if (err instanceof Error && /HTTP 404/.test(err.message))
+      return { artifact_id: id, available: false, notebook: null };
     throw err;
   }
 }

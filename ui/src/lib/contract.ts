@@ -215,6 +215,97 @@ export interface CalibrationSummary {
   chains: CalibrationChain[];
 }
 
+// ---- Commentator's Notebook (Phase 7) ---------------------------------------
+// Deterministic, source-backed facts computed by a fixed template family. Every
+// fact is labelled and sample-guarded; coincidences are capped and quarantined.
+// A notebook NEVER carries or changes a forecast probability. Mirrors
+// docs/contracts/facts.schema.json.
+
+export type FactLabel = "predictive" | "context" | "coincidence";
+export type FactScope = "team" | "head_to_head" | "match" | "competition";
+export type FactNumberUnit = "percent" | "goals" | "count";
+
+export interface FactNumber {
+  key: string;
+  value: number;
+  unit: FactNumberUnit;
+  display: string;
+}
+
+export interface FactFreshness {
+  as_of_utc: string;
+  last_event_utc: string;
+  age_days: number;
+  stale: boolean;
+  staleness_days: number | null;
+}
+
+export interface NotebookFact {
+  id: string;
+  version: string;
+  label: FactLabel;
+  scope: FactScope;
+  subject: string;
+  text: string;
+  values: Record<string, unknown>;
+  numbers: FactNumber[];
+  sample_n: number;
+  denominator: number;
+  base_rate: number | null;
+  date_range: [string, string];
+  source_ids: string[];
+  freshness: FactFreshness;
+  min_sample: number;
+  specificity: number;
+}
+
+export interface NotebookSuppression {
+  id: string;
+  subject?: string;
+  reason: "min_sample" | "stale" | "no_source" | "coincidence_cap" | "empty";
+  detail?: string;
+}
+
+export interface CommentatorsNotebook {
+  schema_version: string;
+  notebook_id: string;
+  registry_version: string;
+  as_of_utc: string;
+  match: {
+    home_team: string;
+    away_team: string;
+    competition: string;
+    neutral_venue: boolean;
+    kickoff_utc?: string | null;
+  };
+  source_ids: string[];
+  family_size: number;
+  coincidence_cap: number;
+  facts: NotebookFact[];
+  suppressed: NotebookSuppression[];
+  generator: string;
+}
+
+/** The read-only /facts endpoint envelope (or its mock). */
+export interface NotebookResponse {
+  artifact_id: string;
+  available: boolean;
+  notebook: CommentatorsNotebook | null;
+}
+
+export const FACT_LABEL_TEXT: Record<FactLabel, string> = {
+  predictive: "Predictive",
+  context: "Context",
+  coincidence: "Coincidence",
+};
+
+export const FACT_SCOPE_TEXT: Record<FactScope, string> = {
+  team: "Team",
+  head_to_head: "Head-to-head",
+  match: "Match",
+  competition: "Competition",
+};
+
 // ---- Display metadata (UI-side only — not part of the wire contract) --------
 
 export const FAMILY_LABELS: Record<ModelFamily, string> = {

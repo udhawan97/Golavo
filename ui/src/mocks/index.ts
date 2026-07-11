@@ -1,9 +1,19 @@
 /** Bundled mock fixtures. Loaded lazily via import.meta.glob so they land in a
  *  separate chunk and never weigh down the initial bundle. These are the
  *  fallback data source when VITE_GOLAVO_API is unset (the default). */
-import type { CalibrationSummary, EvalSummary, ForecastArtifact } from "../lib/contract";
+import type {
+  CalibrationSummary,
+  CommentatorsNotebook,
+  EvalSummary,
+  ForecastArtifact,
+  NotebookResponse,
+} from "../lib/contract";
 
 const forecastModules = import.meta.glob<ForecastArtifact>("./forecasts/*.json", {
+  import: "default",
+});
+
+const notebookModules = import.meta.glob<CommentatorsNotebook>("./notebooks/*.json", {
   import: "default",
 });
 
@@ -18,6 +28,14 @@ export async function loadMockForecasts(): Promise<ForecastArtifact[]> {
 export async function loadMockForecast(id: string): Promise<ForecastArtifact | null> {
   const all = await loadMockForecasts();
   return all.find((a) => a.artifact_id === id) ?? null;
+}
+
+/** A notebook mock is keyed by artifact id via its filename (notebooks/<id>.json).
+ *  Absent one, we return an honest unavailable envelope — never fabricated facts. */
+export async function loadMockNotebook(id: string): Promise<NotebookResponse> {
+  const entry = Object.entries(notebookModules).find(([path]) => path.endsWith(`/${id}.json`));
+  if (!entry) return { artifact_id: id, available: false, notebook: null };
+  return { artifact_id: id, available: true, notebook: await entry[1]() };
 }
 
 export async function loadMockEval(): Promise<EvalSummary> {

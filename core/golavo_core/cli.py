@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from golavo_core.artifacts import score_forecast, seal_forecast, void_forecast
@@ -66,7 +67,43 @@ def _parser() -> argparse.ArgumentParser:
     void.add_argument("--voided-at", required=True, dest="voided_at_utc")
     void.add_argument("--reason", required=True)
     void.add_argument("--output-dir", type=Path, default=REPO_ROOT / "data/artifacts")
+
+    notebook = commands.add_parser(
+        "notebook",
+        help="compute the deterministic Commentator's Notebook for a sealed artifact",
+    )
+    notebook.add_argument("--artifact", type=Path, required=True)
+    notebook.add_argument(
+        "--pack",
+        type=Path,
+        required=True,
+        help="the pack the artifact was sealed from (its match table + side tables)",
+    )
+    notebook.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="output path; defaults to <artifact-dir>/notebooks/<artifact-id>.json "
+        "(where the read-only server looks for it)",
+    )
     return parser
+
+
+def _write_notebook(artifact_path: Path, pack_dir: Path, output: Path | None) -> Path:
+    from golavo_core.facts import load_side_tables, notebook_for_artifact
+    from golavo_core.ingest import load_matches
+
+    artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
+    matches = load_matches(pack_dir)
+    goalscorers, shootouts = load_side_tables(pack_dir)
+    nb = notebook_for_artifact(
+        artifact, matches, goalscorers=goalscorers, shootouts=shootouts
+    )
+    if output is None:
+        output = artifact_path.parent / "notebooks" / f"{artifact['artifact_id']}.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(nb, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return output
 
 
 def main() -> None:
@@ -121,6 +158,8 @@ def main() -> None:
                 reason=args.reason,
             )
         )
+    elif args.command == "notebook":
+        print(_write_notebook(args.artifact, args.pack, args.output))
 
 
 if __name__ == "__main__":
