@@ -40,7 +40,7 @@ Golavo builds a reproducible 1X2 forecast for a men's senior full international,
 | **May** | Rerun when a *confirmed* new fact becomes a typed feature | Surface cited facts and propose typed features for the engine |
 | **May never** | — | Silently change a probability, or state a number not in its evidence bundle |
 
-The optional AI layer and typed-feature reruns are **planned (ADR-0001)** and are out of Phase 0. Their contract is fixed now so future AI work cannot become a second forecasting oracle.
+The optional AI layer is **implemented in Phase 5 and off by default**; typed-feature reruns from confirmed facts remain **planned (ADR-0001)**. The AI reads and cites the engine's numbers over a deterministic evidence bundle and is structurally prevented from stating any number the engine did not produce — a numeric whitelist rejects the whole narration otherwise, falling back to local-only. It **does not improve accuracy** and cannot change a probability. See the [Phase 5 handoff](docs/handoff/codex-phase5.md).
 
 ## How a forecast is made
 
@@ -155,7 +155,8 @@ Phase 0 has no account, telemetry, ads, BYOK keys, AI calls, or updater. Sourcep
 | **2 — Source-mode web app** | Matchday, Fixture Room, Forecast Theatre, After the Whistle |
 | **3 — BYOK depth** | football-data.org + API-Football typed-feature adapters, confirmed-lineup forecasts |
 | **4 — Desktop + release** | Tauri shell, signed updater, notarized DMG + signed EXE, docs site |
-| **5+** | scorers & corners, AI Deep Read, fact engine, cups & UEFA depth |
+| **5 — AI Deep Read** | optional, local-first AI explanation over an evidence bundle; numeric whitelist, injection defenses, local-only fallback, CI red-team — **off by default; never owns a number** |
+| **6+** | scorers & corners, fact engine, cups & UEFA depth |
 
 Full detail with entry/exit criteria and kill switches: [Roadmap](https://udhawan97.github.io/Golavo/roadmap/).
 

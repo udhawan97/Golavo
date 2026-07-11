@@ -17,9 +17,9 @@ Golavo is built data-first. The first phase is a feasibility spike with a real k
 
 ## Full aspirational Golavo
 
-- **5 — Scorers & corners** — internationals scorer module first (CC0); club scorers/corners only if a lawful data source is verified.
-- **6 — AI Deep Read** — local-first, then BYOK cloud, with the full AI contract and a CI red-team suite.
-- **7 — Fact engine & dossiers** — template registry growth; team/player/manager dossiers from Wikidata + CC0.
+- **5 — AI Deep Read** ✅ *shipped, off by default* — local-first (Ollama / llama.cpp), then BYOK cloud, with the full AI contract (deterministic evidence bundle, numeric whitelist, no chain-of-thought, injection defenses, local-only fallback) and a CI red-team suite. AI explains and cites the engine's numbers; it never changes one and does not improve accuracy. See the [AI providers](/Golavo/ai/providers/) page.
+- **Scorers & corners** — internationals scorer module first (CC0); club scorers/corners only if a lawful data source is verified.
+- **Fact engine & dossiers** — template registry growth; team/player/manager dossiers from Wikidata + CC0.
 - **8 — Cups & UEFA depth** — via BYOK, driven by the coverage ledger; a rules engine for two-legged ties, extra time, and penalties across eras.
 - **9 — Community & longevity** — signed community packs, i18n, ODbL overlay opt-in UX.
 

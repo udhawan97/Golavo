@@ -18,7 +18,7 @@ All of it computes on your machine over data you've already synced. Staleness is
 - **Local AI** (Ollama / llama.cpp) for narrative — no key, no cloud.
 - **Cloud AI** (your own OpenAI/Anthropic key) for narrative and research.
 
-Turning AI off changes nothing about the numbers. See [AI providers](/Golavo/ai/providers/).
+AI is **off by default**. It only reads and cites the numbers the deterministic engine already produced — it cannot change a probability and does not improve accuracy. Turning AI off changes nothing about the numbers. See [AI providers](/Golavo/ai/providers/).
 
 ## What "local" does not mean
 

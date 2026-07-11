@@ -7,6 +7,36 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Phase 5 optional, local-first **AI Deep Read** — off by default and strictly
+  additive; the whole app works identically with AI disabled. The deterministic
+  engine owns every probability; the AI only explains and cites, and is
+  structurally prevented from stating any number the engine did not produce. It
+  **does not improve accuracy** and cannot change a probability.
+  - `MatchEvidenceBundle` (`golavo_core.evidence`, additive schema
+    `evidence_bundle.schema.json` 0.1.0): a pure function of a sealed/scored
+    artifact carrying an explicit `allowed_numbers` whitelist — every numeric
+    value the AI may utter, each with an id, unit, display string, and citable
+    source.
+  - AI guards (`golavo_core.ai`, network-free): a formatting-tolerant,
+    one-directional, unicode-safe numeric whitelist matcher; narration review
+    that strips chain-of-thought, drops uncited claims, and hard-rejects
+    unsupported numbers, betting lexicon, and credential-shaped content;
+    an untrusted-text sanitizer; and a fixed, versioned system prompt. Forced
+    structured output via `ai_narration.schema.json` 0.1.0.
+  - AI gateway (`golavo_server.ai_gateway`), the only module that talks to an
+    LLM: OpenAI-compatible (Ollama / llama.cpp) and BYOK OpenAI/Anthropic over
+    stdlib `urllib`; injected transport for CI; parse → review → one retry →
+    local-only fallback; cache keyed by `(bundle_hash, provider, model,
+    prompt_version)`; keys from env/keychain, header-only, never logged.
+  - `POST /api/v1/forecasts/{id}/narrative`: additive, off by default; returns a
+    guard-validated narration or an explicit off/unavailable/local-only state.
+    The read-only forecast surface is unchanged; AI never blocks a forecast.
+  - UI "AI Deep Read" panel: off-by-default provider selector, subordinate to the
+    sealed numbers, cited claims with source + number chips, factual pipeline
+    stages only (never model reasoning), honest fallback states.
+  - CI red-team suite (no live LLM): adversarial bundles/responses that try to
+    change a probability, fabricate a number/citation, smuggle betting language,
+    leak chain-of-thought, or exfiltrate a key — all fail closed to local-only.
 - Phase 4 desktop app: a Tauri 2 shell that packages the FastAPI core as a
   PyInstaller **onefile sidecar** (`golavo-sidecar-<target-triple>`). On launch it
   picks a free `127.0.0.1` port, mints a per-launch token, spawns the sidecar,
