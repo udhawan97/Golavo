@@ -67,16 +67,20 @@ find "$BUNDLE_DIR" -type f \
   -exec cp {} "$OUT/" \; 2>/dev/null || true
 
 # Checksum exactly those artifact types, deterministically (sorted), bash-safe.
+# Named per-target: both platform legs upload into one merged dist in CI, and
+# two files both called SHA256SUMS would silently clobber each other there
+# (the publish job generates the release-wide SHA256SUMS.txt itself).
+SUMS_FILE="SHA256SUMS-${TARGET}"
 SUM_TOOL="sha256sum"; command -v sha256sum >/dev/null 2>&1 || SUM_TOOL="shasum -a 256"
 (
   cd "$OUT"
   shopt -s nullglob
   files=( *.dmg *.app.tar.gz *.msi *.exe *.sig *.AppImage *.deb *.nsis.zip )
-  : > SHA256SUMS
+  : > "$SUMS_FILE"
   for f in $(printf '%s\n' "${files[@]}" | sort -u); do
-    $SUM_TOOL "$f" >> SHA256SUMS
+    $SUM_TOOL "$f" >> "$SUMS_FILE"
   done
 )
 echo "==> Done. Artifacts in ${OUT}:"
 ls -la "$OUT"
-echo "==> SHA256SUMS:"; cat "$OUT/SHA256SUMS"
+echo "==> ${SUMS_FILE}:"; cat "$OUT/${SUMS_FILE}"

@@ -1,7 +1,8 @@
 name: Release
 
-# Stable releases build from a v* tag; a manual dispatch can cut a beta.
-# Desktop build steps are guarded until the Tauri shell lands in Phase 4.
+# Stable releases build from a v* tag; a manual dispatch can cut a beta build
+# (artifacts only — publish is tag-gated, so betas never touch GitHub Releases
+# or the updater's releases/latest endpoint).
 on:
   push:
     tags: ["v*"]
@@ -34,6 +35,12 @@ jobs:
             echo "version=0.0.0-beta.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
             echo "channel=${{ inputs.channel }}" >> "$GITHUB_OUTPUT"
           fi
+      - name: Guard — tag must match the committed version
+        if: startsWith(github.ref, 'refs/tags/v')
+        # The updater compares the version compiled into tauri.conf.json, so a
+        # tag that outruns the committed version would ship a binary that can
+        # never see its own successor. Bump first (make release-bump), then tag.
+        run: python3 scripts/bump_version.py --check "${GITHUB_REF#refs/tags/}"
 
   build:
     needs: prepare
@@ -58,7 +65,23 @@ jobs:
             echo "ready=false" >> "$GITHUB_OUTPUT"
             echo "Desktop shell not scaffolded yet (Phase 4). Skipping platform build."
           fi
-      # --- The steps below activate in Phase 4 (see docs/adr/0001-architecture.md) ---
+      - name: Guard — stable releases must be able to sign updates
+        if: steps.guard.outputs.ready == 'true' && startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        # A stable release built without the signing key produces installers with
+        # no updater compiled in: everyone who installs it is silently stranded
+        # off the update chain forever. Fail loudly instead.
+        run: |
+          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY secret is not configured — refusing to cut a stable release whose installs could never auto-update."
+            exit 1
+          fi
+          if grep -q "REPLACE_WITH_TAURI_UPDATER_PUBLIC_KEY" desktop/src-tauri/tauri.updater.conf.json; then
+            echo "::error::tauri.updater.conf.json still holds the placeholder pubkey — updates built now could never be verified."
+            exit 1
+          fi
       - uses: actions/setup-python@v6
         if: steps.guard.outputs.ready == 'true'
         with: { python-version: "3.12" }  # core pins scipy 1.18.0, which requires >=3.12
@@ -80,8 +103,9 @@ jobs:
         shell: bash
         run: bash packaging/build.sh "${{ matrix.target }}"
         env:
-          # All GATED — unset in a fork/default build => an UNSIGNED bundle and no
-          # updater artifacts. Tauri skips each step when its secret is empty.
+          # Updater signing is REQUIRED for stable tags (guard above); Apple
+          # code-signing/notarization stays optional — Tauri skips each step
+          # when its secret is empty.
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -99,40 +123,57 @@ jobs:
 
   publish:
     needs: [prepare, build]
-    # Publish even if a desktop build leg fails: an honest unsigned pre-release
-    # still ships the source + whatever bundles built + their SHA256SUMS.
-    if: ${{ always() && startsWith(github.ref, 'refs/tags/v') }}
+    # Tag-gated AND requires every build leg green: a half-shipped release would
+    # publish a latest.json whose missing platform makes update checks error out
+    # on that platform (the plugin resolves URLs for the current platform
+    # unconditionally). No release beats a broken one.
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    env:
-      MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
         with: { path: dist, merge-multiple: true }
-        continue-on-error: true
+      - name: Assemble + validate updater manifest (latest.json)
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          # Per-leg checksum files are superseded by the merged SHA256SUMS.txt.
+          rm -f dist/SHA256SUMS-*
+          python3 scripts/make_update_manifest.py generate \
+            --dist dist --version "$VERSION" --tag "$TAG" --repo "${{ github.repository }}"
+          python3 scripts/make_update_manifest.py validate \
+            --manifest dist/latest.json --dist dist --tag "$TAG"
       - name: Checksums
         run: |
-          mkdir -p dist && cd dist
-          if ls * >/dev/null 2>&1; then sha256sum * > SHA256SUMS.txt || true; fi
-      - name: Sign checksums (minisign, if key configured)
-        if: env.MINISIGN_SECRET_KEY != ''
-        run: echo "minisign signing step runs when the secret is present"
-      - name: Publish GitHub Release
+          cd dist
+          sha256sum * > ../SHA256SUMS.txt && mv ../SHA256SUMS.txt .
+      - name: Publish GitHub Release (draft until every asset is uploaded)
         uses: softprops/action-gh-release@v3
         with:
-          # An unsigned build is always a pre-release: with no checksum-signing key
-          # (and, upstream, no Tauri/Apple signing secrets) nothing here is signed or
-          # notarized. A future signed release (MINISIGN_SECRET_KEY present) publishes
-          # as a full release.
-          prerelease: ${{ env.MINISIGN_SECRET_KEY == '' || needs.prepare.outputs.channel != 'stable' }}
+          # Draft first: releases/latest must never point at a release whose
+          # latest.json or installers are still uploading. The undraft below
+          # makes the cutover atomic.
+          draft: true
+          # Stable tags publish as REAL releases — the updater endpoint
+          # (releases/latest/download/latest.json) skips prereleases entirely.
+          prerelease: ${{ needs.prepare.outputs.channel != 'stable' }}
           generate_release_notes: true
           body: |
-            **Golavo v${{ needs.prepare.outputs.version }} — unsigned pre-release.**
+            **Golavo v${{ needs.prepare.outputs.version }}**
 
-            Desktop bundles are **unsigned**: macOS Gatekeeper and Windows SmartScreen
-            warn on first launch (macOS: right-click → Open; Windows: More info → Run
-            anyway). Code signing, notarization, and the signed auto-updater are wired
-            but gated on secrets that are **not configured** — no signed or notarized
-            artifact is produced or claimed. Verify every download against
-            `SHA256SUMS.txt`.
+            In-app updates are **cryptographically signed**: the updater verifies
+            every download against the public key compiled into the app before
+            installing. Installers are **not yet OS-signed/notarized**, so macOS
+            Gatekeeper and Windows SmartScreen warn on FIRST install (macOS:
+            right-click → Open; Windows: More info → Run anyway). Verify manual
+            downloads against `SHA256SUMS.txt`.
+
+            **Updating from v0.1.0?** Builds before v0.2.0 shipped without the
+            in-app updater — download and install this version manually once;
+            after that, updates arrive in-app.
           files: dist/**
+      - name: Undraft — atomic cutover for releases/latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "${GITHUB_REF#refs/tags/}" --draft=false
