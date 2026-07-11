@@ -9,7 +9,7 @@ read-only views of those results. React renders the workbench. Tauri supervises
 the packaged processes. Optional AI is a replaceable explanation client over a
 restricted evidence bundle — never a second forecasting engine.
 
-The diagrams below describe the implemented v0.1.0 architecture. DuckDB views,
+The diagrams below describe the implemented v0.2.0 architecture. DuckDB views,
 SQLite state, canonical entity graphs, and a hash-chained multi-artifact ledger
 remain **planned in [ADR-0001](https://github.com/udhawan97/Golavo/blob/main/docs/adr/0001-architecture.md)**;
 they are not presented here as shipped components.
