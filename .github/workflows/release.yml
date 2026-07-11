@@ -64,7 +64,7 @@ jobs:
         with: { python-version: "3.11" }
       - uses: actions/setup-node@v4
         if: steps.guard.outputs.ready == 'true'
-        with: { node-version: "20" }
+        with: { node-version: "22" }
       - uses: dtolnay/rust-toolchain@stable
         if: steps.guard.outputs.ready == 'true'
         with:
