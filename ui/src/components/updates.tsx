@@ -157,7 +157,16 @@ function sheetBody(u: ReturnType<typeof useUpdater>, phase: UpdaterPhase): React
   const platform = u.status?.platform ?? "other";
   switch (phase.kind) {
     case "checking":
-      return <p role="status" aria-live="polite">Checking for updates…</p>;
+      return (
+        <>
+          <p role="status" aria-live="polite">Checking for updates…</p>
+          <div className="update-sheet__actions">
+            <button type="button" className="btn btn--ghost" onClick={u.closeSheet}>
+              Close
+            </button>
+          </div>
+        </>
+      );
 
     case "upToDate":
       return (
@@ -280,7 +289,7 @@ function sheetBody(u: ReturnType<typeof useUpdater>, phase: UpdaterPhase): React
             Manual downloads always work: <ReleasesLink />.
           </p>
           <div className="update-sheet__actions">
-            {error.kind === "install_failed" ? (
+            {error.kind === "install_failed" || error.kind === "install_stalled" ? (
               <button
                 type="button"
                 className="btn btn--primary"
@@ -297,7 +306,7 @@ function sheetBody(u: ReturnType<typeof useUpdater>, phase: UpdaterPhase): React
                 Try again
               </button>
             )}
-            <button type="button" className="btn btn--ghost" onClick={u.closeSheet}>
+            <button type="button" className="btn btn--ghost" onClick={u.dismissError}>
               Close
             </button>
           </div>

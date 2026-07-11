@@ -22,7 +22,9 @@ function appVersionLabel(statusVersion: string | undefined): string {
 export function Settings() {
   const u = useUpdater();
   const version = appVersionLabel(u.status?.appVersion);
-  const skipped = u.phase.kind === "available" && u.phase.skipped ? u.phase.info.version : null;
+  // From the persisted skip, not the live phase — so it's manageable even on a
+  // fresh boot with auto-check off, where no check has run this session.
+  const skipped = u.skippedVersion;
 
   return (
     <div className="stack settings">
@@ -78,7 +80,12 @@ export function Settings() {
                   id="autocheck-toggle"
                   type="checkbox"
                   checked={u.autoCheck === "on"}
-                  onChange={(e) => u.setAutoCheck(e.target.checked ? "on" : "off")}
+                  onChange={(e) => {
+                    const on = e.target.checked;
+                    u.setAutoCheck(on ? "on" : "off");
+                    // Match the consent card: enabling checks now, not in ~20s.
+                    if (on) void u.check();
+                  }}
                 />
               </div>
               <p className="dim settings__hint">

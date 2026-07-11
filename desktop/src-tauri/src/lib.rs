@@ -23,9 +23,21 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use tauri::{AppHandle, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
-use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
+
+/// Show a native error dialog and block until dismissed. Called from the
+/// fatal-launch path inside setup(), on the main thread, before the Tauri event
+/// loop runs — rfd runs its own modal loop here, avoiding the cross-thread
+/// dispatch that makes tauri-plugin-dialog's blocking_show deadlock pre-loop.
+fn show_fatal_dialog(title: &str, message: &str) {
+    rfd::MessageDialog::new()
+        .set_level(rfd::MessageLevel::Error)
+        .set_title(title)
+        .set_description(message)
+        .set_buttons(rfd::MessageButtons::Ok)
+        .show();
+}
 
 /// Upper bound on how long we wait for the sidecar's /health. The frozen sidecar
 /// answers /health in well under a second (heavy imports are deferred), but we
@@ -73,7 +85,10 @@ pub fn run() {
 
             // The sidecar's writable ledger lives under the per-user app-data dir
             // so future sealing persists and the updater has state to back up.
+            // Finish any restore that a crash interrupted mid-swap BEFORE creating
+            // the dir, so we never fabricate an empty ledger over a real one.
             let ledger = updater::ledger_dir(&handle).map_err(std::io::Error::other)?;
+            updater::recover_interrupted_restore(&handle);
             std::fs::create_dir_all(&ledger)?;
             let ledger_str = ledger.to_string_lossy().to_string();
 
@@ -100,14 +115,14 @@ pub fn run() {
                     let message = updater::repair_failed_launch(&handle, &err);
                     eprintln!("[golavo] launch failed: {message}");
                     // A double-click user never sees stderr — tell them what
-                    // happened and where to go in a real dialog, then exit
-                    // cleanly instead of panicking.
-                    handle
-                        .dialog()
-                        .message(&message)
-                        .kind(MessageDialogKind::Error)
-                        .title("Golavo could not start")
-                        .blocking_show();
+                    // happened and where to go in a real dialog, then exit cleanly
+                    // instead of panicking. We're inside setup(), on the main
+                    // thread, BEFORE the Tauri event loop runs — so tauri-plugin-
+                    // dialog's blocking_show (which dispatches the alert to the
+                    // main thread and then blocks it) would deadlock on macOS.
+                    // rfd's native dialog runs its own modal loop on the calling
+                    // thread, so it is safe here.
+                    show_fatal_dialog("Golavo could not start", &message);
                     std::process::exit(1);
                 }
             }

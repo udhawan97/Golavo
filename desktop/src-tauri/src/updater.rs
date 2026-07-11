@@ -219,18 +219,32 @@ pub fn read_just_updated<R: Runtime>(app: &AppHandle<R>) -> Option<JustUpdated> 
 
 /// Copy the ledger (the only mutable user state today) into a fresh backup dir,
 /// returning that dir. Called immediately before an update is installed.
+///
+/// On ANY failure the half-written backup dir is removed, so a partial backup
+/// can never sit at the armed path masquerading as trustworthy — the caller's
+/// `backup_taken` flag (false, since we Err) then truthfully means "no backup".
 #[cfg_attr(not(feature = "updater"), allow(dead_code))]
 pub fn backup_user_state<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
     let backup = backup_root(app)?;
-    if backup.exists() {
-        std::fs::remove_dir_all(&backup).map_err(|e| e.to_string())?;
+    match backup_user_state_inner(app, &backup) {
+        Ok(()) => Ok(backup),
+        Err(e) => {
+            let _ = std::fs::remove_dir_all(&backup);
+            Err(e)
+        }
     }
-    std::fs::create_dir_all(&backup).map_err(|e| e.to_string())?;
+}
+
+fn backup_user_state_inner<R: Runtime>(app: &AppHandle<R>, backup: &Path) -> Result<(), String> {
+    if backup.exists() {
+        std::fs::remove_dir_all(backup).map_err(|e| e.to_string())?;
+    }
+    std::fs::create_dir_all(backup).map_err(|e| e.to_string())?;
     let ledger = ledger_dir(app)?;
     if ledger.exists() {
         copy_dir(&ledger, &backup.join("ledger")).map_err(|e| e.to_string())?;
     }
-    Ok(backup)
+    Ok(())
 }
 
 /// Restore the pre-update backup over the live ledger — staged: copy the backup
@@ -292,6 +306,35 @@ fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
+/// Complete a restore that was interrupted mid-swap, BEFORE the launch path
+/// fabricates an empty ledger over the gap.
+///
+/// `restore_backup` stages as: copy backup -> `ledger.restoring`, move live ->
+/// `ledger.pre-restore-<epoch>`, rename `ledger.restoring` -> `ledger`. A crash
+/// between the last two renames leaves NO canonical `ledger` while a full staged
+/// copy sits at `ledger.restoring`. Left alone, `create_dir_all(ledger)` at
+/// launch would fabricate an EMPTY ledger, the sidecar would pass its health
+/// gate serving nothing, and the user's data would appear lost. This detects
+/// that exact state and finishes the rename so the correct ledger is in place.
+/// It is a no-op when a canonical ledger already exists (the common case).
+pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) {
+    let Ok(live) = ledger_dir(app) else { return };
+    if live.exists() {
+        return; // canonical ledger present — nothing was interrupted
+    }
+    let Some(parent) = live.parent().map(Path::to_path_buf) else {
+        return;
+    };
+    let staging = parent.join("ledger.restoring");
+    if staging.exists() {
+        // The staged copy is complete (copy_dir finished before the live-move);
+        // finishing the rename lands exactly what the restore intended.
+        if std::fs::rename(&staging, &live).is_ok() {
+            eprintln!("[golavo] completed an interrupted ledger restore from staging");
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Launch-time hooks (called from lib.rs; always compiled)
 // ---------------------------------------------------------------------------
@@ -341,15 +384,25 @@ pub fn finalize_update_if_pending<R: Runtime>(app: &AppHandle<R>) {
 pub fn repair_failed_launch<R: Runtime>(app: &AppHandle<R>, health_err: &str) -> String {
     match read_pending(app) {
         Some(pending) => {
-            clear_pending(app);
-            let data_note = match restore_backup(app) {
-                Ok(true) => "Your ledger was restored from the pre-update backup.",
-                _ if pending.backup_taken => {
-                    "The pre-update backup could not be restored automatically; \
-                     it is preserved on disk under backups/pre-update."
+            // Only a VERIFIED backup may overwrite the live ledger. When the
+            // pre-install backup didn't complete (backup_taken == false) it is not
+            // trustworthy — and the install never touches the live ledger anyway —
+            // so restoring a half-copy would trade good data for bad. Leave it.
+            let data_note = if pending.backup_taken {
+                match restore_backup(app) {
+                    Ok(true) => "Your ledger was restored from the pre-update backup.",
+                    _ => {
+                        "The pre-update backup could not be restored automatically; \
+                         it is preserved on disk under backups/pre-update."
+                    }
                 }
-                _ => "Your ledger was not modified.",
+            } else {
+                "Your ledger was not modified."
             };
+            // Consume the marker only AFTER the restore attempt returns: a crash
+            // mid-restore keeps the marker and leaves a `ledger.restoring` staging
+            // dir, which recover_interrupted_restore completes on next boot.
+            clear_pending(app);
             format!(
                 "Golavo {} could not start after the update.\n\n{}\n\nPlease download the \
                  previous version from:\n{}\n\n(Details: {})",
@@ -430,30 +483,59 @@ fn classify(e: &tauri_plugin_updater::Error) -> UpdateError {
     UpdateError { kind, message }
 }
 
-/// macOS refuses in-place swaps from read-only locations. Catch the two common
-/// ones — running from the mounted DMG, and Gatekeeper App Translocation — with
-/// actionable copy BEFORE downloading ~100 MB that could never install.
+/// macOS refuses in-place swaps from read-only locations. Catch the two cases
+/// that would otherwise fail install with a cryptic error — running from the
+/// mounted DMG, and Gatekeeper App Translocation — with actionable copy BEFORE
+/// downloading ~100 MB that could never install.
+///
+/// The read-only check probes whether the bundle's containing directory is
+/// actually writable (which is what `install()` needs), NOT whether the path is
+/// under `/Volumes/`: macOS mounts every external drive there, so a plain string
+/// match wrongly and permanently blocks an app kept on a writable external SSD.
 #[cfg(feature = "updater")]
 fn install_location_blocked() -> Option<String> {
     if !cfg!(target_os = "macos") {
         return None;
     }
     let exe = std::env::current_exe().ok()?;
-    let path = exe.to_string_lossy();
-    if path.starts_with("/Volumes/") {
-        Some(
-            "Golavo is running straight from the downloaded disk image, which is read-only. \
-             Drag Golavo to your Applications folder, open it from there, then update."
-                .into(),
-        )
-    } else if path.contains("/AppTranslocation/") {
-        Some(
+    if exe.to_string_lossy().contains("/AppTranslocation/") {
+        return Some(
             "macOS is running Golavo from a temporary security location. Move Golavo to your \
              Applications folder with Finder, open it from there, then update."
                 .into(),
-        )
-    } else {
-        None
+        );
+    }
+    // Walk up to the .app bundle; its parent is where the swap must write.
+    let bundle_parent = exe
+        .ancestors()
+        .find(|p| p.extension().is_some_and(|e| e == "app"))
+        .and_then(|app_bundle| app_bundle.parent());
+    if let Some(parent) = bundle_parent {
+        if !dir_is_writable(parent) {
+            return Some(
+                "Golavo is running from a read-only location (for example, straight from the \
+                 downloaded disk image). Drag Golavo to your Applications folder, open it from \
+                 there, then update."
+                    .into(),
+            );
+        }
+    }
+    None
+}
+
+/// True if we can create (and remove) a file in `dir` — the real constraint an
+/// in-place app swap needs. A mounted DMG fails this; /Applications and external
+/// drives pass. Any probe error is treated as writable so we never block on a
+/// false negative (a genuinely read-only dir will surface the real install error).
+#[cfg(feature = "updater")]
+fn dir_is_writable(dir: &Path) -> bool {
+    let probe = dir.join(format!(".golavo-write-probe-{}", std::process::id()));
+    match std::fs::File::create(&probe) {
+        Ok(_) => {
+            let _ = std::fs::remove_file(&probe);
+            true
+        }
+        Err(e) => e.kind() != std::io::ErrorKind::PermissionDenied && e.raw_os_error() != Some(30), // EROFS (read-only file system)
     }
 }
 

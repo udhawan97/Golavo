@@ -31,7 +31,7 @@ export interface UpdateInfo {
 export interface UpdateErrorInfo {
   kind:
     | "disabled" | "busy" | "needs_move" | "unreachable" | "rate_limited"
-    | "bad_manifest" | "install_failed" | "other";
+    | "bad_manifest" | "install_failed" | "install_stalled" | "other";
   message: string;
 }
 
@@ -110,6 +110,7 @@ export type AutoCheckChoice = "on" | "off" | "unset";
 
 const INITIAL_CHECK_DELAY_MS = 20_000;       // shortly after boot, off the critical path
 const RECHECK_INTERVAL_MS = 24 * 3600_000;   // once a day while the app stays open
+const INSTALL_STALL_MS = 90_000;             // give up waiting on a hung install after 90s
 
 // ---- copy for error kinds (releases link is appended by the sheet) ----------
 
@@ -121,6 +122,7 @@ export const ERROR_TITLES: Record<UpdateErrorInfo["kind"], string> = {
   rate_limited: "GitHub is rate-limiting update checks",
   bad_manifest: "Update information looks incomplete",
   install_failed: "The update couldn’t be installed",
+  install_stalled: "The update is taking longer than expected",
   other: "Update check failed",
 };
 
@@ -135,6 +137,8 @@ export const ERROR_HINTS: Record<UpdateErrorInfo["kind"], string> = {
     "A release may be publishing right now — try again in a minute, or use the releases page.",
   install_failed:
     "Nothing was changed — your current version keeps working and your ledger is untouched.",
+  install_stalled:
+    "Golavo should restart on its own to finish installing. If it doesn’t, restart it manually.",
   other: "You can always update manually from the releases page.",
 };
 
@@ -152,6 +156,8 @@ export interface UpdaterController {
   lastCheckedAt: number | null;
   /** Update available and not skipped — drives the passive header pill. */
   pillVisible: boolean;
+  /** The version the user chose to skip (persisted), or null. Drives Settings. */
+  skippedVersion: string | null;
   /** just-updated record not yet toasted this boot (null once acknowledged). */
   freshUpdateToast: JustUpdated | null;
 
@@ -165,6 +171,7 @@ export interface UpdaterController {
   relaunch: () => Promise<void>;
   skipOffered: () => void;
   unskip: () => void;
+  dismissError: () => void;
   ackToast: () => void;
 }
 
@@ -187,6 +194,10 @@ export function useUpdaterController(): UpdaterController {
 
   // The offered update survives phase transitions (cancel -> available again).
   const offeredRef = useRef<UpdateInfo | null>(null);
+  // Mirror of `phase` for reads inside stable callbacks (check guard) without
+  // rebinding those callbacks on every phase change.
+  const phaseRef = useRef(phase);
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
 
   // -- boot: status + just-updated toast + event subscriptions ----------------
   useEffect(() => {
@@ -218,13 +229,26 @@ export function useUpdaterController(): UpdaterController {
       bridge.event.listen("updater://state", (e) => {
         if (!alive) return;
         const s = e.payload as { phase: string; error?: UpdateErrorInfo; version?: string };
-        const info = offeredRef.current;
+        // A terminal "ready"/"installing" event may arrive after the JS ref was
+        // wiped (webview reload, or a concurrent check that cleared it). The
+        // event carries the version, so reconstruct minimal info rather than
+        // dropping a fully downloaded, installable update on the floor.
+        const info =
+          offeredRef.current ??
+          (s.version ? { version: s.version, notes: null, date: null } : null);
+        if (info) offeredRef.current = info;
         if (s.phase === "ready" && info) setPhase({ kind: "ready", info });
         else if (s.phase === "installing" && info) setPhase({ kind: "installing", info });
         else if (s.phase === "error") {
           setPhase({ kind: "error", error: s.error ?? { kind: "other", message: "Unknown updater error" }, info });
         } else if (s.phase === "idle") {
-          setPhase(info ? { kind: "available", info, skipped: false } : { kind: "idle" });
+          // Cancel: recompute skipped from the persisted store so the sheet body
+          // stays truthful (never re-offers "Skip" for a version already skipped).
+          setPhase(
+            info
+              ? { kind: "available", info, skipped: readStore(SKIP_KEY) === info.version }
+              : { kind: "idle" },
+          );
         }
       }).then((un) => unlistens.push(un));
     }
@@ -241,6 +265,15 @@ export function useUpdaterController(): UpdaterController {
   const check = useCallback(async (opts?: { manual?: boolean }) => {
     const manual = opts?.manual ?? false;
     if (!isDesktop || !enabled) return;
+    // Never clobber a live download / staged / installing update — the Rust
+    // engine owns those phases and drives them via events. A background daily
+    // check (or an over-eager manual one) landing mid-download would otherwise
+    // flip the UI back to "available", strand the progress bar, and let the user
+    // trigger a spurious "already working on it" error.
+    const active = phaseRef.current.kind;
+    if (active === "downloading" || active === "ready" || active === "installing") {
+      return;
+    }
     if (manual) setPhase({ kind: "checking" });
     try {
       const outcome = await invoke<CheckOutcome>("updater_check");
@@ -278,6 +311,26 @@ export function useUpdaterController(): UpdaterController {
     const interval = window.setInterval(() => void check(), RECHECK_INTERVAL_MS);
     return () => { window.clearTimeout(initial); window.clearInterval(interval); };
   }, [isDesktop, enabled, autoCheck, check]);
+
+  // -- installing watchdog ------------------------------------------------------
+  // The "installing" sheet is intentionally non-closable — but if the backend
+  // hangs after emitting "installing" (a stalled install, or a restart that
+  // never comes), the user would be trapped on a frozen sheet with the sidecar
+  // already stopped. This surfaces a recoverable state so they can relaunch.
+  useEffect(() => {
+    if (phase.kind !== "installing") return;
+    const timer = window.setTimeout(() => {
+      setPhase({
+        kind: "error",
+        error: {
+          kind: "install_stalled",
+          message: "The install didn’t finish restarting Golavo on its own.",
+        },
+        info: offeredRef.current,
+      });
+    }, INSTALL_STALL_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase.kind]);
 
   // -- actions -------------------------------------------------------------------
   const setAutoCheck = useCallback((choice: "on" | "off") => {
@@ -338,6 +391,19 @@ export function useUpdaterController(): UpdaterController {
     setFreshUpdateToast(null);
   }, [freshUpdateToast]);
 
+  // Closing an error sheet: if an update is still offered, fall back to
+  // "available" (not the error phase) so the passive pill returns and the user
+  // isn't forced through Settings to retry a still-valid update.
+  const dismissError = useCallback(() => {
+    const info = offeredRef.current;
+    setPhase(
+      info
+        ? { kind: "available", info, skipped: readStore(SKIP_KEY) === info.version }
+        : { kind: "idle" },
+    );
+    setSheetOpen(false);
+  }, []);
+
   const openSheet = useCallback(() => setSheetOpen(true), []);
   const closeSheet = useCallback(() => setSheetOpen(false), []);
 
@@ -363,6 +429,7 @@ export function useUpdaterController(): UpdaterController {
     consentNeeded,
     lastCheckedAt,
     pillVisible,
+    skippedVersion,
     freshUpdateToast,
     openSheet,
     closeSheet,
@@ -374,6 +441,7 @@ export function useUpdaterController(): UpdaterController {
     relaunch,
     skipOffered,
     unskip,
+    dismissError,
     ackToast,
   };
 }
