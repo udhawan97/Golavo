@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">How one Golavo forecast moves from prediction to an honest score</title>
+  <desc id="desc">A synthetic walkthrough showing a pre-kickoff home, draw and away forecast, an immutable sealed artifact with pinned model and source metadata, and a separate scored successor after a two-one result. The original probabilities remain unchanged.</desc>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="1176" y2="596" gradientUnits="userSpaceOnUse"><stop stop-color="#171B1A"/><stop offset=".55" stop-color="#101312"/><stop offset="1" stop-color="#0B0E0D"/></linearGradient>
+    <linearGradient id="sealCard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#173128"/><stop offset=".58" stop-color="#1E2423"/><stop offset="1" stop-color="#282216"/></linearGradient>
+    <linearGradient id="scoreCard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#242017"/><stop offset="1" stop-color="#1B1814"/></linearGradient>
+    <pattern id="waves" width="52" height="26" patternUnits="userSpaceOnUse"><path d="M0 26C7 12 19 12 26 26C33 12 45 12 52 26M0 13C7-1 19-1 26 13C33-1 45-1 52 13" fill="none" stroke="#6082B8" stroke-opacity=".05"/></pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity=".3"/></filter>
+    <filter id="glow" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#D4AD2E"/></marker>
+    <style>
+      .title{font:600 31px Georgia,"Times New Roman",serif;letter-spacing:-.35px;fill:#F4EFE6}.sub{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.kicker{font:700 11px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:1.45px}.head{font:650 18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.body{font:400 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.small{font:400 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#928E83}.mono{font:500 10.5px ui-monospace,"SF Mono",Menlo,monospace;fill:#BCB8AC}.score{font:650 31px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.card{fill:#171B1A;stroke:#343A37;stroke-width:1.25}.route{fill:none;stroke:#D4AD2E;stroke-width:2;stroke-dasharray:7 10;animation:route 3.2s linear infinite}.traveler{animation:travel 7.2s cubic-bezier(.4,0,.2,1) infinite}.halo{animation:halo 7.2s ease-in-out infinite}.h2{animation-delay:2.4s}.h3{animation-delay:4.8s}.lock{animation:lock 2.3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}@keyframes route{to{stroke-dashoffset:-68}}@keyframes travel{0%,12%{translate:0 0}33%,45%{translate:392px 0}66%,78%{translate:784px 0}100%{translate:0 0}}@keyframes halo{0%,29%,100%{opacity:.12}9%,20%{opacity:.8}}@keyframes lock{0%,100%{opacity:.62;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}@media(prefers-reduced-motion:reduce){.route,.traveler,.halo,.lock{animation:none}.halo{opacity:.24}.lock{opacity:1}}
+    </style>
+  </defs>
+
+  <rect width="1200" height="620" rx="28" fill="#090B0A"/>
+  <rect x="24" y="24" width="1152" height="572" rx="24" fill="url(#bg)" stroke="#2C302E" stroke-width="1.25"/>
+  <rect x="25" y="25" width="1150" height="570" rx="23" fill="url(#waves)"/>
+
+  <text x="600" y="68" text-anchor="middle" class="title">One Forecast. Two Receipts. No Convenient Amnesia.</text>
+  <text x="600" y="95" text-anchor="middle" class="sub">Synthetic walkthrough · Everything stays visible; the moving ball simply shows the order.</text>
+
+  <!-- animated progress rail stays entirely in the gaps -->
+  <path d="M372 308H436M764 308H828" class="route" marker-end="url(#arrow)"/>
+
+  <!-- BEFORE KICKOFF -->
+  <g transform="translate(44 130)" filter="url(#shadow)">
+    <rect width="328" height="364" rx="18" class="card"/>
+    <rect width="328" height="364" rx="18" fill="none" stroke="#6082B8" stroke-width="2" class="halo"/>
+    <text x="20" y="31" class="kicker" fill="#9AB3DD">1 · BEFORE KICKOFF</text>
+    <rect x="232" y="16" width="76" height="24" rx="12" fill="#6082B8" fill-opacity=".14"/><text x="270" y="32" text-anchor="middle" class="kicker" fill="#B9CBEB">14:00 UTC</text>
+    <text x="20" y="68" class="head">The model makes one claim</text>
+    <text x="20" y="90" class="small">Pinned source state · chronological fit</text>
+
+    <g transform="translate(20 112)">
+      <rect width="288" height="58" rx="12" fill="#101312" stroke="#343A37"/>
+      <circle cx="38" cy="29" r="17" fill="#0B6E4F" fill-opacity=".25"/><text x="38" y="34" text-anchor="middle" class="kicker" fill="#7DD8B6">H</text>
+      <text x="66" y="25" class="body">HOME</text><text x="66" y="44" class="small">vs</text>
+      <circle cx="250" cy="29" r="17" fill="#D9622B" fill-opacity=".2"/><text x="250" y="34" text-anchor="middle" class="kicker" fill="#E88A57">A</text>
+      <text x="218" y="35" text-anchor="end" class="body">AWAY</text>
+    </g>
+
+    <g transform="translate(20 186)">
+      <text x="0" y="16" class="kicker" fill="#E7C34E">WIN / DRAW / LOSS</text>
+      <rect y="28" width="288" height="18" rx="9" fill="#27302D"/>
+      <path d="M9 28h129a9 9 0 010 18H9a9 9 0 010-18z" fill="#D4AD2E"/>
+      <rect x="138" y="28" width="81" height="18" fill="#6082B8"/>
+      <path d="M219 28h60a9 9 0 010 18h-60z" fill="#D9622B"/>
+      <text x="0" y="68" class="body" fill="#F4EFE6">HOME 48%</text><text x="144" y="68" class="body" fill="#B9CBEB">DRAW 28%</text><text x="288" y="68" text-anchor="end" class="body" fill="#E88A57">AWAY 24%</text>
+    </g>
+
+    <rect x="20" y="280" width="288" height="56" rx="11" fill="#C9A227" fill-opacity=".08" stroke="#C9A227" stroke-opacity=".38"/>
+    <text x="36" y="302" class="kicker" fill="#E7C34E">MOST LIKELY SCORE</text><text x="288" y="316" text-anchor="end" class="score">1–0</text><text x="36" y="322" class="small">13% · tail reported separately</text>
+  </g>
+
+  <!-- SEALED CLAIM -->
+  <g transform="translate(436 130)" filter="url(#shadow)">
+    <rect width="328" height="364" rx="18" fill="url(#sealCard)" stroke="#C9A227" stroke-opacity=".62" stroke-width="1.35"/>
+    <rect width="328" height="364" rx="18" fill="none" stroke="#E7C34E" stroke-width="2" class="halo h2"/>
+    <text x="20" y="31" class="kicker" fill="#E7C34E">2 · SEALED CLAIM</text>
+    <g transform="translate(258 14)"><g class="lock">
+      <rect x="0" y="9" width="48" height="35" rx="10" fill="#C9A227" fill-opacity=".13" stroke="#C9A227" stroke-opacity=".55"/>
+      <path d="M13 20v-5a11 11 0 0122 0v5M11 20h26v18H11z" fill="none" stroke="#E7C34E" stroke-width="1.7"/>
+    </g>
+    </g>
+    <text x="20" y="72" class="head">The claim becomes immutable</text>
+    <text x="20" y="94" class="small">The result cannot revisit this room.</text>
+
+    <g transform="translate(20 118)">
+      <rect width="288" height="58" rx="11" fill="#0B6E4F" fill-opacity=".1" stroke="#2F9E73" stroke-opacity=".4"/>
+      <text x="16" y="23" class="kicker" fill="#7DD8B6">SOURCE</text><text x="16" y="43" class="mono">snapshot_A · manifest verified</text>
+      <rect y="70" width="288" height="58" rx="11" fill="#6082B8" fill-opacity=".1" stroke="#6082B8" stroke-opacity=".38"/>
+      <text x="16" y="93" class="kicker" fill="#9AB3DD">MODEL STATE</text><text x="16" y="113" class="mono">family · version · seed · cutoff</text>
+      <rect y="140" width="288" height="58" rx="11" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".42"/>
+      <text x="16" y="163" class="kicker" fill="#E7C34E">PAYLOAD DIGEST</text><text x="16" y="183" class="mono">sha256 8e42…f91c</text>
+    </g>
+    <rect x="20" y="330" width="288" height="18" rx="9" fill="#BC002D" fill-opacity=".075" stroke="#BC002D" stroke-opacity=".3"/>
+    <text x="164" y="343" text-anchor="middle" class="mono" fill="#FF8A9B">NO IN-PLACE EDITS</text>
+  </g>
+
+  <!-- AFTER FULL TIME -->
+  <g transform="translate(828 130)" filter="url(#shadow)">
+    <rect width="328" height="364" rx="18" fill="url(#scoreCard)" stroke="#D9622B" stroke-opacity=".55" stroke-width="1.35"/>
+    <rect width="328" height="364" rx="18" fill="none" stroke="#E88A57" stroke-width="2" class="halo h3"/>
+    <text x="20" y="31" class="kicker" fill="#E88A57">3 · AFTER FULL TIME</text>
+    <rect x="226" y="16" width="82" height="24" rx="12" fill="#0B6E4F" fill-opacity=".22"/><circle cx="240" cy="28" r="4" fill="#7DD8B6"/><text x="252" y="32" class="kicker" fill="#7DD8B6">SCORED</text>
+    <text x="20" y="68" class="head">A new receipt judges the old one</text>
+    <text x="20" y="90" class="small">Snapshot B is newer; the seal stays frozen.</text>
+
+    <g transform="translate(20 112)">
+      <rect width="288" height="80" rx="12" fill="#101312" stroke="#343A37"/>
+      <text x="18" y="24" class="small">FINAL</text><text x="18" y="58" class="score">HOME</text>
+      <text x="194" y="58" text-anchor="middle" class="score">2</text><text x="224" y="58" text-anchor="middle" class="body">–</text><text x="254" y="58" text-anchor="middle" class="score">1</text>
+    </g>
+
+    <g transform="translate(20 208)">
+      <rect width="136" height="64" rx="11" fill="#0B6E4F" fill-opacity=".11" stroke="#2F9E73" stroke-opacity=".38"/>
+      <text x="14" y="23" class="kicker" fill="#7DD8B6">ASSIGNED</text><text x="14" y="48" class="head">48%</text>
+      <rect x="152" width="136" height="64" rx="11" fill="#6082B8" fill-opacity=".1" stroke="#6082B8" stroke-opacity=".38"/>
+      <text x="166" y="23" class="kicker" fill="#9AB3DD">LOG LOSS</text><text x="166" y="48" class="head">0.734</text>
+    </g>
+    <rect x="20" y="288" width="288" height="48" rx="11" fill="#C9A227" fill-opacity=".08" stroke="#C9A227" stroke-opacity=".38"/>
+    <text x="36" y="308" class="kicker" fill="#E7C34E">FORWARD LEDGER</text><text x="36" y="326" class="small">+1 resolved seal · calibration updates</text>
+  </g>
+
+  <!-- traveler and durable takeaway -->
+  <g transform="translate(194 524)"><g class="traveler" filter="url(#glow)">
+    <circle cx="0" cy="0" r="12" fill="#F4EFE6" stroke="#C9A227" stroke-width="2"/>
+    <path d="M0-5l5 4-2 6h-6l-2-6zM0-5v-5M5-1l6-2M3 5l4 7M-3 5l-4 7M-5-1l-6-2" fill="none" stroke="#101312" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+  </g>
+  <path d="M194 524H978" fill="none" stroke="#343A37" stroke-width="1.5"/>
+  <circle cx="194" cy="524" r="4" fill="#9AB3DD"/><circle cx="586" cy="524" r="4" fill="#E7C34E"/><circle cx="978" cy="524" r="4" fill="#E88A57"/>
+  <text x="194" y="551" text-anchor="middle" class="kicker" fill="#9AB3DD">PINNED DATA</text><text x="586" y="551" text-anchor="middle" class="kicker" fill="#E7C34E">SEALED FORECAST</text><text x="978" y="551" text-anchor="middle" class="kicker" fill="#E88A57">LINKED RESULT</text>
+  <rect x="148" y="570" width="904" height="20" rx="10" fill="#C9A227" fill-opacity=".075" stroke="#C9A227" stroke-opacity=".28"/>
+  <text x="600" y="584" text-anchor="middle" class="mono" fill="#E7C34E">THE RESULT SCORES THE CLAIM · IT DOES NOT GET TO REWRITE IT</text>
+</svg>

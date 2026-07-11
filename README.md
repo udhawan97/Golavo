@@ -50,25 +50,36 @@
 
 ## The match
 
-Football prediction usually arrives in one of two kits: a black box asking for trust,
-or a betting page asking for a deposit. Both become remarkably philosophical when the
-forecast loses.
+Most prediction products show you a number. Golavo shows you **where it came from,
+when it was locked, and what happened to it after the whistle**. The result may humble
+the model; it may not help with the rewrite.
 
-Golavo takes the less glamorous route: **it keeps the receipts**. Source data is pinned
-and hashed. Models are tested chronologically. A forecast is sealed before kickoff with
-its inputs and model state attached. After full time, a new artifact scores the claim;
-the old one does not get a quiet edit and a fresh haircut.
+<p align="center">
+  <a href="docs-site/public/assets/golavo-match-story.svg"><img src="docs-site/public/assets/golavo-match-story.svg" alt="Animated synthetic Golavo walkthrough: a pre-kickoff home, draw and away forecast becomes an immutable sealed artifact, then a separate post-match receipt scores the unchanged claim and updates forward calibration" width="980"></a>
+</p>
 
-The beautiful game has humbled richer models than this one. Golavo simply makes sure
-the model cannot pretend otherwise.
+<p align="center">
+  <sub><strong>Synthetic walkthrough.</strong> All details stay visible; subtle motion only traces the order. Click for the full-size view.</sub>
+</p>
+
+- **Before kickoff:** pin the source, fit chronologically, and publish the probabilities.
+- **At the seal:** freeze the model state, cutoff, inputs, and payload digest.
+- **After full time:** append a scored or voided successor; never edit the original claim.
+
+<details>
+<summary>&nbsp;🖥️&nbsp; See the actual Matchday workbench</summary>
+
+<br>
 
 <p align="center">
   <img src="docs-site/public/screenshots/workbench-matchday.png" alt="Golavo's read-only Matchday workbench showing sealed, scored, abstained, and voided synthetic sample forecasts" width="920">
 </p>
 
 <p align="center">
-  <sub>The Matchday workbench over bundled <strong>synthetic sample artifacts</strong> — clearly labelled in-app, never passed off as real forecasts.</sub>
+  <sub>Bundled <strong>synthetic sample artifacts</strong> — clearly labelled in-app, never passed off as real forecasts.</sub>
 </p>
+
+</details>
 
 ## What it does
 
