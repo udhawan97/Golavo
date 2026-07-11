@@ -10,6 +10,7 @@ server/tests/test_ai_gateway.py.
 
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
@@ -232,3 +233,64 @@ def test_a_clean_narration_survives(bundle: dict, refs: dict) -> None:
     assert review.accepted is True
     assert len(review.narration["claims"]) == 2
     assert review.rejections == []
+
+
+@pytest.mark.parametrize(
+    "text,number_refs",
+    [
+        ("France win at 5e2 percent.", ["actual_home_goals"]),
+        ("France have twenty-five wins.", ["actual_home_goals"]),
+        ("France have three hundred wins.", ["actual_home_goals"]),
+        ("France scored two goals.", ["actual_home_goals"]),
+        ("France improved in the second half.", []),
+        ("France win at 1/2 probability.", ["actual_home_goals", "actual_away_goals"]),
+    ],
+)
+def test_composite_numeric_notation_fails_closed(
+    text: str, number_refs: list[str], bundle: dict, refs: dict
+) -> None:
+    raw = _wrap([_claim(text, [refs["engine"]], number_refs)])
+    review = review_narration(raw, bundle)
+    assert review.accepted is False
+
+
+def test_number_must_match_the_claims_own_reference_and_display(
+    bundle: dict, refs: dict
+) -> None:
+    home = refs["display"]["prob_home"]
+    wrong_ref = _wrap([_claim(f"France win at {home}.", [refs["engine"]], ["prob_away"])])
+    missing_ref = _wrap([_claim(f"France win at {home}.", [refs["engine"]], [])])
+    assert review_narration(wrong_ref, bundle).accepted is False
+    assert review_narration(missing_ref, bundle).accepted is False
+
+
+def test_number_cannot_borrow_a_different_unit(bundle: dict, refs: dict) -> None:
+    altered = copy.deepcopy(bundle)
+    altered["allowed_numbers"].append(
+        {
+            "id": "xg_home",
+            "value": 1.2,
+            "unit": "goals",
+            "label": "Expected goals · France",
+            "display": "1.2",
+            "source_ids": [refs["engine"]],
+        }
+    )
+    raw = _wrap([_claim("France have a 1.2% win chance.", [refs["engine"]], ["xg_home"])])
+    assert review_narration(raw, altered).accepted is False
+
+
+def test_number_reference_must_cite_one_of_its_own_sources(bundle: dict, refs: dict) -> None:
+    altered = copy.deepcopy(bundle)
+    altered["allowed_numbers"].append(
+        {
+            "id": "xg_home",
+            "value": 1.2,
+            "unit": "goals",
+            "label": "Expected goals · France",
+            "display": "1.2",
+            "source_ids": [refs["engine"]],
+        }
+    )
+    raw = _wrap([_claim("France have 1.2 expected goals.", [refs["snapshot"]], ["xg_home"])])
+    assert review_narration(raw, altered).accepted is False

@@ -1,8 +1,9 @@
 """Deterministic MatchEvidenceBundle construction.
 
-The bundle is the ONLY object Golavo's optional AI layer is ever shown. It is a
-pure function of a sealed or scored ForecastArtifact: no wall clock, no network,
-no model — build it twice and you get byte-identical output.
+The bundle is the only authoritative object Golavo's optional AI layer is shown.
+Optional candidate-fact context is separately fenced as untrusted data. The
+bundle is a pure function of a sealed or scored ForecastArtifact: no wall clock,
+no network, no model — build it twice and you get byte-identical output.
 
 Its purpose is to make the numeric-whitelist guard possible. `allowed_numbers`
 enumerates every numeric value the AI is permitted to utter, each with an id, a

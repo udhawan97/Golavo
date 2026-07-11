@@ -28,7 +28,7 @@ from golavo_core.ai.whitelist import (
     contains_secret_pattern,
     extract_numbers,
     number_matches,
-    unsupported_numbers,
+    unsupported_number_tokens,
 )
 
 NARRATION_SCHEMA_VERSION = "0.1.0"
@@ -98,7 +98,7 @@ def _review_item(
     *,
     kind: str,
     index: int,
-    allowed_values: list[float],
+    allowed_numbers: list[dict[str, Any]],
     safe_literals: list[str],
     source_ids: set[str],
     allowed_number_ids: set[str],
@@ -112,9 +112,14 @@ def _review_item(
     betting = contains_betting_lexicon(text)
     if betting:
         rejections.append(f"{label}: betting lexicon {sorted(set(betting))}")
-    bad_numbers = unsupported_numbers(text, allowed_values, safe_literals)
+    bad_numbers = unsupported_number_tokens(
+        text, allowed_numbers, item["number_refs"], safe_literals
+    )
     if bad_numbers:
-        rejections.append(f"{label}: unsupported number(s) {bad_numbers}")
+        rejections.append(
+            f"{label}: {len(bad_numbers)} numeric token(s) did not match exact "
+            "displays of referenced numbers"
+        )
     if contains_secret_pattern(text):
         rejections.append(f"{label}: credential-shaped content")
 
@@ -129,6 +134,31 @@ def _review_item(
     bad_refs = [ref for ref in item["number_refs"] if ref not in allowed_number_ids]
     if bad_refs:
         dropped.append(f"{label}: dropped (number_refs not in allowed_numbers: {bad_refs})")
+        return None
+
+    number_by_id = {str(number["id"]): number for number in allowed_numbers}
+    uncited_refs = [
+        ref
+        for ref in item["number_refs"]
+        if not set(number_by_id[ref]["source_ids"]).intersection(valid_sources)
+    ]
+    if uncited_refs:
+        dropped.append(
+            f"{label}: dropped (number_refs lack one of their trusted sources: {uncited_refs})"
+        )
+        return None
+
+    # Extra refs are also misleading: the UI renders them as trusted number
+    # chips. Require every referenced display to appear in this claim's text.
+    missing_displays = [
+        str(number["display"])
+        for number in allowed_numbers
+        if number["id"] in item["number_refs"] and str(number["display"]) not in text
+    ]
+    if missing_displays:
+        dropped.append(
+            f"{label}: dropped (number_refs not present in text: {missing_displays})"
+        )
         return None
 
     return {"text": text, "source_ids": valid_sources, "number_refs": list(item["number_refs"])}
@@ -188,7 +218,8 @@ def review_narration(
         path = "/".join(str(part) for part in exc.absolute_path)
         return NarrationReview(False, None, [f"schema: {exc.message} (at /{path})"], dropped)
 
-    allowed_values = [float(n["value"]) for n in bundle["allowed_numbers"]]
+    allowed_numbers = list(bundle["allowed_numbers"])
+    allowed_values = [float(n["value"]) for n in allowed_numbers]
     allowed_number_ids = {n["id"] for n in bundle["allowed_numbers"]}
     source_ids = {s["source_id"] for s in bundle["sources"]}
     safe_literals = _safe_literals(bundle)
@@ -201,7 +232,7 @@ def review_narration(
                 item,
                 kind=kind,
                 index=index,
-                allowed_values=allowed_values,
+                allowed_numbers=allowed_numbers,
                 safe_literals=safe_literals,
                 source_ids=source_ids,
                 allowed_number_ids=allowed_number_ids,

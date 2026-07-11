@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://udhawan97.github.io/Golavo/contracts/evidence-bundle-0.1.0.schema.json",
   "title": "MatchEvidenceBundle",
-  "description": "The ONLY object the optional AI layer is ever shown. Built deterministically from a sealed or scored ForecastArtifact. Its allowed_numbers list is the exhaustive whitelist of every numeric value the AI is permitted to utter; the engine owns every number and the AI may never introduce one that is not here. This is a sibling contract to ForecastArtifact and never modifies it.",
+  "description": "The only authoritative object the optional AI layer is shown. Optional candidate-fact context is separately fenced as untrusted data. Built deterministically from a sealed or scored ForecastArtifact, its allowed_numbers list is the exhaustive whitelist of every numeric value the AI is permitted to utter; the engine owns every number and the AI may never introduce one that is not here. This is a sibling contract to ForecastArtifact and never modifies it.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "bundle_id", "artifact_id", "artifact_status", "derived_from_payload_sha256", "match", "forecast_summary", "allowed_numbers", "facts", "features", "sources", "data_quality", "generator", "bundle_hash"],
@@ -57,7 +57,7 @@
     "AllowedNumber": {
       "type": "object",
       "additionalProperties": false,
-      "description": "One numeric value the AI is permitted to state. `value` is the canonical engine number; `display` is the exact string the AI should echo; the numeric-whitelist matcher accepts any formatting that rounds to `value`.",
+      "description": "One numeric value the AI is permitted to state. `value` is the canonical engine number; `display` is the exact string the AI must echo and bind to this id in the same claim's number_refs.",
       "required": ["id", "value", "unit", "label", "display", "source_ids"],
       "properties": {
         "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
