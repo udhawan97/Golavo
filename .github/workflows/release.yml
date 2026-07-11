@@ -99,7 +99,9 @@ jobs:
 
   publish:
     needs: [prepare, build]
-    if: startsWith(github.ref, 'refs/tags/v')
+    # Publish even if a desktop build leg fails: an honest unsigned pre-release
+    # still ships the source + whatever bundles built + their SHA256SUMS.
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     env:
       MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
