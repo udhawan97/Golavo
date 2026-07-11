@@ -47,7 +47,13 @@ export function AiDeepRead({ artifact }: { artifact: ForecastArtifact }) {
 
   // Changing the provider (including back to Off) resets any prior result so the
   // panel never shows a narration attributed to the wrong provider.
-  useEffect(() => { setState({ status: "idle" }); }, [provider, artifact.artifact_id]);
+  useEffect(() => {
+    // Invalidate any request started for the previous provider/artifact. Without
+    // this, a slow old response can repopulate the panel after the selector has
+    // changed and be shown under the wrong provider.
+    runId.current += 1;
+    setState({ status: "idle" });
+  }, [provider, artifact.artifact_id]);
 
   const run = () => {
     const id = ++runId.current;
@@ -71,7 +77,12 @@ export function AiDeepRead({ artifact }: { artifact: ForecastArtifact }) {
           <span className="visually-hidden">AI provider</span>
           <select
             value={provider}
-            onChange={(e) => setProvider(e.target.value as AiProvider)}
+            onChange={(e) => {
+              // Invalidate synchronously at selection time; the effect below is
+              // the second line of defense for provider and artifact changes.
+              runId.current += 1;
+              setProvider(e.target.value as AiProvider);
+            }}
             aria-label="AI provider"
           >
             {AI_PROVIDERS.map((p) => (

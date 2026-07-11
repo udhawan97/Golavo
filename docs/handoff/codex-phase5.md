@@ -18,10 +18,12 @@ the AI is structurally prevented from stating any number the engine did not
 produce. **AI does not improve forecast accuracy and cannot change a
 probability.**
 
-The one-sentence guarantee: *the only object the AI ever sees is a
-`MatchEvidenceBundle` with an explicit `allowed_numbers` whitelist, and every
-number in the model's output must resolve to one of those values or the whole
-narration is rejected and the app falls back to local-only.*
+The one-sentence guarantee: *the `MatchEvidenceBundle` is the AI's only
+authoritative input, with an explicit `allowed_numbers` whitelist, and every
+number in the model's output must exactly bind to one of those ids or the whole
+narration is rejected and the app falls back to local-only.* Optional future
+candidate-fact context is separately sanitized and fenced as untrusted data; it
+never becomes an engine fact or number.
 
 ## The contracts (additive; ForecastArtifact 0.2.0 untouched)
 
@@ -53,22 +55,24 @@ are `{text, quote, source_url}` proposals (default-off; see Stretch).
 
 ## The numeric whitelist matcher (the core guard)
 
-`golavo_core.ai.whitelist`. `unsupported_numbers(text, allowed_values, safe_literals)`
-returns any number in `text` that resolves to no allowed value — non-empty ⇒ reject.
+`golavo_core.ai.whitelist`. `unsupported_number_tokens(text, allowed_numbers,
+number_refs, safe_literals)` returns any numeric token in `text` that is not an
+exact display of a number referenced by that claim — non-empty ⇒ reject.
 
 Design decisions (all deliberate, all tested):
 
-1. **Formatting-tolerant, one-directional.** A token matches an allowed `value`
-   only if it equals `value` rounded to 0–6 decimals. The model may present a
-   number with **equal or lower** precision (`"45%"`, `"45.2%"` for `45.234`) but
-   can never invent precision or a different value. There is no additive slop, so
-   `"46%"` never matches `"45%"`.
+1. **Exact-display and reference bound.** Every digit token must exactly match
+   the NFKC-normalized trusted `display` string of an `allowed_numbers` id listed
+   in that same claim's `number_refs`, and the claim must cite one of that
+   number's trusted sources. This binds value, unit, and citation together: `"1.2%"`
+   cannot borrow an allowed `"1.2"` goals value, and an otherwise valid `"45.0%"`
+   cannot cite a different probability id. Extra/missing refs fail closed.
 2. **Unicode-safe.** Text is NFKC-normalized first, so fullwidth/superscript
    digits (`７０`, `⁷`) cannot slip a fabricated number past the scanner.
-3. **Spelled-out numbers** from *three* upward, plus multipliers
-   (twice/double/triple) and large-unit words (hundred/thousand/…), are caught.
-   *Bounded, documented gap:* bare `"one"`/`"two"`/`"first"`/`"second"`/`"half"`
-   are treated as ordinary prose (their **digit** forms `1`/`2` are still scanned).
+3. **Ambiguous numeric notation fails closed.** Spelled-out numbers (including
+   one/two, ordinals, multipliers, and large-unit words), fractions, compound
+   number words, and scientific notation are rejected. The fixed prompt requires
+   the exact digit-form `display` instead.
 4. **Trusted-literal stripping.** Team/competition names and source ids can
    legitimately contain digits (`"Schalke 04"`, `"1. FC Köln"`). Those **exact
    literal strings from the trusted bundle** are removed before scanning, so their
@@ -124,10 +128,15 @@ ok         → guard-validated narration, provenance-stamped
   with canned and adversarial responses and **no live model**.
 - Retry-then-fallback: parse (fence/`<think>`-tolerant) → `review_narration` →
   one retry → local-only.
-- Cache keyed by `(bundle_hash, provider, model, prompt_version)`.
+- Cache keyed by `(bundle_hash, provider, model, prompt_version,
+  allow_candidate_facts, sanitized_context_hash)` so prompt-affecting context
+  cannot reuse a stale narration.
 - **API keys**: read from env or the macOS keychain, placed **only** in a request
   header, never in the body, cache, logs, or response. `build_openai_payload` /
   `build_anthropic_payload` are unit-tested to prove the key is header-only.
+- Cloud provider base URLs are fixed; request-supplied overrides are rejected so
+  a BYOK header cannot be redirected. Local providers accept only explicit
+  HTTP(S) loopback URLs.
 
 ### Endpoint
 `POST /api/v1/forecasts/{id}/narrative` (server `main.py`). Body is the provider
@@ -156,9 +165,11 @@ probability; fabricate a number; fabricate a percentage; fabricate a citation;
 missing citation; betting lexicon (×2); injected "SYSTEM OVERRIDE" number;
 chain-of-thought in text; key exfiltration (`sk-…`); env exfiltration
 (`OPENAI_API_KEY=…`); spelled-out number smuggle; **fullwidth-unicode** number
-smuggle; scoreline smuggle; schema extra field; non-object output; ungrounded
-candidate-fact number. Plus: a volunteered `reasoning` key is **stripped** (not
-surfaced) while the clean claim survives; a genuinely clean narration passes.
+smuggle; scoreline smuggle; wrong-unit/ref reuse; scientific notation;
+compound/spelled numbers; fractions; schema extra field; non-object output;
+ungrounded candidate-fact number. Plus: a volunteered `reasoning` key is
+**stripped** (not surfaced) while the clean claim survives; a genuinely clean
+narration passes.
 
 **Gateway** (`server/tests/test_ai_gateway.py`, full pipeline via injected
 transport): change-probability, betting, fake-citation, key-leak, not-JSON, and
@@ -186,8 +197,6 @@ provider in the UI to try the live path.
   but a hard cap is future work.
 - **Anthropic transport** is implemented (request-build + response-parse unit
   tested) but not verified against a live key.
-- **Number-word bound:** bare "one"/"two"/"first"/"second"/"half" are prose, not
-  numeric claims (their digit forms are still scanned). Documented above.
 - **Candidate-fact ingestion (Stretch):** the guard exists
   (`allow_candidate_facts=True` gates on quote-grounding) and is default-off. The
   full loop — allowlisted source + user confirmation → typed feature → model

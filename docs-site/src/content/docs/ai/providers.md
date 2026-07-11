@@ -28,8 +28,8 @@ AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed f
 ## Hard rules
 
 1. Output is schema-validated JSON (`claims`, `scenarios`, `candidate_facts`).
-2. **Numeric whitelist** — every number in the output must resolve to an `allowed_numbers` id, or the output is rejected (one retry, then Local-only fallback).
-3. Claims without `source_ids` are dropped.
+2. **Numeric whitelist** — every numeric token must exactly match the trusted display of an `allowed_numbers` id referenced by that same claim. Units and references cannot be swapped; spelled, fractional, compound, and scientific notation fail closed. Any mismatch rejects the output (one retry, then Local-only fallback).
+3. Claims without `source_ids` are dropped; numbered claims must cite one of the number's own trusted sources.
 4. A betting-lexicon filter rejects "locks," "units," and odds formats.
 5. Chain-of-thought is never exposed. The analysis animation shows factual pipeline stages only (snapshot → features → model → seal).
 
@@ -41,7 +41,7 @@ As of Phase 5 the *guard* for this exists and is default-off: a model may emit `
 
 ## Caching & privacy
 
-Narrative is cached by `(bundle_hash, provider, model, prompt_version)`. Keys live in your OS keychain (or an environment variable in dev), are used only in a request header, and never touch the database, logs, cache, or exports.
+Narrative caching also includes candidate-fact mode and a hash of sanitized optional context, so prompt-affecting input cannot reuse a stale result. Keys live in your OS keychain (or an environment variable in dev), are used only in a request header, and never touch the database, logs, cache, or exports. Cloud endpoints are fixed; local endpoint overrides are restricted to HTTP(S) loopback URLs so a BYOK header cannot be redirected.
 
 Spend caps (`AI_PER_MATCH_CAP`, `AI_MONTHLY_CAP`) are reserved in configuration but **not yet enforced** — treat BYOK usage as opt-in and small. A hard cost meter is future work.
 

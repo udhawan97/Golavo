@@ -42,7 +42,8 @@ class TestNumberExtraction:
         assert 100.0 in extract_numbers("a hundred appearances")
 
     def test_one_and_two_are_treated_as_prose_not_numbers(self) -> None:
-        # Deliberate, documented bound: bare "one"/"two" words are prose.
+        # This legacy extractor is used for quote grounding. Served narration
+        # has a stricter gate that rejects all spelled numeric language.
         assert extract_numbers("one of the sides, two clubs") == []
 
     def test_fixed_terminology_is_not_a_number(self) -> None:

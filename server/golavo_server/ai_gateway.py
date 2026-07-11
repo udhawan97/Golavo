@@ -21,7 +21,9 @@ in a request header, and never logged, cached, or returned.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -30,6 +32,7 @@ import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
+from urllib.parse import urlparse
 
 from golavo_core.ai import (
     PROMPT_VERSION,
@@ -37,6 +40,7 @@ from golavo_core.ai import (
     build_user_prompt,
     review_narration,
 )
+from golavo_core.ai.sanitize import sanitize_untrusted
 
 # provider -> whether it is a local (free, keyless) or cloud (BYOK) endpoint.
 LOCAL_PROVIDERS = ("ollama", "llama_server")
@@ -99,20 +103,49 @@ def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
     provider = str(config.get("provider", "off")).lower()
     if provider not in KNOWN_PROVIDERS:
         raise ValueError(f"unknown provider {provider!r}; expected one of {KNOWN_PROVIDERS}")
-    model = str(config.get("model") or _DEFAULT_MODELS.get(provider, "local-model"))
-    base_url = config.get("base_url")
+    model = str(config.get("model") or _DEFAULT_MODELS.get(provider, "local-model")).strip()
+    if not model or len(model) > 120:
+        raise ValueError("model must contain 1-120 characters")
+    requested_base_url = config.get("base_url")
+    if requested_base_url and provider in CLOUD_PROVIDERS:
+        raise ValueError("base_url overrides are allowed only for local providers")
+    base_url = requested_base_url
     if not base_url and provider in _ENV_BASE_URLS:
         base_url = os.environ.get(_ENV_BASE_URLS[provider])
     if not base_url:
         base_url = _DEFAULT_BASE_URLS.get(provider)
+    if provider in LOCAL_PROVIDERS:
+        base_url = _validated_loopback_url(base_url)
+    try:
+        timeout_s = float(config.get("timeout_s", 30.0))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("timeout_s must be a number between 1 and 120") from exc
+    if not math.isfinite(timeout_s) or not 1 <= timeout_s <= 120:
+        raise ValueError("timeout_s must be a number between 1 and 120")
     return ProviderConfig(
         provider=provider,
         model=model,
         base_url=base_url,
         allow_candidate_facts=bool(config.get("allow_candidate_facts", False)),
-        timeout_s=float(config.get("timeout_s", 30.0)),
+        timeout_s=timeout_s,
         untrusted_context=config.get("untrusted_context"),
     )
+
+
+def _validated_loopback_url(value: Any) -> str:
+    """Accept only explicit loopback HTTP(S) endpoints for local providers."""
+    url = str(value or "").strip()
+    parsed = urlparse(url)
+    if (
+        parsed.scheme not in {"http", "https"}
+        or parsed.hostname not in {"localhost", "127.0.0.1", "::1"}
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError("local provider base_url must be an HTTP(S) loopback URL")
+    return url.rstrip("/")
 
 
 @dataclass
@@ -290,14 +323,23 @@ def extract_json_object(text: str) -> dict[str, Any] | None:
 # --- Caching -----------------------------------------------------------------
 
 class NarrationCache:
-    """In-memory cache keyed by (bundle_hash, provider, model, prompt_version)."""
+    """In-memory cache keyed by every input that can affect a narration."""
 
     def __init__(self) -> None:
-        self._store: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+        self._store: dict[tuple[str, str, str, str, bool, str], dict[str, Any]] = {}
 
     @staticmethod
-    def key(bundle_hash: str, config: ProviderConfig) -> tuple[str, str, str, str]:
-        return (bundle_hash, config.provider, config.model, PROMPT_VERSION)
+    def key(bundle_hash: str, config: ProviderConfig) -> tuple[str, str, str, str, bool, str]:
+        context = sanitize_untrusted(config.untrusted_context or "")
+        context_hash = hashlib.sha256(context.encode("utf-8")).hexdigest() if context else ""
+        return (
+            bundle_hash,
+            config.provider,
+            config.model,
+            PROMPT_VERSION,
+            config.allow_candidate_facts,
+            context_hash,
+        )
 
     def get(self, bundle_hash: str, config: ProviderConfig) -> dict[str, Any] | None:
         return self._store.get(self.key(bundle_hash, config))
@@ -359,7 +401,15 @@ def generate_narration(
     for _ in range(MAX_ATTEMPTS):
         try:
             raw_text = transport(system, user)
-        except (urllib.error.URLError, TimeoutError, OSError, KeyError, ValueError) as exc:
+        except (
+            urllib.error.URLError,
+            TimeoutError,
+            OSError,
+            KeyError,
+            ValueError,
+            TypeError,
+            IndexError,
+        ) as exc:
             # Never surface provider internals or anything that might echo a key.
             reasons.append(f"provider call failed ({type(exc).__name__})")
             continue
