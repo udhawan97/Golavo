@@ -7,11 +7,10 @@
     <linearGradient id="ai" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2B2117"/><stop offset="1" stop-color="#1B1713"/></linearGradient>
     <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="1" fill="#C9A227" fill-opacity=".055"/></pattern>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="11" flood-color="#000" flood-opacity=".28"/></filter>
-    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <marker id="gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#D4AD2E"/></marker>
     <marker id="orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#E07338"/></marker>
     <style>
-      .title{font:600 32px Georgia,"Times New Roman",serif;letter-spacing:-.35px;fill:#F4EFE6}.sub{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.kicker{font:700 11px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:1.45px}.head{font:650 17px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.body{font:400 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.small{font:400 10.8px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#928E83}.mono{font:500 10.5px ui-monospace,"SF Mono",Menlo,monospace;fill:#BCB8AC}.card{fill:#171B1A;stroke:#343A37;stroke-width:1.25}.signal{fill:none;stroke:#D4AD2E;stroke-width:2;stroke-dasharray:7 10;animation:travel 3.6s linear infinite}.guard{animation:guard 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}@keyframes travel{to{stroke-dashoffset:-68}}@keyframes guard{0%,100%{opacity:.55}50%{opacity:1}}@media(prefers-reduced-motion:reduce){.signal,.guard{animation:none}.guard{opacity:.78}}
+      .title{font:600 32px Georgia,"Times New Roman",serif;letter-spacing:-.35px;fill:#F4EFE6}.sub{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.kicker{font:700 11px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:1.45px}.head{font:650 17px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.body{font:400 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.small{font:400 10.8px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#928E83}.mono{font:500 10.5px ui-monospace,"SF Mono",Menlo,monospace;fill:#BCB8AC}.card{fill:#171B1A;stroke:#343A37;stroke-width:1.25}.signal{fill:none;stroke:#D4AD2E;stroke-width:2;stroke-dasharray:7 10;animation:travel 3.6s linear infinite}@keyframes travel{to{stroke-dashoffset:-68}}@media(prefers-reduced-motion:reduce){.signal{animation:none}}
     </style>
   </defs>
   <rect width="1280" height="800" rx="28" fill="#090B0A"/>
@@ -65,8 +64,8 @@
       <rect x="20" y="218" width="308" height="48" rx="10" fill="#BC002D" fill-opacity=".08" stroke="#BC002D" stroke-opacity=".42"/><text x="174" y="247" text-anchor="middle" class="kicker" fill="#FF8A9B">CANNOT IMPORT FORECAST WRITERS</text>
     </g>
 
-    <path d="M752 181H808" class="signal" marker-end="url(#orange)"/>
-    <text x="780" y="166" text-anchor="middle" class="small">bundle only</text>
+    <path d="M752 181H836" class="signal" marker-end="url(#orange)"/>
+    <text x="794" y="166" text-anchor="middle" class="small">read-only bundle</text>
     <g transform="translate(836 38)" filter="url(#shadow)">
       <rect width="348" height="286" rx="18" fill="url(#ai)" stroke="#D9622B" stroke-opacity=".58" stroke-width="1.3"/>
       <rect x="20" y="18" width="44" height="22" rx="11" fill="#D9622B" fill-opacity=".22"/><text x="42" y="33" text-anchor="middle" class="kicker" fill="#E88A57">2</text><text x="78" y="33" class="kicker" fill="#E88A57">OPTIONAL AI GATEWAY</text>
@@ -74,13 +73,6 @@
       <rect x="20" y="86" width="308" height="42" rx="10" fill="#D9622B" fill-opacity=".08" stroke="#D9622B" stroke-opacity=".34"/><text x="34" y="111" class="body">local Ollama / llama.cpp · cloud BYOK</text>
       <rect x="20" y="140" width="308" height="74" rx="10" fill="#BC002D" fill-opacity=".09" stroke="#BC002D" stroke-opacity=".43"/><text x="34" y="162" class="kicker" fill="#FF8A9B">GUARDS BEFORE DISPLAY</text><text x="34" y="183" class="body">schema · source ids · numeric allowlist</text><text x="34" y="202" class="body">betting language · quote grounding</text>
       <g transform="translate(20 230)"><rect width="62" height="26" rx="13" fill="#343A37"/><text x="31" y="17" text-anchor="middle" class="small" fill="#BCB8AC">disabled</text><rect x="70" width="76" height="26" rx="13" fill="#343A37"/><text x="108" y="17" text-anchor="middle" class="small" fill="#BCB8AC">unavailable</text><rect x="154" width="72" height="26" rx="13" fill="#BC002D" fill-opacity=".16"/><text x="190" y="17" text-anchor="middle" class="small" fill="#FF8A9B">local_only</text><rect x="234" width="74" height="26" rx="13" fill="#0B6E4F" fill-opacity=".25"/><text x="271" y="17" text-anchor="middle" class="small" fill="#7DD8B6">ok</text></g>
-    </g>
-
-    <!-- explicit barrier in the dedicated gap, not over any card -->
-    <g transform="translate(808 92)" class="guard">
-      <rect width="28" height="178" rx="14" fill="#BC002D" fill-opacity=".11" stroke="#BC002D" stroke-opacity=".45"/>
-      <path d="M9 31l10 10m0-10L9 41M9 76l10 10m0-10L9 86M9 121l10 10m0-10L9 131" stroke="#FF8A9B" stroke-width="1.5" stroke-linecap="round"/>
-      <text x="14" y="163" text-anchor="middle" class="kicker" fill="#FF8A9B" transform="rotate(-90 14 163)">NO WRITE PATH</text>
     </g>
   </g>
 

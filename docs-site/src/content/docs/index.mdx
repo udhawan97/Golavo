@@ -6,144 +6,157 @@ hero:
   tagline: The numbers remember everything. The beautiful game still keeps the last word.
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
-
-<div class="gv-section" data-reveal>
-  <p class="gv-kicker">90 minutes of evidence</p>
-  <h2 class="gv-section-title">A forecast you can check — not just read.</h2>
-  <p class="gv-section-lead">
-    Golavo seals a forecast artifact before kickoff — with its model version,
-    snapshot, and the content hashes of every source it used — then scores it
-    after full time. No revisionism. No “AI predictions.” Just numbers that keep a
-    receipt.
-  </p>
-</div>
-
-<CardGrid stagger>
-  <Card title="The engine owns the numbers" icon="approve-check">
-    Five deterministic candidates produce every probability. No model is a
-    declared champion; the optional evidence-only AI layer explains and cites but
-    never owns a number. [Methodology →](/Golavo/methodology/prediction/)
-  </Card>
-  <Card title="Honest about data" icon="warning">
-    Pinned CC0 packs: internationals (forward) plus the top-5 European leagues
-    (historical). Club lineups, corners, and xG stay out of scope.
-    [Coverage →](/Golavo/data/coverage/)
-  </Card>
-  <Card title="Local-first & private" icon="laptop">
-    No account, telemetry, or ads. Runtime reads local files; the AI layer is off
-    by default and only calls a model when you enable it.
-    [Privacy →](/Golavo/privacy-security/)
-  </Card>
-  <Card title="Not a betting product" icon="close">
-    No odds, no picks, no “locks,” no bankroll advice, no affiliate links. Ever.
-    [Principles →](/Golavo/introduction/)
-  </Card>
-</CardGrid>
-
-<div class="gv-rule" aria-hidden="true">
-  <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sl-color-bg)" stroke="var(--sl-color-gray-3)" stroke-width="1.4"/><path fill="var(--golavo-gold)" d="M12 7.6l3.4 2.5-1.3 4H9.9l-1.3-4z"/></svg>
-</div>
-
-<div class="gv-section" data-reveal>
-  <p class="gv-kicker">The contract</p>
-  <h2 class="gv-section-title">The engine owns the numbers. That contract is frozen now.</h2>
-  <p class="gv-section-lead">
-    The statistical engine owns every number. The AI layer — shipped in Phase 5,
-    off by default — may research and explain, but it may never silently change a
-    number (ADR-0001).
-  </p>
-
-  <div class="gv-contract">
-    <div class="gv-pillar gv-pillar--engine">
-      <span class="tag">Statistical engine</span>
-      <h3>Owns the probabilities</h3>
-      <ul>
-        <li>1X2 probabilities for internationals + the top-5 leagues</li>
-        <li>Five deterministic, chronologically evaluated candidates</li>
-        <li>Log loss primary; losing candidates remain visible</li>
-      </ul>
+<div class="gv-home-story">
+  <section class="gv-intro gv-snap" data-reveal aria-labelledby="gv-intro-title">
+    <p class="gv-kicker">A forecasting workbench with a memory</p>
+    <h2 id="gv-intro-title" class="gv-display">Most predictions ask for trust.<br/><em>Golavo brings receipts.</em></h2>
+    <div class="gv-intro-copy">
+      Every forecast is created from pinned source bytes, sealed before kickoff,
+      and judged after full time. The number can be wrong. The history cannot be
+      quietly improved after the whistle.
     </div>
-    <div class="gv-pillar gv-pillar--ai">
-      <span class="tag">AI layer · shipped, off by default</span>
-      <h3>Cites, explains, researches</h3>
-      <ul>
-        <li>Narrative, scenario explanation, sourced research</li>
-        <li>Proposes typed features for the engine to consider</li>
-        <li>May <em>never</em> state a number not in its evidence bundle</li>
-      </ul>
+    <div class="gv-proof-rail" aria-label="Golavo principles">
+      <span><b>01</b> Local-first</span>
+      <span><b>02</b> Deterministic</span>
+      <span><b>03</b> No telemetry</span>
+      <span><b>04</b> Not a betting product</span>
     </div>
-  </div>
+  </section>
 
-  <p class="gv-delta">
-    Planned typed-feature flow → model reruns → the UI shows the delta:&nbsp;
-    <b>P(home) 42% → 45% · Kane confirmed out ✓</b>
-  </p>
-</div>
+  <section class="gv-chapter gv-chapter--match gv-snap" data-reveal aria-labelledby="gv-match-title">
+    <div class="gv-chapter-copy">
+      <p class="gv-kicker">The whole match in one glance</p>
+      <h2 id="gv-match-title" class="gv-chapter-title">One forecast.<br/>Two receipts.<br/><em>No convenient amnesia.</em></h2>
+      <div class="gv-body">
+        Before kickoff, the source and model state are frozen with the
+        probabilities. After full time, a separate successor scores that exact
+        claim and updates the forward ledger.
+      </div>
+      <div class="gv-mini-steps" aria-label="Forecast lifecycle summary">
+        <span><b>Before</b> publish the claim</span>
+        <span><b>Seal</b> lock the evidence</span>
+        <span><b>After</b> score, never rewrite</span>
+      </div>
+      <a class="gv-text-link" href="/Golavo/prediction-ledger/">Explore the prediction ledger <span aria-hidden="true">↗</span></a>
+    </div>
+    <a class="gv-visual gv-visual--hero" href="/Golavo/assets/golavo-match-story.svg" aria-label="Open the full-size animated match walkthrough">
+      <img src="/Golavo/assets/golavo-match-story.svg" alt="Animated synthetic walkthrough showing a forecast before kickoff, its immutable seal, and the separate result that scores it after full time" width="1200" height="620" loading="eager" decoding="async"/>
+      <span class="gv-visual-label"><i></i> Animated synthetic walkthrough</span>
+      <span class="gv-open-visual">Open full size ↗</span>
+    </a>
+  </section>
 
-<div class="gv-rule" aria-hidden="true">
-  <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sl-color-bg)" stroke="var(--sl-color-gray-3)" stroke-width="1.4"/><path fill="var(--golavo-gold)" d="M12 7.6l3.4 2.5-1.3 4H9.9l-1.3-4z"/></svg>
-</div>
+  <section class="gv-chapter gv-chapter--lifecycle gv-snap" data-reveal aria-labelledby="gv-life-title">
+    <div class="gv-chapter-copy gv-chapter-copy--wide">
+      <p class="gv-kicker">A claim that cannot edit its own past</p>
+      <h2 id="gv-life-title" class="gv-chapter-title">Collect. Predict. Lock.<br/><em>Then let reality answer.</em></h2>
+      <div class="gv-body">
+        The simple rail is for everyone. The receipts underneath are for the
+        people who want the snapshot hashes, cutoff rules, canonical payload,
+        and successor contract.
+      </div>
+    </div>
+    <a class="gv-visual gv-visual--wide" href="/Golavo/assets/golavo-forecast-lifecycle.svg" aria-label="Open the full-size forecast lifecycle diagram">
+      <img src="/Golavo/assets/golavo-forecast-lifecycle.svg" alt="Six-step forecast lifecycle from pinned source data to a sealed claim, linked result, and forward calibration record" width="1280" height="820" loading="lazy" decoding="async"/>
+      <span class="gv-open-visual">Open full size ↗</span>
+    </a>
+    <dl class="gv-fact-row" aria-label="Forecast integrity guarantees">
+      <div><dt>Seal gate</dt><dd>Fails closed</dd></div>
+      <div><dt>Resolution</dt><dd>Append only</dd></div>
+      <div><dt>Evidence</dt><dd>Forward, not backfilled</dd></div>
+    </dl>
+  </section>
 
-<div class="gv-section" data-reveal>
-  <p class="gv-kicker">How a forecast is made</p>
-  <h2 class="gv-section-title">Sources in. A sealed, scored forecast out.</h2>
-  <p class="gv-section-lead">
-    Every artifact records its pinned source snapshot. Canonical payload hashing
-    makes changes detectable; scoring writes a new file instead of rewriting a seal.
-  </p>
+  <section class="gv-chapter gv-chapter--intelligence gv-snap" data-reveal aria-labelledby="gv-ai-title">
+    <div class="gv-chapter-copy">
+      <p class="gv-kicker">Who gets to touch the numbers?</p>
+      <h2 id="gv-ai-title" class="gv-chapter-title">The engine decides.<br/><em>AI may explain.</em></h2>
+      <div class="gv-body">
+        Facts add sourced context. Optional AI receives a read-only evidence
+        bundle. Turn every AI setting off and the probabilities, score matrix,
+        seal, and calibration remain byte-for-byte the same.
+      </div>
+      <ul class="gv-check-list">
+        <li>Every displayed number is engine-owned</li>
+        <li>Every narrative claim cites allowed evidence</li>
+        <li>Any guard failure returns to local-only</li>
+      </ul>
+      <a class="gv-text-link" href="/Golavo/local-intelligence/">Read the intelligence contract <span aria-hidden="true">↗</span></a>
+    </div>
+    <a class="gv-visual gv-visual--portrait" href="/Golavo/assets/golavo-intelligence-boundary.svg" aria-label="Open the full-size intelligence boundary diagram">
+      <img src="/Golavo/assets/golavo-intelligence-boundary.svg" alt="The deterministic engine owns every probability, evidence adds sourced context, and optional AI receives a read-only guarded bundle" width="1280" height="800" loading="lazy" decoding="async"/>
+      <span class="gv-open-visual">Open full size ↗</span>
+    </a>
+  </section>
 
-  <div class="gv-flow">
-    <div class="gv-step"><span class="n">01</span><h4>Source</h4><p>One pinned CC0 internationals pack.</p></div>
-    <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="gv-step"><span class="n">02</span><h4>Snapshot</h4><p>Immutable, sha256-addressed.</p></div>
-    <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="gv-step"><span class="n">03</span><h4>Typed matches</h4><p>Dates, teams, scores, venue state.</p></div>
-    <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="gv-step"><span class="n">04</span><h4>Candidate</h4><p>Five deterministic model families.</p></div>
-    <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="gv-step"><span class="n">05</span><h4>Sealed</h4><p>Canonical JSON + SHA-256.</p></div>
-    <svg class="gv-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="gv-step"><span class="n">06</span><h4>Scored</h4><p>Vs actual → calibration record.</p></div>
-  </div>
-</div>
+  <section class="gv-chapter gv-chapter--architecture gv-snap" data-reveal aria-labelledby="gv-architecture-title">
+    <div class="gv-chapter-copy gv-chapter-copy--wide">
+      <p class="gv-kicker">Private by architecture, not by promise</p>
+      <h2 id="gv-architecture-title" class="gv-chapter-title">A local app with<br/><em>one numeric authority.</em></h2>
+      <div class="gv-body">
+        Tauri supervises a token-protected loopback service. React presents
+        validated read-only views. FastAPI serves contracts. The deterministic
+        Python core remains the only place a forecast can be made.
+      </div>
+    </div>
+    <a class="gv-visual gv-visual--wide" href="/Golavo/assets/golavo-system-architecture.svg" aria-label="Open the full-size system architecture diagram">
+      <img src="/Golavo/assets/golavo-system-architecture.svg" alt="Golavo system architecture from the desktop shell and workbench through the local API to the deterministic Python core" width="1280" height="900" loading="lazy" decoding="async"/>
+      <span class="gv-open-visual">Open full size ↗</span>
+    </a>
+    <dl class="gv-fact-row" aria-label="Runtime architecture summary">
+      <div><dt>Runtime</dt><dd>Local loopback</dd></div>
+      <div><dt>Authentication</dt><dd>Per-launch token</dd></div>
+      <div><dt>Cloud AI</dt><dd>Off by default</dd></div>
+    </dl>
+  </section>
 
-<div class="gv-section" data-reveal>
-  <p class="gv-kicker">The workbench</p>
-  <h2 class="gv-section-title">Real screens, not mockups.</h2>
-  <p class="gv-section-lead">
-    Screenshots of the running read-only workbench (v0.2.0) over the bundled
-    <strong>synthetic sample artifacts</strong> — labelled as sample data in the app,
-    never presented as real forecasts.
-  </p>
+  <section class="gv-workbench gv-snap" data-reveal aria-labelledby="gv-workbench-title">
+    <div class="gv-workbench-head">
+      <div>
+        <p class="gv-kicker">The workbench</p>
+        <h2 id="gv-workbench-title" class="gv-chapter-title">Real screens.<br/><em>Real restraint.</em></h2>
+      </div>
+      <div class="gv-body">
+        The bundled preview uses clearly labelled synthetic artifacts. No sample
+        forecast is passed off as history, and an unavailable model declines
+        instead of improvising.
+      </div>
+    </div>
+    <div class="gv-bento">
+      <figure class="gv-shot gv-shot--wide">
+        <img src="/Golavo/screenshots/workbench-matchday.png" alt="Golavo Matchday workbench listing sealed, scored, abstained and voided forecasts" loading="lazy" decoding="async"/>
+        <figcaption><span>Matchday</span> Every forecast, newest first.</figcaption>
+      </figure>
+      <figure class="gv-shot">
+        <img src="/Golavo/screenshots/calibration-ledger.png" alt="Forward calibration ledger with reliability chart and sealed-to-scored chains" loading="lazy" decoding="async"/>
+        <figcaption><span>Ledger</span> Genuine seals, never backtests.</figcaption>
+      </figure>
+      <figure class="gv-shot gv-shot--panorama">
+        <img src="/Golavo/screenshots/ai-deep-read-off.png" alt="AI Deep Read panel in its off-by-default state" loading="lazy" decoding="async"/>
+        <figcaption><span>AI off</span> The forecast remains complete.</figcaption>
+      </figure>
+      <figure class="gv-shot gv-shot--panorama">
+        <img src="/Golavo/screenshots/ai-deep-read-on.png" alt="AI Deep Read enabled with no provider connected, returning an honest unavailable state" loading="lazy" decoding="async"/>
+        <figcaption><span>No provider</span> It declines rather than fabricate.</figcaption>
+      </figure>
+    </div>
+  </section>
 
-  <div style="display:grid; gap:1.25rem; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin-top:1.5rem;">
-    <figure style="margin:0;">
-      <img src="/Golavo/screenshots/workbench-matchday.png" alt="Golavo matchday workbench listing sealed, scored, abstained and voided forecasts" style="width:100%; border-radius:12px; border:1px solid var(--sl-color-gray-5);" loading="lazy" />
-      <figcaption style="font-size:.85rem; color:var(--sl-color-gray-3); margin-top:.5rem;">Matchday — every forecast with its status, newest first.</figcaption>
-    </figure>
-    <figure style="margin:0;">
-      <img src="/Golavo/screenshots/calibration-ledger.png" alt="Prediction ledger with a running-calibration reliability diagram and sealed-to-scored chains" style="width:100%; border-radius:12px; border:1px solid var(--sl-color-gray-5);" loading="lazy" />
-      <figcaption style="font-size:.85rem; color:var(--sl-color-gray-3); margin-top:.5rem;">The calibration record — reliability over genuine seals, never backtests.</figcaption>
-    </figure>
-    <figure style="margin:0;">
-      <img src="/Golavo/screenshots/ai-deep-read-off.png" alt="AI Deep Read panel showing the off-by-default state" style="width:100%; border-radius:12px; border:1px solid var(--sl-color-gray-5);" loading="lazy" />
-      <figcaption style="font-size:.85rem; color:var(--sl-color-gray-3); margin-top:.5rem;">AI Deep Read — <strong>off by default</strong>; the sealed numbers stand alone.</figcaption>
-    </figure>
-    <figure style="margin:0;">
-      <img src="/Golavo/screenshots/ai-deep-read-on.png" alt="AI Deep Read panel turned on, honestly reporting the model is unavailable in the sample preview rather than fabricating output" style="width:100%; border-radius:12px; border:1px solid var(--sl-color-gray-5);" loading="lazy" />
-      <figcaption style="font-size:.85rem; color:var(--sl-color-gray-3); margin-top:.5rem;">AI on, no model connected — it declines rather than fabricate.</figcaption>
-    </figure>
-  </div>
-</div>
-
-<div class="gv-rule" aria-hidden="true">
-  <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sl-color-bg)" stroke="var(--sl-color-gray-3)" stroke-width="1.4"/><path fill="var(--golavo-gold)" d="M12 7.6l3.4 2.5-1.3 4H9.9l-1.3-4z"/></svg>
+  <section class="gv-closing gv-snap" data-reveal aria-labelledby="gv-closing-title">
+    <p class="gv-kicker">No odds. No oracle. No moving the goalposts.</p>
+    <h2 id="gv-closing-title" class="gv-display">Let the model speak once.<br/><em>Then keep the tape running.</em></h2>
+    <p>Golavo is free, open source, local-first, and currently an unsigned v0.2.1 pre-alpha.</p>
+    <div class="gv-closing-actions">
+      <a class="gv-action gv-action--primary" href="/Golavo/installation/">Install Golavo <span aria-hidden="true">→</span></a>
+      <a class="gv-action" href="/Golavo/methodology/prediction/">Read the methodology</a>
+      <a class="gv-action" href="https://github.com/udhawan97/Golavo">View source</a>
+    </div>
+  </section>
 </div>
 
 :::caution[Unsigned pre-alpha]
-Golavo is at **v0.2.0**, an unsigned pre-release. The desktop app builds
-**unsigned** (macOS Gatekeeper / Windows SmartScreen will warn on first launch);
-code signing, notarization, and the signed auto-updater are wired but gated on
-secrets. See [Installation](/Golavo/installation/) and the [Roadmap](/Golavo/roadmap/).
+Golavo is at **v0.2.1**, an unsigned pre-release. macOS Gatekeeper and Windows
+SmartScreen will warn on first launch. In-app update verification is shipped;
+OS signing and notarization remain gated on real credentials. See
+[Installation](/Golavo/installation/) and the [Roadmap](/Golavo/roadmap/).
 :::

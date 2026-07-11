@@ -64,7 +64,7 @@
       <path d="M13 20v-5a11 11 0 0122 0v5M11 20h26v18H11z" fill="none" stroke="#E7C34E" stroke-width="1.7"/>
     </g>
     </g>
-    <text x="20" y="72" class="head">The claim becomes immutable</text>
+    <text x="20" y="72" class="head">The claim is locked</text>
     <text x="20" y="94" class="small">The result cannot revisit this room.</text>
 
     <g transform="translate(20 118)">

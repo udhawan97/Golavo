@@ -53,7 +53,7 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
 
   <div class="gh-inner">
     <p class="gh-status gh-rise" style="--d:0ms">
-      <span class="gh-status-dot"></span>Phase 0 · pre-alpha — the data-feasibility spike
+      <span class="gh-status-dot"></span>v0.2.1 · unsigned pre-alpha · local-first
     </p>
 
     <div class="gh-mark gh-rise" style="--d:60ms">
@@ -90,11 +90,10 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
     </div>
   </div>
 
-  <a class="gh-scroll gh-rise" style="--d:760ms" href="#below" aria-label="Scroll to learn more">
-    <span>90 minutes of evidence</span>
+  <a class="gh-scroll gh-rise" style="--d:760ms" href="#gv-intro-title" aria-label="Scroll to learn how Golavo works">
+    <span>See how it remembers</span>
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </a>
-  <span id="below"></span>
 </section>
 
 <script>
@@ -125,22 +124,29 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
     if (reduce.matches || !("IntersectionObserver" in window)) {
       revealables.forEach((el) => el.classList.add("in"));
     } else {
-      const io = new IntersectionObserver(
-        (entries, obs) => {
-          for (const e of entries) {
-            if (e.isIntersecting) {
-              (e.target as HTMLElement).style.setProperty(
-                "--rd",
-                `${(e.target as HTMLElement).dataset.reveal || "0"}ms`,
-              );
-              e.target.classList.add("in");
-              obs.unobserve(e.target);
+      try {
+        const io = new IntersectionObserver(
+          (entries, obs) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                (e.target as HTMLElement).style.setProperty(
+                  "--rd",
+                  `${(e.target as HTMLElement).dataset.reveal || "0"}ms`,
+                );
+                e.target.classList.add("in");
+                obs.unobserve(e.target);
+              }
             }
-          }
-        },
-        { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
-      );
-      revealables.forEach((el) => io.observe(el));
+          },
+          { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
+        );
+        revealables.forEach((el) => {
+          io.observe(el);
+          el.classList.add("gv-reveal-ready");
+        });
+      } catch {
+        revealables.forEach((el) => el.classList.add("in"));
+      }
     }
   }
 </script>
@@ -308,6 +314,11 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
   .gh-btn--text:hover { color: var(--sl-color-white); }
   .gh-btn--text svg { transition: transform 0.25s ease; }
   .gh-btn--text:hover svg { transform: translateY(-1px) scale(1.05); }
+  .gh-btn:focus-visible,
+  .gh-scroll:focus-visible {
+    outline: 3px solid var(--golavo-gold, #c9a227);
+    outline-offset: 4px;
+  }
 
   .gh-scroll {
     position: absolute; bottom: 1.4rem; left: 50%; translate: -50% 0;
