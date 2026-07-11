@@ -1,0 +1,383 @@
+"""The AI gateway — the ONLY module in Golavo that talks to an LLM.
+
+Everything safety-critical lives in ``golavo_core.ai`` (pure, network-free) and
+``golavo_core.evidence`` (the deterministic bundle). This module wires a provider
+call around those guards and always fails closed:
+
+    off        -> AI is disabled; return immediately, no call.
+    unavailable-> provider selected but not usable (no key, cost cap, bad config).
+    local_only -> a call was attempted but its output failed the guards (or the
+                  provider was unreachable) after one retry; the app shows the
+                  deterministic forecast alone.
+    ok         -> a guard-validated narration, stamped with provenance.
+
+The engine owns every number. This module can only ever pass a validated
+narration through or drop it; it can never let an unsupported number reach the
+user. Provider config is injected (never hardcoded); the transport is injectable
+so CI exercises the whole pipeline with canned and adversarial responses and no
+live model. API keys are read from the environment or the OS keychain, used only
+in a request header, and never logged, cached, or returned.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import urllib.error
+import urllib.request
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from typing import Any
+
+from golavo_core.ai import (
+    PROMPT_VERSION,
+    SYSTEM_PROMPT,
+    build_user_prompt,
+    review_narration,
+)
+
+# provider -> whether it is a local (free, keyless) or cloud (BYOK) endpoint.
+LOCAL_PROVIDERS = ("ollama", "llama_server")
+CLOUD_PROVIDERS = ("openai", "anthropic")
+KNOWN_PROVIDERS = ("off", *LOCAL_PROVIDERS, *CLOUD_PROVIDERS)
+
+_DEFAULT_BASE_URLS = {
+    "ollama": "http://localhost:11434/v1",
+    "llama_server": "http://127.0.0.1:8080/v1",
+    "openai": "https://api.openai.com/v1",
+}
+_DEFAULT_MODELS = {
+    "ollama": "llama3.1",
+    "llama_server": "local-model",
+    "openai": "gpt-4o-mini",
+    "anthropic": "claude-haiku-4-5-20251001",
+}
+_ENV_KEYS = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY"}
+_ENV_BASE_URLS = {"ollama": "OLLAMA_BASE_URL", "llama_server": "LLAMACPP_BASE_URL"}
+
+# A transport takes (system_prompt, user_prompt) and returns the model's raw
+# text. It never receives an API key — the real transports add the key to a
+# request header internally, so an injected/test transport cannot see or log one.
+Transport = Callable[[str, str], str]
+
+_THINK_RE = re.compile(r"(?is)<think>.*?</think>")
+_FENCE_RE = re.compile(r"(?is)```(?:json)?\s*(.*?)\s*```")
+
+
+@dataclass(frozen=True)
+class ProviderConfig:
+    provider: str
+    model: str
+    base_url: str | None
+    allow_candidate_facts: bool = False
+    timeout_s: float = 30.0
+    untrusted_context: str | None = None
+
+    @property
+    def is_off(self) -> bool:
+        return self.provider == "off"
+
+    @property
+    def is_cloud(self) -> bool:
+        return self.provider in CLOUD_PROVIDERS
+
+    def redacted(self) -> dict[str, Any]:
+        """A log/response-safe view. No secret is ever stored here to begin with."""
+        return {
+            "provider": self.provider,
+            "model": self.model,
+            "base_url": self.base_url,
+            "allow_candidate_facts": self.allow_candidate_facts,
+        }
+
+
+def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
+    """Build a ProviderConfig from an untrusted request body. Defaults to off."""
+    config = config or {}
+    provider = str(config.get("provider", "off")).lower()
+    if provider not in KNOWN_PROVIDERS:
+        raise ValueError(f"unknown provider {provider!r}; expected one of {KNOWN_PROVIDERS}")
+    model = str(config.get("model") or _DEFAULT_MODELS.get(provider, "local-model"))
+    base_url = config.get("base_url")
+    if not base_url and provider in _ENV_BASE_URLS:
+        base_url = os.environ.get(_ENV_BASE_URLS[provider])
+    if not base_url:
+        base_url = _DEFAULT_BASE_URLS.get(provider)
+    return ProviderConfig(
+        provider=provider,
+        model=model,
+        base_url=base_url,
+        allow_candidate_facts=bool(config.get("allow_candidate_facts", False)),
+        timeout_s=float(config.get("timeout_s", 30.0)),
+        untrusted_context=config.get("untrusted_context"),
+    )
+
+
+@dataclass
+class NarrationEnvelope:
+    """What the endpoint returns. Never carries a key or raw model text."""
+
+    status: str  # ok | disabled | unavailable | local_only
+    provider: str
+    model: str
+    prompt_version: str
+    bundle_hash: str
+    narration: dict[str, Any] | None = None
+    cached: bool = False
+    reason: str | None = None
+    notes: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "status": self.status,
+            "provider": self.provider,
+            "model": self.model,
+            "prompt_version": self.prompt_version,
+            "bundle_hash": self.bundle_hash,
+            "narration": self.narration,
+            "cached": self.cached,
+            "reason": self.reason,
+            "notes": self.notes,
+        }
+
+
+# --- API key loading ---------------------------------------------------------
+
+def load_api_key(provider: str) -> str | None:
+    """Return the BYOK key for a cloud provider, or None. Never logged.
+
+    Environment variable first (dev/source mode); then the macOS keychain, where
+    the packaged desktop app stores it (`security add-generic-password -s
+    golavo-<provider> -a golavo -w <key>`). Any lookup failure yields None.
+    """
+    env_name = _ENV_KEYS.get(provider)
+    if env_name and os.environ.get(env_name):
+        return os.environ[env_name]
+    try:
+        result = subprocess.run(
+            ["security", "find-generic-password", "-s", f"golavo-{provider}", "-a", "golavo", "-w"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    key = result.stdout.strip()
+    return key or None
+
+
+# --- Transports (real network calls; injectable for tests) -------------------
+
+def build_openai_payload(
+    config: ProviderConfig, key: str | None, system: str, user: str
+) -> tuple[str, dict[str, str], dict[str, Any]]:
+    """(url, headers, body) for an OpenAI-compatible chat completion.
+
+    The key goes ONLY in the Authorization header — never in the body — so it
+    cannot leak into the prompt, the cache, or a log of the request body.
+    """
+    url = f"{(config.base_url or '').rstrip('/')}/chat/completions"
+    headers = {"Content-Type": "application/json"}
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    body: dict[str, Any] = {
+        "model": config.model,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        "temperature": 0,
+        "response_format": {"type": "json_object"},
+    }
+    return url, headers, body
+
+
+def build_anthropic_payload(
+    config: ProviderConfig, key: str | None, system: str, user: str
+) -> tuple[str, dict[str, str], dict[str, Any]]:
+    url = "https://api.anthropic.com/v1/messages"
+    headers = {
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01",
+    }
+    if key:
+        headers["x-api-key"] = key
+    body: dict[str, Any] = {
+        "model": config.model,
+        "max_tokens": 1024,
+        "temperature": 0,
+        "system": system,
+        "messages": [{"role": "user", "content": user}],
+    }
+    return url, headers, body
+
+
+def _post_json(
+    url: str, headers: dict[str, str], body: dict[str, Any], timeout: float
+) -> dict[str, Any]:
+    data = json.dumps(body).encode("utf-8")
+    request = urllib.request.Request(url, data=data, headers=headers, method="POST")
+    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 (loopback/BYOK only)
+        return json.loads(response.read().decode("utf-8"))
+
+
+def make_transport(config: ProviderConfig) -> Transport | None:
+    """Build the real transport for ``config``; None if a required key is absent."""
+    key = load_api_key(config.provider) if config.is_cloud else None
+    if config.is_cloud and not key:
+        return None
+
+    if config.provider == "anthropic":
+        def transport(system: str, user: str) -> str:
+            url, headers, body = build_anthropic_payload(config, key, system, user)
+            payload = _post_json(url, headers, body, config.timeout_s)
+            return payload["content"][0]["text"]
+    else:
+        def transport(system: str, user: str) -> str:
+            url, headers, body = build_openai_payload(config, key, system, user)
+            payload = _post_json(url, headers, body, config.timeout_s)
+            return payload["choices"][0]["message"]["content"]
+
+    return transport
+
+
+# --- JSON extraction ---------------------------------------------------------
+
+def extract_json_object(text: str) -> dict[str, Any] | None:
+    """Best-effort extraction of the first balanced JSON object from model text.
+
+    Strips <think> blocks and code fences, then scans for one brace-balanced
+    object. Returns None if nothing parses — the caller treats that as a failed
+    attempt (retry, then local-only fallback)."""
+    if not isinstance(text, str):
+        return None
+    cleaned = _THINK_RE.sub(" ", text)
+    fence = _FENCE_RE.search(cleaned)
+    if fence:
+        cleaned = fence.group(1)
+    start = cleaned.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape = False
+    for index in range(start, len(cleaned)):
+        char = cleaned[index]
+        if in_string:
+            if escape:
+                escape = False
+            elif char == "\\":
+                escape = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                try:
+                    return json.loads(cleaned[start : index + 1])
+                except json.JSONDecodeError:
+                    return None
+    return None
+
+
+# --- Caching -----------------------------------------------------------------
+
+class NarrationCache:
+    """In-memory cache keyed by (bundle_hash, provider, model, prompt_version)."""
+
+    def __init__(self) -> None:
+        self._store: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+
+    @staticmethod
+    def key(bundle_hash: str, config: ProviderConfig) -> tuple[str, str, str, str]:
+        return (bundle_hash, config.provider, config.model, PROMPT_VERSION)
+
+    def get(self, bundle_hash: str, config: ProviderConfig) -> dict[str, Any] | None:
+        return self._store.get(self.key(bundle_hash, config))
+
+    def set(self, bundle_hash: str, config: ProviderConfig, narration: dict[str, Any]) -> None:
+        self._store[self.key(bundle_hash, config)] = narration
+
+
+_CACHE = NarrationCache()
+
+MAX_ATTEMPTS = 2  # initial attempt + one retry, then local-only fallback.
+
+
+def generate_narration(
+    bundle: dict[str, Any],
+    config: ProviderConfig,
+    *,
+    transport: Transport | None = None,
+    cache: NarrationCache | None = None,
+) -> NarrationEnvelope:
+    """Produce a guard-validated narration for ``bundle``, or a safe fallback.
+
+    ``transport`` is injected in tests; in production it is built from ``config``.
+    Never raises for provider/transport failures — those become an ``unavailable``
+    or ``local_only`` envelope so the caller (and UI) always has the forecast.
+    """
+    bundle_hash = bundle["bundle_hash"]
+    cache = cache if cache is not None else _CACHE
+
+    def envelope(status: str, **kwargs: Any) -> NarrationEnvelope:
+        return NarrationEnvelope(
+            status=status,
+            provider=config.provider,
+            model=config.model,
+            prompt_version=PROMPT_VERSION,
+            bundle_hash=bundle_hash,
+            **kwargs,
+        )
+
+    if config.is_off:
+        return envelope("disabled", reason="AI is turned off; showing the local forecast only.")
+
+    cached = cache.get(bundle_hash, config)
+    if cached is not None:
+        return envelope("ok", narration=cached, cached=True)
+
+    if transport is None:
+        transport = make_transport(config)
+    if transport is None:
+        return envelope(
+            "unavailable",
+            reason="No API key found for this provider. Add one to use it, or keep AI off.",
+        )
+
+    system = SYSTEM_PROMPT
+    user = build_user_prompt(bundle, config.untrusted_context)
+
+    reasons: list[str] = []
+    for _ in range(MAX_ATTEMPTS):
+        try:
+            raw_text = transport(system, user)
+        except (urllib.error.URLError, TimeoutError, OSError, KeyError, ValueError) as exc:
+            # Never surface provider internals or anything that might echo a key.
+            reasons.append(f"provider call failed ({type(exc).__name__})")
+            continue
+        raw = extract_json_object(raw_text)
+        if raw is None:
+            reasons.append("model output was not valid JSON")
+            continue
+        review = review_narration(
+            raw, bundle, allow_candidate_facts=config.allow_candidate_facts
+        )
+        if review.accepted and review.narration is not None:
+            cache.set(bundle_hash, config, review.narration)
+            return envelope("ok", narration=review.narration, notes=review.dropped)
+        reasons.append("; ".join(review.rejections) or "narration failed review")
+
+    return envelope(
+        "local_only",
+        reason="AI output could not be verified against the sealed numbers; "
+        "showing the local forecast only.",
+        notes=reasons,
+    )

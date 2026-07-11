@@ -49,7 +49,9 @@ app.add_middleware(
         "https://tauri.localhost",
     ],
     allow_credentials=False,
-    allow_methods=["GET", "OPTIONS"],
+    # POST is only used by the optional, off-by-default AI narrative endpoint;
+    # the forecast/eval/calibration surface stays strictly read-only (GET).
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -104,6 +106,42 @@ def calibration() -> dict[str, Any]:
     from golavo_core.calibration import calibration_summary  # lazy: see import note above
 
     return calibration_summary(ARTIFACT_DIR)
+
+
+@app.post("/api/v1/forecasts/{artifact_id}/narrative")
+async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
+    """Return an OPTIONAL, guard-validated AI narration for one artifact.
+
+    Additive and off by default: with no body (or ``{"provider": "off"}``) this
+    returns a ``disabled`` envelope without ever calling a model. The forecast
+    endpoints never touch this path, so AI can never block or delay a forecast.
+    Every number in an ``ok`` narration is one the deterministic engine already
+    produced; anything else falls back to ``local_only``.
+    """
+    from golavo_core.evidence import build_evidence_bundle  # lazy: pulls the AI guards
+
+    from golavo_server import ai_gateway
+
+    known_paths = {path.stem: path for path in ARTIFACT_DIR.glob("fa_*.json")}
+    path = known_paths.get(artifact_id)
+    if path is None:
+        raise HTTPException(status_code=404, detail="forecast not found")
+
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+
+    try:
+        config = ai_gateway.resolve_provider(body)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    bundle = build_evidence_bundle(_read_json(path))
+    envelope = ai_gateway.generate_narration(bundle, config)
+    return {"artifact_id": artifact_id, "bundle_hash": bundle["bundle_hash"], **envelope.to_dict()}
 
 
 @app.get("/api/v1/eval/summary")
