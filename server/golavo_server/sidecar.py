@@ -36,15 +36,53 @@ def _free_loopback_port(host: str = "127.0.0.1") -> int:
         return int(sock.getsockname()[1])
 
 
+# Windows constants for the parent-liveness probe (ctypes, no extra deps).
+_WIN_SYNCHRONIZE = 0x0010_0000
+_WIN_PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+_WIN_ERROR_ACCESS_DENIED = 5
+_WIN_WAIT_TIMEOUT = 0x102
+_WIN_INFINITE = 0xFFFFFFFF
+
+
 def _pid_alive(pid: int) -> bool:
-    """True if a process with this pid exists (signal 0 probes without killing)."""
+    """True if a process with this pid is still running.
+
+    On Windows ``os.kill(pid, 0)`` is NOT a probe: CPython maps every signal
+    except CTRL_C/CTRL_BREAK to TerminateProcess, which would kill the very
+    shell we are watching — so Windows probes via OpenProcess instead."""
+    if os.name == "nt":
+        return _pid_alive_windows(pid)
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
         return False
     except PermissionError:
         return True  # exists, just not ours to signal
+    except OSError:
+        return False
     return True
+
+
+def _pid_alive_windows(pid: int, _kernel32=None, _get_last_error=None) -> bool:
+    """Windows probe: zero-timeout wait on the process handle. WAIT_TIMEOUT
+    means still running; a signaled handle means it exited (the pid may linger
+    as a zombie object while handles to it are held, so waiting beats polling
+    the pid table). The ``_kernel32``/``_get_last_error`` hooks exist for tests."""
+    import ctypes
+
+    kernel32 = _kernel32 or ctypes.WinDLL("kernel32", use_last_error=True)
+    access = _WIN_SYNCHRONIZE | _WIN_PROCESS_QUERY_LIMITED_INFORMATION
+    handle = kernel32.OpenProcess(access, False, pid)
+    if not handle:
+        # Access denied => it exists but is not ours; any other failure
+        # (invalid parameter etc.) => no such process. get_last_error is
+        # resolved lazily — the attribute only exists on Windows.
+        get_last_error = _get_last_error or ctypes.get_last_error
+        return get_last_error() == _WIN_ERROR_ACCESS_DENIED
+    try:
+        return kernel32.WaitForSingleObject(handle, 0) == _WIN_WAIT_TIMEOUT
+    finally:
+        kernel32.CloseHandle(handle)
 
 
 def _watch_parent(parent_pid: int) -> None:
@@ -53,15 +91,49 @@ def _watch_parent(parent_pid: int) -> None:
     Critical for the PyInstaller *onefile* sidecar: it runs as two processes — a
     bootloader that forks the real Python child. When the shell kills the child
     it spawned (the bootloader), this Python process is reparented and would
-    otherwise linger, holding the port. We watch for either the shell dying or
-    a reparent (PPID -> 1 or a changed PPID) and hard-exit. Only enabled when the
-    shell passes --parent-pid, so manual and smoke runs are unaffected."""
+    otherwise linger, holding the port. Only enabled when the shell passes
+    --parent-pid, so manual and smoke runs are unaffected.
+
+    POSIX watches for the shell dying or a reparent (PPID -> 1 or a changed
+    PPID). Windows has no reparenting, so it pins the shell's process handle
+    once and waits on it — immune to pid reuse. Any unexpected probe error
+    counts as parent-gone: exiting beats orphaning the port."""
+    if os.name == "nt":
+        _watch_parent_windows(parent_pid)
+        return
     initial_ppid = os.getppid()
     while True:
         time.sleep(1.0)
-        ppid = os.getppid()
-        reparented = ppid == 1 or ppid != initial_ppid
-        if reparented or not _pid_alive(parent_pid):
+        try:
+            ppid = os.getppid()
+            reparented = ppid == 1 or ppid != initial_ppid
+            if reparented or not _pid_alive(parent_pid):
+                os._exit(0)
+        except OSError:
+            os._exit(0)
+
+
+def _watch_parent_windows(parent_pid: int, _kernel32=None) -> None:
+    """Windows parent watch: hold a SYNCHRONIZE handle to the shell and block
+    until it is signaled (the shell exited). Holding the handle pins the process
+    identity, so a recycled pid can never fool the watchdog. Falls back to
+    1s polling if the handle cannot be opened (already gone / access denied)."""
+    import ctypes
+
+    kernel32 = _kernel32 or ctypes.WinDLL("kernel32", use_last_error=True)
+    handle = kernel32.OpenProcess(_WIN_SYNCHRONIZE, False, parent_pid)
+    if handle:
+        try:
+            kernel32.WaitForSingleObject(handle, _WIN_INFINITE)
+        finally:
+            kernel32.CloseHandle(handle)
+        os._exit(0)
+    while True:
+        time.sleep(1.0)
+        try:
+            if not _pid_alive(parent_pid):
+                os._exit(0)
+        except OSError:
             os._exit(0)
 
 

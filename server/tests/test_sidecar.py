@@ -79,3 +79,79 @@ def test_frozen_resolver_uses_meipass(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(resources.sys, "_MEIPASS", str(tmp_path), raising=False)
     assert resources.resource_root() == Path(tmp_path)
     assert resources.schema_path() == tmp_path / "docs/contracts/forecast_artifact.schema.json"
+
+
+# --- parent-pid watchdog -----------------------------------------------------
+
+
+def test_pid_alive_true_for_own_process() -> None:
+    import os
+
+    assert sidecar._pid_alive(os.getpid()) is True
+
+
+def test_pid_alive_false_for_exited_child() -> None:
+    import subprocess
+    import sys
+
+    child = subprocess.Popen([sys.executable, "-c", "pass"])
+    child.wait()
+    assert sidecar._pid_alive(child.pid) is False
+
+
+def test_pid_alive_routes_to_windows_probe_on_nt(monkeypatch) -> None:
+    # On Windows the POSIX path (os.kill) would TERMINATE the probed process;
+    # the dispatcher must route to the OpenProcess-based probe instead.
+    calls: list[int] = []
+    monkeypatch.setattr(sidecar.os, "name", "nt")
+    monkeypatch.setattr(sidecar, "_pid_alive_windows", lambda pid: calls.append(pid) or True)
+
+    def _forbidden(*_args):  # pragma: no cover - fails the test if reached
+        raise AssertionError("os.kill must never be used to probe on Windows")
+
+    monkeypatch.setattr(sidecar.os, "kill", _forbidden)
+    assert sidecar._pid_alive(4242) is True
+    assert calls == [4242]
+
+
+class _FakeKernel32:
+    """Just enough of kernel32 for the probe: scripted OpenProcess/Wait results."""
+
+    def __init__(self, open_result: int, wait_result: int | None = None) -> None:
+        self.open_result = open_result
+        self.wait_result = wait_result
+        self.closed: list[int] = []
+
+    def OpenProcess(self, _access, _inherit, _pid):  # noqa: N802 (WinAPI casing)
+        return self.open_result
+
+    def WaitForSingleObject(self, handle, _timeout):  # noqa: N802
+        assert handle == self.open_result
+        return self.wait_result
+
+    def CloseHandle(self, handle):  # noqa: N802
+        self.closed.append(handle)
+
+
+def test_windows_probe_alive_while_wait_times_out() -> None:
+    kernel32 = _FakeKernel32(open_result=1234, wait_result=sidecar._WIN_WAIT_TIMEOUT)
+    assert sidecar._pid_alive_windows(1, _kernel32=kernel32) is True
+    assert kernel32.closed == [1234]  # handle is never leaked
+
+
+def test_windows_probe_dead_once_handle_is_signaled() -> None:
+    kernel32 = _FakeKernel32(open_result=1234, wait_result=0)  # WAIT_OBJECT_0
+    assert sidecar._pid_alive_windows(1, _kernel32=kernel32) is False
+    assert kernel32.closed == [1234]
+
+
+def test_windows_probe_maps_open_failures() -> None:
+    denied = _FakeKernel32(open_result=0)
+    assert (
+        sidecar._pid_alive_windows(
+            1, _kernel32=denied, _get_last_error=lambda: sidecar._WIN_ERROR_ACCESS_DENIED
+        )
+        is True
+    )  # exists, just not ours
+    gone = _FakeKernel32(open_result=0)
+    assert sidecar._pid_alive_windows(1, _kernel32=gone, _get_last_error=lambda: 87) is False
