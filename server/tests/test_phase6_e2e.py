@@ -167,7 +167,7 @@ def test_pipeline_composes_end_to_end_and_is_byte_stable(tmp_path: Path) -> None
         "scenarios": [],
         "candidate_facts": [],
     }
-    cfg = ProviderConfig(provider="llama_server", model="e2e-model", base_url="http://x/v1")
+    cfg = ProviderConfig(provider="llama_server", model="e2e-model", base_url="http://127.0.0.1:11434/v1")
     env = generate_narration(bundle_a, cfg, transport=_canned(adversarial), cache=NarrationCache())
     assert env.status == "local_only", "adversarial narration was not contained"
     assert env.narration is None
