@@ -3,7 +3,7 @@ name = "golavo-server"
 version = "0.1.0"
 description = "Golavo local server (FastAPI): routes, jobs, evidence bundles, AI gateway."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = "Apache-2.0"
 authors = [{ name = "Umang Dhawan" }]
 dependencies = [

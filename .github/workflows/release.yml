@@ -61,7 +61,7 @@ jobs:
       # --- The steps below activate in Phase 4 (see docs/adr/0001-architecture.md) ---
       - uses: actions/setup-python@v6
         if: steps.guard.outputs.ready == 'true'
-        with: { python-version: "3.11" }
+        with: { python-version: "3.12" }  # core pins scipy 1.18.0, which requires >=3.12
       - uses: actions/setup-node@v4
         if: steps.guard.outputs.ready == 'true'
         with: { node-version: "22" }

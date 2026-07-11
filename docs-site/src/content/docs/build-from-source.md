@@ -5,7 +5,7 @@ description: Prerequisites and commands to run Golavo locally as it's being buil
 
 ## Prerequisites
 
-- **Python** 3.11+
+- **Python** 3.12+ (the core pins `scipy==1.18.0`, which requires 3.12)
 - **Node** 20+
 - (Phase 4 only) **Rust** stable + the Tauri prerequisites for your OS
 

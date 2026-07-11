@@ -63,7 +63,7 @@ The recurring root cause: "Phase 0" framing that predated Phases 4–5.
 | `docs-site/matchday.md:18` | "AI Deep Read … (**Phase 6**)" | FIXED → AI Deep Read is **Phase 5, shipped, off by default** |
 | `docs-site/build-from-source.md:35` | "`make` targets are **placeholders** during Phase 0–1" | FIXED → make targets are live |
 | `docs-site/roadmap.md:16` | Phase 4 "signed updater, notarized DMG + signed EXE" (no status) | FIXED → "✅ shipped, unsigned"; signing wired but gated |
-| `docs-site/installation.md:35` | "Python 3.12" (inconsistent with build-from-source "3.11+") | FIXED → "Python 3.11+" (matches `requires-python = ">=3.11"`) |
+| `docs-site/installation.md:35`, `build-from-source.md:8` | Inconsistent Python floor ("3.12" vs "3.11+"); `requires-python` was `>=3.11` | FIXED → **Python 3.12+** everywhere, and `requires-python` bumped to `>=3.12`. The pinned `scipy==1.18.0` requires 3.12 (surfaced by the first desktop build, which used Python 3.11 and failed); the project genuinely needs 3.12. |
 
 ---
 
