@@ -302,6 +302,20 @@ pub fn finalize_update_if_pending<R: Runtime>(app: &AppHandle<R>) {
     let Some(pending) = read_pending(app) else {
         return;
     };
+    // Only claim success if the promised version is actually what is running.
+    // If the install silently didn't land (e.g. relaunched into the old
+    // binary), consume the marker without recording an update — the data is
+    // untouched, so just disarm quietly.
+    let running = app.package_info().version.to_string();
+    if pending.to != running {
+        eprintln!(
+            "[golavo] pending update said {} but {} is running; disarming without a record",
+            pending.to, running
+        );
+        retire_backup(app, &pending.to);
+        clear_pending(app);
+        return;
+    }
     write_json_file(
         app,
         JUST_UPDATED_FILE,
@@ -482,9 +496,21 @@ pub async fn updater_check<R: Runtime>(app: AppHandle<R>) -> Result<CheckOutcome
                 };
                 let engine = app.state::<UpdaterEngine>();
                 let mut inner = engine.inner.lock().await;
-                // Never clobber an in-flight download or a fully staged one.
-                if inner.phase == engine::Phase::Idle {
-                    inner.update = Some(update);
+                match inner.phase {
+                    engine::Phase::Idle => inner.update = Some(update),
+                    // Never clobber an in-flight download.
+                    engine::Phase::Downloading => {}
+                    // Staged bytes for a version that is no longer the latest
+                    // are stale — drop them so the user can never install an
+                    // update that is itself already outdated.
+                    engine::Phase::Ready => {
+                        let staged = inner.update.as_ref().map(|u| u.version.clone());
+                        if staged.as_deref() != Some(update.version.as_str()) {
+                            inner.bytes = None;
+                            inner.phase = engine::Phase::Idle;
+                            inner.update = Some(update);
+                        }
+                    }
                 }
                 Ok(outcome)
             }
@@ -528,7 +554,21 @@ pub async fn updater_download<R: Runtime>(app: AppHandle<R>) -> Result<(), Updat
                     message: "A download is already in progress.".into(),
                 })
             }
-            engine::Phase::Ready => return Ok(()), // idempotent: already staged
+            engine::Phase::Ready => {
+                // Idempotent — already staged. Re-announce it, otherwise a UI
+                // that just optimistically entered "downloading" waits forever
+                // for an event that would never come.
+                let version = inner.update.as_ref().map(|u| u.version.clone());
+                let _ = app.emit(
+                    "updater://state",
+                    StatePayload {
+                        phase: "ready",
+                        error: None,
+                        version,
+                    },
+                );
+                return Ok(());
+            }
             engine::Phase::Idle => {}
         }
         let Some(update) = inner.update.clone() else {

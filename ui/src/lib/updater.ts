@@ -341,14 +341,16 @@ export function useUpdaterController(): UpdaterController {
   const openSheet = useCallback(() => setSheetOpen(true), []);
   const closeSheet = useCallback(() => setSheetOpen(false), []);
 
-  const pillVisible = useMemo(
-    () =>
-      phase.kind === "available" &&
-      !phase.skipped &&
-      phase.info.version !== skippedVersion &&
-      !sheetOpen,
-    [phase, skippedVersion, sheetOpen],
-  );
+  // The pill survives the whole offered->staged lifecycle: a user who hid the
+  // sheet mid-download or clicked "Later" on a downloaded update still has a
+  // visible way back (not just Settings).
+  const pillVisible = useMemo(() => {
+    if (sheetOpen) return false;
+    if (phase.kind === "available") {
+      return !phase.skipped && phase.info.version !== skippedVersion;
+    }
+    return phase.kind === "downloading" || phase.kind === "ready";
+  }, [phase, skippedVersion, sheetOpen]);
 
   const consentNeeded = isDesktop && enabled && autoCheck === "unset";
 

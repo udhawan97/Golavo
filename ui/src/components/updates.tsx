@@ -27,16 +27,21 @@ import { DownloadIcon } from "./icons";
 export function UpdatePill() {
   const u = useUpdater();
   if (!u.pillVisible) return null;
-  const version = u.phase.kind === "available" ? u.phase.info.version : "";
+  const { phase } = u;
+  const version = "info" in phase && phase.info ? phase.info.version : "";
+  const label =
+    phase.kind === "downloading" ? "Downloading update…"
+    : phase.kind === "ready" ? "Update ready"
+    : "Update available";
   return (
     <button
       type="button"
       className="update-pill"
       onClick={u.openSheet}
-      aria-label={`Update available: Golavo ${version}. Open software update.`}
+      aria-label={`${label}${version ? `: Golavo ${version}` : ""}. Open software update.`}
     >
       <DownloadIcon size={14} />
-      Update available
+      {label}
     </button>
   );
 }
