@@ -164,7 +164,9 @@ def test_abstained_seal_has_no_score_matrix(tmp_path: Path) -> None:
 
     for entry in manifest["files"]:
         entry["sha256"] = hashlib.sha256((sparse / entry["name"]).read_bytes()).hexdigest()
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
     artifact = json.loads(
         seal_forecast(
