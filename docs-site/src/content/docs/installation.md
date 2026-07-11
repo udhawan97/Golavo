@@ -34,13 +34,13 @@ On first launch the OS will warn (unsigned build):
 
 ### Staying up to date
 
-From v0.2.0 on, Golavo updates **in-app**: a one-time card asks whether to
+From v0.2.1 on, Golavo updates **in-app**: a one-time card asks whether to
 check for updates automatically (your choice; a manual **Check now** always
 lives in **Settings → Updates**), and installs happen only when you click.
 Every update is signature-verified before install and your ledger is backed up
 first — see [Updates & rollback](/Golavo/updates-rollback/).
 
-**Coming from v0.1.0?** Those builds predate the updater — download and install
+**Coming from v0.1.0 or v0.2.0?** Those builds predate the updater — download and install
 the current version manually once; it's in-app from then on.
 
 :::caution[Uninstalling on Windows]

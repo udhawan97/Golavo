@@ -21,7 +21,7 @@ Golavo runs from local files and has no accounts, telemetry, or ads. The one opt
 | Source pack | Upstream commit pinned; every vendored byte is SHA-256 checked against its manifest. |
 | Forecast artifacts | Canonical payload hash; scoring creates a new artifact rather than mutating a seal. |
 | Desktop sidecar | Binds a private `127.0.0.1` port with a per-launch token; the AI gateway strips chain-of-thought, rejects unsupported numbers, and never logs keys. |
-| Signed auto-update | **Active** (desktop, v0.2.0+): consent-first checks; every update is signature-verified against the public key compiled into the app before install, with a ledger backup + health-checked first boot (see [Updates & rollback](/Golavo/updates-rollback/)). |
+| Signed auto-update | **Active** (desktop, v0.2.1+): consent-first checks; every update is signature-verified against the public key compiled into the app before install, with a ledger backup + health-checked first boot (see [Updates & rollback](/Golavo/updates-rollback/)). |
 | Signed packs, DB migrations | Wired but **gated on secrets** (ADR-0001); disabled by default. |
 
 To report a vulnerability, see the repository's `SECURITY.md`. Please do not open a public issue for security problems.

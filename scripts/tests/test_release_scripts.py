@@ -41,6 +41,7 @@ def fake_repo(tmp_path: Path) -> Path:
         ),
         "desktop/package.json": f'{{\n  "version": "{v}"\n}}\n',
         "ui/package.json": f'{{\n  "version": "{v}"\n}}\n',
+        "docs-site/package.json": f'{{\n  "version": "{v}"\n}}\n',
         "core/pyproject.toml": f'[project]\nversion = "{v}"\ndev = ["pytest==9.1.1"]\n',
         "server/pyproject.toml": f'[project]\nversion = "{v}"\n',
         "core/golavo_core/__init__.py": f'__version__ = "{v}"\n',

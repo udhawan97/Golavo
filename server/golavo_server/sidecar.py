@@ -85,6 +85,19 @@ def _pid_alive_windows(pid: int, _kernel32=None, _get_last_error=None) -> bool:
         kernel32.CloseHandle(handle)
 
 
+def _orphaned(initial_ppid: int, current_ppid: int, parent_pid: int, *, posix: bool) -> bool:
+    """Whether the launching shell is gone and the sidecar should self-exit.
+
+    On POSIX an orphaned child is reparented (PPID -> 1 or a changed PPID), the
+    fast signal on a graceful quit. Windows does NOT reparent — ``os.getppid()``
+    keeps returning the stale, now-dead value — so the reparent heuristic is
+    disabled there (it would be both a false negative on quit and, if the PID
+    were reused, a false positive). The parent-liveness probe is authoritative
+    on every platform."""
+    reparented = posix and (current_ppid == 1 or current_ppid != initial_ppid)
+    return reparented or not _pid_alive(parent_pid)
+
+
 def _watch_parent(parent_pid: int) -> None:
     """Exit the whole process when the launching shell goes away.
 
@@ -94,10 +107,9 @@ def _watch_parent(parent_pid: int) -> None:
     otherwise linger, holding the port. Only enabled when the shell passes
     --parent-pid, so manual and smoke runs are unaffected.
 
-    POSIX watches for the shell dying or a reparent (PPID -> 1 or a changed
-    PPID). Windows has no reparenting, so it pins the shell's process handle
-    once and waits on it — immune to pid reuse. Any unexpected probe error
-    counts as parent-gone: exiting beats orphaning the port."""
+    POSIX polls ``_orphaned`` (reparent + liveness). Windows pins the shell's
+    process handle once and waits on it — immune to pid reuse. Any unexpected
+    probe error counts as parent-gone: exiting beats orphaning the port."""
     if os.name == "nt":
         _watch_parent_windows(parent_pid)
         return
@@ -105,9 +117,7 @@ def _watch_parent(parent_pid: int) -> None:
     while True:
         time.sleep(1.0)
         try:
-            ppid = os.getppid()
-            reparented = ppid == 1 or ppid != initial_ppid
-            if reparented or not _pid_alive(parent_pid):
+            if _orphaned(initial_ppid, os.getppid(), parent_pid, posix=True):
                 os._exit(0)
         except OSError:
             os._exit(0)

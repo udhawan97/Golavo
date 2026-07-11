@@ -1,0 +1,201 @@
+<svg width="1280" height="980" viewBox="0 0 1280 980" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Golavo system architecture</title>
+  <desc id="desc">A layered view of the Golavo desktop runtime. The Tauri shell supervises a token-protected loopback Python sidecar. The React workbench reads FastAPI routes, which orchestrate the deterministic core and immutable local data. Optional model providers sit outside the numeric authority boundary, and release automation sits outside the runtime.</desc>
+  <defs>
+    <linearGradient id="bg" x1="40" y1="20" x2="1220" y2="960" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#171B1A"/>
+      <stop offset="0.56" stop-color="#101312"/>
+      <stop offset="1" stop-color="#0B0E0D"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1E2423"/>
+      <stop offset="1" stop-color="#151918"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#173128"/>
+      <stop offset="0.52" stop-color="#1E2423"/>
+      <stop offset="1" stop-color="#242116"/>
+    </linearGradient>
+    <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#C9A227" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#C9A227"/>
+      <stop offset="1" stop-color="#C9A227" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="waves" width="52" height="26" patternUnits="userSpaceOnUse">
+      <path d="M0 26C6 13 19 13 26 26C33 13 46 13 52 26" stroke="#6082B8" stroke-opacity="0.08" stroke-width="1"/>
+      <path d="M0 13C6 0 19 0 26 13C33 0 46 0 52 13" stroke="#6082B8" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+    <marker id="arrowGold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#C9A227"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#2F9E73"/>
+    </marker>
+    <style>
+      .title{font:600 31px ui-serif,Georgia,"Times New Roman",serif;letter-spacing:-.4px;fill:#F4EFE6}.subtitle{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.eyebrow{font:700 11px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:1.5px}.heading{font:650 17px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.body{font:400 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.small{font:450 10.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#928E83}.mono{font:500 10.5px ui-monospace,"SF Mono",Menlo,monospace;fill:#BCB8AC}.chip{font:600 10.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.num{font:700 13px ui-monospace,"SF Mono",Menlo,monospace}.card{fill:url(#card);stroke:#343A37;stroke-width:1.25}.rule{stroke:#343A37;stroke-width:1}.edge{fill:none;stroke:#C9A227;stroke-width:1.7;marker-end:url(#arrowGold)}
+    </style>
+  </defs>
+
+  <rect width="1280" height="980" rx="28" fill="#090B0A"/>
+  <rect x="24" y="24" width="1232" height="932" rx="24" fill="url(#bg)" stroke="#2C302E" stroke-width="1.25"/>
+  <rect x="24" y="24" width="1232" height="932" rx="24" fill="url(#waves)"/>
+  <path d="M410 125H870" stroke="url(#goldLine)" stroke-width="1.5"/>
+
+  <g transform="translate(48 48)">
+    <rect width="34" height="34" rx="10" fill="#C9A227" fill-opacity=".12" stroke="#C9A227" stroke-opacity=".5"/>
+    <path d="M9 22C13 12 20 10 26 10M9 22C15 18 22 18 26 22M17 8V25" stroke="#C9A227" stroke-width="1.7" stroke-linecap="round"/>
+  </g>
+  <text x="640" y="75" text-anchor="middle" class="title">Golavo System Architecture</text>
+  <text x="640" y="102" text-anchor="middle" class="subtitle">A thin desktop supervisor around a deterministic, replayable forecasting core.</text>
+
+  <rect x="46" y="142" width="896" height="772" rx="22" fill="#0B6E4F" fill-opacity=".025" stroke="#2F9E73" stroke-opacity=".58" stroke-width="1.5" stroke-dasharray="7 7"/>
+  <rect x="70" y="128" width="313" height="28" rx="14" fill="#101312" stroke="#2F9E73" stroke-opacity=".58"/>
+  <path d="M87 140v-3a5 5 0 0110 0v3M85 140h14v9H85z" stroke="#2F9E73" stroke-width="1.4"/>
+  <text x="108" y="146" class="eyebrow" fill="#D8EFE4">LOCAL RUNTIME · NUMERIC AUTHORITY</text>
+
+  <!-- Tauri supervisor -->
+  <g transform="translate(70 176)" filter="url(#shadow)">
+    <rect width="848" height="102" rx="16" fill="url(#hero)" stroke="#C9A227" stroke-opacity=".62" stroke-width="1.25"/>
+    <rect x="20" y="18" width="32" height="32" rx="9" fill="#C9A227" fill-opacity=".13" stroke="#C9A227" stroke-opacity=".45"/>
+    <path d="M29 27h14v12H29zM32 24h8v3" stroke="#E7C34E" stroke-width="1.5" stroke-linejoin="round"/>
+    <text x="64" y="34" class="eyebrow" fill="#E7C34E">DESKTOP SUPERVISOR · TAURI 2 / RUST</text>
+    <text x="64" y="56" class="body">Owns process lifecycle and trust bootstrap; it never computes a forecast.</text>
+    <rect x="670" y="17" width="156" height="24" rx="12" fill="#101312" stroke="#49442B"/>
+    <text x="748" y="33" text-anchor="middle" class="mono">desktop/src-tauri</text>
+    <g transform="translate(24 68)">
+      <rect width="122" height="23" rx="11.5" fill="#C9A227" fill-opacity=".1" stroke="#C9A227" stroke-opacity=".38"/><text x="61" y="15.5" text-anchor="middle" class="chip" fill="#E7C34E">1 · free port</text>
+      <rect x="132" width="132" height="23" rx="11.5" fill="#C9A227" fill-opacity=".1" stroke="#C9A227" stroke-opacity=".38"/><text x="198" y="15.5" text-anchor="middle" class="chip" fill="#E7C34E">2 · 256-bit token</text>
+      <rect x="274" width="128" height="23" rx="11.5" fill="#C9A227" fill-opacity=".1" stroke="#C9A227" stroke-opacity=".38"/><text x="338" y="15.5" text-anchor="middle" class="chip" fill="#E7C34E">3 · spawn sidecar</text>
+      <rect x="412" width="124" height="23" rx="11.5" fill="#C9A227" fill-opacity=".1" stroke="#C9A227" stroke-opacity=".38"/><text x="474" y="15.5" text-anchor="middle" class="chip" fill="#E7C34E">4 · health gate</text>
+      <rect x="546" width="126" height="23" rx="11.5" fill="#C9A227" fill-opacity=".1" stroke="#C9A227" stroke-opacity=".38"/><text x="609" y="15.5" text-anchor="middle" class="chip" fill="#E7C34E">5 · inject config</text>
+      <rect x="682" width="118" height="23" rx="11.5" fill="#BC002D" fill-opacity=".08" stroke="#BC002D" stroke-opacity=".42"/><text x="741" y="15.5" text-anchor="middle" class="chip" fill="#FF8A9B">6 · kill on exit</text>
+    </g>
+  </g>
+
+  <path d="M494 278V305" class="edge"/>
+  <text x="508" y="296" class="small">runtime config</text>
+
+  <!-- UI -->
+  <g transform="translate(70 312)">
+    <rect width="848" height="104" rx="16" class="card"/>
+    <rect x="20" y="18" width="32" height="32" rx="9" fill="#6082B8" fill-opacity=".14" stroke="#6082B8" stroke-opacity=".52"/>
+    <path d="M27 27h18v14H27zM27 32h18" stroke="#9AB3DD" stroke-width="1.5"/>
+    <text x="64" y="34" class="eyebrow" fill="#9AB3DD">WORKBENCH · REACT + TYPESCRIPT + VITE</text>
+    <text x="64" y="57" class="body">Read-only views over validated contracts; malformed data becomes a visible error.</text>
+    <rect x="657" y="17" width="169" height="24" rx="12" fill="#101312" stroke="#343A37"/><text x="741.5" y="33" text-anchor="middle" class="mono">ui/src</text>
+    <g transform="translate(24 70)">
+      <rect width="112" height="22" rx="11" fill="#6082B8" fill-opacity=".12" stroke="#6082B8" stroke-opacity=".42"/><text x="56" y="15" text-anchor="middle" class="chip" fill="#B9CBEB">Matchday</text>
+      <rect x="122" width="128" height="22" rx="11" fill="#6082B8" fill-opacity=".12" stroke="#6082B8" stroke-opacity=".42"/><text x="186" y="15" text-anchor="middle" class="chip" fill="#B9CBEB">Forecast detail</text>
+      <rect x="260" width="108" height="22" rx="11" fill="#6082B8" fill-opacity=".12" stroke="#6082B8" stroke-opacity=".42"/><text x="314" y="15" text-anchor="middle" class="chip" fill="#B9CBEB">Evaluation</text>
+      <rect x="378" width="100" height="22" rx="11" fill="#6082B8" fill-opacity=".12" stroke="#6082B8" stroke-opacity=".42"/><text x="428" y="15" text-anchor="middle" class="chip" fill="#B9CBEB">Ledger</text>
+      <rect x="488" width="146" height="22" rx="11" fill="#6082B8" fill-opacity=".12" stroke="#6082B8" stroke-opacity=".42"/><text x="561" y="15" text-anchor="middle" class="chip" fill="#B9CBEB">Casual / Expert</text>
+    </g>
+  </g>
+
+  <path d="M494 416V443" class="edge"/>
+  <text x="508" y="434" class="small">HTTP + JSON · x-golavo-token</text>
+
+  <!-- API -->
+  <g transform="translate(70 450)">
+    <rect width="848" height="118" rx="16" class="card"/>
+    <rect x="20" y="18" width="32" height="32" rx="9" fill="#0B6E4F" fill-opacity=".17" stroke="#2F9E73" stroke-opacity=".58"/>
+    <path d="M27 29h18M27 35h18M27 41h12" stroke="#5EC69F" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="64" y="34" class="eyebrow" fill="#7DD8B6">LOCAL API · FASTAPI / PYINSTALLER SIDECAR</text>
+    <text x="64" y="57" class="body">Binds to ephemeral 127.0.0.1; orchestrates core calls and serves artifacts without recomputing statistics inline.</text>
+    <rect x="642" y="17" width="184" height="24" rx="12" fill="#101312" stroke="#343A37"/><text x="734" y="33" text-anchor="middle" class="mono">server/golavo_server</text>
+    <g transform="translate(24 72)">
+      <rect width="148" height="26" rx="8" fill="#0B6E4F" fill-opacity=".1" stroke="#2F9E73" stroke-opacity=".38"/><text x="74" y="17" text-anchor="middle" class="mono">GET /forecasts</text>
+      <rect x="158" width="116" height="26" rx="8" fill="#0B6E4F" fill-opacity=".1" stroke="#2F9E73" stroke-opacity=".38"/><text x="216" y="17" text-anchor="middle" class="mono">GET /facts</text>
+      <rect x="284" width="142" height="26" rx="8" fill="#0B6E4F" fill-opacity=".1" stroke="#2F9E73" stroke-opacity=".38"/><text x="355" y="17" text-anchor="middle" class="mono">GET /calibration</text>
+      <rect x="436" width="146" height="26" rx="8" fill="#0B6E4F" fill-opacity=".1" stroke="#2F9E73" stroke-opacity=".38"/><text x="509" y="17" text-anchor="middle" class="mono">GET /eval/summary</text>
+      <rect x="592" width="208" height="26" rx="8" fill="#C9A227" fill-opacity=".08" stroke="#C9A227" stroke-opacity=".38"/><text x="696" y="17" text-anchor="middle" class="mono" fill="#E7C34E">POST /narrative · optional</text>
+    </g>
+  </g>
+
+  <path d="M494 568V595" class="edge"/>
+  <text x="508" y="586" class="small">typed calls</text>
+
+  <!-- Core -->
+  <g transform="translate(70 602)" filter="url(#shadow)">
+    <rect width="848" height="126" rx="16" fill="url(#hero)" stroke="#C9A227" stroke-opacity=".62" stroke-width="1.25"/>
+    <rect x="20" y="18" width="32" height="32" rx="9" fill="#C9A227" fill-opacity=".13" stroke="#C9A227" stroke-opacity=".45"/>
+    <circle cx="36" cy="34" r="8" stroke="#E7C34E" stroke-width="1.5"/><path d="M36 26v16M28 34h16" stroke="#E7C34E" stroke-width="1.2"/>
+    <text x="64" y="34" class="eyebrow" fill="#E7C34E">DETERMINISTIC CORE · PYTHON</text>
+    <text x="64" y="57" class="body">The only authority for probabilities, score matrices, evaluation metrics, facts, evidence, and artifact transitions.</text>
+    <rect x="645" y="17" width="181" height="24" rx="12" fill="#101312" stroke="#49442B"/><text x="735.5" y="33" text-anchor="middle" class="mono">core/golavo_core</text>
+    <g transform="translate(24 74)">
+      <rect width="116" height="32" rx="9" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".4"/><text x="58" y="13" text-anchor="middle" class="chip" fill="#E7C34E">INGEST</text><text x="58" y="26" text-anchor="middle" class="small">snapshot + normalize</text>
+      <rect x="130" width="124" height="32" rx="9" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".4"/><text x="192" y="13" text-anchor="middle" class="chip" fill="#E7C34E">MODELS</text><text x="192" y="26" text-anchor="middle" class="small">Elo · Poisson · DC</text>
+      <rect x="268" width="124" height="32" rx="9" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".4"/><text x="330" y="13" text-anchor="middle" class="chip" fill="#E7C34E">ARTIFACTS</text><text x="330" y="26" text-anchor="middle" class="small">seal · score · void</text>
+      <rect x="406" width="114" height="32" rx="9" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".4"/><text x="463" y="13" text-anchor="middle" class="chip" fill="#E7C34E">FACTS</text><text x="463" y="26" text-anchor="middle" class="small">guarded notebook</text>
+      <rect x="534" width="118" height="32" rx="9" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".4"/><text x="593" y="13" text-anchor="middle" class="chip" fill="#E7C34E">EVIDENCE</text><text x="593" y="26" text-anchor="middle" class="small">numeric whitelist</text>
+      <rect x="666" width="134" height="32" rx="9" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".4"/><text x="733" y="13" text-anchor="middle" class="chip" fill="#E7C34E">EVALUATION</text><text x="733" y="26" text-anchor="middle" class="small">log loss · calibration</text>
+    </g>
+  </g>
+
+  <path d="M494 728V755" class="edge"/>
+
+  <!-- Local stores -->
+  <g transform="translate(70 762)">
+    <rect width="410" height="124" rx="16" class="card"/>
+    <path d="M28 24c0-5 10-5 10 0v15c0 5-10 5-10 0zM28 24c0 5 10 5 10 0" stroke="#7DD8B6" stroke-width="1.5"/>
+    <text x="54" y="31" class="eyebrow" fill="#7DD8B6">IMMUTABLE DATA + USER LEDGER</text>
+    <path d="M20 48H390" class="rule"/>
+    <text x="24" y="69" class="body">Pinned source packs · manifests · SHA-256</text>
+    <text x="24" y="89" class="body">Parquet typed match tables · retained snapshots</text>
+    <text x="24" y="109" class="body">Sealed / scored / voided JSON artifacts</text>
+  </g>
+  <g transform="translate(508 762)">
+    <rect width="410" height="124" rx="16" class="card"/>
+    <path d="M28 19h10l6 6v17H28zM38 19v6h6" stroke="#9AB3DD" stroke-width="1.5"/>
+    <text x="54" y="31" class="eyebrow" fill="#9AB3DD">REPRODUCIBLE CONTRACTS</text>
+    <path d="M20 48H390" class="rule"/>
+    <text x="24" y="69" class="body">ForecastArtifact · EvidenceBundle · Facts</text>
+    <text x="24" y="89" class="body">Payload digest · model/version/seed/params hash</text>
+    <text x="24" y="109" class="body">Source snapshot ids · training cutoff · audit trail</text>
+  </g>
+
+  <!-- External rail -->
+  <g transform="translate(972 176)">
+    <rect width="238" height="336" rx="16" class="card"/>
+    <rect x="18" y="18" width="30" height="30" rx="8" fill="#D9622B" fill-opacity=".12" stroke="#D9622B" stroke-opacity=".45"/>
+    <path d="M26 34c4-10 10-10 14 0M27 37h12" stroke="#E88A57" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="58" y="31" class="eyebrow" fill="#E88A57">OPTIONAL MODELS</text>
+    <text x="20" y="68" class="heading">Explanation only</text>
+    <text x="20" y="91" class="body">The gateway receives a fixed</text><text x="20" y="109" class="body">evidence bundle, never model state.</text>
+    <rect x="20" y="128" width="198" height="64" rx="11" fill="#0B6E4F" fill-opacity=".09" stroke="#2F9E73" stroke-opacity=".4"/>
+    <text x="34" y="151" class="chip" fill="#7DD8B6">LOCAL · LOOPBACK</text>
+    <text x="34" y="173" class="mono">Ollama · llama.cpp</text>
+    <rect x="20" y="204" width="198" height="68" rx="11" fill="#D9622B" fill-opacity=".08" stroke="#D9622B" stroke-opacity=".4"/>
+    <text x="34" y="227" class="chip" fill="#E88A57">CLOUD · EXPLICIT BYOK</text>
+    <text x="34" y="249" class="mono">OpenAI · Anthropic</text>
+    <rect x="20" y="286" width="198" height="30" rx="9" fill="#BC002D" fill-opacity=".08" stroke="#BC002D" stroke-opacity=".45"/>
+    <text x="119" y="306" text-anchor="middle" class="chip" fill="#FF8A9B">NO PROBABILITY WRITE PATH</text>
+  </g>
+  <path d="M918 509C952 509 946 330 968 330" stroke="#D9622B" stroke-width="1.5" stroke-dasharray="5 5" fill="none" marker-end="url(#arrowGold)"/>
+
+  <g transform="translate(972 538)">
+    <rect width="238" height="348" rx="16" class="card"/>
+    <rect x="18" y="18" width="30" height="30" rx="8" fill="#6082B8" fill-opacity=".14" stroke="#6082B8" stroke-opacity=".5"/>
+    <path d="M26 27h14v13H26zM29 24h8v3M29 32h8" stroke="#9AB3DD" stroke-width="1.5"/>
+    <text x="58" y="31" class="eyebrow" fill="#9AB3DD">BUILD / RELEASE</text>
+    <text x="20" y="68" class="heading">Outside runtime</text>
+    <text x="20" y="91" class="body">Packaging cannot change a seal</text><text x="20" y="109" class="body">or participate in prediction.</text>
+    <g transform="translate(20 132)">
+      <circle cx="8" cy="8" r="8" fill="#6082B8" fill-opacity=".18"/><text x="8" y="12" text-anchor="middle" class="num" fill="#9AB3DD">1</text><text x="28" y="12" class="body">PyInstaller sidecar</text>
+      <path d="M8 23V40" stroke="#6082B8" stroke-opacity=".5"/>
+      <circle cx="8" cy="55" r="8" fill="#6082B8" fill-opacity=".18"/><text x="8" y="59" text-anchor="middle" class="num" fill="#9AB3DD">2</text><text x="28" y="59" class="body">Tauri bundle</text>
+      <path d="M8 70V87" stroke="#6082B8" stroke-opacity=".5"/>
+      <circle cx="8" cy="102" r="8" fill="#6082B8" fill-opacity=".18"/><text x="8" y="106" text-anchor="middle" class="num" fill="#9AB3DD">3</text><text x="28" y="106" class="body">DMG / MSI / EXE</text>
+      <path d="M8 117V134" stroke="#6082B8" stroke-opacity=".5"/>
+      <circle cx="8" cy="149" r="8" fill="#6082B8" fill-opacity=".18"/><text x="8" y="153" text-anchor="middle" class="num" fill="#9AB3DD">4</text><text x="28" y="153" class="body">SHA256SUMS</text>
+    </g>
+    <rect x="20" y="302" width="198" height="27" rx="8" fill="#C9A227" fill-opacity=".08" stroke="#C9A227" stroke-opacity=".4"/>
+    <text x="119" y="320" text-anchor="middle" class="chip" fill="#E7C34E">SIGNING GATED ON SECRETS</text>
+  </g>
+
+  <text x="640" y="939" text-anchor="middle" class="mono" fill="#928E83">NUMBERS FLOW OUT · USER INTENT FLOWS IN · OPTIONAL NARRATIVE MAY BE DROPPED WITHOUT AFFECTING THE FORECAST</text>
+</svg>

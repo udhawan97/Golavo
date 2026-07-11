@@ -1,89 +1,95 @@
 # Golavo — complete research dossier for critical review
 
-Paste everything below the line into Codex (or another reviewing agent). It is **self-contained**: the full data-source research and the current plan are inline, so you can critique them directly rather than re-gathering. Spot-checking is welcome; wholesale re-research is not the task.
+Paste everything below the line into Codex (or another reviewing agent). It is **self-contained**: the full data-source research and the current shipped state are inline, so you can critique them directly rather than re-gathering. Spot-checking is welcome; wholesale re-research is not the task.
+
+> Maintenance note (2026-07-11): this dossier previously described "Phase 0 — a scaffold + plan, no engine yet." That is stale. Golavo's original vision is now **built and released as v0.1.0** (deterministic engine, forward seal→score loop, calibration, exact-score matrix, Fact & Coincidence engine, optional local-first AI, Tauri desktop app). Sections A/B/D below have been rewritten to the shipped reality; Section C (verified data-source research) is unchanged in substance and still governs what is and is not lawfully in scope.
 
 ---
 
-You are a **principal engineer, football data scientist, open-data licensing lawyer, and adversarial product critic**. Below is (A) the project and its current state, (B) the decisions already made, (C) the *complete* verified data-source research, and (D) what to review and how to report. Your job: **find what is wrong, risky, unsupported, legally shaky, or missing.** Do not rewrite the project. Be specific and evidence-based; prefer a concrete failure case over generic advice.
+You are a **principal engineer, football data scientist, open-data licensing lawyer, and adversarial product critic**. Below is (A) the project and its current shipped state, (B) the decisions already made and executed, (C) the *complete* verified data-source research, and (D) what to review and how to report. Your job: **find what is wrong, risky, unsupported, legally shaky, or missing in the code that actually ships at this commit.** Do not rewrite the project. Be specific and evidence-based; prefer a concrete failure case (with `file:line`) over generic advice.
 
 ## A. The project
 
 **Golavo** — a local-first, open-source soccer match-intelligence app. A deterministic statistical engine owns every probability; optional local or BYOK cloud AI provides *cited* narrative only and never changes a number. Every forecast is **sealed before kickoff** (model + feature version + source content-hashes) and **scored after full time** into a public calibration record. It is explicitly **not** a betting product (no odds framing, picks, "locks", or bankroll advice).
 
 - **Code:** https://github.com/udhawan97/Golavo (public) · **Site/docs:** https://udhawan97.github.io/Golavo/ · **Code license:** Apache-2.0; data packs are separately licensed.
-- **Status:** pre-alpha, **Phase 0 (data-feasibility spike)**. The repo is a *scaffold + plan*: README, docs site, CI/CD (CI + signed release + Pages), animated brand, and skeletons for `core/` (Python modeling lib), `server/` (FastAPI `/health`), `ui/` (React+Vite), `desktop/`, `packaging/`, `packs/`, and `docs/adr/0001-architecture.md`. **No forecast engine is implemented yet — deliberate.**
+- **Status:** **v0.1.0, unsigned pre-alpha — released.** The repo is a *working product*, not a scaffold. Implemented and tested at this commit:
+  - **Deterministic core (`core/golavo_core`).** Ingests pinned CC0 sourcepacks into a typed match table; five candidate families (climatological, Elo ordinal-logit, independent Poisson, time-decayed Dixon-Coles, bivariate Poisson); chronological backtests for men's senior full internationals **and** the top-5 European leagues (historical). Forward **seal→score→void** loop writes immutable JSON `ForecastArtifact`s with a content-hash id and an append-only audit log. A real **calibration record** aggregates genuine pre-kickoff seals (starts empty). A goal-based seal additionally carries the **exact-score matrix** it implies (`score_matrix`), machine-checked coherent with the sealed 1X2 and expected goals. A deterministic **Fact & Coincidence engine** (`facts/`) computes source-backed, labelled match facts with a machine-checked no-write invariant.
+  - **Optional AI layer (`core/golavo_core/ai`, `server/golavo_server/ai_gateway.py`).** Off by default. A deterministic **evidence bundle** enumerates every number the model may utter; a **numeric whitelist** hard-rejects any narration containing an unsupported number or betting term; keys live only in a request header (never the prompt); a **red-team suite** asserts fail-closed behavior. No live LLM in CI.
+  - **Server (`server/golavo_server`).** Read-only FastAPI surface (`/health`, `/api/v1/forecasts`, `/eval/summary`, `/calibration`) plus the optional POST `/narrative`. Loopback bind + per-launch token.
+  - **Desktop (`desktop/`, `packaging/`).** Tauri 2 shell + PyInstaller **onefile** sidecar; macOS + Windows bundles built by the release workflow on tag, **unsigned** (signing/notarization gated on absent secrets).
+  - **Docs & contracts.** `docs-site/` (Astro), `docs/contracts/` (`ForecastArtifact` + evidence/narration/facts JSON schemas), ADR-0001, per-phase handoffs.
+  - **Deliberately NOT built (blocked by data or roadmapped):** confirmed lineups, injuries, corners, shots, xG, club-level goalscorers, a club forward loop, cups, typed-feature→rerun, and any signed/notarized release. These have **no lawful open source** (see C) or are gated on secrets/roadmap.
 
-## B. Decisions already made (challenge them; don't merely restate)
+## B. Decisions already made and executed (challenge them; don't merely restate)
 
-- **Architecture:** Phase 0 is a Python core + read-only FastAPI source server. Tauri, a sidecar, SQLite, and a hash-chained ledger are planned (ADR-0001).
-- **Prediction:** climatological, Elo ordinal-logit, independent Poisson, time-decayed Dixon-Coles, and bivariate Poisson are **candidates**, not champions. Log loss is primary and test folds are chronological.
-- **AI contract:** the engine owns all probabilities; AI only cites/explains/researches; confirmed AI facts become *typed features* and rerun the model (delta shown); a numeric whitelist rejects any number not in the evidence bundle; local (Ollama/llama.cpp) + BYOK cloud; no chain-of-thought exposure.
-- **Data:** Phase 0 accepts only the pinned martj42 CC0 sourcepack. The ODbL script is a basic grep lint, not legal-isolation enforcement.
-- **Licensing:** Apache-2.0 (chosen over AGPL to maximize adoption / portfolio value).
+- **Architecture:** Python core + read-only FastAPI sidecar + Tauri 2 desktop shell, per ADR-0001. Immutable JSON artifacts + append-only JSONL audit (a cross-artifact hash-chained ledger remains *planned*, honestly labelled).
+- **Prediction:** the five families are backtested with **log loss primary** on **chronological** folds; every candidate beats the climatological baseline on every league/international fold in the committed eval summaries. Elo ordinal-logit is the default seal family.
+- **Coherence:** sealed 1X2, expected goals, and the exact-score matrix are all derived from **one** fitted joint distribution, so they are coherent *by shared source*; a machine-checked invariant (`score_matrix.py`) enforces it at seal time and on artifact load.
+- **AI contract:** the engine owns all numbers; the AI cites/explains only. A numeric whitelist binds value + unit + citation and rejects any number not in the evidence bundle. Local (Ollama/llama.cpp) + BYOK cloud. No chain-of-thought exposure. Off by default.
+- **Data:** only pinned CC0 sourcepacks are ingested (martj42 internationals; openfootball top-5 leagues). ODbL (OpenLigaDB) is an **isolated overlay** that ships no data at this commit. The isolation guard is a CI grep lint, **not** legal-isolation enforcement — assess whether that is sufficient.
+- **Licensing:** Apache-2.0 (chosen over AGPL to maximize adoption / portfolio value); data packs separately licensed with a NOTICE.
 
-## C. Complete data-source research (verified 2026-07-09/10)
+## C. Complete data-source research (verified 2026-07-09/10; unchanged)
 
 **Method:** four rounds of discovery + adversarial verification; ~55 sources fetched and checked against their **primary** license/terms pages (not marketing). Facts (scores, fixtures) are non-copyrightable in most jurisdictions, which is why several "re-licensed" compilations exist — flagged below as *provenance risk*.
 
 ### Tier A — OPEN (free + a license that permits redistribution) → shippable open core
 
-| Source | License | Data | Coverage | Fresh | Caveat |
+| Source | License | Data | Coverage | Fresh | Status at v0.1.0 |
 |---|---|---|---|---|---|
-| **openfootball** | CC0 | fixtures/results | top leagues, incl. 2025/26 | season-lag | (original audit) |
-| **martj42/international_results** | CC0 | results + **scorers** + shootouts | all internationals 1872→now | ~48h | (original) flagship internationals |
-| **ISDB (OSF)** | CC0 | results | 216k matches, 52 leagues, 2000–2018 | stale | ML-oriented historical |
-| **footballcsv** | CC0 | results | England tiers 1–5 + ES/DE | ~2020/21 | historical |
-| **European Soccer DB** (Kaggle hugomathien) | **ODbL** (share-alike) | results + lineups + events + **corners** + FIFA ratings + odds | 11 EU leagues 2008–2016 | stale | isolate (copyleft); commercial ambiguous |
-| **Wikidata** / **DBpedia** | CC0 / CC-BY-SA | reference facts (entities, managers, venues) | all eras | current | DBpedia SA copyleft |
-| **DFL/Bassek 2025** (Nature) · **SoccerTrack v2** | CC-BY / CC-BY+MIT | **tracking + events** | research-scale (few / 10 amateur matches) | static | model-dev only |
+| **openfootball** | CC0 | fixtures/results | top leagues, incl. 2025/26 | season-lag | **ingested** (top-5, historical) |
+| **martj42/international_results** | CC0 | results + **scorers** + shootouts | all internationals 1872→now | ~48h | **ingested** (results + former names; scorers snapshot-only) |
+| **ISDB (OSF)** | CC0 | results | 216k matches, 52 leagues, 2000–2018 | stale | not ingested (historical ML) |
+| **footballcsv** | CC0 | results | England tiers 1–5 + ES/DE | ~2020/21 | not ingested |
+| **European Soccer DB** (Kaggle hugomathien) | **ODbL** (share-alike) | results + lineups + events + **corners** + FIFA ratings + odds | 11 EU leagues 2008–2016 | stale | **rejected** (copyleft; provenance) |
+| **Wikidata** / **DBpedia** | CC0 / CC-BY-SA | reference facts (entities, managers, venues) | all eras | current | not vendored |
+| **DFL/Bassek 2025** (Nature) · **SoccerTrack v2** | CC-BY / CC-BY+MIT | **tracking + events** | research-scale | static | model-dev only |
 | **Wyscout** (figshare, Pappalardo) | CC-BY | event data | top-5 2017/18 + WC2018 + Euro2016 | frozen | model-dev |
-| **Mendeley Brazil Série A**, **Harvard national-team migration** | CC-BY / CC0 | results/attendance; migration | Brazil 2003–19; WC 1930–2018 | static | niche |
-| Weather: **Meteostat, NOAA/GHCN, ERA5, NASA POWER, DWD** | CC-BY / CC0 | weather | global | current | redistributable (unlike Open-Meteo's non-commercial free API) |
-| Venue geo: **GeoNames** (CC-BY), **OpenStreetMap** Nominatim/Overpass (ODbL) | CC-BY / ODbL | coordinates/altitude | global | current | OSM share-alike |
+| Weather: **Meteostat, NOAA/GHCN, ERA5, NASA POWER, DWD** | CC-BY / CC0 | weather | global | current | not ingested |
+| Venue geo: **GeoNames** (CC-BY), **OpenStreetMap** (ODbL) | CC-BY / ODbL | coordinates/altitude | global | current | not ingested |
 
 ### Tier B — FREE to fetch, NOT redistributable (per-user local fetch; never ship/export)
 
-football-data.co.uk (current results + **corners/shots/cards**/odds) · **Understat** (current club **xG**, unofficial scrape) · **FPL API** (PL minutes/goals, keyless) · **American Soccer Analysis** (MLS/NWSL/USL **xG**) · **TheSportsDB** (broad, ambiguous terms) · **ClubElo** (Elo ratings, no license) · **RSSSF** (deep historical, non-commercial) · `soccerdata` Python lib (Apache-2.0 *code*, scraped *data* not open) · commercial free-tiers/trials (Sportmonks, SportsDataIO, SoccersAPI, Entity Sports, Highlightly, FootyStats, Live-Score, TheStatsAPI, API-Futebol, BSD).
+football-data.co.uk (results + **corners/shots/cards**/odds) · **Understat** (club **xG**, unofficial scrape) · **FPL API** (PL minutes/goals) · **American Soccer Analysis** (MLS/NWSL/USL **xG**) · **TheSportsDB** · **ClubElo** · **RSSSF** (non-commercial) · `soccerdata` (Apache code, scraped data not open) · commercial free-tiers/trials.
 
 ### Tier C — RESTRICTED / avoid
 
-**Transfermarkt-derived datasets** and **DataHub football mirrors** are **REJECTED**: their downstream CC0/PDDL labels do not cure upstream ToS and database-provenance problems, so using them would launder provenance. Also rejected: **FBref/Sports-Reference**, **Understat**, **Sofascore**, **FotMob**, unofficial **FPL** endpoints, **European Soccer DB**, **StatsBomb Open Data**, **eatpizzanot/soccer-dataset**, and **EasySoccerData**.
+**Transfermarkt-derived datasets** and **DataHub football mirrors** are **REJECTED** (downstream CC0/PDDL labels do not cure upstream ToS/database-provenance problems). Also rejected: **FBref/Sports-Reference**, **Understat**, **Sofascore**, **FotMob**, unofficial **FPL** endpoints, **European Soccer DB**, **StatsBomb Open Data**, **eatpizzanot/soccer-dataset**, **EasySoccerData**.
 
-### BYOK (keyed adapters, user's own key; private/local display only)
+### BYOK (keyed adapters, user's own key; private/local display only) — planned, not shipped
 
-**football-data.org** (free tier: 12 comps, delayed, attribution string required, no post-cancellation reference) · **API-Football** (free tier season-limited; terms grant *no publication license* and bar resale). **OpenLigaDB** (ODbL) is a separate isolated Bundesliga/DFB-Pokal overlay.
+**football-data.org** (attribution required) · **API-Football** (no publication license). **OpenLigaDB** (ODbL) is a separate isolated overlay.
 
 ### Field-level coverage × best open source
 
-| Data type | Best OPEN + current | Free-local fallback | Status |
+| Data type | Best OPEN + current | Free-local fallback | v0.1.0 status |
 |---|---|---|---|
-| Fixtures / results / tables | martj42, men's senior full internationals only | — | ✅ Phase 0 scope |
-| Goalscorers / events (goals, cards, subs) | martj42 international scorers only | — | snapshot only; not modeled |
-| Lineups / minutes | no accepted open source | — | ❌ |
-| Corners / shots / cards | no accepted open source | — | ❌ |
-| **xG** | — (only research-scale tracking) | Understat, ASA, FBref | ❌ open; free-local only |
-| Injuries / suspensions | — | (none open) | ❌ |
-| Women's football | — | (SoccerMon fitness only) | ❌ |
-| Weather / venue context | Meteostat/NOAA/ERA5; GeoNames/OSM | — | ✅ |
+| Fixtures / results / tables | martj42 (internationals) + openfootball (top-5, historical) | — | ✅ ingested |
+| Goalscorers / events | martj42 international scorers only | — | snapshot only; not modeled |
+| Lineups / minutes | no accepted open source | — | ❌ out of scope |
+| Corners / shots / cards | no accepted open source | — | ❌ out of scope |
+| **xG** | — (research-scale tracking only) | Understat, ASA, FBref | ❌ open; free-local only |
+| Injuries / suspensions | — | (none open) | ❌ out of scope |
+| Women's football | — | (SoccerMon fitness only) | ❌ out of scope |
+| Weather / venue context | Meteostat/NOAA/ERA5; GeoNames/OSM | — | not ingested |
 
 ## D. What to review, and the output format
 
-For **each** dimension, state the strongest objection and a concrete failure case:
+Review the **shipped v0.1.0 code**, one concrete failure case per finding. For **each** dimension, state the strongest objection with a `file:line` and a concrete reproduction:
 
-1. **Data feasibility & licensing.** Is the martj42-only Phase 0 scope sufficient for a trustworthy international 1X2 feasibility test? What happens if the pinned source changes format or lags?
-2. **Prediction science.** Do the five Phase 0 candidates calibrate from results alone? Where is chronological leakage most likely, and which candidates lose honestly to Elo?
-3. **Architecture.** Tauri 2 + PyInstaller sidecar vs a source-mode web app or pure-Rust for Phase 0 — is it worth the complexity now? Name the concrete failure modes (sidecar orphan/lifecycle, Windows updater force-exit, signing-key loss) and whether the mitigations suffice. What is over-engineered for pre-alpha?
-4. **AI contract.** Can "AI never changes a number" actually hold? Construct a way to slip an unsupported number past the numeric whitelist, or to make prompt-injection (via fetched research pages) alter a displayed probability or exfiltrate a key. Is the typed-feature→rerun loop robust and non-circular?
-5. **Security & privacy.** Localhost sidecar token, OS-keychain key storage, signed data/model packs, update manifest, prompt-injection surface — describe the most realistic malicious-pack or local-attacker scenario and whether the design stops it.
-6. **Legal / brand.** Is the nominative-fair-use stance on competition names (no crests/kits/trophies/likenesses) safe? Any Apache-2.0-code + data-license interaction problems (shipping CC0/CC-BY/ODbL data alongside Apache code; attribution/NOTICE completeness)?
-7. **Roadmap realism.** Is Phase 0 (one reproducible sealed forecast, backtested, every fact cited) achievable with the verified open data? Are the kill criteria real? What is the single most likely reason this stalls?
-8. **Scaffold correctness.** Review actual repo files (CI workflows, the license-isolation guard, package manifests, docs vs the verified coverage above) and flag anything that would fail, mislead, or rot.
+1. **Model correctness & coherence.** Do the exact-score matrix marginals reproduce the sealed 1X2 and expected goals on *every* path (seal time, artifact load, and the served API)? Can any goalscorer/scoreline allocation contradict the matrix? Where is chronological leakage most likely (same-day fixtures, cutoff arithmetic, the score→seal training window)? Is the calibration record derivable only from genuine pre-kickoff seals?
+2. **Data provenance & legality.** Re-validate every pack from a clean checkout. Is the license-isolation guard sufficient, or a bypassable grep? Can an undeclared file ride inside a "CC0" pack unaudited? Does the *runtime* loader (not just CI) refuse non-CC0 data into the core table? Any provenance/registry drift?
+3. **Reproducibility / determinism.** Same snapshot + seed → byte-identical artifacts, on macOS **and** Linux (numeric drift, sort stability, tz, float rounding of the score-matrix grid). Is byte-identity *enforced*, or merely internally consistent?
+4. **Security — hardest first.** Can any number flowing into the AI whitelist (matrix cells, facts, scorers) let the model state an **unsupported** number, or reuse a supported number in the wrong semantic role? Can prompt injection (via fetched research or notebook facts) change a *displayed* probability or exfiltrate a key? Assess the localhost token, keychain, pack/updater signing claims, and the server's trust in on-disk artifacts.
+5. **Honesty / claims audit at THIS SHA.** Every ✅ / "implemented" / "signed" / coverage / accuracy claim across README, SECURITY.md, docs, docs-site, and handoffs must be true and tested. Flag any drift or overclaim — especially any security control described as active that has no code.
+6. **UI / accessibility, desktop lifecycle, release integrity.** Score-matrix heatmap (color-alone?), Casual vs Expert parity of certainty, sidecar orphan/lifecycle on every shipped OS, checksum/signature honesty, and honest unsigned labeling.
 
 **Produce:**
-- **Executive verdict** (≤200 words): the strongest single argument against building this as planned, and whether Phase-0 scope is the right de-risking move.
-- **Findings table**, most-severe first: *Severity (Critical/High/Med/Low) · Dimension · Claim · Concrete failure case · Recommendation · Confidence.*
-- **Top 5 risks**, each with a trigger and a kill/mitigation.
+- **Executive verdict** (≤200 words): the single strongest argument against the product as shipped, and whether the deterministic-first, AI-cites-only design actually holds.
+- **Findings table**, most-severe first: *Severity (Critical/High/Med/Low) · Dimension · Claim · Concrete failure case (`file:line`) · Recommendation · Confidence.*
+- **Top 5 risks**, each with a trigger and a mitigation.
 - **≤5 blocking questions**, only if genuinely unresolved.
 - A closing **"what would change my assessment"** paragraph.
 
-**Rules:** label every material claim **Verified / Inference / Assumption**; do **not** invent coverage, licenses, accuracy numbers, or costs — say so if unsure; cite repo files by path and data claims by source; be concrete. This is a review — identify what is wrong, risky, unsupported, or missing; do not rewrite the code or the plan.
+**Rules:** label every material claim **Verified / Inference / Assumption**; do **not** invent coverage, licenses, accuracy numbers, or costs — say so if unsure; cite repo files by path and data claims by source; be concrete. An empty findings list for a dimension is a valid, honest result. This is a review — identify what is wrong, risky, unsupported, or missing; do not rewrite the code or the plan.

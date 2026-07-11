@@ -164,14 +164,16 @@ jobs:
 
             In-app updates are **cryptographically signed**: the updater verifies
             every download against the public key compiled into the app before
-            installing. Installers are **not yet OS-signed/notarized**, so macOS
-            Gatekeeper and Windows SmartScreen warn on FIRST install (macOS:
-            right-click → Open; Windows: More info → Run anyway). Verify manual
-            downloads against `SHA256SUMS.txt`.
+            installing (the `.sig` assets). Installers are **not yet
+            OS-signed/notarized**, so macOS Gatekeeper and Windows SmartScreen
+            warn on FIRST install (macOS: right-click → Open; Windows: More
+            info → Run anyway). `SHA256SUMS.txt` detects a **corrupted** manual
+            download; it is not itself signed, so it does not by itself prove
+            authenticity — the in-app updater's signature check does.
 
-            **Updating from v0.1.0?** Builds before v0.2.0 shipped without the
-            in-app updater — download and install this version manually once;
-            after that, updates arrive in-app.
+            **Updating from v0.1.0 or v0.2.0?** Builds before v0.2.1 shipped
+            without the in-app updater — download and install this version
+            manually once; after that, updates arrive in-app.
           files: dist/**
       - name: Undraft — atomic cutover for releases/latest
         env:

@@ -9,10 +9,10 @@ and your ledger is backed up before anything is touched.
 
 :::note[Which builds update in-app]
 Release builds from the [releases page](https://github.com/udhawan97/Golavo/releases)
-(v0.2.0 and later). Source checkouts update with `git pull`; development builds
+(v0.2.1 and later). Source checkouts update with `git pull`; development builds
 without the signing key say so honestly in **Settings → Updates** instead of
-showing dead buttons. **v0.1.0 installs predate the updater** — update from
-them with one manual download; it's in-app from then on.
+showing dead buttons. **v0.1.0 and v0.2.0 installs predate the updater** —
+update from them with one manual download; it's in-app from then on.
 :::
 
 ## Consent first

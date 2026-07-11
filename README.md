@@ -1,188 +1,403 @@
-<div align="center">
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/animated/golavo-icon-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/brand/animated/golavo-icon-light.svg">
+    <img src="assets/brand/animated/golavo-icon-light.svg" alt="Animated Golavo mark: a football traces a golden arc through a rising-sun goal" width="150">
+  </picture>
+</p>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/animated/golavo-lockup-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="assets/brand/animated/golavo-lockup-light.svg">
-  <img src="assets/brand/animated/golavo-lockup-light.svg" alt="Golavo" width="440">
-</picture>
+<h1 align="center">Golavo</h1>
 
-### The numbers remember everything. The beautiful game still keeps the last word.
+<p align="center"><em>The numbers remember everything. The beautiful game still keeps the last word.</em></p>
 
-**Open-source, local-first soccer forecasting for full internationals.**
-It began as a deterministic local forecasting spike for men's senior full internationals; it now also backtests the men's top-5 European leagues (historical), ships an optional local-first AI narration layer (off by default, never owns a number), and builds an unsigned desktop app. Remaining scope — confirmed-lineup / BYOK data adapters, scorers, cups, and a signed release — is tracked in [ADR-0001](docs/adr/0001-architecture.md).
+<p align="center">
+  An honest, local-first football forecasting workbench. Pin the data, test the models,<br>
+  seal the forecast before kickoff, and let the result score it later.<br>
+  No odds. No oracle. No moving the goalposts.
+</p>
 
-<!-- Badges resolve once the repo is public on GitHub. -->
-[![CI](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml/badge.svg)](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml)
-[![Release](https://github.com/udhawan97/Golavo/actions/workflows/release.yml/badge.svg)](https://github.com/udhawan97/Golavo/actions/workflows/release.yml)
-[![Docs](https://github.com/udhawan97/Golavo/actions/workflows/pages.yml/badge.svg)](https://udhawan97.github.io/Golavo)
-[![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+<p align="center">
+  <strong>No account</strong>&nbsp;&nbsp;·&nbsp;&nbsp;<strong>No telemetry</strong>&nbsp;&nbsp;·&nbsp;&nbsp;<strong>No invented certainty</strong>
+</p>
 
-[**Website & Docs**](https://udhawan97.github.io/Golavo) · [Methodology](https://udhawan97.github.io/Golavo/methodology/prediction/) · [Coverage](https://udhawan97.github.io/Golavo/data/coverage/) · [Roadmap](#roadmap)
+<p align="center">
+  <sub>予測&nbsp;&nbsp;the forecast&nbsp;&nbsp;·&nbsp;&nbsp;記録&nbsp;&nbsp;the record&nbsp;&nbsp;·&nbsp;&nbsp;間&nbsp;&nbsp;room for uncertainty&nbsp;&nbsp;·&nbsp;&nbsp;笛&nbsp;&nbsp;the final whistle</sub>
+</p>
 
-</div>
+<p align="center">
+  <img alt="version v0.2.0" src="https://img.shields.io/badge/version-v0.2.0-6082b8?style=flat-square">
+  <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
+  <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
+  <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
+  <img alt="Apache 2.0 License" src="https://img.shields.io/badge/license-Apache_2.0-c9a227?style=flat-square">
+  <a href="https://github.com/udhawan97/Golavo/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/udhawan97/Golavo/actions/workflows/ci.yml/badge.svg"></a>
+</p>
+
+<p align="center">
+  <a href="#try-it"><kbd>&nbsp;⚽&nbsp;Try&nbsp;it&nbsp;</kbd></a>&nbsp;
+  <a href="#what-it-does"><kbd>&nbsp;📋&nbsp;Features&nbsp;</kbd></a>&nbsp;
+  <a href="#the-rule-of-the-room"><kbd>&nbsp;🧠&nbsp;Local&nbsp;vs&nbsp;AI&nbsp;</kbd></a>&nbsp;
+  <a href="#under-the-hood"><kbd>&nbsp;⚙️&nbsp;Architecture&nbsp;</kbd></a>&nbsp;
+  <a href="https://udhawan97.github.io/Golavo"><kbd>&nbsp;📖&nbsp;Docs&nbsp;</kbd></a>
+</p>
 
 > [!WARNING]
-> **Status: v0.1.0 — unsigned pre-alpha.** Working today: pinned CC0 snapshots with retained history; historical backtests (internationals + top-5 European leagues); a reproducible seal-before-kickoff → score-after-full-time loop for internationals with a real calibration record (which **starts empty** and only ever holds genuine pre-kickoff seals); an optional local-first AI narration layer that is **off by default** and can never change a number; and a Tauri desktop app that builds **unsigned** (the macOS bundle is verified locally; macOS + Windows bundles are built by the release workflow on tag). Signing/notarization, the signed auto-updater, confirmed-lineup / BYOK data adapters, club forward loops, scorers, and cups remain planned or gated ([ADR-0001](docs/adr/0001-architecture.md)). Nothing here is a betting product.
+> Golavo is an **unsigned v0.2.0 pre-alpha**, built in the open. The deterministic
+> engine, historical backtests, international seal→score loop, calibration record,
+> optional guarded AI narration, and desktop packaging are implemented. Signing,
+> notarization, confirmed-lineup adapters, scorers, corners, cups, and a club forward
+> loop are not. This is a forecasting audit workbench, **not a betting product**.
 
----
+## The match
 
-<div align="center">
+Football prediction usually arrives in one of two kits: a black box asking for trust,
+or a betting page asking for a deposit. Both become remarkably philosophical when the
+forecast loses.
 
-![The Golavo workbench — a matchday list of sealed, scored, abstained and voided forecasts, rendering the bundled synthetic sample artifacts](docs-site/public/screenshots/workbench-matchday.png)
+Golavo takes the less glamorous route: **it keeps the receipts**. Source data is pinned
+and hashed. Models are tested chronologically. A forecast is sealed before kickoff with
+its inputs and model state attached. After full time, a new artifact scores the claim;
+the old one does not get a quiet edit and a fresh haircut.
 
-<sub>The read-only workbench (v0.1.0) over the bundled **synthetic sample artifacts** — labelled as sample data in-app, never shown as real forecasts. More: [AI Deep Read off](docs-site/public/screenshots/ai-deep-read-off.png) · [on](docs-site/public/screenshots/ai-deep-read-on.png) · [calibration record](docs-site/public/screenshots/calibration-ledger.png).</sub>
+The beautiful game has humbled richer models than this one. Golavo simply makes sure
+the model cannot pretend otherwise.
 
-</div>
+<p align="center">
+  <img src="docs-site/public/screenshots/workbench-matchday.png" alt="Golavo's read-only Matchday workbench showing sealed, scored, abstained, and voided synthetic sample forecasts" width="920">
+</p>
 
-## What Golavo is
+<p align="center">
+  <sub>The Matchday workbench over bundled <strong>synthetic sample artifacts</strong> — clearly labelled in-app, never passed off as real forecasts.</sub>
+</p>
 
-Golavo builds a reproducible 1X2 forecast for a men's senior full international, then **seals** a versioned JSON artifact with its model and source snapshot. A later, strictly-newer snapshot produces a separate scored artifact without rewriting the seal — and since Phase 3 this forward loop is real: sealed fixtures accumulate in a public ledger (`data/artifacts/`), postponements void with a recorded reason, and a read-only calibration record tracks running log loss and reliability over genuine seals, separately from backtests. The source gives dates but not kickoff times, so seals close at a conservative day-before (00:00 UTC) cutoff; forwardness is proven by pre-kickoff publication in this repository's git history. Since Phase 8 a goal-based seal also carries the **exact-score distribution it already implies** (an additive `score_matrix`, machine-checked coherent with the 1X2 and expected goals). Goalscorers, corners, cups, and a club forward loop remain planned in [ADR-0001](docs/adr/0001-architecture.md).
+## What it does
 
-**What Golavo is not:** a livescore app (open-core results are delayed), a betting tool (no odds, no picks, no "locks," no bankroll advice), a redistributor of licensed data feeds, or an "AI predictor" (the statistics own the numbers).
+The model gets one chance to speak before kickoff. VAR is not available for JSON.
 
-## The Local vs AI contract
+| | Do this | Get this |
+| :---: | --- | --- |
+| 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from |
+| 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
+| 🔏 | **Seal before kickoff** — freeze probabilities, model version, seed, parameters, cutoff, and inputs | An immutable claim the result cannot rewrite |
+| 🥅 | **Show the scorelines implied by the model** — exact-score grid plus an honest out-of-grid tail | The same goal distribution behind the 1X2 forecast, not a decorative second guess |
+| 🧾 | **Score after full time** — write a linked scored or voided successor | Outcome, assigned probability, log loss, Brier, or a real void reason |
+| 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
+| 🗒️ | **Open the Commentator's Notebook** — deterministic facts with samples, base rates, freshness, and sources | Context labelled predictive, contextual, or coincidence before anyone gets poetic |
+| 🤖 | **Enable AI Deep Read** *(optional)* — local Ollama/llama.cpp or cloud BYOK | Cited narrative over allowed engine numbers; one unsupported number and the whole answer is benched |
+| 👓 | **Switch Casual / Expert** | Plain-language reading or full seal, provenance, uncertainty, and score-matrix detail — same numbers, different studs |
+| 🖥️ | **Run locally** — source web app or Tauri desktop shell | A private workbench with no account, ads, or hosted forecasting backend |
 
-| | The statistical engine | The AI layer (optional) |
+<details>
+<summary>&nbsp;📋&nbsp; The full capability and status list</summary>
+
+<br>
+
+| Area | What exists today |
+| --- | --- |
+| **Forward forecasting** | Men's senior full internationals can move through a real pre-kickoff seal → scored/voided successor loop over retained snapshots |
+| **Historical evaluation** | Internationals plus the men's top-5 European leagues, modeled independently over accepted completed seasons |
+| **Artifacts** | Versioned JSON contracts for forecasts, evidence bundles, facts, and AI narration; canonical payload hashes and source snapshot ids |
+| **Models** | Climatological baseline, Elo ordinal-logit, independent Poisson, time-decayed Dixon–Coles, and bivariate Poisson; no permanent champion declared |
+| **Exact scores** | Goal-based seals include the coherent score grid they already imply, including an explicit high-score tail |
+| **Workbench** | Matchday, forecast detail, historical Evaluation, forward Ledger, provenance, scored/voided/superseded states, Casual and Expert presentation |
+| **Facts** | Pre-registered deterministic templates; sample/freshness/base-rate guardrails; coincidences capped and quarantined |
+| **AI Deep Read** | Implemented, off by default, and additive; schema, citation, numeric-whitelist, grounding, and betting-language guards fail closed to local-only |
+| **Desktop** | Tauri 2 shell supervising a PyInstaller/FastAPI sidecar on an ephemeral loopback port with a fresh per-launch token |
+| **Distribution** | macOS DMG and Windows MSI/EXE builds plus checksums; **signed in-app updates** (consent-first, verified, ledger backed up first) from v0.2.1; OS signing/notarization still gated on real credentials |
+| **Not yet shipped** | Confirmed-lineup/BYOK data adapters, scorers, corners, cups, club forward forecasting, hash-chained multi-artifact ledger, signed public release |
+
+</details>
+
+## The rule of the room
+
+**The statistical engine owns every number.** Not the interface. Not the prose. Not
+the AI wearing a very confident scarf.
+
+| | Statistical engine | Optional AI layer |
 |---|---|---|
-| **Owns** | Every probability, score matrix, and count distribution | Narrative, scenario explanation, research |
-| **May** | Rerun when a *confirmed* new fact becomes a typed feature | Surface cited facts and propose typed features for the engine |
-| **May never** | — | Silently change a probability, or state a number not in its evidence bundle |
+| **Owns** | Every probability, expected-goal value, score matrix, and evaluation metric | Narrative and scenario explanation |
+| **Receives** | Pinned, typed local data | A deterministic evidence bundle with exact allowed numbers and sources |
+| **May** | Rerun when a confirmed fact becomes a typed feature *(full workflow planned)* | Cite facts and propose candidate facts for review |
+| **May never** | Hide a failed seal or rewrite history | Invent, adjust, override, or loosely paraphrase a number |
 
-The optional AI layer is **implemented in Phase 5 and off by default**; typed-feature reruns from confirmed facts remain **planned (ADR-0001)**. The AI reads and cites the engine's numbers over a deterministic evidence bundle and is structurally prevented from stating any number the engine did not produce — a numeric whitelist rejects the whole narration otherwise, falling back to local-only. It **does not improve accuracy** and cannot change a probability. See the [Phase 5 handoff](docs/handoff/codex-phase5.md).
+The **Commentator's Notebook** sits between statistics and prose. Its fact templates
+are deterministic and source-backed; a machine-checked dependency rule prevents them
+from importing forecast, model, or calibration writers. Coincidences are welcome in
+the pub. They do not get a key to the model.
 
-Since Phase 7, the **Commentator's Notebook** supplies the AI's cited facts deterministically: a fixed, pre-registered family of templates computes source-backed match facts over the CC0 packs, each labelled **predictive / context / coincidence** and carrying its sample, base rate, source, and freshness. Coincidences are capped and quarantined ("for the pub, not the forecast") and never reach the AI. A machine-checked invariant proves no fact code path can write a probability, forecast, or calibration number. See the [Fact & Coincidence engine](https://udhawan97.github.io/Golavo/methodology/facts/).
+AI is **off by default**. When enabled, every claim must survive schema validation,
+source checks, an exact numeric whitelist, quote grounding where required, and a
+betting-language filter. A failed response becomes `local_only`; the forecast carries
+on untouched. The AI may explain the scorecard. It may not borrow the pen.
 
-## How a forecast is made
+<p align="center">
+  <img src="docs-site/public/assets/golavo-intelligence-boundary.svg" alt="Golavo intelligence boundary: the deterministic engine owns every number; source-backed facts cannot import forecast writers; optional AI receives only an allowed evidence bundle and is discarded on guard failure" width="980">
+</p>
 
-```
-pinned CC0 snapshot ──► typed match table ──► candidate statistical model
-         │                                           │
-         └── manifest + sha256 ─────────────► sealed forecast artifact
-                                                     │
-              newer retained snapshot ───────────────► new scored artifact
-                                                        (or voided, with reason)
-```
+More detail: [Local Intelligence](https://udhawan97.github.io/Golavo/local-intelligence/) ·
+[AI providers and guards](https://udhawan97.github.io/Golavo/ai/providers/) ·
+[Fact & Coincidence engine](https://udhawan97.github.io/Golavo/methodology/facts/)
 
-Every refresh is a **new** pinned snapshot pack; prior packs are never overwritten or deleted, and `packs/snapshots.json` registers each retained `{ref, retrieved_at_utc, manifest sha256}`. CI replays the loop deterministically from two retained refs in which the same fixture moves from scheduled to completed.
+## How a forecast earns the right to exist
 
-## Coverage — the honest version
+<p align="center">
+  <img src="docs-site/public/assets/golavo-forecast-lifecycle.svg" alt="Golavo forecast lifecycle: a pinned snapshot is normalized and modeled, passes strict pre-kickoff seal gates, then a strictly newer snapshot writes a separate scored or voided successor and updates forward calibration" width="980">
+</p>
 
-Phase 0 uses one vendored, pinned CC0 snapshot of `martj42/international_results`. It covers men's senior full-international results, goalscorers, shootouts, and former names; the engine currently consumes results and former names. Phase 3 makes internationals the **forward** surface: snapshots are refreshed as new immutable packs (old ones are retained and registered in `packs/snapshots.json`), upcoming fixtures are sealed before their day-proxy kickoff, and results from a later snapshot score them. The **club leagues stay historical — a club forward loop is an explicit non-goal**: openfootball captures are season-lagged with no verified live cadence. Phases 1–2 add the men's **top-5 European leagues** as a **historical** backbone from one pinned `openfootball` snapshot (CC0-1.0): each league is accepted for completed seasons only after a per-league coverage audit and backtested — **not live**. Each league is modeled independently from its own pack; domestic files carry no inter-league matches, so there is **no cross-league strength calibration**. Lineups, injuries, corners, xG, and BYOK adapters remain out of scope. Free access is not the same as lawful open data — see [Data sources & coverage](https://udhawan97.github.io/Golavo/data/coverage/).
+1. **Retain the source state.** A refresh writes a new pack; old packs stay put.
+2. **Normalize and fit chronologically.** Future matches are not allowed to wander
+   into the training room wearing a fake moustache.
+3. **Pass the seal gate.** Data state ≤ seal time, seal time &lt; kickoff proxy,
+   training rows ≤ cutoff, target fixture still scheduled.
+4. **Write the claim.** Probabilities, score matrix, model metadata, source ids, and
+   canonical payload digest become one `ForecastArtifact`.
+5. **Wait for a newer source state.** No result is invented because everyone is impatient.
+6. **Write a successor.** Score it, or void it with a reason. Never edit the seal.
+7. **Update forward calibration.** Genuine seals only; historical backtests stay in
+   their own dressing room.
 
-| Scope (all historical) | Results | Goalscorers / shootouts | Lineups / injuries / corners / xG |
+The international source publishes dates but not verified kickoff times, so Golavo
+uses 00:00 UTC on match day as a conservative proxy. Forwardness is proven by public
+git history: the seal must be published before that proxy. The artifact bytes prove
+integrity; publication history proves timing. Different receipts, different jobs.
+
+## Coverage — no dramatic hand-waving
+
+Golavo's **forward** surface is men's senior full internationals. The top-5 European
+leagues are a **historical backtesting** surface, not live club forecasting. Each
+league is modeled independently; there is no cross-league strength calibration.
+Lineups, injuries, corners, xG, and proprietary feeds are not quietly inferred from
+vibes.
+
+| Scope | Accepted results coverage | Deeper event data | Product use |
 |---|---|---|---|
-| **Men's senior full internationals** | ✅ Phase 0 — martj42 CC0, pinned | ✅ CC0 snapshot, not modeled | 🚫 no accepted open source |
-| **English Premier League** | ✅ Phase 1 — openfootball CC0, 15 clean seasons 2010-11→2024-25 | 🚫 out of scope | 🚫 no accepted open source |
-| **La Liga** | ✅ Phase 2 — openfootball CC0, 12 clean seasons 2012-13→2023-24 (2024-25 capture misses final matchday) | 🚫 out of scope | 🚫 no accepted open source |
-| **Bundesliga** | ✅ Phase 2 — openfootball CC0, 15 clean seasons 2010-11→2024-25 | 🚫 out of scope | 🚫 no accepted open source |
-| **Serie A** | ✅ Phase 2 — openfootball CC0, 11 clean seasons 2013-14→2023-24 (2024-25 capture misses final matchday) | 🚫 out of scope | 🚫 no accepted open source |
-| **Ligue 1** | ✅ Phase 2 — openfootball CC0, 10 clean seasons 2014-15→2024-25 (2019-20 COVID abandonment excluded) | 🚫 out of scope | 🚫 no accepted open source |
+| **Men's senior full internationals** | Pinned `martj42/international_results` CC0 snapshots | Goalscorers/shootouts present but not modeled; former names consumed | **Forward seal→score** + historical evaluation |
+| **English Premier League** | 15 clean seasons, 2010-11→2024-25 | Not in accepted pack | Historical evaluation only |
+| **La Liga** | 12 clean seasons, 2012-13→2023-24 | Not in accepted pack | Historical evaluation only; incomplete 2024-25 excluded |
+| **Bundesliga** | 15 clean seasons, 2010-11→2024-25 | Not in accepted pack | Historical evaluation only |
+| **Serie A** | 11 clean seasons, 2013-14→2023-24 | Not in accepted pack | Historical evaluation only; incomplete 2024-25 excluded |
+| **Ligue 1** | 10 clean seasons, 2014-15→2024-25 | Not in accepted pack | Historical evaluation only; abandoned 2019-20 excluded |
 
-The snapshots are reproducible and pinned, not live feeds; every league's partial 2025-26 capture is excluded. xG does not appear in the accepted sources. Per-league verdicts and exclusion reasons: [`docs/handoff/openfootball-audit.md`](docs/handoff/openfootball-audit.md).
+Every partial 2025-26 club capture is excluded. Free access is not the same as
+lawful open data, and a filename is not a provenance strategy. Read the
+[coverage audit](docs/handoff/openfootball-audit.md) or the
+[data-source guide](https://udhawan97.github.io/Golavo/data/coverage/) for the
+season-by-season verdicts.
 
-## Run modes
+## Try it
 
-| Mode | Who it's for | Status |
-|---|---|---|
-| **Source (local API + core)** | developers, researchers | working |
-| **Source web app (React + local API)** | developers, researchers | working (`make dev`) |
-| **Desktop (macOS DMG / Windows MSI+EXE)** | everyone | working — **signed in-app updates**; installers OS-unsigned (first-install warnings), macOS + Windows built by the release CI |
+Golavo currently offers a source-mode workbench and unsigned desktop builds.
+Choose your preferred amount of compiler involvement.
+
+### Source mode
+
+Requires Python 3.12+ and Node 22+.
 
 ```bash
-# Source-mode API (Phase 0)
-git clone https://github.com/udhawan97/Golavo.git && cd Golavo
+git clone https://github.com/udhawan97/Golavo.git
+cd Golavo
+cp .env.example .env      # optional; local forecasting needs no key
 make setup
 uvicorn golavo_server.main:app --host 127.0.0.1 --port 8000 --app-dir server
 ```
 
-## Desktop app (Phase 4)
-
-Golavo builds into a [Tauri 2](https://tauri.app) desktop app that launches a
-bundled Python **sidecar** (the FastAPI core, frozen with PyInstaller) on a
-private loopback port with a per-launch token, waits for its `/health`, shows the
-workbench, and kills the sidecar on quit.
+In a second terminal:
 
 ```bash
-# Build an unsigned desktop bundle for your platform (repo root):
-packaging/build.sh aarch64-apple-darwin     # macOS  -> packaging/out/*.dmg
-packaging/build.sh x86_64-pc-windows-msvc    # Windows -> packaging/out/*.msi + *.exe
+cd Golavo/ui
+VITE_GOLAVO_API=http://127.0.0.1:8000 npm run dev
 ```
 
-From v0.2.0 the desktop app **updates itself in-app**: consent-first daily
-checks (off until you say yes — the local-first promise holds), signed and
-signature-verified downloads, a ledger backup before every install, and a
+Open `http://127.0.0.1:5173`. Leave `VITE_GOLAVO_API` unset if you only want the
+bundled synthetic sample artifacts — the fastest route to judging the interface
+without accidentally developing an opinion about Python environments.
+
+> [!TIP]
+> No AI key is required. In fact, no AI is required. The numbers will cope.
+
+### Desktop build
+
+Grab an available unsigned bundle from
+[GitHub Releases](https://github.com/udhawan97/Golavo/releases), or build one locally:
+
+```bash
+packaging/build.sh aarch64-apple-darwin      # macOS → DMG + app
+packaging/build.sh x86_64-pc-windows-msvc   # Windows → MSI + EXE
+```
+
+Outputs and per-target `SHA256SUMS-<target>` files land in `packaging/out/`.
+These builds are **OS-unsigned**: macOS requires right-click → **Open** on first
+launch; Windows requires **More info → Run anyway**. That warning is the
+operating system accurately describing the missing certificate, not Golavo
+asking you to lower your standards.
+
+**Updates are a different story**: from the first updater-enabled release
+(v0.2.1) the desktop app updates itself in-app — consent-first daily checks
+(off until you say yes; the local-first promise holds), cryptographically
+signed and verified downloads, a ledger backup before every install, and a
 health-checked first boot that restores the backup and explains itself if the
-new version can't start. Installers remain **OS-unsigned**, so macOS
-Gatekeeper / Windows SmartScreen warn on **first install only** (right-click →
-Open on macOS; "More info → Run anyway" on Windows) — notarization needs the
-Apple Developer Program and stays gated on secrets, never faked. See
-[Installation](docs-site/src/content/docs/installation.md) and
-[Updates & rollback](docs-site/src/content/docs/updates-rollback.md).
+new version can't start. Installs of v0.2.0 and earlier predate the updater:
+update from them with one manual download. OS signing and notarization remain
+gated on credentials the project does not yet hold — Golavo would rather show
+an honest warning than cosplay as a notarized release. See
+[Installation](https://udhawan97.github.io/Golavo/installation/) and
+[Updates & rollback](https://udhawan97.github.io/Golavo/updates-rollback/).
 
-## Architecture
+## Privacy
 
-Golavo ships a Python core, a Parquet typed-match table, JSON forecast artifacts,
-and a read-only FastAPI surface. Phase 4 adds the Tauri 2 desktop shell + frozen
-sidecar. DuckDB views, SQLite state, and a hash-chained ledger are **planned
-(ADR-0001)**.
+Golavo is local-first by architecture, not by a privacy toggle hidden under seventeen
+cookie banners.
 
+- 🖥️ **Forecasting runs locally.** Core computation and normal API reads use files
+  already on your machine.
+- 👤 **No account.** There is no hosted Golavo user database because there is no
+  hosted Golavo backend.
+- 📡 **No telemetry or ads.** The workbench has nothing useful to tell an analytics
+  company, and no analytics company has been invited.
+- 🔄 **Data sync is explicit.** Building a new source pack uses the network and records
+  the source, ref, license, retrieval time, and hashes.
+- 🤖 **AI is explicit.** Local models stay on loopback. Cloud AI uses your own key only
+  after you choose it; the key stays in environment/Keychain handling and is never
+  written into artifacts, prompts, logs, caches, or responses.
+- 🔐 **The desktop sidecar stays private.** It binds to an ephemeral `127.0.0.1` port
+  behind a fresh per-launch token and dies with the app.
+
+> The short version: Golavo does not know who you are. Your centre-back may still
+> know exactly what you shouted at the screen.
+
+## Under the hood
+
+*For developers, researchers, contributors, and people who read model cards for fun.*
+
+| | |
+|---|---|
+| **Core** | Python 3.12+ · pandas · NumPy · SciPy · PyArrow/Parquet |
+| **Models** | Climatology · Elo ordinal-logit · independent Poisson · time-decayed Dixon–Coles · bivariate Poisson |
+| **API** | FastAPI sidecar · read-only forecast/facts/evaluation/calibration routes · optional guarded narrative endpoint |
+| **Interface** | React · TypeScript · Vite · hand-rolled SVG reliability and score-matrix views |
+| **Desktop** | Tauri 2 / Rust supervisor · PyInstaller sidecar · ephemeral loopback token |
+| **Artifacts** | Versioned JSON schemas · canonical SHA-256 payloads · retained source manifests |
+| **Evaluation** | Chronological folds · log loss primary · Brier · ECE · RPS · forward calibration kept separate |
+| **Docs** | Astro + Starlight on GitHub Pages |
+| **Distribution** | GitHub Actions · unsigned DMG / MSI / EXE · checksums · signing-capable gated path |
+
+<p align="center">
+  <img src="docs-site/public/assets/golavo-system-architecture.svg" alt="Golavo architecture: a Tauri supervisor launches a token-protected FastAPI sidecar; React reads validated contracts; the deterministic Python core owns all numbers and local artifacts; optional AI and release automation stay outside the numeric authority boundary" width="980">
+</p>
+
+The packaged request path is deliberately boring:
+**Tauri webview → token-protected FastAPI sidecar → deterministic core → local artifacts**.
+Boring is excellent when the alternative is “the AI changed 47% to 51% because it felt
+momentum in the second paragraph.”
+
+<details>
+<summary>&nbsp;📁&nbsp; Project layout</summary>
+
+<br>
+
+```text
+core/       Python modeling library — ingest, models, artifacts, evaluation, facts, evidence
+server/     FastAPI app — local routes and the optional AI gateway
+ui/         React + TypeScript Forecast Audit Workbench
+desktop/    Tauri 2 shell — sidecar lifecycle, runtime bootstrap, gated updater
+packaging/  PyInstaller + Tauri bundle scripts and checksums
+packs/      pinned data packs, manifests, licenses, retained snapshot registry
+data/       typed tables, real forward artifacts, and audit records
+docs/       contracts, ADRs, source audits, and phase handoffs
+docs-site/  Astro + Starlight product documentation
+scripts/    provenance, artifact, release, and sourcepack validation
 ```
-core/       Python modeling library — ingest, warehouse, models, ledger, facts   (Apache-2.0)
-server/     FastAPI app — routes, jobs, evidence bundles, AI gateway             (Apache-2.0)
-ui/         React + TypeScript + Vite                                            (Apache-2.0)
-desktop/    Tauri 2 shell + gated signed updater (Phase 4)                       (Apache-2.0 code)
-packaging/  PyInstaller sidecar + Tauri bundle + checksums                       (Apache-2.0)
-packs/      data packs with their own per-pack licenses
-docs-site/  Astro + Starlight product site (GitHub Pages)
+
+</details>
+
+<details>
+<summary>&nbsp;🔨&nbsp; Build, test, and validate</summary>
+
+<br>
+
+```bash
+make setup
+make test
+make lint
+make validate
+make build
 ```
 
-## Prediction methodology
+The release path freezes the sidecar, builds the UI, bundles the platform app,
+emits checksums, and only enables signing/updating when the required secrets are
+actually present. The architecture guide documents the full route map, lifecycle,
+failure behavior, and trust boundaries.
 
-Phase 0 evaluates five deterministic **candidates**: climatological, Elo ordinal-logit, independent Poisson, time-decayed Dixon-Coles, and bivariate Poisson. Log loss is primary; Brier, ECE with reliability bins, and RPS are also reported on chronological tournament folds. No candidate is called a champion until forward evidence earns that status. Phases 1–2 run the same five candidates on each accepted league's three most recent clean seasons as chronological folds (EPL/Bundesliga/Ligue 1: 2022-23→2024-25; La Liga/Serie A: 2021-22→2023-24, because their 2024-25 captures are incomplete). Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and none is crowned. Full methodology: [Methodology](https://udhawan97.github.io/Golavo/methodology/prediction/).
+</details>
 
-Forward evidence now has a home: real sealed forecasts are scored after full time and aggregated into a running calibration record (`GET /api/v1/calibration`, the workbench's **Ledger** view) that is kept strictly separate from backtest folds. It starts small and honest — it only ever contains genuine pre-kickoff seals.
+Read the [architecture guide](https://udhawan97.github.io/Golavo/architecture/) ·
+[prediction methodology](https://udhawan97.github.io/Golavo/methodology/prediction/) ·
+[model cards](https://udhawan97.github.io/Golavo/methodology/model-cards/) ·
+[prediction ledger](https://udhawan97.github.io/Golavo/prediction-ledger/)
 
-> We do **not** claim AI, deep learning, head-to-head records, or a "new-manager bounce" improve accuracy without forward evidence.
+## Methodology — humility, but with equations
 
-## Data sources & licenses
+Golavo evaluates five deterministic candidates on chronological folds. Log loss is
+primary; Brier, ECE with reliability bins, and RPS provide the supporting argument.
+On the accepted historical folds, every candidate beats the climatological baseline
+on log loss, but the best family varies. No permanent champion has been crowned.
+Football has seen enough managers appointed after three good matches.
 
-| Source | Role | License | In product? |
-|---|---|---|---|
-| [martj42/international_results](https://github.com/martj42/international_results) | men's senior full internationals | CC0-1.0 | ✅ Phase 0 pinned pack |
-| Transfermarkt-derived datasets · DataHub football mirrors | rejected: downstream labels do not cure upstream provenance/ToS risk | — | 🚫 rejected |
-| [openfootball](https://github.com/openfootball/football.json) | top-5 European leagues (historical) | CC0-1.0 | ✅ Phase 1–2 pinned packs |
-| Wikidata · Wyscout · OpenLigaDB | possible later research/adapters | varies | ⏳ out of scope |
-| Football-Data.org · API-Football | proprietary data adapters | proprietary ToS | ⏳ out of Phase 0 |
+Forward evidence has its own Ledger view and API. Real seals are scored after full
+time and added to running calibration; historical folds never sneak into that count.
 
-Attribution strings and the full field-level license matrix live in [NOTICE](NOTICE) and the [Legal & brand docs](https://udhawan97.github.io/Golavo/legal/).
-
-## Privacy & security
-
-Golavo has no account, telemetry, or ads, and makes **no network call at runtime unless you opt in**. The AI Deep Read layer is **off by default**; it only contacts a model — a local Ollama / llama.cpp server, or a BYOK cloud provider whose key stays in your keychain/env and is never logged — when you explicitly enable it. Sourcepack construction performs an explicit network download; normal core and API reads use local files. The desktop sidecar binds to a private loopback port behind a per-launch token. Signed packs and the signed auto-updater are **wired but gated on secrets (ADR-0001)** and disabled by default. See [SECURITY.md](SECURITY.md).
+> [!NOTE]
+> Golavo does **not** claim that AI, deep learning, head-to-head trivia, or a
+> “new-manager bounce” improves accuracy without forward evidence. A compelling
+> anecdote is still just an anecdote in a nice jacket.
 
 ## Roadmap
 
-| Phase | Deliverable | Status |
-|---|---|---|
-| **0 — Data-feasibility spike** | ingest real matches, one reproducible sealed forecast, backtested & scored, every fact cited | ✅ shipped |
-| **1–2 — Engine + leagues** | expanded warehouse; men's top-5 European leagues backtested (historical); chronological evaluation harness | ✅ shipped |
-| **3 — Forward loop** | seal-before-kickoff → score-after-full-time for internationals; real calibration record (starts empty) | ✅ shipped |
-| **4 — Desktop + release** | Tauri 2 shell + frozen sidecar; **unsigned** DMG / MSI / EXE + `SHA256SUMS`; signing/notarization + signed auto-updater wired but **gated on secrets** | ✅ code shipped; unsigned build (macOS verified locally); signing gated |
-| **5 — AI Deep Read** | optional, local-first AI explanation over an evidence bundle; numeric whitelist, injection defenses, local-only fallback, CI red-team | ✅ shipped — **off by default; never owns a number** |
-| **7 — Fact & Coincidence engine** | the Commentator's Notebook: deterministic, source-backed facts labelled predictive / context / coincidence, sample-guarded, coincidences capped & quarantined, machine-checked "no fact touches a number" | ✅ shipped — **facts inform; they never change a forecast** |
-| **8 — Exact-score + Casual/Expert** | the exact-score distribution the 1X2 already implies, sealed as an additive `score_matrix` (grid + `8+` tail) with **machine-checked coherence** to the sealed probs & expected goals; Casual/Expert presentation over the same numbers | ✅ shipped — **the grid the sealed numbers imply, or no grid at all** |
-| **6+** | confirmed-lineup / BYOK data adapters, scorers & corners, cups & UEFA depth, hash-chained ledger | 🔭 planned |
+Golavo is useful today and nowhere near finished. A roadmap is a direction of travel,
+not a legally binding promise made to a spreadsheet.
 
-Full detail with entry/exit criteria and kill switches: [Roadmap](https://udhawan97.github.io/Golavo/roadmap/).
+| Phase | What landed | Status |
+|---|---|---|
+| **0 — Feasibility** | real ingest, one reproducible seal→score path, chronological evaluation, cited provenance | ✅ shipped |
+| **1–2 — Engine + leagues** | expanded evaluation harness; top-5 European club leagues accepted where seasons are complete | ✅ shipped — historical only |
+| **3 — Forward loop** | real international seal-before-kickoff → score/void-after-result workflow and calibration record | ✅ shipped |
+| **4 — Desktop** | Tauri shell, frozen sidecar, DMG/MSI/EXE build paths, checksums, gated updater | ✅ unsigned build |
+| **5 — AI Deep Read** | optional evidence-bounded narration with fail-closed guards | ✅ shipped — off by default |
+| **7 — Facts** | deterministic Commentator's Notebook and quarantined coincidences | ✅ shipped |
+| **8 — Exact scores** | coherent score matrix plus Casual/Expert presentation | ✅ shipped |
+| **Next** | confirmed-lineup/BYOK adapters, scorers, corners, cups, club forward loop, hash-chained ledger, signed release | 🔭 planned |
+
+Kill switches, entry criteria, and the less photogenic details live in the
+[full roadmap](https://udhawan97.github.io/Golavo/roadmap/).
 
 ## Contributing
 
-Issues and PRs welcome — start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Golavo's **code** is Apache-2.0; data packs carry their own licenses and manifests.
+Bug reports, model critiques, data-source audits, and focused pull requests are welcome.
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md). If a change touches a model, bring a
+chronological backtest. If it makes an accuracy claim, bring forward evidence.
+If it adds “guaranteed lock,” bring an eraser.
+
+Golavo code is Apache-2.0. Data packs carry their own licenses and must declare
+provenance explicitly. No source, no ship.
 
 ## License
 
-Golavo's code is licensed under the **Apache License 2.0** ([LICENSE](LICENSE)). Data packs are licensed separately; the Phase 0 martj42 pack is CC0-1.0.
+Golavo's code is available under the [Apache License 2.0](LICENSE). Data packs are
+licensed separately; the currently vendored international and openfootball packs are
+CC0-1.0. Attribution and field-level decisions live in [NOTICE](NOTICE).
 
 ---
+
+<p align="center">
+  If Golavo rescued you from a prediction thread beginning with
+  <em>“trust me, I watch a lot of football”</em>,
+  <a href="https://github.com/udhawan97/Golavo/stargazers">star the repo</a>.<br>
+  There is no telemetry, so stars are still the only applause the model can measure. ⭐
+</p>
+
+<p align="center">
+  <sub>Built local-first, audited in public, and permanently aware that football may ignore the spreadsheet.</sub>
+</p>
 
 <sub>Golavo is not affiliated with, endorsed by, or sponsored by FIFA, UEFA, any league, club, or competition. Competition names are used factually to identify matches. No official logos, emblems, mascots, trophy imagery, crests, or kit designs are used.</sub>

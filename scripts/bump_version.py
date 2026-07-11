@@ -31,6 +31,7 @@ SPOTS: list[tuple[str, str, int]] = [
     ("desktop/src-tauri/Cargo.lock", 'name = "golavo-desktop"\nversion = "{v}"', 1),
     ("desktop/package.json", '"version": "{v}"', 1),
     ("ui/package.json", '"version": "{v}"', 1),
+    ("docs-site/package.json", '"version": "{v}"', 1),
     ("core/pyproject.toml", 'version = "{v}"', 1),
     ("server/pyproject.toml", 'version = "{v}"', 1),
     ("core/golavo_core/__init__.py", '__version__ = "{v}"', 1),
