@@ -116,15 +116,24 @@ export interface ForecastArtifact {
 }
 
 // ---- Evaluation summary -----------------------------------------------------
+// Mirrors the canonical EvalSummary owned by the backend. Reliability bins are
+// confidence-vs-accuracy (the basis of ECE): each bin holds the model's mean
+// top-probability and the observed accuracy of that top pick, with a Wilson
+// interval. Empty bins carry nulls.
 
 export interface ReliabilityBin {
-  p_mid: number;
-  n: number;
-  observed_rate: number;
+  lower: number;
+  upper: number;
+  count: number;
+  mean_confidence: number | null;
+  accuracy: number | null;
+  wilson_low: number | null;
+  wilson_high: number | null;
 }
 
 export interface FoldModel {
-  model_id: string;
+  family: ModelFamily;
+  params?: Record<string, unknown>;
   log_loss: number;
   brier: number;
   ece?: number;
@@ -134,12 +143,18 @@ export interface FoldModel {
 
 export interface Fold {
   fold_id: string;
+  competition?: string;
+  window_start?: string;
+  window_end?: string;
+  training_cutoff_utc?: string;
   n_matches: number;
   models: FoldModel[];
 }
 
 export interface EvalSummary {
   schema_version: typeof SCHEMA_VERSION;
+  primary_metric?: string;
+  sources?: (Snapshot | null)[];
   folds: Fold[];
 }
 
