@@ -1,0 +1,150 @@
+<svg width="1280" height="800" viewBox="0 0 1280 800" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Golavo forecast lifecycle and integrity chain</title>
+  <desc id="desc">Immutable pinned snapshots are normalized into a typed match table and evaluated chronologically. A chosen model produces a forecast that must pass pre-kickoff gates before a sealed artifact is written. A strictly newer snapshot later produces a separate scored or voided successor and updates the forward calibration record without changing the original seal.</desc>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="1256" y2="776" gradientUnits="userSpaceOnUse"><stop stop-color="#171B1A"/><stop offset=".55" stop-color="#101312"/><stop offset="1" stop-color="#0B0E0D"/></linearGradient>
+    <linearGradient id="before" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#173128"/><stop offset="1" stop-color="#151918"/></linearGradient>
+    <linearGradient id="after" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2D2418"/><stop offset="1" stop-color="#151918"/></linearGradient>
+    <pattern id="pitch" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M0 24H48M24 0V48" stroke="#0B6E4F" stroke-opacity=".045"/></pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="9" stdDeviation="11" flood-color="#000" flood-opacity=".3"/></filter>
+    <marker id="gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#C9A227"/></marker>
+    <marker id="green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#2F9E73"/></marker>
+    <marker id="orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#D9622B"/></marker>
+    <style>
+      .title{font:600 31px ui-serif,Georgia,"Times New Roman",serif;fill:#F4EFE6;letter-spacing:-.4px}.subtitle{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.eye{font:700 11px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:1.5px}.head{font:650 16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.body{font:400 11.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.small{font:450 10px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#928E83}.mono{font:500 10.5px ui-monospace,"SF Mono",Menlo,monospace;fill:#BCB8AC}.chip{font:600 10px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.card{fill:#171B1A;stroke:#343A37;stroke-width:1.25}.edge{stroke:#C9A227;stroke-width:1.7;fill:none;marker-end:url(#gold)}
+    </style>
+  </defs>
+  <rect width="1280" height="800" rx="28" fill="#090B0A"/>
+  <rect x="24" y="24" width="1232" height="752" rx="24" fill="url(#bg)" stroke="#2C302E" stroke-width="1.25"/>
+  <rect x="24" y="24" width="1232" height="752" rx="24" fill="url(#pitch)"/>
+  <text x="640" y="72" text-anchor="middle" class="title">From Snapshot to Score — Without Rewriting History</text>
+  <text x="640" y="99" text-anchor="middle" class="subtitle">The forecast is a sealed claim. The result is a new artifact. Calibration is the public memory of both.</text>
+
+  <rect x="48" y="128" width="760" height="430" rx="20" fill="#0B6E4F" fill-opacity=".025" stroke="#2F9E73" stroke-opacity=".42" stroke-dasharray="7 7"/>
+  <rect x="72" y="114" width="209" height="28" rx="14" fill="#101312" stroke="#2F9E73" stroke-opacity=".5"/>
+  <text x="176.5" y="132" text-anchor="middle" class="eye" fill="#7DD8B6">BEFORE KICKOFF</text>
+  <rect x="832" y="128" width="400" height="430" rx="20" fill="#D9622B" fill-opacity=".02" stroke="#D9622B" stroke-opacity=".42" stroke-dasharray="7 7"/>
+  <rect x="856" y="114" width="218" height="28" rx="14" fill="#101312" stroke="#D9622B" stroke-opacity=".5"/>
+  <text x="965" y="132" text-anchor="middle" class="eye" fill="#E88A57">AFTER FULL TIME</text>
+
+  <!-- Source snapshot -->
+  <g transform="translate(72 168)">
+    <rect width="190" height="142" rx="15" class="card"/>
+    <circle cx="28" cy="29" r="11" fill="#0B6E4F" fill-opacity=".2"/><path d="M23 29h10M28 24v10" stroke="#7DD8B6" stroke-width="1.5"/>
+    <text x="48" y="33" class="eye" fill="#7DD8B6">SNAPSHOT A</text>
+    <text x="20" y="61" class="head">Pinned source pack</text>
+    <text x="20" y="83" class="body">raw files · CC0 license</text>
+    <text x="20" y="102" class="body">upstream ref · retrieval time</text>
+    <rect x="20" y="114" width="150" height="18" rx="9" fill="#0B6E4F" fill-opacity=".11"/><text x="95" y="127" text-anchor="middle" class="mono">manifest + sha256</text>
+  </g>
+
+  <!-- Typed table -->
+  <g transform="translate(302 168)">
+    <rect width="190" height="142" rx="15" class="card"/>
+    <circle cx="28" cy="29" r="11" fill="#6082B8" fill-opacity=".2"/><path d="M22 24h12v10H22zM22 28h12M26 24v10" stroke="#9AB3DD" stroke-width="1.2"/>
+    <text x="48" y="33" class="eye" fill="#9AB3DD">NORMALIZE</text>
+    <text x="20" y="61" class="head">Typed match table</text>
+    <text x="20" y="83" class="body">canonical teams · UTC dates</text>
+    <text x="20" y="102" class="body">scheduled vs completed state</text>
+    <rect x="20" y="114" width="150" height="18" rx="9" fill="#6082B8" fill-opacity=".11"/><text x="95" y="127" text-anchor="middle" class="mono">Parquet · deterministic</text>
+  </g>
+
+  <!-- Models -->
+  <g transform="translate(532 168)">
+    <rect width="244" height="142" rx="15" fill="url(#before)" stroke="#C9A227" stroke-opacity=".55" stroke-width="1.25" filter="url(#shadow)"/>
+    <circle cx="28" cy="29" r="11" fill="#C9A227" fill-opacity=".19"/><path d="M22 31l4-5 4 3 4-6" stroke="#E7C34E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="48" y="33" class="eye" fill="#E7C34E">MODEL CANDIDATES</text>
+    <text x="20" y="61" class="head">Chronological fit</text>
+    <text x="20" y="83" class="body">climatology · Elo · Poisson</text>
+    <text x="20" y="102" class="body">Dixon–Coles · bivariate Poisson</text>
+    <rect x="20" y="114" width="204" height="18" rx="9" fill="#C9A227" fill-opacity=".11"/><text x="122" y="127" text-anchor="middle" class="mono">log loss first · no champion yet</text>
+  </g>
+
+  <path d="M262 239H296" class="edge"/>
+  <path d="M492 239H526" class="edge"/>
+
+  <!-- Seal gate -->
+  <g transform="translate(302 350)">
+    <rect width="244" height="176" rx="15" fill="#171B1A" stroke="#BC002D" stroke-opacity=".5" stroke-width="1.25"/>
+    <text x="20" y="30" class="eye" fill="#FF8A9B">SEAL GATE · FAIL CLOSED</text>
+    <path d="M20 45H224" stroke="#343A37"/>
+    <circle cx="27" cy="67" r="7" fill="#0B6E4F" fill-opacity=".25"/><path d="M24 67l2 2 4-5" stroke="#7DD8B6" stroke-width="1.3"/><text x="42" y="71" class="body">data state ≤ seal time</text>
+    <circle cx="27" cy="94" r="7" fill="#0B6E4F" fill-opacity=".25"/><path d="M24 94l2 2 4-5" stroke="#7DD8B6" stroke-width="1.3"/><text x="42" y="98" class="body">seal time &lt; kickoff proxy</text>
+    <circle cx="27" cy="121" r="7" fill="#0B6E4F" fill-opacity=".25"/><path d="M24 121l2 2 4-5" stroke="#7DD8B6" stroke-width="1.3"/><text x="42" y="125" class="body">training cutoff blocks leakage</text>
+    <circle cx="27" cy="148" r="7" fill="#0B6E4F" fill-opacity=".25"/><path d="M24 148l2 2 4-5" stroke="#7DD8B6" stroke-width="1.3"/><text x="42" y="152" class="body">fixture is still scheduled</text>
+  </g>
+
+  <!-- sealed artifact -->
+  <g transform="translate(576 350)" filter="url(#shadow)">
+    <rect width="200" height="176" rx="15" fill="url(#before)" stroke="#C9A227" stroke-opacity=".62" stroke-width="1.25"/>
+    <path d="M20 18h13l8 8v18H20zM33 18v8h8" stroke="#E7C34E" stroke-width="1.5"/>
+    <text x="53" y="33" class="eye" fill="#E7C34E">SEALED</text>
+    <text x="20" y="65" class="head">ForecastArtifact</text>
+    <text x="20" y="87" class="body">W / D / L probabilities</text>
+    <text x="20" y="106" class="body">exact-score matrix + tail</text>
+    <text x="20" y="125" class="body">model · seed · params hash</text>
+    <text x="20" y="144" class="body">snapshot ids · cutoff time</text>
+    <rect x="20" y="151" width="160" height="16" rx="8" fill="#C9A227" fill-opacity=".12"/><text x="100" y="163" text-anchor="middle" class="mono">payload_sha256</text>
+  </g>
+  <path d="M654 310V338C654 344 650 347 642 347H552" class="edge"/>
+  <path d="M546 438H570" class="edge"/>
+
+  <!-- newer snapshot -->
+  <g transform="translate(856 168)">
+    <rect width="168" height="142" rx="15" class="card"/>
+    <circle cx="28" cy="29" r="11" fill="#D9622B" fill-opacity=".18"/><path d="M23 29h10M28 24v10" stroke="#E88A57" stroke-width="1.5"/>
+    <text x="48" y="33" class="eye" fill="#E88A57">SNAPSHOT B</text>
+    <text x="20" y="61" class="head">Strictly newer</text>
+    <text x="20" y="83" class="body">same fixture now has</text>
+    <text x="20" y="102" class="body">a result — or a reason</text>
+    <rect x="20" y="114" width="128" height="18" rx="9" fill="#D9622B" fill-opacity=".1"/><text x="84" y="127" text-anchor="middle" class="mono">new manifest</text>
+  </g>
+
+  <!-- successor -->
+  <g transform="translate(1052 168)">
+    <rect width="156" height="142" rx="15" fill="url(#after)" stroke="#D9622B" stroke-opacity=".58" stroke-width="1.25"/>
+    <text x="18" y="31" class="eye" fill="#E88A57">SUCCESSOR</text>
+    <text x="18" y="61" class="head">Scored or voided</text>
+    <text x="18" y="83" class="body">outcome · log loss</text>
+    <text x="18" y="102" class="body">Brier · void reason</text>
+    <rect x="18" y="114" width="120" height="18" rx="9" fill="#D9622B" fill-opacity=".1"/><text x="78" y="127" text-anchor="middle" class="mono">supersedes seal</text>
+  </g>
+  <path d="M1024 239H1046" stroke="#D9622B" stroke-width="1.7" fill="none" marker-end="url(#orange)"/>
+  <path d="M776 438C824 438 815 239 850 239" stroke="#C9A227" stroke-width="1.7" fill="none" marker-end="url(#gold)"/>
+
+  <!-- Calibration -->
+  <g transform="translate(856 350)">
+    <rect width="352" height="176" rx="15" fill="url(#after)" stroke="#6082B8" stroke-opacity=".58" stroke-width="1.25"/>
+    <text x="20" y="31" class="eye" fill="#9AB3DD">FORWARD CALIBRATION RECORD</text>
+    <text x="20" y="62" class="head">The public memory of real seals</text>
+    <g transform="translate(20 80)">
+      <rect width="92" height="47" rx="9" fill="#6082B8" fill-opacity=".1" stroke="#6082B8" stroke-opacity=".32"/><text x="46" y="19" text-anchor="middle" class="chip" fill="#9AB3DD">COUNTS</text><text x="46" y="35" text-anchor="middle" class="small">sealed · resolved</text>
+      <rect x="102" width="102" height="47" rx="9" fill="#6082B8" fill-opacity=".1" stroke="#6082B8" stroke-opacity=".32"/><text x="153" y="19" text-anchor="middle" class="chip" fill="#9AB3DD">QUALITY</text><text x="153" y="35" text-anchor="middle" class="small">log loss · Brier</text>
+      <rect x="214" width="98" height="47" rx="9" fill="#6082B8" fill-opacity=".1" stroke="#6082B8" stroke-opacity=".32"/><text x="263" y="19" text-anchor="middle" class="chip" fill="#9AB3DD">RELIABILITY</text><text x="263" y="35" text-anchor="middle" class="small">empirical bins</text>
+    </g>
+    <text x="20" y="154" class="body">Never mixed with historical backtest folds.</text>
+  </g>
+  <path d="M1130 310V344" stroke="#D9622B" stroke-width="1.7" fill="none" marker-end="url(#orange)"/>
+
+  <!-- integrity footer -->
+  <g transform="translate(48 594)">
+    <rect width="1184" height="146" rx="18" fill="#121514" stroke="#343A37" stroke-width="1.25"/>
+    <text x="22" y="31" class="eye" fill="#E7C34E">THE INTEGRITY CHAIN</text>
+    <path d="M22 45H1162" stroke="#343A37"/>
+    <g transform="translate(22 62)">
+      <circle cx="12" cy="12" r="12" fill="#0B6E4F" fill-opacity=".2"/><text x="12" y="16" text-anchor="middle" class="eye" fill="#7DD8B6">1</text>
+      <text x="34" y="9" class="chip" fill="#F4EFE6">SOURCE BYTES</text><text x="34" y="27" class="small">manifests verify every retained pack byte</text>
+      <path d="M232 12H266" stroke="#C9A227" marker-end="url(#gold)"/>
+      <circle cx="290" cy="12" r="12" fill="#C9A227" fill-opacity=".18"/><text x="290" y="16" text-anchor="middle" class="eye" fill="#E7C34E">2</text>
+      <text x="312" y="9" class="chip" fill="#F4EFE6">MODEL STATE</text><text x="312" y="27" class="small">family, version, seed, params and cutoff are pinned</text>
+      <path d="M534 12H568" stroke="#C9A227" marker-end="url(#gold)"/>
+      <circle cx="592" cy="12" r="12" fill="#C9A227" fill-opacity=".18"/><text x="592" y="16" text-anchor="middle" class="eye" fill="#E7C34E">3</text>
+      <text x="614" y="9" class="chip" fill="#F4EFE6">SEALED CLAIM</text><text x="614" y="27" class="small">canonical JSON carries its own payload digest</text>
+      <path d="M824 12H858" stroke="#C9A227" marker-end="url(#gold)"/>
+      <circle cx="882" cy="12" r="12" fill="#D9622B" fill-opacity=".18"/><text x="882" y="16" text-anchor="middle" class="eye" fill="#E88A57">4</text>
+      <text x="904" y="9" class="chip" fill="#F4EFE6">PUBLICATION</text><text x="904" y="27" class="small">git history proves the seal existed pre-kickoff</text>
+    </g>
+    <rect x="22" y="108" width="1140" height="22" rx="11" fill="#BC002D" fill-opacity=".075" stroke="#BC002D" stroke-opacity=".3"/>
+    <text x="592" y="123" text-anchor="middle" class="mono" fill="#FF8A9B">THE ORIGINAL SEAL IS NEVER UPDATED IN PLACE · A RESOLUTION IS ALWAYS A NEW, LINKED ARTIFACT</text>
+  </g>
+</svg>
