@@ -47,13 +47,22 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
 
 <script>
   class GolavoSearch extends HTMLElement {
+    private listeners?: AbortController;
+    private focusFrame?: number;
+    private focusTimer?: number;
+
     connectedCallback() {
+      // Starlight may reconnect custom elements during client navigation. Abort
+      // any prior registration so one shortcut press can only reach one search.
+      this.listeners?.abort();
+      const listeners = new AbortController();
+      this.listeners = listeners;
+      const { signal } = listeners;
       const root = this;
       const toggle = root.querySelector<HTMLButtonElement>(".gv-search__toggle")!;
-      const field = root.querySelector<HTMLDivElement>(".gv-search__field")!;
       const closeBtn = root.querySelector<HTMLButtonElement>(".gv-search__close")!;
       const mount = root.querySelector<HTMLDivElement>("#starlight__search")!;
-      let mounted = false;
+      let mounted = mount.childElementCount > 0;
 
       const inputEl = () => root.querySelector<HTMLInputElement>("input");
 
@@ -63,8 +72,8 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
         toggle.setAttribute("aria-expanded", "true");
         ensurePagefind();
         // Focus once the pill has room; input may be created async by Pagefind.
-        requestAnimationFrame(() => inputEl()?.focus());
-        setTimeout(() => inputEl()?.focus(), 60);
+        this.focusFrame = requestAnimationFrame(() => inputEl()?.focus());
+        this.focusTimer = window.setTimeout(() => inputEl()?.focus(), 60);
       };
 
       const close = () => {
@@ -74,18 +83,20 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
         inputEl()?.blur();
       };
 
-      toggle.addEventListener("click", () =>
-        root.classList.contains("is-open") ? close() : open(),
+      toggle.addEventListener(
+        "click",
+        () => root.classList.contains("is-open") ? close() : open(),
+        { signal },
       );
       closeBtn.addEventListener("click", () => {
         close();
         toggle.focus();
-      });
+      }, { signal });
 
       // Click outside collapses.
       document.addEventListener("click", (e) => {
         if (root.classList.contains("is-open") && !root.contains(e.target as Node)) close();
-      });
+      }, { signal });
 
       // Esc collapses (and returns focus to the button).
       root.addEventListener("keydown", (e) => {
@@ -93,7 +104,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
           close();
           toggle.focus();
         }
-      });
+      }, { signal });
 
       // ⌘K / Ctrl+K toggles from anywhere.
       window.addEventListener("keydown", (e) => {
@@ -101,7 +112,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
           e.preventDefault();
           root.classList.contains("is-open") ? close() : open();
         }
-      });
+      }, { signal });
 
       // Platform-correct shortcut hint.
       const mod = root.querySelector<HTMLElement>("kbd[data-mod]");
@@ -135,12 +146,21 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
             resetStyles: false,
             translations: { placeholder: "Search the docs…" },
           });
-          requestAnimationFrame(() => inputEl()?.focus());
+          root.focusFrame = requestAnimationFrame(() => inputEl()?.focus());
         } catch {
           mount.innerHTML =
             '<div class="gv-search__devnote">Search is unavailable right now.</div>';
         }
       }
+    }
+
+    disconnectedCallback() {
+      this.listeners?.abort();
+      this.listeners = undefined;
+      if (this.focusFrame !== undefined) cancelAnimationFrame(this.focusFrame);
+      if (this.focusTimer !== undefined) window.clearTimeout(this.focusTimer);
+      this.focusFrame = undefined;
+      this.focusTimer = undefined;
     }
   }
   if (!customElements.get("golavo-search")) {

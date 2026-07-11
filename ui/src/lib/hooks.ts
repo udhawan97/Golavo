@@ -61,7 +61,9 @@ export function useTheme(): [Theme, () => void] {
   return [theme, toggle];
 }
 
-/** Copy-to-clipboard with a transient "copied" flag keyed by an id. */
+/** Copy-to-clipboard with a transient "copied" flag keyed by an id.
+ *  Failed writes deliberately leave the flag unset: the UI must never claim a
+ *  value reached the clipboard when the browser rejected it. */
 export function useCopy(resetMs = 1400): [string | null, (text: string, id: string) => void] {
   const [copied, setCopied] = useState<string | null>(null);
   const timer = useRef<number | undefined>(undefined);
@@ -71,11 +73,13 @@ export function useCopy(resetMs = 1400): [string | null, (text: string, id: stri
       window.clearTimeout(timer.current);
       timer.current = window.setTimeout(() => setCopied(null), resetMs);
     };
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(text).then(done, () => done());
-    } else {
-      done();
-    }
+    setCopied(null);
+    if (!navigator.clipboard?.writeText) return;
+    navigator.clipboard.writeText(text).then(done, () => {
+      // Clipboard access can be denied by permissions or an insecure context.
+      // Keep the neutral copy affordance instead of reporting false success.
+      setCopied(null);
+    });
   }, [resetMs]);
   useEffect(() => () => window.clearTimeout(timer.current), []);
   return [copied, copy];
