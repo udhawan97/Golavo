@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate every committed sample ForecastArtifact against schema 0.1.0."""
+"""Validate every committed sample ForecastArtifact against the frozen contract."""
 
 from __future__ import annotations
 

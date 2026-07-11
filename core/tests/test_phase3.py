@@ -23,6 +23,7 @@ from golavo_core.artifacts import (
     validate_artifact,
     void_forecast,
 )
+from golavo_core.calibration import calibration_summary
 from golavo_core.ingest import load_matches, snapshot_descriptor
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -242,3 +243,94 @@ def test_scored_artifacts_cannot_be_voided(tmp_path: Path) -> None:
             voided_at_utc="2026-07-11T00:00:00Z",
             reason="results are final; voiding a scored artifact must fail",
         )
+
+
+def _build_ledger(ledger: Path) -> tuple[Path, Path]:
+    """One scored chain (France–Morocco) and one voided chain (Spain–Belgium)."""
+    sealed_scored = _seal_t0(ledger)
+    score_forecast(artifact_path=sealed_scored, newer_pack_dir=T1_PACK, output_dir=ledger)
+    sealed_voided = _seal_t0(
+        ledger,
+        date="2026-07-10",
+        home_team="Spain",
+        away_team="Belgium",
+        horizon="T-72h",
+    )
+    void_forecast(
+        artifact_path=sealed_voided,
+        output_dir=ledger,
+        voided_at_utc="2026-07-10T19:35:25Z",
+        reason="postponement drill: fixture never completed in the newer snapshot",
+    )
+    return sealed_scored, sealed_voided
+
+
+def test_calibration_summary_aggregates_real_chains(tmp_path: Path) -> None:
+    ledger = tmp_path / "ledger"
+    sealed_scored, sealed_voided = _build_ledger(ledger)
+    summary = calibration_summary(ledger)
+    assert summary == calibration_summary(ledger)  # pure function of the ledger
+    assert summary["schema_version"] == "0.2.0"
+    assert summary["counts"] == {
+        "sealed": 2,
+        "abstained": 0,
+        "scored": 1,
+        "voided": 1,
+        "pending": 0,
+    }
+
+    chains = summary["chains"]
+    assert [c["match"]["kickoff_utc"] for c in chains] == [
+        "2026-07-09T00:00:00Z",
+        "2026-07-10T00:00:00Z",
+    ]
+    scored_chain, voided_chain = chains
+    sealed = json.loads(sealed_scored.read_bytes())
+    assert scored_chain["sealed_artifact_id"] == sealed["artifact_id"]
+    assert scored_chain["probs"] == sealed["forecast"]["probs"]
+    assert scored_chain["resolution"]["status"] == "scored"
+    assert scored_chain["resolution"]["actual"]["outcome"] == "home"
+    metrics = scored_chain["resolution"]["metrics"]
+    assert summary["running"] == {
+        "n_scored": 1,
+        "log_loss": metrics["log_loss"],
+        "brier": metrics["brier"],
+        "prob_assigned_to_outcome": metrics["prob_assigned_to_outcome"],
+    }
+    assert sum(bin["count"] for bin in summary["reliability_bins"]) == 1
+    assert voided_chain["sealed_artifact_id"] == json.loads(sealed_voided.read_bytes())[
+        "artifact_id"
+    ]
+    assert voided_chain["resolution"]["status"] == "voided"
+    assert voided_chain["resolution"]["actual"] is None
+    assert "postponement drill" in voided_chain["resolution"]["void_reason"]
+
+
+def test_calibration_summary_of_an_empty_or_missing_ledger(tmp_path: Path) -> None:
+    summary = calibration_summary(tmp_path / "does-not-exist")
+    assert summary["counts"] == {
+        "sealed": 0,
+        "abstained": 0,
+        "scored": 0,
+        "voided": 0,
+        "pending": 0,
+    }
+    assert summary["running"] is None
+    assert summary["chains"] == []
+    assert summary["reliability_bins"] == []
+
+
+def test_calibration_rejects_a_double_resolved_seal(tmp_path: Path) -> None:
+    ledger = tmp_path / "ledger"
+    sealed = _seal_t0(ledger)
+    score_forecast(artifact_path=sealed, newer_pack_dir=T1_PACK, output_dir=ledger)
+    # void_forecast only sees the seal file, so the conflict must surface at
+    # ledger aggregation: one seal never resolves twice.
+    void_forecast(
+        artifact_path=sealed,
+        output_dir=ledger,
+        voided_at_utc="2026-07-11T00:00:00Z",
+        reason="conflicting resolution for the integrity test",
+    )
+    with pytest.raises(ValueError, match="resolves exactly once"):
+        calibration_summary(ledger)

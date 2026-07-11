@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
 import sys
 from pathlib import Path
 from typing import Any
@@ -13,8 +14,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "core"))
 
 from golavo_core.artifacts import canonical_bytes, payload_sha256, validate_artifact  # noqa: E402
+from golavo_core.calibration import calibration_summary  # noqa: E402
 
 OUTPUT_DIR = REPO_ROOT / "data/fixtures/sample_artifacts"
+UI_CALIBRATION_MOCK = REPO_ROOT / "ui/src/mocks/calibration.json"
+UI_FORECAST_MOCKS = REPO_ROOT / "ui/src/mocks/forecasts"
 SNAPSHOT_HASH = hashlib.sha256(
     (REPO_ROOT / "data/fixtures/martj42-results-subset.csv").read_bytes()
 ).hexdigest()
@@ -27,7 +31,7 @@ def _base(index: int, status: str) -> dict[str, Any]:
     away = round(1.0 - home - draw, 6)
     abstained = status == "abstained"
     return {
-        "schema_version": "0.1.0",
+        "schema_version": "0.2.0",
         "artifact_id": "fa_pending00",
         "status": status,
         "supersedes": None,
@@ -76,7 +80,7 @@ def _base(index: int, status: str) -> dict[str, Any]:
         },
         "provenance": {
             "created_at_utc": f"2030-01-{index + 9:02d}T18:00:00Z",
-            "generator": "golavo-sample-fixtures/0.1.0",
+            "generator": "golavo-sample-fixtures/0.2.0",
             "deterministic": True,
             "payload_sha256": "0" * 64,
         },
@@ -124,12 +128,35 @@ def main() -> None:
         }
         artifact["provenance"]["created_at_utc"] = "2030-02-01T00:00:00Z"
         artifacts[index] = _finalize(artifact)
-    artifacts[7]["supersedes"] = artifacts[0]["artifact_id"]
+    # The voided sample supersedes its OWN sealed root (a seal resolves exactly
+    # once, so it must not share a root with a scored sample).
+    artifacts[7]["supersedes"] = artifacts[2]["artifact_id"]
+    artifacts[7]["void_reason"] = "synthetic postponement fixture (contract example)"
+    artifacts[7]["provenance"]["created_at_utc"] = "2030-02-01T00:00:00Z"
     artifacts[7] = _finalize(artifacts[7])
     for artifact in artifacts:
         path = OUTPUT_DIR / f"{artifact['artifact_id']}.json"
         path.write_bytes(canonical_bytes(artifact) + b"\n")
     print(f"wrote {len(artifacts)} sample artifacts to {OUTPUT_DIR}")
+
+    # The UI's bundled mocks are these same fixtures, so every artifact id the
+    # mock calibration record references resolves in the mock forecast list.
+    UI_FORECAST_MOCKS.mkdir(parents=True, exist_ok=True)
+    for old in UI_FORECAST_MOCKS.glob("fa_*.json"):
+        old.unlink()
+    for artifact in artifacts:
+        path = UI_FORECAST_MOCKS / f"{artifact['artifact_id']}.json"
+        path.write_bytes(canonical_bytes(artifact) + b"\n")
+    print(f"wrote {len(artifacts)} forecast mocks to {UI_FORECAST_MOCKS}")
+
+    # Keep the UI's bundled calibration mock in lockstep with the fixtures by
+    # running the REAL aggregator over the synthetic sample ledger.
+    label = "data/fixtures/sample_artifacts (synthetic contract fixtures — not forecasts)"
+    mock = calibration_summary(OUTPUT_DIR, generated_from=label)
+    UI_CALIBRATION_MOCK.write_text(
+        json.dumps(mock, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    print(f"wrote {UI_CALIBRATION_MOCK}")
 
 
 if __name__ == "__main__":

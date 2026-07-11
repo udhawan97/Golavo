@@ -1,4 +1,4 @@
-"""Read-only FastAPI surface for Golavo Phase 0 artifacts."""
+"""Read-only FastAPI surface for Golavo forecast artifacts."""
 
 from __future__ import annotations
 
@@ -8,13 +8,21 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from golavo_core.calibration import calibration_summary
 
 from golavo_server import __version__
 
 app = FastAPI(title="Golavo", version=__version__)
+# Loopback dev origins only: 5173 is the primary Vite port, 5174 the secondary
+# dev instance (e.g. a live-API session next to the mock one).
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
+    allow_origins=[
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://127.0.0.1:5174",
+        "http://localhost:5174",
+    ],
     allow_credentials=False,
     allow_methods=["GET"],
     allow_headers=["*"],
@@ -66,6 +74,17 @@ def get_forecast(artifact_id: str) -> dict[str, Any]:
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")
     return _read_json(path)
+
+
+@app.get("/api/v1/calibration")
+def calibration() -> dict[str, Any]:
+    """Serve the real sealed→scored calibration record (never eval backtests).
+
+    The record is recomputed from the immutable ledger on each request, so it
+    can never drift from the artifacts it summarizes. An empty ledger yields an
+    honest zero-count record rather than an error.
+    """
+    return calibration_summary(ARTIFACT_DIR)
 
 
 @app.get("/api/v1/eval/summary")

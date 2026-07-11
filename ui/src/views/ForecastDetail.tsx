@@ -77,7 +77,7 @@ function Detail({ artifact, supersededBy }: { artifact: ForecastArtifact; supers
             ? <AbstainPanel reason={forecast.abstain_reason} />
             : (
               <>
-                {status === "voided" && <VoidBanner />}
+                {status === "voided" && <VoidBanner reason={artifact.void_reason ?? null} />}
                 <ForecastReadPanel artifact={artifact} showBar={status !== "scored"} dim={status === "voided"} />
                 {status === "scored" && <ScoredPanel artifact={artifact} />}
               </>
@@ -156,13 +156,14 @@ function AbstainPanel({ reason }: { reason: string | null }) {
   );
 }
 
-function VoidBanner() {
+function VoidBanner({ reason }: { reason: string | null }) {
   return (
     <div className="callout callout--void">
       <VoidIcon size={18} />
       <div>
         <div className="callout__title">Voided — excluded from scoring</div>
         The sealed forecast is preserved below for audit, but this fixture is not scored.
+        {reason && <> Recorded reason: <i>{reason}</i>.</>}
       </div>
     </div>
   );

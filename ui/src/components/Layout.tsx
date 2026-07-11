@@ -5,8 +5,9 @@ import { MoonIcon, SunIcon } from "./icons";
 
 type Theme = "dark" | "light";
 
-function isActive(path: string, section: "matchday" | "eval"): boolean {
+function isActive(path: string, section: "matchday" | "ledger" | "eval"): boolean {
   if (section === "eval") return path.startsWith("/eval");
+  if (section === "ledger") return path.startsWith("/ledger");
   return path === "/" || path.startsWith("/forecast");
 }
 
@@ -36,6 +37,7 @@ export function Layout({
           </a>
           <nav className="nav" aria-label="Primary">
             <a href="#/" aria-current={isActive(path, "matchday") ? "page" : undefined}>Matchday</a>
+            <a href="#/ledger" aria-current={isActive(path, "ledger") ? "page" : undefined}>Ledger</a>
             <a href="#/eval" aria-current={isActive(path, "eval") ? "page" : undefined}>Evaluation</a>
           </nav>
           <button

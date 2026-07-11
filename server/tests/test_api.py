@@ -56,3 +56,52 @@ def test_eval_summary_merges_all_league_folds() -> None:
         "English Premier League", "La Liga", "Bundesliga", "Serie A", "Ligue 1",
     } <= competitions
     assert len(combined["sources"]) == len(server_main.EVAL_SUMMARY_PATHS)
+
+
+def test_calibration_route_recomputes_from_the_ledger(monkeypatch, tmp_path) -> None:
+    from golavo_core.artifacts import score_forecast, seal_forecast
+
+    ledger = tmp_path / "ledger"
+    sealed = seal_forecast(
+        pack_dir=REPO_ROOT / "packs/martj42-internationals-273c731492df",
+        output_dir=ledger,
+        date="2026-07-09",
+        home_team="France",
+        away_team="Morocco",
+        as_of_utc="2026-07-08T00:00:00Z",
+    )
+    score_forecast(
+        artifact_path=sealed,
+        newer_pack_dir=REPO_ROOT / "packs/martj42-internationals",
+        output_dir=ledger,
+    )
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", ledger)
+    client = TestClient(server_main.app)
+
+    body = client.get("/api/v1/calibration").json()
+    assert body["schema_version"] == "0.2.0"
+    assert body["primary_metric"] == "log_loss"
+    assert body["counts"] == {
+        "sealed": 1,
+        "abstained": 0,
+        "scored": 1,
+        "voided": 0,
+        "pending": 0,
+    }
+    assert body["running"]["n_scored"] == 1
+    chain = body["chains"][0]
+    assert chain["match"]["home_team"] == "France"
+    assert chain["resolution"]["status"] == "scored"
+    assert chain["resolution"]["actual"] == {
+        "home_goals": 2,
+        "away_goals": 0,
+        "outcome": "home",
+    }
+
+
+def test_calibration_route_is_honest_about_an_empty_ledger(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", tmp_path / "empty")
+    body = TestClient(server_main.app).get("/api/v1/calibration").json()
+    assert body["counts"]["sealed"] == 0
+    assert body["running"] is None
+    assert body["chains"] == []

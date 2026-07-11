@@ -5,6 +5,7 @@ import { EmptyState } from "./components/states";
 import { MatchdayList } from "./views/MatchdayList";
 import { ForecastDetail } from "./views/ForecastDetail";
 import { EvaluationSummary } from "./views/EvaluationSummary";
+import { PredictionLedger } from "./views/PredictionLedger";
 
 export default function App() {
   const [path] = useHashRoute();
@@ -27,6 +28,8 @@ function Route({ path }: { path: string }) {
   if (forecast) return <ForecastDetail id={decodeURIComponent(forecast[1])} />;
 
   if (path === "/eval") return <EvaluationSummary />;
+
+  if (path === "/ledger") return <PredictionLedger />;
 
   return (
     <EmptyState title="Page not found">

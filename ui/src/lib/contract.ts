@@ -1,14 +1,19 @@
 /**
- * Golavo frozen contract v0.1.0 — TypeScript mirror.
+ * Golavo frozen contract v0.2.0 — TypeScript mirror.
  *
  * These types mirror the canonical schema owned by the Codex lane EXACTLY.
  * The UI consumes artifacts as-is. If a view needs something the contract
  * cannot express, that gap is documented in ui/HANDOFF.md — never invented
  * here. A 64-hex sha256 and a 40-hex git sha are plain strings at the type
  * level; validated at runtime by lib/api.ts guards.
+ *
+ * v0.2.0 is additive over v0.1.0 (optional snapshot upstream_committed_at_utc,
+ * optional void_reason, CalibrationSummary), so the UI accepts both.
  */
 
-export const SCHEMA_VERSION = "0.1.0" as const;
+export const SCHEMA_VERSION = "0.2.0" as const;
+export const ACCEPTED_SCHEMA_VERSIONS = ["0.1.0", "0.2.0"] as const;
+export type SchemaVersion = (typeof ACCEPTED_SCHEMA_VERSIONS)[number];
 
 export type ArtifactStatus = "sealed" | "scored" | "abstained" | "voided";
 export type Horizon = "T-72h" | "T-24h" | "T-60m";
@@ -72,6 +77,9 @@ export interface Snapshot {
   url: string;
   upstream_ref: string;
   retrieved_at_utc: string;
+  /** When the pinned upstream ref was committed — the data-state anchor that
+   *  seal validity is checked against (v0.2.0; absent on older packs). */
+  upstream_committed_at_utc?: string | null;
   sha256: string; // 64 hex
   license: string;
 }
@@ -103,10 +111,12 @@ export interface EvaluationBlock {
 }
 
 export interface ForecastArtifact {
-  schema_version: typeof SCHEMA_VERSION;
+  schema_version: SchemaVersion;
   artifact_id: string; // "fa_..."
   status: ArtifactStatus;
   supersedes: string | null;
+  /** Recorded when a seal is voided (postponement/abandonment) — v0.2.0. */
+  void_reason?: string | null;
   match: MatchInfo;
   forecast: ForecastBlock;
   model: ModelBlock;
@@ -152,10 +162,57 @@ export interface Fold {
 }
 
 export interface EvalSummary {
-  schema_version: typeof SCHEMA_VERSION;
+  schema_version: SchemaVersion;
   primary_metric?: string;
   sources?: (Snapshot | null)[];
   folds: Fold[];
+}
+
+// ---- Calibration record (v0.2.0) --------------------------------------------
+// The REAL prediction ledger: sealed→scored/voided chains aggregated from
+// immutable artifacts. Entirely distinct from the backtest eval folds above.
+
+export type ResolutionStatus = "pending" | "scored" | "voided";
+
+export interface ChainResolution {
+  status: ResolutionStatus;
+  artifact_id: string | null;
+  resolved_at_utc: string | null;
+  actual: EvaluationBlock["actual"] | null;
+  metrics: EvaluationBlock["metrics"] | null;
+  void_reason: string | null;
+}
+
+export interface CalibrationChain {
+  sealed_artifact_id: string;
+  match: MatchInfo;
+  sealed_at_utc: string;
+  horizon: Horizon;
+  family: ModelFamily;
+  abstained: boolean;
+  probs: Probs | null;
+  resolution: ChainResolution;
+}
+
+export interface CalibrationSummary {
+  schema_version: SchemaVersion;
+  generated_from: string;
+  primary_metric: "log_loss";
+  counts: {
+    sealed: number;
+    abstained: number;
+    scored: number;
+    voided: number;
+    pending: number;
+  };
+  running: {
+    n_scored: number;
+    log_loss: number;
+    brier: number;
+    prob_assigned_to_outcome: number;
+  } | null;
+  reliability_bins: ReliabilityBin[];
+  chains: CalibrationChain[];
 }
 
 // ---- Display metadata (UI-side only — not part of the wire contract) --------

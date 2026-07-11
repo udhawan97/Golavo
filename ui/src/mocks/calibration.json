@@ -1,0 +1,275 @@
+{
+  "chains": [
+    {
+      "abstained": false,
+      "family": "poisson_independent",
+      "horizon": "T-24h",
+      "match": {
+        "away_team": "Example Away 1",
+        "city": "Example City",
+        "competition": "Synthetic contract fixture",
+        "country": "Example Country",
+        "home_team": "Example Home 1",
+        "kickoff_utc": "2030-01-11T18:00:00Z",
+        "match_id": "m_synthetic_01",
+        "neutral_venue": false,
+        "stage": "Acceptance test"
+      },
+      "probs": {
+        "away": 0.26,
+        "draw": 0.27,
+        "home": 0.47
+      },
+      "resolution": {
+        "actual": {
+          "away_goals": 1,
+          "home_goals": 2,
+          "outcome": "home"
+        },
+        "artifact_id": "fa_13876f8e7f3c904eb731",
+        "metrics": {
+          "brier": 0.3758,
+          "log_loss": 0.693147,
+          "prob_assigned_to_outcome": 0.5
+        },
+        "resolved_at_utc": "2030-02-01T00:00:00Z",
+        "status": "scored",
+        "void_reason": null
+      },
+      "sealed_artifact_id": "fa_d261c2f828520f4d82f1",
+      "sealed_at_utc": "2030-01-10T18:00:00Z"
+    },
+    {
+      "abstained": false,
+      "family": "dixon_coles",
+      "horizon": "T-60m",
+      "match": {
+        "away_team": "Example Away 2",
+        "city": "Example City",
+        "competition": "Synthetic contract fixture",
+        "country": "Example Country",
+        "home_team": "Example Home 2",
+        "kickoff_utc": "2030-01-12T18:00:00Z",
+        "match_id": "m_synthetic_02",
+        "neutral_venue": true,
+        "stage": "Acceptance test"
+      },
+      "probs": {
+        "away": 0.25,
+        "draw": 0.27,
+        "home": 0.48
+      },
+      "resolution": {
+        "actual": {
+          "away_goals": 1,
+          "home_goals": 0,
+          "outcome": "away"
+        },
+        "artifact_id": "fa_d9725b47330bd6612ce9",
+        "metrics": {
+          "brier": 0.9414,
+          "log_loss": 1.514128,
+          "prob_assigned_to_outcome": 0.22
+        },
+        "resolved_at_utc": "2030-02-01T00:00:00Z",
+        "status": "scored",
+        "void_reason": null
+      },
+      "sealed_artifact_id": "fa_b616e07ee8faf712ff03",
+      "sealed_at_utc": "2030-01-11T18:00:00Z"
+    },
+    {
+      "abstained": false,
+      "family": "elo_ordlogit",
+      "horizon": "T-72h",
+      "match": {
+        "away_team": "Example Away 3",
+        "city": "Example City",
+        "competition": "Synthetic contract fixture",
+        "country": "Example Country",
+        "home_team": "Example Home 3",
+        "kickoff_utc": "2030-01-13T18:00:00Z",
+        "match_id": "m_synthetic_03",
+        "neutral_venue": false,
+        "stage": "Acceptance test"
+      },
+      "probs": {
+        "away": 0.24,
+        "draw": 0.27,
+        "home": 0.49
+      },
+      "resolution": {
+        "actual": null,
+        "artifact_id": "fa_4faac52785d28d499b64",
+        "metrics": null,
+        "resolved_at_utc": "2030-02-01T00:00:00Z",
+        "status": "voided",
+        "void_reason": "synthetic postponement fixture (contract example)"
+      },
+      "sealed_artifact_id": "fa_78e2b91e3417f42f4269",
+      "sealed_at_utc": "2030-01-12T18:00:00Z"
+    },
+    {
+      "abstained": true,
+      "family": "elo_ordlogit",
+      "horizon": "T-72h",
+      "match": {
+        "away_team": "Example Away 6",
+        "city": "Example City",
+        "competition": "Synthetic contract fixture",
+        "country": "Example Country",
+        "home_team": "Example Home 6",
+        "kickoff_utc": "2030-01-16T18:00:00Z",
+        "match_id": "m_synthetic_06",
+        "neutral_venue": true,
+        "stage": "Acceptance test"
+      },
+      "probs": null,
+      "resolution": {
+        "actual": null,
+        "artifact_id": null,
+        "metrics": null,
+        "resolved_at_utc": null,
+        "status": "pending",
+        "void_reason": null
+      },
+      "sealed_artifact_id": "fa_aa574e9cb7fda75d5a3f",
+      "sealed_at_utc": "2030-01-15T18:00:00Z"
+    },
+    {
+      "abstained": true,
+      "family": "poisson_independent",
+      "horizon": "T-24h",
+      "match": {
+        "away_team": "Example Away 7",
+        "city": "Example City",
+        "competition": "Synthetic contract fixture",
+        "country": "Example Country",
+        "home_team": "Example Home 7",
+        "kickoff_utc": "2030-01-17T18:00:00Z",
+        "match_id": "m_synthetic_07",
+        "neutral_venue": false,
+        "stage": "Acceptance test"
+      },
+      "probs": null,
+      "resolution": {
+        "actual": null,
+        "artifact_id": null,
+        "metrics": null,
+        "resolved_at_utc": null,
+        "status": "pending",
+        "void_reason": null
+      },
+      "sealed_artifact_id": "fa_be978bcb4a1c25e59374",
+      "sealed_at_utc": "2030-01-16T18:00:00Z"
+    }
+  ],
+  "counts": {
+    "abstained": 2,
+    "pending": 2,
+    "scored": 2,
+    "sealed": 3,
+    "voided": 1
+  },
+  "generated_from": "data/fixtures/sample_artifacts (synthetic contract fixtures \u2014 not forecasts)",
+  "primary_metric": "log_loss",
+  "reliability_bins": [
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.0,
+      "mean_confidence": null,
+      "upper": 0.1,
+      "wilson_high": null,
+      "wilson_low": null
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.1,
+      "mean_confidence": null,
+      "upper": 0.2,
+      "wilson_high": null,
+      "wilson_low": null
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.2,
+      "mean_confidence": null,
+      "upper": 0.3,
+      "wilson_high": null,
+      "wilson_low": null
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.3,
+      "mean_confidence": null,
+      "upper": 0.4,
+      "wilson_high": null,
+      "wilson_low": null
+    },
+    {
+      "accuracy": 0.5,
+      "count": 2,
+      "lower": 0.4,
+      "mean_confidence": 0.475,
+      "upper": 0.5,
+      "wilson_high": 0.905469,
+      "wilson_low": 0.094531
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.5,
+      "mean_confidence": null,
+      "upper": 0.6,
+      "wilson_high": null,
+      "wilson_low": null
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.6,
+      "mean_confidence": null,
+      "upper": 0.7,
+      "wilson_high": null,
+      "wilson_low": null
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.7,
+      "mean_confidence": null,
+      "upper": 0.8,
+      "wilson_high": null,
+      "wilson_low": null
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.8,
+      "mean_confidence": null,
+      "upper": 0.9,
+      "wilson_high": null,
+      "wilson_low": null
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.9,
+      "mean_confidence": null,
+      "upper": 1.0,
+      "wilson_high": null,
+      "wilson_low": null
+    }
+  ],
+  "running": {
+    "brier": 0.6436,
+    "log_loss": 1.070658,
+    "n_scored": 2,
+    "prob_assigned_to_outcome": 0.36
+  },
+  "schema_version": "0.2.0"
+}
