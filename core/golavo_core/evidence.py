@@ -102,6 +102,140 @@ def _sources(artifact: dict[str, Any]) -> list[dict[str, Any]]:
     return sources
 
 
+def _ranked_scorelines(
+    score_matrix: dict[str, Any], top: int = 3
+) -> list[tuple[int, int, float]]:
+    """The top ``top`` most likely concrete scorelines as (home, away, probability).
+
+    Tie-break matches the sealed most_likely: highest probability, then fewest home
+    goals, then fewest away goals — so rank 1 is exactly score_matrix.most_likely.
+    """
+    grid = score_matrix["grid"]
+    cells = [
+        (float(grid[i][j]), i, j) for i in range(len(grid)) for j in range(len(grid[i]))
+    ]
+    cells.sort(key=lambda cell: (-cell[0], cell[1], cell[2]))
+    return [(i, j, prob) for prob, i, j in cells[:top]]
+
+
+def _score_numbers(
+    match: dict[str, Any], score_matrix: dict[str, Any], data_sources: list[str]
+) -> list[dict[str, Any]]:
+    """Whitelist entries derived from the exact-score matrix (Phase 8, additive).
+
+    Every scoreline probability the AI may cite is enumerated here with an id, a
+    citable engine source, and the exact display string. The engine owns these
+    numbers; the AI cannot invent a scoreline or a percentage that is not listed.
+    """
+    home, away = match["home_team"], match["away_team"]
+    numbers: list[dict[str, Any]] = []
+    for rank, (goals_home, goals_away, prob) in enumerate(_ranked_scorelines(score_matrix), 1):
+        numbers.append(
+            {
+                "id": f"score_r{rank}_home",
+                "value": int(goals_home),
+                "unit": "count",
+                "label": f"Most likely scoreline #{rank}: goals for {home}",
+                "display": str(int(goals_home)),
+                "source_ids": data_sources,
+            }
+        )
+        numbers.append(
+            {
+                "id": f"score_r{rank}_away",
+                "value": int(goals_away),
+                "unit": "count",
+                "label": f"Most likely scoreline #{rank}: goals for {away}",
+                "display": str(int(goals_away)),
+                "source_ids": data_sources,
+            }
+        )
+        numbers.append(
+            {
+                "id": f"score_r{rank}_prob",
+                "value": _pct(prob),
+                "unit": "percent",
+                "label": f"Probability of {home} {goals_home}–{goals_away} {away}",
+                "display": _fmt_pct(prob),
+                "source_ids": data_sources,
+            }
+        )
+    numbers.append(
+        {
+            "id": "score_grid_max",
+            "value": int(score_matrix["max_goals"]),
+            "unit": "count",
+            "label": "Exact-score grid cap (goals per side)",
+            "display": str(int(score_matrix["max_goals"])),
+            "source_ids": data_sources,
+        }
+    )
+    numbers.append(
+        {
+            "id": "score_tail_prob",
+            "value": _pct(score_matrix["tail"]["probability"]),
+            "unit": "percent",
+            "label": f"Probability a side scores more than {int(score_matrix['max_goals'])}",
+            "display": _fmt_pct(score_matrix["tail"]["probability"]),
+            "source_ids": data_sources,
+        }
+    )
+    return numbers
+
+
+def _score_facts(
+    match: dict[str, Any], score_matrix: dict[str, Any], data_sources: list[str]
+) -> list[dict[str, Any]]:
+    """Deterministic scoreline facts, each bound to its whitelisted numbers."""
+    home, away = match["home_team"], match["away_team"]
+    ranked = _ranked_scorelines(score_matrix)
+    h1, a1, p1 = ranked[0]
+    facts: list[dict[str, Any]] = [
+        {
+            "fact_id": "most_likely_scoreline",
+            "text": (
+                f"The single most likely exact score is {home} {h1}–{a1} {away}, "
+                f"at {_fmt_pct(p1)}."
+            ),
+            "kind": "forecast",
+            "source_ids": data_sources,
+            "number_refs": ["score_r1_home", "score_r1_away", "score_r1_prob"],
+        }
+    ]
+    if len(ranked) >= 3:
+        h2, a2, p2 = ranked[1]
+        h3, a3, p3 = ranked[2]
+        facts.append(
+            {
+                "fact_id": "scoreline_shortlist",
+                "text": (
+                    f"Most likely exact scores: {home} {h1}–{a1} {away} ({_fmt_pct(p1)}), "
+                    f"{h2}–{a2} ({_fmt_pct(p2)}), {h3}–{a3} ({_fmt_pct(p3)})."
+                ),
+                "kind": "forecast",
+                "source_ids": data_sources,
+                "number_refs": [
+                    "score_r1_home", "score_r1_away", "score_r1_prob",
+                    "score_r2_home", "score_r2_away", "score_r2_prob",
+                    "score_r3_home", "score_r3_away", "score_r3_prob",
+                ],
+            }
+        )
+    facts.append(
+        {
+            "fact_id": "scoreline_tail",
+            "text": (
+                f"Beyond {int(score_matrix['max_goals'])} goals for either side lies "
+                f"{_fmt_pct(score_matrix['tail']['probability'])} of the exact-score distribution."
+            ),
+            "kind": "forecast",
+            "source_ids": data_sources,
+            "number_refs": ["score_grid_max", "score_tail_prob"],
+        }
+    )
+    return facts
+
+
 def _allowed_numbers(
     artifact: dict[str, Any], engine_id: str, snapshot_ids: list[str]
 ) -> list[dict[str, Any]]:
@@ -149,6 +283,9 @@ def _allowed_numbers(
                 "source_ids": data_sources,
             }
         )
+    score_matrix = forecast.get("score_matrix")
+    if score_matrix is not None:
+        numbers.extend(_score_numbers(match, score_matrix, data_sources))
     evaluation = artifact.get("evaluation")
     if evaluation is not None:
         actual = evaluation["actual"]
@@ -263,6 +400,10 @@ def _facts(
                 "number_refs": ["xg_home", "xg_away"],
             }
         )
+
+    score_matrix = forecast.get("score_matrix")
+    if score_matrix is not None:
+        facts.extend(_score_facts(match, score_matrix, data_sources))
 
     facts.append(
         {
