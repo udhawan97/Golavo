@@ -9,17 +9,16 @@ numbers; the guard's job is to guarantee the AI never adds one.
 
 Design notes
 ------------
-* Formatting tolerance is one-directional and safe: a token matches an allowed
-  value only if it equals that value rounded to 0–6 decimals. The model may
-  round DOWN in precision ("45.2%" for 45.234) but can never invent precision or
-  a different value. There is no additive slop, so "46%" never matches "45%".
+* Served narration is stricter than the low-level numeric helpers: every digit
+  token must exactly equal the trusted ``display`` of a number referenced by
+  that same claim. This binds value, unit, and citation together.
 * A tiny set of fixed domain tokens ("1X2", the horizon labels) are constant
   terminology, not numeric claims, and are removed before scanning. They are
   exact string literals, so this cannot smuggle an arbitrary number.
-* Spelled-out numbers from "three" upward (plus multipliers and large-unit
-  words) are also checked. "one"/"two"/"first"/"second"/"half" are deliberately
-  NOT treated as numeric claims — they are ordinary prose — but their digit
-  forms ("1", "2") are still scanned. This bound is documented, not hidden.
+* Narration rejects spelled-out numeric language and fraction notation outright;
+  the fixed prompt requires exact digit-form displays instead. The legacy
+  ``extract_numbers`` helper retains its bounded prose-oriented parsing for
+  quote grounding, but it is not the served-narration gate.
 """
 
 from __future__ import annotations
@@ -77,7 +76,10 @@ _BETTING_RE = re.compile(r"(?i)(?<![a-z])(" + "|".join(_BETTING_TERMS) + r")(?![
 # Digit-form numbers: an optional sign, at least one digit, optional thousands
 # groups, optional decimal fraction, optional trailing percent. The lookbehind
 # stops mid-token matches and splits scorelines like "2-0" into 2 and 0.
-_NUMBER_RE = re.compile(r"(?<![\w.])[-+]?\d[\d,]*(?:\.\d+)?%?")
+_NUMBER_RE = re.compile(
+    r"(?<![\w.])[-+]?(?:\d[\d,]*(?:\.\d+)?|\.\d+)(?:[eE][-+]?\d+)?%?"
+)
+_FRACTION_RE = re.compile(r"\d+\s*[⁄/]\s*\d+")
 
 _WORD_UNITS = {
     "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
@@ -96,6 +98,27 @@ _WORD_UNITS = {
 }
 _WORD_ALTERNATION = "|".join(sorted(_WORD_UNITS, key=len, reverse=True))
 _WORD_RE = re.compile(r"(?i)(?<![a-z])(" + _WORD_ALTERNATION + r")(?![a-z])")
+_NARRATION_NUMBER_WORDS = (
+    *tuple(_WORD_UNITS),
+    "zero",
+    "one",
+    "two",
+    "first",
+    "second",
+    "half",
+    "halves",
+    "quarter",
+    "quarters",
+    "couple",
+    "pair",
+    "both",
+)
+_NARRATION_WORD_ALTERNATION = "|".join(
+    sorted(_NARRATION_NUMBER_WORDS, key=len, reverse=True)
+)
+_NARRATION_WORD_RE = re.compile(
+    r"(?i)(?<![a-z])(" + _NARRATION_WORD_ALTERNATION + r")(?![a-z])"
+)
 
 
 def _strip_terminology(text: str) -> str:
@@ -108,7 +131,14 @@ def _strip_terminology(text: str) -> str:
 def _strip_literals(text: str, literals: Iterable[str]) -> str:
     stripped = text
     # Longest first so "Schalke 04" is removed before a bare "04" would be.
-    unique = {str(item) for item in literals if str(item).strip()}
+    # A pure numeric literal (for example a stage named "2026") must never
+    # become a laundering primitive. Trusted identifiers are stripped only when
+    # they contain an alphabetic component, as real team/source labels do.
+    unique = {
+        str(item)
+        for item in literals
+        if str(item).strip() and any(char.isalpha() for char in str(item))
+    }
     for literal in sorted(unique, key=len, reverse=True):
         stripped = re.sub(re.escape(literal), " ", stripped, flags=re.IGNORECASE)
     return stripped
@@ -139,6 +169,47 @@ def extract_numbers(text: str, safe_literals: Iterable[str] = ()) -> list[float]
     for match in _WORD_RE.finditer(cleaned):
         values.append(float(_WORD_UNITS[match.group().lower()]))
     return values
+
+
+def unsupported_number_tokens(
+    text: str,
+    allowed_numbers: list[dict[str, object]],
+    number_refs: Iterable[str],
+    safe_literals: Iterable[str] = (),
+) -> list[str]:
+    """Return numeric tokens that are not exact displays of referenced numbers.
+
+    Model text is less trustworthy than the structured ``number_refs`` field.
+    A token therefore passes only when it exactly equals the trusted ``display``
+    string of a number referenced by that same claim. This binds value, unit,
+    and citation together: ``1.2%`` cannot borrow an allowed ``1.2`` goals value,
+    and ``45.0`` cannot borrow an allowed ``45.0%`` probability.
+
+    Spelled-out numbers and fraction notation are rejected outright. The fixed
+    prompt already requires exact digit-form displays, and failing closed avoids
+    ambiguous compound forms such as ``twenty-five`` or ``three hundred``.
+    """
+    normalized = unicodedata.normalize("NFKC", text)
+    cleaned = _strip_literals(_strip_terminology(normalized), safe_literals)
+    refs = set(number_refs)
+    allowed_displays = {
+        unicodedata.normalize("NFKC", str(item["display"]))
+        for item in allowed_numbers
+        if str(item.get("id")) in refs
+    }
+
+    unsupported = [match.group(0) for match in _FRACTION_RE.finditer(cleaned)]
+    unsupported.extend(match.group(0) for match in _NARRATION_WORD_RE.finditer(cleaned))
+    for match in _NUMBER_RE.finditer(cleaned):
+        token = match.group(0)
+        # Numbers inside a fraction are already rejected as one semantic token.
+        if any(start <= match.start() < end for start, end in (
+            fraction.span() for fraction in _FRACTION_RE.finditer(cleaned)
+        )):
+            continue
+        if token not in allowed_displays:
+            unsupported.append(token)
+    return unsupported
 
 
 def number_matches(token: float, allowed: float) -> bool:

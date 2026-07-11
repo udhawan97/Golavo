@@ -214,6 +214,58 @@ def test_unknown_provider_is_rejected() -> None:
         resolve_provider({"provider": "definitely-not-a-provider"})
 
 
+def test_cloud_base_url_override_is_rejected_to_protect_byok_key() -> None:
+    with pytest.raises(ValueError, match="only for local"):
+        resolve_provider({"provider": "openai", "base_url": "https://example.test/v1"})
+
+
+def test_local_provider_is_restricted_to_loopback() -> None:
+    assert resolve_provider(
+        {"provider": "llama_server", "base_url": "http://127.0.0.1:8080/v1"}
+    ).base_url == "http://127.0.0.1:8080/v1"
+    with pytest.raises(ValueError, match="loopback"):
+        resolve_provider({"provider": "llama_server", "base_url": "http://example.test/v1"})
+
+
+@pytest.mark.parametrize("timeout", [0, 121, float("nan"), "not-a-number"])
+def test_provider_timeout_is_bounded(timeout) -> None:
+    with pytest.raises(ValueError, match="between 1 and 120"):
+        resolve_provider({"provider": "ollama", "timeout_s": timeout})
+
+
+def test_cache_separates_prompt_context_and_candidate_fact_mode(bundle: dict) -> None:
+    cache = NarrationCache()
+    calls = {"n": 0}
+
+    def transport(system: str, user: str) -> str:
+        calls["n"] += 1
+        return json.dumps(_valid_response(bundle))
+
+    generate_narration(
+        bundle, _cfg(untrusted_context="context A"), transport=transport, cache=cache
+    )
+    generate_narration(
+        bundle, _cfg(untrusted_context="context B"), transport=transport, cache=cache
+    )
+    generate_narration(
+        bundle,
+        _cfg(untrusted_context="context B", allow_candidate_facts=True),
+        transport=transport,
+        cache=cache,
+    )
+    assert calls["n"] == 3
+
+
+@pytest.mark.parametrize("error", [TypeError("bad shape"), IndexError("empty response")])
+def test_malformed_provider_payload_fails_closed(bundle: dict, error: Exception) -> None:
+    def malformed(system: str, user: str) -> str:
+        raise error
+
+    env = generate_narration(bundle, _cfg(), transport=malformed, cache=NarrationCache())
+    assert env.status == "local_only"
+    assert env.narration is None
+
+
 def test_api_key_only_ever_lives_in_the_request_header() -> None:
     cfg = _cfg(provider="openai")
     key = "sk-secret-value-1234567890"
