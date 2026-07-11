@@ -58,3 +58,8 @@ def evidence_bundle_schema_path() -> Path:
 def narration_schema_path() -> Path:
     """Absolute path to the AiNarration JSON schema (Phase 5, additive)."""
     return resource("docs", "contracts", "ai_narration.schema.json")
+
+
+def facts_schema_path() -> Path:
+    """Absolute path to the CommentatorsNotebook JSON schema (Phase 7, additive)."""
+    return resource("docs", "contracts", "facts.schema.json")

@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/facts-0.1.0.schema.json",
+  "title": "CommentatorsNotebook",
+  "description": "A deterministic, source-backed set of match facts computed by a fixed, pre-registered family of templates over the vendored CC0 packs. Every fact is labelled predictive / context / coincidence, carries its sample, denominator, base rate, source ids and freshness, and is sample-guarded. Coincidences are capped and quarantined. This is a read model derived from the match history; it NEVER carries or alters a forecast probability, calibration metric, or any engine number — see docs/handoff/codex-phase7.md for the machine-checked no-write invariant.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "notebook_id",
+    "registry_version",
+    "as_of_utc",
+    "match",
+    "source_ids",
+    "family_size",
+    "coincidence_cap",
+    "facts",
+    "suppressed",
+    "generator"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "notebook_id": {"type": "string", "pattern": "^nb_[a-z0-9]{8,}$"},
+    "registry_version": {"type": "string", "minLength": 1},
+    "as_of_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The deterministic information horizon. Facts use only completed matches with a kickoff at or before this instant, so the notebook never sees data the sealed forecast could not."
+    },
+    "match": {"$ref": "#/$defs/Match"},
+    "source_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1},
+      "description": "The vendored snapshot ids every fact is cited against."
+    },
+    "family_size": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The number of pre-registered fact hypotheses this fixed template family evaluates for one match. This is the multiple-comparison exposure bound: it is a constant of the release, not a function of the data. Adding a template raises it and is a logged, reviewed change."
+    },
+    "coincidence_cap": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The maximum number of coincidence-labelled facts the notebook will ever emit for one match."
+    },
+    "facts": {"type": "array", "items": {"$ref": "#/$defs/Fact"}},
+    "suppressed": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/Suppression"},
+      "description": "An audit trail of candidate facts a guardrail removed, so the guard is visible rather than silent."
+    },
+    "generator": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "Match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home_team", "away_team", "competition", "neutral_venue"],
+      "properties": {
+        "home_team": {"type": "string", "minLength": 1},
+        "away_team": {"type": "string", "minLength": 1},
+        "competition": {"type": "string", "minLength": 1},
+        "neutral_venue": {"type": "boolean"},
+        "kickoff_utc": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "Fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One computed statement. `text` is number-disciplined: every digit that appears in it is one of `numbers` (so the fact can be folded into the AI evidence whitelist verbatim). Dates live only in `date_range`, never in `text`.",
+      "required": [
+        "id",
+        "version",
+        "label",
+        "scope",
+        "subject",
+        "text",
+        "values",
+        "numbers",
+        "sample_n",
+        "denominator",
+        "base_rate",
+        "date_range",
+        "source_ids",
+        "freshness",
+        "min_sample",
+        "specificity"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "The registered template id this fact came from."
+        },
+        "version": {"type": "string", "minLength": 1},
+        "label": {"enum": ["predictive", "context", "coincidence"]},
+        "scope": {"enum": ["team", "head_to_head", "match", "competition"]},
+        "subject": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1},
+        "values": {
+          "type": "object",
+          "description": "Structured numeric/string values behind the text, for machine consumers and the UI."
+        },
+        "numbers": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/Number"},
+          "description": "Every number that appears verbatim in `text`, with the exact display string. Drives the AI numeric whitelist when the fact is folded into an evidence bundle."
+        },
+        "sample_n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The number of observations the statement is built on (streak length, meetings, matches in the base-rate window)."
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The base-rate denominator; equals sample_n for non-rate facts. A rate fact is suppressed unless denominator >= min_sample."
+        },
+        "base_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "The base rate as a fraction in [0,1] for rate facts, else null."
+        },
+        "date_range": {
+          "type": "array",
+          "items": {"type": "string", "format": "date"},
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "The [first, last] calendar date of the matches behind the fact."
+        },
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "freshness": {"$ref": "#/$defs/Freshness"},
+        "min_sample": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The template's minimum-sample threshold that this fact passed."
+        },
+        "specificity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "A deterministic rarity score used ONLY to rank facts (especially to cap coincidences). It is not a p-value and carries no claim of statistical significance."
+        }
+      }
+    },
+    "Number": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "value", "unit", "display"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "value": {"type": "number"},
+        "unit": {"enum": ["percent", "goals", "count"]},
+        "display": {"type": "string", "minLength": 1}
+      }
+    },
+    "Freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["as_of_utc", "last_event_utc", "age_days", "stale", "staleness_days"],
+      "properties": {
+        "as_of_utc": {"type": "string", "format": "date-time"},
+        "last_event_utc": {"type": "string", "format": "date-time"},
+        "age_days": {"type": "integer", "minimum": 0},
+        "stale": {"type": "boolean"},
+        "staleness_days": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "The staleness window applied; null means the template does not go stale (structural facts)."
+        }
+      }
+    },
+    "Suppression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "reason"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "subject": {"type": "string"},
+        "reason": {"enum": ["min_sample", "stale", "no_source", "coincidence_cap", "empty"]},
+        "detail": {"type": "string"}
+      }
+    }
+  }
+}

@@ -413,11 +413,24 @@ def _features(artifact: dict[str, Any], engine_id: str) -> list[dict[str, Any]]:
     return features
 
 
-def build_evidence_bundle(artifact: dict[str, Any]) -> dict[str, Any]:
+def build_evidence_bundle(
+    artifact: dict[str, Any],
+    *,
+    extra_facts: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
+    extra_numbers: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
+) -> dict[str, Any]:
     """Build the deterministic evidence bundle for a sealed/scored/abstained artifact.
 
     Pure function of the artifact. Voided artifacts are accepted (the AI can
     explain the void), abstained artifacts yield an empty allowed_numbers list.
+
+    ``extra_facts`` / ``extra_numbers`` (Phase 7, additive) append deterministic
+    Commentator's Notebook facts and their whitelisted numbers. They are ONLY
+    ever appended — engine facts and numbers keep their exact position and value,
+    so folding notebook context can never change a forecast number. With the
+    defaults (empty) the output is byte-for-byte identical to the pre-Phase-7
+    bundle. Notebook number ids are namespaced ``nb_*``; a collision with an
+    engine number id is rejected.
     """
     if artifact.get("status") not in {"sealed", "scored", "abstained", "voided"}:
         raise ValueError(f"cannot build an evidence bundle from status {artifact.get('status')!r}")
@@ -453,8 +466,11 @@ def build_evidence_bundle(artifact: dict[str, Any]) -> dict[str, Any]:
             "abstained": bool(forecast["abstained"]),
             "leading_outcome": leading,
         },
-        "allowed_numbers": _allowed_numbers(artifact, engine_id, snapshot_ids),
-        "facts": _facts(artifact, engine_id, snapshot_ids, leading),
+        "allowed_numbers": [
+            *_allowed_numbers(artifact, engine_id, snapshot_ids),
+            *extra_numbers,
+        ],
+        "facts": [*_facts(artifact, engine_id, snapshot_ids, leading), *extra_facts],
         "features": _features(artifact, engine_id),
         "sources": _sources(artifact),
         "data_quality": {
@@ -484,7 +500,10 @@ def validate_evidence_bundle(bundle: dict[str, Any]) -> None:
     Draft202012Validator(_schema(), format_checker=FormatChecker()).validate(bundle)
 
     source_ids = {source["source_id"] for source in bundle["sources"]}
-    number_ids = {number["id"] for number in bundle["allowed_numbers"]}
+    number_id_list = [number["id"] for number in bundle["allowed_numbers"]]
+    number_ids = set(number_id_list)
+    if len(number_id_list) != len(number_ids):
+        raise ValueError("allowed_numbers contains duplicate ids (folded facts collided)")
 
     def _check_sources(holder: dict[str, Any], where: str) -> None:
         for sid in holder["source_ids"]:
