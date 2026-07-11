@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "name": "results.csv",
+      "sha256": "b58624fd0b746f8fb1542633c4a4914a3f396394eb2ab71424c263825f5cded6"
+    },
+    {
+      "name": "former_names.csv",
+      "sha256": "2d57f59a3ac13b24c2fcf208ced5a38710529d122da38929838d0980b002677e"
+    },
+    {
+      "name": "CC0-1.0.txt",
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-11T04:36:22Z",
+  "source_id": "martj42-international-results",
+  "upstream_committed_at_utc": "2026-07-07T23:01:13Z",
+  "upstream_ref": "273c731492df960cae363317e8e78e2be4b4b7cf",
+  "url": "https://github.com/martj42/international_results"
+}

@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from golavo_core.artifacts import score_forecast, seal_forecast
+from golavo_core.artifacts import score_forecast, seal_forecast, void_forecast
 from golavo_core.evaluation import write_club_evaluation, write_evaluation
 from golavo_core.ingest import write_parquet
 from golavo_core.models import FAMILIES
@@ -58,6 +58,14 @@ def _parser() -> argparse.ArgumentParser:
     score.add_argument("--artifact", type=Path, required=True)
     score.add_argument("--newer-pack", type=Path, required=True)
     score.add_argument("--output-dir", type=Path, default=REPO_ROOT / "data/artifacts")
+
+    void = commands.add_parser(
+        "void", help="void a seal (postponed/abandoned fixture) with a recorded reason"
+    )
+    void.add_argument("--artifact", type=Path, required=True)
+    void.add_argument("--voided-at", required=True, dest="voided_at_utc")
+    void.add_argument("--reason", required=True)
+    void.add_argument("--output-dir", type=Path, default=REPO_ROOT / "data/artifacts")
     return parser
 
 
@@ -102,6 +110,15 @@ def main() -> None:
                 artifact_path=args.artifact,
                 newer_pack_dir=args.newer_pack,
                 output_dir=args.output_dir,
+            )
+        )
+    elif args.command == "void":
+        print(
+            void_forecast(
+                artifact_path=args.artifact,
+                output_dir=args.output_dir,
+                voided_at_utc=args.voided_at_utc,
+                reason=args.reason,
             )
         )
 

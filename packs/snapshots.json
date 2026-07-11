@@ -1,0 +1,61 @@
+{
+  "schema_version": "0.1.0",
+  "snapshots": [
+    {
+      "manifest_sha256": "e76b38473d1401134cc00955dd64cc7174f38bfaa600dbb1dbc3d4a349611319",
+      "pack": "packs/martj42-internationals",
+      "retrieved_at_utc": "2026-07-10T19:35:25Z",
+      "source_id": "martj42-international-results",
+      "upstream_committed_at_utc": null,
+      "upstream_ref": "ddd7249ac0c24c44a5bd8c3af1bf16fc971bebe9"
+    },
+    {
+      "manifest_sha256": "a8ed7e752c8c804eb1c488954bd5e5b0c8b84c0c6bc4ccc30402886d3684386d",
+      "pack": "packs/openfootball-deu-bl",
+      "retrieved_at_utc": "2026-07-11T03:26:42Z",
+      "source_id": "openfootball-football-json",
+      "upstream_committed_at_utc": null,
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
+    },
+    {
+      "manifest_sha256": "ea2fb985a65b75c5fbd6159119353439bea4281b60f2453cea07a212a7fa51df",
+      "pack": "packs/openfootball-eng-pl",
+      "retrieved_at_utc": "2026-07-11T02:36:12Z",
+      "source_id": "openfootball-football-json",
+      "upstream_committed_at_utc": null,
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
+    },
+    {
+      "manifest_sha256": "e4bc86471ed0d0e5b247422e08e60552e54b9a374bb9dac0a7739d8908c900a5",
+      "pack": "packs/openfootball-esp-ll",
+      "retrieved_at_utc": "2026-07-11T03:26:38Z",
+      "source_id": "openfootball-football-json",
+      "upstream_committed_at_utc": null,
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
+    },
+    {
+      "manifest_sha256": "e9b64998f2f6cd3aba7a502b209ad68f03f4cb5ec544e6e55c2461323997ed1c",
+      "pack": "packs/openfootball-fra-l1",
+      "retrieved_at_utc": "2026-07-11T03:26:49Z",
+      "source_id": "openfootball-football-json",
+      "upstream_committed_at_utc": null,
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
+    },
+    {
+      "manifest_sha256": "c339da0ad5feeb22972f3453761a11943f0f40ed0710197e72942e9dede92e83",
+      "pack": "packs/openfootball-ita-sa",
+      "retrieved_at_utc": "2026-07-11T03:26:46Z",
+      "source_id": "openfootball-football-json",
+      "upstream_committed_at_utc": null,
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
+    },
+    {
+      "manifest_sha256": "6053477001b887b69d97ce7ff89ec4d55f34b0e1b0513b29d22fe26a7fc39899",
+      "pack": "packs/martj42-internationals-273c731492df",
+      "retrieved_at_utc": "2026-07-11T04:36:22Z",
+      "source_id": "martj42-international-results",
+      "upstream_committed_at_utc": "2026-07-07T23:01:13Z",
+      "upstream_ref": "273c731492df960cae363317e8e78e2be4b4b7cf"
+    }
+  ]
+}

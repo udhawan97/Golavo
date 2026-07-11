@@ -39,7 +39,7 @@ def snapshot_descriptor(pack_dir: Path) -> dict[str, str]:
     manifest = validate_pack(pack_dir)
     manifest_bytes = (pack_dir / "manifest.json").read_bytes()
     upstream_ref = str(manifest["upstream_ref"])
-    return {
+    descriptor = {
         "snapshot_id": f"sp_{upstream_ref[:12]}",
         "source_id": str(manifest["source_id"]),
         "url": str(manifest["url"]),
@@ -48,6 +48,20 @@ def snapshot_descriptor(pack_dir: Path) -> dict[str, str]:
         "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
         "license": str(manifest["license"]),
     }
+    if manifest.get("upstream_committed_at_utc"):
+        descriptor["upstream_committed_at_utc"] = str(manifest["upstream_committed_at_utc"])
+    return descriptor
+
+
+def snapshot_anchor_utc(descriptor: dict[str, Any]) -> str:
+    """Return the time this snapshot's data state verifiably existed.
+
+    The upstream commit time of the pinned ref is the honest anchor: the data
+    state was public from that moment, independent of when we fetched it. Packs
+    built before the anchor existed fall back to our own retrieval time, which
+    is strictly later and therefore never overstates availability.
+    """
+    return str(descriptor.get("upstream_committed_at_utc") or descriptor["retrieved_at_utc"])
 
 
 def _canonicalize_former_names(matches: pd.DataFrame, former_names_path: Path) -> pd.DataFrame:

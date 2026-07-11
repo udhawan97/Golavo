@@ -8,6 +8,7 @@ from .openfootball import canonical_team, load_openfootball_table
 from .snapshot import (
     assert_no_future_rows,
     load_match_table,
+    snapshot_anchor_utc,
     snapshot_descriptor,
     training_rows,
     validate_pack,
@@ -29,6 +30,7 @@ __all__ = [
     "load_match_table",
     "load_matches",
     "load_openfootball_table",
+    "snapshot_anchor_utc",
     "snapshot_descriptor",
     "training_rows",
     "validate_pack",

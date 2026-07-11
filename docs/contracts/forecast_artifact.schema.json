@@ -1,15 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://udhawan97.github.io/Golavo/contracts/forecast-artifact-0.1.0.schema.json",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/forecast-artifact-0.2.0.schema.json",
   "title": "ForecastArtifact",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "artifact_id", "status", "match", "forecast", "model", "inputs", "provenance", "evaluation"],
   "properties": {
-    "schema_version": {"const": "0.1.0"},
+    "schema_version": {"enum": ["0.1.0", "0.2.0"]},
     "artifact_id": {"type": "string", "pattern": "^fa_[a-z0-9]{8,}$"},
     "status": {"enum": ["sealed", "scored", "abstained", "voided"]},
     "supersedes": {"type": ["string", "null"], "pattern": "^fa_[a-z0-9]{8,}$"},
+    "void_reason": {"type": ["string", "null"], "minLength": 1},
     "match": {"$ref": "#/$defs/Match"},
     "forecast": {"$ref": "#/$defs/Forecast"},
     "model": {"$ref": "#/$defs/Model"},
@@ -96,6 +97,7 @@
         "url": {"type": "string", "format": "uri"},
         "upstream_ref": {"type": "string", "minLength": 1},
         "retrieved_at_utc": {"type": "string", "format": "date-time"},
+        "upstream_committed_at_utc": {"type": ["string", "null"], "format": "date-time"},
         "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
         "license": {"type": "string", "minLength": 1}
       }
@@ -120,32 +122,34 @@
         "payload_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
       }
     },
+    "ActualResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home_goals", "away_goals", "outcome"],
+      "properties": {
+        "home_goals": {"type": "integer", "minimum": 0},
+        "away_goals": {"type": "integer", "minimum": 0},
+        "outcome": {"enum": ["home", "draw", "away"]}
+      }
+    },
+    "ScoreMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["log_loss", "brier", "prob_assigned_to_outcome"],
+      "properties": {
+        "log_loss": {"type": "number", "minimum": 0},
+        "brier": {"type": "number", "minimum": 0},
+        "prob_assigned_to_outcome": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
     "Evaluation": {
       "type": "object",
       "additionalProperties": false,
       "required": ["actual", "scored_at_utc", "metrics"],
       "properties": {
-        "actual": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["home_goals", "away_goals", "outcome"],
-          "properties": {
-            "home_goals": {"type": "integer", "minimum": 0},
-            "away_goals": {"type": "integer", "minimum": 0},
-            "outcome": {"enum": ["home", "draw", "away"]}
-          }
-        },
+        "actual": {"$ref": "#/$defs/ActualResult"},
         "scored_at_utc": {"type": "string", "format": "date-time"},
-        "metrics": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["log_loss", "brier", "prob_assigned_to_outcome"],
-          "properties": {
-            "log_loss": {"type": "number", "minimum": 0},
-            "brier": {"type": "number", "minimum": 0},
-            "prob_assigned_to_outcome": {"type": "number", "minimum": 0, "maximum": 1}
-          }
-        }
+        "metrics": {"$ref": "#/$defs/ScoreMetrics"}
       }
     },
     "EvalSummary": {
@@ -206,6 +210,73 @@
         "accuracy": {"type": ["number", "null"]},
         "wilson_low": {"type": ["number", "null"]},
         "wilson_high": {"type": ["number", "null"]}
+      }
+    },
+    "CalibrationChain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sealed_artifact_id", "match", "sealed_at_utc", "horizon", "family", "abstained", "probs", "resolution"],
+      "properties": {
+        "sealed_artifact_id": {"type": "string", "pattern": "^fa_[a-z0-9]{8,}$"},
+        "match": {"$ref": "#/$defs/Match"},
+        "sealed_at_utc": {"type": "string", "format": "date-time"},
+        "horizon": {"enum": ["T-72h", "T-24h", "T-60m"]},
+        "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson"]},
+        "abstained": {"type": "boolean"},
+        "probs": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/Probabilities"}]},
+        "resolution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "artifact_id", "resolved_at_utc", "actual", "metrics", "void_reason"],
+          "properties": {
+            "status": {"enum": ["pending", "scored", "voided"]},
+            "artifact_id": {"type": ["string", "null"], "pattern": "^fa_[a-z0-9]{8,}$"},
+            "resolved_at_utc": {"type": ["string", "null"], "format": "date-time"},
+            "actual": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/ActualResult"}]},
+            "metrics": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/ScoreMetrics"}]},
+            "void_reason": {"type": ["string", "null"]}
+          }
+        }
+      }
+    },
+    "CalibrationSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "generated_from", "primary_metric", "counts", "running", "reliability_bins", "chains"],
+      "properties": {
+        "schema_version": {"const": "0.2.0"},
+        "generated_from": {"type": "string", "minLength": 1},
+        "primary_metric": {"const": "log_loss"},
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sealed", "abstained", "scored", "voided", "pending"],
+          "properties": {
+            "sealed": {"type": "integer", "minimum": 0},
+            "abstained": {"type": "integer", "minimum": 0},
+            "scored": {"type": "integer", "minimum": 0},
+            "voided": {"type": "integer", "minimum": 0},
+            "pending": {"type": "integer", "minimum": 0}
+          }
+        },
+        "running": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["n_scored", "log_loss", "brier", "prob_assigned_to_outcome"],
+              "properties": {
+                "n_scored": {"type": "integer", "minimum": 1},
+                "log_loss": {"type": "number", "minimum": 0},
+                "brier": {"type": "number", "minimum": 0},
+                "prob_assigned_to_outcome": {"type": "number", "minimum": 0, "maximum": 1}
+              }
+            }
+          ]
+        },
+        "reliability_bins": {"type": "array", "items": {"$ref": "#/$defs/ReliabilityBin"}},
+        "chains": {"type": "array", "items": {"$ref": "#/$defs/CalibrationChain"}}
       }
     }
   }

@@ -15,10 +15,15 @@ import pandas as pd
 from jsonschema import Draft202012Validator, FormatChecker
 
 from golavo_core import __version__
-from golavo_core.ingest import load_matches, snapshot_descriptor, training_rows
+from golavo_core.ingest import (
+    load_matches,
+    snapshot_anchor_utc,
+    snapshot_descriptor,
+    training_rows,
+)
 from golavo_core.models import FAMILIES, fit_model
 
-SCHEMA_VERSION = "0.1.0"
+SCHEMA_VERSION = "0.2.0"
 GENERATOR = f"golavo-core/{__version__}"
 DECAY_WINDOW_DAYS = 365 * 8
 MIN_TEAM_MATCHES = 10
@@ -163,15 +168,26 @@ def seal_forecast(
         raise ValueError(f"unknown model family: {family}")
     as_of = _utc(as_of_utc)
     snapshot = snapshot_descriptor(pack_dir)
-    retrieved = _utc(snapshot["retrieved_at_utc"])
-    if retrieved > as_of:
-        raise ValueError("cannot seal as-of a time before the source snapshot was retrieved")
+    anchor = _utc(snapshot_anchor_utc(snapshot))
+    if anchor > as_of:
+        raise ValueError(
+            "cannot seal as-of a time before the snapshot's data state existed "
+            "(upstream commit time, or our retrieval time when no commit time is pinned)"
+        )
 
     matches = load_matches(pack_dir)
     match = _find_match(matches, date, home_team, away_team, match_id)
+    if bool(match["is_complete"]):
+        raise ValueError(
+            "fixture already has a result in this snapshot; a forward seal targets a "
+            "scheduled fixture — never re-forecast a played match as if it were upcoming"
+        )
     kickoff = pd.Timestamp(match["kickoff_utc"]).to_pydatetime()
     if as_of >= kickoff:
-        raise ValueError("sealed_at_utc must be before kickoff_utc")
+        raise ValueError(
+            "sealed_at_utc must be before kickoff_utc (dates-only source: kickoff is "
+            "the conservative 00:00 UTC day proxy)"
+        )
     cutoff = min(as_of, kickoff - pd.Timedelta(seconds=1).to_pytimedelta())
     train = training_rows(matches, _iso(cutoff))
     train = train.loc[~train["match_id"].eq(match["match_id"])].copy()
@@ -258,10 +274,14 @@ def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Pat
     if sealed["status"] != "sealed" or sealed["forecast"]["probs"] is None:
         raise ValueError("only a non-abstained sealed artifact can be scored")
     newer_snapshot = snapshot_descriptor(newer_pack_dir)
-    old_retrieved = max(_utc(item["retrieved_at_utc"]) for item in sealed["inputs"]["snapshots"])
-    new_retrieved = _utc(newer_snapshot["retrieved_at_utc"])
-    if new_retrieved <= old_retrieved:
-        raise ValueError("scoring requires a snapshot retrieved after the sealed snapshot")
+    old_anchor = max(
+        _utc(snapshot_anchor_utc(item)) for item in sealed["inputs"]["snapshots"]
+    )
+    new_anchor = _utc(snapshot_anchor_utc(newer_snapshot))
+    if new_anchor <= old_anchor:
+        raise ValueError(
+            "scoring requires a snapshot whose data state is strictly newer than the seal's"
+        )
 
     match = sealed["match"]
     matches = load_matches(newer_pack_dir)
@@ -289,14 +309,14 @@ def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Pat
     scored["inputs"]["snapshots"] = [*sealed["inputs"]["snapshots"], newer_snapshot]
     scored["evaluation"] = {
         "actual": {"home_goals": home_goals, "away_goals": away_goals, "outcome": outcome},
-        "scored_at_utc": _iso(new_retrieved),
+        "scored_at_utc": _iso(new_anchor),
         "metrics": {
             "log_loss": round(-math.log(max(assigned, 1e-12)), 6),
             "brier": round(brier, 6),
             "prob_assigned_to_outcome": round(assigned, 6),
         },
     }
-    scored["provenance"]["created_at_utc"] = _iso(new_retrieved)
+    scored["provenance"]["created_at_utc"] = _iso(new_anchor)
     scored["provenance"]["payload_sha256"] = "0" * 64
     stable = copy.deepcopy(scored)
     stable.pop("artifact_id")
@@ -306,13 +326,20 @@ def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Pat
     return _write_artifact(scored, output_dir)
 
 
-def void_forecast(*, artifact_path: Path, output_dir: Path, voided_at_utc: str) -> Path:
-    """Create an immutable voided successor for fixture and future workflow use."""
+def void_forecast(
+    *, artifact_path: Path, output_dir: Path, voided_at_utc: str, reason: str
+) -> Path:
+    """Void a seal (postponement, abandonment): an immutable successor, never a result."""
     sealed = json.loads(artifact_path.read_text(encoding="utf-8"))
     validate_artifact(sealed)
+    if sealed["status"] not in {"sealed", "abstained"}:
+        raise ValueError("only a sealed or abstained artifact can be voided")
+    if not reason.strip():
+        raise ValueError("voiding requires a recorded reason")
     voided = copy.deepcopy(sealed)
     voided["status"] = "voided"
     voided["supersedes"] = sealed["artifact_id"]
+    voided["void_reason"] = reason.strip()
     voided["provenance"]["created_at_utc"] = _iso(_utc(voided_at_utc))
     voided["provenance"]["payload_sha256"] = "0" * 64
     stable = copy.deepcopy(voided)
