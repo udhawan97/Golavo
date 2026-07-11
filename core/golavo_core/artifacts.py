@@ -112,6 +112,61 @@ def _artifact_id(stable_payload: dict[str, Any]) -> str:
     return f"fa_{digest[:20]}"
 
 
+def verify_artifact_integrity(
+    artifact: dict[str, Any], *, expected_id: str | None = None
+) -> dict[str, Any]:
+    """Validate an artifact AND prove its sealed identity still matches its bytes.
+
+    ``validate_artifact`` proves a forecast is well-formed and — if it carries a
+    ``score_matrix`` — internally coherent. It does NOT prove the file was left
+    untouched after sealing. Any code path that READS an artifact it did not just
+    write (the API surface, the calibration aggregator) must additionally recompute
+    the content hash and the content-addressed id and reject a mismatch; otherwise
+    the "sealed / immutable / auditable" guarantee holds only on the write path and
+    a hand-edited ``fa_*.json`` is served as if it were a genuine seal.
+
+    Raises ValueError on a schema/coherence failure, a ``payload_sha256`` that does
+    not match the canonical content, an ``artifact_id`` that is not the hash of its
+    own stable payload, or (when given) an ``expected_id`` — typically the filename
+    stem — that disagrees with the recomputed content id. Because the id is the hash
+    of the content, tampering cannot both change a number and keep the same id.
+    """
+    validate_artifact(artifact)
+    stored_hash = artifact.get("provenance", {}).get("payload_sha256")
+    recomputed_hash = payload_sha256(artifact)
+    if stored_hash != recomputed_hash:
+        raise ValueError(
+            f"payload_sha256 mismatch: stored {stored_hash!r}, content hashes to "
+            f"{recomputed_hash}"
+        )
+    stable = copy.deepcopy(artifact)
+    stable.pop("artifact_id", None)
+    stable["provenance"].pop("payload_sha256", None)
+    recomputed_id = _artifact_id(stable)
+    if artifact.get("artifact_id") != recomputed_id:
+        raise ValueError(
+            f"artifact_id mismatch: stored {artifact.get('artifact_id')!r}, content "
+            f"addresses to {recomputed_id}"
+        )
+    if expected_id is not None and expected_id != recomputed_id:
+        raise ValueError(
+            f"artifact filename {expected_id!r} does not match its content id {recomputed_id}"
+        )
+    return artifact
+
+
+def load_verified_artifact(path: Path) -> dict[str, Any]:
+    """Read a ForecastArtifact JSON file and verify its integrity before use.
+
+    The filename stem must equal the recomputed content id, so a renamed, swapped,
+    or edited ``fa_*.json`` is rejected. Use this on every read path — never trust
+    an on-disk artifact unverified (see verify_artifact_integrity).
+    """
+    path = Path(path)
+    artifact = json.loads(path.read_text(encoding="utf-8"))
+    return verify_artifact_integrity(artifact, expected_id=path.stem)
+
+
 def _find_match(
     matches: pd.DataFrame,
     date: str,

@@ -66,6 +66,19 @@ def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _load_artifact(path: Path) -> dict[str, Any]:
+    """Read and integrity-verify a sealed ForecastArtifact before serving it.
+
+    Never trust an on-disk artifact: recompute its content hash and content id and
+    reject a tampered or incoherent file (see golavo_core.artifacts). Imported
+    lazily because verification pulls the scientific stack; /health and the
+    readiness gate stay light and the sidecar warms this in the background.
+    """
+    from golavo_core.artifacts import load_verified_artifact
+
+    return load_verified_artifact(path)
+
+
 def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
     """Evidence facts + numbers from a precomputed notebook, or ((), ()) if none."""
     notebook_path = ARTIFACT_DIR / "notebooks" / f"{artifact_id}.json"
@@ -84,10 +97,19 @@ def health() -> dict[str, str]:
 
 @app.get("/api/v1/forecasts")
 def list_forecasts() -> list[dict[str, Any]]:
-    """List immutable forecast artifacts, newest first."""
+    """List immutable forecast artifacts, newest first.
+
+    Fails closed: an artifact whose sealed identity does not match its bytes is
+    omitted rather than shown as a genuine forecast.
+    """
     if not ARTIFACT_DIR.exists():
         return []
-    artifacts = [_read_json(path) for path in ARTIFACT_DIR.glob("fa_*.json")]
+    artifacts: list[dict[str, Any]] = []
+    for path in ARTIFACT_DIR.glob("fa_*.json"):
+        try:
+            artifacts.append(_load_artifact(path))
+        except (ValueError, KeyError, OSError):
+            continue
     return sorted(
         artifacts,
         key=lambda item: (item["provenance"]["created_at_utc"], item["artifact_id"]),
@@ -102,7 +124,12 @@ def get_forecast(artifact_id: str) -> dict[str, Any]:
     path = known_paths.get(artifact_id)
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")
-    return _read_json(path)
+    try:
+        return _load_artifact(path)
+    except (ValueError, KeyError, OSError) as exc:
+        raise HTTPException(
+            status_code=500, detail="forecast failed integrity verification"
+        ) from exc
 
 
 @app.get("/api/v1/forecasts/{artifact_id}/facts")
@@ -155,6 +182,12 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
     path = known_paths.get(artifact_id)
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")
+    try:
+        artifact = _load_artifact(path)
+    except (ValueError, KeyError, OSError) as exc:
+        raise HTTPException(
+            status_code=500, detail="forecast failed integrity verification"
+        ) from exc
 
     try:
         body = await request.json()
@@ -173,7 +206,7 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
     # still governs. Absent a notebook, the bundle is exactly as before.
     extra_facts, extra_numbers = _notebook_evidence(artifact_id)
     bundle = build_evidence_bundle(
-        _read_json(path), extra_facts=extra_facts, extra_numbers=extra_numbers
+        artifact, extra_facts=extra_facts, extra_numbers=extra_numbers
     )
     envelope = ai_gateway.generate_narration(bundle, config)
     # The UI resolves a claim's source_ids/number_refs against these trusted

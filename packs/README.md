@@ -1,8 +1,11 @@
 # packs
 
-Golavo ships data as **versioned, signed packs** on GitHub Releases. Each pack is
-a semver'd tarball with a license manifest inside, minisign-signed and
-hash-verified before the app loads it.
+Golavo vendors data as **pinned, hash-verified packs**. Each pack carries a
+license manifest with a per-file SHA-256 list, and every retained snapshot's
+manifest hash is pinned in `snapshots.json`; the app re-hashes every declared file
+before load. Minisign **signature** verification (authenticity) and release-tarball
+distribution are **planned (ADR-0001), not yet implemented** — because the manifest
+lives inside the pack, the current check catches corruption, not a forged pack.
 
 | Pack | Sources | License | Status |
 |---|---|---|---|

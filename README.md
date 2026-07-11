@@ -22,7 +22,7 @@ It began as a deterministic local forecasting spike for men's senior full intern
 </div>
 
 > [!WARNING]
-> **Status: v0.1.0 — unsigned pre-alpha.** Working today: pinned CC0 snapshots with retained history; historical backtests (internationals + top-5 European leagues); a reproducible seal-before-kickoff → score-after-full-time loop for internationals with a real calibration record (which **starts empty** and only ever holds genuine pre-kickoff seals); an optional local-first AI narration layer that is **off by default** and can never change a number; and a Tauri desktop app that builds **unsigned** (the macOS bundle is verified locally; macOS + Windows bundles are built by the release workflow on tag). Signing/notarization, the signed auto-updater, confirmed-lineup / BYOK data adapters, club forward loops, scorers, and cups remain planned or gated ([ADR-0001](docs/adr/0001-architecture.md)). Nothing here is a betting product.
+> **Status: v0.2.0 — unsigned pre-alpha.** Working today: pinned CC0 snapshots with retained history; historical backtests (internationals + top-5 European leagues); a reproducible seal-before-kickoff → score-after-full-time loop for internationals with a real calibration record (which **starts empty** and only ever holds genuine pre-kickoff seals); an optional local-first AI narration layer that is **off by default** and can never change a number; and a Tauri desktop app that builds **unsigned** (the macOS bundle is verified locally; macOS + Windows bundles are built by the release workflow on tag). Signing/notarization, the signed auto-updater, confirmed-lineup / BYOK data adapters, club forward loops, scorers, and cups remain planned or gated ([ADR-0001](docs/adr/0001-architecture.md)). Nothing here is a betting product.
 
 ---
 
@@ -30,7 +30,7 @@ It began as a deterministic local forecasting spike for men's senior full intern
 
 ![The Golavo workbench — a matchday list of sealed, scored, abstained and voided forecasts, rendering the bundled synthetic sample artifacts](docs-site/public/screenshots/workbench-matchday.png)
 
-<sub>The read-only workbench (v0.1.0) over the bundled **synthetic sample artifacts** — labelled as sample data in-app, never shown as real forecasts. More: [AI Deep Read off](docs-site/public/screenshots/ai-deep-read-off.png) · [on](docs-site/public/screenshots/ai-deep-read-on.png) · [calibration record](docs-site/public/screenshots/calibration-ledger.png).</sub>
+<sub>The read-only workbench (v0.2.0) over the bundled **synthetic sample artifacts** — labelled as sample data in-app, never shown as real forecasts. More: [AI Deep Read off](docs-site/public/screenshots/ai-deep-read-off.png) · [on](docs-site/public/screenshots/ai-deep-read-on.png) · [calibration record](docs-site/public/screenshots/calibration-ledger.png).</sub>
 
 </div>
 
@@ -154,7 +154,7 @@ Attribution strings and the full field-level license matrix live in [NOTICE](NOT
 
 ## Privacy & security
 
-Golavo has no account, telemetry, or ads, and makes **no network call at runtime unless you opt in**. The AI Deep Read layer is **off by default**; it only contacts a model — a local Ollama / llama.cpp server, or a BYOK cloud provider whose key stays in your keychain/env and is never logged — when you explicitly enable it. Sourcepack construction performs an explicit network download; normal core and API reads use local files. The desktop sidecar binds to a private loopback port behind a per-launch token. Signed packs and the signed auto-updater are **wired but gated on secrets (ADR-0001)** and disabled by default. See [SECURITY.md](SECURITY.md).
+Golavo has no account, telemetry, or ads, and makes **no network call at runtime unless you opt in**. The AI Deep Read layer is **off by default**; it only contacts a model — a local Ollama / llama.cpp server, or a BYOK cloud provider whose key stays in your keychain/env and is never logged — when you explicitly enable it. Sourcepack construction performs an explicit network download; normal core and API reads use local files. The desktop sidecar binds to a private loopback port behind a per-launch token. The signed auto-updater is **wired but gated on unset signing secrets**; **signed packs are planned (ADR-0001), not yet implemented** — packs are pinned and hash-verified today, not signature-verified. Both are absent/disabled by default. See [SECURITY.md](SECURITY.md).
 
 ## Roadmap
 

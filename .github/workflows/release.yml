@@ -114,9 +114,12 @@ jobs:
         run: |
           mkdir -p dist && cd dist
           if ls * >/dev/null 2>&1; then sha256sum * > SHA256SUMS.txt || true; fi
-      - name: Sign checksums (minisign, if key configured)
+      - name: Sign checksums (minisign) — NOT YET IMPLEMENTED
         if: env.MINISIGN_SECRET_KEY != ''
-        run: echo "minisign signing step runs when the secret is present"
+        run: |
+          echo "::error::MINISIGN_SECRET_KEY is set, but minisign checksum signing is not implemented yet (see docs/handoff/v0.2-review.md, item M4)."
+          echo "Refusing to publish a release that would appear signed while signing nothing."
+          exit 1
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
         with:
@@ -133,6 +136,8 @@ jobs:
             warn on first launch (macOS: right-click → Open; Windows: More info → Run
             anyway). Code signing, notarization, and the signed auto-updater are wired
             but gated on secrets that are **not configured** — no signed or notarized
-            artifact is produced or claimed. Verify every download against
-            `SHA256SUMS.txt`.
+            artifact is produced or claimed. Each artifact's SHA-256 is listed in
+            `SHA256SUMS.txt` so you can detect a **corrupted** download; these checksums
+            are **not cryptographically signed**, so they do not by themselves prove
+            authenticity (signed checksums are planned — see SECURITY.md).
           files: dist/**

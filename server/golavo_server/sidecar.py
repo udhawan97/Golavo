@@ -36,32 +36,79 @@ def _free_loopback_port(host: str = "127.0.0.1") -> int:
         return int(sock.getsockname()[1])
 
 
+def _pid_alive_windows(pid: int) -> bool:
+    """Non-destructive Windows liveness probe.
+
+    ``os.kill(pid, 0)`` is a harmless probe only on POSIX; on Windows CPython
+    routes signal 0 (``CTRL_C_EVENT``) through ``GenerateConsoleCtrlEvent`` and any
+    other signal through ``TerminateProcess`` — so it would signal or kill the
+    shell, not observe it. Instead open a SYNCHRONIZE handle and poll it: a running
+    process times out, an exited one is already signalled."""
+    import ctypes
+
+    SYNCHRONIZE = 0x00100000
+    WAIT_TIMEOUT = 0x00000102
+    ERROR_ACCESS_DENIED = 5
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    handle = kernel32.OpenProcess(SYNCHRONIZE, False, int(pid))
+    if not handle:
+        # Access-denied means the process exists but is not ours to synchronise
+        # on; any other failure (e.g. invalid parameter) means it is gone.
+        return ctypes.get_last_error() == ERROR_ACCESS_DENIED
+    try:
+        return kernel32.WaitForSingleObject(handle, 0) == WAIT_TIMEOUT
+    finally:
+        kernel32.CloseHandle(handle)
+
+
 def _pid_alive(pid: int) -> bool:
-    """True if a process with this pid exists (signal 0 probes without killing)."""
+    """True if a process with this pid exists, without ever killing it.
+
+    POSIX uses signal 0 (a probe); Windows uses a SYNCHRONIZE handle poll (see
+    ``_pid_alive_windows``). Any unexpected OS error fails to 'not alive' so the
+    watcher errs toward exiting rather than lingering as an orphan."""
+    if os.name == "nt":
+        return _pid_alive_windows(pid)
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
         return False
     except PermissionError:
         return True  # exists, just not ours to signal
+    except OSError:
+        return False
     return True
+
+
+def _orphaned(
+    initial_ppid: int, current_ppid: int, parent_pid: int, *, posix: bool
+) -> bool:
+    """Whether the launching shell is gone and the sidecar should self-exit.
+
+    On POSIX an orphaned child is reparented (PPID -> 1 or a changed PPID), the
+    fast signal on a graceful quit. Windows does NOT reparent — ``os.getppid()``
+    keeps returning the stale, now-dead value — so the reparent heuristic is
+    disabled there (it would be both a false negative on quit and, if the PID were
+    reused, a false positive). The parent-liveness probe is authoritative on every
+    platform and is the sole signal on Windows."""
+    reparented = posix and (current_ppid == 1 or current_ppid != initial_ppid)
+    return reparented or not _pid_alive(parent_pid)
 
 
 def _watch_parent(parent_pid: int) -> None:
     """Exit the whole process when the launching shell goes away.
 
     Critical for the PyInstaller *onefile* sidecar: it runs as two processes — a
-    bootloader that forks the real Python child. When the shell kills the child
-    it spawned (the bootloader), this Python process is reparented and would
-    otherwise linger, holding the port. We watch for either the shell dying or
-    a reparent (PPID -> 1 or a changed PPID) and hard-exit. Only enabled when the
-    shell passes --parent-pid, so manual and smoke runs are unaffected."""
+    bootloader that forks the real Python child. When the shell kills the child it
+    spawned (the bootloader), this Python process is reparented and would otherwise
+    linger, holding the port. Only enabled when the shell passes --parent-pid, so
+    manual and smoke runs are unaffected. See ``_orphaned`` for the per-platform
+    signal."""
     initial_ppid = os.getppid()
+    posix = os.name == "posix"
     while True:
         time.sleep(1.0)
-        ppid = os.getppid()
-        reparented = ppid == 1 or ppid != initial_ppid
-        if reparented or not _pid_alive(parent_pid):
+        if _orphaned(initial_ppid, os.getppid(), parent_pid, posix=posix):
             os._exit(0)
 
 

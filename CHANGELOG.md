@@ -6,6 +6,61 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-11
+
+**Hardening capstone.** An adversarial self-review of the shipped v0.1.0 product
+(see [`docs/handoff/v0.2-review.md`](docs/handoff/v0.2-review.md)) found **no
+Critical** defects and **three High** findings — each fixed below with a
+regression test. Determinism, the AI numeric whitelist, key isolation, and the
+model coherence guarantees held under scrutiny. This release also folds in the
+Phase 7–8 work (Fact & Coincidence engine; exact-score matrix + Casual/Expert)
+that accumulated after the v0.1.0 tag.
+
+### Security
+- **Artifact integrity is now verified on every read path (H1).** The read-only
+  API and the calibration aggregator recompute each artifact's `payload_sha256`
+  and content-addressed `artifact_id` before use (`verify_artifact_integrity` /
+  `load_verified_artifact`), not just schema + coherence. A hand-edited or swapped
+  `fa_*.json` is omitted from the forecast list and refused (HTTP 500) on direct
+  fetch, and can no longer skew the public calibration record. Previously the serve
+  path trusted on-disk JSON, so the "coherence enforced on every load / immutable,
+  auditable" guarantee held only on the write path.
+- **Pack-integrity claims corrected to match the code (H2).** `SECURITY.md`,
+  `packs/README.md`, and `README.md` described data/model packs as **minisign
+  signature-verified against a pinned public key** with an "unsigned packs require
+  override" control — none of which exists (only per-file SHA-256 self-hashing).
+  Reworded to the true mechanism (hash-verified corruption-detection) and marked
+  signature verification **planned (ADR-0001), not yet implemented**. The release
+  workflow's checksum-"signing" step was a no-op `echo` that still flipped a keyed
+  release to a full (trusted-looking) release; it now fails loudly when a key is
+  set (signing is unimplemented), and the notes no longer imply `SHA256SUMS.txt`
+  authenticates a download.
+
+### Fixed
+- **Desktop sidecar no longer orphans on Windows (H3).** The parent-death watcher
+  used POSIX-only semantics: `os.kill(pid, 0)` is a harmless probe only on POSIX
+  (on Windows it routes through `GenerateConsoleCtrlEvent`/`TerminateProcess` and
+  raised an uncaught `OSError`), and orphan reparent-detection never fires there.
+  On the shipped Windows target the sidecar leaked on `127.0.0.1` every session.
+  The watcher now dispatches by platform — a non-destructive
+  `OpenProcess`/`WaitForSingleObject` liveness probe on Windows, the signal-0 probe
+  on POSIX — with the reparent heuristic disabled where it is meaningless.
+
+### Changed
+- Version bumped to **0.2.0** across core/server (`pyproject.toml`, `__version__`),
+  `ui`/`desktop`/`docs-site` `package.json`, `tauri.conf.json`, and `CITATION.cff`;
+  the `docs-site` manifest is corrected from a stray `0.0.0`. Contract
+  `schema_version` constants are deliberately unchanged.
+
+### Docs
+- Added the severity-ranked adversarial review
+  ([`docs/handoff/v0.2-review.md`](docs/handoff/v0.2-review.md)) and the release
+  handoff ([`docs/handoff/codex-v0.2.md`](docs/handoff/codex-v0.2.md)); corrected
+  the stale reviewer dossier `docs/reviews/codex-review-prompt.md` (it still
+  described "Phase 0, no engine yet") to the shipped state, and `SECURITY.md`'s
+  stale "Phase 0 has no updater" line. Deferred Medium/Low findings are tracked in
+  the review's TODO list.
+
 ### Added
 - **Phase 8 — Exact-score distribution + Casual/Expert presentation.** Goal-based
   families (independent / Dixon-Coles / bivariate Poisson) now seal the
@@ -185,5 +240,6 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/udhawan97/Golavo/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/udhawan97/Golavo/releases/tag/v0.1.0

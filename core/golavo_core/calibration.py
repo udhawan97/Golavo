@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 from jsonschema import Draft202012Validator, FormatChecker
 
-from golavo_core.artifacts import _schema_path, validate_artifact
+from golavo_core.artifacts import _schema_path, load_verified_artifact
 from golavo_core.evaluation import _metrics
 
 SCHEMA_VERSION = "0.2.0"
@@ -27,9 +27,10 @@ def _load_ledger(artifact_dir: Path) -> list[dict[str, Any]]:
     artifacts: list[dict[str, Any]] = []
     if artifact_dir.is_dir():
         for path in sorted(artifact_dir.glob("fa_*.json")):
-            artifact = json.loads(path.read_text(encoding="utf-8"))
-            validate_artifact(artifact)
-            artifacts.append(artifact)
+            # Verify the sealed identity (content hash + id), not just schema and
+            # coherence: a tampered artifact must never silently skew the public
+            # calibration record.
+            artifacts.append(load_verified_artifact(path))
     return artifacts
 
 
