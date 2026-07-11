@@ -64,7 +64,7 @@ jobs:
       - name: Build docs
         run: |
           if [ -f docs-site/package.json ]; then
-            cd docs-site && npm install && npm run build
+            cd docs-site && npm install && npm run check && npm run build
           else
             echo "No docs-site yet (scaffold phase)."
           fi
