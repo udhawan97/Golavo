@@ -1,6 +1,9 @@
 # Golavo Phase 2 core handoff (top-5 European leagues, historical)
 
-- **Base:** `main` @ `989381a`
+- **Base:** `main` @ `989381a` (developed there; rebased before landing onto `4afed82`,
+  which added only dependabot bumps — vite 8, astro 7, GitHub Actions — touching no
+  Phase 2 file; UI and docs-site builds were re-verified on the new toolchains).
+  Landed on `main` as `9406a79`.
 - **Pinned openfootball upstream:** `a5dd38b3bcbe3aa2477cf400f569264253d51431` (committed
   2026-05-30) — the SAME ref as Phase 1; no re-pin, no re-vendoring of the EPL pack.
 - **Canonical schema:** `ForecastArtifact` 0.1.0, unchanged. New club fold ids
