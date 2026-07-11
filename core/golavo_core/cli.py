@@ -29,7 +29,8 @@ def _parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--report", type=Path, default=REPO_ROOT / "docs/handoff/eval_report.md")
 
     evaluate_club = commands.add_parser(
-        "evaluate-club", help="run frozen chronological English Premier League season folds"
+        "evaluate-club",
+        help="run one league pack's frozen chronological season folds (accepted leagues only)",
     )
     evaluate_club.add_argument(
         "--pack", type=Path, default=REPO_ROOT / "packs/openfootball-eng-pl"

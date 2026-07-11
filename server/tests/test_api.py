@@ -38,3 +38,21 @@ def test_health_remains_available() -> None:
     response = TestClient(server_main.app).get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_eval_summary_merges_all_league_folds() -> None:
+    """The default summary paths are the six committed evaluation files; the
+    endpoint must serve their folds concatenated, in declared order."""
+    expected_folds: list[str] = []
+    for path in server_main.EVAL_SUMMARY_PATHS:
+        assert path.is_file(), f"missing committed summary: {path}"
+        expected_folds.extend(
+            fold["fold_id"] for fold in json.loads(path.read_text())["folds"]
+        )
+    combined = TestClient(server_main.app).get("/api/v1/eval/summary").json()
+    assert [fold["fold_id"] for fold in combined["folds"]] == expected_folds
+    competitions = {fold["competition"] for fold in combined["folds"]}
+    assert {
+        "English Premier League", "La Liga", "Bundesliga", "Serie A", "Ligue 1",
+    } <= competitions
+    assert len(combined["sources"]) == len(server_main.EVAL_SUMMARY_PATHS)

@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from jsonschema import Draft202012Validator, FormatChecker
 
-from golavo_core.ingest import load_matches, snapshot_descriptor, training_rows
+from golavo_core.ingest import load_matches, snapshot_descriptor, training_rows, validate_pack
 from golavo_core.models import FAMILIES, fit_model
 
 FOLDS = (
@@ -35,28 +35,37 @@ FOLDS = (
     },
 )
 
-# English Premier League season folds (openfootball clean seasons only; 2025-26 is
-# a partial capture and is excluded per docs/handoff/openfootball-audit.md).
-CLUB_FOLDS = (
-    {
-        "fold_id": "EPL2022-23",
-        "competition": "English Premier League",
-        "window_start": "2022-08-01",
-        "window_end": "2023-06-30",
-    },
-    {
-        "fold_id": "EPL2023-24",
-        "competition": "English Premier League",
-        "window_start": "2023-08-01",
-        "window_end": "2024-06-30",
-    },
-    {
-        "fold_id": "EPL2024-25",
-        "competition": "English Premier League",
-        "window_start": "2024-08-01",
-        "window_end": "2025-06-30",
-    },
+# Club season folds: for each accepted league, the three most recent CLEAN
+# seasons per the audit gate (docs/handoff/openfootball-audit.md). Every audited
+# fold season starts after Aug 1 and ends before Jun 30, so the shared window
+# convention holds. La Liga and Serie A folds stop at 2023-24 because their
+# 2024-25 captures are missing the final matchday; Ligue 1 excludes the
+# COVID-abandoned 2019-20 and is a 380-match league through 2022-23, 306 after.
+# Leagues are modeled independently — domestic files carry no inter-league
+# matches, so there is NO cross-league strength calibration.
+
+
+def _season_fold(prefix: str, competition: str, first_year: int) -> dict[str, str]:
+    return {
+        "fold_id": f"{prefix}{first_year}-{str(first_year + 1)[-2:]}",
+        "competition": competition,
+        "window_start": f"{first_year}-08-01",
+        "window_end": f"{first_year + 1}-06-30",
+    }
+
+
+CLUB_FOLDS = tuple(
+    _season_fold("EPL", "English Premier League", year) for year in (2022, 2023, 2024)
 )
+CLUB_FOLDS_BY_COMPETITION: dict[str, tuple[dict[str, str], ...]] = {
+    "English Premier League": CLUB_FOLDS,
+    "La Liga": tuple(_season_fold("LALIGA", "La Liga", year) for year in (2021, 2022, 2023)),
+    "Bundesliga": tuple(
+        _season_fold("BUNDESLIGA", "Bundesliga", year) for year in (2022, 2023, 2024)
+    ),
+    "Serie A": tuple(_season_fold("SERIEA", "Serie A", year) for year in (2021, 2022, 2023)),
+    "Ligue 1": tuple(_season_fold("LIGUE1-", "Ligue 1", year) for year in (2022, 2023, 2024)),
+}
 
 
 def _outcomes(matches: pd.DataFrame) -> np.ndarray:
@@ -217,8 +226,12 @@ def evaluate(pack_dir: Path) -> dict[str, Any]:
 
 
 def evaluate_club(pack_dir: Path) -> dict[str, Any]:
-    """Evaluate all candidates on frozen English Premier League season folds."""
-    return _evaluate_folds(load_matches(pack_dir), snapshot_descriptor(pack_dir), CLUB_FOLDS)
+    """Evaluate all candidates on a league pack's frozen chronological season folds."""
+    competition = str(validate_pack(pack_dir).get("competition", ""))
+    folds = CLUB_FOLDS_BY_COMPETITION.get(competition)
+    if folds is None:
+        raise ValueError(f"no accepted evaluation folds for competition {competition!r}")
+    return _evaluate_folds(load_matches(pack_dir), snapshot_descriptor(pack_dir), folds)
 
 
 def _validate_summary(summary: dict[str, Any], schema_path: Path) -> None:
@@ -280,26 +293,55 @@ def write_evaluation(
     return summary
 
 
+# Per-league exclusion notes, mirroring docs/handoff/openfootball-audit.md.
+_CLUB_REPORT_NOTES: dict[str, str] = {
+    "English Premier League": (
+        "The partial 2025-26 capture is excluded; each fold trains on all prior clean "
+        "seasons from 2010-11."
+    ),
+    "La Liga": (
+        "Folds stop at 2023-24 because the 2024-25 capture is missing its final matchday "
+        "(10 results); 2025-26 is a partial capture. Training reaches back to 2012-13."
+    ),
+    "Bundesliga": (
+        "The partial 2025-26 capture is excluded; each fold trains on all prior clean "
+        "seasons from 2010-11. A Bundesliga season is 306 matches (18 clubs)."
+    ),
+    "Serie A": (
+        "Folds stop at 2023-24 because the 2024-25 capture is missing its final matchday "
+        "(10 results); 2025-26 is a partial capture. Training reaches back to 2013-14."
+    ),
+    "Ligue 1": (
+        "The COVID-abandoned 2019-20 season is excluded as a fold (its 279 played matches "
+        "remain training rows) and 2025-26 is a partial capture. Ligue 1 contracted from "
+        "20 to 18 clubs in 2023-24, so folds are 380 then 306 matches."
+    ),
+}
+
+
 def write_club_evaluation(
     pack_dir: Path, summary_path: Path, report_path: Path, schema_path: Path
 ) -> dict[str, Any]:
-    """Write the English Premier League summary and honest Markdown report."""
+    """Write one league's evaluation summary and honest Markdown report."""
     summary = evaluate_club(pack_dir)
     _validate_summary(summary, schema_path)
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    competition = summary["folds"][0]["competition"]
     _render_report(
         summary,
         report_path,
-        "Phase 1 English Premier League chronological evaluation",
+        f"{competition} chronological evaluation (historical)",
         [
-            "Historical, not live. Data is openfootball (CC0), which passed the Phase 1 gate for",
-            "completed seasons only (docs/handoff/openfootball-audit.md). The partial 2025-26",
-            "capture is excluded; each fold trains on all prior clean seasons from 2010-11.",
+            "Historical, not live. Data is a pinned openfootball snapshot (CC0) that passed the",
+            "club-coverage gate for completed seasons only (docs/handoff/openfootball-audit.md).",
+            _CLUB_REPORT_NOTES[competition],
             "",
             "Elo is a baseline, not a champion. Unlike the near-neutral international folds, club",
             "matches carry a real home advantage, so home-aware candidates have room to help — but",
             "only if they beat Elo out-of-sample here. openfootball kickoff times are venue-local.",
+            "Each league is modeled independently from its own pack; there are no inter-league",
+            "matches, so strengths are NOT comparable across leagues.",
         ],
     )
     return summary

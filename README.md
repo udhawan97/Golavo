@@ -54,14 +54,18 @@ pinned CC0 snapshot ──► typed match table ──► candidate statistical 
 
 ## Coverage — the honest version
 
-Phase 0 uses one vendored, pinned CC0 snapshot of `martj42/international_results`. It covers men's senior full-international results, goalscorers, shootouts, and former names; the engine currently consumes results and former names. Phase 1 adds the **English Premier League** as a **historical** backbone from a pinned `openfootball` snapshot (CC0-1.0), accepted for completed seasons only after a coverage audit and backtested — **not live**. Lineups, injuries, corners, xG, and BYOK adapters remain out of scope. Free access is not the same as lawful open data — see [Data sources & coverage](https://udhawan97.github.io/Golavo/data/coverage/).
+Phase 0 uses one vendored, pinned CC0 snapshot of `martj42/international_results`. It covers men's senior full-international results, goalscorers, shootouts, and former names; the engine currently consumes results and former names. Phases 1–2 add the men's **top-5 European leagues** as a **historical** backbone from one pinned `openfootball` snapshot (CC0-1.0): each league is accepted for completed seasons only after a per-league coverage audit and backtested — **not live**. Each league is modeled independently from its own pack; domestic files carry no inter-league matches, so there is **no cross-league strength calibration**. Lineups, injuries, corners, xG, and BYOK adapters remain out of scope. Free access is not the same as lawful open data — see [Data sources & coverage](https://udhawan97.github.io/Golavo/data/coverage/).
 
-| Phase 0 scope | Results | Goalscorers / shootouts | Lineups / injuries / corners / xG |
+| Scope (all historical) | Results | Goalscorers / shootouts | Lineups / injuries / corners / xG |
 |---|---|---|---|
-| **Men's senior full internationals** | ✅ CC0, ingested | ✅ CC0 snapshot, not modeled | 🚫 no accepted open source |
-| **English Premier League** (historical) | ✅ Phase 1 — openfootball CC0, 15 clean seasons 2010-11→2024-25 | 🚫 out of scope | 🚫 no accepted open source |
+| **Men's senior full internationals** | ✅ Phase 0 — martj42 CC0, pinned | ✅ CC0 snapshot, not modeled | 🚫 no accepted open source |
+| **English Premier League** | ✅ Phase 1 — openfootball CC0, 15 clean seasons 2010-11→2024-25 | 🚫 out of scope | 🚫 no accepted open source |
+| **La Liga** | ✅ Phase 2 — openfootball CC0, 12 clean seasons 2012-13→2023-24 (2024-25 capture misses final matchday) | 🚫 out of scope | 🚫 no accepted open source |
+| **Bundesliga** | ✅ Phase 2 — openfootball CC0, 15 clean seasons 2010-11→2024-25 | 🚫 out of scope | 🚫 no accepted open source |
+| **Serie A** | ✅ Phase 2 — openfootball CC0, 11 clean seasons 2013-14→2023-24 (2024-25 capture misses final matchday) | 🚫 out of scope | 🚫 no accepted open source |
+| **Ligue 1** | ✅ Phase 2 — openfootball CC0, 10 clean seasons 2014-15→2024-25 (2019-20 COVID abandonment excluded) | 🚫 out of scope | 🚫 no accepted open source |
 
-The snapshot is reproducible and pinned, not a live feed. xG does not appear in the accepted Phase 0 source.
+The snapshots are reproducible and pinned, not live feeds; every league's partial 2025-26 capture is excluded. xG does not appear in the accepted sources. Per-league verdicts and exclusion reasons: [`docs/handoff/openfootball-audit.md`](docs/handoff/openfootball-audit.md).
 
 ## Run modes
 
@@ -93,7 +97,7 @@ docs-site/  Astro + Starlight product site (GitHub Pages)
 
 ## Prediction methodology
 
-Phase 0 evaluates five deterministic **candidates**: climatological, Elo ordinal-logit, independent Poisson, time-decayed Dixon-Coles, and bivariate Poisson. Log loss is primary; Brier, ECE with reliability bins, and RPS are also reported on chronological tournament folds. No candidate is called a champion until forward evidence earns that status. Phase 1 runs the same five candidates on chronological English Premier League season folds (2022-23, 2023-24, 2024-25); every candidate beats the climatological baseline on log loss, and still none is crowned. Full methodology: [Methodology](https://udhawan97.github.io/Golavo/methodology/prediction/).
+Phase 0 evaluates five deterministic **candidates**: climatological, Elo ordinal-logit, independent Poisson, time-decayed Dixon-Coles, and bivariate Poisson. Log loss is primary; Brier, ECE with reliability bins, and RPS are also reported on chronological tournament folds. No candidate is called a champion until forward evidence earns that status. Phases 1–2 run the same five candidates on each accepted league's three most recent clean seasons as chronological folds (EPL/Bundesliga/Ligue 1: 2022-23→2024-25; La Liga/Serie A: 2021-22→2023-24, because their 2024-25 captures are incomplete). Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and none is crowned. Full methodology: [Methodology](https://udhawan97.github.io/Golavo/methodology/prediction/).
 
 > We do **not** claim AI, deep learning, head-to-head records, or a "new-manager bounce" improve accuracy without forward evidence.
 
@@ -103,7 +107,7 @@ Phase 0 evaluates five deterministic **candidates**: climatological, Elo ordinal
 |---|---|---|---|
 | [martj42/international_results](https://github.com/martj42/international_results) | men's senior full internationals | CC0-1.0 | ✅ Phase 0 pinned pack |
 | Transfermarkt-derived datasets · DataHub football mirrors | rejected: downstream labels do not cure upstream provenance/ToS risk | — | 🚫 rejected |
-| [openfootball](https://github.com/openfootball/football.json) | English Premier League (historical) | CC0-1.0 | ✅ Phase 1 pinned pack |
+| [openfootball](https://github.com/openfootball/football.json) | top-5 European leagues (historical) | CC0-1.0 | ✅ Phase 1–2 pinned packs |
 | Wikidata · Wyscout · OpenLigaDB | possible later research/adapters | varies | ⏳ out of scope |
 | Football-Data.org · API-Football | proprietary data adapters | proprietary ToS | ⏳ out of Phase 0 |
 

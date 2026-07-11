@@ -1,374 +1,2046 @@
 {
-  "clean_seasons": [
-    "2010-11",
-    "2011-12",
-    "2012-13",
-    "2013-14",
-    "2014-15",
-    "2015-16",
-    "2016-17",
-    "2017-18",
-    "2018-19",
-    "2019-20",
-    "2020-21",
-    "2021-22",
-    "2022-23",
-    "2023-24",
-    "2024-25"
-  ],
-  "criteria": {
-    "freshness_historical_current": true,
-    "latest_completed_season_clean": true,
-    "structural_consistency_all_seasons": true,
-    "usable_clean_seasons": true
-  },
-  "flagged_seasons": [
-    "2025-26"
-  ],
+  "cross_league_calibration": "NONE \u2014 domestic files carry no inter-league matches, so each league is modeled independently and strengths are NOT comparable across leagues",
   "independent_cross_source": "DEFERRED (footballcsv stale to ~2020/21; divergent team names)",
-  "latest_clean_season": "2024-25",
-  "live_in_season_updating": "UNVERIFIED until the 2026-27 season starts",
-  "n_seasons": 16,
-  "pack": "packs/openfootball-eng-pl",
-  "seasons": {
-    "2010-11": {
-      "away_per_team_range": [
-        19,
-        19
+  "leagues": {
+    "de.1": {
+      "clean_seasons": [
+        "2010-11",
+        "2011-12",
+        "2012-13",
+        "2013-14",
+        "2014-15",
+        "2015-16",
+        "2016-17",
+        "2017-18",
+        "2018-19",
+        "2019-20",
+        "2020-21",
+        "2021-22",
+        "2022-23",
+        "2023-24",
+        "2024-25"
       ],
-      "clean": true,
-      "date_max": "2011-05-22",
-      "date_min": "2010-08-14",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
+      "code": "de.1",
+      "competition": "Bundesliga",
+      "criteria": {
+        "latest_completed_season_clean": true,
+        "structural_consistency_all_seasons": true,
+        "three_recent_clean_folds": true,
+        "usable_clean_seasons": true
+      },
+      "flag_reasons": {
+        "2025-26": [
+          "12 of 306 results missing",
+          "12 divergent [0, 0] list-encoded scores"
+        ]
+      },
+      "flagged_seasons": [
+        "2025-26"
       ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2010/11",
-      "negative_scores": 0,
-      "self_matches": 0
+      "fold_seasons": [
+        "2022-23",
+        "2023-24",
+        "2024-25"
+      ],
+      "latest_clean_season": "2024-25",
+      "n_seasons": 16,
+      "pack": "packs/openfootball-deu-bl",
+      "seasons": {
+        "2010-11": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2011-05-14",
+          "date_min": "2010-08-20",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2010/11",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2010-11",
+          "self_matches": 0
+        },
+        "2011-12": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2012-05-05",
+          "date_min": "2011-08-05",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2011/12",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2011-12",
+          "self_matches": 0
+        },
+        "2012-13": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2013-05-18",
+          "date_min": "2012-08-24",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2012/13",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2012-13",
+          "self_matches": 0
+        },
+        "2013-14": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2014-05-10",
+          "date_min": "2013-08-09",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2013/14",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2013-14",
+          "self_matches": 0
+        },
+        "2014-15": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2015-05-23",
+          "date_min": "2014-08-22",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2014/15",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2014-15",
+          "self_matches": 0
+        },
+        "2015-16": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2016-05-14",
+          "date_min": "2015-08-14",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2015/16",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2015-16",
+          "self_matches": 0
+        },
+        "2016-17": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2017-05-20",
+          "date_min": "2016-08-26",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2016/17",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2016-17",
+          "self_matches": 0
+        },
+        "2017-18": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2018-05-12",
+          "date_min": "2017-08-18",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2017/18",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2017-18",
+          "self_matches": 0
+        },
+        "2018-19": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2019-05-18",
+          "date_min": "2018-08-24",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2018/19",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2018-19",
+          "self_matches": 0
+        },
+        "2019-20": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2020-06-27",
+          "date_min": "2019-08-16",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2019/20",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2019-20",
+          "self_matches": 0
+        },
+        "2020-21": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2021-05-22",
+          "date_min": "2020-09-18",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2020/21",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2020-21",
+          "self_matches": 0
+        },
+        "2021-22": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2022-05-14",
+          "date_min": "2021-08-13",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2021/22",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2021-22",
+          "self_matches": 0
+        },
+        "2022-23": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2023-05-27",
+          "date_min": "2022-08-05",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2022/23",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2022-23",
+          "self_matches": 0
+        },
+        "2023-24": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2024-05-18",
+          "date_min": "2023-08-18",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2023/24",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2023-24",
+          "self_matches": 0
+        },
+        "2024-25": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2025-05-17",
+          "date_min": "2024-08-23",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2024/25",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2024-25",
+          "self_matches": 0
+        },
+        "2025-26": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": false,
+          "date_max": "2026-05-16",
+          "date_min": "2025-08-22",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 12,
+          "n_complete": 294,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "Deutsche Bundesliga 2025/26",
+          "negative_scores": 0,
+          "reasons": [
+            "12 of 306 results missing",
+            "12 divergent [0, 0] list-encoded scores"
+          ],
+          "season": "2025-26",
+          "self_matches": 0
+        }
+      },
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431",
+      "verdict": "ACCEPT_HISTORICAL"
     },
-    "2011-12": {
-      "away_per_team_range": [
-        19,
-        19
+    "en.1": {
+      "clean_seasons": [
+        "2010-11",
+        "2011-12",
+        "2012-13",
+        "2013-14",
+        "2014-15",
+        "2015-16",
+        "2016-17",
+        "2017-18",
+        "2018-19",
+        "2019-20",
+        "2020-21",
+        "2021-22",
+        "2022-23",
+        "2023-24",
+        "2024-25"
       ],
-      "clean": true,
-      "date_max": "2012-05-13",
-      "date_min": "2011-08-13",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
+      "code": "en.1",
+      "competition": "English Premier League",
+      "criteria": {
+        "latest_completed_season_clean": true,
+        "structural_consistency_all_seasons": true,
+        "three_recent_clean_folds": true,
+        "usable_clean_seasons": true
+      },
+      "flag_reasons": {
+        "2025-26": [
+          "27 of 380 results missing",
+          "27 divergent [0, 0] list-encoded scores"
+        ]
+      },
+      "flagged_seasons": [
+        "2025-26"
       ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2011/12",
-      "negative_scores": 0,
-      "self_matches": 0
+      "fold_seasons": [
+        "2022-23",
+        "2023-24",
+        "2024-25"
+      ],
+      "latest_clean_season": "2024-25",
+      "n_seasons": 16,
+      "pack": "packs/openfootball-eng-pl",
+      "seasons": {
+        "2010-11": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2011-05-22",
+          "date_min": "2010-08-14",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2010/11",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2010-11",
+          "self_matches": 0
+        },
+        "2011-12": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2012-05-13",
+          "date_min": "2011-08-13",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2011/12",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2011-12",
+          "self_matches": 0
+        },
+        "2012-13": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2013-05-19",
+          "date_min": "2012-08-18",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2012/13",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2012-13",
+          "self_matches": 0
+        },
+        "2013-14": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2014-05-11",
+          "date_min": "2013-08-17",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2013/14",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2013-14",
+          "self_matches": 0
+        },
+        "2014-15": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2015-05-24",
+          "date_min": "2014-08-16",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2014/15",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2014-15",
+          "self_matches": 0
+        },
+        "2015-16": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2016-05-17",
+          "date_min": "2015-08-08",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2015/16",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2015-16",
+          "self_matches": 0
+        },
+        "2016-17": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2017-05-21",
+          "date_min": "2016-08-13",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2016/17",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2016-17",
+          "self_matches": 0
+        },
+        "2017-18": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2018-05-13",
+          "date_min": "2017-08-11",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2017/18",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2017-18",
+          "self_matches": 0
+        },
+        "2018-19": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2019-05-12",
+          "date_min": "2018-08-10",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2018/19",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2018-19",
+          "self_matches": 0
+        },
+        "2019-20": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2020-06-30",
+          "date_min": "2019-07-01",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2019/20",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2019-20",
+          "self_matches": 0
+        },
+        "2020-21": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2021-05-23",
+          "date_min": "2020-09-12",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2020/21",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2020-21",
+          "self_matches": 0
+        },
+        "2021-22": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2022-05-22",
+          "date_min": "2021-08-13",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2021/22",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2021-22",
+          "self_matches": 0
+        },
+        "2022-23": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2023-05-28",
+          "date_min": "2022-08-05",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2022/23",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2022-23",
+          "self_matches": 0
+        },
+        "2023-24": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2024-05-19",
+          "date_min": "2023-08-11",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2023/24",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2023-24",
+          "self_matches": 0
+        },
+        "2024-25": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2025-05-25",
+          "date_min": "2024-08-16",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2024/25",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2024-25",
+          "self_matches": 0
+        },
+        "2025-26": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": false,
+          "date_max": "2026-05-24",
+          "date_min": "2025-08-15",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 27,
+          "n_complete": 353,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "English Premier League 2025/26",
+          "negative_scores": 0,
+          "reasons": [
+            "27 of 380 results missing",
+            "27 divergent [0, 0] list-encoded scores"
+          ],
+          "season": "2025-26",
+          "self_matches": 0
+        }
+      },
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431",
+      "verdict": "ACCEPT_HISTORICAL"
     },
-    "2012-13": {
-      "away_per_team_range": [
-        19,
-        19
+    "es.1": {
+      "clean_seasons": [
+        "2012-13",
+        "2013-14",
+        "2014-15",
+        "2015-16",
+        "2016-17",
+        "2017-18",
+        "2018-19",
+        "2019-20",
+        "2020-21",
+        "2021-22",
+        "2022-23",
+        "2023-24"
       ],
-      "clean": true,
-      "date_max": "2013-05-19",
-      "date_min": "2012-08-18",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
+      "code": "es.1",
+      "competition": "La Liga",
+      "criteria": {
+        "latest_completed_season_clean": true,
+        "structural_consistency_all_seasons": true,
+        "three_recent_clean_folds": true,
+        "usable_clean_seasons": true
+      },
+      "flag_reasons": {
+        "2024-25": [
+          "10 of 380 results missing"
+        ],
+        "2025-26": [
+          "15 of 380 results missing",
+          "15 divergent [0, 0] list-encoded scores"
+        ]
+      },
+      "flagged_seasons": [
+        "2024-25",
+        "2025-26"
       ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2012/13",
-      "negative_scores": 0,
-      "self_matches": 0
+      "fold_seasons": [
+        "2021-22",
+        "2022-23",
+        "2023-24"
+      ],
+      "latest_clean_season": "2023-24",
+      "n_seasons": 14,
+      "pack": "packs/openfootball-esp-ll",
+      "seasons": {
+        "2012-13": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2013-06-01",
+          "date_min": "2012-08-18",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2012/13",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2012-13",
+          "self_matches": 0
+        },
+        "2013-14": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2014-05-18",
+          "date_min": "2013-08-17",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2013/14",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2013-14",
+          "self_matches": 0
+        },
+        "2014-15": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2015-05-23",
+          "date_min": "2014-08-23",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2014/15",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2014-15",
+          "self_matches": 0
+        },
+        "2015-16": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2016-05-15",
+          "date_min": "2015-08-21",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2015/16",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2015-16",
+          "self_matches": 0
+        },
+        "2016-17": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2017-05-21",
+          "date_min": "2016-08-19",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2016/17",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2016-17",
+          "self_matches": 0
+        },
+        "2017-18": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2018-05-20",
+          "date_min": "2017-08-18",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2017/18",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2017-18",
+          "self_matches": 0
+        },
+        "2018-19": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2019-05-19",
+          "date_min": "2018-08-17",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2018/19",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2018-19",
+          "self_matches": 0
+        },
+        "2019-20": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2020-07-19",
+          "date_min": "2019-08-16",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2019/20",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2019-20",
+          "self_matches": 0
+        },
+        "2020-21": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2021-05-23",
+          "date_min": "2020-09-12",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2020/21",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2020-21",
+          "self_matches": 0
+        },
+        "2021-22": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2022-05-22",
+          "date_min": "2021-08-13",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2021/22",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2021-22",
+          "self_matches": 0
+        },
+        "2022-23": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2023-06-04",
+          "date_min": "2022-08-12",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2022/23",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2022-23",
+          "self_matches": 0
+        },
+        "2023-24": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2024-05-26",
+          "date_min": "2023-08-11",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Primera Divisi\u00f3n de Espa\u00f1a 2023/24",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2023-24",
+          "self_matches": 0
+        },
+        "2024-25": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": false,
+          "date_max": "2025-05-25",
+          "date_min": "2024-08-15",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 370,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Spain Primera Divisi\u00f3n 2024/25",
+          "negative_scores": 0,
+          "reasons": [
+            "10 of 380 results missing"
+          ],
+          "season": "2024-25",
+          "self_matches": 0
+        },
+        "2025-26": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": false,
+          "date_max": "2026-05-24",
+          "date_min": "2025-08-15",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 15,
+          "n_complete": 365,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Spain Primera Divisi\u00f3n 2025/26",
+          "negative_scores": 0,
+          "reasons": [
+            "15 of 380 results missing",
+            "15 divergent [0, 0] list-encoded scores"
+          ],
+          "season": "2025-26",
+          "self_matches": 0
+        }
+      },
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431",
+      "verdict": "ACCEPT_HISTORICAL"
     },
-    "2013-14": {
-      "away_per_team_range": [
-        19,
-        19
+    "fr.1": {
+      "clean_seasons": [
+        "2014-15",
+        "2015-16",
+        "2016-17",
+        "2017-18",
+        "2018-19",
+        "2020-21",
+        "2021-22",
+        "2022-23",
+        "2023-24",
+        "2024-25"
       ],
-      "clean": true,
-      "date_max": "2014-05-11",
-      "date_min": "2013-08-17",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
+      "code": "fr.1",
+      "competition": "Ligue 1",
+      "criteria": {
+        "latest_completed_season_clean": true,
+        "structural_consistency_all_seasons": true,
+        "three_recent_clean_folds": true,
+        "usable_clean_seasons": true
+      },
+      "flag_reasons": {
+        "2019-20": [
+          "101 of 380 results missing"
+        ],
+        "2025-26": [
+          "24 of 306 results missing",
+          "23 divergent [0, 0] list-encoded scores"
+        ]
+      },
+      "flagged_seasons": [
+        "2019-20",
+        "2025-26"
       ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2013/14",
-      "negative_scores": 0,
-      "self_matches": 0
+      "fold_seasons": [
+        "2022-23",
+        "2023-24",
+        "2024-25"
+      ],
+      "latest_clean_season": "2024-25",
+      "n_seasons": 12,
+      "pack": "packs/openfootball-fra-l1",
+      "seasons": {
+        "2014-15": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2015-05-23",
+          "date_min": "2014-08-08",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2014/15",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2014-15",
+          "self_matches": 0
+        },
+        "2015-16": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2016-05-14",
+          "date_min": "2015-08-07",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2015/16",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2015-16",
+          "self_matches": 0
+        },
+        "2016-17": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2017-05-20",
+          "date_min": "2016-08-12",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2016/17",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2016-17",
+          "self_matches": 0
+        },
+        "2017-18": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2018-05-19",
+          "date_min": "2017-08-04",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2017/18",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2017-18",
+          "self_matches": 0
+        },
+        "2018-19": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2019-05-24",
+          "date_min": "2018-08-10",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2018/19",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2018-19",
+          "self_matches": 0
+        },
+        "2019-20": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": false,
+          "date_max": "2020-05-23",
+          "date_min": "2019-08-09",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 279,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2019/20",
+          "negative_scores": 0,
+          "reasons": [
+            "101 of 380 results missing"
+          ],
+          "season": "2019-20",
+          "self_matches": 0
+        },
+        "2020-21": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2021-05-23",
+          "date_min": "2020-08-21",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2020/21",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2020-21",
+          "self_matches": 0
+        },
+        "2021-22": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2022-05-21",
+          "date_min": "2021-08-06",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2021/22",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2021-22",
+          "self_matches": 0
+        },
+        "2022-23": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2023-06-03",
+          "date_min": "2022-08-05",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "French Ligue 1 2022/23",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2022-23",
+          "self_matches": 0
+        },
+        "2023-24": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2024-05-19",
+          "date_min": "2023-08-11",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "French Ligue 1 2023/24",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2023-24",
+          "self_matches": 0
+        },
+        "2024-25": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": true,
+          "date_max": "2025-05-17",
+          "date_min": "2024-08-16",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 306,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "French Ligue 1 2024/25",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2024-25",
+          "self_matches": 0
+        },
+        "2025-26": {
+          "away_per_team_range": [
+            17,
+            17
+          ],
+          "clean": false,
+          "date_max": "2026-05-17",
+          "date_min": "2025-08-15",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 306,
+          "expected_teams": 18,
+          "home_per_team_range": [
+            17,
+            17
+          ],
+          "n_anomalous_encoding": 23,
+          "n_complete": 282,
+          "n_matches": 306,
+          "n_teams": 18,
+          "name": "French Ligue 1 2025/26",
+          "negative_scores": 0,
+          "reasons": [
+            "24 of 306 results missing",
+            "23 divergent [0, 0] list-encoded scores"
+          ],
+          "season": "2025-26",
+          "self_matches": 0
+        }
+      },
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431",
+      "verdict": "ACCEPT_HISTORICAL"
     },
-    "2014-15": {
-      "away_per_team_range": [
-        19,
-        19
+    "it.1": {
+      "clean_seasons": [
+        "2013-14",
+        "2014-15",
+        "2015-16",
+        "2016-17",
+        "2017-18",
+        "2018-19",
+        "2019-20",
+        "2020-21",
+        "2021-22",
+        "2022-23",
+        "2023-24"
       ],
-      "clean": true,
-      "date_max": "2015-05-24",
-      "date_min": "2014-08-16",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
+      "code": "it.1",
+      "competition": "Serie A",
+      "criteria": {
+        "latest_completed_season_clean": true,
+        "structural_consistency_all_seasons": true,
+        "three_recent_clean_folds": true,
+        "usable_clean_seasons": true
+      },
+      "flag_reasons": {
+        "2024-25": [
+          "10 of 380 results missing"
+        ],
+        "2025-26": [
+          "36 of 380 results missing",
+          "36 divergent [0, 0] list-encoded scores"
+        ]
+      },
+      "flagged_seasons": [
+        "2024-25",
+        "2025-26"
       ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2014/15",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2015-16": {
-      "away_per_team_range": [
-        19,
-        19
+      "fold_seasons": [
+        "2021-22",
+        "2022-23",
+        "2023-24"
       ],
-      "clean": true,
-      "date_max": "2016-05-17",
-      "date_min": "2015-08-08",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2015/16",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2016-17": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2017-05-21",
-      "date_min": "2016-08-13",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2016/17",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2017-18": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2018-05-13",
-      "date_min": "2017-08-11",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2017/18",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2018-19": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2019-05-12",
-      "date_min": "2018-08-10",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2018/19",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2019-20": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2020-06-30",
-      "date_min": "2019-07-01",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2019/20",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2020-21": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2021-05-23",
-      "date_min": "2020-09-12",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2020/21",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2021-22": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2022-05-22",
-      "date_min": "2021-08-13",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2021/22",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2022-23": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2023-05-28",
-      "date_min": "2022-08-05",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2022/23",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2023-24": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2024-05-19",
-      "date_min": "2023-08-11",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2023/24",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2024-25": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": true,
-      "date_max": "2025-05-25",
-      "date_min": "2024-08-16",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 0,
-      "n_complete": 380,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2024/25",
-      "negative_scores": 0,
-      "self_matches": 0
-    },
-    "2025-26": {
-      "away_per_team_range": [
-        19,
-        19
-      ],
-      "clean": false,
-      "date_max": "2026-05-24",
-      "date_min": "2025-08-15",
-      "duplicate_ordered_pairs": 0,
-      "home_per_team_range": [
-        19,
-        19
-      ],
-      "n_anomalous_encoding": 27,
-      "n_complete": 353,
-      "n_matches": 380,
-      "n_teams": 20,
-      "name": "English Premier League 2025/26",
-      "negative_scores": 0,
-      "self_matches": 0
+      "latest_clean_season": "2023-24",
+      "n_seasons": 13,
+      "pack": "packs/openfootball-ita-sa",
+      "seasons": {
+        "2013-14": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2014-05-18",
+          "date_min": "2013-08-24",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2013/14",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2013-14",
+          "self_matches": 0
+        },
+        "2014-15": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2015-05-31",
+          "date_min": "2014-08-30",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2014/15",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2014-15",
+          "self_matches": 0
+        },
+        "2015-16": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2016-05-15",
+          "date_min": "2015-08-22",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2015/16",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2015-16",
+          "self_matches": 0
+        },
+        "2016-17": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2017-05-28",
+          "date_min": "2016-08-20",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2016/17",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2016-17",
+          "self_matches": 0
+        },
+        "2017-18": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2018-05-20",
+          "date_min": "2017-08-19",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2017/18",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2017-18",
+          "self_matches": 0
+        },
+        "2018-19": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2019-05-26",
+          "date_min": "2018-08-18",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2018/19",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2018-19",
+          "self_matches": 0
+        },
+        "2019-20": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2020-08-02",
+          "date_min": "2019-08-24",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2019/20",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2019-20",
+          "self_matches": 0
+        },
+        "2020-21": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2021-05-23",
+          "date_min": "2020-09-19",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2020/21",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2020-21",
+          "self_matches": 0
+        },
+        "2021-22": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2022-05-22",
+          "date_min": "2021-08-21",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2021/22",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2021-22",
+          "self_matches": 0
+        },
+        "2022-23": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2023-06-04",
+          "date_min": "2022-08-13",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2022/23",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2022-23",
+          "self_matches": 0
+        },
+        "2023-24": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": true,
+          "date_max": "2024-06-02",
+          "date_min": "2023-08-19",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 380,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2023/24",
+          "negative_scores": 0,
+          "reasons": [],
+          "season": "2023-24",
+          "self_matches": 0
+        },
+        "2024-25": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": false,
+          "date_max": "2025-05-25",
+          "date_min": "2024-08-17",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 0,
+          "n_complete": 370,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2024/25",
+          "negative_scores": 0,
+          "reasons": [
+            "10 of 380 results missing"
+          ],
+          "season": "2024-25",
+          "self_matches": 0
+        },
+        "2025-26": {
+          "away_per_team_range": [
+            19,
+            19
+          ],
+          "clean": false,
+          "date_max": "2026-05-24",
+          "date_min": "2025-08-23",
+          "duplicate_ordered_pairs": 0,
+          "expected_matches": 380,
+          "expected_teams": 20,
+          "home_per_team_range": [
+            19,
+            19
+          ],
+          "n_anomalous_encoding": 36,
+          "n_complete": 344,
+          "n_matches": 380,
+          "n_teams": 20,
+          "name": "Italian Serie A 2025/26",
+          "negative_scores": 0,
+          "reasons": [
+            "36 of 380 results missing",
+            "36 divergent [0, 0] list-encoded scores"
+          ],
+          "season": "2025-26",
+          "self_matches": 0
+        }
+      },
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431",
+      "verdict": "ACCEPT_HISTORICAL"
     }
   },
+  "live_in_season_updating": "UNVERIFIED until the 2026-27 season starts",
+  "min_clean_seasons": 10,
   "upstream_commit_date": "2026-05-30",
-  "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431",
-  "verdict": "ACCEPT_HISTORICAL"
+  "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
 }

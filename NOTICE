@@ -16,17 +16,33 @@ are recorded in packs/martj42-internationals/manifest.json. A copy of the CC0
 1.0 legal text is vendored beside the data.
 
 --------------------------------------------------------------------------
+PHASE 1-2 DATA PACKS (club, historical)
+--------------------------------------------------------------------------
+
+openfootball/football.json — CC0-1.0 (public domain dedication).
+Source: https://github.com/openfootball/football.json
+
+One pack per league, all pinned to the same upstream commit: English Premier
+League (packs/openfootball-eng-pl), La Liga (packs/openfootball-esp-ll),
+Bundesliga (packs/openfootball-deu-bl), Serie A (packs/openfootball-ita-sa),
+and Ligue 1 (packs/openfootball-fra-l1). The exact upstream commit, retrieval
+timestamp, filenames, and SHA-256 digests are recorded in each pack's
+manifest.json; a copy of the CC0 1.0 legal text is vendored beside the data.
+Coverage is historical completed seasons only, gated per league by
+docs/handoff/openfootball-audit.md.
+
+--------------------------------------------------------------------------
 REJECTED DEPENDENCIES
 --------------------------------------------------------------------------
 
-Phase 0 does not bundle or add adapters for Transfermarkt-derived Kaggle data,
+Golavo does not bundle or add adapters for Transfermarkt-derived Kaggle data,
 DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL
 endpoints, European Soccer DB, or eatpizzanot. Downstream CC0/PDDL labels do not
 cure upstream ToS or database-provenance problems.
 
-OpenFootball, Wikidata, Wyscout, weather sources, ODbL overlays,
-Football-Data.org, and API-Football are not Phase 0 dependencies. Future use
-requires a fresh license and provenance review.
+Wikidata, Wyscout, weather sources, ODbL overlays, Football-Data.org, and
+API-Football are not current dependencies. Future use requires a fresh license
+and provenance review.
 
 Golavo is not affiliated with, endorsed by, or sponsored by FIFA, UEFA, any
 league, club, or competition organizer. Competition names are used factually

@@ -1,4 +1,4 @@
-# Phase 1 English Premier League chronological evaluation
+# English Premier League chronological evaluation (historical)
 
 Log loss is primary. Each fold is a frozen test window; model fitting and
 Dixon-Coles decay selection use only rows before the stated cutoff. Candidates are
@@ -24,11 +24,13 @@ reported honestly and no test fold is used for parameter tuning.
 
 ## Interpretation
 
-Historical, not live. Data is openfootball (CC0), which passed the Phase 1 gate for
-completed seasons only (docs/handoff/openfootball-audit.md). The partial 2025-26
-capture is excluded; each fold trains on all prior clean seasons from 2010-11.
+Historical, not live. Data is a pinned openfootball snapshot (CC0) that passed the
+club-coverage gate for completed seasons only (docs/handoff/openfootball-audit.md).
+The partial 2025-26 capture is excluded; each fold trains on all prior clean seasons from 2010-11.
 
 Elo is a baseline, not a champion. Unlike the near-neutral international folds, club
 matches carry a real home advantage, so home-aware candidates have room to help — but
 only if they beat Elo out-of-sample here. openfootball kickoff times are venue-local.
+Each league is modeled independently from its own pack; there are no inter-league
+matches, so strengths are NOT comparable across leagues.
 

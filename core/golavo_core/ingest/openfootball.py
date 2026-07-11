@@ -1,10 +1,12 @@
 """openfootball (football.json) ingestion into Golavo's canonical match table.
 
 Produces exactly the same typed frame as the martj42 loader so every downstream
-model, evaluation, and seal path is source-agnostic. Only a well-formed
-``score.ft`` two-integer object counts as a completed result; openfootball's
-divergent ``[0, 0]`` list encoding (seen only in the partial 2025-26 capture) is
-treated as INCOMPLETE, never fabricated as a real 0-0. See
+model, evaluation, and seal path is source-agnostic. One pack per league; the
+league is read from each season file's name (``<season>.<code>.json``) and
+tagged with the registry competition below. Only a well-formed ``score.ft``
+two-integer object counts as a completed result; openfootball's divergent
+``[0, 0]`` list encoding and empty ``{}`` scores (partial captures) are treated
+as INCOMPLETE, never fabricated as real results. See
 docs/handoff/openfootball-audit.md.
 """
 
@@ -19,16 +21,93 @@ import pandas as pd
 
 from .snapshot import validate_pack
 
-COMPETITION = "English Premier League"
-COUNTRY = "England"
+# league code -> (competition label, country). The single registry every
+# openfootball consumer (loader, audit, evaluation) keys off.
+LEAGUES: dict[str, tuple[str, str]] = {
+    "en.1": ("English Premier League", "England"),
+    "es.1": ("La Liga", "Spain"),
+    "de.1": ("Bundesliga", "Germany"),
+    "it.1": ("Serie A", "Italy"),
+    "fr.1": ("Ligue 1", "France"),
+}
+SEASON_FILE = re.compile(r"^(?P<season>\d{4}-\d{2})\.(?P<code>[a-z]{2}\.\d)\.json$")
+
 _SUFFIX = re.compile(r"\s+(?:FC|AFC)$")
 _PREFIX = re.compile(r"^AFC\s+")
 
+# Evidence-based canonicalization for the non-English leagues. openfootball
+# switched to formal legal names in 2020-21 (fr.1: 2023-24); the fragmentation
+# report (scripts/check_team_fragmentation.py, docs/handoff/team-canonicalization.md)
+# enumerates every observed raw variant. Rules below collapse legal-form tokens;
+# _ALIASES carries the drift the rules cannot see. Two safety properties are
+# machine-checked over the pinned packs: canonicalization is injective within
+# every season, and adjudicated distinct clubs (Chievo Verona vs Hellas Verona,
+# AC Ajaccio vs Gazélec Ajaccio, Paris FC vs Paris Saint-Germain) stay distinct.
+_DROP_ANYWHERE = frozenset({"FC", "CF"})
+_LEAD_TOKENS = frozenset({
+    "AC", "ACF", "AJ", "AS", "CA", "CD", "Calcio", "EA", "FSV", "OGC", "RC",
+    "RCD", "SC", "SD", "SM", "SS", "SSC", "SV", "SpVgg", "TSG", "UC", "UD",
+    "US", "VfB", "VfL",
+})
+_TRAIL_TOKENS = frozenset({
+    "AC", "BC", "Balompié", "CFC", "Calcio", "FCO", "HSC", "OSC", "SC", "SCO",
+    "UD",
+})
+_ALIASES: dict[str, dict[str, str]] = {
+    "es.1": {
+        "Club Atlético de Madrid": "Atlético Madrid",
+        "RCD Espanyol de Barcelona": "Espanyol",
+        "Espanyol Barcelona": "Espanyol",
+        "Real Sociedad de Fútbol": "Real Sociedad",
+        "Rayo Vallecano de Madrid": "Rayo Vallecano",
+        "RC Celta": "Celta Vigo",
+        "RC Celta de Vigo": "Celta Vigo",
+        "Deportivo Alavés": "Alavés",
+    },
+    "de.1": {
+        "Bor. Mönchengladbach": "Borussia Mönchengladbach",
+    },
+    "it.1": {
+        "FC Internazionale Milano": "Inter",
+        "Lazio Roma": "Lazio",
+        "SPAL 2013 Ferrara": "SPAL",
+    },
+    "fr.1": {
+        "Olympique Lyonnais": "Lyon",
+        "Olympique Marseille": "Marseille",
+        "Olympique de Marseille": "Marseille",
+        "Nîmes Olympique": "Nîmes",
+        "Racing Club de Lens": "Lens",
+        "RC Strasbourg Alsace": "Strasbourg",
+        "Girondins Bordeaux": "Bordeaux",
+        "ESTAC Troyes": "Troyes",
+    },
+}
 
-def canonical_team(name: str) -> str:
-    """Collapse openfootball's cross-season naming drift ('Arsenal FC' -> 'Arsenal')."""
-    collapsed = _PREFIX.sub("", str(name).strip())
-    return _SUFFIX.sub("", collapsed).strip()
+
+def _strip_legal_tokens(name: str) -> str:
+    tokens = [t for t in name.split() if t.rstrip(".") and not t.rstrip(".").isdigit()]
+    tokens = [t for t in tokens if t not in _DROP_ANYWHERE]
+    while len(tokens) > 1 and tokens[0] in _LEAD_TOKENS:
+        tokens.pop(0)
+    while len(tokens) > 1 and tokens[-1] in _TRAIL_TOKENS:
+        tokens.pop()
+    return " ".join(tokens) or name
+
+
+def canonical_team(name: str, league: str = "en.1") -> str:
+    """Collapse openfootball's cross-season naming drift ('Arsenal FC' -> 'Arsenal').
+
+    The en.1 path is byte-for-byte the Phase 1 behavior (match_ids depend on it).
+    """
+    raw = str(name).strip()
+    if league == "en.1":
+        collapsed = _PREFIX.sub("", raw)
+        return _SUFFIX.sub("", collapsed).strip()
+    alias = _ALIASES.get(league, {}).get(raw)
+    if alias is not None:
+        return alias
+    return _strip_legal_tokens(raw)
 
 
 def _extract_ft(match: dict) -> tuple[int, int] | None:
@@ -46,8 +125,13 @@ def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
     rows: list[dict] = []
     for entry in sorted(manifest["files"], key=lambda e: e["name"]):
         name = entry["name"]
-        if not name.endswith(".en.1.json"):
-            continue
+        parsed = SEASON_FILE.match(name)
+        if parsed is None:
+            continue  # license text, etc.
+        code = parsed["code"]
+        if code not in LEAGUES:
+            raise ValueError(f"{pack_dir / name}: unknown league code {code!r}")
+        competition, country = LEAGUES[code]
         data = json.loads((pack_dir / name).read_text(encoding="utf-8"))
         for match in data.get("matches", []):
             ft = _extract_ft(match)
@@ -55,13 +139,13 @@ def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
                 {
                     "date": match.get("date"),
                     "time": match.get("time"),
-                    "home_team": canonical_team(match.get("team1")),
-                    "away_team": canonical_team(match.get("team2")),
+                    "home_team": canonical_team(match.get("team1"), code),
+                    "away_team": canonical_team(match.get("team2"), code),
                     "home_score": ft[0] if ft is not None else pd.NA,
                     "away_score": ft[1] if ft is not None else pd.NA,
-                    "tournament": COMPETITION,
+                    "tournament": competition,
                     "city": pd.NA,
-                    "country": COUNTRY,
+                    "country": country,
                     "neutral": False,
                 }
             )
@@ -80,7 +164,12 @@ def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
     ).reset_index(drop=True)
     identities = frame.apply(
         lambda r: "|".join(
-            [r["date"].date().isoformat(), str(r["home_team"]), str(r["away_team"]), COMPETITION]
+            [
+                r["date"].date().isoformat(),
+                str(r["home_team"]),
+                str(r["away_team"]),
+                str(r["tournament"]),
+            ]
         ),
         axis=1,
     )

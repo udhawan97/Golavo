@@ -7,6 +7,18 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Phase 2 club coverage: pinned `openfootball` sourcepacks (CC0-1.0, same upstream ref as
+  Phase 1) for La Liga, Bundesliga, Serie A, and Ligue 1 — historical completed seasons
+  only, one independently modeled pack per league (no cross-league strength calibration).
+  The audit gate is league-aware (expected matches derived from actual team count, checked
+  against each league's constitutional size) and excludes, honestly: La Liga & Serie A
+  2024-25 (final matchday missing at capture), Ligue 1 2019-20 (COVID abandonment), and
+  every league's partial 2025-26 capture.
+- Evidence-based team-name canonicalization for es/de/it/fr with a machine-checked proof
+  (`scripts/check_team_fragmentation.py`, `docs/handoff/team-canonicalization.md`):
+  within-season injectivity, cross-season drift merged, distinct clubs kept distinct.
+- Per-league chronological season-fold evaluations (three most recent clean seasons each);
+  the combined evaluation API and workbench now surface all five leagues' folds.
 - Phase 1 club coverage: pinned `openfootball` English Premier League sourcepack (CC0-1.0)
   gated by a coverage audit (`docs/handoff/openfootball-audit.md`) that accepts 15 clean
   completed seasons (2010-11 → 2024-25) and excludes the partial 2025-26 capture.

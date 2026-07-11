@@ -12,6 +12,10 @@ ALLOWED_LICENSES = {"CC0-1.0"}
 DEFAULT_PACKS = (
     Path("packs/martj42-internationals"),
     Path("packs/openfootball-eng-pl"),
+    Path("packs/openfootball-esp-ll"),
+    Path("packs/openfootball-deu-bl"),
+    Path("packs/openfootball-ita-sa"),
+    Path("packs/openfootball-fra-l1"),
 )
 
 

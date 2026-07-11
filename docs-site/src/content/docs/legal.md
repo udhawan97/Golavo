@@ -9,7 +9,7 @@ description: Licensing, non-affiliation, and how Golavo celebrates great footbal
 
 ## Data licenses
 
-Phase 0 vendors one pinned CC0-1.0 pack from `martj42/international_results`. Transfermarkt-derived and DataHub football datasets are rejected because a downstream CC0/PDDL label does not cure upstream ToS and database-provenance risk. Other sources and license-isolated overlays are planned (ADR-0001), not shipped.
+Phase 0 vendors one pinned CC0-1.0 pack from `martj42/international_results`. Phases 1–2 vendor five per-league CC0-1.0 packs from `openfootball/football.json` (English Premier League, La Liga, Bundesliga, Serie A, Ligue 1 — historical completed seasons only, one pinned upstream commit). Transfermarkt-derived and DataHub football datasets are rejected because a downstream CC0/PDDL label does not cure upstream ToS and database-provenance risk. Other sources and license-isolated overlays are planned (ADR-0001), not shipped.
 
 ## Non-affiliation
 

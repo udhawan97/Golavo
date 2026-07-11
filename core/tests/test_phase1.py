@@ -49,12 +49,13 @@ def test_load_matches_dispatch() -> None:
 
 def test_audit_verdict_accept_historical() -> None:
     sys.path.insert(0, str(REPO_ROOT))
-    from scripts.audit_openfootball import run_audit
+    from scripts.audit_openfootball import audit_league
 
-    result = run_audit(PACK)
+    result = audit_league(PACK, "en.1")
     assert result["verdict"] == "ACCEPT_HISTORICAL"
     assert len(result["clean_seasons"]) == 15
     assert result["flagged_seasons"] == ["2025-26"]
+    assert result["fold_seasons"] == ["2022-23", "2023-24", "2024-25"]
 
 
 def test_club_evaluation_gate_and_schema() -> None:

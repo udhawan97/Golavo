@@ -22,9 +22,16 @@ app.add_middleware(
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ARTIFACT_DIR = REPO_ROOT / "data/artifacts"
+# Internationals first, then club leagues in customary big-five order. Each file
+# is one league's frozen chronological evaluation; leagues are modeled
+# independently (no cross-league strength calibration).
 EVAL_SUMMARY_PATHS = (
     REPO_ROOT / "docs/handoff/eval_summary.json",
     REPO_ROOT / "docs/handoff/eval_summary_epl.json",
+    REPO_ROOT / "docs/handoff/eval_summary_laliga.json",
+    REPO_ROOT / "docs/handoff/eval_summary_bundesliga.json",
+    REPO_ROOT / "docs/handoff/eval_summary_seriea.json",
+    REPO_ROOT / "docs/handoff/eval_summary_ligue1.json",
 )
 
 
