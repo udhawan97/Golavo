@@ -155,3 +155,48 @@ def test_windows_probe_maps_open_failures() -> None:
     )  # exists, just not ours
     gone = _FakeKernel32(open_result=0)
     assert sidecar._pid_alive_windows(1, _kernel32=gone, _get_last_error=lambda: 87) is False
+
+
+# --- update-install shutdown endpoint ----------------------------------------
+
+
+def test_shutdown_is_disabled_in_source_mode(monkeypatch) -> None:
+    # No launch token => source mode => the route must not exist for callers:
+    # browsers send cross-origin "simple" POSTs before CORS applies, so an open
+    # shutdown route would let any webpage kill a dev server.
+    monkeypatch.delenv("GOLAVO_TOKEN", raising=False)
+    client = TestClient(server_main.app)
+    assert client.post("/api/v1/shutdown").status_code == 404
+
+
+def test_shutdown_requires_the_launch_token(monkeypatch) -> None:
+    monkeypatch.setenv("GOLAVO_TOKEN", "launch-token-xyz")
+    client = TestClient(server_main.app)
+    assert client.post("/api/v1/shutdown").status_code == 401
+    assert (
+        client.post("/api/v1/shutdown", headers={runtime.TOKEN_HEADER: "wrong"}).status_code == 401
+    )
+
+
+def test_shutdown_schedules_exit_and_flushes_the_response(monkeypatch) -> None:
+    import threading
+
+    scheduled: list[tuple] = []
+
+    class FakeTimer:
+        def __init__(self, delay, fn, args=()):
+            scheduled.append((delay, fn, args))
+
+        def start(self):
+            pass
+
+    monkeypatch.setenv("GOLAVO_TOKEN", "launch-token-xyz")
+    monkeypatch.setattr(threading, "Timer", FakeTimer)
+    client = TestClient(server_main.app)
+    response = client.post("/api/v1/shutdown", headers={runtime.TOKEN_HEADER: "launch-token-xyz"})
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+    # os._exit is scheduled (not called inline — the 200 must flush first).
+    import os
+
+    assert scheduled and scheduled[0][1] is os._exit and scheduled[0][2] == (0,)

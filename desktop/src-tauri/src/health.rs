@@ -50,6 +50,32 @@ pub fn wait_for_health(port: u16, token: &str, timeout: Duration) -> Result<Dura
     ))
 }
 
+/// Ask the sidecar to exit itself (token-gated POST /api/v1/shutdown). Used
+/// before an update installs: killing the onefile BOOTLOADER alone leaves its
+/// forked Python child running — only the sidecar can take down its whole tree.
+#[cfg_attr(not(feature = "updater"), allow(dead_code))]
+pub fn post_shutdown(port: u16, token: &str) -> Result<(), String> {
+    let addr: SocketAddr = format!("127.0.0.1:{port}")
+        .parse()
+        .map_err(|e| format!("bad loopback addr: {e}"))?;
+    let request = format!(
+        "POST /api/v1/shutdown HTTP/1.1\r\nHost: 127.0.0.1\r\nx-golavo-token: {token}\r\n\
+         Content-Length: 0\r\nConnection: close\r\n\r\n"
+    );
+    let mut stream =
+        TcpStream::connect_timeout(&addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;
+    stream
+        .set_read_timeout(Some(Duration::from_secs(3)))
+        .map_err(|e| e.to_string())?;
+    stream
+        .write_all(request.as_bytes())
+        .map_err(|e| e.to_string())?;
+    // Best-effort read: the sidecar may exit before the response flushes.
+    let mut response = String::new();
+    let _ = stream.read_to_string(&mut response);
+    Ok(())
+}
+
 fn probe(addr: &SocketAddr, request: &str) -> Result<bool, String> {
     let mut stream =
         TcpStream::connect_timeout(addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;

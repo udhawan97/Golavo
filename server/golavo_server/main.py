@@ -82,6 +82,29 @@ def health() -> dict[str, str]:
     return {"status": "ok", "app": "golavo", "version": __version__}
 
 
+@app.post("/api/v1/shutdown")
+def shutdown() -> dict[str, bool]:
+    """Desktop-only: the shell asks the sidecar to exit before installing an update.
+
+    Windows installers cannot replace a running executable, and killing the
+    PyInstaller onefile BOOTLOADER alone leaves this Python child serving (and
+    holding the exe lock) — so the shell posts here (token-gated like every
+    /api route) and the whole process tree exits itself. The tiny delay lets
+    the 200 response flush first.
+
+    Hard-disabled in source mode (no launch token): a cross-origin "simple"
+    POST is sent by browsers before CORS applies, so an open shutdown route
+    would let any webpage kill a dev server.
+    """
+    import os
+    import threading
+
+    if runtime.launch_token() is None:
+        raise HTTPException(status_code=404, detail="shutdown is desktop-only")
+    threading.Timer(0.2, os._exit, args=(0,)).start()
+    return {"ok": True}
+
+
 @app.get("/api/v1/forecasts")
 def list_forecasts() -> list[dict[str, Any]]:
     """List immutable forecast artifacts, newest first."""
