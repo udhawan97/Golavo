@@ -23,6 +23,18 @@ fi
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# macOS Developer ID signing is optional and gated on APPLE_CERTIFICATE. In CI
+# the env is populated from secrets, so an ABSENT secret arrives as an EMPTY
+# string — and Tauri, seeing APPLE_CERTIFICATE "set", still runs `security
+# import` on the empty cert and fails the whole build ("failed to import
+# keychain certificate"). Unset the entire Apple group when the cert is empty so
+# Tauri skips Apple signing cleanly and produces an honest OS-unsigned bundle
+# (the updater signature is independent and still applied when its key is set).
+if [ -z "${APPLE_CERTIFICATE:-}" ]; then
+  unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
+    APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID 2>/dev/null || true
+fi
+
 EXT=""
 case "$TARGET" in
   *windows*) EXT=".exe" ;;
