@@ -48,3 +48,13 @@ def resource(*parts: str) -> Path:
 def schema_path() -> Path:
     """Absolute path to the canonical ForecastArtifact JSON schema."""
     return resource("docs", "contracts", "forecast_artifact.schema.json")
+
+
+def evidence_bundle_schema_path() -> Path:
+    """Absolute path to the MatchEvidenceBundle JSON schema (Phase 5, additive)."""
+    return resource("docs", "contracts", "evidence_bundle.schema.json")
+
+
+def narration_schema_path() -> Path:
+    """Absolute path to the AiNarration JSON schema (Phase 5, additive)."""
+    return resource("docs", "contracts", "ai_narration.schema.json")

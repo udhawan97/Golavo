@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/ai-narration-0.1.0.schema.json",
+  "title": "AiNarration",
+  "description": "The forced structured output of Golavo's optional AI layer, produced ONLY from a MatchEvidenceBundle. It carries no probabilities and no authority: it explains and cites the engine's numbers. Every number in any text field must resolve to an allowed_numbers id in the source bundle, or the whole narration is rejected and the app falls back to local-only. This is the wire schema the model is constrained to; the served narration additionally stamps provenance (see AiNarrationEnvelope in golavo_server.ai_gateway).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["claims", "scenarios", "candidate_facts"],
+  "properties": {
+    "claims": {
+      "type": "array",
+      "description": "Grounded observations about this forecast. Each must cite at least one source_id; claims without one are dropped.",
+      "items": {"$ref": "#/$defs/Claim"}
+    },
+    "scenarios": {
+      "type": "array",
+      "description": "Qualitative 'what could happen' sketches. Same numeric and citation rules as claims.",
+      "items": {"$ref": "#/$defs/Claim"}
+    },
+    "candidate_facts": {
+      "type": "array",
+      "description": "Proposed NEW facts the model believes are relevant but that are NOT in the bundle. They are never rendered as engine facts and never touch a probability; each needs an exact source quote and, downstream, allowlisted-source + quote-match + explicit user confirmation before it could ever become a typed feature.",
+      "items": {"$ref": "#/$defs/CandidateFact"}
+    }
+  },
+  "$defs": {
+    "Claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "source_ids", "number_refs"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1, "maxLength": 600},
+        "source_ids": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "number_refs": {
+          "type": "array",
+          "description": "The allowed_numbers ids for every number used in `text`.",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "CandidateFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "quote", "source_url"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1, "maxLength": 400},
+        "quote": {"type": "string", "minLength": 1, "maxLength": 600},
+        "source_url": {"type": "string", "minLength": 1, "maxLength": 400}
+      }
+    }
+  }
+}
