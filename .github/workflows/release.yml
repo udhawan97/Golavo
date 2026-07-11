@@ -59,7 +59,7 @@ jobs:
             echo "Desktop shell not scaffolded yet (Phase 4). Skipping platform build."
           fi
       # --- The steps below activate in Phase 4 (see docs/adr/0001-architecture.md) ---
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         if: steps.guard.outputs.ready == 'true'
         with: { python-version: "3.11" }
       - uses: actions/setup-node@v4
