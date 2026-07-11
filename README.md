@@ -50,6 +50,8 @@ Golavo builds a reproducible 1X2 forecast for a men's senior full international,
 
 The optional AI layer is **implemented in Phase 5 and off by default**; typed-feature reruns from confirmed facts remain **planned (ADR-0001)**. The AI reads and cites the engine's numbers over a deterministic evidence bundle and is structurally prevented from stating any number the engine did not produce — a numeric whitelist rejects the whole narration otherwise, falling back to local-only. It **does not improve accuracy** and cannot change a probability. See the [Phase 5 handoff](docs/handoff/codex-phase5.md).
 
+Since Phase 7, the **Commentator's Notebook** supplies the AI's cited facts deterministically: a fixed, pre-registered family of templates computes source-backed match facts over the CC0 packs, each labelled **predictive / context / coincidence** and carrying its sample, base rate, source, and freshness. Coincidences are capped and quarantined ("for the pub, not the forecast") and never reach the AI. A machine-checked invariant proves no fact code path can write a probability, forecast, or calibration number. See the [Fact & Coincidence engine](https://udhawan97.github.io/Golavo/methodology/facts/).
+
 ## How a forecast is made
 
 ```
@@ -163,7 +165,8 @@ Golavo has no account, telemetry, or ads, and makes **no network call at runtime
 | **3 — Forward loop** | seal-before-kickoff → score-after-full-time for internationals; real calibration record (starts empty) | ✅ shipped |
 | **4 — Desktop + release** | Tauri 2 shell + frozen sidecar; **unsigned** DMG / MSI / EXE + `SHA256SUMS`; signing/notarization + signed auto-updater wired but **gated on secrets** | ✅ code shipped; unsigned build (macOS verified locally); signing gated |
 | **5 — AI Deep Read** | optional, local-first AI explanation over an evidence bundle; numeric whitelist, injection defenses, local-only fallback, CI red-team | ✅ shipped — **off by default; never owns a number** |
-| **6+** | confirmed-lineup / BYOK data adapters, scorers & corners, fact engine, cups & UEFA depth, hash-chained ledger | 🔭 planned |
+| **7 — Fact & Coincidence engine** | the Commentator's Notebook: deterministic, source-backed facts labelled predictive / context / coincidence, sample-guarded, coincidences capped & quarantined, machine-checked "no fact touches a number" | ✅ shipped — **facts inform; they never change a forecast** |
+| **6+** | confirmed-lineup / BYOK data adapters, scorers & corners, cups & UEFA depth, hash-chained ledger | 🔭 planned |
 
 Full detail with entry/exit criteria and kill switches: [Roadmap](https://udhawan97.github.io/Golavo/roadmap/).
 

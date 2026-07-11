@@ -14,7 +14,7 @@ Your favorites first: today's and upcoming fixtures for the teams and countries 
 Everything for one match, in tabs:
 
 - **Forecast** — the sealed forecast: a W/D/L probability bar with an uncertainty band and the exact-score matrix (with an honest tail bucket). Missing markets are shown as missing, not guessed. *Scorers and corners are planned — no accepted open source supplies them yet.*
-- **Commentator's Notebook** — *planned:* cited, source-backed facts and milestones, with coincidences clearly quarantined ("for the pub, not the forecast").
+- **Commentator's Notebook** — **shipped in Phase 7:** deterministic, cited, source-backed facts, each labelled predictive / context / coincidence and carrying its sample, base rate, source and freshness. Coincidences are capped and clearly quarantined ("for the pub, not the forecast") and are never shown to the AI. Nothing here changes a forecast. See the [Fact & Coincidence engine](/Golavo/methodology/facts/) page.
 - **AI Deep Read** — optional narrative and scenario analysis, always visually subordinate to the sealed numbers. **Shipped in Phase 5, off by default;** it cites the engine's numbers and can never change one.
 - **After the Whistle** — once full time arrives, the sealed forecast is scored against the actual result, with its contribution to the running calibration record.
 

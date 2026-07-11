@@ -84,6 +84,7 @@ export default defineConfig({
           items: [
             { label: "Prediction methodology", slug: "methodology/prediction" },
             { label: "Model cards & calibration", slug: "methodology/model-cards" },
+            { label: "Fact & Coincidence engine", slug: "methodology/facts" },
           ],
         },
         {

@@ -6,6 +6,26 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Phase 7 — Fact & Coincidence engine (the Commentator's Notebook).** A new,
+  deterministic `golavo_core.facts` package computes source-backed match facts
+  over the vendored CC0 packs. A fixed, pre-registered family of templates
+  (`family_size` = 26 hypotheses/match — the multiple-comparison bound) emits
+  facts each labelled **predictive / context / coincidence** and carrying its
+  sample, denominator, base rate, source ids, and freshness. Guardrails: per-
+  template minimum-sample suppression, staleness auto-hide, and a coincidence cap
+  (≤3, ranked by specificity not significance) with UI quarantine. Every fact's
+  text is number-disciplined, so context/predictive facts fold verbatim into the
+  AI evidence bundle's numeric whitelist (coincidences never do). Internationals-
+  only scorer/shootout facts; no club scorer/lineup data is fabricated; the
+  promoted-team rate is an honest debut-window proxy. A **machine-checked
+  no-write invariant** (static import isolation + runtime immutability) proves no
+  fact code path can change a probability, forecast, or calibration number.
+- Read-only `GET /api/v1/forecasts/{id}/facts` serving a precomputed notebook; a
+  `golavo notebook` CLI command; a UI **Commentator's Notebook** panel; and an
+  additive `facts.schema.json`. `build_evidence_bundle` gains additive
+  `extra_facts`/`extra_numbers` params (default output byte-identical).
+
 ## [0.1.0] - 2026-07-11
 
 First tagged release — an **unsigned pre-release**. The source, the deterministic
