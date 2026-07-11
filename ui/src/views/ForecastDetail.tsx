@@ -8,6 +8,7 @@ import { HorizonChip, ProbabilityBar, StatusChip, UncertaintyTag } from "../comp
 import { SealStamp } from "../components/SealStamp";
 import { Provenance } from "../components/Provenance";
 import { ScoredPanel } from "../components/ScoredPanel";
+import { AiDeepRead } from "../components/AiDeepRead";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
 export function ForecastDetail({ id }: { id: string }) {
@@ -92,6 +93,9 @@ function Detail({ artifact, supersededBy }: { artifact: ForecastArtifact; supers
           </p>
         </div>
       </div>
+
+      {/* Optional, off by default, and subordinate to the sealed numbers above. */}
+      <AiDeepRead artifact={artifact} />
     </div>
   );
 }

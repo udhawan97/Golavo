@@ -281,8 +281,13 @@ def test_endpoint_unreachable_local_provider_falls_back(monkeypatch, tmp_path) -
         json={"provider": "llama_server", "base_url": "http://127.0.0.1:9/v1", "timeout_s": 1},
     )
     assert res.status_code == 200
-    assert res.json()["status"] == "local_only"
-    assert res.json()["narration"] is None
+    body = res.json()
+    assert body["status"] == "local_only"
+    assert body["narration"] is None
+    # The citation lookups travel with every response so the UI can resolve chips
+    # regardless of AI status.
+    assert body["sources"] and body["sources"][0]["kind"] == "engine"
+    assert any(n["id"] == "prob_home" for n in body["numbers"])
 
 
 def test_endpoint_unknown_artifact_is_404(monkeypatch, tmp_path) -> None:

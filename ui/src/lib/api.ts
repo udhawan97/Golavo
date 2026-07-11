@@ -13,6 +13,7 @@
  */
 import { ACCEPTED_SCHEMA_VERSIONS } from "./contract";
 import type { CalibrationSummary, EvalSummary, ForecastArtifact } from "./contract";
+import type { AiProvider, NarrativeResponse } from "./ai";
 import {
   loadMockCalibration,
   loadMockEval,
@@ -158,4 +159,51 @@ export async function fetchEvalSummary(): Promise<EvalSummary> {
 export async function fetchCalibration(): Promise<CalibrationSummary> {
   if (!API_BASE) return assertCalibration(await loadMockCalibration(), "calibration (mock)");
   return assertCalibration(await getJson("/api/v1/calibration"), "calibration");
+}
+
+/**
+ * Request an OPTIONAL AI narration for one artifact.
+ *
+ * With no backend (sample-data mode) or provider "off", this returns an honest
+ * unavailable/disabled state WITHOUT contacting anything — the UI never fakes a
+ * narration. In live mode it POSTs the provider config; the backend returns a
+ * guard-validated narration or an explicit local-only fallback. This call can
+ * never change or produce a probability.
+ */
+export async function fetchNarrative(id: string, provider: AiProvider): Promise<NarrativeResponse> {
+  const base: NarrativeResponse = {
+    status: "disabled",
+    provider,
+    model: "",
+    prompt_version: "",
+    bundle_hash: "",
+    narration: null,
+    cached: false,
+    reason: null,
+    notes: [],
+    sources: [],
+    numbers: [],
+  };
+  if (provider === "off") return base;
+  if (!API_BASE) {
+    return {
+      ...base,
+      status: "unavailable",
+      reason:
+        "AI Deep Read needs the local Golavo app connected to a model. It is not " +
+        "available in this sample-data preview. The forecast above is complete without it.",
+    };
+  }
+  const headers: Record<string, string> = {
+    accept: "application/json",
+    "content-type": "application/json",
+  };
+  if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
+  const res = await fetch(`${API_BASE}/api/v1/forecasts/${encodeURIComponent(id)}/narrative`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ provider }),
+  });
+  if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);
+  return { ...base, ...(await res.json()) } as NarrativeResponse;
 }

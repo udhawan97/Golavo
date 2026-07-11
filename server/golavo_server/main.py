@@ -141,7 +141,23 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
 
     bundle = build_evidence_bundle(_read_json(path))
     envelope = ai_gateway.generate_narration(bundle, config)
-    return {"artifact_id": artifact_id, "bundle_hash": bundle["bundle_hash"], **envelope.to_dict()}
+    # The UI resolves a claim's source_ids/number_refs against these trusted
+    # bundle lookups to render citation chips with the exact engine display value.
+    sources = [
+        {"source_id": s["source_id"], "kind": s["kind"], "title": s["title"], "url": s["url"]}
+        for s in bundle["sources"]
+    ]
+    numbers = [
+        {"id": n["id"], "display": n["display"], "label": n["label"], "unit": n["unit"]}
+        for n in bundle["allowed_numbers"]
+    ]
+    return {
+        "artifact_id": artifact_id,
+        "bundle_hash": bundle["bundle_hash"],
+        "sources": sources,
+        "numbers": numbers,
+        **envelope.to_dict(),
+    }
 
 
 @app.get("/api/v1/eval/summary")
