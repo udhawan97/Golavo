@@ -156,7 +156,7 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: clamp(2rem, 5vh, 4.5rem) 1.5rem 4rem;
+    padding: clamp(2rem, 5vh, 4.5rem) 1.5rem clamp(6.5rem, 10vh, 8rem);
     overflow: clip;
     isolation: isolate;
     /* theme-tuned atmosphere tokens (dark default) */
@@ -338,7 +338,7 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
   }
 
   @media (max-width: 50rem) {
-    .gh { min-height: auto; padding-top: 2.5rem; }
+    .gh { min-height: auto; padding-top: 2.5rem; padding-bottom: 3rem; }
     .gh-orbit--1, .gh-orbit--3 { display: none; }
     .gh-scroll { display: none; }
   }
