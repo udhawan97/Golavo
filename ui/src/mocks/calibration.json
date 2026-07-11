@@ -16,9 +16,9 @@
         "stage": "Acceptance test"
       },
       "probs": {
-        "away": 0.26,
-        "draw": 0.27,
-        "home": 0.47
+        "away": 0.364977,
+        "draw": 0.270046,
+        "home": 0.364977
       },
       "resolution": {
         "actual": {
@@ -26,17 +26,17 @@
           "home_goals": 2,
           "outcome": "home"
         },
-        "artifact_id": "fa_13876f8e7f3c904eb731",
+        "artifact_id": "fa_831ed103a95e335e676c",
         "metrics": {
-          "brier": 0.3758,
-          "log_loss": 0.693147,
-          "prob_assigned_to_outcome": 0.5
+          "brier": 0.4104,
+          "log_loss": 0.740201,
+          "prob_assigned_to_outcome": 0.477018
         },
         "resolved_at_utc": "2030-02-01T00:00:00Z",
         "status": "scored",
         "void_reason": null
       },
-      "sealed_artifact_id": "fa_d261c2f828520f4d82f1",
+      "sealed_artifact_id": "fa_5cb65a59b038d9586aea",
       "sealed_at_utc": "2030-01-10T18:00:00Z"
     },
     {
@@ -55,9 +55,9 @@
         "stage": "Acceptance test"
       },
       "probs": {
-        "away": 0.25,
-        "draw": 0.27,
-        "home": 0.48
+        "away": 0.321463,
+        "draw": 0.28626,
+        "home": 0.392277
       },
       "resolution": {
         "actual": {
@@ -65,17 +65,17 @@
           "home_goals": 0,
           "outcome": "away"
         },
-        "artifact_id": "fa_d9725b47330bd6612ce9",
+        "artifact_id": "fa_78320bda20238be3bb06",
         "metrics": {
-          "brier": 0.9414,
-          "log_loss": 1.514128,
-          "prob_assigned_to_outcome": 0.22
+          "brier": 0.913707,
+          "log_loss": 1.460927,
+          "prob_assigned_to_outcome": 0.232021
         },
         "resolved_at_utc": "2030-02-01T00:00:00Z",
         "status": "scored",
         "void_reason": null
       },
-      "sealed_artifact_id": "fa_b616e07ee8faf712ff03",
+      "sealed_artifact_id": "fa_4d526254524b29c609e2",
       "sealed_at_utc": "2030-01-11T18:00:00Z"
     },
     {
@@ -100,13 +100,13 @@
       },
       "resolution": {
         "actual": null,
-        "artifact_id": "fa_4faac52785d28d499b64",
+        "artifact_id": "fa_4b34aabe1c66300727e4",
         "metrics": null,
         "resolved_at_utc": "2030-02-01T00:00:00Z",
         "status": "voided",
         "void_reason": "synthetic postponement fixture (contract example)"
       },
-      "sealed_artifact_id": "fa_78e2b91e3417f42f4269",
+      "sealed_artifact_id": "fa_99075100f01df8b2ca24",
       "sealed_at_utc": "2030-01-12T18:00:00Z"
     },
     {
@@ -202,22 +202,22 @@
       "wilson_low": null
     },
     {
-      "accuracy": null,
-      "count": 0,
-      "lower": 0.3,
-      "mean_confidence": null,
-      "upper": 0.4,
-      "wilson_high": null,
-      "wilson_low": null
-    },
-    {
       "accuracy": 0.5,
       "count": 2,
-      "lower": 0.4,
-      "mean_confidence": 0.475,
-      "upper": 0.5,
+      "lower": 0.3,
+      "mean_confidence": 0.378627,
+      "upper": 0.4,
       "wilson_high": 0.905469,
       "wilson_low": 0.094531
+    },
+    {
+      "accuracy": null,
+      "count": 0,
+      "lower": 0.4,
+      "mean_confidence": null,
+      "upper": 0.5,
+      "wilson_high": null,
+      "wilson_low": null
     },
     {
       "accuracy": null,
@@ -266,10 +266,10 @@
     }
   ],
   "running": {
-    "brier": 0.6436,
-    "log_loss": 1.070658,
+    "brier": 0.652813,
+    "log_loss": 1.071397,
     "n_scored": 2,
-    "prob_assigned_to_outcome": 0.36
+    "prob_assigned_to_outcome": 0.34322
   },
   "schema_version": "0.2.0"
 }

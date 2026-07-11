@@ -22,6 +22,11 @@ from golavo_core.ingest import (
     training_rows,
 )
 from golavo_core.models import FAMILIES, fit_model
+from golavo_core.score_matrix import (
+    assert_model_coherent,
+    assert_stored_coherent,
+    build_score_matrix,
+)
 
 SCHEMA_VERSION = "0.2.0"
 GENERATOR = f"golavo-core/{__version__}"
@@ -54,6 +59,15 @@ def validate_artifact(artifact: dict[str, Any], schema_path: Path | None = None)
     probs = artifact["forecast"]["probs"]
     if probs is not None and abs(sum(probs.values()) - 1.0) > 1e-6:
         raise ValueError("forecast probabilities must sum to 1")
+    # Enforce the exact-score coherence invariant on every load, from the stored
+    # JSON alone: any artifact carrying a score_matrix must have grid + tail
+    # marginals that reproduce its sealed 1X2 probabilities. A hand-edited or
+    # otherwise incoherent matrix is rejected here, not silently displayed.
+    score_matrix = artifact["forecast"].get("score_matrix")
+    if score_matrix is not None:
+        if probs is None:
+            raise ValueError("score_matrix present but forecast has no probs to be coherent with")
+        assert_stored_coherent(score_matrix, probs)
 
 
 def canonical_bytes(value: dict[str, Any]) -> bytes:
@@ -200,6 +214,7 @@ def seal_forecast(
 
     probs: dict[str, float] | None = None
     expected_goals: dict[str, float] | None = None
+    score_matrix: dict[str, Any] | None = None
     params: dict[str, Any] = {"minimum_team_matches": MIN_TEAM_MATCHES}
     if not abstained:
         model = fit_model(family, train, _iso(cutoff))
@@ -211,6 +226,12 @@ def seal_forecast(
                 "home": round(prediction.expected_goals[0], 6),
                 "away": round(prediction.expected_goals[1], 6),
             }
+        # Goal-based families imply a full exact-score distribution. Seal it, but
+        # only after proving it reproduces the sealed 1X2 probs and expected
+        # goals — an incoherent matrix aborts the seal rather than being shown.
+        if prediction.matrix is not None and expected_goals is not None:
+            score_matrix = build_score_matrix(prediction.matrix)
+            assert_model_coherent(prediction.matrix, score_matrix, probs, expected_goals)
 
     minimum_count = min(counts.values())
     uncertainty = "high" if minimum_count < 20 else "medium" if minimum_count < 40 else "low"
@@ -263,6 +284,11 @@ def seal_forecast(
         },
         "evaluation": None,
     }
+    # Additive: present only for goal-based families that yield a coherent grid.
+    # Absent for climatological/elo (no goal model) and abstained seals, so the
+    # UI can render an honest "no exact-score distribution" state.
+    if score_matrix is not None:
+        artifact["forecast"]["score_matrix"] = score_matrix
     stable = copy.deepcopy(artifact)
     stable.pop("artifact_id")
     stable["provenance"].pop("payload_sha256")

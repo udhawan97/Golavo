@@ -15,6 +15,37 @@ sys.path.insert(0, str(REPO_ROOT / "core"))
 
 from golavo_core.artifacts import canonical_bytes, payload_sha256, validate_artifact  # noqa: E402
 from golavo_core.calibration import calibration_summary  # noqa: E402
+from golavo_core.models.candidates import PoissonModel  # noqa: E402
+from golavo_core.score_matrix import (  # noqa: E402
+    build_score_matrix,
+    expected_goals,
+    outcome_probabilities,
+)
+
+_POISSON_FAMILIES = {"poisson_independent", "dixon_coles", "bivariate_poisson"}
+
+
+def _goal_forecast(
+    index: int, family: str
+) -> tuple[dict[str, float], dict[str, float], dict[str, Any]]:
+    """Coherent (probs, expected_goals, score_matrix) from a real Poisson matrix.
+
+    Rates vary with the fixture index so the suite covers a range of scorelines.
+    Everything is derived from ONE matrix, so the fixture satisfies the same
+    coherence invariant validate_artifact enforces on real seals — the residual
+    (largest outcome) absorbs six-decimal rounding so the probabilities sum to 1.
+    """
+    home_rate = round(1.15 + 0.10 * index, 4)
+    away_rate = round(max(0.35, 1.30 - 0.05 * index), 4)
+    matrix = PoissonModel(family)._matrix(home_rate, away_rate)
+    home, draw, away = outcome_probabilities(matrix)
+    raw = {"home": home, "draw": draw, "away": away}
+    ordered = sorted(raw, key=raw.__getitem__)  # ascending; residual goes on the largest
+    probs = {ordered[0]: round(raw[ordered[0]], 6), ordered[1]: round(raw[ordered[1]], 6)}
+    probs[ordered[2]] = round(1.0 - probs[ordered[0]] - probs[ordered[1]], 6)
+    eg_home, eg_away = expected_goals(matrix)
+    expected = {"home": round(eg_home, 6), "away": round(eg_away, 6)}
+    return {k: probs[k] for k in ("home", "draw", "away")}, expected, build_score_matrix(matrix)
 
 OUTPUT_DIR = REPO_ROOT / "data/fixtures/sample_artifacts"
 UI_CALIBRATION_MOCK = REPO_ROOT / "ui/src/mocks/calibration.json"
@@ -26,10 +57,34 @@ PARAMS_HASH = hashlib.sha256(b'{"synthetic_fixture":true}').hexdigest()
 
 
 def _base(index: int, status: str) -> dict[str, Any]:
-    home = round(0.46 + index * 0.01, 6)
-    draw = 0.27
-    away = round(1.0 - home - draw, 6)
     abstained = status == "abstained"
+    family = ("elo_ordlogit", "poisson_independent", "dixon_coles")[index % 3]
+    # Goal-based families carry a coherent exact-score matrix (Phase 8); elo has no
+    # goal model, so it exercises the honest "no score distribution" state; abstained
+    # fixtures carry no forecast at all.
+    score_matrix: dict[str, Any] | None = None
+    if abstained:
+        probs = None
+        expected_goals_value = None
+    elif family in _POISSON_FAMILIES:
+        probs, expected_goals_value, score_matrix = _goal_forecast(index, family)
+    else:
+        home = round(0.46 + index * 0.01, 6)
+        draw = 0.27
+        probs = {"home": home, "draw": draw, "away": round(1.0 - home - draw, 6)}
+        expected_goals_value = None
+    forecast: dict[str, Any] = {
+        "market": "1x2_regulation",
+        "sealed_at_utc": f"2030-01-{index + 9:02d}T18:00:00Z",
+        "horizon": ("T-72h", "T-24h", "T-60m")[index % 3],
+        "probs": probs,
+        "expected_goals": expected_goals_value,
+        "abstained": abstained,
+        "abstain_reason": "synthetic insufficient-data fixture" if abstained else None,
+        "uncertainty": "high" if abstained else ("low", "medium")[index % 2],
+    }
+    if score_matrix is not None:
+        forecast["score_matrix"] = score_matrix
     return {
         "schema_version": "0.2.0",
         "artifact_id": "fa_pending00",
@@ -46,19 +101,10 @@ def _base(index: int, status: str) -> dict[str, Any]:
             "city": "Example City",
             "country": "Example Country",
         },
-        "forecast": {
-            "market": "1x2_regulation",
-            "sealed_at_utc": f"2030-01-{index + 9:02d}T18:00:00Z",
-            "horizon": ("T-72h", "T-24h", "T-60m")[index % 3],
-            "probs": None if abstained else {"home": home, "draw": draw, "away": away},
-            "expected_goals": None if abstained else {"home": 1.42, "away": 1.08},
-            "abstained": abstained,
-            "abstain_reason": "synthetic insufficient-data fixture" if abstained else None,
-            "uncertainty": "high" if abstained else ("low", "medium")[index % 2],
-        },
+        "forecast": forecast,
         "model": {
             "model_id": "synthetic_contract_fixture",
-            "family": ("elo_ordlogit", "poisson_independent", "dixon_coles")[index % 3],
+            "family": family,
             "version": "0.1.0",
             "params_hash": PARAMS_HASH,
             "code_git_sha": "0000000",

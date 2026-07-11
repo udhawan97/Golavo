@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
@@ -12,6 +12,7 @@ import pandas as pd
 from scipy.stats import poisson
 
 from golavo_core.ingest import assert_no_future_rows
+from golavo_core.score_matrix import SCORE_MATRIX_RESOLUTION
 
 FAMILIES = (
     "climatological",
@@ -27,6 +28,11 @@ class Prediction:
     probs: tuple[float, float, float]
     expected_goals: tuple[float, float] | None
     params: dict[str, Any]
+    # The full normalised joint score matrix (rows=home goals, cols=away goals)
+    # for goal-based families; None for families that model no goal process
+    # (climatological, elo_ordlogit). compare=False keeps the array out of the
+    # frozen dataclass's __eq__/__hash__.
+    matrix: np.ndarray | None = field(default=None, compare=False)
 
 
 def _normalise(values: np.ndarray) -> tuple[float, float, float]:
@@ -201,7 +207,9 @@ class PoissonModel:
         away = away_base * self.attack.get(away_team, 1.0) * self.defence.get(home_team, 1.0)
         return float(np.clip(home, 0.15, 5.0)), float(np.clip(away, 0.15, 5.0))
 
-    def _matrix(self, home_rate: float, away_rate: float, max_goals: int = 10) -> np.ndarray:
+    def _matrix(
+        self, home_rate: float, away_rate: float, max_goals: int = SCORE_MATRIX_RESOLUTION
+    ) -> np.ndarray:
         values = np.arange(max_goals + 1)
         if self.family == "bivariate_poisson":
             shared = min(self.shared, home_rate * 0.4, away_rate * 0.4)
@@ -228,6 +236,8 @@ class PoissonModel:
 
     def predict(self, home_team: str, away_team: str, neutral: bool) -> Prediction:
         home_rate, away_rate = self._rates(home_team, away_team, neutral)
+        # The sealed 1X2 probabilities AND the exact-score matrix are both derived
+        # from this one converged matrix, so they are coherent by construction.
         matrix = self._matrix(home_rate, away_rate)
         probs = np.array(
             [np.tril(matrix, -1).sum(), np.trace(matrix), np.triu(matrix, 1).sum()]
@@ -238,9 +248,7 @@ class PoissonModel:
         if self.family == "bivariate_poisson":
             params["shared_lambda"] = self.shared
         expected = (home_rate, away_rate)
-        if self.family == "bivariate_poisson":
-            expected = (home_rate, away_rate)
-        return Prediction(_normalise(probs), expected, params)
+        return Prediction(_normalise(probs), expected, params, matrix=matrix)
 
 
 def fit_model(

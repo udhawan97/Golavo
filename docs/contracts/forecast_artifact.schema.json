@@ -71,7 +71,49 @@
         "expected_goals": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/ExpectedGoals"}]},
         "abstained": {"type": "boolean"},
         "abstain_reason": {"type": ["string", "null"]},
-        "uncertainty": {"enum": ["low", "medium", "high"]}
+        "uncertainty": {"enum": ["low", "medium", "high"]},
+        "score_matrix": {"$ref": "#/$defs/ScoreMatrix"}
+      }
+    },
+    "ScoreMatrix": {
+      "type": "object",
+      "description": "Additive (schema 0.2.0). The exact-score distribution the sealed 1X2 forecast already implies, for goal-based families only. grid[i][j] is P(home=i, away=j) for 0..max_goals per side; everything beyond folds into the outcome-decomposed tail. grid + tail is an exact partition of the distribution, so its win/draw/loss marginals reproduce forecast.probs (enforced on load).",
+      "additionalProperties": false,
+      "required": ["max_goals", "resolution", "grid", "tail", "most_likely", "total_probability"],
+      "properties": {
+        "max_goals": {"type": "integer", "minimum": 1},
+        "resolution": {"type": "integer", "minimum": 1},
+        "grid": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "tail": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["probability", "home", "draw", "away"],
+          "properties": {
+            "probability": {"type": "number", "minimum": 0, "maximum": 1},
+            "home": {"type": "number", "minimum": 0, "maximum": 1},
+            "draw": {"type": "number", "minimum": 0, "maximum": 1},
+            "away": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "most_likely": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["home", "away", "probability"],
+          "properties": {
+            "home": {"type": "integer", "minimum": 0},
+            "away": {"type": "integer", "minimum": 0},
+            "probability": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "total_probability": {"type": "number", "minimum": 0}
       }
     },
     "Model": {
