@@ -7,8 +7,8 @@ description: Golavo's deterministic engine is the product, not a downgraded fall
 
 ## What runs locally
 
-- The full W/D/L forecast, exact-score matrix, and (where data allows) scorers and corners.
-- The cited fact and coincidence engine.
+- The full W/D/L forecast and exact-score matrix. (Scorers and corners are planned — no accepted open source supplies them yet.)
+- The deterministic evidence bundle that cites every engine number.
 - The sealed ledger and after-the-whistle scoring.
 
 All of it computes on your machine over data you've already synced. Staleness is always shown.

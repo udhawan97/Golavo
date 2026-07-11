@@ -1,9 +1,9 @@
 ---
 title: Coverage
-description: The exact data coverage implemented by Phase 0, with gaps stated explicitly.
+description: Golavo's exact data coverage across internationals and the top-5 European leagues, with gaps stated explicitly.
 ---
 
-Phase 0 is intentionally narrow: **men's senior full internationals only**. It vendors a pinned snapshot of `martj42/international_results` under CC0-1.0. The snapshot is reproducible, not live.
+Golavo began, in Phase 0, with **men's senior full internationals only** — a pinned snapshot of `martj42/international_results` under CC0-1.0, reproducible and not live. That is still the only **forward** surface; the sections below add the historical club backbone and the forward loop.
 
 **Phase 1** adds one club competition — the **English Premier League** — as a **historical** backbone from a pinned `openfootball` snapshot (CC0-1.0), accepted only for **completed seasons** after a coverage audit. It is reproducible and backtested, **not live**.
 
@@ -11,7 +11,7 @@ Phase 0 is intentionally narrow: **men's senior full internationals only**. It v
 
 **Phase 3** adds the forward sealed-forecast loop — for **internationals only**. `martj42/international_results` is CC0, refreshes within days, and carries upcoming fixtures as scheduled rows, so a real fixture can be sealed before its (day-proxy) kickoff and scored from a later retained snapshot. The openfootball club packs are season-lagged captures with no verified live cadence, so a **club forward loop is an explicit non-goal** — club coverage stays historical backtesting. The source publishes dates without kickoff times, so seals close at a conservative 00:00 UTC day-before cutoff; snapshots are immutable, retained, and registered in `packs/snapshots.json`. See [The Prediction Ledger](/Golavo/prediction-ledger/).
 
-## Phase 0 coverage
+## Coverage by data type
 
 | Data type | Coverage | Engine use |
 |---|---|---|

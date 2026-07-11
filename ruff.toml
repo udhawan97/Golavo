@@ -6,5 +6,6 @@ extend-exclude = ["docs-site", "ui", "**/build", "**/dist", "**/.astro"]
 select = ["E", "F", "I", "UP", "B"]
 
 [lint.per-file-ignores]
-# The audit emits Markdown report prose; long single-line strings are intentional.
+# These scripts emit Markdown report prose; long single-line strings are intentional.
 "scripts/audit_openfootball.py" = ["E501"]
+"scripts/build_model_cards.py" = ["E501"]

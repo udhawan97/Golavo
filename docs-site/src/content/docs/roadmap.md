@@ -13,7 +13,7 @@ Golavo is built data-first. The first phase is a feasibility spike with a real k
 | **1 — Engine + ledger** | expanded warehouse, planned hash-chained ledger, calibration harness | calibration within bands; abstention gates fire correctly | calibration remains unfixable in the chosen scope |
 | **2 — Source-mode web app** | Matchday, Fixture Room, Forecast Theatre, After the Whistle; casual/expert; all data states | performance & a11y budgets met; a live matchday sealed and scored | — |
 | **3 — BYOK depth** | evaluate lawful typed-feature adapters; confirmed-lineup forecasts only if terms allow | confirmed-lineup seal works; keys never leave the keychain | live API terms prohibit the required use → adapter rejected |
-| **4 — Desktop + release** | Tauri shell, signed updater (stable/beta), notarized DMG + signed EXE, docs site | install/update/rollback matrix green on macOS + Windows | sidecar packaging unresolved after 2 focused weeks → fallback shell |
+| **4 — Desktop + release** ✅ *shipped, unsigned* | Tauri shell + frozen sidecar; **unsigned** DMG / MSI / EXE + `SHA256SUMS`; docs site. Code signing, notarization, and the signed updater are **wired but gated on secrets** (not yet configured) | install/update/rollback matrix green on macOS + Windows | sidecar packaging unresolved after 2 focused weeks → fallback shell |
 
 ## Full aspirational Golavo
 

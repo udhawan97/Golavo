@@ -6,7 +6,34 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-07-11
+
+First tagged release — an **unsigned pre-release**. The source, the deterministic
+engine, the optional off-by-default AI layer, and the docs are complete and
+tested; the desktop bundles build **unsigned**, so macOS Gatekeeper and Windows
+SmartScreen warn on first launch. Code signing, notarization, and the signed
+auto-updater are wired but **gated on secrets that are not configured**, so no
+signed or notarized artifact is produced or claimed. The calibration record ships
+**empty** and only ever accumulates genuine pre-kickoff seals.
+
 ### Added
+- Phase 6 release hardening. A whole-repo claims/honesty audit
+  (`docs/handoff/phase6-claims-audit.md`) reconciled every capability claim with
+  shipped, tested code at the release commit. One deterministic end-to-end
+  integration test (`server/tests/test_phase6_e2e.py`) composes the whole
+  pipeline — provenance-validate packs → ingest → evaluate a fold → forward-seal
+  a scheduled fixture on snapshot T0 → score it from T1 → aggregate the
+  calibration record → build the evidence bundle → run the AI narration path with
+  a **canned adversarial** response and assert the numeric whitelist falls back to
+  local-only — with byte-stable artifacts and **no network, no live LLM**.
+  Per-competition **model cards** with the real backtest metrics and reliability
+  diagrams are generated from the evaluation artifacts by
+  `scripts/build_model_cards.py` (never hand-typed). **Authentic screenshots** of
+  the running v0.1.0 workbench — matchday, sealed/scored, the calibration record,
+  and the AI Deep Read panel OFF and ON — captured over the clearly-labelled
+  synthetic sample artifacts and surfaced on the landing page and README. Coherent
+  `0.1.0` versioning across `core`/`server`, `ui`, `CITATION.cff`, and the Tauri
+  config.
 - Phase 5 optional, local-first **AI Deep Read** — off by default and strictly
   additive; the whole app works identically with AI disabled. The deterministic
   engine owns every probability; the AI only explains and cites, and is
@@ -110,4 +137,5 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/commits/main
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/udhawan97/Golavo/releases/tag/v0.1.0

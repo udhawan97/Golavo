@@ -3,20 +3,20 @@ title: Introduction
 description: What Golavo is, what it is not, and the principles that keep it trustworthy.
 ---
 
-Golavo is a local-first, open-source football forecasting project. Phase 0 implements reproducible sealing and scoring for men's senior full internationals; a public calibration ledger and desktop application are planned (ADR-0001).
+Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals (a forward seal→score loop with a real calibration record), backtests the top-5 European leagues (historical), ships an optional off-by-default AI narration layer, and builds an unsigned desktop app. A **hash-chained** multi-artifact ledger and confirmed-lineup / BYOK data adapters remain planned (ADR-0001).
 
 ## What Golavo is
 
-- A **Phase 0 forecast artifact pipeline**: sealed pre-kickoff JSON artifacts are replayable and never mutated when scored.
+- A **forward forecast pipeline**: sealed pre-kickoff JSON artifacts are replayable and never mutated when scored.
 - A **provenance-first engine**: each artifact records the pinned source snapshot and content hashes.
-- A **local source-mode core and API**. The hash-chained ledger, fact engine, AI layer, and desktop app are planned (ADR-0001).
+- A **local source-mode core, API, and desktop app**, with an optional AI layer that is off by default. The hash-chained ledger and fact engine remain planned (ADR-0001).
 
 ## What Golavo is not
 
 - Not a **livescore** app — open-core results are delayed.
 - Not a **betting** tool — no odds, picks, "locks," bankroll advice, or affiliate links.
 - Not an **AI predictor** — the statistical engine owns every probability.
-- Not a **data redistributor** — proprietary feeds are bring-your-own-key and never re-shared.
+- Not a **data redistributor** — vendored packs are CC0; proprietary-feed adapters are planned as bring-your-own-key and would never be re-shared.
 
 ## Product principles
 
@@ -33,8 +33,8 @@ Golavo is a local-first, open-source football forecasting project. Phase 0 imple
 | Term | What it means in Golavo |
 |---|---|
 | **Local** | All computation runs on your machine over data already synced to disk. Staleness is always shown. |
-| **Offline** | Phase 0 forecasting and API reads work from the vendored snapshot; rebuilding a sourcepack requires network access. |
-| **AI** | Planned (ADR-0001), out of Phase 0. Its contract permits cited narrative, never probability ownership. |
-| **Open** | The code is Apache-2.0; data packs declare their own license. The Phase 0 pack is CC0-1.0. |
+| **Offline** | Forecasting and API reads work from the vendored snapshot; rebuilding a sourcepack requires network access. |
+| **AI** | Implemented (Phase 5), **off by default**. Its contract permits cited narrative, never probability ownership; it cannot change or improve a number. |
+| **Open** | The code is Apache-2.0; data packs declare their own license. The vendored packs are CC0-1.0. |
 | **Free** | No payment to Golavo, ever. Optional third-party keys/AI are paid by you, to those providers. |
-| **Live** | Golavo is not live. Phase 0 uses a pinned snapshot and records its retrieval time. |
+| **Live** | Golavo is not live. It uses pinned snapshots and records their retrieval time. |

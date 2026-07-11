@@ -118,6 +118,19 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          prerelease: ${{ needs.prepare.outputs.channel != 'stable' }}
+          # An unsigned build is always a pre-release: with no checksum-signing key
+          # (and, upstream, no Tauri/Apple signing secrets) nothing here is signed or
+          # notarized. A future signed release (MINISIGN_SECRET_KEY present) publishes
+          # as a full release.
+          prerelease: ${{ env.MINISIGN_SECRET_KEY == '' || needs.prepare.outputs.channel != 'stable' }}
           generate_release_notes: true
+          body: |
+            **Golavo v${{ needs.prepare.outputs.version }} — unsigned pre-release.**
+
+            Desktop bundles are **unsigned**: macOS Gatekeeper and Windows SmartScreen
+            warn on first launch (macOS: right-click → Open; Windows: More info → Run
+            anyway). Code signing, notarization, and the signed auto-updater are wired
+            but gated on secrets that are **not configured** — no signed or notarized
+            artifact is produced or claimed. Verify every download against
+            `SHA256SUMS.txt`.
           files: dist/**

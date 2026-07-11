@@ -9,7 +9,7 @@
 ### The numbers remember everything. The beautiful game still keeps the last word.
 
 **Open-source, local-first soccer forecasting for full internationals.**
-Phase 0 is a deterministic, local forecasting spike for men's senior full internationals. Broader coverage, AI narration, and desktop distribution are planned in [ADR-0001](docs/adr/0001-architecture.md).
+It began as a deterministic local forecasting spike for men's senior full internationals; it now also backtests the men's top-5 European leagues (historical), ships an optional local-first AI narration layer (off by default, never owns a number), and builds an unsigned desktop app. Remaining scope — confirmed-lineup / BYOK data adapters, scorers, cups, and a signed release — is tracked in [ADR-0001](docs/adr/0001-architecture.md).
 
 <!-- Badges resolve once the repo is public on GitHub. -->
 [![CI](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml/badge.svg)](https://github.com/udhawan97/Golavo/actions/workflows/ci.yml)
@@ -22,13 +22,21 @@ Phase 0 is a deterministic, local forecasting spike for men's senior full intern
 </div>
 
 > [!WARNING]
-> **Status: pre-alpha (Phase 3 — forward sealed-forecast loop, internationals only).** No installable build yet. Working today: pinned CC0 snapshots with retained history, historical backtests (internationals + top-5 leagues), and a reproducible seal-before-kickoff → score-after-full-time loop for internationals with a real calibration ledger. Desktop, AI narration, and BYOK remain planned ([ADR-0001](docs/adr/0001-architecture.md)). Nothing here is a betting product.
+> **Status: v0.1.0 — unsigned pre-alpha.** Working today: pinned CC0 snapshots with retained history; historical backtests (internationals + top-5 European leagues); a reproducible seal-before-kickoff → score-after-full-time loop for internationals with a real calibration record (which **starts empty** and only ever holds genuine pre-kickoff seals); an optional local-first AI narration layer that is **off by default** and can never change a number; and a Tauri desktop app that builds **unsigned** (the macOS bundle is verified locally; macOS + Windows bundles are built by the release workflow on tag). Signing/notarization, the signed auto-updater, confirmed-lineup / BYOK data adapters, club forward loops, scorers, and cups remain planned or gated ([ADR-0001](docs/adr/0001-architecture.md)). Nothing here is a betting product.
 
 ---
 
+<div align="center">
+
+![The Golavo workbench — a matchday list of sealed, scored, abstained and voided forecasts, rendering the bundled synthetic sample artifacts](docs-site/public/screenshots/workbench-matchday.png)
+
+<sub>The read-only workbench (v0.1.0) over the bundled **synthetic sample artifacts** — labelled as sample data in-app, never shown as real forecasts. More: [AI Deep Read off](docs-site/public/screenshots/ai-deep-read-off.png) · [on](docs-site/public/screenshots/ai-deep-read-on.png) · [calibration record](docs-site/public/screenshots/calibration-ledger.png).</sub>
+
+</div>
+
 ## What Golavo is
 
-Golavo builds a reproducible 1X2 forecast for a men's senior full international, then **seals** a versioned JSON artifact with its model and source snapshot. A later, strictly-newer snapshot produces a separate scored artifact without rewriting the seal — and since Phase 3 this forward loop is real: sealed fixtures accumulate in a public ledger (`data/artifacts/`), postponements void with a recorded reason, and a read-only calibration record tracks running log loss and reliability over genuine seals, separately from backtests. The source gives dates but not kickoff times, so seals close at a conservative day-before (00:00 UTC) cutoff; forwardness is proven by pre-kickoff publication in this repository's git history. Exact-score presentation, goalscorers, corners, and broader competitions are planned in [ADR-0001](docs/adr/0001-architecture.md).
+Golavo builds a reproducible 1X2 forecast for a men's senior full international, then **seals** a versioned JSON artifact with its model and source snapshot. A later, strictly-newer snapshot produces a separate scored artifact without rewriting the seal — and since Phase 3 this forward loop is real: sealed fixtures accumulate in a public ledger (`data/artifacts/`), postponements void with a recorded reason, and a read-only calibration record tracks running log loss and reliability over genuine seals, separately from backtests. The source gives dates but not kickoff times, so seals close at a conservative day-before (00:00 UTC) cutoff; forwardness is proven by pre-kickoff publication in this repository's git history. Exact-score presentation, goalscorers, corners, cups, and a club forward loop are planned in [ADR-0001](docs/adr/0001-architecture.md).
 
 **What Golavo is not:** a livescore app (open-core results are delayed), a betting tool (no odds, no picks, no "locks," no bankroll advice), a redistributor of licensed data feeds, or an "AI predictor" (the statistics own the numbers).
 
@@ -74,9 +82,9 @@ The snapshots are reproducible and pinned, not live feeds; every league's partia
 
 | Mode | Who it's for | Status |
 |---|---|---|
-| **Source (local API + core)** | developers, researchers | Phase 0 |
-| **Source web app** | developers, researchers | planned (ADR-0001, Phase 2) |
-| **Desktop (macOS DMG / Windows MSI+EXE)** | everyone | Phase 4 — **unsigned build works**; signing gated |
+| **Source (local API + core)** | developers, researchers | working |
+| **Source web app (React + local API)** | developers, researchers | working (`make dev`) |
+| **Desktop (macOS DMG / Windows MSI+EXE)** | everyone | **unsigned** build — macOS verified locally, macOS + Windows built by the release CI; signing gated |
 
 ```bash
 # Source-mode API (Phase 0)
@@ -144,19 +152,18 @@ Attribution strings and the full field-level license matrix live in [NOTICE](NOT
 
 ## Privacy & security
 
-Phase 0 has no account, telemetry, ads, BYOK keys, AI calls, or updater. Sourcepack construction performs an explicit network download; normal core and API reads use local files. Keychain storage, authenticated desktop sidecars, signed packs, and signed updates are **planned (ADR-0001)**. See [SECURITY.md](SECURITY.md).
+Golavo has no account, telemetry, or ads, and makes **no network call at runtime unless you opt in**. The AI Deep Read layer is **off by default**; it only contacts a model — a local Ollama / llama.cpp server, or a BYOK cloud provider whose key stays in your keychain/env and is never logged — when you explicitly enable it. Sourcepack construction performs an explicit network download; normal core and API reads use local files. The desktop sidecar binds to a private loopback port behind a per-launch token. Signed packs and the signed auto-updater are **wired but gated on secrets (ADR-0001)** and disabled by default. See [SECURITY.md](SECURITY.md).
 
 ## Roadmap
 
-| Phase | Deliverable |
-|---|---|
-| **0 — Data-feasibility spike** | ingest real matches, one reproducible sealed forecast, backtested & scored, every fact cited |
-| **1 — Engine + ledger** | expanded warehouse, planned hash-chained ledger, calibration harness |
-| **2 — Source-mode web app** | Matchday, Fixture Room, Forecast Theatre, After the Whistle |
-| **3 — BYOK depth** | football-data.org + API-Football typed-feature adapters, confirmed-lineup forecasts |
-| **4 — Desktop + release** | Tauri shell, signed updater, notarized DMG + signed EXE, docs site |
-| **5 — AI Deep Read** | optional, local-first AI explanation over an evidence bundle; numeric whitelist, injection defenses, local-only fallback, CI red-team — **off by default; never owns a number** |
-| **6+** | scorers & corners, fact engine, cups & UEFA depth |
+| Phase | Deliverable | Status |
+|---|---|---|
+| **0 — Data-feasibility spike** | ingest real matches, one reproducible sealed forecast, backtested & scored, every fact cited | ✅ shipped |
+| **1–2 — Engine + leagues** | expanded warehouse; men's top-5 European leagues backtested (historical); chronological evaluation harness | ✅ shipped |
+| **3 — Forward loop** | seal-before-kickoff → score-after-full-time for internationals; real calibration record (starts empty) | ✅ shipped |
+| **4 — Desktop + release** | Tauri 2 shell + frozen sidecar; **unsigned** DMG / MSI / EXE + `SHA256SUMS`; signing/notarization + signed auto-updater wired but **gated on secrets** | ✅ code shipped; unsigned build (macOS verified locally); signing gated |
+| **5 — AI Deep Read** | optional, local-first AI explanation over an evidence bundle; numeric whitelist, injection defenses, local-only fallback, CI red-team | ✅ shipped — **off by default; never owns a number** |
+| **6+** | confirmed-lineup / BYOK data adapters, scorers & corners, fact engine, cups & UEFA depth, hash-chained ledger | 🔭 planned |
 
 Full detail with entry/exit criteria and kill switches: [Roadmap](https://udhawan97.github.io/Golavo/roadmap/).
 

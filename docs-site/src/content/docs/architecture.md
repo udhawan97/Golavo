@@ -6,8 +6,9 @@ description: The Python forecasting core, the read-only FastAPI surface, and the
 Golavo is a Python forecasting core, a Parquet typed-match table, immutable JSON
 forecast artifacts, and a read-only FastAPI surface. **Phase 4** adds a Tauri 2
 desktop shell that packages the core as a frozen **sidecar** and supervises its
-lifecycle. DuckDB views, SQLite state, an AI gateway, and a hash-chained ledger
-remain **planned (ADR-0001)**.
+lifecycle. **Phase 5** adds an optional, off-by-default AI gateway (the only
+module that talks to a model) over a deterministic evidence bundle. DuckDB views,
+SQLite state, and a hash-chained ledger remain **planned (ADR-0001)**.
 
 ## Component boundaries
 

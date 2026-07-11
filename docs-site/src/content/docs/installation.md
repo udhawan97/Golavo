@@ -32,7 +32,7 @@ quit, the shell kills the sidecar.
 
 ### Build it locally
 
-Prerequisites: Rust (stable), Node 20+, Python 3.12, and the Tauri system
+Prerequisites: Rust (stable), Node 20+, Python 3.11+, and the Tauri system
 dependencies for your OS. Then:
 
 ```bash

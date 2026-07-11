@@ -32,5 +32,5 @@ make lint                 # ruff + mypy + eslint
 | `docs-site/` | this documentation site | docs |
 
 :::note
-`make` targets are placeholders during Phase 0–1 while the packages are scaffolded. See [Contributing](/Golavo/contributing/).
+The `make` targets (`setup`, `dev`, `test`, `lint`, `validate`, `build`) are live. `make validate` runs provenance + artifact checks; `make build` builds the UI and docs site. See [Contributing](/Golavo/contributing/).
 :::
