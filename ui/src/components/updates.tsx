@@ -49,9 +49,17 @@ export function UpdatePill() {
 // ---------------------------------------------------------------- sheet -----
 
 /** Focus containment: send focus in on open, keep Tab cycling inside, restore
- *  on close. Small and dependency-free rather than exhaustive. */
+ *  on close. Small and dependency-free rather than exhaustive.
+ *
+ *  The effect keys ONLY on `active`, so it does not tear down and re-`focus()`
+ *  on every render — critical during a download, where the sheet re-renders on
+ *  each progress tick and would otherwise yank focus off Cancel every ~2 MB.
+ *  `onEscape` is read through a ref so its changing identity never re-runs the
+ *  effect. */
 function useFocusTrap(active: boolean, onEscape: () => void) {
   const ref = useRef<HTMLDivElement>(null);
+  const onEscapeRef = useRef(onEscape);
+  useEffect(() => { onEscapeRef.current = onEscape; }, [onEscape]);
   useEffect(() => {
     if (!active || !ref.current) return;
     const container = ref.current;
@@ -60,7 +68,7 @@ function useFocusTrap(active: boolean, onEscape: () => void) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.stopPropagation();
-        onEscape();
+        onEscapeRef.current();
         return;
       }
       if (e.key !== "Tab") return;
@@ -83,7 +91,7 @@ function useFocusTrap(active: boolean, onEscape: () => void) {
       container.removeEventListener("keydown", onKey);
       previous?.focus?.();
     };
-  }, [active, onEscape]);
+  }, [active]);
   return ref;
 }
 
@@ -306,9 +314,13 @@ function sheetBody(u: ReturnType<typeof useUpdater>, phase: UpdaterPhase): React
                 Try again
               </button>
             )}
-            <button type="button" className="btn btn--ghost" onClick={u.dismissError}>
-              Close
-            </button>
+            {/* A stalled install already stopped the sidecar, so the app is
+                degraded — relaunch is the only sensible path, no "Close". */}
+            {error.kind !== "install_stalled" && (
+              <button type="button" className="btn btn--ghost" onClick={u.dismissError}>
+                Close
+              </button>
+            )}
           </div>
         </>
       );

@@ -241,6 +241,10 @@ export function useUpdaterController(): UpdaterController {
         else if (s.phase === "installing" && info) setPhase({ kind: "installing", info });
         else if (s.phase === "error") {
           setPhase({ kind: "error", error: s.error ?? { kind: "other", message: "Unknown updater error" }, info });
+          // A download/install error can arrive while the user hid the sheet
+          // mid-download. Re-surface it — a silently vanishing "Downloading…"
+          // pill would leave them believing an update is still in flight.
+          setSheetOpen(true);
         } else if (s.phase === "idle") {
           // Cancel: recompute skipped from the persisted store so the sheet body
           // stays truthful (never re-offers "Skip" for a version already skipped).
@@ -299,8 +303,13 @@ export function useUpdaterController(): UpdaterController {
       const error = asUpdateError(raw);
       // Passive checks fail silently (no nagging when a laptop is offline);
       // manual checks explain themselves.
-      if (manual) setPhase({ kind: "error", error, info: offeredRef.current });
-      else setPhase({ kind: "idle" });
+      if (manual) {
+        setPhase({ kind: "error", error, info: offeredRef.current });
+      } else if (phaseRef.current.kind !== "available") {
+        // A background check that fails on a transient blip must NOT erase an
+        // update already surfaced to the user; only clear a non-offer phase.
+        setPhase({ kind: "idle" });
+      }
     }
   }, [isDesktop, enabled]);
 
