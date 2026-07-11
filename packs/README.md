@@ -18,7 +18,8 @@ only** — see `docs/handoff/openfootball-audit.md` for each league's gate verdi
 
 | Directory | Coverage | License |
 |---|---|---|
-| `martj42-internationals/` | men's senior full internationals (Phase 0) | CC0-1.0 |
+| `martj42-internationals/` | men's senior full internationals (Phase 0; ref `ddd7249…`) | CC0-1.0 |
+| `martj42-internationals-273c731492df/` | retained older internationals snapshot (Phase 3 forward-loop T0; `core` file set) | CC0-1.0 |
 | `openfootball-eng-pl/` | English Premier League seasons 2010-11 → 2025-26 (Phase 1) | CC0-1.0 |
 | `openfootball-esp-ll/` | La Liga seasons 2012-13 → 2025-26 (Phase 2) | CC0-1.0 |
 | `openfootball-deu-bl/` | Bundesliga seasons 2010-11 → 2025-26 (Phase 2) | CC0-1.0 |
@@ -28,6 +29,20 @@ only** — see `docs/handoff/openfootball-audit.md` for each league's gate verdi
 Vendored season files include flagged partial captures (e.g. every league's
 2025-26); the audit gate — not the pack contents — decides which seasons the
 engine may treat as clean.
+
+## Snapshot retention (Phase 3)
+
+Snapshots are **immutable and retained**. `scripts/build_sourcepack.py --ref
+<full-sha> [--files core|full]` vendors one pinned upstream ref into a new
+directory (`martj42-internationals-<ref12>` by default), records the upstream
+commit time (`upstream_committed_at_utc` — the data-state anchor that seals
+validate against) alongside the honest retrieval time, and registers the pack
+in `packs/snapshots.json`. A ref that is already registered is never
+re-fetched; an existing directory or registry entry is never rewritten.
+`validate_provenance.py` re-verifies every pack byte and the registry on every
+CI run. The `core` file set (`results.csv`, `former_names.csv`, license) is the
+minimum the match table reads and keeps retained snapshots small; `full` also
+vendors goalscorers and shootouts.
 
 ## Isolation is mandatory
 

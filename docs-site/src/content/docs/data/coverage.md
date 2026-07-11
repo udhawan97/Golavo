@@ -9,6 +9,8 @@ Phase 0 is intentionally narrow: **men's senior full internationals only**. It v
 
 **Phase 2** extends the same pinned `openfootball` snapshot to the rest of the men's **top-5 European leagues** — **La Liga, Bundesliga, Serie A, and Ligue 1** — each gated by its own per-league audit verdict, each **historical only**. Every league is modeled independently from its own pack: domestic season files carry no inter-league matches, so there is **no cross-league strength calibration** and strengths are not comparable across leagues.
 
+**Phase 3** adds the forward sealed-forecast loop — for **internationals only**. `martj42/international_results` is CC0, refreshes within days, and carries upcoming fixtures as scheduled rows, so a real fixture can be sealed before its (day-proxy) kickoff and scored from a later retained snapshot. The openfootball club packs are season-lagged captures with no verified live cadence, so a **club forward loop is an explicit non-goal** — club coverage stays historical backtesting. The source publishes dates without kickoff times, so seals close at a conservative 00:00 UTC day-before cutoff; snapshots are immutable, retained, and registered in `packs/snapshots.json`. See [The Prediction Ledger](/Golavo/prediction-ledger/).
+
 ## Phase 0 coverage
 
 | Data type | Coverage | Engine use |

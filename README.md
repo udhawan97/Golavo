@@ -22,13 +22,13 @@ Phase 0 is a deterministic, local forecasting spike for men's senior full intern
 </div>
 
 > [!WARNING]
-> **Status: pre-alpha (Phase 0 — data-feasibility spike).** No installable build yet. This repository is the scaffold and the plan. Coverage claims below describe the *designed* product, not shipped features. Nothing here is a betting product.
+> **Status: pre-alpha (Phase 3 — forward sealed-forecast loop, internationals only).** No installable build yet. Working today: pinned CC0 snapshots with retained history, historical backtests (internationals + top-5 leagues), and a reproducible seal-before-kickoff → score-after-full-time loop for internationals with a real calibration ledger. Desktop, AI narration, and BYOK remain planned ([ADR-0001](docs/adr/0001-architecture.md)). Nothing here is a betting product.
 
 ---
 
 ## What Golavo is
 
-Golavo's Phase 0 engine builds a reproducible 1X2 forecast for a men's senior full international, then **seals** a versioned JSON artifact with its model and source snapshot. A later result snapshot can produce a new scored artifact without rewriting the seal. Exact-score presentation, goalscorers, corners, broader competitions, and a public calibration ledger are planned in [ADR-0001](docs/adr/0001-architecture.md).
+Golavo builds a reproducible 1X2 forecast for a men's senior full international, then **seals** a versioned JSON artifact with its model and source snapshot. A later, strictly-newer snapshot produces a separate scored artifact without rewriting the seal — and since Phase 3 this forward loop is real: sealed fixtures accumulate in a public ledger (`data/artifacts/`), postponements void with a recorded reason, and a read-only calibration record tracks running log loss and reliability over genuine seals, separately from backtests. The source gives dates but not kickoff times, so seals close at a conservative day-before (00:00 UTC) cutoff; forwardness is proven by pre-kickoff publication in this repository's git history. Exact-score presentation, goalscorers, corners, and broader competitions are planned in [ADR-0001](docs/adr/0001-architecture.md).
 
 **What Golavo is not:** a livescore app (open-core results are delayed), a betting tool (no odds, no picks, no "locks," no bankroll advice), a redistributor of licensed data feeds, or an "AI predictor" (the statistics own the numbers).
 
@@ -49,12 +49,15 @@ pinned CC0 snapshot ──► typed match table ──► candidate statistical 
          │                                           │
          └── manifest + sha256 ─────────────► sealed forecast artifact
                                                      │
-                         newer result snapshot ──────► new scored artifact
+              newer retained snapshot ───────────────► new scored artifact
+                                                        (or voided, with reason)
 ```
+
+Every refresh is a **new** pinned snapshot pack; prior packs are never overwritten or deleted, and `packs/snapshots.json` registers each retained `{ref, retrieved_at_utc, manifest sha256}`. CI replays the loop deterministically from two retained refs in which the same fixture moves from scheduled to completed.
 
 ## Coverage — the honest version
 
-Phase 0 uses one vendored, pinned CC0 snapshot of `martj42/international_results`. It covers men's senior full-international results, goalscorers, shootouts, and former names; the engine currently consumes results and former names. Phases 1–2 add the men's **top-5 European leagues** as a **historical** backbone from one pinned `openfootball` snapshot (CC0-1.0): each league is accepted for completed seasons only after a per-league coverage audit and backtested — **not live**. Each league is modeled independently from its own pack; domestic files carry no inter-league matches, so there is **no cross-league strength calibration**. Lineups, injuries, corners, xG, and BYOK adapters remain out of scope. Free access is not the same as lawful open data — see [Data sources & coverage](https://udhawan97.github.io/Golavo/data/coverage/).
+Phase 0 uses one vendored, pinned CC0 snapshot of `martj42/international_results`. It covers men's senior full-international results, goalscorers, shootouts, and former names; the engine currently consumes results and former names. Phase 3 makes internationals the **forward** surface: snapshots are refreshed as new immutable packs (old ones are retained and registered in `packs/snapshots.json`), upcoming fixtures are sealed before their day-proxy kickoff, and results from a later snapshot score them. The **club leagues stay historical — a club forward loop is an explicit non-goal**: openfootball captures are season-lagged with no verified live cadence. Phases 1–2 add the men's **top-5 European leagues** as a **historical** backbone from one pinned `openfootball` snapshot (CC0-1.0): each league is accepted for completed seasons only after a per-league coverage audit and backtested — **not live**. Each league is modeled independently from its own pack; domestic files carry no inter-league matches, so there is **no cross-league strength calibration**. Lineups, injuries, corners, xG, and BYOK adapters remain out of scope. Free access is not the same as lawful open data — see [Data sources & coverage](https://udhawan97.github.io/Golavo/data/coverage/).
 
 | Scope (all historical) | Results | Goalscorers / shootouts | Lineups / injuries / corners / xG |
 |---|---|---|---|
@@ -98,6 +101,8 @@ docs-site/  Astro + Starlight product site (GitHub Pages)
 ## Prediction methodology
 
 Phase 0 evaluates five deterministic **candidates**: climatological, Elo ordinal-logit, independent Poisson, time-decayed Dixon-Coles, and bivariate Poisson. Log loss is primary; Brier, ECE with reliability bins, and RPS are also reported on chronological tournament folds. No candidate is called a champion until forward evidence earns that status. Phases 1–2 run the same five candidates on each accepted league's three most recent clean seasons as chronological folds (EPL/Bundesliga/Ligue 1: 2022-23→2024-25; La Liga/Serie A: 2021-22→2023-24, because their 2024-25 captures are incomplete). Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and none is crowned. Full methodology: [Methodology](https://udhawan97.github.io/Golavo/methodology/prediction/).
+
+Forward evidence now has a home: real sealed forecasts are scored after full time and aggregated into a running calibration record (`GET /api/v1/calibration`, the workbench's **Ledger** view) that is kept strictly separate from backtest folds. It starts small and honest — it only ever contains genuine pre-kickoff seals.
 
 > We do **not** claim AI, deep learning, head-to-head records, or a "new-manager bounce" improve accuracy without forward evidence.
 
