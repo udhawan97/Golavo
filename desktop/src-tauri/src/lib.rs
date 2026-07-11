@@ -26,17 +26,54 @@ use tauri::{AppHandle, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
 
-/// Show a native error dialog and block until dismissed. Called from the
-/// fatal-launch path inside setup(), on the main thread, before the Tauri event
-/// loop runs — rfd runs its own modal loop here, avoiding the cross-thread
-/// dispatch that makes tauri-plugin-dialog's blocking_show deadlock pre-loop.
+/// Show a native error dialog and BLOCK until the user dismisses it. Called from
+/// the fatal-launch path inside setup(), on the main thread, before the Tauri
+/// event loop runs.
+///
+/// macOS is special: this early, the app is not yet a fully-activated foreground
+/// app, so `NSAlert.runModal` (what rfd and tauri-plugin-dialog both use) does
+/// NOT block — the dialog flashes and the process exits, orphaning the window.
+/// Verified empirically. `osascript` shows its OWN modal in a separate process
+/// that blocks until dismissed regardless of our run-loop state, so we keep the
+/// process alive (and the message on screen) until the user clicks OK, then
+/// exit. rfd is retained for Windows/Linux, where MessageBox-style dialogs block
+/// correctly without a running loop.
 fn show_fatal_dialog(title: &str, message: &str) {
-    rfd::MessageDialog::new()
-        .set_level(rfd::MessageLevel::Error)
-        .set_title(title)
-        .set_description(message)
-        .set_buttons(rfd::MessageButtons::Ok)
-        .show();
+    #[cfg(target_os = "macos")]
+    {
+        let script = format!(
+            "display alert {} message {} as critical buttons {{\"OK\"}} default button \"OK\"",
+            applescript_string(title),
+            applescript_string(message),
+        );
+        // If osascript itself can't run, the eprintln at the call site is the
+        // remaining record — but we tried the reliable path first.
+        let _ = std::process::Command::new("osascript")
+            .arg("-e")
+            .arg(script)
+            .status();
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        rfd::MessageDialog::new()
+            .set_level(rfd::MessageLevel::Error)
+            .set_title(title)
+            .set_description(message)
+            .set_buttons(rfd::MessageButtons::Ok)
+            .show();
+    }
+}
+
+/// Wrap a string as an AppleScript string literal, escaping the characters that
+/// would otherwise break the `-e` script (backslash, quote) or its parsing
+/// (raw newlines aren't allowed inside a literal; `\n` is).
+#[cfg(target_os = "macos")]
+fn applescript_string(s: &str) -> String {
+    let escaped = s
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('\n', "\\n");
+    format!("\"{escaped}\"")
 }
 
 /// Upper bound on how long we wait for the sidecar's /health. The frozen sidecar
