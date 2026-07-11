@@ -6,6 +6,16 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-11
+
+**First updater-enabled release.** Installs of v0.2.1 and later update themselves
+in-app (consent-first, signature-verified, ledger backed up before install).
+v0.1.0 and v0.2.0 predate the updater — update from them with one manual
+download; it's in-app from then on. macOS fatal-launch dialog now blocks via
+osascript (the pre-event-loop rfd path flashed and orphaned the window); two
+adversarial review loops plus an install/no-crash verification hardened the
+whole flow.
+
 ### Fixed
 - Harden the read-only forecast list against a schema-broken artifact on disk: a
   `jsonschema.ValidationError` (not a `ValueError`) is now caught alongside the
