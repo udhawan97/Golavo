@@ -1,6 +1,6 @@
 ---
 title: Prediction methodology
-description: The statistical models behind Golavo's forecasts — baselines, the Dixon-Coles / bivariate-Poisson champion, calibration, and how nothing ships without forward evidence.
+description: Phase 0 candidate models, chronological evaluation, calibration metrics, and leakage controls.
 ---
 
 Golavo's probabilities come from a deterministic statistical engine, not from AI. This page is the honest, citable account of how they are produced.
@@ -11,9 +11,9 @@ Golavo's probabilities come from a deterministic statistical engine, not from AI
 2. **Elo** — `R' = R + K·G·(result − expected)`, with a margin-of-victory multiplier; internationals are seeded from the full result history since 1872.
 3. **Independent Poisson** — `λ_home = exp(μ + h + attack_i − defence_j)`, `λ_away = exp(μ + attack_j − defence_i)`.
 
-## Champion: time-decayed Dixon-Coles / bivariate Poisson
+## Candidate models: time-decayed Dixon-Coles / bivariate Poisson
 
-The primary model is a **time-decayed Dixon-Coles** model (Dixon & Coles, 1997) with the low-score dependence correction, fitted by weighted pseudo-likelihood with exponential time-decay weights `w(t) = exp(−ξ·Δt)`. A **bivariate Poisson** co-champion captures score correlation directly. This family is empirically among the best for forecasting from historical results (Ley, Van de Wiele & Van Eetvelde, 2019, on Rank Probability Score).
+Phase 0 evaluates **time-decayed Dixon-Coles** and **bivariate Poisson** as candidates alongside climatological, Elo ordinal-logit, and independent-Poisson baselines. No model is a champion by declaration. The decay rate is selected on pre-test validation data only; tournament test folds are never used for tuning.
 
 ```text
 fit(matches, as_of):
@@ -30,9 +30,7 @@ Identifiability is fixed with `Σ attack = Σ defence = 0`. The decay rate `ξ`,
 
 ## Coherent downstream markets
 
-- **Goalscorers** — each team's goals are allocated to players by a decayed non-penalty goal share × expected minutes, with penalty takers boosted; `Σ player shares = 1` per team. A scorer's probability can never contradict the score matrix.
-- **Corners** — a **negative-binomial** model (overdispersion beats plain Poisson). Ships only when a lawful data source is available; otherwise shown as *unavailable*.
-- **Shots / shots-on-target** — a display-only funnel re-weighted so its implied goal distribution matches the score matrix.
+- **Goalscorers, corners, shots, and lineups** — out of Phase 0. No accepted open source supplies the required full set of fields.
 
 ## Typed features (candidate inputs, all behind a gate)
 
@@ -42,7 +40,7 @@ Rest, congestion, travel, altitude, weather, lineups/availability, and manager e
 
 ## Calibration
 
-Primary calibration is the forward fit of `(ξ, ρ, γ, dispersion)`. A secondary temperature scaling is applied **to the score matrix** (power + renormalize) so that W/D/L, totals, and exact scores stay mutually coherent. Per scikit-learn's guidance, isotonic calibration is used only where there are well over ~1000 calibration samples; otherwise sigmoid/temperature scaling is preferred. Calibration is reported with reliability diagrams and Wilson intervals in the [model cards](/Golavo/methodology/model-cards/).
+Phase 0 reports expected calibration error plus reliability bins with Wilson intervals. Secondary calibration transforms are not enabled in Phase 0; they remain candidates for later forward validation.
 
 ## Backtesting & leakage
 
@@ -52,11 +50,11 @@ Primary calibration is the forward fit of `(ξ, ρ, γ, dispersion)`. A secondar
 
 ## Metrics
 
-Rank Probability Score (headline), log loss, multiclass Brier, count log score (goals/corners), CRPS, and reliability diagrams — all published per competition.
+**Log loss is primary.** Multiclass Brier, ECE with reliability bins and Wilson intervals, and RPS are reported per tournament fold. Count-market metrics are out of Phase 0.
 
 ## Minimum-data gates
 
-Below ~8 in-window matches per team (or missing league priors), Golavo abstains from the exact-score matrix and widens the W/D/L interval with an "insufficient data" badge. If the fixtures themselves cannot be verified, no forecast is produced.
+If either team has fewer than 10 matches in the configured decay window, Phase 0 emits an abstained artifact with an explicit reason. If the match or cutoff cannot be verified, sealing fails closed.
 
 ## References
 

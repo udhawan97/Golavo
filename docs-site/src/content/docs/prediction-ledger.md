@@ -3,18 +3,18 @@ title: The Prediction Ledger
 description: How Golavo seals a forecast before kickoff and scores it after full time — and how you can verify a seal was never altered.
 ---
 
-The Prediction Ledger is Golavo's accountability spine. A forecast is **sealed** before kickoff and **scored** after full time. Seals are append-only and hash-chained, so a past prediction cannot be quietly rewritten.
+Phase 0's accountability spine is the versioned `ForecastArtifact` contract. A forecast is **sealed** before kickoff and a later result produces a separate **scored** artifact. The sealed file is never mutated. A hash-chained multi-artifact ledger is planned (ADR-0001), not implemented in Phase 0.
 
 ## What a seal records
 
-Each seal is an immutable row:
+Each seal is an immutable JSON artifact. The abbreviated shape is:
 
 ```text
-{ match_id, horizon, sealed_at,
-  p_home, p_draw, p_away, score_matrix_ref, aux_markets,
-  model_version, feature_version, snapshot_set_hash,
-  lineup_state ∈ { none, probable, confirmed },
-  data_quality_tier }
+{ artifact_id, status, match, forecast,
+  model, inputs: { training_cutoff_utc, snapshots },
+  provenance: { created_at_utc, generator,
+                deterministic, payload_sha256 },
+  evaluation }
 ```
 
 ## Forecast horizons
@@ -25,12 +25,12 @@ Each seal is an immutable row:
 | **T-24h** | day before | none / probable |
 | **T-60m** | after team news | confirmed (BYOK required) |
 
-The open core can honestly reach `lineup_state = none` only. `confirmed` requires a bring-your-own-key lineup source — and the seal records exactly that.
+Phase 0 does not ingest lineups. All three horizons are contract values for 1X2 regulation forecasts; lineup-aware forecasting is planned (ADR-0001).
 
 ## After the whistle
 
-Golavo scores the sealed forecast against the actual result: per-market outcome, the contribution to running calibration, and a side-by-side of sealed-vs-actual. Abandoned matches void their seals with a reason code; postponed matches void the old seal (kept, not deleted) and re-seal for the new kickoff.
+The Phase 0 scorer accepts an actual result only from a newer validated snapshot and writes a new artifact with outcome, log loss, Brier, and assigned probability. Voided sample artifacts exercise the canonical status contract; automated abandonment/postponement workflows are planned.
 
 ## Verifying a seal
 
-Because each seal carries the hash of its source snapshot set and is chained to the previous seal, anyone with the ledger can recompute the chain and confirm no row was altered after the fact. The verification procedure ships with the app and is documented here once the ledger lands (Phase 1).
+Each artifact carries source hashes and a SHA-256 digest over canonical JSON, so its payload can be recomputed. Phase 0 also appends audit events. Cross-artifact chaining and its verifier remain planned for Phase 1 (ADR-0001).

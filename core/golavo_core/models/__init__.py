@@ -1,6 +1,5 @@
-"""Statistical models.
+"""Deterministic Phase 0 candidate models; no family is a declared champion."""
 
-Baselines (league-average, Elo, independent Poisson), the time-decayed
-Dixon-Coles / bivariate-Poisson champion, negative-binomial corners, coherent
-goalscorer allocation, and calibration. The engine owns every probability.
-"""
+from .candidates import FAMILIES, Prediction, fit_model
+
+__all__ = ["FAMILIES", "Prediction", "fit_model"]

@@ -10,7 +10,8 @@ independent of any application that uses it.
 | `ingest` | source adapters + the immutable, content-addressed snapshotter |
 | `warehouse` | Parquet + DuckDB views and schema migrations |
 | `models` | Elo, time-decayed Dixon-Coles, bivariate Poisson, corners, scorers, calibration |
-| `ledger` | the immutable, hash-chained forecast ledger |
+| `artifacts` | Phase 0 immutable ForecastArtifact seal/score pipeline |
+| `ledger` | planned hash-chained ledger (ADR-0001, Phase 1) |
 | `facts` | deterministic, source-backed fact & coincidence templates |
 
 `core` never performs network I/O outside `ingest`. It is pure computation over

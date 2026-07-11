@@ -24,7 +24,7 @@ keys, optional AI, and the update path.
 | **Provider keys** | Stored in the OS keychain only — never in SQLite, logs, exports, or crash reports. A redaction filter runs on all logging. |
 | **Prompt injection** | Fetched text is sanitized and delimited as untrusted; the model has no shell/file tools; a CI red-team suite must fail closed on any attempt to change a probability or exfiltrate a key. |
 | **Data / model packs** | Signature-verified (minisign) against a pinned public key and hash-checked before load. Unsigned packs require explicit user override. |
-| **Updates** | Signed updater artifacts + SHA-256 checksums. A lost signing key permanently strands installed users, so keys are escrowed offline in two locations before any public release. |
+| **Updates (planned, ADR-0001)** | Phase 0 has no updater. A future desktop release requires signed artifacts, SHA-256 checksums, and offline signing-key escrow before public release. |
 | **Migrations** | Backup-before-migrate, row-count verification, and a rollback offer on repeated failed launches. |
 | **Telemetry** | None. Crash reports are written locally; the user chooses whether to attach them to an issue. |
 

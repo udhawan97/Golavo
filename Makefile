@@ -1,8 +1,8 @@
-.PHONY: setup dev test lint build clean
+.PHONY: setup dev ingest evaluate test lint validate build clean
 
 setup:  ## Install core + server + ui + docs dev dependencies
 	python -m pip install -e "core[dev]" || python -m pip install -e core
-	python -m pip install -e server || true
+	python -m pip install -e "server[dev]"
 	cd ui && npm install
 	cd docs-site && npm install
 
@@ -13,6 +13,16 @@ dev:  ## Run the source-mode app (server + ui)
 
 test:  ## Run the Python test suite
 	pytest -q
+
+ingest:  ## Materialize the pinned internationals snapshot as Parquet
+	python -m golavo_core ingest
+
+evaluate:  ## Regenerate frozen chronological evaluation artifacts
+	python -m golavo_core evaluate
+
+validate:  ## Validate provenance and every canonical sample artifact
+	python scripts/validate_provenance.py
+	python scripts/validate_artifacts.py
 
 lint:  ## Lint python + ui
 	ruff check .

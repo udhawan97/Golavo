@@ -1,41 +1,25 @@
 ---
 title: Sources & licenses
-description: The field-level license matrix for every data source, with attribution requirements. Verified against primary sources on 2026-07-09.
+description: Phase 0's accepted source, manifest contract, and rejected data dependencies.
 ---
 
-Golavo does not redistribute proprietary data. Only public-domain / open sources are built into the open core. Everything below was verified against the source's own primary page/license on **2026-07-09**.
+Golavo's **code** is Apache-2.0. Data packs are licensed separately. Phase 0 accepts one data source:
 
-## License matrix
+| Source | Scope | License | Pinning | Phase 0 status |
+|---|---|---|---|---|
+| [martj42/international_results](https://github.com/martj42/international_results) | men's senior full-international results, goalscorers, shootouts, former names | CC0-1.0 | exact upstream Git commit + per-file SHA-256 | ✅ vendored sourcepack |
 
-| Source | License | Fetch | Cache | Redistribute raw | Train models | Attribution | In product |
-|---|---|---|---|---|---|---|---|
-| [openfootball](https://github.com/openfootball/football.json) | CC0-1.0 | ✅ | ✅ | ✅ | ✅ | none | ✅ |
-| [martj42/international_results](https://github.com/martj42/international_results) | CC0-1.0 | ✅ | ✅ | ✅ | ✅ | none | ✅ |
-| [Wikidata](https://www.wikidata.org/wiki/Wikidata:Licensing) (structured data) | CC0-1.0 | ✅ | ✅ | ✅ | ✅ | none | ✅ |
-| [Wyscout events](https://figshare.com/collections/Soccer_match_event_dataset/4415000/5) | CC BY 4.0 | ✅ | ✅ | ✅ + credit | ✅ + credit | required | 🔬 dev only |
-| [Open-Meteo](https://open-meteo.com/en/terms) | data CC BY 4.0; free API non-commercial | ✅ | ✅ | ✅ + credit | ✅ | required | ✅ optional |
-| [OpenLigaDB](https://www.openligadb.de) | ODbL 1.0 (share-alike) | ✅ | ✅ | ✅ under ODbL | ⚠️ share-alike risk | required + notice | 🧱 isolated overlay |
-| [Football-Data.org](https://www.football-data.org/) | proprietary ToS | 🔑 | ⚠️ unaddressed | ❌ | ⚠️ unaddressed | required string | 🔑 BYOK |
-| [API-Football](https://www.api-football.com/) | proprietary ToS | 🔑 | ⚠️ unaddressed | ❌ resale banned | ⚠️ unaddressed | none stated | 🔑 BYOK |
-| [StatsBomb Open Data](https://github.com/statsbomb/open-data) | restrictive user agreement | ✅ | ✅ | ❌ | ❌ (commercial derived analysis banned) | logo required | 🚫 excluded |
+The pack manifest records `source_id`, upstream URL and commit, retrieval time, every filename and SHA-256 digest, and the pack license. The repository vendors a copy of the CC0 text. Provenance validation hashes the bytes again in CI.
 
-## Attribution strings (shown in-app on the screens that use them)
+## Rejected dependencies
 
-- **Football-Data.org** (when you supply a key): *"Football data provided by the Football-Data.org API."*
-- **Open-Meteo**: *"Weather data by Open-Meteo.com"* (CC BY 4.0).
-- **Wyscout**: cite Pappalardo, L. et al. (2019), *A public data set of spatio-temporal match events in soccer competitions*, Scientific Data 6, 236.
-- **OpenLigaDB**: data under the Open Database License (ODbL) 1.0.
+Golavo does not add adapters for Transfermarkt-derived Kaggle datasets, DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL endpoints, European Soccer DB, or `eatpizzanot`. A downstream CC0/PDDL label does not cure an upstream source's scraping terms or database-right provenance; treating it as clean would be provenance laundering.
 
-## Why some things are the way they are
+Football-Data.org, API-Football, OpenFootball, Wikidata, Wyscout, weather sources, and ODbL overlays are not Phase 0 dependencies. Future adoption requires a new evidence and license review; it is not implied by the design docs.
 
-### OpenLigaDB is kept physically isolated
-OpenLigaDB's data is under the **ODbL**, whose share-alike terms would attach to any combined database it is merged into. Golavo keeps it in a separate pack and a separate database file, and CI blocks any join into the CC0 core. It is an optional Bundesliga/DFB-Pokal overlay only.
+## What the ODbL check does
 
-### StatsBomb is excluded from the product
-StatsBomb's public-data user agreement prohibits redistributing the data and **commercially exploiting even derived analysis**, and asks that any published analysis carry the StatsBomb logo. Golavo does not bundle it, redistribute it, or train any shipped model weights on it. (Research use, outside this product, remains possible under their terms with attribution.)
-
-### Free access ≠ open data
-Football-Data.org and API-Football free tiers are *gratis, revocable, and non-redistributable*. Their data is rendered only in the key-holder's private local session, is never exported by default, and is purged when the key is removed. Football-Data.org additionally forbids referencing its data after a subscription is cancelled.
+`scripts/check_license_isolation.sh` is a **basic grep lint** for a few forbidden ODbL references. It is not legal isolation enforcement and must not be described as proof that database rights cannot mix.
 
 ## Non-affiliation
 

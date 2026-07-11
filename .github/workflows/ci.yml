@@ -21,25 +21,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: pip
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install ruff mypy pytest
-          if [ -f core/pyproject.toml ]; then pip install -e "core[dev]" 2>/dev/null || pip install -e core; fi
-          if [ -f server/pyproject.toml ]; then pip install -e server 2>/dev/null || true; fi
+          pip install -e "core[dev]"
+          pip install -e "server[dev]"
       - name: Lint (ruff)
         run: ruff check .
-      - name: Type check (mypy)
-        run: mypy core server || echo "mypy advisory during scaffold"
-      - name: Test (pytest)
-        run: |
-          set +e
-          pytest -q
-          code=$?
-          if [ $code -eq 5 ]; then echo "No tests collected yet (scaffold phase)."; exit 0; fi
-          exit $code
+      - name: Validate pinned source provenance
+        run: python scripts/validate_provenance.py
+      - name: Validate canonical sample artifacts
+        run: python scripts/validate_artifacts.py
+      - name: Test determinism, leakage, core, and API
+        run: pytest -q
 
   ui:
     name: ui (node)

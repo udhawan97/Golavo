@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/forecast-artifact-0.1.0.schema.json",
+  "title": "ForecastArtifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_id", "status", "match", "forecast", "model", "inputs", "provenance", "evaluation"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "artifact_id": {"type": "string", "pattern": "^fa_[a-z0-9]{8,}$"},
+    "status": {"enum": ["sealed", "scored", "abstained", "voided"]},
+    "supersedes": {"type": ["string", "null"], "pattern": "^fa_[a-z0-9]{8,}$"},
+    "match": {"$ref": "#/$defs/Match"},
+    "forecast": {"$ref": "#/$defs/Forecast"},
+    "model": {"$ref": "#/$defs/Model"},
+    "inputs": {"$ref": "#/$defs/Inputs"},
+    "provenance": {"$ref": "#/$defs/Provenance"},
+    "evaluation": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/Evaluation"}
+      ]
+    }
+  },
+  "$defs": {
+    "Match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match_id", "competition", "kickoff_utc", "home_team", "away_team", "neutral_venue"],
+      "properties": {
+        "match_id": {"type": "string", "minLength": 1},
+        "competition": {"type": "string", "minLength": 1},
+        "stage": {"type": ["string", "null"]},
+        "kickoff_utc": {"type": "string", "format": "date-time"},
+        "home_team": {"type": "string", "minLength": 1},
+        "away_team": {"type": "string", "minLength": 1},
+        "neutral_venue": {"type": "boolean"},
+        "city": {"type": ["string", "null"]},
+        "country": {"type": ["string", "null"]}
+      }
+    },
+    "Probabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home", "draw", "away"],
+      "properties": {
+        "home": {"type": "number", "minimum": 0, "maximum": 1},
+        "draw": {"type": "number", "minimum": 0, "maximum": 1},
+        "away": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "ExpectedGoals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["home", "away"],
+      "properties": {
+        "home": {"type": "number", "minimum": 0},
+        "away": {"type": "number", "minimum": 0}
+      }
+    },
+    "Forecast": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["market", "sealed_at_utc", "horizon", "probs", "expected_goals", "abstained", "abstain_reason", "uncertainty"],
+      "properties": {
+        "market": {"const": "1x2_regulation"},
+        "sealed_at_utc": {"type": "string", "format": "date-time"},
+        "horizon": {"enum": ["T-72h", "T-24h", "T-60m"]},
+        "probs": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/Probabilities"}]},
+        "expected_goals": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/ExpectedGoals"}]},
+        "abstained": {"type": "boolean"},
+        "abstain_reason": {"type": ["string", "null"]},
+        "uncertainty": {"enum": ["low", "medium", "high"]}
+      }
+    },
+    "Model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_id", "family", "version", "params_hash", "code_git_sha", "seed"],
+      "properties": {
+        "model_id": {"type": "string", "minLength": 1},
+        "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson"]},
+        "version": {"type": "string", "minLength": 1},
+        "params_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "code_git_sha": {"type": "string", "pattern": "^[a-f0-9]{7,40}$"},
+        "seed": {"type": "integer"}
+      }
+    },
+    "Snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshot_id", "source_id", "url", "upstream_ref", "retrieved_at_utc", "sha256", "license"],
+      "properties": {
+        "snapshot_id": {"type": "string", "minLength": 1},
+        "source_id": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"},
+        "upstream_ref": {"type": "string", "minLength": 1},
+        "retrieved_at_utc": {"type": "string", "format": "date-time"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "license": {"type": "string", "minLength": 1}
+      }
+    },
+    "Inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["training_cutoff_utc", "snapshots"],
+      "properties": {
+        "training_cutoff_utc": {"type": "string", "format": "date-time"},
+        "snapshots": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Snapshot"}}
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at_utc", "generator", "deterministic", "payload_sha256"],
+      "properties": {
+        "created_at_utc": {"type": "string", "format": "date-time"},
+        "generator": {"type": "string", "minLength": 1},
+        "deterministic": {"const": true},
+        "payload_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "Evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actual", "scored_at_utc", "metrics"],
+      "properties": {
+        "actual": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["home_goals", "away_goals", "outcome"],
+          "properties": {
+            "home_goals": {"type": "integer", "minimum": 0},
+            "away_goals": {"type": "integer", "minimum": 0},
+            "outcome": {"enum": ["home", "draw", "away"]}
+          }
+        },
+        "scored_at_utc": {"type": "string", "format": "date-time"},
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["log_loss", "brier", "prob_assigned_to_outcome"],
+          "properties": {
+            "log_loss": {"type": "number", "minimum": 0},
+            "brier": {"type": "number", "minimum": 0},
+            "prob_assigned_to_outcome": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        }
+      }
+    },
+    "EvalSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "generated_at_utc", "primary_metric", "source_snapshot", "folds"],
+      "properties": {
+        "schema_version": {"const": "0.1.0"},
+        "generated_at_utc": {"type": "string", "format": "date-time"},
+        "primary_metric": {"const": "log_loss"},
+        "source_snapshot": {"$ref": "#/$defs/Snapshot"},
+        "folds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fold_id", "competition", "window_start", "window_end", "training_cutoff_utc", "n_matches", "models"],
+            "properties": {
+              "fold_id": {"enum": ["WC2022", "EURO2024", "WC2026"]},
+              "competition": {"type": "string"},
+              "window_start": {"type": "string", "format": "date"},
+              "window_end": {"type": "string", "format": "date"},
+              "training_cutoff_utc": {"type": "string", "format": "date-time"},
+              "n_matches": {"type": "integer", "minimum": 1},
+              "models": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["family", "params", "log_loss", "brier", "ece", "rps", "reliability_bins"],
+                  "properties": {
+                    "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson"]},
+                    "params": {"type": "object"},
+                    "log_loss": {"type": "number", "minimum": 0},
+                    "brier": {"type": "number", "minimum": 0},
+                    "ece": {"type": "number", "minimum": 0},
+                    "rps": {"type": "number", "minimum": 0},
+                    "reliability_bins": {"type": "array", "items": {"$ref": "#/$defs/ReliabilityBin"}}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ReliabilityBin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lower", "upper", "count", "mean_confidence", "accuracy", "wilson_low", "wilson_high"],
+      "properties": {
+        "lower": {"type": "number"},
+        "upper": {"type": "number"},
+        "count": {"type": "integer", "minimum": 0},
+        "mean_confidence": {"type": ["number", "null"]},
+        "accuracy": {"type": ["number", "null"]},
+        "wilson_low": {"type": ["number", "null"]},
+        "wilson_high": {"type": ["number", "null"]}
+      }
+    }
+  }
+}

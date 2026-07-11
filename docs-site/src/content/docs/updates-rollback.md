@@ -7,7 +7,7 @@ Golavo's desktop updates are designed to be safe by default. (This lands in Phas
 
 ## The update path
 
-1. **Check** — the app checks for updates (you can disable this). It is the only default network call.
+1. **Check** — planned (ADR-0001): a future desktop app checks a signed release manifest. Phase 0 has no updater.
 2. **Verify** — the downloaded artifact's signature and SHA-256 checksum are verified before anything is applied.
 3. **Back up** — a pre-update snapshot of your database and settings is created and verified. If the backup can't be verified, the update aborts.
 4. **Install** — the signed installer applies the update. On Windows the app is force-exited by the installer, so the sidecar is shut down first.
