@@ -525,3 +525,101 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .heatmap td.heat { color: var(--text); font-variant-numeric: tabular-nums lining-nums; }
 .heatmap td.heat--ml { outline: 2px solid var(--gold); outline-offset: -2px; font-weight: 750; }
 .heat__star { color: var(--gold); font-size: .7em; margin-left: .15em; vertical-align: .1em; }
+
+/* ---------------------------------------------------- in-app updates ------ */
+.site-header__tools { display: flex; align-items: center; gap: .5rem; }
+
+.update-pill {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .28rem .7rem; border-radius: 999px; font-size: .78rem; font-weight: 650;
+  color: var(--gold); background: var(--gold-soft);
+  border: 1px solid var(--gold-line); cursor: pointer;
+}
+.update-pill:hover { background: color-mix(in srgb, var(--gold) 22%, transparent); }
+:root[data-theme="light"] .update-pill { color: #785808; }
+
+.btn--primary {
+  background: var(--gold-soft); border-color: var(--gold-line); color: var(--gold);
+  font-weight: 650;
+}
+.btn--primary:hover { background: color-mix(in srgb, var(--gold) 24%, transparent); }
+:root[data-theme="light"] .btn--primary { color: #785808; }
+
+.link-btn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--link); text-decoration: underline; font-size: inherit;
+}
+
+.update-backdrop {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(0, 0, 0, .45);
+  display: grid; place-items: center; padding: 1rem;
+}
+.update-sheet {
+  width: min(30rem, 100%); max-height: min(80vh, 40rem); overflow-y: auto;
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  display: flex; flex-direction: column; gap: .8rem;
+  outline: none;
+}
+.update-sheet__title {
+  font-size: .84rem; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--text-muted);
+}
+.update-sheet__actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .3rem; }
+.update-sheet__note { font-size: .9rem; color: var(--text-muted); }
+.update-sheet__detail {
+  font-family: var(--font-mono); font-size: .78rem; word-break: break-word;
+  max-height: 6.5rem; overflow-y: auto;
+}
+.update-notes {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); padding: .8rem .95rem;
+  max-height: 14rem; overflow-y: auto;
+  display: flex; flex-direction: column; gap: .45rem; font-size: .9rem;
+}
+.update-notes__list { list-style: disc; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .25rem; }
+
+.update-progress { display: flex; flex-direction: column; gap: .4rem; }
+.update-progress__track {
+  height: 8px; border-radius: 999px; background: var(--surface-3);
+  border: 1px solid var(--border); overflow: hidden;
+}
+.update-progress__fill {
+  height: 100%; border-radius: 999px; background: var(--gold-brand);
+  transition: width .3s ease;
+}
+.update-progress__fill--indeterminate {
+  width: 35%;
+  animation: update-indeterminate 1.4s ease-in-out infinite;
+}
+@keyframes update-indeterminate {
+  0% { margin-left: -35%; } 100% { margin-left: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .update-progress__fill { transition: none; }
+  .update-progress__fill--indeterminate { animation: none; width: 100%; opacity: .5; }
+}
+.update-progress__label { font-size: .82rem; }
+
+.consent-card, .update-toast {
+  position: fixed; right: 1rem; bottom: 1rem; z-index: 55;
+  padding: 1rem 1.1rem; box-shadow: var(--shadow);
+}
+.consent-card { width: min(22rem, calc(100vw - 2rem)); display: flex; flex-direction: column; gap: .6rem; }
+.consent-card__title { font-weight: 650; }
+.consent-card__hint { font-size: .8rem; }
+
+.update-toast {
+  display: flex; align-items: center; gap: .8rem;
+  max-width: min(26rem, calc(100vw - 2rem)); font-size: .92rem;
+}
+.update-toast__close { flex: none; }
+
+.settings h1 { font-size: 1.35rem; margin-bottom: .15rem; }
+.settings__rows { gap: .75rem; }
+.settings__row {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap;
+}
+.settings__row input[type="checkbox"] { width: 1.05rem; height: 1.05rem; accent-color: var(--gold-brand); }
+.settings__hint { font-size: .84rem; margin-top: -.35rem; }

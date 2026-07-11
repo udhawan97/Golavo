@@ -50,6 +50,20 @@ export const MoonIcon = ({ size = 18, ...p }: IconProps) => (
   <svg {...base(size, p)}><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z" /></svg>
 );
 
+export const GearIcon = ({ size = 18, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <circle cx="12" cy="12" r="3.2" />
+    <path d="M12 2.8l1 2.6a7 7 0 0 1 2.4 1l2.7-.9 1.4 2.4-1.8 2.2a7 7 0 0 1 0 2.6l1.8 2.2-1.4 2.4-2.7-.9a7 7 0 0 1-2.4 1l-1 2.6h-2.8l-1-2.6a7 7 0 0 1-2.4-1l-2.7.9-1.4-2.4 1.8-2.2a7 7 0 0 1 0-2.6L3.7 7.9l1.4-2.4 2.7.9a7 7 0 0 1 2.4-1l1-2.6z"
+      transform="translate(0.8, 0.9) scale(0.93)" />
+  </svg>
+);
+
+export const DownloadIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M12 4v10" /><path d="M7.5 10.5L12 15l4.5-4.5" /><path d="M4.5 19h15" />
+  </svg>
+);
+
 export const InfoIcon = ({ size = 18, ...p }: IconProps) => (
   <svg {...base(size, p)}><circle cx="12" cy="12" r="9" /><path d="M12 11v5" /><path d="M12 7.5v.5" /></svg>
 );

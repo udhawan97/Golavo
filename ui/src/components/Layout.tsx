@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { SCHEMA_VERSION } from "../lib/contract";
 import { DATA_SOURCE, sourceDescription } from "../lib/api";
-import { MoonIcon, SunIcon } from "./icons";
+import { GearIcon, MoonIcon, SunIcon } from "./icons";
+import { UpdatePill } from "./updates";
 
 type Theme = "dark" | "light";
 
@@ -40,15 +41,27 @@ export function Layout({
             <a href="#/ledger" aria-current={isActive(path, "ledger") ? "page" : undefined}>Ledger</a>
             <a href="#/eval" aria-current={isActive(path, "eval") ? "page" : undefined}>Evaluation</a>
           </nav>
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={onToggleTheme}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-            title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-          >
-            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
-          </button>
+          <div className="site-header__tools">
+            <UpdatePill />
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={onToggleTheme}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+            >
+              {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+            </button>
+            <a
+              className="icon-btn"
+              href="#/settings"
+              aria-label="Settings — about & updates"
+              title="Settings"
+              aria-current={path.startsWith("/settings") ? "page" : undefined}
+            >
+              <GearIcon />
+            </a>
+          </div>
         </div>
       </header>
 
