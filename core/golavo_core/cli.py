@@ -6,7 +6,7 @@ import argparse
 from pathlib import Path
 
 from golavo_core.artifacts import score_forecast, seal_forecast
-from golavo_core.evaluation import write_evaluation
+from golavo_core.evaluation import write_club_evaluation, write_evaluation
 from golavo_core.ingest import write_parquet
 from golavo_core.models import FAMILIES
 
@@ -27,6 +27,19 @@ def _parser() -> argparse.ArgumentParser:
         "--summary", type=Path, default=REPO_ROOT / "docs/handoff/eval_summary.json"
     )
     evaluate.add_argument("--report", type=Path, default=REPO_ROOT / "docs/handoff/eval_report.md")
+
+    evaluate_club = commands.add_parser(
+        "evaluate-club", help="run frozen chronological English Premier League season folds"
+    )
+    evaluate_club.add_argument(
+        "--pack", type=Path, default=REPO_ROOT / "packs/openfootball-eng-pl"
+    )
+    evaluate_club.add_argument(
+        "--summary", type=Path, default=REPO_ROOT / "docs/handoff/eval_summary_epl.json"
+    )
+    evaluate_club.add_argument(
+        "--report", type=Path, default=REPO_ROOT / "docs/handoff/eval_report_epl.md"
+    )
 
     seal = commands.add_parser("seal", help="write an immutable ForecastArtifact")
     seal.add_argument("--pack", type=Path, default=REPO_ROOT / "packs/martj42-internationals")
@@ -53,6 +66,14 @@ def main() -> None:
         print(write_parquet(args.pack, args.output))
     elif args.command == "evaluate":
         write_evaluation(
+            args.pack,
+            args.summary,
+            args.report,
+            REPO_ROOT / "docs/contracts/forecast_artifact.schema.json",
+        )
+        print(args.summary)
+    elif args.command == "evaluate-club":
+        write_club_evaluation(
             args.pack,
             args.summary,
             args.report,

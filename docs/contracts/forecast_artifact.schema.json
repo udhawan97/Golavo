@@ -165,7 +165,7 @@
             "additionalProperties": false,
             "required": ["fold_id", "competition", "window_start", "window_end", "training_cutoff_utc", "n_matches", "models"],
             "properties": {
-              "fold_id": {"enum": ["WC2022", "EURO2024", "WC2026"]},
+              "fold_id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9-]*$"},
               "competition": {"type": "string"},
               "window_start": {"type": "string", "format": "date"},
               "window_end": {"type": "string", "format": "date"},

@@ -15,7 +15,7 @@ import pandas as pd
 from jsonschema import Draft202012Validator, FormatChecker
 
 from golavo_core import __version__
-from golavo_core.ingest import load_match_table, snapshot_descriptor, training_rows
+from golavo_core.ingest import load_matches, snapshot_descriptor, training_rows
 from golavo_core.models import FAMILIES, fit_model
 
 SCHEMA_VERSION = "0.1.0"
@@ -167,7 +167,7 @@ def seal_forecast(
     if retrieved > as_of:
         raise ValueError("cannot seal as-of a time before the source snapshot was retrieved")
 
-    matches = load_match_table(pack_dir)
+    matches = load_matches(pack_dir)
     match = _find_match(matches, date, home_team, away_team, match_id)
     kickoff = pd.Timestamp(match["kickoff_utc"]).to_pydatetime()
     if as_of >= kickoff:
@@ -208,8 +208,8 @@ def seal_forecast(
             "home_team": home_team,
             "away_team": away_team,
             "neutral_venue": bool(match["neutral"]),
-            "city": str(match["city"]),
-            "country": str(match["country"]),
+            "city": None if pd.isna(match["city"]) else str(match["city"]),
+            "country": None if pd.isna(match["country"]) else str(match["country"]),
         },
         "forecast": {
             "market": "1x2_regulation",
@@ -264,7 +264,7 @@ def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Pat
         raise ValueError("scoring requires a snapshot retrieved after the sealed snapshot")
 
     match = sealed["match"]
-    matches = load_match_table(newer_pack_dir)
+    matches = load_matches(newer_pack_dir)
     actual = _find_match(
         matches,
         match["kickoff_utc"][:10],

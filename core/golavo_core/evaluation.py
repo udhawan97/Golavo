@@ -1,4 +1,4 @@
-"""Strictly chronological Phase 0 evaluation and calibration reporting."""
+"""Strictly chronological evaluation and calibration reporting (source-agnostic)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from jsonschema import Draft202012Validator, FormatChecker
 
-from golavo_core.ingest import load_match_table, snapshot_descriptor, training_rows
+from golavo_core.ingest import load_matches, snapshot_descriptor, training_rows
 from golavo_core.models import FAMILIES, fit_model
 
 FOLDS = (
@@ -35,14 +35,35 @@ FOLDS = (
     },
 )
 
+# English Premier League season folds (openfootball clean seasons only; 2025-26 is
+# a partial capture and is excluded per docs/handoff/openfootball-audit.md).
+CLUB_FOLDS = (
+    {
+        "fold_id": "EPL2022-23",
+        "competition": "English Premier League",
+        "window_start": "2022-08-01",
+        "window_end": "2023-06-30",
+    },
+    {
+        "fold_id": "EPL2023-24",
+        "competition": "English Premier League",
+        "window_start": "2023-08-01",
+        "window_end": "2024-06-30",
+    },
+    {
+        "fold_id": "EPL2024-25",
+        "competition": "English Premier League",
+        "window_start": "2024-08-01",
+        "window_end": "2025-06-30",
+    },
+)
+
 
 def _outcomes(matches: pd.DataFrame) -> np.ndarray:
     return np.where(
         matches["home_score"].to_numpy() > matches["away_score"].to_numpy(),
         0,
-        np.where(
-            matches["home_score"].to_numpy() == matches["away_score"].to_numpy(), 1, 2
-        ),
+        np.where(matches["home_score"].to_numpy() == matches["away_score"].to_numpy(), 1, 2),
     )
 
 
@@ -141,12 +162,11 @@ def _tune_dixon_coles_xi(train: pd.DataFrame, cutoff_utc: str) -> float:
     return min(scores)[1]
 
 
-def evaluate(pack_dir: Path) -> dict[str, Any]:
-    """Evaluate all candidates on frozen chronological tournament folds."""
-    matches = load_match_table(pack_dir)
-    snapshot = snapshot_descriptor(pack_dir)
+def _evaluate_folds(
+    matches: pd.DataFrame, snapshot: dict[str, str], folds: tuple[dict, ...]
+) -> dict[str, Any]:
     fold_results: list[dict[str, Any]] = []
-    for fold in FOLDS:
+    for fold in folds:
         start = pd.Timestamp(fold["window_start"], tz="UTC")
         end = pd.Timestamp(fold["window_end"], tz="UTC")
         cutoff = start - pd.Timedelta(seconds=1)
@@ -191,6 +211,16 @@ def evaluate(pack_dir: Path) -> dict[str, Any]:
     }
 
 
+def evaluate(pack_dir: Path) -> dict[str, Any]:
+    """Evaluate all candidates on the frozen international tournament folds."""
+    return _evaluate_folds(load_matches(pack_dir), snapshot_descriptor(pack_dir), FOLDS)
+
+
+def evaluate_club(pack_dir: Path) -> dict[str, Any]:
+    """Evaluate all candidates on frozen English Premier League season folds."""
+    return _evaluate_folds(load_matches(pack_dir), snapshot_descriptor(pack_dir), CLUB_FOLDS)
+
+
 def _validate_summary(summary: dict[str, Any], schema_path: Path) -> None:
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     wrapper = {
@@ -201,19 +231,13 @@ def _validate_summary(summary: dict[str, Any], schema_path: Path) -> None:
     Draft202012Validator(wrapper, format_checker=FormatChecker()).validate(summary)
 
 
-def write_evaluation(
-    pack_dir: Path, summary_path: Path, report_path: Path, schema_path: Path
-) -> dict[str, Any]:
-    """Write the machine-readable summary and honest Markdown report."""
-    summary = evaluate(pack_dir)
-    _validate_summary(summary, schema_path)
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
+def _render_report(
+    summary: dict[str, Any], report_path: Path, title: str, notes: list[str]
+) -> None:
     lines = [
-        "# Phase 0 chronological evaluation",
+        f"# {title}",
         "",
-        "Log loss is primary. Each tournament is a frozen test window; model fitting and",
+        "Log loss is primary. Each fold is a frozen test window; model fitting and",
         "Dixon-Coles decay selection use only rows before the stated cutoff. Candidates are",
         "reported honestly and no test fold is used for parameter tuning.",
         "",
@@ -227,19 +251,55 @@ def write_evaluation(
                 f"{model['log_loss']:.6f} | {model['brier']:.6f} | "
                 f"{model['ece']:.6f} | {model['rps']:.6f} |"
             )
-    lines.extend(
-        [
-            "",
-            "## Interpretation",
-            "",
-            "Elo is a baseline, not a declared champion. A lower log loss is better. Candidate",
-            "models that lose to Elo remain in this report; Phase 0 does not tune on test results",
-            "to manufacture a win. Reliability-bin Wilson intervals are in `eval_summary.json`.",
-            "",
-            "The source supplies dates but not kickoff times; fold cutoffs use 23:59:59 UTC on",
-            "the day before each tournament window.",
-        ]
-    )
+    lines += ["", "## Interpretation", "", *notes, ""]
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def write_evaluation(
+    pack_dir: Path, summary_path: Path, report_path: Path, schema_path: Path
+) -> dict[str, Any]:
+    """Write the internationals summary and honest Markdown report."""
+    summary = evaluate(pack_dir)
+    _validate_summary(summary, schema_path)
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _render_report(
+        summary,
+        report_path,
+        "Phase 0 chronological evaluation",
+        [
+            "Elo is a baseline, not a declared champion. A lower log loss is better. Candidate",
+            "models that lose to Elo stay in this report; no test fold tunes its parameters.",
+            "Reliability-bin Wilson intervals are in the JSON summary.",
+            "",
+            "The source supplies dates but not kickoff times; fold cutoffs use 23:59:59 UTC on the",
+            "day before each tournament window.",
+        ],
+    )
+    return summary
+
+
+def write_club_evaluation(
+    pack_dir: Path, summary_path: Path, report_path: Path, schema_path: Path
+) -> dict[str, Any]:
+    """Write the English Premier League summary and honest Markdown report."""
+    summary = evaluate_club(pack_dir)
+    _validate_summary(summary, schema_path)
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _render_report(
+        summary,
+        report_path,
+        "Phase 1 English Premier League chronological evaluation",
+        [
+            "Historical, not live. Data is openfootball (CC0), which passed the Phase 1 gate for",
+            "completed seasons only (docs/handoff/openfootball-audit.md). The partial 2025-26",
+            "capture is excluded; each fold trains on all prior clean seasons from 2010-11.",
+            "",
+            "Elo is a baseline, not a champion. Unlike the near-neutral international folds, club",
+            "matches carry a real home advantage, so home-aware candidates have room to help — but",
+            "only if they beat Elo out-of-sample here. openfootball kickoff times are venue-local.",
+        ],
+    )
     return summary

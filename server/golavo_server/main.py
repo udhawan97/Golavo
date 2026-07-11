@@ -22,7 +22,10 @@ app.add_middleware(
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ARTIFACT_DIR = REPO_ROOT / "data/artifacts"
-EVAL_SUMMARY_PATH = REPO_ROOT / "docs/handoff/eval_summary.json"
+EVAL_SUMMARY_PATHS = (
+    REPO_ROOT / "docs/handoff/eval_summary.json",
+    REPO_ROOT / "docs/handoff/eval_summary_epl.json",
+)
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -60,7 +63,16 @@ def get_forecast(artifact_id: str) -> dict[str, Any]:
 
 @app.get("/api/v1/eval/summary")
 def eval_summary() -> dict[str, Any]:
-    """Serve the frozen Phase 0 evaluation summary."""
-    if not EVAL_SUMMARY_PATH.is_file():
+    """Serve the combined evaluation summary (international + club folds)."""
+    summaries = [_read_json(path) for path in EVAL_SUMMARY_PATHS if path.is_file()]
+    if not summaries:
         raise HTTPException(status_code=404, detail="evaluation summary not found")
-    return _read_json(EVAL_SUMMARY_PATH)
+    folds: list[dict[str, Any]] = []
+    for summary in summaries:
+        folds.extend(summary.get("folds", []))
+    return {
+        "schema_version": summaries[0].get("schema_version", "0.1.0"),
+        "primary_metric": "log_loss",
+        "sources": [summary.get("source_snapshot") for summary in summaries],
+        "folds": folds,
+    }

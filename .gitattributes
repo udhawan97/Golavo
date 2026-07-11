@@ -23,3 +23,6 @@
 docs-site/** linguist-documentation
 *.mdx linguist-documentation
 data/fixtures/** linguist-generated
+
+# Vendored source packs must be byte-exact (provenance sha256); never normalize EOL.
+packs/** -text

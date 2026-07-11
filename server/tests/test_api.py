@@ -13,7 +13,7 @@ def test_read_only_forecast_and_eval_routes(monkeypatch) -> None:
     samples = REPO_ROOT / "data/fixtures/sample_artifacts"
     summary = REPO_ROOT / "docs/handoff/eval_summary.json"
     monkeypatch.setattr(server_main, "ARTIFACT_DIR", samples)
-    monkeypatch.setattr(server_main, "EVAL_SUMMARY_PATH", summary)
+    monkeypatch.setattr(server_main, "EVAL_SUMMARY_PATHS", (summary,))
     client = TestClient(server_main.app)
 
     response = client.get(
@@ -29,7 +29,9 @@ def test_read_only_forecast_and_eval_routes(monkeypatch) -> None:
     artifact_id = forecasts[0]["artifact_id"]
     assert client.get(f"/api/v1/forecasts/{artifact_id}").json()["artifact_id"] == artifact_id
     assert client.get("/api/v1/forecasts/fa_missing00").status_code == 404
-    assert client.get("/api/v1/eval/summary").json() == json.loads(summary.read_text())
+    combined = client.get("/api/v1/eval/summary").json()
+    assert combined["folds"] == json.loads(summary.read_text())["folds"]
+    assert combined["primary_metric"] == "log_loss"
 
 
 def test_health_remains_available() -> None:
