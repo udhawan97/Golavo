@@ -86,7 +86,7 @@ The snapshots are reproducible and pinned, not live feeds; every league's partia
 |---|---|---|
 | **Source (local API + core)** | developers, researchers | working |
 | **Source web app (React + local API)** | developers, researchers | working (`make dev`) |
-| **Desktop (macOS DMG / Windows MSI+EXE)** | everyone | **unsigned** build — macOS verified locally, macOS + Windows built by the release CI; signing gated |
+| **Desktop (macOS DMG / Windows MSI+EXE)** | everyone | working — **signed in-app updates**; installers OS-unsigned (first-install warnings), macOS + Windows built by the release CI |
 
 ```bash
 # Source-mode API (Phase 0)
@@ -108,10 +108,14 @@ packaging/build.sh aarch64-apple-darwin     # macOS  -> packaging/out/*.dmg
 packaging/build.sh x86_64-pc-windows-msvc    # Windows -> packaging/out/*.msi + *.exe
 ```
 
-The bundle is **unsigned**, so macOS Gatekeeper / Windows SmartScreen warn on
-first launch (right-click → Open on macOS; "More info → Run anyway" on Windows).
-Notarization needs the Apple Developer Program and signed auto-update needs the
-updater key — both are wired and **gated on secrets**, never faked. See
+From v0.2.0 the desktop app **updates itself in-app**: consent-first daily
+checks (off until you say yes — the local-first promise holds), signed and
+signature-verified downloads, a ledger backup before every install, and a
+health-checked first boot that restores the backup and explains itself if the
+new version can't start. Installers remain **OS-unsigned**, so macOS
+Gatekeeper / Windows SmartScreen warn on **first install only** (right-click →
+Open on macOS; "More info → Run anyway" on Windows) — notarization needs the
+Apple Developer Program and stays gated on secrets, never faked. See
 [Installation](docs-site/src/content/docs/installation.md) and
 [Updates & rollback](docs-site/src/content/docs/updates-rollback.md).
 

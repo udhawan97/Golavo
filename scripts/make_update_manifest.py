@@ -82,7 +82,11 @@ def generate(args: argparse.Namespace) -> None:
         "windows-x86_64-nsis": _single(dist, "*-setup.exe", "NSIS installer"),
         "windows-x86_64-msi": _single(dist, "*.msi", "MSI installer"),
     }
-    base = f"https://github.com/{args.repo}/releases/download/{args.tag}"
+    # --base-url overrides the GitHub URL scheme for the local E2E harness
+    # (scripts/test-updater-local.sh serves dist/ over loopback HTTP).
+    base = args.base_url.rstrip("/") if args.base_url else (
+        f"https://github.com/{args.repo}/releases/download/{args.tag}"
+    )
     platforms = {
         key: {
             "signature": _signature(path),
@@ -152,6 +156,7 @@ def main(argv: list[str] | None = None) -> int:
     gen.add_argument("--repo", required=True, help="owner/name")
     gen.add_argument("--notes-file", type=Path, default=None)
     gen.add_argument("--out", type=Path, default=None)
+    gen.add_argument("--base-url", default=None, help="override the GitHub asset URL base")
     gen.set_defaults(func=generate)
 
     val = sub.add_parser("validate", help="hard-fail on a manifest the updater would reject")

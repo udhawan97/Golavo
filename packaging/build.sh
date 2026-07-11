@@ -48,6 +48,13 @@ BUILD_ARGS=(build --target "$TARGET")
 if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
   echo "    updater signing key present -> building signed updater artifacts"
   BUILD_ARGS+=(--features updater --config src-tauri/tauri.updater.conf.json)
+  # The local E2E harness (scripts/test-updater-local.sh) stacks one more
+  # overlay to point the endpoint at 127.0.0.1. Only meaningful with the
+  # updater feature, so it lives inside this branch.
+  if [ -n "${GOLAVO_UPDATER_ENDPOINT_OVERLAY:-}" ]; then
+    echo "    endpoint overlay -> ${GOLAVO_UPDATER_ENDPOINT_OVERLAY}"
+    BUILD_ARGS+=(--config "$GOLAVO_UPDATER_ENDPOINT_OVERLAY")
+  fi
 else
   echo "    no updater signing key -> UNSIGNED bundle, no updater artifacts"
 fi

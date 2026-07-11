@@ -7,6 +7,48 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **In-app updates (desktop).** Golavo now updates itself — no git, no
+  terminal. Consent-first: a one-time card asks before any update check ever
+  leaves the machine (the "no runtime network call unless you opt in" promise
+  holds); enabled, the app checks GitHub once a day and shortly after launch.
+  The flow is staged and explicit — passive header pill → Software Update
+  sheet (release notes, **Update now** / **Skip this version** / **Later**) →
+  event-driven progress bar with a working Cancel → platform-true install
+  ("Restart Golavo" on macOS, "Quit & install" on Windows, which reopens
+  itself). Every download is **cryptographically verified** against the
+  public key compiled into the app before installing (the updater keypair now
+  exists; CI signs every release artifact). The ledger is backed up
+  immediately before install, and the backup has a real lifecycle: armed only
+  until the new version's first healthy boot (then retired), restored with a
+  native explanation dialog if that boot fails — never restorable twice, and
+  never months later over newer data. A new **Settings** page (header gear)
+  shows the version, auto-check toggle, last-checked time, manual **Check
+  now**, skip management, and the record of the last verified update; the
+  post-update toast only claims "ledger backed up" when one truly was.
+  Source/dev builds show honest "update via git / releases" copy instead of
+  dead controls. New sidecar route `POST /api/v1/shutdown` (token-gated,
+  desktop-only) lets the shell stop the whole sidecar tree before the Windows
+  installer runs. Local E2E harness: `scripts/test-updater-local.sh`.
+
+### Fixed
+- **Windows sidecar watchdog terminated the app it was watching.** The
+  `--parent-pid` probe used `os.kill(pid, 0)`, which on Windows is not a probe
+  at all — CPython maps it to `TerminateProcess`, killing the desktop shell
+  ~1s after boot. The probe now uses `OpenProcess` + a zero-timeout wait, pins
+  the parent handle (immune to PID reuse), and treats probe errors as
+  parent-gone so the watchdog thread can never die silently.
+
+### Changed
+- **Release pipeline hardened for updates.** Stable `v*` releases now publish
+  as real (non-pre-) releases so the update endpoint resolves; the release is
+  a draft until every asset — installers, signatures, and the new
+  `latest.json` update manifest — is uploaded, then flips live atomically.
+  The manifest uses installer-specific Windows keys (`windows-x86_64-nsis` /
+  `-msi`) so an MSI install is never "updated" by the NSIS installer. CI
+  hard-fails a tag whose version doesn't match the committed one
+  (`make release-bump VERSION=x.y.z` syncs all 10 spots via
+  `scripts/bump_version.py`), a stable tag without the signing secret, a
+  placeholder pubkey, and a half-built platform matrix.
 - **Phase 8 — Exact-score distribution + Casual/Expert presentation.** Goal-based
   families (independent / Dixon-Coles / bivariate Poisson) now seal the
   exact-score distribution the 1X2 forecast already implied, as an additive
