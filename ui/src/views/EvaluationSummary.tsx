@@ -21,7 +21,7 @@ export function EvaluationSummary() {
           probabilities and punishes overconfidence. Lower is better throughout.
         </p>
         <p className="muted small">
-          <a href="#/ledger">Your real sealed forecasts live in the Ledger ›</a>
+          <a href="#/lab/track-record">Your real sealed forecasts live in Track record ›</a>
         </p>
       </header>
 

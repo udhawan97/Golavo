@@ -19,10 +19,10 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from . import coincidence, context, predictive
+from . import coincidence, context, predictive, signature
 from ._history import Candidate, TemplateContext
 
-REGISTRY_VERSION = "2026.07.11"
+REGISTRY_VERSION = "2026.07.12"
 
 _ID_RE = re.compile(r"[a-z][a-z0-9_]*\Z")
 _LABELS = ("predictive", "context", "coincidence")
@@ -65,6 +65,20 @@ REGISTRY: tuple[Template, ...] = (
     Template(
         "neutral_venue_record", "1.0.0", "context", "team", 2, 5, None,
         context.neutral_venue_record,
+    ),
+    # --- context: signature stats (the unusual form insights) ---
+    Template(
+        "both_teams_scored_rate", "1.0.0", "context", "team", 2, 10, 400,
+        signature.both_teams_scored_rate,
+    ),
+    Template(
+        "clean_sheet_rate", "1.0.0", "context", "team", 2, 10, 400,
+        signature.clean_sheet_rate,
+    ),
+    Template("scoring_trend", "1.0.0", "context", "team", 2, 12, 400, signature.scoring_trend),
+    Template(
+        "head_to_head_goals", "1.0.0", "context", "head_to_head", 1, 4, 365 * 12,
+        signature.head_to_head_goals,
     ),
     # --- context: internationals-only (scorers + shootouts) ---
     Template("top_scorer", "1.0.0", "context", "team", 2, 10, None, context.top_scorer),

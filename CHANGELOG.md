@@ -6,6 +6,34 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-07-12
+
+Sharper commentator notes and a cleaner post-pivot flow.
+
+### Added
+- **Signature form stats in the Commentator's Notebook** — the unusual insights a
+  commentator knows but most scoreboards never show, all deterministic and
+  number-disciplined:
+  - **both-teams-scored rate** — how often a side's recent matches see both teams
+    find the net;
+  - **scoring momentum** — goals a game over the last six versus the stretch
+    before, surfaced only when the shift is real;
+  - **clean-sheet rate** — how reliably a defence shuts the door (distinct from the
+    current clean-sheet streak);
+  - **head-to-head goal character** — the average goals and both-scored count in
+    the meetings, the dimension the win/draw/loss record leaves out.
+  Registry version bumped; these run under the same pre-registered
+  multiple-comparison, sample, and freshness guards as every other fact.
+
+### Changed
+- **"Three things to know" and the Commentator's Notebook no longer overlap.** The
+  headline picks are removed from the full notebook below, so the notebook is the
+  deeper cut rather than a repeat — the two panels now partition the facts.
+- **Post-pivot link and label cleanup.** The sealed-forecast list is titled
+  "Sealed forecasts" (under Model Lab); cross-links from the ledger, backtests, and
+  forecast pages point at the new `/lab/*` routes instead of the retired
+  `#/ledger` and `#/eval`.
+
 ## [0.3.0] - 2026-07-12
 
 The architecture rethink, first slice: Golavo opens on **games**, not on an audit

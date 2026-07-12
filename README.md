@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.3.0" src="https://img.shields.io/badge/version-v0.3.0-6082b8?style=flat-square">
+  <img alt="version v0.3.1" src="https://img.shields.io/badge/version-v0.3.1-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -43,7 +43,7 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.3.0 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.3.1 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, calibration record, optional guarded AI narration, and
@@ -98,7 +98,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 🥅 | **Show the scorelines implied by the model** — exact-score grid plus an honest out-of-grid tail | The same goal distribution behind the 1X2 forecast, not a decorative second guess |
 | 🧾 | **Score after full time** — write a linked scored or voided successor | Outcome, assigned probability, log loss, Brier, or a real void reason |
 | 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
-| 🗒️ | **Open the Commentator's Notebook** — deterministic facts with samples, base rates, freshness, and sources | Context labelled predictive, contextual, or coincidence before anyone gets poetic |
+| 🗒️ | **Open the Commentator's Notebook** — signature form stats you don't usually see: both-teams-scored rate, scoring momentum, clean-sheet rate, and the goal character of the head-to-head | Facts that add something the scoreline and the model can't — de-duplicated from the headline picks, labelled predictive / contextual / coincidence, and never invented |
 | 🤖 | **Enable AI Deep Read** *(optional)* — local Ollama/llama.cpp or cloud BYOK | Cited narrative over allowed engine numbers; one unsupported number and the whole answer is benched |
 | 👓 | **Switch Casual / Expert** | Plain-language reading or full seal, provenance, uncertainty, and score-matrix detail — same numbers, different studs |
 | 🖥️ | **Run locally** — source web app or Tauri desktop shell | A private workbench with no account, ads, or hosted forecasting backend |

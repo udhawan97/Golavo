@@ -20,9 +20,15 @@ import { fetchNotebook } from "../lib/api";
 import { yearSpan } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync } from "../lib/hooks";
+import { topInsights } from "../lib/insights";
 import { AlertIcon } from "./icons";
 import { InfoPopover, RateBar } from "./primitives";
 import { BlockSkeleton, EmptyState, ErrorState } from "./states";
+
+/** A fact's identity within one notebook: template id + which team/pair it is
+ *  about. Used to drop the facts already shown in "Three things to know" so the
+ *  notebook is genuinely the deeper cut, not a repeat of the summary. */
+const factKey = (f: { id: string; subject: string }): string => `${f.id}::${f.subject}`;
 
 const GROUP_ORDER: FactLabel[] = ["predictive", "context", "coincidence"];
 
@@ -92,10 +98,28 @@ export function NotebookFacts({
     );
   }
 
+  // Drop the facts already surfaced in "Three things to know" above, so the
+  // notebook is the deeper cut rather than a repeat. Same pure selector, same
+  // notebook — so the two panels partition the facts instead of overlapping.
+  const summaryKeys = new Set(topInsights(notebook).map(factKey));
+  const remaining = notebook.facts.filter((f) => !summaryKeys.has(factKey(f)));
+  const allInSummary = remaining.length === 0 && summaryKeys.size > 0;
+
   return (
     <>
+      {summaryKeys.size > 0 && !allInSummary && (
+        <p className="small dim" style={{ margin: 0 }}>
+          The headline picks are in “Three things to know” above; here is the rest of the notebook.
+        </p>
+      )}
+      {allInSummary && (
+        <p className="small dim" style={{ margin: 0 }}>
+          Every fact that cleared the guards is in the highlights above — nothing is padded out to
+          look fuller.
+        </p>
+      )}
       {GROUP_ORDER.map((label) => {
-        const facts = notebook.facts.filter((f) => f.label === label);
+        const facts = remaining.filter((f) => f.label === label);
         if (facts.length === 0) return null;
         return (
           <FactGroup

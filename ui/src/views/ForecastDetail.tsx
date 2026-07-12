@@ -380,7 +380,7 @@ function ExpertDrawers({ artifact, mode }: { artifact: ForecastArtifact; mode: F
         <p className="measure" style={{ margin: 0 }}>
           The model flags <b>{forecast.uncertainty}</b> uncertainty for this fixture. How well this
           engine's sealed probabilities have matched reality — across every scored seal — is tracked
-          in the <a href="#/ledger">prediction ledger ›</a>
+          in the <a href="#/lab/track-record">prediction track record ›</a>
         </p>
       </Drawer>
     </div>
@@ -481,7 +481,7 @@ function VoidBanner({ reason }: { reason: string | null }) {
 function Breadcrumb({ label }: { label?: string }) {
   return (
     <nav className="breadcrumb" aria-label="Breadcrumb">
-      <a href="#/">Matchday</a>
+      <a href="#/lab/forecasts">Sealed forecasts</a>
       {label && <><ChevronRight size={14} /><span aria-current="page">{label}</span></>}
     </nav>
   );

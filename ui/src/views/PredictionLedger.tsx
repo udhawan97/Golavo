@@ -2,8 +2,8 @@
  * The REAL prediction ledger: every genuine seal and what became of it.
  *
  * This view renders sealed→scored/voided chains aggregated from immutable
- * artifacts — never evaluation backtests. Those live under #/eval and are
- * labeled as such; the split is the product's honesty boundary.
+ * artifacts — never evaluation backtests. Those live under #/lab/backtests and
+ * are labeled as such; the split is the product's honesty boundary.
  */
 import { useMemo, useState } from "react";
 import type { CalibrationChain, CalibrationSummary, Probs } from "../lib/contract";
@@ -24,7 +24,7 @@ export function PredictionLedger() {
           Real sealed forecasts and what happened after the whistle — never backtests.
           Each row is an immutable seal; scoring appends a successor from a strictly
           newer data snapshot and can never edit the seal.{" "}
-          <a href="#/eval"><b style={{ color: "var(--text)" }}>Backtest folds live under Evaluation ›</b></a>
+          <a href="#/lab/backtests"><b style={{ color: "var(--text)" }}>Backtest folds live under Backtests ›</b></a>
         </p>
       </header>
 

@@ -14,9 +14,13 @@ export function MatchdayList() {
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.4rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
-        <h1>Matchday</h1>
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <a href="#/lab">Model Lab</a>
+        </nav>
+        <h1>Sealed forecasts</h1>
         <p className="muted" style={{ maxWidth: "60ch" }}>
-          Every forecast is sealed before kickoff and scored after full time. Newest first.
+          Predictions you sealed before kickoff, scored after full time. Newest first. Open a match
+          from Games to seal a new one.
         </p>
       </header>
 
