@@ -6,6 +6,47 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-07-12
+
+### Added
+- **Reading comfort** (header **Aa**). A small popover for how the app *reads* —
+  never what it says: theme (Light, Dark, or a new **Warm** low-blue palette for
+  evening reading), text size (four steps that scale the whole app), line spacing,
+  and contrast (which follows the OS "increase contrast" setting). Warm is a
+  dedicated, contrast-checked palette, not a screen tint. It's for comfort, not eye
+  protection, and the copy says so.
+- **"Three things to know" now leads with the fact closest to the fixture** — a
+  head-to-head record surfaces above a competition-wide base rate (ranked by scope,
+  then specificity). Still a pure, documented pick from the notebook; never AI.
+- **"What moved" on a re-seal.** When a fixture is re-sealed, the newer forecast
+  shows each outcome's probability *was → now* with the change in whole points —
+  line movement between two honest pre-kickoff seals, not an edit, deltas summing
+  to zero.
+- **Activate local AI from Settings.** A new *Local intelligence* section surfaces
+  the AI Deep Read provider (Off by default; Local · Ollama / llama.cpp, or
+  OpenAI / Anthropic BYOK). It only reads and cites the sealed numbers and can never
+  change a probability.
+- **Automated UI gate.** A Playwright + axe-core suite checks no horizontal overflow
+  at mobile/tablet/desktop widths and no serious accessibility violations across all
+  three themes, on every push.
+
+### Changed
+- **Probabilities read as whole numbers** in the bars and plain-language summaries
+  (rounded so a 1X2 split still sums to 100), with a natural-frequency gloss ("about
+  3 in 5"); one decimal survives only in the expert tables.
+- **The local engine prefers a refreshed data snapshot when one is present** —
+  internal groundwork toward pulling a newly-spotted fixture in so it is instantly
+  forecastable (no user-facing control yet).
+
+### Fixed
+- **Header settings gear** redrawn — the previous icon's transform left it visibly
+  off-centre.
+- **Settings spacing** — hint text now sits with its control and wraps at a readable
+  measure instead of bleeding across the panel.
+- **Probability-bar labels now clear WCAG AA 4.5:1 in every theme.** The light and
+  warm palettes previously dropped the dark segment labels just under the threshold;
+  the bar now uses theme-independent segment colours.
+
 ## [0.2.5] - 2026-07-12
 
 ### Added

@@ -1,6 +1,6 @@
 [project]
 name = "golavo-core"
-version = "0.2.5"
+version = "0.2.6"
 description = "Golavo modeling library: ingest, warehouse, models, ledger, facts."
 readme = "README.md"
 requires-python = ">=3.12"
