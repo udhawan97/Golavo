@@ -367,10 +367,33 @@ export interface MatchSearchResponse {
   matches: MatchRow[];
 }
 
+/** Whether a fixture can be forward-sealed in-app, with a typed reason. Additive
+ *  (optional) so an older backend that omits it degrades gracefully. */
+export interface SealEligibility {
+  eligible: boolean;
+  /** Stable machine code; the UI maps known values to copy and falls back to
+   *  `detail` for anything it doesn't recognise. */
+  reason_code: string;
+  detail: string;
+  family: string;
+  existing_artifact_ids: string[];
+}
+
+/** The result of POST /matches/{id}/seal — a created or already-existing seal. */
+export interface SealResult {
+  created: boolean;
+  artifact_id: string;
+  status: ArtifactStatus;
+  family: string;
+  abstained: boolean;
+  abstain_reason: string | null;
+}
+
 export interface MatchDetailResponse {
   schema_version: SchemaVersion;
   match: MatchRow;
   linked_by: "match_id" | "fixture" | null;
+  seal_eligibility?: SealEligibility;
 }
 
 export interface CompetitionSummary {

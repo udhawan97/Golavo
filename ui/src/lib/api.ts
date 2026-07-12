@@ -22,6 +22,8 @@ import type {
   MatchRow,
   MatchSearchResponse,
   NotebookResponse,
+  SealEligibility,
+  SealResult,
   SourceKind,
 } from "./contract";
 import type { AiProvider, NarrativeResponse } from "./ai";
@@ -117,6 +119,22 @@ export class ApiError extends Error {
     super(`${message} (HTTP ${status})`);
     this.name = "ApiError";
     this.status = status;
+  }
+}
+
+/** A typed failure from the seal write route: carries the machine `reason_code`
+ *  the backend returns so the view can show honest, specific copy (a played
+ *  fixture reads differently from a closed seal window). `status === 0` marks a
+ *  client-side refusal that never hit the network (e.g. the sample-data preview,
+ *  which has no engine to run). */
+export class SealApiError extends Error {
+  readonly status: number;
+  readonly reasonCode: string;
+  constructor(message: string, status: number, reasonCode: string) {
+    super(message);
+    this.name = "SealApiError";
+    this.status = status;
+    this.reasonCode = reasonCode;
   }
 }
 
@@ -447,6 +465,27 @@ export async function searchMatches(
   return assertMatchSearch(await res.json(), "matches/search");
 }
 
+/** Mock-mode seal eligibility, mirroring the server's typed verdict so the
+ *  Generate-forecast flow is exercised offline. Internationals with a future
+ *  kickoff are eligible; everything else gets the reason code the server would. */
+function mockSealEligibility(match: MatchRow): SealEligibility {
+  const base = {
+    family: "dixon_coles",
+    existing_artifact_ids: match.forecasts.map((f) => f.artifact_id),
+  };
+  if (match.is_complete)
+    return { ...base, eligible: false, reason_code: "fixture_complete",
+      detail: "this fixture already has a result" };
+  if (match.source_kind !== "international")
+    return { ...base, eligible: false, reason_code: "unsupported_competition",
+      detail: "forward seals currently cover men's senior international fixtures only" };
+  if (new Date(match.kickoff_utc).getTime() <= Date.now())
+    return { ...base, eligible: false, reason_code: "kickoff_passed",
+      detail: "the seal window closes at kickoff (date-only source: 00:00 UTC on match day)" };
+  return { ...base, eligible: true, reason_code: "eligible",
+    detail: "a local forecast can be sealed for this fixture" };
+}
+
 /** One match by id. A 404 (or a missing mock row) yields null, mirroring
  *  fetchForecast. */
 export async function fetchMatch(matchId: string): Promise<MatchDetailResponse | null> {
@@ -455,7 +494,12 @@ export async function fetchMatch(matchId: string): Promise<MatchDetailResponse |
     const match = matches.find((m) => m.match_id === matchId);
     if (!match) return null;
     return assertMatchDetail(
-      { schema_version, match, linked_by: match.forecasts.length > 0 ? "match_id" : null },
+      {
+        schema_version,
+        match,
+        linked_by: match.forecasts.length > 0 ? "match_id" : null,
+        seal_eligibility: mockSealEligibility(match),
+      },
       `matches/${matchId} (mock)`,
     );
   }
@@ -466,6 +510,62 @@ export async function fetchMatch(matchId: string): Promise<MatchDetailResponse |
     if (err instanceof Error && /HTTP 404/.test(err.message)) return null;
     throw err;
   }
+}
+
+/**
+ * Seal one deterministic forecast for a fixture (POST /matches/{id}/seal).
+ *
+ * Live mode runs the engine server-side and returns the created (or already
+ * existing) artifact. A typed failure — an ineligible fixture, a missing pack —
+ * is surfaced as a SealApiError carrying the backend `reason_code` so the view
+ * explains it honestly. Sample-data (mock) mode has no engine, so it refuses with
+ * a `preview_only` SealApiError rather than fabricating a forecast.
+ */
+export async function sealMatch(matchId: string, family?: string): Promise<SealResult> {
+  if (!API_BASE) {
+    throw new SealApiError(
+      "Sealing runs in the connected Golavo app; this sample-data preview has no engine to run.",
+      0,
+      "preview_only",
+    );
+  }
+  const headers: Record<string, string> = {
+    accept: "application/json",
+    "content-type": "application/json",
+  };
+  if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
+  const res = await fetch(`${API_BASE}/api/v1/matches/${encodeURIComponent(matchId)}/seal`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(family ? { family } : {}),
+  });
+  if (!res.ok) {
+    let reason = "seal_rejected";
+    let message = `seal failed (HTTP ${res.status})`;
+    try {
+      const err = (await res.json()) as { detail?: { reason_code?: string; message?: string } };
+      if (err.detail?.reason_code) reason = err.detail.reason_code;
+      if (err.detail?.message) message = err.detail.message;
+    } catch {
+      /* keep the generic defaults */
+    }
+    throw new SealApiError(message, res.status, reason);
+  }
+  // Guard the success body like every other response: a drifted 2xx that isn't a
+  // well-formed SealResult must fail loudly, not navigate to #/forecast/undefined.
+  let result: SealResult;
+  try {
+    result = (await res.json()) as SealResult;
+  } catch {
+    throw new SealApiError("the seal response was not valid JSON", res.status, "seal_rejected");
+  }
+  if (typeof result.artifact_id !== "string" || !result.artifact_id.startsWith("fa_"))
+    throw new SealApiError(
+      "the seal succeeded but returned no usable artifact id",
+      res.status,
+      "seal_rejected",
+    );
+  return result;
 }
 
 /** The distinct (competition, source_kind) groups with match counts — drives the

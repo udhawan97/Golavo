@@ -8,8 +8,15 @@
  * The Commentator's Notebook block always renders for a found match, which is
  * what makes a searched fixture worth opening even with no forecast attached.
  */
-import type { MatchDetailResponse, MatchForecastLink, MatchNotebookResponse, MatchRow } from "../lib/contract";
-import { fetchMatch, fetchMatchNotebook } from "../lib/api";
+import { useRef, useState } from "react";
+import type {
+  MatchDetailResponse,
+  MatchForecastLink,
+  MatchNotebookResponse,
+  MatchRow,
+  SealEligibility,
+} from "../lib/contract";
+import { fetchMatch, fetchMatchNotebook, sealMatch, SealApiError } from "../lib/api";
 import { relative, utc, utcDate } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync } from "../lib/hooks";
@@ -91,10 +98,8 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
       ) : match.is_complete ? (
         <PlayedNoForecast match={match} />
-      ) : future ? (
-        <FutureNoForecast match={match} />
       ) : (
-        <PastNoForecast />
+        <SealAction detail={detail} />
       )}
 
       <MatchNotebookBlock matchId={id} />
@@ -188,36 +193,127 @@ function PlayedNoForecast({ match }: { match: MatchRow }) {
   );
 }
 
-/** (c) Upcoming, no seal — honest about where sealing happens today, and gated
- *  by competition so club leagues are never implied to be forecastable. */
-function FutureNoForecast({ match }: { match: MatchRow }) {
+/** (c) Upcoming, no seal — the in-app forecast action, driven by the server's
+ *  typed eligibility verdict. An eligible fixture gets a real Generate button;
+ *  everything else gets an honest, specific reason (never implying a club league
+ *  is forecastable, or that a passed window can still be sealed). */
+function SealAction({ detail }: { detail: MatchDetailResponse }) {
+  const { match } = detail;
+  const eligibility = detail.seal_eligibility;
+  const [state, setState] = useState<{ status: "idle" | "sealing" | "error"; error?: SealApiError }>(
+    { status: "idle" },
+  );
+  const inFlight = useRef(false);
+
+  // An older backend that doesn't report eligibility: keep an honest neutral note.
+  if (!eligibility) return <SealUnknown match={match} />;
+  if (!eligibility.eligible) return <SealIneligible eligibility={eligibility} />;
+
+  const onSeal = async () => {
+    if (inFlight.current) return; // guard a double-click (primary + retry both call this)
+    inFlight.current = true;
+    setState({ status: "sealing" });
+    try {
+      const result = await sealMatch(match.match_id, eligibility.family);
+      // Hand off to the single renderer of sealed numbers.
+      window.location.hash = `#/forecast/${encodeURIComponent(result.artifact_id)}`;
+    } catch (err) {
+      setState({
+        status: "error",
+        error:
+          err instanceof SealApiError ? err : new SealApiError(String(err), 0, "seal_rejected"),
+      });
+    } finally {
+      inFlight.current = false;
+    }
+  };
+
   return (
-    <div className="callout callout--info">
+    <section className="panel" aria-labelledby="md-seal">
+      <div className="panel__head">
+        <h2 id="md-seal">Generate a local forecast</h2>
+        <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
+          deterministic · offline
+        </span>
+      </div>
+      <div className="panel__body stack" style={{ ["--gap" as string]: ".85rem" }}>
+        <p className="small muted" style={{ margin: 0 }}>
+          Seal a forecast with the deterministic <span className="mono">{eligibility.family}</span>{" "}
+          model. It runs on your machine, trains only on data available before kickoff, and writes an
+          immutable, auditable artifact — no CLI, no network.
+        </p>
+        <div>
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={onSeal}
+            disabled={state.status === "sealing"}
+            aria-busy={state.status === "sealing"}
+          >
+            {state.status === "sealing" ? "Sealing forecast…" : "Generate local forecast"}
+          </button>
+        </div>
+        {state.status === "error" && state.error && (
+          <div className="callout callout--void" role="alert">
+            <InfoIcon size={18} />
+            <div>
+              <div className="callout__title">Couldn’t seal this forecast</div>
+              {state.error.message}
+              {state.error.reasonCode !== "preview_only" && (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    style={{ marginTop: ".5rem" }}
+                    onClick={onSeal}
+                  >
+                    Try again
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** An ineligible fixture, explained with copy specific to the typed reason. */
+function SealIneligible({ eligibility }: { eligibility: SealEligibility }) {
+  const copy: Record<string, string> = {
+    kickoff_passed:
+      "The seal window has closed. A forecast is only honest if it was sealed before kickoff — for this date-only fixture, before its 00:00 UTC day proxy, which has already passed.",
+    unsupported_competition:
+      "Forward sealing currently covers men’s senior international fixtures. Club leagues are bundled for historical backtesting, not forward forecasts.",
+    pack_unavailable:
+      "The pinned data pack for this fixture isn’t available in this build yet, so a forecast can’t be sealed here.",
+  };
+  const message = copy[eligibility.reason_code] ?? eligibility.detail;
+  const tone = eligibility.reason_code === "kickoff_passed" ? "callout--void" : "callout--info";
+  return (
+    <div className={`callout ${tone}`}>
       <InfoIcon size={18} />
       <div>
-        <div className="callout__title">No forecast sealed for this fixture yet</div>
-        Sealing from inside the app lands in a future release; today, seals are written by the
-        engine CLI.
-        {match.source_kind === "club" && (
-          <>
-            {" "}
-            Forward sealing currently covers internationals; club leagues are used for historical
-            backtesting.
-          </>
-        )}
+        <div className="callout__title">No forecast for this fixture</div>
+        {message}
       </div>
     </div>
   );
 }
 
-/** (c′) Past kickoff, no recorded score, no seal — not "upcoming". */
-function PastNoForecast() {
+/** Fallback for a backend that predates the eligibility verdict. */
+function SealUnknown({ match }: { match: MatchRow }) {
   return (
-    <div className="callout callout--void">
+    <div className="callout callout--info">
       <InfoIcon size={18} />
       <div>
-        <div className="callout__title">No result on record</div>
-        Result not recorded in the pinned data snapshot.
+        <div className="callout__title">No forecast sealed for this fixture yet</div>
+        This build doesn’t report in-app sealing for this fixture.
+        {match.source_kind === "club" && (
+          <> Forward sealing currently covers internationals; club leagues are backtesting data.</>
+        )}
       </div>
     </div>
   );
