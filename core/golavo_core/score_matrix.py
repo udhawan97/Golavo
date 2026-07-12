@@ -270,3 +270,91 @@ def assert_model_coherent(
     violations.extend(stored_coherence_violations(score_matrix, probs, prob_tol=prob_tol))
     if violations:
         raise ValueError("incoherent score_matrix at seal time: " + "; ".join(violations))
+
+
+# --- Derived markets --------------------------------------------------------
+#
+# Analysis views a reader can compute from a SEALED artifact with no new data and
+# no new model — pure re-buckets of numbers the seal already committed to. Only
+# the markets that are EXACTLY recoverable from the stored grid + outcome-tail are
+# offered here, so every figure is a true marginal of the same sealed distribution
+# the coherence checks above already guarantee. Deliberately NOT included: both-
+# teams-to-score, clean sheets, and per-team totals — the tail is decomposed by
+# match outcome only (home/draw/away), so those quantities carry an unstated tail
+# error and would need exact marginals sealed at seal time (a schema bump) to be
+# honest. This module uses analysis language ("chance of over 2.5 goals"), never
+# betting-product framing.
+
+
+def double_chance(probs: dict[str, float]) -> dict[str, float]:
+    """The three double-chance probabilities: the sealed 1X2 taken two at a time.
+
+    Pure sums of ``forecast.probs`` — exact and independent of the score grid.
+    """
+    home, draw, away = float(probs["home"]), float(probs["draw"]), float(probs["away"])
+    return {
+        "home_or_draw": round(home + draw, 6),
+        "home_or_away": round(home + away, 6),
+        "draw_or_away": round(draw + away, 6),
+    }
+
+
+def total_goals_bands(score_matrix: dict[str, Any]) -> dict[str, float]:
+    """Exact distribution of total match goals, bucketed so every figure is a true
+    marginal of the stored grid.
+
+    Totals ``0..N`` (``N = score_matrix['max_goals']``, the per-side display cap)
+    lie entirely inside the grid and are individually exact. Everything from
+    ``N+1`` up folds into one ``'(N+1)_plus'`` bucket — exact because the tail (a
+    side scoring more than ``N``) always contributes at least ``N+1`` total goals,
+    so grid cells with total ``> N`` plus the whole tail is precisely
+    ``P(total >= N+1)``. Individual totals ``N+1..2N`` are intentionally not split
+    out: the grid holds only part of their mass and the rest is in the tail.
+    """
+    n = int(score_matrix["max_goals"])
+    grid = score_matrix["grid"]
+    bands = {str(t): 0.0 for t in range(n + 1)}
+    over_bucket = float(score_matrix["tail"]["probability"])
+    for i in range(n + 1):
+        for j in range(n + 1):
+            total = i + j
+            value = float(grid[i][j])
+            if total <= n:
+                bands[str(total)] = round(bands[str(total)] + value, GRID_PRECISION)
+            else:
+                over_bucket = round(over_bucket + value, GRID_PRECISION)
+    bands[f"{n + 1}_plus"] = round(over_bucket, GRID_PRECISION)
+    return bands
+
+
+def total_goals_over_under(score_matrix: dict[str, Any], line: float) -> dict[str, float]:
+    """Exact P(total goals over / under a half-goal ``line``), for ``0 < line < N+1``.
+
+    ``over`` is ``P(total > line)``. Because every tail cell (a side scoring more
+    than ``N``) has at least ``N+1`` total goals, any line below ``N+1`` puts the
+    entire tail on the ``over`` side, so both sides are exact partitions of the
+    stored grid. A line at or above ``N+1`` would require splitting the tail by
+    total goals — mass the artifact does not carry — and is refused rather than
+    approximated.
+    """
+    n = int(score_matrix["max_goals"])
+    if not 0 < line < n + 1:
+        raise ValueError(
+            f"total-goals line must lie in (0, {n + 1}) to be exactly recoverable "
+            f"from the stored grid; got {line}"
+        )
+    grid = score_matrix["grid"]
+    over = float(score_matrix["tail"]["probability"])  # every tail total exceeds the line
+    under = 0.0
+    for i in range(n + 1):
+        for j in range(n + 1):
+            value = float(grid[i][j])
+            if i + j > line:
+                over += value
+            else:
+                under += value
+    return {
+        "line": float(line),
+        "over": round(over, GRID_PRECISION),
+        "under": round(under, GRID_PRECISION),
+    }
