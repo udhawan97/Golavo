@@ -339,6 +339,30 @@ async def create_seal(match_id: str, request: Request) -> JSONResponse:
     return JSONResponse(status_code=201 if result["created"] else 200, content=result)
 
 
+@app.get("/api/v1/fixtures/check")
+def fixtures_check() -> dict[str, Any]:
+    """Opt-in fixture freshness: report genuinely-new upcoming fixtures upstream.
+
+    The ONLY route that reaches the network, and it does so only when the UI —
+    with the user's "keep fixtures up to date" setting on — calls it. Read-only:
+    it diffs the CC0 source against the committed index and returns upcoming games
+    not yet present; it never writes, seals, or rebuilds anything.
+    """
+    from golavo_server import fixtures
+
+    try:
+        frame = matches._load_index()
+    except matches.MatchIndexUnavailable:
+        frame = None
+    try:
+        return fixtures.check_new_fixtures(frame)
+    except fixtures.FixtureCheckError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={"reason_code": "fixture_source_unreachable", "message": str(exc)},
+        ) from exc
+
+
 @app.get("/api/v1/calibration")
 def calibration() -> dict[str, Any]:
     """Serve the real sealed→scored calibration record (never eval backtests).
