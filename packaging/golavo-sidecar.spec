@@ -36,6 +36,9 @@ datas = [
     # Phase 5 additive sibling contracts for the optional AI layer.
     (os.path.join(ROOT, "docs", "contracts", "evidence_bundle.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "docs", "contracts", "ai_narration.schema.json"), "docs/contracts"),
+    # Phase 7 CommentatorsNotebook contract: build_notebook(validate=True) reads it
+    # at runtime, so a frozen build without it fails every on-demand notebook closed.
+    (os.path.join(ROOT, "docs", "contracts", "facts.schema.json"), "docs/contracts"),
 ]
 datas += [
     (os.path.join(ROOT, "docs", "handoff", name), "docs/handoff") for name in _EVAL_SUMMARIES

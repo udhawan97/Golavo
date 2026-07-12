@@ -7,7 +7,8 @@ developers can also run it directly.
 Run modes:
   golavo-sidecar --host H --port P --token T   serve (blocks) on http://H:P
   golavo-sidecar --smoke                        boot on an ephemeral port, probe
-                                                /health, print version, exit 0/1
+                                                /health + search + notebook,
+                                                print version, exit 0/1
   golavo-sidecar --version                      print the version and exit
 
 Args override the matching GOLAVO_* environment variables. When no port is given
@@ -200,14 +201,16 @@ def _serve(
 
 def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
     """Boot the server on an ephemeral port in a background thread and assert
-    that /health becomes ready AND the match-search surface answers. Returns 0
-    on success, 1 on timeout/failure.
+    that /health becomes ready AND the match-search AND on-demand-notebook
+    surfaces answer. Returns 0 on success, 1 on timeout/failure.
 
-    The search probe is what catches a frozen build that dropped the
-    ``data/index`` datas entry: /health only proves the server booted, while a
-    missing index makes /matches/search fail closed with a 503. Smoke runs with
-    a token (see _serve), so the probe attaches it — /health is exempt, the
-    /api/* search route is not."""
+    The extra probes are what catch a frozen build that dropped a datas entry:
+    /health only proves the server booted, while a missing index makes
+    /matches/search fail closed with a 503, and a missing runtime schema
+    (docs/contracts) makes every on-demand /matches/{id}/notebook fail closed
+    to ``available: false`` — the v0.2.3 desktop regression. Smoke runs with
+    a token (see _serve), so the probes attach it — /health is exempt, the
+    /api/* routes are not."""
     from golavo_server import __version__, runtime
 
     host = "127.0.0.1"
@@ -257,22 +260,55 @@ def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
             file=sys.stderr,
         )
         return 1
-    if not isinstance(search_body.get("matches"), list):
+    if not isinstance(search_body.get("matches"), list) or not search_body["matches"]:
         print(
-            f"golavo-sidecar {__version__}: smoke FAILED — search returned no matches array "
+            f"golavo-sidecar {__version__}: smoke FAILED — search returned no matches "
             f"({search_body})",
             file=sys.stderr,
         )
         return 1
 
+    # One real on-demand notebook exercises the facts engine end to end,
+    # including the bundled facts.schema.json: the route fails closed to
+    # available:false on any build/validate error, so a frozen build missing a
+    # docs/contracts datas entry fails smoke here instead of shipping.
+    match_id = search_body["matches"][0]["match_id"]
+    notebook_url = f"http://{host}:{port}/api/v1/matches/{match_id}/notebook"
+    request = urllib.request.Request(notebook_url)  # noqa: S310 (loopback only)
+    if token:
+        request.add_header(runtime.TOKEN_HEADER, token)
+    try:
+        with urllib.request.urlopen(request, timeout=30.0) as response:  # noqa: S310 (loopback only)
+            notebook_body = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001 (any failure => the notebook surface is broken)
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED — notebook probe error for "
+            f"{match_id} ({exc})",
+            file=sys.stderr,
+        )
+        return 1
+    if notebook_body.get("available") is not True:
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED — notebook unavailable for "
+            f"{match_id}; a runtime schema is likely missing from the bundle "
+            f"({notebook_body})",
+            file=sys.stderr,
+        )
+        return 1
+
     n = len(search_body["matches"])
-    print(f"golavo-sidecar {__version__}: smoke OK on {host}:{port} (health + {n} search matches)")
+    print(
+        f"golavo-sidecar {__version__}: smoke OK on {host}:{port} "
+        f"(health + {n} search matches + notebook {match_id})"
+    )
     return 0
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="golavo-sidecar")
-    parser.add_argument("--smoke", action="store_true", help="boot, probe /health, exit 0/1")
+    parser.add_argument(
+        "--smoke", action="store_true", help="boot, probe /health + search + notebook, exit 0/1"
+    )
     parser.add_argument("--version", action="store_true", help="print version and exit")
     parser.add_argument("--host", default=os.environ.get("GOLAVO_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("GOLAVO_PORT") or 0))

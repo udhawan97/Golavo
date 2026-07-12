@@ -52,6 +52,21 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     `kickoff >= now`) is **empty until a pack refresh** adds scheduled fixtures.
   - See [`docs/handoff/match-search.md`](docs/handoff/match-search.md).
 
+### Fixed
+- **Frozen sidecar: on-demand Commentator's Notebooks were always empty (desktop
+  regression in 0.2.3).** The PyInstaller spec bundled only three of the four
+  runtime contract schemas — `docs/contracts/facts.schema.json` was missing — so
+  in the installed app `build_notebook(validate=True)` raised on the schema read
+  and `GET /api/v1/matches/{id}/notebook` failed closed to `available: false`
+  for every match without a precomputed notebook. Source mode was unaffected,
+  which is why tests and dev runs never saw it. Three-layer fix: the spec now
+  bundles `facts.schema.json`; the sidecar `--smoke` probe additionally requests
+  one real on-demand notebook and fails unless `available: true` (so a dropped
+  `docs/contracts` datas entry fails CI's sidecar-smoke job instead of
+  shipping); and a unit test asserts every `*schema_path` resolver target in
+  `golavo_core.resources` is listed in the spec datas, catching the omission at
+  PR time in source mode.
+
 ## [0.2.3] - 2026-07-11
 
 ### Added

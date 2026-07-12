@@ -61,7 +61,9 @@ def test_sidecar_version_mode_prints_and_exits_zero(capsys) -> None:
 
 def test_sidecar_smoke_mode_boots_and_probes_health() -> None:
     # Boots a real uvicorn server on an ephemeral loopback port and asserts
-    # /health reports ok before the bounded timeout (the probe self-bounds).
+    # /health reports ok before the bounded timeout (the probe self-bounds),
+    # then that /matches/search answers and one on-demand notebook computes
+    # (available: true) — the probes that catch dropped frozen datas entries.
     assert sidecar._smoke(timeout=30.0) == 0
 
 
@@ -79,6 +81,29 @@ def test_frozen_resolver_uses_meipass(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(resources.sys, "_MEIPASS", str(tmp_path), raising=False)
     assert resources.resource_root() == Path(tmp_path)
     assert resources.schema_path() == tmp_path / "docs/contracts/forecast_artifact.schema.json"
+
+
+def test_pyinstaller_spec_bundles_every_runtime_schema() -> None:
+    # Every ``*schema_path`` resolver in golavo_core.resources is a schema the
+    # server may read at runtime; one missing from the PyInstaller datas ships a
+    # desktop build where the dependent surface silently fails closed (v0.2.3:
+    # facts.schema.json was absent, so every on-demand notebook came back
+    # ``available: false``). The frozen smoke probe catches this at build time;
+    # this test catches it already at PR time, in source mode.
+    import inspect
+
+    from golavo_core import resources
+
+    spec = Path(__file__).resolve().parents[2] / "packaging" / "golavo-sidecar.spec"
+    spec_text = spec.read_text(encoding="utf-8")
+    schema_names = [
+        fn().name
+        for name, fn in inspect.getmembers(resources, inspect.isfunction)
+        if name.endswith("schema_path")
+    ]
+    assert schema_names, "no schema resolvers found in golavo_core.resources"
+    for schema_name in schema_names:
+        assert schema_name in spec_text, f"{schema_name} missing from the sidecar spec datas"
 
 
 # --- parent-pid watchdog -----------------------------------------------------
