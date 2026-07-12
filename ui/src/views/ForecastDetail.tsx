@@ -1,20 +1,23 @@
 import { Fragment } from "react";
 import type { ForecastArtifact } from "../lib/contract";
 import type { ForecastMode } from "../lib/hooks";
-import { FAMILY_LABELS } from "../lib/contract";
+import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
 import { fetchForecast, fetchForecasts } from "../lib/api";
 import { deriveMarkets } from "../lib/markets";
-import { num, pct, utc, relative } from "../lib/format";
+import { num, pct, pctWhole, inWords, utc, utcDate } from "../lib/format";
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { verdictSummary } from "../lib/summary";
-import { AlertIcon, ChevronRight, ClockIcon, GlobeIcon, InfoIcon, LinkIcon, VoidIcon } from "../components/icons";
-import { Hash, HorizonChip, ProbabilityBar, StatusChip, UncertaintyTag } from "../components/primitives";
+import { AlertIcon, ChevronRight, InfoIcon, LinkIcon, ScaleIcon, ShieldCheckIcon, SparkIcon, VoidIcon } from "../components/icons";
+import { Hash, HorizonChip, ProbabilityBar, StatTile, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
+import { MatchHeader } from "../components/MatchHeader";
+import { Drawer } from "../components/disclosure";
 import { ScoreMatrixHeatmap } from "../components/ScoreMatrixHeatmap";
 import { SealStamp } from "../components/SealStamp";
 import { Provenance } from "../components/Provenance";
 import { ScoredPanel } from "../components/ScoredPanel";
 import { AiDeepRead } from "../components/AiDeepRead";
 import { CommentatorsNotebook } from "../components/CommentatorsNotebook";
+import { InsightCards } from "../components/InsightCards";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
 export function ForecastDetail({ id }: { id: string }) {
@@ -35,30 +38,33 @@ export function ForecastDetail({ id }: { id: string }) {
 }
 
 function Detail({ artifact, supersededBy }: { artifact: ForecastArtifact; supersededBy: string | null }) {
-  const { match, forecast, model, status } = artifact;
+  const { match, forecast, status } = artifact;
   const [mode, setMode] = useForecastMode();
   const abstained = status === "abstained";
+  const venue = match.city ? `${match.city}, ${match.country}` : match.country ?? "—";
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <Breadcrumb label={`${match.home_team} v ${match.away_team}`} />
 
-      <header className="stack" style={{ ["--gap" as string]: ".55rem" }}>
-        <div className="badge-row">
-          <StatusChip status={status} />
-          <HorizonChip horizon={forecast.horizon} />
-          {match.neutral_venue
-            ? <span className="chip chip--neutral">Neutral venue</span>
-            : <span className="chip chip--neutral">Home advantage · {match.home_team}</span>}
-          {!abstained && <ModeToggle mode={mode} setMode={setMode} />}
-        </div>
-        <h1>{match.home_team} <span className="dim" style={{ fontWeight: 400 }}>v</span> {match.away_team}</h1>
-        <div className="md-card__meta" style={{ marginTop: 0 }}>
-          <span>{match.competition}{match.stage ? ` · ${match.stage}` : ""}</span>
-          <span><ClockIcon /> <span className="num">{utc(match.kickoff_utc)}</span> <span className="dim">({relative(match.kickoff_utc)})</span></span>
-          <span><GlobeIcon /> {match.city ? `${match.city}, ${match.country}` : match.country ?? "—"}</span>
-          <span className="dim mono">{match.match_id}</span>
-        </div>
-      </header>
+      <MatchHeader
+        home={match.home_team}
+        away={match.away_team}
+        competition={`${match.competition}${match.stage ? ` · ${match.stage}` : ""}`}
+        kickoffUtc={match.kickoff_utc}
+        venue={venue}
+        chips={
+          <>
+            <StatusChip status={status} />
+            <HorizonChip horizon={forecast.horizon} />
+            {match.neutral_venue
+              ? <span className="chip chip--neutral">Neutral venue</span>
+              : <span className="chip chip--neutral">Home · {match.home_team}</span>}
+          </>
+        }
+        right={!abstained ? <ModeToggle mode={mode} setMode={setMode} /> : undefined}
+      />
+
+      <ForecastTrustStrip artifact={artifact} />
 
       {artifact.supersedes && (
         <div className="callout callout--info">
@@ -89,25 +95,28 @@ function Detail({ artifact, supersededBy }: { artifact: ForecastArtifact; supers
               <>
                 {status === "voided" && <VoidBanner reason={artifact.void_reason ?? null} />}
                 <VerdictPanel artifact={artifact} showBar={status !== "scored"} dim={status === "voided"} />
-                {mode === "casual"
-                  ? <CasualDetails artifact={artifact} />
-                  : <ExpertDetails artifact={artifact} />}
+                <PlainTerms artifact={artifact} />
                 {status === "scored" && <ScoredPanel artifact={artifact} />}
               </>
             )}
         </div>
         <div className="stack" style={{ ["--gap" as string]: "1.1rem" }}>
           <SealStamp artifact={artifact} />
-          <Provenance inputs={artifact.inputs} />
-          <p className="small dim">
-            Model family: {FAMILY_LABELS[model.family]}. This surface is read-only; nothing here
-            can alter a sealed artifact.
-          </p>
         </div>
       </div>
 
+      {/* The casual payoff — 3 fixed-rule picks from the notebook below. */}
+      {!abstained && (
+        <InsightCards
+          source={{ kind: "forecast", artifactId: artifact.artifact_id, snapshots: artifact.inputs.snapshots }}
+        />
+      )}
+
       {/* Deterministic, source-backed match facts — subordinate to the seal. */}
       <CommentatorsNotebook artifact={artifact} />
+
+      {/* Expert depth — same sealed numbers, collapsed in Casual, opened in Expert. */}
+      <ExpertDrawers artifact={artifact} mode={mode} />
 
       {/* Optional, off by default, and subordinate to the sealed numbers above. */}
       <AiDeepRead artifact={artifact} />
@@ -133,6 +142,41 @@ function ModeToggle({ mode, setMode }: { mode: ForecastMode; setMode: (m: Foreca
         </button>
       ))}
     </div>
+  );
+}
+
+/** The single trust row. Each guarantee is stated once here; the full wording
+ *  lives behind ⓘ, so panels below need not restate it. "Sealed before kickoff"
+ *  and "AI never changes the numbers" are always visible, never hidden. */
+function ForecastTrustStrip({ artifact }: { artifact: ForecastArtifact }) {
+  const { forecast } = artifact;
+  return (
+    <TrustStrip
+      items={[
+        {
+          icon: <ShieldCheckIcon />,
+          label: (
+            <>
+              Sealed {utcDate(forecast.sealed_at_utc)} · {HORIZON_LABELS[forecast.horizon]} before kickoff
+            </>
+          ),
+          tipLabel: "How sealing works",
+          tip: "A forecast is only honest if it was sealed before kickoff. These probabilities were locked at the seal and are scored, unchanged, against the result — Golavo never retro-forecasts a played match.",
+        },
+        {
+          icon: <ScaleIcon />,
+          label: "Deterministic",
+          tipLabel: "What deterministic means",
+          tip: "The same inputs and seed reproduce this artifact byte-for-byte. Nothing here is random, and nothing on this read-only page can alter a sealed number.",
+        },
+        {
+          icon: <SparkIcon />,
+          label: "AI never changes the numbers",
+          tipLabel: "The role of AI here",
+          tip: "The optional AI Deep Read (below, off by default) can only read and cite these sealed numbers. It cannot change a probability or improve accuracy.",
+        },
+      ]}
+    />
   );
 }
 
@@ -165,27 +209,43 @@ function VerdictPanel({ artifact, showBar, dim }: { artifact: ForecastArtifact; 
   );
 }
 
-/** Casual depth: the plain-language reading plus a few cited, sealed-number facts. */
-function CasualDetails({ artifact }: { artifact: ForecastArtifact }) {
+/** The always-visible plain-language reading: a few cited, sealed-number facts in
+ *  whole percentages with a natural-frequency gloss. Identical in both modes. */
+function PlainTerms({ artifact }: { artifact: ForecastArtifact }) {
   const { forecast, match } = artifact;
-  const summary = verdictSummary(artifact);
+  const probs = forecast.probs;
   const sm = forecast.score_matrix;
   const xg = forecast.expected_goals;
+  const ranked = probs
+    ? [
+        { who: match.home_team, suffix: " to win", p: probs.home },
+        { who: "A draw", suffix: "", p: probs.draw },
+        { who: match.away_team, suffix: " to win", p: probs.away },
+      ].sort((a, b) => b.p - a.p)
+    : [];
+  const leader = ranked[0] ?? null;
   return (
     <section className="panel" aria-labelledby="cas-h">
       <div className="panel__head">
         <h2 id="cas-h">In plain terms</h2>
       </div>
-      <div className="panel__body stack" style={{ ["--gap" as string]: ".85rem" }}>
-        <p className="casual-detail">{summary.detail}</p>
+      <div className="panel__body">
         <div className="cited">
           <div className="cited__cap">Straight from the sealed model — no AI wrote these.</div>
           <ul className="cited__list">
+            {leader && (
+              <li>
+                Most likely outcome: <b>{leader.who}{leader.suffix}</b> at{" "}
+                <b className="num">{pctWhole(leader.p)}</b>{" "}
+                <span className="dim">({inWords(leader.p)})</span>
+              </li>
+            )}
             {sm && (
               <li>
                 Most likely score{" "}
                 <b className="num">{match.home_team} {sm.most_likely.home}–{sm.most_likely.away} {match.away_team}</b>{" "}
-                at <b className="num">{pct(sm.most_likely.probability)}</b>
+                at <b className="num">{pctWhole(sm.most_likely.probability)}</b>{" "}
+                <span className="dim">({inWords(sm.most_likely.probability)})</span>
               </li>
             )}
             {xg && (
@@ -197,171 +257,134 @@ function CasualDetails({ artifact }: { artifact: ForecastArtifact }) {
             <li>Model uncertainty for this fixture: <b>{forecast.uncertainty}</b></li>
           </ul>
         </div>
-        <p className="small dim">
-          Switch to <b>Expert</b> for the full exact-score grid, model versions, and calibration
-          context. The probabilities are the same in either view.
-        </p>
       </div>
     </section>
   );
 }
 
-/** Expert depth: exact-score heatmap, the model's own spread, versions, and
- *  where to check its live calibration. Same sealed numbers, more of them. */
-function ExpertDetails({ artifact }: { artifact: ForecastArtifact }) {
+/** Expert depth as collapsible drawers over the SAME sealed numbers — collapsed
+ *  in Casual, opened in Expert. Nothing here is a different number; it is more of
+ *  the same one, plus the provenance an auditor needs. */
+function ExpertDrawers({ artifact, mode }: { artifact: ForecastArtifact; mode: ForecastMode }) {
   const { forecast, match, model, inputs } = artifact;
+  const open = mode === "expert";
   const sm = forecast.score_matrix;
   const xg = forecast.expected_goals;
+  const markets = deriveMarkets(forecast);
+  const hasMarkets = !!(markets.doubleChance || markets.thresholds);
   return (
-    <>
-      <section className="panel" aria-labelledby="grid-h">
-        <div className="panel__head">
-          <h2 id="grid-h">Exact-score distribution</h2>
-          <UncertaintyTag level={forecast.uncertainty} />
-        </div>
-        <div className="panel__body stack" style={{ ["--gap" as string]: ".9rem" }}>
-          {sm ? (
-            <>
-              <ScoreMatrixHeatmap matrix={sm} home={match.home_team} away={match.away_team} />
-              <div className="metric-grid">
-                <Stat value={`${sm.most_likely.home}–${sm.most_likely.away}`} label="Most likely score"
-                  hint={`${pct(sm.most_likely.probability)} of the time`} />
-                {xg && <Stat value={num(xg.home, 2)} label={`Expected goals · ${match.home_team}`} />}
-                {xg && <Stat value={num(xg.away, 2)} label={`Expected goals · ${match.away_team}`} />}
-                <Stat value={pct(sm.tail.probability)} label={`Beyond ${sm.max_goals} goals a side`}
-                  hint="folded into the tail" />
-              </div>
-              <p className="small dim">
-                Every cell is the sealed model's probability of that exact score. The grid's
-                win/draw/loss totals reproduce the 1X2 bar above; {pct(sm.tail.probability)} of the
-                distribution lies beyond {sm.max_goals} goals for a side (the tail: {match.home_team}{" "}
-                {pct(sm.tail.home)}, draw {pct(sm.tail.draw)}, {match.away_team} {pct(sm.tail.away)}).
-              </p>
-            </>
-          ) : (
-            <p className="callout callout--info" style={{ fontSize: ".9rem" }}>
-              <InfoIcon size={18} />
-              <span>
-                This model family ({FAMILY_LABELS[model.family]}) forecasts match outcomes, not
-                goals, so it implies no exact-score distribution. The 1X2 probabilities above are
-                its full output — no grid is shown rather than a fabricated one.
-              </span>
+    <div className="stack" style={{ ["--gap" as string]: ".7rem" }}>
+      <Drawer title="Exact-score distribution" defaultOpen={open} chip={<UncertaintyTag level={forecast.uncertainty} />}>
+        {sm ? (
+          <div className="stack" style={{ ["--gap" as string]: ".9rem" }}>
+            <ScoreMatrixHeatmap matrix={sm} home={match.home_team} away={match.away_team} />
+            <div className="stat-grid">
+              <StatTile value={`${sm.most_likely.home}–${sm.most_likely.away}`} label="Most likely score"
+                hint={`${pctWhole(sm.most_likely.probability)} of the time`} />
+              {xg && <StatTile value={num(xg.home, 2)} label={`Expected goals · ${match.home_team}`} />}
+              {xg && <StatTile value={num(xg.away, 2)} label={`Expected goals · ${match.away_team}`} />}
+              <StatTile value={pct(sm.tail.probability)} label={`Beyond ${sm.max_goals} goals a side`}
+                hint="folded into the tail" />
+            </div>
+            <p className="small dim measure">
+              Every cell is the sealed model's probability of that exact score. The grid's
+              win/draw/loss totals reproduce the 1X2 bar above; {pct(sm.tail.probability)} of the
+              distribution lies beyond {sm.max_goals} goals for a side.
             </p>
-          )}
-        </div>
-      </section>
+          </div>
+        ) : (
+          <p className="callout callout--info" style={{ fontSize: ".9rem" }}>
+            <InfoIcon size={18} />
+            <span>
+              This model family ({FAMILY_LABELS[model.family]}) forecasts match outcomes, not
+              goals, so it implies no exact-score distribution. The 1X2 probabilities above are
+              its full output — no grid is shown rather than a fabricated one.
+            </span>
+          </p>
+        )}
+      </Drawer>
 
-      <DerivedMarketsPanel artifact={artifact} />
+      {hasMarkets && (
+        <Drawer title="Outcome & goal summaries" defaultOpen={open} chip={<span className="chip chip--neutral">exact marginals</span>}>
+          <DerivedMarketsBody artifact={artifact} />
+        </Drawer>
+      )}
 
-      <section className="panel" aria-labelledby="ver-h">
-        <div className="panel__head">
-          <h2 id="ver-h">Model &amp; versions</h2>
-        </div>
-        <div className="panel__body">
-          <dl className="kv">
-            <dt>Family</dt><dd>{FAMILY_LABELS[model.family]}</dd>
-            <dt>Model id</dt><dd className="mono">{model.model_id}</dd>
-            <dt>Engine version</dt><dd className="num">{model.version}</dd>
-            <dt>Seed</dt><dd className="num">{model.seed}</dd>
-            <dt>Training cutoff</dt><dd className="num">{utc(inputs.training_cutoff_utc)}</dd>
-            <dt>Params hash</dt><dd><Hash value={model.params_hash} /></dd>
-            <dt>Code git sha</dt><dd><Hash value={model.code_git_sha} /></dd>
-          </dl>
-        </div>
-      </section>
+      <Drawer title="Model & versions" defaultOpen={open}>
+        <dl className="kv">
+          <dt>Family</dt><dd>{FAMILY_LABELS[model.family]}</dd>
+          <dt>Model id</dt><dd className="mono">{model.model_id}</dd>
+          <dt>Engine version</dt><dd className="num">{model.version}</dd>
+          <dt>Seed</dt><dd className="num">{model.seed}</dd>
+          <dt>Training cutoff</dt><dd className="num">{utc(inputs.training_cutoff_utc)}</dd>
+          <dt>Params hash</dt><dd><Hash value={model.params_hash} /></dd>
+          <dt>Code git sha</dt><dd><Hash value={model.code_git_sha} /></dd>
+        </dl>
+      </Drawer>
 
-      <div className="callout callout--info" style={{ fontSize: ".9rem" }}>
-        <InfoIcon size={18} />
-        <div>
-          <div className="callout__title">Calibration context</div>
-          The model flags <b>{forecast.uncertainty}</b> uncertainty here. How well this engine's
-          sealed probabilities have matched reality — across every scored seal — is tracked in the{" "}
-          <a href="#/ledger">prediction ledger ›</a>
-        </div>
-      </div>
-    </>
+      <Drawer title="Provenance & inputs" defaultOpen={open}>
+        <Provenance inputs={inputs} matchId={match.match_id} artifactId={artifact.artifact_id} />
+      </Drawer>
+
+      <Drawer title="Calibration context" defaultOpen={open}>
+        <p className="measure" style={{ margin: 0 }}>
+          The model flags <b>{forecast.uncertainty}</b> uncertainty for this fixture. How well this
+          engine's sealed probabilities have matched reality — across every scored seal — is tracked
+          in the <a href="#/ledger">prediction ledger ›</a>
+        </p>
+      </Drawer>
+    </div>
   );
 }
 
 /** Exact re-buckets of the sealed distribution — analysis, not a betting product.
- *  Double chance needs only the 1X2; the goal summaries need a sealed grid, so they
- *  render only for goal-model families. Every figure is a marginal of the same grid
- *  the heatmap shows, so they reconcile with the numbers above by construction. */
-function DerivedMarketsPanel({ artifact }: { artifact: ForecastArtifact }) {
+ *  Every figure is a marginal of the same grid the heatmap shows, so they reconcile
+ *  with the numbers above by construction. Body only; a Drawer supplies the frame. */
+function DerivedMarketsBody({ artifact }: { artifact: ForecastArtifact }) {
   const { forecast, match } = artifact;
   const markets = deriveMarkets(forecast);
-  if (!markets.doubleChance && !markets.thresholds) return null;
   return (
-    <section className="panel" aria-labelledby="mkt-h">
-      <div className="panel__head">
-        <h2 id="mkt-h">Outcome &amp; goal summaries</h2>
-        <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
-          exact marginals
-        </span>
-      </div>
-      <div className="panel__body stack" style={{ ["--gap" as string]: "1.1rem" }}>
-        <p className="small dim" style={{ margin: 0 }}>
-          Re-buckets of the sealed distribution above — no new model, no new data. Each figure is a
-          marginal of the same grid, so it reconciles with the 1X2 and score numbers exactly.
-        </p>
-        {markets.doubleChance && (
-          <div>
-            <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>
-              Combined outcomes
-            </h3>
-            <div className="metric-grid">
-              <Stat value={pct(markets.doubleChance.home_or_draw)} label={`${match.home_team} or draw`} />
-              <Stat value={pct(markets.doubleChance.draw_or_away)} label={`Draw or ${match.away_team}`} />
-              <Stat value={pct(markets.doubleChance.home_or_away)} label="Either side wins (no draw)" />
-            </div>
+    <div className="stack" style={{ ["--gap" as string]: "1.1rem" }}>
+      <p className="small dim measure" style={{ margin: 0 }}>
+        Re-buckets of the sealed distribution above — no new model, no new data. Each figure is a
+        marginal of the same grid, so it reconciles with the 1X2 and score numbers exactly.
+      </p>
+      {markets.doubleChance && (
+        <div>
+          <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>Combined outcomes</h3>
+          <div className="stat-grid">
+            <StatTile value={pct(markets.doubleChance.home_or_draw)} label={`${match.home_team} or draw`} />
+            <StatTile value={pct(markets.doubleChance.draw_or_away)} label={`Draw or ${match.away_team}`} />
+            <StatTile value={pct(markets.doubleChance.home_or_away)} label="Either side wins (no draw)" />
           </div>
-        )}
-        {markets.thresholds && (
-          <div>
-            <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>
-              Chance of more than…
-            </h3>
-            <dl className="kv">
-              {markets.thresholds.map((t) => (
-                <Fragment key={t.line}>
-                  <dt>
-                    <span className="num">{t.line}</span> total goals
-                  </dt>
-                  <dd className="num">{pct(t.over)}</dd>
-                </Fragment>
-              ))}
-            </dl>
+        </div>
+      )}
+      {markets.thresholds && (
+        <div>
+          <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>Chance of more than…</h3>
+          <dl className="kv">
+            {markets.thresholds.map((t) => (
+              <Fragment key={t.line}>
+                <dt><span className="num">{t.line}</span> total goals</dt>
+                <dd className="num">{pct(t.over)}</dd>
+              </Fragment>
+            ))}
+          </dl>
+        </div>
+      )}
+      {markets.bands && (
+        <div>
+          <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>Total goals in the match</h3>
+          <div className="small" style={{ display: "flex", flexWrap: "wrap", gap: ".35rem 1.1rem" }}>
+            {markets.bands.map((b) => (
+              <span key={b.total}>
+                <span className="num">{b.total}</span>{" "}
+                <span className="dim">{pct(b.probability)}</span>
+              </span>
+            ))}
           </div>
-        )}
-        {markets.bands && (
-          <div>
-            <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>
-              Total goals in the match
-            </h3>
-            <div
-              className="small"
-              style={{ display: "flex", flexWrap: "wrap", gap: ".35rem 1.1rem" }}
-            >
-              {markets.bands.map((b) => (
-                <span key={b.total}>
-                  <span className="num">{b.total}</span>{" "}
-                  <span className="dim">{pct(b.probability)}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function Stat({ value, label, hint }: { value: string; label: string; hint?: string }) {
-  return (
-    <div className="metric">
-      <div className="metric__val num">{value}</div>
-      <div className="metric__label">{label}</div>
-      {hint && <div className="metric__hint">{hint}</div>}
+        </div>
+      )}
     </div>
   );
 }

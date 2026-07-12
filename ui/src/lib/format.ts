@@ -6,6 +6,60 @@ export function pct(p: number, digits = 1): string {
   return `${(p * 100).toFixed(digits)}%`;
 }
 
+/** 0.492 -> "49%". Whole numbers only — used in casual bars and verdicts so the
+ *  UI never implies precision the model doesn't have. Expert tables keep pct(). */
+export function pctWhole(p: number): string {
+  return `${Math.round(p * 100)}%`;
+}
+
+/** Round a set of proportions to integers that still sum to `total` (default
+ *  100), via largest-remainder. Keeps the three 1X2 labels honest: they add up.
+ *  Returns integers in the input order. */
+export function largestRemainder(values: number[], total = 100): number[] {
+  const scaled = values.map((v) => v * total);
+  const floors = scaled.map((v) => Math.floor(v));
+  let remainder = total - floors.reduce((a, b) => a + b, 0);
+  // Hand the leftover units to the largest fractional parts, one at a time.
+  const order = scaled
+    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+    .sort((a, b) => b.frac - a.frac);
+  const out = [...floors];
+  for (let k = 0; k < order.length && remainder > 0; k++, remainder--) out[order[k].i] += 1;
+  return out;
+}
+
+/** A lay-reader frequency for a probability: 0.62 -> "about 3 in 5". Restricted
+ *  to small, legible denominators; picks the least-error fraction. For headline
+ *  comprehension only — never a substitute for the percentage. */
+export function inWords(p: number): string {
+  if (p <= 0 || p >= 1) return p >= 1 ? "a near certainty" : "very unlikely";
+  // Small, legible denominators only — "3 in 5" reads better than "5 in 8".
+  const denoms = [2, 3, 4, 5, 6, 10];
+  let best = { n: 1, d: 2, err: Infinity };
+  for (const d of denoms) {
+    const n = Math.round(p * d);
+    if (n <= 0 || n >= d) continue;
+    const err = Math.abs(n / d - p);
+    if (err < best.err - 1e-9) best = { n, d, err };
+  }
+  return `about ${best.n} in ${best.d}`;
+}
+
+/** A [start, end] ISO/date range -> "since 1930" for casual context lines. */
+export function sinceYear(range: [string, string]): string {
+  const y = range[0]?.slice(0, 4);
+  return /^\d{4}$/.test(y ?? "") ? `since ${y}` : "";
+}
+
+/** A [start, end] range -> "1930–2026" (or a single year), for compact meta. */
+export function yearSpan(range: [string, string]): string {
+  const a = range[0]?.slice(0, 4);
+  const b = range[1]?.slice(0, 4);
+  if (!/^\d{4}$/.test(a ?? "")) return "";
+  if (!/^\d{4}$/.test(b ?? "") || a === b) return a;
+  return `${a}–${b}`;
+}
+
 /** Fixed-precision number for metric display. */
 export function num(x: number, digits = 3): string {
   return x.toFixed(digits);

@@ -17,12 +17,14 @@ import type {
   SealEligibility,
 } from "../lib/contract";
 import { fetchMatch, fetchMatchNotebook, sealMatch, SealApiError } from "../lib/api";
-import { relative, utc, utcDate } from "../lib/format";
+import { utc } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync } from "../lib/hooks";
-import { ChevronRight, ClockIcon, GlobeIcon, InfoIcon } from "../components/icons";
-import { HorizonChip, StatusChip } from "../components/primitives";
+import { ChevronRight, InfoIcon, ShieldCheckIcon } from "../components/icons";
+import { HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
+import { MatchHeader } from "../components/MatchHeader";
 import { NotebookFacts } from "../components/CommentatorsNotebook";
+import { InsightCards } from "../components/InsightCards";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
 export function MatchDetail({ id }: { id: string }) {
@@ -72,27 +74,20 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <Breadcrumb label={`${match.home_team} v ${match.away_team}`} />
 
-      <header className="stack" style={{ ["--gap" as string]: ".55rem" }}>
-        <div className="badge-row">
-          <StatusPill match={match} future={future} />
-          {match.neutral && <span className="chip chip--neutral">Neutral venue</span>}
-          {hasForecast && <span className="chip chip--sealed">Sealed forecast</span>}
-        </div>
-        <h1>
-          {match.home_team} <span className="dim" style={{ fontWeight: 400 }}>v</span> {match.away_team}
-        </h1>
-        <div className="md-card__meta" style={{ marginTop: 0 }}>
-          <span>{match.competition}</span>
-          <span>
-            <ClockIcon /> <span className="num">{utcDate(match.kickoff_utc)}</span>{" "}
-            <span className="dim">({relative(match.kickoff_utc)})</span>
-          </span>
-          <span>
-            <GlobeIcon /> {venue}
-          </span>
-          <span className="dim mono">{match.match_id}</span>
-        </div>
-      </header>
+      <MatchHeader
+        home={match.home_team}
+        away={match.away_team}
+        competition={match.competition}
+        kickoffUtc={match.kickoff_utc}
+        venue={venue}
+        chips={
+          <>
+            <StatusPill match={match} future={future} />
+            {match.neutral && <span className="chip chip--neutral">Neutral venue</span>}
+            {hasForecast && <span className="chip chip--sealed">Sealed forecast</span>}
+          </>
+        }
+      />
 
       {hasForecast ? (
         <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
@@ -101,6 +96,8 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       ) : (
         <SealAction detail={detail} />
       )}
+
+      <InsightCards source={{ kind: "match", matchId: id }} />
 
       <MatchNotebookBlock matchId={id} />
     </div>
@@ -166,28 +163,36 @@ function ForecastLinks({
   );
 }
 
-/** (b) Played, no seal — show the engine-recorded score and refuse to retro-forecast. */
+/** (b) Played, no seal — the engine-recorded score as the hero, and an honest,
+ *  always-visible refusal to retro-forecast (detail behind ⓘ). */
 function PlayedNoForecast({ match }: { match: MatchRow }) {
   return (
     <section className="panel" aria-labelledby="md-final">
       <div className="panel__head">
         <h2 id="md-final">Final score</h2>
       </div>
-      <div className="panel__body stack" style={{ ["--gap" as string]: ".85rem" }}>
-        <div className="md-final">
-          <span>{match.home_team}</span>
-          <span className="md-final__score num">
-            {match.home_score}–{match.away_score}
+      <div className="panel__body stack" style={{ ["--gap" as string]: "1rem" }}>
+        <div className="score-hero">
+          <span className="score-hero__team">{match.home_team}</span>
+          <span className="score-hero__score num">
+            {match.home_score}<span className="score-hero__dash">–</span>{match.away_score}
           </span>
-          <span>{match.away_team}</span>
+          <span className="score-hero__team">{match.away_team}</span>
         </div>
-        <div className="callout callout--info">
-          <InfoIcon size={18} />
-          <div>
-            Golavo never retro-forecasts a played match — a forecast is only honest if it was
-            sealed before kickoff. <a href="#/eval">See how the models perform ›</a>
-          </div>
-        </div>
+        <TrustStrip
+          items={[
+            {
+              icon: <ShieldCheckIcon />,
+              label: "No retro-forecast",
+              tipLabel: "Why there is no forecast here",
+              tip: "Golavo never retro-forecasts a played match — a forecast is only honest if it was sealed before kickoff. This result is recorded from the vendored data, not scored against a forecast that never existed.",
+            },
+          ]}
+        />
+        <p className="small dim measure" style={{ margin: 0 }}>
+          To see how the models perform on fixtures that <em>were</em> sealed before kickoff, open the{" "}
+          <a href="#/eval">evaluation summary ›</a>
+        </p>
       </div>
     </section>
   );

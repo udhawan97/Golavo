@@ -72,10 +72,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Build UI
+      - name: Build & test UI
         run: |
           if [ -f ui/package.json ]; then
-            cd ui && npm install && npm run build --if-present
+            cd ui && npm install && npm test --if-present && npm run build --if-present
           else
             echo "No UI package yet (scaffold phase)."
           fi

@@ -17,9 +17,11 @@ import type {
 } from "../lib/contract";
 import { FACT_LABEL_TEXT, FACT_SCOPE_TEXT } from "../lib/contract";
 import { fetchNotebook } from "../lib/api";
+import { yearSpan } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync } from "../lib/hooks";
-import { AlertIcon, ClockIcon } from "./icons";
+import { AlertIcon } from "./icons";
+import { InfoPopover, RateBar } from "./primitives";
 import { BlockSkeleton, EmptyState, ErrorState } from "./states";
 
 const GROUP_ORDER: FactLabel[] = ["predictive", "context", "coincidence"];
@@ -160,46 +162,51 @@ function FactGroup({
 }
 
 function FactRow({ fact, snapshots }: { fact: NotebookFact; snapshots: Snapshot[] }) {
+  const span = yearSpan(fact.date_range);
   return (
     <li className="nb-fact">
       <p className="nb-fact__text">{fact.text}</p>
+      {fact.base_rate !== null && (
+        <RateBar value={fact.base_rate} caption={`${(fact.base_rate * 100).toFixed(1)}% base rate`} />
+      )}
       <div className="nb-fact__meta">
-        <span className="muted small">
-          {fact.subject} · {FACT_SCOPE_TEXT[fact.scope]}
-        </span>
+        <span className="nb-fact__subj">{fact.subject} · {FACT_SCOPE_TEXT[fact.scope]}</span>
         <span className="nb-metric">
-          sample <b>{fact.sample_n}</b>
-          {fact.denominator !== fact.sample_n ? <> / {fact.denominator}</> : null}
+          <b>{fact.sample_n.toLocaleString()}</b> in sample
+          {fact.denominator !== fact.sample_n ? <> / {fact.denominator.toLocaleString()}</> : null}
         </span>
-        {fact.base_rate !== null && (
-          <span className="nb-metric">
-            base rate <b>{(fact.base_rate * 100).toFixed(1)}%</b>
-          </span>
-        )}
-        <span className="muted small">
-          <ClockIcon size={13} /> {fact.date_range[0]} → {fact.date_range[1]}
+        {span && <span className="nb-metric">{span}</span>}
+        <span className="nb-fact__src">
+          <SourcePopover ids={fact.source_ids} snapshots={snapshots} />
         </span>
-        {fact.source_ids.map((sid) => (
-          <SourceChip key={sid} id={sid} snapshots={snapshots} />
-        ))}
       </div>
     </li>
   );
 }
 
-function SourceChip({ id, snapshots }: { id: string; snapshots: Snapshot[] }) {
-  const snapshot = snapshots.find((s) => s.snapshot_id === id);
-  const label = snapshot?.source_id ?? id;
-  if (snapshot?.url) {
-    return (
-      <a className="nb-source" href={snapshot.url} target="_blank" rel="noreferrer" title={id}>
-        {label}
-      </a>
-    );
-  }
+/** Source as a quiet ⓘ reveal rather than a row of mono pack-id chips — the same
+ *  attribution, far less noise. Links out when the snapshot resolves to a URL. */
+function SourcePopover({ ids, snapshots }: { ids: string[]; snapshots: Snapshot[] }) {
   return (
-    <span className="nb-source" title={id}>
-      {label}
-    </span>
+    <InfoPopover label="Source">
+      <span className="small">
+        Computed from{" "}
+        {ids.map((id, i) => {
+          const snap = snapshots.find((s) => s.snapshot_id === id);
+          const label = snap?.source_id ?? id;
+          return (
+            <span key={id}>
+              {i > 0 ? ", " : ""}
+              {snap?.url ? (
+                <a href={snap.url} target="_blank" rel="noreferrer">{label}</a>
+              ) : (
+                <span className="mono">{label}</span>
+              )}
+            </span>
+          );
+        })}
+        . Descriptive history — never a forecast.
+      </span>
+    </InfoPopover>
   );
 }

@@ -58,6 +58,15 @@ a { color: inherit; }
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
 
+  /* Spacing scale — 4px base. Sweeps ad-hoc rem values toward one ladder. */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* Type ramp (px). Hero numerals go lighter as they grow (Stripe idiom). */
+  --text-xs: 12px; --text-sm: 13px; --text-base: 15px; --text-md: 17px;
+  --text-lg: 20px; --text-xl: 28px;
+  --measure: 65ch;
+
   color-scheme: dark;
 }
 
@@ -211,20 +220,43 @@ a:hover { text-decoration-color: currentColor; }
 .chip--fact-context     { color: var(--wave);   background: var(--wave-soft);  border-color: color-mix(in srgb, var(--wave) 40%, transparent); }
 .chip--fact-coincidence { color: var(--orange); background: color-mix(in srgb, var(--orange) 12%, transparent); border-color: color-mix(in srgb, var(--orange) 45%, transparent); }
 
-/* Commentator's Notebook (Phase 7) */
-.nb-group { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: .75rem .85rem; background: color-mix(in srgb, var(--surface-2) 55%, transparent); }
+/* Commentator's Notebook — grouped inset list (Phase 7, restyled Phase 10).
+   One rounded container per label group; facts are hairline-separated rows, not
+   nested bordered boxes. */
+.nb-group { border: 1px solid var(--border); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--surface-2) 40%, transparent); overflow: hidden; }
 .nb-group--quarantine { border-style: dashed; border-color: color-mix(in srgb, var(--orange) 45%, transparent); background: color-mix(in srgb, var(--orange) 7%, transparent); }
-.nb-group__head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-bottom: .6rem; }
+.nb-group__head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); }
 .nb-warn { color: var(--orange); display: inline-flex; align-items: center; gap: .3rem; }
-.nb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .55rem; }
-.nb-fact { padding: .55rem .65rem; border-radius: var(--radius-sm); background: var(--surface-1); border: 1px solid var(--border); }
-.nb-fact__text { margin: 0 0 .4rem; color: var(--text); line-height: 1.4; }
-.nb-fact__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .8rem; }
-.nb-metric { font-size: .8rem; color: var(--text-muted); }
+.nb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.nb-fact { padding: var(--space-3) var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
+.nb-fact + .nb-fact { border-top: 1px solid var(--border); }
+.nb-fact__text { margin: 0; color: var(--text); line-height: 1.5; max-width: var(--measure); }
+.nb-fact__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem var(--space-3); font-size: var(--text-sm); color: var(--text-muted); }
+.nb-fact__subj { color: var(--text-muted); }
+.nb-fact__src { margin-left: auto; }
+.nb-metric { font-size: var(--text-sm); color: var(--text-muted); }
 .nb-metric b { color: var(--text); font-variant-numeric: tabular-nums; }
-.nb-source { font-family: var(--font-mono); font-size: .72rem; color: var(--text-muted); background: var(--surface-3); border: 1px solid var(--border); border-radius: 999px; padding: .06rem .48rem; text-decoration: none; }
-.nb-source:hover { border-color: var(--gold-line); color: var(--text); }
 .nb-foot { display: flex; flex-wrap: wrap; gap: .3rem .7rem; padding-top: .5rem; margin-top: .2rem; border-top: 1px solid var(--border); }
+
+/* Rate bar — a base rate as shape + number. */
+.rate-bar { display: flex; align-items: center; gap: var(--space-2); max-width: 22rem; }
+.rate-bar__track { flex: 1; height: 6px; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--border); overflow: hidden; }
+.rate-bar__fill { display: block; height: 100%; border-radius: 999px; background: var(--gold-line); }
+.rate-bar__val { font-size: var(--text-sm); color: var(--text); font-variant-numeric: tabular-nums; flex: none; min-width: 3ch; text-align: right; }
+
+/* Three-things-to-know insight cards. */
+.insight-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.insight-card {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); border-left-width: 3px;
+}
+.insight-card--predictive { border-left-color: color-mix(in srgb, var(--green) 60%, transparent); }
+.insight-card--context { border-left-color: color-mix(in srgb, var(--wave) 60%, transparent); }
+.insight-card__head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.insight-card__subj { font-size: var(--text-sm); color: var(--text-muted); font-weight: 550; }
+.insight-card__text { margin: 0; line-height: 1.45; font-size: var(--text-base); }
+.insight-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem var(--space-2); font-size: var(--text-xs); color: var(--text-dim); font-variant-numeric: tabular-nums; margin-top: auto; padding-top: var(--space-1); }
 
 /* Light theme: darken chip text so small tinted chips clear WCAG AA (4.5:1). */
 :root[data-theme="light"] .chip--sealed    { color: #785808; }
@@ -799,3 +831,104 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 
 .md-nb-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .7rem; }
 .md-nb-legend__note { color: var(--text-dim); }
+
+/* ===================================================================
+   Phase 10 — Calm Workbench primitives
+   Type ramp, aligned header meta, trust strip, popover, stat tiles,
+   disclosure drawers, insight cards, notebook insight rows.
+   =================================================================== */
+
+/* Readable measure — caps running prose so lines don't sprawl to 120ch. */
+.measure { max-width: var(--measure); }
+
+/* Page hero: teams bigger and calmer than the old 2rem cap. */
+.detail-hero h1 { font-size: clamp(1.9rem, 1.4rem + 2.2vw, 2.6rem); font-weight: 680; }
+
+/* Aligned header meta — each item keeps icon+text together; middot separators. */
+.meta-line {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-1) var(--space-4);
+  color: var(--text-muted); font-size: var(--text-sm);
+}
+.meta-item { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; min-width: 0; }
+.meta-item > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.meta-item__icon { display: inline-flex; color: var(--text-dim); flex: none; }
+.meta-item .num { font-variant-numeric: tabular-nums lining-nums; }
+
+/* Trust strip — the single guarantee row. Quiet, always visible, ⓘ for detail. */
+.trust-strip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+  font-size: var(--text-sm); color: var(--text-muted);
+}
+.trust-strip__item { display: inline-flex; align-items: center; gap: .4rem; }
+.trust-strip__item + .trust-strip__item::before {
+  content: ""; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--border-strong); margin-right: var(--space-3); margin-left: calc(var(--space-4) * -1 + var(--space-2));
+}
+.trust-strip__icon { display: inline-flex; color: var(--green); flex: none; }
+
+/* Popover — a small ⓘ reveal. */
+.pop { position: relative; display: inline-flex; }
+.pop__btn {
+  display: inline-grid; place-items: center; width: 22px; height: 22px;
+  border-radius: 999px; border: 1px solid transparent; background: transparent;
+  color: var(--text-dim); cursor: pointer;
+}
+.pop__btn:hover { color: var(--text); background: var(--surface-3); }
+.pop__panel {
+  position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  z-index: 30; width: max-content; max-width: min(22rem, 78vw);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-3); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow);
+  font-size: var(--text-sm); color: var(--text); line-height: 1.45;
+  white-space: normal; text-align: left;
+}
+
+/* Stat tile — Stripe card anatomy: small label / large tabular value / hint. */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-3); }
+.stat-tile {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); padding: var(--space-3) var(--space-4);
+}
+.stat-tile__val { font-size: var(--text-xl); font-weight: 600; letter-spacing: -0.01em; line-height: 1.1; }
+.stat-tile__label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-top: var(--space-1); }
+.stat-tile__hint { font-size: var(--text-sm); color: var(--text-dim); margin-top: var(--space-1); }
+.stat-tile--gold .stat-tile__val { color: var(--gold); }
+.stat-tile--green .stat-tile__val { color: var(--green); }
+
+/* Disclosure drawer — collapsed by default (Casual), opened by Expert. */
+.drawer { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-1); overflow: hidden; }
+.drawer__summary {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-3) var(--space-4); cursor: pointer; list-style: none;
+  min-height: 44px; user-select: none;
+}
+.drawer__summary::-webkit-details-marker { display: none; }
+.drawer__summary:hover { background: var(--surface-2); }
+.drawer__chev { color: var(--text-dim); flex: none; transition: transform .18s ease; }
+.drawer[open] .drawer__chev { transform: rotate(180deg); }
+.drawer__title { font-size: var(--text-sm); text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); font-weight: 650; }
+.drawer__chip { margin-left: auto; }
+.drawer__body { padding: 0 var(--space-4) var(--space-4); }
+@media (prefers-reduced-motion: reduce) { .drawer__chev { transition: none; } }
+
+/* Hero final score — the played result as the page's answer, calm and large. */
+.score-hero { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3) var(--space-5); }
+.score-hero__team { font-size: var(--text-lg); font-weight: 600; }
+.score-hero__score {
+  font-size: clamp(2.4rem, 1.8rem + 2.5vw, 3.2rem); font-weight: 500;
+  letter-spacing: -0.01em; line-height: 1; color: var(--text);
+}
+.score-hero__dash { color: var(--text-dim); margin: 0 .12em; font-weight: 400; }
+
+/* Header at narrow widths: brand + tools on row 1, primary nav wraps full-width
+   below (scrollable if ever needed) — the row previously overflowed at 375px. */
+@media (max-width: 640px) {
+  .site-header__inner { flex-wrap: wrap; min-height: 0; padding-block: var(--space-2); row-gap: var(--space-1); }
+  .nav { order: 3; width: 100%; margin-left: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .nav a { white-space: nowrap; }
+}

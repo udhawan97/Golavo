@@ -2,25 +2,29 @@ import type { InputsBlock, Snapshot } from "../lib/contract";
 import { utc } from "../lib/format";
 import { Hash } from "./primitives";
 
-/** Every input snapshot that fed the sealed forecast. Sources are copyable and
- *  the sha256 pins the exact bytes retrieved. */
-export function Provenance({ inputs }: { inputs: InputsBlock }) {
+/** Every input snapshot that fed the sealed forecast — a receipt: identifiers,
+ *  then source → retrieved → sha256 per input. Sources are copyable and the
+ *  sha256 pins the exact bytes retrieved. Body-only; a Drawer supplies the frame.
+ *  The raw match/artifact ids live here (demoted out of the page header). */
+export function Provenance({
+  inputs,
+  matchId,
+  artifactId,
+}: {
+  inputs: InputsBlock;
+  matchId?: string;
+  artifactId?: string;
+}) {
   return (
-    <section className="panel" aria-labelledby="prov-h">
-      <div className="panel__head">
-        <h2 id="prov-h">Provenance</h2>
-        <span className="muted small" style={{ marginLeft: "auto" }}>
-          {inputs.snapshots.length} snapshot{inputs.snapshots.length === 1 ? "" : "s"}
-        </span>
-      </div>
-      <div className="panel__body">
-        <dl className="kv" style={{ marginBottom: "1rem" }}>
-          <dt>Training cutoff</dt>
-          <dd className="num">{utc(inputs.training_cutoff_utc)}</dd>
-        </dl>
-        {inputs.snapshots.map((s) => <SnapshotRow key={s.snapshot_id} snap={s} />)}
-      </div>
-    </section>
+    <div className="stack" style={{ ["--gap" as string]: ".8rem" }}>
+      <dl className="kv">
+        {artifactId && (<><dt>Artifact id</dt><dd className="mono">{artifactId}</dd></>)}
+        {matchId && (<><dt>Match id</dt><dd className="mono">{matchId}</dd></>)}
+        <dt>Training cutoff</dt>
+        <dd className="num">{utc(inputs.training_cutoff_utc)}</dd>
+      </dl>
+      {inputs.snapshots.map((s) => <SnapshotRow key={s.snapshot_id} snap={s} />)}
+    </div>
   );
 }
 

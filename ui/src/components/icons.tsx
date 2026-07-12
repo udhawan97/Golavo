@@ -100,6 +100,56 @@ export const GlobeIcon = ({ size = 15, ...p }: IconProps) => (
   </svg>
 );
 
+export const CalendarIcon = ({ size = 15, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <rect x="3.5" y="4.5" width="17" height="16" rx="2.5" /><path d="M3.5 9h17" />
+    <path d="M8 3v3M16 3v3" />
+  </svg>
+);
+
+export const PinIcon = ({ size = 15, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M12 21c4.5-4.2 7-7.6 7-11a7 7 0 1 0-14 0c0 3.4 2.5 6.8 7 11z" />
+    <circle cx="12" cy="10" r="2.4" />
+  </svg>
+);
+
+export const BookIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M4 4.5A2 2 0 0 1 6 3h13v15H6a2 2 0 0 0-2 2z" /><path d="M4 20.5V4.5" /><path d="M19 18v3H6" />
+  </svg>
+);
+
+export const ScaleIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M12 4v16" /><path d="M6 20h12" /><path d="M5 7h14" /><path d="M5 7l-2.5 5a2.5 2.5 0 0 0 5 0z" />
+    <path d="M19 7l-2.5 5a2.5 2.5 0 0 0 5 0z" />
+  </svg>
+);
+
+export const SparkIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
+  </svg>
+);
+
+export const ShieldCheckIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M12 3l7 2.5v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V5.5z" /><path d="M9 11.5l2 2 4-4" />
+  </svg>
+);
+
+export const ChevronDown = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}><path d="M6 9l6 6 6-6" /></svg>
+);
+
+export const TrophyIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M7 4h10v4a5 5 0 0 1-10 0z" /><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3" />
+    <path d="M12 13v3M9 20h6M10 20l.5-4M14 20l-.5-4" />
+  </svg>
+);
+
 /** Empty-state glyph: a calm sumi circle (ensō) — nothing sealed yet. */
 export const EnsoGlyph = ({ size = 54, ...p }: IconProps) => (
   <svg {...base(size, p)} strokeWidth={2}>

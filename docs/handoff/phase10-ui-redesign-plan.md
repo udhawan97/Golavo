@@ -214,6 +214,18 @@ Order: **A → B → C** are the spine (sequential). **D and E** can proceed in 
 
 ---
 
+## Implementation status (landed)
+
+Phases A, B, C, and the E-slice **shipped** in this cycle; F shipped its unit-test gate. Verified in the running app (mock data) across dark/light themes, Casual/Expert, goal and outcome model families, and desktop/tablet/mobile — no horizontal overflow at 375/768/1280, no console errors.
+
+- **A** — `index.css` type-ramp + 4px spacing tokens, `.measure`, `.trust-strip`, `.stat-tile`, `.rate-bar`, `.drawer`, `.insight-*`, aligned `.meta-line`; `format.ts` gained `pctWhole`, `largestRemainder`, `inWords`, `sinceYear`, `yearSpan`; new primitives `MetaLine`, `TrustStrip`, `InfoPopover`, `StatTile`, `RateBar`; new `disclosure.tsx` `Drawer`; `ProbabilityBar` → whole-number labels that sum to 100.
+- **B** — new `MatchHeader.tsx` (teams hero, one meta line, `match_id` demoted); `MatchDetail` hero final score + "No retro-forecast" trust strip; `ForecastDetail` adopts the header + a `ForecastTrustStrip`, per-panel disclaimers collapsed into ⓘ popovers. A pre-existing header overflow at ≤640px was fixed (nav wraps below brand/tools).
+- **C** — new pure `lib/insights.ts` top-3 selector (vitest-covered); `InsightCards.tsx` ("chosen by fixed rules · not AI"); Commentator's Notebook restyled to a grouped-inset list with rate bars, humanized `1930–2026` spans, and a source ⓘ popover instead of mono pack-id chips.
+- **E-slice** — Model & versions, Outcome/goal summaries, Provenance & inputs, and Calibration moved into `Drawer`s (open in Expert, collapsed in Casual); `Provenance` restyled as a receipt and now holds the demoted match/artifact ids.
+- **F (partial)** — vitest added; `format.test.ts` + `insights.test.ts` (14 tests) wired into the `ui` CI job before build.
+
+**Deferred to a follow-up** (unchanged from the plan): a Playwright screenshot/overflow suite in CI (overflow was verified manually this cycle; the assertion `documentElement.scrollWidth <= clientWidth` at 375/768/1280 is the check to automate), axe-core pass, the "What changed?" re-seal delta, form-guide squares, and team crests/colours. Dead CSS (`.md-final`, `.casual-detail`, `.metric*` once ScoredPanel migrates) is left for a simplify pass.
+
 ## 8. Final recommendation
 
 Do **A → B → C** as one arc (the visible transformation), with F's test scaffolding landing immediately after A so B and C merge behind screenshot coverage. D and E follow in either order or in parallel. Defer the deferred-table items until their data exists. Total scope is deliberately composition-and-primitives, not a rebrand: same tokens, same zero-dependency stack, same contract — the app just stops explaining itself in paragraphs and starts showing itself in structure.
