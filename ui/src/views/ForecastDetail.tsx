@@ -1,7 +1,9 @@
+import { Fragment } from "react";
 import type { ForecastArtifact } from "../lib/contract";
 import type { ForecastMode } from "../lib/hooks";
 import { FAMILY_LABELS } from "../lib/contract";
 import { fetchForecast, fetchForecasts } from "../lib/api";
+import { deriveMarkets } from "../lib/markets";
 import { num, pct, utc, relative } from "../lib/format";
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { verdictSummary } from "../lib/summary";
@@ -249,6 +251,8 @@ function ExpertDetails({ artifact }: { artifact: ForecastArtifact }) {
         </div>
       </section>
 
+      <DerivedMarketsPanel artifact={artifact} />
+
       <section className="panel" aria-labelledby="ver-h">
         <div className="panel__head">
           <h2 id="ver-h">Model &amp; versions</h2>
@@ -276,6 +280,79 @@ function ExpertDetails({ artifact }: { artifact: ForecastArtifact }) {
         </div>
       </div>
     </>
+  );
+}
+
+/** Exact re-buckets of the sealed distribution — analysis, not a betting product.
+ *  Double chance needs only the 1X2; the goal summaries need a sealed grid, so they
+ *  render only for goal-model families. Every figure is a marginal of the same grid
+ *  the heatmap shows, so they reconcile with the numbers above by construction. */
+function DerivedMarketsPanel({ artifact }: { artifact: ForecastArtifact }) {
+  const { forecast, match } = artifact;
+  const markets = deriveMarkets(forecast);
+  if (!markets.doubleChance && !markets.thresholds) return null;
+  return (
+    <section className="panel" aria-labelledby="mkt-h">
+      <div className="panel__head">
+        <h2 id="mkt-h">Outcome &amp; goal summaries</h2>
+        <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
+          exact marginals
+        </span>
+      </div>
+      <div className="panel__body stack" style={{ ["--gap" as string]: "1.1rem" }}>
+        <p className="small dim" style={{ margin: 0 }}>
+          Re-buckets of the sealed distribution above — no new model, no new data. Each figure is a
+          marginal of the same grid, so it reconciles with the 1X2 and score numbers exactly.
+        </p>
+        {markets.doubleChance && (
+          <div>
+            <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>
+              Combined outcomes
+            </h3>
+            <div className="metric-grid">
+              <Stat value={pct(markets.doubleChance.home_or_draw)} label={`${match.home_team} or draw`} />
+              <Stat value={pct(markets.doubleChance.draw_or_away)} label={`Draw or ${match.away_team}`} />
+              <Stat value={pct(markets.doubleChance.home_or_away)} label="Either side wins (no draw)" />
+            </div>
+          </div>
+        )}
+        {markets.thresholds && (
+          <div>
+            <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>
+              Chance of more than…
+            </h3>
+            <dl className="kv">
+              {markets.thresholds.map((t) => (
+                <Fragment key={t.line}>
+                  <dt>
+                    <span className="num">{t.line}</span> total goals
+                  </dt>
+                  <dd className="num">{pct(t.over)}</dd>
+                </Fragment>
+              ))}
+            </dl>
+          </div>
+        )}
+        {markets.bands && (
+          <div>
+            <h3 className="small muted" style={{ margin: "0 0 .5rem" }}>
+              Total goals in the match
+            </h3>
+            <div
+              className="small"
+              style={{ display: "flex", flexWrap: "wrap", gap: ".35rem 1.1rem" }}
+            >
+              {markets.bands.map((b) => (
+                <span key={b.total}>
+                  <span className="num">{b.total}</span>{" "}
+                  <span className="dim">{pct(b.probability)}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
