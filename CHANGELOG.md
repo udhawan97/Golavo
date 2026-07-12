@@ -52,6 +52,17 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     `kickoff >= now`) is **empty until a pack refresh** adds scheduled fixtures.
   - See [`docs/handoff/match-search.md`](docs/handoff/match-search.md).
 
+## [0.2.3] - 2026-07-11
+
+### Added
+- **Entertaining startup screen.** The loading splash now shows a live progress
+  bar with a status line ("Unpacking the forecasting engine…" → "Warming up the
+  models…" → "Almost ready…") and a rotating deck of genuinely-true, genuinely-
+  obscure football facts, so the ~30-40s first-launch unpack passes with
+  something to read instead of a bare spinner. The progress bar eases toward
+  ~94% and lets the app itself take over the moment the engine is ready — it
+  never claims to be finished before it is. Both themes, reduced-motion aware.
+
 ## [0.2.2] - 2026-07-11
 
 **Desktop first-run UX fixes.** Two problems a fresh desktop install hit:
@@ -371,6 +382,9 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/udhawan97/Golavo/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/udhawan97/Golavo/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/udhawan97/Golavo/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/udhawan97/Golavo/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/udhawan97/Golavo/releases/tag/v0.1.0

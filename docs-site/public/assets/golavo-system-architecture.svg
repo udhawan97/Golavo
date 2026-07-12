@@ -10,8 +10,10 @@
     <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <marker id="arrowGold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#D4AD2E"/></marker>
     <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#2FB488"/></marker>
+    <clipPath id="flowClip170"><rect width="170" height="88" rx="14"/></clipPath>
+    <clipPath id="flowClip200"><rect width="200" height="88" rx="14"/></clipPath>
     <style>
-      .title{font:600 32px Georgia,"Times New Roman",serif;letter-spacing:-.35px;fill:#F4EFE6}.sub{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.kicker{font:700 11px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:1.5px}.head{font:650 17px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.body{font:400 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.small{font:400 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#928E83}.mono{font:500 10.5px ui-monospace,"SF Mono",Menlo,monospace;fill:#BCB8AC}.step{font:700 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#101312}.card{fill:#171B1A;stroke:#343A37;stroke-width:1.25}.flow{fill:none;stroke:#D4AD2E;stroke-width:2;marker-end:url(#arrowGold)}.signal{fill:none;stroke:#D4AD2E;stroke-width:2;stroke-dasharray:7 10;animation:travel 3.6s linear infinite}.pulse{animation:pulse 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.delay1{animation-delay:.5s}.delay2{animation-delay:1s}.delay3{animation-delay:1.5s}.delay4{animation-delay:2s}@keyframes travel{to{stroke-dashoffset:-68}}@keyframes pulse{0%,70%,100%{opacity:.35}35%{opacity:1}}@media(prefers-reduced-motion:reduce){.signal,.pulse{animation:none}.pulse{opacity:.72}}
+      .title{font:600 32px Georgia,"Times New Roman",serif;letter-spacing:-.35px;fill:#F4EFE6}.sub{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.kicker{font:700 11px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:1.5px}.head{font:650 17px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.flowHead{font:650 15.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#F4EFE6}.body{font:400 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#BCB8AC}.small{font:400 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#928E83}.mono{font:500 10.5px ui-monospace,"SF Mono",Menlo,monospace;fill:#BCB8AC}.step{font:700 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#101312}.card{fill:#171B1A;stroke:#343A37;stroke-width:1.25}.flow{fill:none;stroke:#D4AD2E;stroke-width:2;marker-end:url(#arrowGold)}.signal{fill:none;stroke:#D4AD2E;stroke-width:2;stroke-dasharray:7 10;animation:travel 3.6s linear infinite}.pulse{animation:pulse 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.delay1{animation-delay:.5s}.delay2{animation-delay:1s}.delay3{animation-delay:1.5s}.delay4{animation-delay:2s}@keyframes travel{to{stroke-dashoffset:-68}}@keyframes pulse{0%,70%,100%{opacity:.35}35%{opacity:1}}@media(prefers-reduced-motion:reduce){.signal,.pulse{animation:none}.pulse{opacity:.72}}
     </style>
   </defs>
   <rect width="1280" height="900" rx="28" fill="#090B0A"/>
@@ -30,32 +32,32 @@
     <rect width="1184" height="170" rx="20" fill="#121514" stroke="#343A37" stroke-width="1.25"/>
     <text x="22" y="28" class="kicker" fill="#E7C34E">THE FIVE-SECOND VERSION</text>
     <text x="1162" y="28" text-anchor="end" class="small">Follow the gold line</text>
-    <path d="M176 94H256" class="flow signal"/><path d="M408 94H488" class="flow signal"/><path d="M640 94H720" class="flow signal"/><path d="M872 94H952" class="flow signal"/>
+    <path d="M194 94H258" class="flow signal"/><path d="M428 94H492" class="flow signal"/><path d="M662 94H726" class="flow signal"/><path d="M896 94H960" class="flow signal"/>
 
     <g transform="translate(24 50)">
-      <rect width="152" height="88" rx="14" fill="#6082B8" fill-opacity=".11" stroke="#6082B8" stroke-opacity=".45"/>
-      <circle cx="28" cy="27" r="13" fill="#6082B8" fill-opacity=".25"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#B9CBEB">1</text>
-      <text x="50" y="31" class="head">You open Golavo</text><text x="18" y="59" class="body">The desktop shell starts</text><text x="18" y="77" class="small">a private local service.</text>
+      <rect width="170" height="88" rx="14" fill="#6082B8" fill-opacity=".11" stroke="#6082B8" stroke-opacity=".45"/>
+      <g clip-path="url(#flowClip170)"><circle cx="28" cy="27" r="13" fill="#6082B8" fill-opacity=".25"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#B9CBEB">1</text>
+      <text x="50" y="31" class="flowHead">Open the app</text><text x="18" y="59" class="body">The desktop shell starts</text><text x="18" y="77" class="small">a private local service.</text></g>
     </g>
-    <g transform="translate(256 50)">
-      <rect width="152" height="88" rx="14" fill="#6082B8" fill-opacity=".11" stroke="#6082B8" stroke-opacity=".45"/>
-      <circle cx="28" cy="27" r="13" fill="#6082B8" fill-opacity=".25"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#B9CBEB">2</text>
-      <text x="50" y="31" class="head">You browse</text><text x="18" y="59" class="body">Matchday, details,</text><text x="18" y="77" class="small">evaluation and ledger.</text>
+    <g transform="translate(258 50)">
+      <rect width="170" height="88" rx="14" fill="#6082B8" fill-opacity=".11" stroke="#6082B8" stroke-opacity=".45"/>
+      <g clip-path="url(#flowClip170)"><circle cx="28" cy="27" r="13" fill="#6082B8" fill-opacity=".25"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#B9CBEB">2</text>
+      <text x="50" y="31" class="flowHead">Browse</text><text x="18" y="59" class="body">Matchday, details,</text><text x="18" y="77" class="small">evaluation and ledger.</text></g>
     </g>
-    <g transform="translate(488 50)">
-      <rect width="152" height="88" rx="14" fill="#0B6E4F" fill-opacity=".13" stroke="#2F9E73" stroke-opacity=".5"/>
-      <circle cx="28" cy="27" r="13" fill="#0B6E4F" fill-opacity=".3"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#7DD8B6">3</text>
-      <text x="50" y="31" class="head">Local API reads</text><text x="18" y="59" class="body">A launch-only token</text><text x="18" y="77" class="small">protects each request.</text>
+    <g transform="translate(492 50)">
+      <rect width="170" height="88" rx="14" fill="#0B6E4F" fill-opacity=".13" stroke="#2F9E73" stroke-opacity=".5"/>
+      <g clip-path="url(#flowClip170)"><circle cx="28" cy="27" r="13" fill="#0B6E4F" fill-opacity=".3"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#7DD8B6">3</text>
+      <text x="50" y="31" class="flowHead">Local API</text><text x="18" y="59" class="body">A launch-only token</text><text x="18" y="77" class="small">protects each request.</text></g>
     </g>
-    <g transform="translate(720 50)">
-      <rect width="152" height="88" rx="14" fill="url(#goldCard)" stroke="#C9A227" stroke-opacity=".62"/>
-      <circle cx="28" cy="27" r="13" fill="#C9A227" fill-opacity=".2"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#E7C34E">4</text>
-      <text x="50" y="31" class="head">Engine decides</text><text x="18" y="59" class="body">Pinned data produces</text><text x="18" y="77" class="small">every forecast number.</text>
+    <g transform="translate(726 50)">
+      <rect width="170" height="88" rx="14" fill="url(#goldCard)" stroke="#C9A227" stroke-opacity=".62"/>
+      <g clip-path="url(#flowClip170)"><circle cx="28" cy="27" r="13" fill="#C9A227" fill-opacity=".2"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#E7C34E">4</text>
+      <text x="50" y="31" class="flowHead">Engine decides</text><text x="18" y="59" class="body">Pinned data produces</text><text x="18" y="77" class="small">every forecast number.</text></g>
     </g>
-    <g transform="translate(952 50)">
-      <rect width="208" height="88" rx="14" fill="#D9622B" fill-opacity=".08" stroke="#D9622B" stroke-opacity=".48"/>
-      <circle cx="28" cy="27" r="13" fill="#D9622B" fill-opacity=".22"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#E88A57">5</text>
-      <text x="50" y="31" class="head">Optional AI explains</text><text x="18" y="59" class="body">It may narrate evidence.</text><text x="18" y="77" class="small">It cannot change a forecast.</text>
+    <g transform="translate(960 50)">
+      <rect width="200" height="88" rx="14" fill="#D9622B" fill-opacity=".08" stroke="#D9622B" stroke-opacity=".48"/>
+      <g clip-path="url(#flowClip200)"><circle cx="28" cy="27" r="13" fill="#D9622B" fill-opacity=".22"/><text x="28" y="31" text-anchor="middle" class="kicker" fill="#E88A57">5</text>
+      <text x="50" y="31" class="flowHead">AI may explain</text><text x="18" y="59" class="body">It may narrate evidence.</text><text x="18" y="77" class="small">It cannot change a forecast.</text></g>
     </g>
   </g>
 
