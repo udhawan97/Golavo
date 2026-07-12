@@ -12,6 +12,7 @@ const ROUTES = [
   { name: "forecast-goal", path: "/#/forecast/fa_5cb65a59b038d9586aea" },
   { name: "ledger", path: "/#/ledger" },
   { name: "eval", path: "/#/eval" },
+  { name: "settings", path: "/#/settings" },
 ];
 
 const WIDTHS = [375, 768, 1280];

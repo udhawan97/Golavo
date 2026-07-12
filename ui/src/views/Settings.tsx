@@ -8,6 +8,7 @@
  */
 import { SCHEMA_VERSION } from "../lib/contract";
 import { sourceDescription } from "../lib/api";
+import { AI_PROVIDERS, useAiProvider } from "../lib/ai";
 import { useKeepFixturesFresh } from "../lib/fixtures";
 import { useUpdater } from "../lib/updater-context";
 import { formatWhen } from "../lib/updater";
@@ -22,6 +23,7 @@ function appVersionLabel(statusVersion: string | undefined): string {
 export function Settings() {
   const u = useUpdater();
   const [keepFresh, setKeepFresh] = useKeepFixturesFresh();
+  const [aiProvider, setAiProvider] = useAiProvider();
   const version = appVersionLabel(u.status?.appVersion);
   // From the persisted skip, not the live phase — so it's manageable even on a
   // fresh boot with auto-check off, where no check has run this session.
@@ -59,21 +61,52 @@ export function Settings() {
       <section className="panel" aria-labelledby="settings-data">
         <div className="panel__head"><h2 id="settings-data">Data</h2></div>
         <div className="panel__body stack settings__rows">
-          <div className="settings__row">
-            <label htmlFor="fixtures-toggle">Keep fixtures up to date</label>
-            <input
-              id="fixtures-toggle"
-              type="checkbox"
-              checked={keepFresh}
-              onChange={(e) => setKeepFresh(e.target.checked)}
-            />
+          <div className="settings__field">
+            <div className="settings__row">
+              <label htmlFor="fixtures-toggle">Keep fixtures up to date</label>
+              <input
+                id="fixtures-toggle"
+                type="checkbox"
+                checked={keepFresh}
+                onChange={(e) => setKeepFresh(e.target.checked)}
+              />
+            </div>
+            <p className="settings__hint">
+              When on, Golavo asks the public CC0 fixture source, on launch, whether a new
+              upcoming international match has appeared, and flags it on the Matches page so you
+              can forecast it. This is the only time the app reaches the internet on its own —
+              it’s off by default, reads only public fixture data, and sends nothing.
+            </p>
           </div>
-          <p className="dim settings__hint">
-            When on, Golavo asks the public CC0 fixture source, on launch, whether a new
-            upcoming international match has appeared, and flags it on the Matches page so you
-            can forecast it. This is the only time the app reaches the internet on its own —
-            it’s off by default, reads only public fixture data, and sends nothing.
-          </p>
+        </div>
+      </section>
+
+      <section className="panel" aria-labelledby="settings-ai">
+        <div className="panel__head"><h2 id="settings-ai">Local intelligence</h2></div>
+        <div className="panel__body stack settings__rows">
+          <div className="settings__field">
+            <div className="settings__row">
+              <label htmlFor="ai-provider">AI Deep Read</label>
+              <select
+                id="ai-provider"
+                className="select"
+                value={aiProvider}
+                onChange={(e) => setAiProvider(e.target.value as typeof aiProvider)}
+              >
+                {AI_PROVIDERS.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+            <p className="settings__hint">
+              Off by default. Choose a model to enable the optional <b>AI Deep Read</b> panel on
+              forecast pages — it only reads and cites the sealed numbers, and can never change a
+              probability or improve accuracy. <b>Local</b> options (Ollama, llama.cpp) run entirely
+              on your machine and send nothing out; the BYOK options send the evidence bundle to
+              that provider with your own key. The AI runs through Golavo’s local engine, so in this
+              sample build it will show as unavailable until a desktop engine is connected.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -96,24 +129,26 @@ export function Settings() {
 
           {u.isDesktop && u.status?.enabled && (
             <>
-              <div className="settings__row">
-                <label htmlFor="autocheck-toggle">Check for updates automatically</label>
-                <input
-                  id="autocheck-toggle"
-                  type="checkbox"
-                  checked={u.autoCheck === "on"}
-                  onChange={(e) => {
-                    const on = e.target.checked;
-                    u.setAutoCheck(on ? "on" : "off");
-                    // Match the consent card: enabling checks now, not in ~20s.
-                    if (on) void u.check();
-                  }}
-                />
+              <div className="settings__field">
+                <div className="settings__row">
+                  <label htmlFor="autocheck-toggle">Check for updates automatically</label>
+                  <input
+                    id="autocheck-toggle"
+                    type="checkbox"
+                    checked={u.autoCheck === "on"}
+                    onChange={(e) => {
+                      const on = e.target.checked;
+                      u.setAutoCheck(on ? "on" : "off");
+                      // Match the consent card: enabling checks now, not in ~20s.
+                      if (on) void u.check();
+                    }}
+                  />
+                </div>
+                <p className="settings__hint">
+                  Once a day, Golavo asks GitHub whether a newer version exists. Nothing else
+                  leaves your machine; downloads only start when you click.
+                </p>
               </div>
-              <p className="dim settings__hint">
-                Once a day, Golavo asks GitHub whether a newer version exists. Nothing else
-                leaves your machine; downloads only start when you click.
-              </p>
 
               <div className="settings__row">
                 <span>

@@ -734,13 +734,23 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .update-toast__close { flex: none; }
 
 .settings h1 { font-size: 1.35rem; margin-bottom: .15rem; }
-.settings__rows { gap: .75rem; }
+/* Space between fields within a section (the .stack owl gap). */
+.settings__rows { --gap: 1.4rem; }
+/* One field = a label/control row plus its hint, kept together and apart from
+   the next field. The hint is capped to a readable measure so it never bleeds
+   across the full panel width. */
+.settings__field { display: flex; flex-direction: column; gap: .5rem; }
 .settings__row {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  flex-wrap: wrap;
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem 1.25rem;
+  flex-wrap: wrap; min-height: 1.9rem;
 }
-.settings__row input[type="checkbox"] { width: 1.05rem; height: 1.05rem; accent-color: var(--gold-brand); }
-.settings__hint { font-size: .84rem; margin-top: -.35rem; }
+.settings__row > label,
+.settings__row > span:first-child { font-weight: 550; }
+.settings__row > :last-child { text-align: right; }
+.settings__row input[type="checkbox"] { width: 1.15rem; height: 1.15rem; accent-color: var(--gold-brand); flex: none; }
+.settings__row .select { min-width: 12rem; }
+.settings__hint { font-size: var(--text-sm); color: var(--text-dim); line-height: 1.55; max-width: var(--measure); margin: 0; }
+.settings .panel__body > p.dim { font-size: var(--text-sm); line-height: 1.55; max-width: var(--measure); margin: 0; }
 
 /* ------------------------------------------------------ startup splash ---- */
 .splash {
