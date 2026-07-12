@@ -66,10 +66,14 @@ echo "==> workdir: $WORK   (current $CURRENT -> offered $NEXT)"
 
 # Endpoint overlay: stacked on top of tauri.updater.conf.json, so the committed
 # pubkey still applies — only the endpoint (and the http allowance the release
-# build otherwise refuses) differ from production.
+# build otherwise refuses) differ from production. Bundling is narrowed to the
+# bare .app: the updater tarball is derived from it, and the DMG step both
+# wastes a couple of minutes per build and fails outright in headless shells
+# (bundle_dmg.sh drives Finder via osascript).
 OVERLAY="$WORK/dev-endpoint.json"
 cat > "$OVERLAY" <<EOF
 {
+  "bundle": { "targets": ["app"] },
   "plugins": {
     "updater": {
       "endpoints": ["http://127.0.0.1:${PORT}/latest.json"],
