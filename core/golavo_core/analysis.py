@@ -87,7 +87,9 @@ def _iso(ts: pd.Timestamp) -> str:
     return ts.isoformat().replace("+00:00", "Z")
 
 
-def _team_counts(train: pd.DataFrame, anchor: pd.Timestamp, teams: tuple[str, str]) -> dict[str, int]:
+def _team_counts(
+    train: pd.DataFrame, anchor: pd.Timestamp, teams: tuple[str, str]
+) -> dict[str, int]:
     """Qualifying-match counts per team inside the decay window ending at ``anchor``.
 
     Mirrors ``golavo_core.artifacts._team_counts`` so a replay's abstain decision

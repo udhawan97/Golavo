@@ -279,8 +279,11 @@ a:hover { text-decoration-color: currentColor; }
 .card--pad { padding: clamp(1rem, 2.2vw, 1.4rem); }
 .panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); }
 .panel__head {
-  display: flex; align-items: center; gap: .6rem; padding: .85rem 1.1rem;
+  display: flex; align-items: center; gap: .6rem .6rem; padding: .85rem 1.1rem;
   border-bottom: 1px solid var(--border);
+  /* Wrap a right-aligned chip to its own line rather than pushing the head past
+     the viewport when text metrics run wide (e.g. Linux fonts at narrow widths). */
+  flex-wrap: wrap; row-gap: .4rem;
 }
 .panel__head h2, .panel__head h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .09em; color: var(--text-muted); }
 .panel__body { padding: 1.1rem; }

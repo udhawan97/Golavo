@@ -450,10 +450,14 @@ def recent_matches(
     )
 
     by_match_id, by_fixture = artifact_links(Path(forecasts_dir))
+
+    def _rows(frame: Any) -> list[dict[str, Any]]:
+        return [_row_to_dict(row, by_match_id, by_fixture) for _, row in frame.iterrows()]
+
     return {
         "schema_version": SCHEMA_VERSION,
-        "upcoming": [_row_to_dict(row, by_match_id, by_fixture) for _, row in upcoming_sel.iterrows()],
-        "recent": [_row_to_dict(row, by_match_id, by_fixture) for _, row in recent_sel.iterrows()],
+        "upcoming": _rows(upcoming_sel),
+        "recent": _rows(recent_sel),
     }
 
 

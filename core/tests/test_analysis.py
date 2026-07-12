@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import pandas as pd
 import pytest
-
 from golavo_core.analysis import (
     AnalysisUnavailable,
     build_match_analysis,
