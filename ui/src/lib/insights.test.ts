@@ -53,24 +53,35 @@ describe("topInsights", () => {
     expect(topInsights(notebook([]))).toEqual([]);
   });
 
-  it("ranks predictive before context regardless of specificity", () => {
-    const context = mk({ id: "ctx", label: "context", specificity: 1.0 });
-    const predictive = mk({ id: "pred", label: "predictive", specificity: 0.1 });
-    const out = topInsights(notebook([context, predictive]));
-    expect(out.map((f) => f.id)).toEqual(["pred", "ctx"]);
+  it("leads with the fact closest to this fixture (scope), not the most specific one", () => {
+    // A broad head-to-head still beats a razor-specific team fact.
+    const h2h = mk({ id: "h2h", scope: "head_to_head", label: "context", specificity: 0.1 });
+    const team = mk({ id: "team", scope: "team", label: "predictive", specificity: 0.9 });
+    const comp = mk({ id: "comp", scope: "competition", label: "predictive", specificity: 1.0 });
+    const out = topInsights(notebook([comp, team, h2h]));
+    expect(out.map((f) => f.id)).toEqual(["h2h", "team", "comp"]);
+  });
+
+  it("within a scope, prefers higher specificity, then predictive over context", () => {
+    const a = mk({ id: "spec_hi", scope: "team", label: "context", specificity: 0.9 });
+    const b = mk({ id: "spec_lo_pred", scope: "team", label: "predictive", specificity: 0.4 });
+    const c = mk({ id: "spec_lo_ctx", scope: "team", label: "context", specificity: 0.4 });
+    const out = topInsights(notebook([c, b, a]));
+    expect(out.map((f) => f.id)).toEqual(["spec_hi", "spec_lo_pred", "spec_lo_ctx"]);
   });
 
   it("never includes coincidences", () => {
-    const coincidence = mk({ id: "coin", label: "coincidence", specificity: 1.0 });
-    const context = mk({ id: "ctx", label: "context", specificity: 0.2 });
+    const coincidence = mk({ id: "coin", scope: "head_to_head", label: "coincidence", specificity: 1.0 });
+    const context = mk({ id: "ctx", scope: "team", label: "context", specificity: 0.2 });
     const out = topInsights(notebook([coincidence, context]));
     expect(out.map((f) => f.id)).toEqual(["ctx"]);
   });
 
   it("drops stale facts", () => {
-    const fresh = mk({ id: "fresh", label: "context", specificity: 0.3 });
+    const fresh = mk({ id: "fresh", scope: "team", label: "context", specificity: 0.3 });
     const stale = mk({
       id: "stale",
+      scope: "head_to_head",
       label: "context",
       specificity: 0.9,
       freshness: { as_of_utc: "x", last_event_utc: "x", age_days: 9999, stale: true, staleness_days: 9999 },
@@ -79,16 +90,16 @@ describe("topInsights", () => {
     expect(out.map((f) => f.id)).toEqual(["fresh"]);
   });
 
-  it("breaks specificity ties by sample size then id", () => {
-    const a = mk({ id: "b_more", label: "context", specificity: 0.5, sample_n: 500 });
-    const b = mk({ id: "a_less", label: "context", specificity: 0.5, sample_n: 50 });
+  it("breaks full ties by sample size then id", () => {
+    const a = mk({ id: "b_more", scope: "team", label: "context", specificity: 0.5, sample_n: 500 });
+    const b = mk({ id: "a_less", scope: "team", label: "context", specificity: 0.5, sample_n: 50 });
     const out = topInsights(notebook([b, a]));
     expect(out.map((f) => f.id)).toEqual(["b_more", "a_less"]);
   });
 
   it("caps at the requested limit and is stable", () => {
     const facts = Array.from({ length: 6 }, (_, i) =>
-      mk({ id: `p${i}`, label: "predictive", specificity: i / 10 }),
+      mk({ id: `p${i}`, scope: "team", label: "predictive", specificity: i / 10 }),
     );
     const a = topInsights(notebook(facts), 3);
     const b = topInsights(notebook(facts.slice().reverse()), 3);

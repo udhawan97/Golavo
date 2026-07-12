@@ -24,7 +24,7 @@ The expert drawers are native `<details>` accordions: **collapsed** in Casual an
 
 ## Three things to know
 
-A small, scannable summary above the notebook, built **only** from facts the engine already computed and picked by a pure, documented rule in `ui/src/lib/insights.ts`: predictive (labelled base rate) facts before context, then by specificity, then sample size, then a stable id tie-break; coincidences are never eligible and stale facts are dropped. The same notebook always yields the same three facts — which is why the panel is labelled *"chosen by fixed rules · not AI."* Nothing is written or re-weighted by AI.
+A small, scannable summary above the notebook, built **only** from facts the engine already computed and picked by a pure, documented rule in `ui/src/lib/insights.ts`. The rule leads with the facts **closest to this fixture**: by scope (head-to-head → match → team → competition), then specificity, then predictive-before-context, then sample size, then a stable id tie-break; coincidences are never eligible and stale facts are dropped. So a head-to-head record surfaces above a competition-wide base rate. The same notebook always yields the same three facts — which is why the panel is labelled *"chosen by fixed rules · not AI."* Nothing is written or re-weighted by AI.
 
 ## Two rules that hold in both modes
 
@@ -43,6 +43,14 @@ The one-line verdict comes from `ui/src/lib/summary.ts` — a pure function of t
 | below, and within 6 pts of #2 | "too close to call" |
 
 A leading **draw** reads "favoured / narrowly favoured / the marginal pick" on the same thresholds. No AI is involved; the cited facts beneath are labelled *"straight from the sealed model — no AI wrote these."*
+
+## Reading comfort
+
+The header's **Aa** control opens a small popover for how the app *reads* — never what it says. Four choices, all persisted: **Theme** (Light, Dark, or a **Warm** low-blue palette for evening reading), **Text size** (four steps, scaling the whole app), **Line spacing**, and **Contrast** (which snaps to High automatically when your OS asks for more). Warm mode is a dedicated, hand-tuned palette measured to keep every text/surface pair above the WCAG AA 4.5:1 contrast floor — not a screen tint — so the forecasts stay legible. It's for comfort, not eye protection, and we don't claim otherwise.
+
+## What moved (re-seals)
+
+If a fixture is re-sealed, the newer forecast page shows a compact **what-moved** readout inside its "Re-sealed" note: each outcome's probability *was → now* with the change in whole points (▲/▼). Both numbers come from two immutable seals seen before kickoff — it's line movement between honest forecasts, not an edit, and no AI is involved. The three deltas always sum to zero.
 
 ## The heatmap (Expert)
 

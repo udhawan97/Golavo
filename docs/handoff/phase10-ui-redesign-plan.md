@@ -224,7 +224,15 @@ Phases A, B, C, and the E-slice **shipped** in this cycle; F shipped its unit-te
 - **E-slice** — Model & versions, Outcome/goal summaries, Provenance & inputs, and Calibration moved into `Drawer`s (open in Expert, collapsed in Casual); `Provenance` restyled as a receipt and now holds the demoted match/artifact ids.
 - **F (partial)** — vitest added; `format.test.ts` + `insights.test.ts` (14 tests) wired into the `ui` CI job before build.
 
-**Deferred to a follow-up** (unchanged from the plan): a Playwright screenshot/overflow suite in CI (overflow was verified manually this cycle; the assertion `documentElement.scrollWidth <= clientWidth` at 375/768/1280 is the check to automate), axe-core pass, the "What changed?" re-seal delta, form-guide squares, and team crests/colours. Dead CSS (`.md-final`, `.casual-detail`, `.metric*` once ScoredPanel migrates) is left for a simplify pass.
+### Second cycle (also landed)
+
+- **Insight ordering → closest-to-fixture first.** `lib/insights.ts` now ranks by scope (head_to_head → match → team → competition), then specificity, then predictive-before-context, then sample/id — so a head-to-head record leads the "Three things to know" cards. Tests + docs updated.
+- **Tidy.** Matchday mini-bars round by largest-remainder (sum to 100); `ScoredPanel` migrated to the shared `StatTile`; dead CSS removed (`.md-final`, `.casual-detail`, `.metric*`).
+- **"What moved" box.** On a re-sealed forecast, the Re-sealed callout shows per-outcome line movement (was → now, ▲/▼ points) from the earlier seal — deterministic, deltas sum to zero, green-up/red-down (a delta, not a hit/miss verdict). Reuses the already-fetched forecast list, no extra request.
+- **Reading comfort.** A header "Aa" popover with Theme (Light/Dark/**Warm** low-blue palette), Text size (4 steps scaling root font-size), Line spacing, and Contrast — root CSS vars + `data-*` on `<html>`, applied before paint by an inline script in `index.html`, persisted, and defaulting Contrast on under `prefers-contrast: more`. Warm is a **dedicated hand-tuned palette**, not an overlay (overlays silently break contrast and axe can't see them). Copy is honest: "warm tones for comfortable evening reading", never "reduces eye strain".
+- **Playwright + axe in CI.** `ui/tests/` — overflow assertion (`scrollWidth ≤ clientWidth`) over 7 routes × 375/768/1280, and `@axe-core/playwright` on the detail pages across all three themes, failing on serious/critical. Wired into the `ui` CI job (`npx playwright install --with-deps chromium && npm run test:e2e`). Authoring these caught a real WCAG miss: the probability-bar segment labels failed 4.5:1 in the light/warm themes (dark label on theme-darkened accents) — fixed with theme-independent bright segment fill tokens (`--seg-home/draw/away`).
+
+**Still deferred:** form-guide W/D/L squares (needs a core recent-form series) and team crests/colours (no data, licensing).
 
 ## 8. Final recommendation
 

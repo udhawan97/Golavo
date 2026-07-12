@@ -76,6 +76,8 @@ jobs:
         run: |
           if [ -f ui/package.json ]; then
             cd ui && npm install && npm test --if-present && npm run build --if-present
+            npx playwright install --with-deps chromium
+            npm run test:e2e --if-present
           else
             echo "No UI package yet (scaffold phase)."
           fi

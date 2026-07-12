@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Layout } from "./components/Layout";
-import { useHashRoute, useTheme } from "./lib/hooks";
+import { useHashRoute, useReadingPrefs } from "./lib/hooks";
 import { EmptyState } from "./components/states";
 import { MatchdayList } from "./views/MatchdayList";
 import { MatchSearch } from "./views/MatchSearch";
@@ -17,7 +17,9 @@ import { StartupSplash } from "./components/StartupSplash";
 
 export default function App() {
   const [path] = useHashRoute();
-  const [theme, toggleTheme] = useTheme();
+  const [prefs, setPrefs] = useReadingPrefs();
+  // The splash paints before the app shell; warm reads as a dark surface there.
+  const splashTheme = prefs.theme === "light" ? "light" : "dark";
   const backendReady = useBackendReady();
   const forecastSource = useForecastSource(backendReady);
   // One controller for the whole app: header pill, sheet, settings, toast.
@@ -28,14 +30,14 @@ export default function App() {
 
   // Hold the app behind a splash until the (slow-to-extract) engine is up, so a
   // long first launch never looks like a broken window.
-  if (!backendReady) return <StartupSplash theme={theme} />;
+  if (!backendReady) return <StartupSplash theme={splashTheme} />;
 
   return (
     <UpdaterContext.Provider value={updater}>
       <Layout
         path={path}
-        theme={theme}
-        onToggleTheme={toggleTheme}
+        prefs={prefs}
+        onChangePrefs={setPrefs}
         forecastSource={forecastSource}
       >
         <Route path={path} />

@@ -7,6 +7,20 @@
     <meta name="color-scheme" content="dark light" />
     <meta name="description" content="Golavo Forecast Audit Workbench — a read-only view over deterministic football forecasts sealed before kickoff and scored after full time." />
     <title>Golavo · Forecast Audit Workbench</title>
+    <!-- Apply reading-comfort prefs before first paint so themes never flash. -->
+    <script>
+      (function () {
+        try {
+          var d = document.documentElement;
+          var pick = function (k, a, f) { var v = localStorage.getItem(k); return a.indexOf(v) >= 0 ? v : f; };
+          var moreContrast = window.matchMedia && window.matchMedia("(prefers-contrast: more)").matches;
+          d.dataset.theme = pick("golavo-theme", ["dark", "light", "warm"], "dark");
+          d.dataset.textSize = pick("golavo-text-size", ["sm", "md", "lg", "xl"], "md");
+          d.dataset.leading = pick("golavo-leading", ["normal", "relaxed"], "normal");
+          d.dataset.contrast = pick("golavo-contrast", ["normal", "high"], moreContrast ? "high" : "normal");
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

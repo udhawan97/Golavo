@@ -2,11 +2,11 @@ import type { ReactNode } from "react";
 import { SCHEMA_VERSION } from "../lib/contract";
 import { DATA_SOURCE, sourceDescription } from "../lib/api";
 import type { ForecastSource } from "../lib/api";
-import { GearIcon, MoonIcon, SearchIcon, SunIcon } from "./icons";
+import type { ReadingPrefs } from "../lib/hooks";
+import { GearIcon, SearchIcon } from "./icons";
+import { ReadingComfort } from "./ReadingComfort";
 import { UpdatePill } from "./updates";
 import { DOCS_URL } from "../lib/links";
-
-type Theme = "dark" | "light";
 
 function isActive(path: string, section: "matchday" | "matches" | "ledger" | "eval"): boolean {
   if (section === "eval") return path.startsWith("/eval");
@@ -18,15 +18,16 @@ function isActive(path: string, section: "matchday" | "matches" | "ledger" | "ev
 }
 
 export function Layout({
-  path, theme, onToggleTheme, forecastSource, children,
+  path, prefs, onChangePrefs, forecastSource, children,
 }: {
   path: string;
-  theme: Theme;
-  onToggleTheme: () => void;
+  prefs: ReadingPrefs;
+  onChangePrefs: (patch: Partial<ReadingPrefs>) => void;
   forecastSource?: ForecastSource | null;
   children: ReactNode;
 }) {
-  const lockup = theme === "dark" ? "/brand/golavo-lockup-dark.svg" : "/brand/golavo-lockup-light.svg";
+  // Light uses the light lockup; dark and warm are both dark surfaces.
+  const lockup = prefs.theme === "light" ? "/brand/golavo-lockup-light.svg" : "/brand/golavo-lockup-dark.svg";
   // "sample" = fresh install serving synthetic demos; "mock" = web bundle. Both
   // are labelled honestly as sample data, never as live forecasts.
   const isSample = forecastSource === "sample" || DATA_SOURCE === "mock";
@@ -71,15 +72,7 @@ export function Layout({
             >
               <SearchIcon />
             </a>
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={onToggleTheme}
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-            >
-              {theme === "dark" ? <SunIcon /> : <MoonIcon />}
-            </button>
+            <ReadingComfort prefs={prefs} onChange={onChangePrefs} />
             <a
               className="icon-btn"
               href="#/settings"

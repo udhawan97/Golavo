@@ -53,24 +53,64 @@ export function useDebouncedValue<T>(value: T, delayMs: number): T {
   return debounced;
 }
 
-type Theme = "dark" | "light";
-const THEME_KEY = "golavo-theme";
+export type Theme = "dark" | "light" | "warm";
+export type TextSize = "sm" | "md" | "lg" | "xl";
+export type Leading = "normal" | "relaxed";
+export type Contrast = "normal" | "high";
 
-/** Theme is dark by default; the choice persists in localStorage. */
-export function useTheme(): [Theme, () => void] {
-  const [theme, setTheme] = useState<Theme>(() => {
-    try {
-      const stored = localStorage.getItem(THEME_KEY);
-      if (stored === "light" || stored === "dark") return stored;
-    } catch { /* ignore */ }
-    return "dark";
-  });
+export interface ReadingPrefs {
+  theme: Theme;
+  textSize: TextSize;
+  leading: Leading;
+  contrast: Contrast;
+}
+
+const RP_KEY = {
+  theme: "golavo-theme",
+  textSize: "golavo-text-size",
+  leading: "golavo-leading",
+  contrast: "golavo-contrast",
+} as const;
+
+function readPref<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
+  try {
+    const v = localStorage.getItem(key);
+    if (v && (allowed as readonly string[]).includes(v)) return v as T;
+  } catch { /* ignore */ }
+  return fallback;
+}
+
+function prefersMoreContrast(): boolean {
+  try { return window.matchMedia?.("(prefers-contrast: more)").matches ?? false; } catch { return false; }
+}
+
+/** Reading-comfort preferences — theme (incl. a warm, low-blue palette), text
+ *  size, line spacing, and contrast. They change how the page reads, never a
+ *  number. Persisted in localStorage and applied as data-* on <html>; an inline
+ *  script in index.html applies them before first paint so nothing flashes.
+ *  Theme defaults to dark; contrast defaults on when the OS asks for more. */
+export function useReadingPrefs(): [ReadingPrefs, (patch: Partial<ReadingPrefs>) => void] {
+  const [prefs, setPrefs] = useState<ReadingPrefs>(() => ({
+    theme: readPref(RP_KEY.theme, ["dark", "light", "warm"] as const, "dark"),
+    textSize: readPref(RP_KEY.textSize, ["sm", "md", "lg", "xl"] as const, "md"),
+    leading: readPref(RP_KEY.leading, ["normal", "relaxed"] as const, "normal"),
+    contrast: readPref(RP_KEY.contrast, ["normal", "high"] as const, prefersMoreContrast() ? "high" : "normal"),
+  }));
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    try { localStorage.setItem(THEME_KEY, theme); } catch { /* ignore */ }
-  }, [theme]);
-  const toggle = useCallback(() => setTheme((t) => (t === "dark" ? "light" : "dark")), []);
-  return [theme, toggle];
+    const el = document.documentElement;
+    el.dataset.theme = prefs.theme;
+    el.dataset.textSize = prefs.textSize;
+    el.dataset.leading = prefs.leading;
+    el.dataset.contrast = prefs.contrast;
+    try {
+      localStorage.setItem(RP_KEY.theme, prefs.theme);
+      localStorage.setItem(RP_KEY.textSize, prefs.textSize);
+      localStorage.setItem(RP_KEY.leading, prefs.leading);
+      localStorage.setItem(RP_KEY.contrast, prefs.contrast);
+    } catch { /* ignore */ }
+  }, [prefs]);
+  const update = useCallback((patch: Partial<ReadingPrefs>) => setPrefs((p) => ({ ...p, ...patch })), []);
+  return [prefs, update];
 }
 
 export type ForecastMode = "casual" | "expert";

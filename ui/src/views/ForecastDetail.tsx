@@ -4,7 +4,7 @@ import type { ForecastMode } from "../lib/hooks";
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
 import { fetchForecast, fetchForecasts } from "../lib/api";
 import { deriveMarkets } from "../lib/markets";
-import { num, pct, pctWhole, inWords, utc, utcDate } from "../lib/format";
+import { num, pct, pctWhole, inWords, largestRemainder, utc, utcDate } from "../lib/format";
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { verdictSummary } from "../lib/summary";
 import { AlertIcon, ChevronRight, InfoIcon, LinkIcon, ScaleIcon, ShieldCheckIcon, SparkIcon, VoidIcon } from "../components/icons";
@@ -34,10 +34,21 @@ export function ForecastDetail({ id }: { id: string }) {
     return (<><Breadcrumb /><EmptyState title="Forecast not found">No sealed artifact matches this id. It may have been superseded or never existed.{" "}<a href="#/matches">Search matches ›</a></EmptyState></>);
   }
   const supersededBy = all.find((a) => a.supersedes === artifact.artifact_id)?.artifact_id ?? null;
-  return <Detail artifact={artifact} supersededBy={supersededBy} />;
+  const previous = artifact.supersedes
+    ? all.find((a) => a.artifact_id === artifact.supersedes) ?? null
+    : null;
+  return <Detail artifact={artifact} supersededBy={supersededBy} previous={previous} />;
 }
 
-function Detail({ artifact, supersededBy }: { artifact: ForecastArtifact; supersededBy: string | null }) {
+function Detail({
+  artifact,
+  supersededBy,
+  previous,
+}: {
+  artifact: ForecastArtifact;
+  supersededBy: string | null;
+  previous: ForecastArtifact | null;
+}) {
   const { match, forecast, status } = artifact;
   const [mode, setMode] = useForecastMode();
   const abstained = status === "abstained";
@@ -73,6 +84,7 @@ function Detail({ artifact, supersededBy }: { artifact: ForecastArtifact; supers
             <div className="callout__title">Re-sealed</div>
             This artifact supersedes an earlier seal for the same fixture — a new immutable
             record rather than an edit. <a href={`#/forecast/${artifact.supersedes}`}>View the earlier seal ›</a>
+            <WhatChanged current={artifact} previous={previous} />
           </div>
         </div>
       )}
@@ -142,6 +154,44 @@ function ModeToggle({ mode, setMode }: { mode: ForecastMode; setMode: (m: Foreca
         </button>
       ))}
     </div>
+  );
+}
+
+/** What moved between the earlier seal and this one — deterministic line movement
+ *  between two sealed pre-kickoff forecasts, not an edit and not AI. Whole-number
+ *  points via the same largest-remainder rounding, so the three deltas sum to 0. */
+function WhatChanged({ current, previous }: { current: ForecastArtifact; previous: ForecastArtifact | null }) {
+  const cur = current.forecast.probs;
+  const prev = previous?.forecast.probs;
+  if (!prev || !cur) return null;
+  const [ph, pd, pa] = largestRemainder([prev.home, prev.draw, prev.away]);
+  const [ch, cd, ca] = largestRemainder([cur.home, cur.draw, cur.away]);
+  const rows = [
+    { label: current.match.home_team, was: ph, now: ch },
+    { label: "Draw", was: pd, now: cd },
+    { label: current.match.away_team, was: pa, now: ca },
+  ];
+  if (rows.every((r) => r.now === r.was)) {
+    return <p className="whatmoved__same small muted">Identical to the earlier seal — nothing moved.</p>;
+  }
+  return (
+    <ul className="whatmoved">
+      {rows.map((r) => {
+        const delta = r.now - r.was;
+        const dir = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+        return (
+          <li className="whatmoved__row" key={r.label}>
+            <span className="whatmoved__team">{r.label}</span>
+            <span className="whatmoved__nums num">
+              <span className="dim">{r.was}%</span> → <b>{r.now}%</b>
+            </span>
+            <span className={`whatmoved__delta whatmoved__delta--${dir}`}>
+              {dir === "up" ? "▲" : dir === "down" ? "▼" : "±"} {delta > 0 ? `+${delta}` : delta === 0 ? "0" : delta}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

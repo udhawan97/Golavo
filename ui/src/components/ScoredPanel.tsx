@@ -1,7 +1,7 @@
 import type { ForecastArtifact } from "../lib/contract";
 import { num, pct, utc } from "../lib/format";
 import { SealIcon } from "./icons";
-import { ProbabilityBar, Hash } from "./primitives";
+import { ProbabilityBar, Hash, StatTile } from "./primitives";
 
 /** "After the whistle" — the sealed forecast set beside the full-time result.
  *  No win/loss verdict: a forecast is a probability, scored by how much it
@@ -46,22 +46,23 @@ export function ScoredPanel({ artifact }: { artifact: ForecastArtifact }) {
           </p>
         </div>
 
-        <div className="metric-grid">
-          <div className="metric">
-            <div className="metric__val num">{num(metrics.prob_assigned_to_outcome, 3)}</div>
-            <div className="metric__label">Prob. assigned to outcome</div>
-            <div className="metric__hint">Higher means the seal committed more to what happened.</div>
-          </div>
-          <div className="metric">
-            <div className="metric__val num" style={{ color: "var(--gold)" }}>{num(metrics.log_loss, 3)}</div>
-            <div className="metric__label">Log loss <span className="dim">· headline</span></div>
-            <div className="metric__hint">−ln(p) of the sealed probability. Lower is better.</div>
-          </div>
-          <div className="metric">
-            <div className="metric__val num">{num(metrics.brier, 3)}</div>
-            <div className="metric__label">Brier score</div>
-            <div className="metric__hint">Squared error across all three outcomes (0–2). Lower is better.</div>
-          </div>
+        <div className="stat-grid">
+          <StatTile
+            value={num(metrics.prob_assigned_to_outcome, 3)}
+            label="Prob. assigned to outcome"
+            hint="Higher means the seal committed more to what happened."
+          />
+          <StatTile
+            value={num(metrics.log_loss, 3)}
+            tone="gold"
+            label={<>Log loss <span className="dim">· headline</span></>}
+            hint="−ln(p) of the sealed probability. Lower is better."
+          />
+          <StatTile
+            value={num(metrics.brier, 3)}
+            label="Brier score"
+            hint="Squared error across all three outcomes (0–2). Lower is better."
+          />
         </div>
 
         <div className="seal-note">

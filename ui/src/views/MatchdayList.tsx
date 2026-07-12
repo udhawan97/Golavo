@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { ArtifactStatus, ForecastArtifact } from "../lib/contract";
 import { FAMILY_LABELS, STATUS_LABELS } from "../lib/contract";
 import { fetchForecasts } from "../lib/api";
-import { pct, relative, utc } from "../lib/format";
+import { largestRemainder, relative, utc } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import { ClockIcon, GlobeIcon } from "../components/icons";
 import { HorizonChip, StatusChip } from "../components/primitives";
@@ -185,15 +185,17 @@ function MatchCard({ artifact, superseded }: { artifact: ForecastArtifact; super
   );
 }
 
-/** Compact 3-segment bar with an accessible summary, for the list. */
+/** Compact 3-segment bar with an accessible summary, for the list. Whole-number
+ *  labels that sum to 100 (widths stay exact from the raw probabilities). */
 function MiniBar({ h, d, a, home, away }: { h: number; d: number; a: number; home: string; away: string }) {
-  const label = `${home} ${pct(h)}, draw ${pct(d)}, ${away} ${pct(a)}`;
+  const [hw, dw, aw] = largestRemainder([h, d, a]);
+  const label = `${home} ${hw}%, draw ${dw}%, ${away} ${aw}%`;
   return (
     <div className="probbar" style={{ ["--h" as string]: "26px" }}>
       <div className="probbar__track" role="img" aria-label={label}>
-        <div className="probbar__seg probbar__seg--home" style={{ width: `${h * 100}%` }} aria-hidden><span>{pct(h, 0)}</span></div>
-        <div className="probbar__seg probbar__seg--draw" style={{ width: `${d * 100}%` }} aria-hidden><span>{pct(d, 0)}</span></div>
-        <div className="probbar__seg probbar__seg--away" style={{ width: `${a * 100}%` }} aria-hidden><span>{pct(a, 0)}</span></div>
+        <div className="probbar__seg probbar__seg--home" style={{ width: `${h * 100}%` }} aria-hidden><span>{hw}%</span></div>
+        <div className="probbar__seg probbar__seg--draw" style={{ width: `${d * 100}%` }} aria-hidden><span>{dw}%</span></div>
+        <div className="probbar__seg probbar__seg--away" style={{ width: `${a * 100}%` }} aria-hidden><span>{aw}%</span></div>
       </div>
     </div>
   );

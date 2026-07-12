@@ -49,6 +49,14 @@ a { color: inherit; }
   --draw:       var(--wave);
   --away:       var(--orange);
 
+  /* Probability-bar segment fills — deliberately theme-independent and bright
+     enough that the dark % label clears WCAG AA 4.5:1 in every theme (the
+     light theme's darkened accents would fail with dark text). Enforced by the
+     axe e2e test. */
+  --seg-home:   #d9b53a;
+  --seg-draw:   #8aa6d6;
+  --seg-away:   #e58a52;
+
   --radius:     14px;
   --radius-sm:  9px;
   --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 28px rgba(0,0,0,.34);
@@ -62,12 +70,87 @@ a { color: inherit; }
   --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
   --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
 
-  /* Type ramp (px). Hero numerals go lighter as they grow (Stripe idiom). */
-  --text-xs: 12px; --text-sm: 13px; --text-base: 15px; --text-md: 17px;
-  --text-lg: 20px; --text-xl: 28px;
+  /* Type ramp (rem, so a text-size preference can scale the whole app at once).
+     Hero numerals go lighter as they grow (Stripe idiom). */
+  --reading-scale: 1;
+  --reading-leading: 1.55;
+  --text-xs: 0.75rem; --text-sm: 0.8125rem; --text-base: 0.9375rem; --text-md: 1.0625rem;
+  --text-lg: 1.25rem; --text-xl: 1.75rem;
   --measure: 65ch;
 
   color-scheme: dark;
+}
+
+/* --------------------------------------------------- reading comfort ------ */
+/* Text size scales the root font-size, so every rem-based size grows together.
+   Line spacing and contrast are pref-driven too. All are set as data-* on <html>
+   before paint (see index.html) and kept in sync by useReadingPrefs. */
+:root[data-text-size="sm"] { --reading-scale: 0.94; }
+:root[data-text-size="md"] { --reading-scale: 1; }
+:root[data-text-size="lg"] { --reading-scale: 1.12; }
+:root[data-text-size="xl"] { --reading-scale: 1.25; }
+html { font-size: calc(100% * var(--reading-scale, 1)); }
+:root[data-leading="relaxed"] { --reading-leading: 1.72; }
+
+/* High contrast: collapse the muted greys toward full-strength text, and firm up
+   hairlines. Kept AA-or-better by construction (it only raises contrast). */
+:root[data-contrast="high"] {
+  --text-muted: var(--text);
+  --text-dim: color-mix(in srgb, var(--text) 80%, transparent);
+  --border: var(--border-strong);
+}
+
+/* Warm / low-blue "evening reading" palette — a dedicated set (not an overlay,
+   which would silently drop text contrast). Every text/surface pair is tuned to
+   clear WCAG AA; the amber-leaning neutrals cut blue by choice of hue, not by
+   veiling the screen. Honest scope: comfortable warm tones, not eye protection. */
+:root[data-theme="warm"] {
+  --ink:        #1a1410;
+  --surface-1:  #221b14;
+  --surface-2:  #2a2118;
+  --surface-3:  #352a1d;
+  --border:        rgba(240, 228, 205, 0.13);
+  --border-strong: rgba(240, 228, 205, 0.26);
+  --text:       #ecdfc8;
+  --text-muted: #c6b593;
+  --text-dim:   #978a70;
+
+  --gold:       #dcb43c;
+  --gold-brand: #c9a227;
+  --gold-soft:  rgba(201, 162, 39, 0.16);
+  --gold-line:  rgba(201, 162, 39, 0.44);
+
+  --red:        #bc002d;
+  --red-ink:    #ff7a86;
+  --red-soft:   rgba(188, 0, 45, 0.18);
+
+  --orange:     #e58a52;
+  --orange-brand: #d9622b;
+  --green:      #48c093;
+  --green-brand:#0b6e4f;
+  --green-soft: rgba(11, 110, 79, 0.20);
+  --wave:       #a2b2cf;   /* warmer, less-saturated draw blue */
+  --wave-brand: #6082b8;
+  --wave-soft:  rgba(130, 150, 185, 0.16);
+
+  --link:       #bdc7de;
+  --focus:      #e0b84a;
+
+  --home:       var(--gold);
+  --draw:       var(--wave);
+  --away:       var(--orange);
+
+  --shadow:     0 1px 2px rgba(0,0,0,.45), 0 8px 28px rgba(0,0,0,.4);
+  --shadow-sm:  0 1px 2px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+
+/* Warm theme: darken the small tinted chips a touch for AA on warm surfaces. */
+:root[data-theme="warm"] .chip--sealed { color: #e6bd45; }
+
+@media (forced-colors: active) {
+  :focus-visible { outline: 2px solid CanvasText; }
+  .drawer, .card, .panel, .stat-tile, .insight-card, .trust-strip { border-color: CanvasText; }
 }
 
 :root[data-theme="light"] {
@@ -238,6 +321,18 @@ a:hover { text-decoration-color: currentColor; }
 .nb-metric b { color: var(--text); font-variant-numeric: tabular-nums; }
 .nb-foot { display: flex; flex-wrap: wrap; gap: .3rem .7rem; padding-top: .5rem; margin-top: .2rem; border-top: 1px solid var(--border); }
 
+/* "What moved" — line movement between two seals. Delta colour marks direction
+   only (this is a delta, not a hit/miss verdict on the outcome itself). */
+.whatmoved { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.whatmoved__row { display: flex; align-items: baseline; gap: var(--space-3); font-size: var(--text-sm); }
+.whatmoved__team { min-width: 8ch; color: var(--text); }
+.whatmoved__nums { font-variant-numeric: tabular-nums; }
+.whatmoved__delta { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 650; font-size: var(--text-xs); }
+.whatmoved__delta--up { color: var(--green); }
+.whatmoved__delta--down { color: var(--red-ink); }
+.whatmoved__delta--flat { color: var(--text-dim); }
+.whatmoved__same { margin: var(--space-2) 0 0; }
+
 /* Rate bar — a base rate as shape + number. */
 .rate-bar { display: flex; align-items: center; gap: var(--space-2); max-width: 22rem; }
 .rate-bar__track { flex: 1; height: 6px; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--border); overflow: hidden; }
@@ -284,14 +379,14 @@ a:hover { text-decoration-color: currentColor; }
 }
 .probbar__seg { display: grid; place-items: center; min-width: 2px; position: relative; transition: filter .15s ease; }
 .probbar__seg:hover { filter: brightness(1.08); }
-.probbar__seg--home { background: color-mix(in srgb, var(--home) 82%, #000 6%); }
-.probbar__seg--draw { background: color-mix(in srgb, var(--draw) 80%, #000 6%); }
-.probbar__seg--away { background: color-mix(in srgb, var(--away) 82%, #000 6%); }
+.probbar__seg--home { background: var(--seg-home); }
+.probbar__seg--draw { background: var(--seg-draw); }
+.probbar__seg--away { background: var(--seg-away); }
 .probbar__seg span { font-variant-numeric: tabular-nums lining-nums; font-weight: 700; font-size: .9rem; color: #12100a; text-shadow: 0 1px 0 rgba(255,255,255,.18); }
 .probbar__legend { display: flex; justify-content: space-between; gap: .5rem; margin-top: .55rem; }
 .leg { display: flex; align-items: center; gap: .4rem; font-size: .82rem; color: var(--text-muted); min-width: 0; }
 .leg__sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
-.leg__sw--home { background: var(--home); } .leg__sw--draw { background: var(--draw); } .leg__sw--away { background: var(--away); }
+.leg__sw--home { background: var(--seg-home); } .leg__sw--draw { background: var(--seg-draw); } .leg__sw--away { background: var(--seg-away); }
 .leg b { color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .leg--r { justify-content: flex-end; } .leg--c { justify-content: center; }
 
@@ -363,14 +458,6 @@ a:hover { text-decoration-color: currentColor; }
 .result-line { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .result-score { font-size: 2.1rem; font-weight: 750; font-variant-numeric: tabular-nums lining-nums; letter-spacing: .02em; }
 .result-outcome { font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; color: var(--text-muted); }
-.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .8rem; }
-.metric {
-  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); padding: .85rem .9rem;
-}
-.metric__val { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums lining-nums; }
-.metric__label { font-size: .74rem; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); margin-top: .1rem; }
-.metric__hint { font-size: .78rem; color: var(--text-dim); margin-top: .35rem; }
-
 .seal-note {
   display: flex; gap: .7rem; align-items: flex-start;
   border: 1px solid var(--gold-line); background: var(--gold-soft);
@@ -538,7 +625,6 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
 
 /* Plain-language verdict — prominent but never louder than the numbers. */
 .verdict { font-size: 1.16rem; font-weight: 650; line-height: 1.3; letter-spacing: -0.01em; }
-.casual-detail { color: var(--text-muted); line-height: 1.5; }
 
 /* Cited, sealed-number facts (Casual). Clearly the engine's, clearly not AI. */
 .cited { border: 1px solid var(--border); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--surface-2) 55%, transparent); padding: .7rem .85rem; }
@@ -823,12 +909,6 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .md-fc-card__chips { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .md-fc-card__when { margin-left: auto; }
 
-.md-final { display: flex; align-items: baseline; flex-wrap: wrap; gap: .6rem; font-size: 1.15rem; font-weight: 650; }
-.md-final__score {
-  font-variant-numeric: tabular-nums lining-nums; font-weight: 750; color: var(--text);
-  background: var(--surface-3); border: 1px solid var(--border); border-radius: 8px; padding: .1rem .55rem;
-}
-
 .md-nb-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .7rem; }
 .md-nb-legend__note { color: var(--text-dim); }
 
@@ -887,6 +967,30 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   font-size: var(--text-sm); color: var(--text); line-height: 1.45;
   white-space: normal; text-align: left;
 }
+
+/* Reading-comfort popover (header "Aa"). */
+.rc { position: relative; display: inline-flex; }
+.rc__trigger { font-weight: 650; font-size: .95rem; letter-spacing: .01em; }
+.rc__trigger span { line-height: 1; }
+.rc__panel {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 40;
+  width: max-content; max-width: min(20rem, 88vw);
+  display: flex; flex-direction: column; gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-2); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.rc__row { display: flex; align-items: center; gap: var(--space-3); justify-content: space-between; }
+.rc__legend { font-size: var(--text-sm); color: var(--text-muted); }
+.rc__seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: 999px; background: var(--surface-1); border: 1px solid var(--border); }
+.rc__seg-btn {
+  border: 1px solid transparent; background: transparent; color: var(--text-muted);
+  font-size: var(--text-sm); font-weight: 600; padding: .28rem .6rem; border-radius: 999px; cursor: pointer;
+  min-width: 2.2ch;
+}
+.rc__seg-btn:hover { color: var(--text); }
+.rc__seg-btn.is-active { background: var(--gold-soft); color: var(--text); border-color: var(--gold-line); }
+.rc__note { margin: 0; font-size: var(--text-xs); color: var(--text-dim); border-top: 1px solid var(--border); padding-top: var(--space-3); }
 
 /* Stat tile — Stripe card anatomy: small label / large tabular value / hint. */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-3); }
