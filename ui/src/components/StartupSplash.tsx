@@ -35,7 +35,15 @@ function statusFor(pct: number, desktop: boolean): string {
   return "Almost ready…";
 }
 
-export function StartupSplash({ theme }: { theme: "dark" | "light" }) {
+export function StartupSplash({
+  theme,
+  stalled = false,
+  onRetry,
+}: {
+  theme: "dark" | "light";
+  stalled?: boolean;
+  onRetry?: () => void;
+}) {
   const [pct, setPct] = useState(0);
   const [fact, setFact] = useState(() => Math.floor(Math.random() * FACTS.length));
 
@@ -56,6 +64,26 @@ export function StartupSplash({ theme }: { theme: "dark" | "light" }) {
     theme === "dark" ? "/brand/golavo-lockup-dark.svg" : "/brand/golavo-lockup-light.svg";
   const rounded = Math.round(pct);
   const status = statusFor(pct, IS_DESKTOP_SHELL);
+
+  if (stalled) {
+    return (
+      <div className="splash" aria-label="Golavo is taking longer than expected">
+        <div className="splash__inner">
+          <img className="splash__logo" src={lockup} alt="Golavo" height={40} width={162} />
+          <p className="splash__title">The local engine is taking a while</p>
+          <p className="splash__status splash__status--stalled" role="status">
+            It usually starts within a minute. If it doesn’t, quitting and
+            reopening Golavo — or reinstalling — clears a stuck launch.
+          </p>
+          {onRetry && (
+            <button type="button" className="btn btn--primary" onClick={onRetry}>
+              Try again
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="splash" aria-label="Golavo is starting up">

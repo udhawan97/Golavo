@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { ArtifactStatus, ForecastArtifact } from "../lib/contract";
 import { FAMILY_LABELS, STATUS_LABELS } from "../lib/contract";
 import { fetchForecasts } from "../lib/api";
-import { largestRemainder, relative, utc } from "../lib/format";
+import { largestRemainder, kickoffRelative, utc } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import { ClockIcon, GlobeIcon } from "../components/icons";
 import { HorizonChip, StatusChip } from "../components/primitives";
@@ -142,7 +142,11 @@ function MatchCard({ artifact, superseded }: { artifact: ForecastArtifact; super
   const scored = status === "scored" && evaluation;
 
   return (
-    <a className="md-card" href={`#/forecast/${artifact.artifact_id}`}>
+    <a
+      className="md-card"
+      href={`#/forecast/${artifact.artifact_id}`}
+      aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${STATUS_LABELS[status]} forecast`}
+    >
       <div className="md-card__top">
         <span className="md-card__comp">
           {match.competition}{match.stage ? <span className="dim"> · {match.stage}</span> : null}
@@ -163,7 +167,7 @@ function MatchCard({ artifact, superseded }: { artifact: ForecastArtifact; super
       </div>
 
       <div className="md-card__meta">
-        <span><ClockIcon /> <span className="num">{utc(match.kickoff_utc)}</span> <span className="dim">({relative(match.kickoff_utc)})</span></span>
+        <span><ClockIcon /> <span className="num">{utc(match.kickoff_utc)}</span>{kickoffRelative(match.kickoff_utc) && <> <span className="dim">({kickoffRelative(match.kickoff_utc)})</span></>}</span>
         <span><GlobeIcon /> {match.city ? `${match.city}, ${match.country}` : match.country ?? "—"}</span>
         <span className="dim">{FAMILY_LABELS[model.family]}</span>
       </div>

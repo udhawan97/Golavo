@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { ReliabilityBin } from "../lib/contract";
 import { pct } from "../lib/format";
 
@@ -5,7 +6,7 @@ import { pct } from "../lib/format";
  *  confidence on x, observed accuracy on y, point area ∝ sample count, the Wilson
  *  95% interval as a vertical whisker, and a dashed diagonal marking perfect
  *  calibration. Points on the line = confidence matched accuracy. */
-export function ReliabilityDiagram({
+function ReliabilityDiagramImpl({
   bins,
   caption,
 }: {
@@ -105,9 +106,11 @@ export function ReliabilityDiagram({
         style={{ marginTop: ".5rem", display: "flex", gap: ".9rem", flexWrap: "wrap" }}
       >
         <span><span className="mono">— —</span> perfect calibration</span>
-        <span>● point size ∝ sample count · whisker = Wilson 95%</span>
+        <span>● bigger dot = more matches · bars show the 95% confidence range</span>
         {caption && <span className="dim">{caption}</span>}
       </figcaption>
     </figure>
   );
 }
+
+export const ReliabilityDiagram = memo(ReliabilityDiagramImpl);

@@ -32,6 +32,24 @@ Keeping these three apart is the point. A base rate and a coincidence can look i
 "X happened in Y of Z matches." The difference is whether the pattern carries signal, and Golavo
 commits to that judgement *before* seeing the data, in the template's registered label.
 
+## Signature form stats
+
+Alongside the streaks and records, the Notebook computes the unusual form insights a commentator
+knows but most scoreboards never show — all `context`, all deterministic and number-disciplined,
+all running under the same sample and freshness guards:
+
+- **both-teams-scored rate** — how often a side's recent matches see both teams find the net;
+- **scoring momentum** (`scoring_trend`) — goals a game over the last six versus the stretch
+  before, surfaced only when the shift is real;
+- **clean-sheet rate** — how reliably a defence shuts the door (distinct from the current
+  clean-sheet *streak*);
+- **head-to-head goal character** (`head_to_head_goals`) — the average goals and both-scored
+  count in the meetings, the dimension the win/draw/loss record leaves out.
+
+**No overlap with the headline picks.** The home page's "three things to know" insight cards are a
+pure, documented pick from this same notebook; the full Notebook below **removes** those picks, so
+the two panels partition the facts rather than repeat them — the Notebook is the deeper cut.
+
 ## Base rates and samples
 
 Every fact carries `sample_n` (the observations it is built on), `denominator` (the base-rate
@@ -55,7 +73,7 @@ Search a big enough pile of data for *any* striking pattern and you will always 
 refuses that game structurally:
 
 - The template family is **fixed and pre-registered per release.** The notebook reports its
-  `family_size` — the number of hypotheses the family evaluates for one match (currently **26**).
+  `family_size` — the number of hypotheses the family evaluates for one match (currently **33**).
   This number is a constant of the code, **not a function of the data**: the engine cannot widen
   its search until something looks significant.
 - Coincidences are **ranked by specificity, never by a significance test.** There is no p-value to
@@ -107,7 +125,7 @@ The honesty guarantee is enforced two ways, both checked by tests rather than by
 
 Together these are the machine-checked statement that a fact never touches a number.
 
-## The template catalogue (v2026.07.11)
+## The template catalogue (v2026.07.12)
 
 | Template | Label | Scope | Min sample | Staleness | Source |
 | --- | --- | --- | --- | --- | --- |
@@ -119,6 +137,10 @@ Together these are the machine-checked statement that a fact never touches a num
 | `biggest_win` | context | team | 10 | none | results |
 | `head_to_head_record` | context | head-to-head | 3 | 12 y | results |
 | `neutral_venue_record` | context | team | 5 | none | results |
+| `both_teams_scored_rate` | context | team | 10 | 400 d | results |
+| `clean_sheet_rate` | context | team | 10 | 400 d | results |
+| `scoring_trend` | context | team | 12 | 400 d | results |
+| `head_to_head_goals` | context | head-to-head | 4 | 12 y | results |
 | `top_scorer` | context | team | 10 | none | goalscorers (internationals) |
 | `shootout_record` | context | team | 3 | none | shootouts (internationals) |
 | `home_advantage_base_rate` | predictive | competition | 100 | none | results |

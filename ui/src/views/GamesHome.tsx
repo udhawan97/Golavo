@@ -7,13 +7,55 @@
  * upcoming rail is honestly empty when the snapshot holds no forward fixtures;
  * it never invents a schedule.
  */
+import { useState } from "react";
 import type { MatchRow, RecentMatchesResponse } from "../lib/contract";
 import { fetchRecentMatches } from "../lib/api";
 import { utcDate } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import type { AsyncState } from "../lib/hooks";
 import { BlockSkeleton, ErrorState } from "../components/states";
-import { ChevronRight, SearchIcon } from "../components/icons";
+import { ChevronRight, SealIcon, SearchIcon } from "../components/icons";
+
+const WELCOME_KEY = "golavo-welcome-dismissed";
+
+/** A one-time, dismissible orientation card — the three verbs a first-time
+ *  visitor needs (read → seal → track), then it stays out of the way forever. */
+function WelcomeCard() {
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return localStorage.getItem(WELCOME_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  if (dismissed) return null;
+  const dismiss = () => {
+    setDismissed(true);
+    try {
+      localStorage.setItem(WELCOME_KEY, "1");
+    } catch {
+      /* private mode — it just won't persist */
+    }
+  };
+  return (
+    <aside className="welcome" aria-label="Getting started">
+      <div className="welcome__icon" aria-hidden>
+        <SealIcon size={22} />
+      </div>
+      <div className="welcome__body">
+        <p className="welcome__title">New here? Three things Golavo does</p>
+        <ul className="welcome__list">
+          <li><b>Open any match</b> for the model council’s read — where the methods agree, and where they don’t.</li>
+          <li><b>Seal an upcoming international</b> before kickoff to put a prediction on the record.</li>
+          <li>Its score after full time lands in <b>Model Lab → Track record</b>.</li>
+        </ul>
+      </div>
+      <button type="button" className="welcome__dismiss" onClick={dismiss}>
+        Got it
+      </button>
+    </aside>
+  );
+}
 
 const LEAGUES: { slug: string; name: string }[] = [
   { slug: "internationals", name: "Internationals" },
@@ -36,6 +78,8 @@ export function GamesHome() {
           network, no invented certainty.
         </p>
       </header>
+
+      <WelcomeCard />
 
       <a className="search-cta" href="#/matches">
         <SearchIcon />
@@ -101,8 +145,15 @@ export function Rail({
 }
 
 export function GameCard({ match }: { match: MatchRow }) {
+  const state = match.is_complete
+    ? `played, final score ${match.home_score}–${match.away_score}`
+    : "upcoming";
   return (
-    <a className="game-card" href={`#/match/${encodeURIComponent(match.match_id)}`}>
+    <a
+      className="game-card"
+      href={`#/match/${encodeURIComponent(match.match_id)}`}
+      aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}`}
+    >
       <div className="game-card__comp small muted">{match.competition}</div>
       <div className="game-card__teams">
         <span className="game-card__team">{match.home_team}</span>

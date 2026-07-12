@@ -31,8 +31,15 @@ SMOKE_TIMEOUT_S = 30.0
 
 
 def _free_loopback_port(host: str = "127.0.0.1") -> int:
-    """Ask the OS for a free TCP port on ``host`` and release it immediately."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+    """Ask the OS for a free TCP port on ``host`` and release it immediately.
+
+    Binds the address family that matches ``host``: ``AF_INET6`` for the IPv6
+    loopback ``::1`` (which ``_assert_loopback`` accepts and which an ``AF_INET``
+    socket cannot bind at all), ``AF_INET`` otherwise. ``getsockname()[1]`` is the
+    port for both the 2-tuple (IPv4) and 4-tuple (IPv6) sockaddr shapes.
+    """
+    family = socket.AF_INET6 if ":" in host else socket.AF_INET
+    with socket.socket(family, socket.SOCK_STREAM) as sock:
         sock.bind((host, 0))
         return int(sock.getsockname()[1])
 

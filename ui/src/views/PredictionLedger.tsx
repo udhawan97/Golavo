@@ -10,6 +10,7 @@ import type { CalibrationChain, CalibrationSummary, Probs } from "../lib/contrac
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
 import { fetchCalibration } from "../lib/api";
 import { num, pct, utc, utcDate } from "../lib/format";
+import { METRIC_GLOSS } from "../lib/glossary";
 import { useAsync } from "../lib/hooks";
 import { ReliabilityDiagram } from "../components/ReliabilityDiagram";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
@@ -19,7 +20,7 @@ export function PredictionLedger() {
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.6rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
-        <h1>Prediction ledger</h1>
+        <h1>Track record</h1>
         <p className="muted" style={{ maxWidth: "64ch" }}>
           Real sealed forecasts and what happened after the whistle — never backtests.
           Each row is an immutable seal; scoring appends a successor from a strictly
@@ -152,12 +153,14 @@ function ChainsTable({ chains }: { chains: CalibrationChain[] }) {
             <thead>
               <tr>
                 <th scope="col">Fixture</th>
-                <th scope="col">Kickoff (day proxy)</th>
+                <th scope="col">Match day</th>
                 <th scope="col">Sealed</th>
-                <th scope="col">P(H/D/A)</th>
+                <th scope="col">Home / Draw / Away</th>
                 <th scope="col">Outcome</th>
-                <th scope="col" className="headline-col">Log loss</th>
-                <th scope="col">Brier</th>
+                <th scope="col" className="headline-col">
+                  <abbr className="th-gloss" title={METRIC_GLOSS.logLoss}>Log loss</abbr>
+                </th>
+                <th scope="col"><abbr className="th-gloss" title={METRIC_GLOSS.brier}>Brier</abbr></th>
               </tr>
             </thead>
             <tbody>
@@ -250,8 +253,12 @@ function RunningCalibration({ data }: { data: CalibrationSummary }) {
             <Stat label="Scored seals" value={String(running.n_scored)} />
             <Stat label="Running log loss" value={num(running.log_loss, 3)} headline />
             <Stat label="Running Brier" value={num(running.brier, 3)} />
-            <Stat label="Mean P(outcome)" value={pct(running.prob_assigned_to_outcome)} />
+            <Stat label="Mean chance on the result" value={pct(running.prob_assigned_to_outcome)} />
           </div>
+          <p className="small dim" style={{ margin: 0 }}>
+            Log loss near <span className="num">1.10</span> is the guess-nothing baseline; lower is better.
+            Both figures update as each sealed forecast is scored.
+          </p>
           {populated && (
             <div className="reliability">
               <ReliabilityDiagram

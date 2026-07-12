@@ -1,29 +1,36 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Layout } from "./components/Layout";
 import { useHashRoute, useReadingPrefs } from "./lib/hooks";
-import { EmptyState } from "./components/states";
+import type { ReadingPrefs } from "./lib/hooks";
+import { BlockSkeleton, EmptyState, Loading } from "./components/states";
+// The Games home is the default landing, so it stays in the main bundle. Every
+// other view is split out and loaded on first navigation — the initial download
+// carries only what a fresh "open on football" launch needs.
 import { GamesHome } from "./views/GamesHome";
-import { LeaguesHub, LeagueView } from "./views/Leagues";
-import { ModelLabHub, Methodologies } from "./views/ModelLab";
-import { MatchdayList } from "./views/MatchdayList";
-import { MatchSearch } from "./views/MatchSearch";
-import { MatchDetail } from "./views/MatchDetail";
-import { ForecastDetail } from "./views/ForecastDetail";
-import { EvaluationSummary } from "./views/EvaluationSummary";
-import { PredictionLedger } from "./views/PredictionLedger";
-import { Settings } from "./views/Settings";
+const LeaguesHub = lazy(() => import("./views/Leagues").then((m) => ({ default: m.LeaguesHub })));
+const LeagueView = lazy(() => import("./views/Leagues").then((m) => ({ default: m.LeagueView })));
+const ModelLabHub = lazy(() => import("./views/ModelLab").then((m) => ({ default: m.ModelLabHub })));
+const Methodologies = lazy(() => import("./views/ModelLab").then((m) => ({ default: m.Methodologies })));
+const MatchdayList = lazy(() => import("./views/MatchdayList").then((m) => ({ default: m.MatchdayList })));
+const MatchSearch = lazy(() => import("./views/MatchSearch").then((m) => ({ default: m.MatchSearch })));
+const MatchDetail = lazy(() => import("./views/MatchDetail").then((m) => ({ default: m.MatchDetail })));
+const ForecastDetail = lazy(() => import("./views/ForecastDetail").then((m) => ({ default: m.ForecastDetail })));
+const EvaluationSummary = lazy(() => import("./views/EvaluationSummary").then((m) => ({ default: m.EvaluationSummary })));
+const PredictionLedger = lazy(() => import("./views/PredictionLedger").then((m) => ({ default: m.PredictionLedger })));
+const Settings = lazy(() => import("./views/Settings").then((m) => ({ default: m.Settings })));
 import { UpdaterContext } from "./lib/updater-context";
 import { useUpdaterController } from "./lib/updater";
 import { UpdateConsentCard, UpdateSheet, UpdatedToast } from "./components/updates";
 import { useBackendReady, useForecastSource } from "./lib/startup";
 import { StartupSplash } from "./components/StartupSplash";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 export default function App() {
   const [path] = useHashRoute();
   const [prefs, setPrefs] = useReadingPrefs();
   // The splash paints before the app shell; warm reads as a dark surface there.
   const splashTheme = prefs.theme === "light" ? "light" : "dark";
-  const backendReady = useBackendReady();
+  const { ready: backendReady, stalled, retry } = useBackendReady();
   const forecastSource = useForecastSource(backendReady);
   // One controller for the whole app: header pill, sheet, settings, toast.
   const updater = useUpdaterController();
@@ -33,7 +40,7 @@ export default function App() {
 
   // Hold the app behind a splash until the (slow-to-extract) engine is up, so a
   // long first launch never looks like a broken window.
-  if (!backendReady) return <StartupSplash theme={splashTheme} />;
+  if (!backendReady) return <StartupSplash theme={splashTheme} stalled={stalled} onRetry={retry} />;
 
   return (
     <UpdaterContext.Provider value={updater}>
@@ -43,7 +50,18 @@ export default function App() {
         onChangePrefs={setPrefs}
         forecastSource={forecastSource}
       >
-        <Route path={path} />
+        <ErrorBoundary resetKey={path}>
+          <Suspense
+            fallback={
+              <>
+                <Loading label="Loading view" />
+                <BlockSkeleton />
+              </>
+            }
+          >
+            <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
+          </Suspense>
+        </ErrorBoundary>
       </Layout>
       <UpdateSheet />
       <UpdateConsentCard />
@@ -61,20 +79,40 @@ function Redirect({ to }: { to: string }) {
   return null;
 }
 
-function Route({ path }: { path: string }) {
-  if (path === "/" || path === "") return <GamesHome />;
+/** Decode a route segment without letting a malformed escape (e.g. `#/match/%`)
+ *  throw a URIError during render — an unguarded throw here would unmount the
+ *  whole app. Returns the raw segment on failure; a bad id then falls through to
+ *  the view's own not-found state. */
+function safeDecode(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
+function Route({
+  path,
+  prefs,
+  onChangePrefs,
+}: {
+  path: string;
+  prefs: ReadingPrefs;
+  onChangePrefs: (patch: Partial<ReadingPrefs>) => void;
+}) {
+  if (path === "/" || path === "" || path === "/games") return <GamesHome />;
 
   if (path === "/matches") return <MatchSearch />;
 
   const match = path.match(/^\/match\/(.+)$/);
-  if (match) return <MatchDetail id={decodeURIComponent(match[1])} />;
+  if (match) return <MatchDetail id={safeDecode(match[1])} />;
 
   const forecast = path.match(/^\/forecast\/(.+)$/);
-  if (forecast) return <ForecastDetail id={decodeURIComponent(forecast[1])} />;
+  if (forecast) return <ForecastDetail id={safeDecode(forecast[1])} />;
 
   if (path === "/leagues") return <LeaguesHub />;
   const league = path.match(/^\/league\/(.+)$/);
-  if (league) return <LeagueView slug={decodeURIComponent(league[1])} />;
+  if (league) return <LeagueView slug={safeDecode(league[1])} />;
 
   // Model Lab — the relocated audit surface.
   if (path === "/lab") return <ModelLabHub />;
@@ -87,10 +125,10 @@ function Route({ path }: { path: string }) {
   if (path === "/eval") return <Redirect to="/lab/backtests" />;
   if (path === "/ledger") return <Redirect to="/lab/track-record" />;
 
-  if (path === "/settings") return <Settings />;
+  if (path === "/settings") return <Settings prefs={prefs} onChangePrefs={onChangePrefs} />;
 
   return (
-    <EmptyState title="Page not found">
+    <EmptyState title="Page not found" variant="notfound">
       That route doesn’t exist. <a href="#/">Back to games ›</a>{" "}
       <a href="#/matches">Search matches ›</a>
     </EmptyState>

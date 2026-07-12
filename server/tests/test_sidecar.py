@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import socket
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -90,6 +91,24 @@ def test_serve_refuses_a_non_loopback_host() -> None:
     for host in ("0.0.0.0", "192.168.1.10", "::"):
         with pytest.raises(SystemExit):
             sidecar._assert_loopback(host)
+
+
+def test_free_loopback_port_ipv4_default() -> None:
+    port = sidecar._free_loopback_port("127.0.0.1")
+    assert 0 < port < 65536
+
+
+def test_free_loopback_port_binds_ipv6_family_for_ipv6_host() -> None:
+    # A1/A11: ``_assert_loopback`` accepts ``::1`` but the port helper used to bind
+    # AF_INET, which cannot bind an IPv6 address at all. It must now pick the
+    # matching AF_INET6 family so a ``--host ::1`` run gets a real, bindable port.
+    if not socket.has_ipv6:
+        pytest.skip("IPv6 not supported on this host")
+    try:
+        port = sidecar._free_loopback_port("::1")
+    except OSError:
+        pytest.skip("IPv6 loopback not bindable in this environment")
+    assert 0 < port < 65536
 
 
 def test_sidecar_version_mode_prints_and_exits_zero(capsys) -> None:

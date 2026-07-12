@@ -5,7 +5,8 @@ description: How Golavo turns pinned source bytes into sealed forecasts, serves 
 
 Golavo is a **deterministic forecasting engine wrapped in a thin desktop app**.
 The Python core owns the science and every persisted number. FastAPI exposes
-read-only views of those results. React renders the workbench. Tauri supervises
+those results — read-only, except one append-only route that seals a new
+forecast. React renders the workbench. Tauri supervises
 the packaged processes. Optional AI is a replaceable explanation client over a
 restricted evidence bundle — never a second forecasting engine.
 
@@ -28,7 +29,7 @@ ignore it entirely when reduced motion is enabled.
 |---|---|---|---|
 | **Tauri shell** | port/token bootstrap, sidecar lifecycle, health gate, webview config, gated updater | forecasts, model state, API data shaping | `desktop/src-tauri/src/lib.rs`, `health.rs`, `updater.rs` |
 | **React workbench** | navigation, loading/error/empty states, Casual/Expert presentation, provenance and calibration views | artifact mutation, inline statistics, hidden contract coercion | `ui/src/`, especially `lib/api.ts` and `lib/contract.ts` |
-| **FastAPI sidecar** | token gate, read-only forecast/facts/evaluation/calibration routes, optional narration orchestration | statistical computation inline, changing stored seals | `server/golavo_server/main.py` |
+| **FastAPI sidecar** | token gate; forecast / facts / match-search / cockpit-analysis / calibration / evaluation reads; an append-only seal route; optional narration orchestration | statistical computation inline, mutating a stored seal | `server/golavo_server/main.py` |
 | **Deterministic core** | ingest, normalization, candidate models, chronological evaluation, seal/score/void transitions, facts, evidence, calibration | UI state, desktop lifecycle, unrequested network access | `core/golavo_core/` |
 | **Data packs + artifacts** | reproducible source bytes, licenses, manifests, retained history, persisted forecast claims | code behavior or mutable live-feed state | `packs/`, `data/artifacts/`, `docs/contracts/` |
 | **AI gateway** | provider selection, transport, guard-validated narrative or fail-closed fallback | probability creation or mutation, direct artifact writes | `server/golavo_server/ai_gateway.py`, `core/golavo_core/ai/` |
@@ -63,16 +64,33 @@ backend.
 | Route | Role | Mutation? |
 |---|---|---|
 | `GET /health` | shell readiness probe; intentionally exempt from the token gate | no |
+| `GET /api/v1/meta` | app/contract version and forecast source (`sample` vs `ledger`) | no |
+| `POST /api/v1/shutdown` | desktop-only lifecycle: stop the sidecar tree before a Windows install | no (process only) |
 | `GET /api/v1/forecasts` | immutable artifacts, newest first | no |
 | `GET /api/v1/forecasts/{artifact_id}` | one canonical artifact | no |
 | `GET /api/v1/forecasts/{artifact_id}/facts` | precomputed Commentator's Notebook, or an honest unavailable envelope | no |
+| `GET /api/v1/matches/search` | search the deterministic ~75k-match index by team/competition | no |
+| `GET /api/v1/matches/competitions` | the competitions present in the index | no |
+| `GET /api/v1/matches/recent` | recent results for the Games home | no |
+| `GET /api/v1/matches/{match_id}` | one indexed match + its `seal_eligibility` verdict | no |
+| `GET /api/v1/matches/{match_id}/notebook` | on-demand Commentator's Notebook at `kickoff − 1s` | no |
+| `GET /api/v1/matches/{match_id}/analysis` | on-demand Match Cockpit (Replay/Preview) model council | no |
+| `POST /api/v1/matches/{match_id}/seal` | run the deterministic engine and write an immutable seal for an eligible fixture | **appends** a new artifact; never rewrites one |
+| `GET /api/v1/fixtures/check` | opt-in launch-time check for newly-published upcoming internationals | no |
 | `GET /api/v1/calibration` | recomputed forward record over real sealed→resolved chains | no |
+| `POST /api/v1/forecasts/{artifact_id}/narrative` | optional narration over a sealed forecast; may fail back to local-only | narrative only; never the seal |
+| `POST /api/v1/matches/{match_id}/narrative` | optional narration over a match's notebook + council | narrative only; never a seal |
 | `GET /api/v1/eval/summary` | historical chronological folds, separate from forward evidence | no |
-| `POST /api/v1/forecasts/{artifact_id}/narrative` | optional narration request; defaults to disabled and may fail back to local-only | narrative only; never the seal |
 
-`POST /narrative` is the sole non-GET app route. It cannot persist or rewrite a
-forecast; it wraps an optional provider call around deterministic evidence and
-returns either guarded text or a fallback status.
+Four routes are non-GET. `POST /shutdown` only stops the sidecar process tree.
+The two `narrative` routes wrap an optional provider call around deterministic
+evidence and return either guarded text or a fallback status — they cannot
+persist or rewrite a forecast. `POST /matches/{id}/seal` is the **only** route
+that writes a forecast artifact, and it *appends* a new immutable seal (running
+the same deterministic engine as the `golavo seal` CLI, byte-identical) rather
+than mutating an existing one — the pack, training cutoff, and as-of are all
+resolved server-side, so a seal cannot be backdated or pointed at an untrusted
+pack.
 
 ## Desktop shell and sidecar lifecycle
 
@@ -231,8 +249,9 @@ response becomes `local_only`; the app continues with the unchanged forecast.
 
 Casual and Expert modes are two reads of the same artifact. Casual mode uses
 plain language; Expert mode exposes the seal, provenance, score matrix, and
-uncertainty. Ledger presents the real forward record. AI Deep Read optionally
-adds cited narrative. None of these surfaces recomputes or overrides the seal.
+uncertainty. The Model Lab's Track record presents the real forward record. AI
+Deep Read optionally adds cited narrative. None of these surfaces recomputes or
+overrides the seal.
 
 ## Source mode vs packaged mode
 
@@ -289,8 +308,8 @@ generation or alter a sealed artifact.
   — the Commentator's Notebook contract.
 - [`ai_narration.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/ai_narration.schema.json)
   — the only narrative shape accepted back from a provider.
-- [Prediction ledger](/Golavo/prediction-ledger/) — timing, resolution, and
-  verification details.
+- [Track record](/Golavo/prediction-ledger/) — the Model Lab's forward record:
+  timing, resolution, and verification details.
 - [Prediction methodology](/Golavo/methodology/prediction/) — candidate models,
   chronological folds, and metrics.
 - [Privacy & security](/Golavo/privacy-security/) — runtime network and key

@@ -75,7 +75,7 @@ jobs:
       - name: Build & test UI
         run: |
           if [ -f ui/package.json ]; then
-            cd ui && npm install && npm test --if-present && npm run build --if-present
+            cd ui && npm ci && npm test --if-present && npm run build --if-present
             npx playwright install --with-deps chromium
             npm run test:e2e --if-present
           else
@@ -97,6 +97,36 @@ jobs:
           else
             echo "No docs-site yet (scaffold phase)."
           fi
+
+  desktop-check:
+    name: desktop shell (cargo check)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # tauri-build checks frontendDist (../../ui/dist) at build time, so the UI
+      # bundle must exist before the Rust crate is type-checked.
+      - name: Build the UI bundle (frontendDist)
+        run: |
+          if [ -f ui/package.json ]; then
+            cd ui && npm ci && npm run build
+          fi
+      - name: Rust toolchain
+        run: rustup component add clippy
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            desktop/src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('desktop/src-tauri/Cargo.lock') }}
+      - name: cargo check + clippy (no Rust breakage lands silently)
+        run: |
+          cargo check --manifest-path desktop/src-tauri/Cargo.toml --locked
+          cargo clippy --manifest-path desktop/src-tauri/Cargo.toml --locked -- -D warnings
 
   license-isolation:
     name: license isolation guard

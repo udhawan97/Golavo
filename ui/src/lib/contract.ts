@@ -529,7 +529,7 @@ export const FACT_SCOPE_TEXT: Record<FactScope, string> = {
 
 export const FAMILY_LABELS: Record<ModelFamily, string> = {
   climatological: "Climatological",
-  elo_ordlogit: "Elo · ordered logit",
+  elo_ordlogit: "Elo ratings",
   poisson_independent: "Poisson (independent)",
   dixon_coles: "Dixon–Coles",
   bivariate_poisson: "Bivariate Poisson",

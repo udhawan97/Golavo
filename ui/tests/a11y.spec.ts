@@ -10,6 +10,13 @@ const PAGES = [
   { name: "forecast", path: "/#/forecast/fa_5cb65a59b038d9586aea" },
   { name: "match-cockpit", path: "/#/match/m_synthetic_played_01" },
   { name: "methods", path: "/#/lab/methods" },
+  // Table/form-dense routes: where a muted caption or header could slip contrast.
+  { name: "search", path: "/#/matches" },
+  { name: "leagues", path: "/#/leagues" },
+  { name: "track-record", path: "/#/lab/track-record" },
+  { name: "backtests", path: "/#/lab/backtests" },
+  { name: "sealed-forecasts", path: "/#/lab/forecasts" },
+  { name: "settings", path: "/#/settings" },
 ];
 
 const THEMES = ["light", "dark", "warm"] as const;

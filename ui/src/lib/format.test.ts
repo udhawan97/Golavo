@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { inWords, largestRemainder, pctWhole, sinceYear, yearSpan } from "./format";
+import { inWords, kickoffRelative, largestRemainder, pctWhole, sinceYear, yearSpan } from "./format";
 
 describe("pctWhole", () => {
   it("rounds to a whole percent", () => {
@@ -45,6 +45,24 @@ describe("inWords", () => {
   it("handles the degenerate ends without a nonsensical fraction", () => {
     expect(inWords(1)).toBe("a near certainty");
     expect(inWords(0)).toBe("very unlikely");
+  });
+});
+
+describe("kickoffRelative", () => {
+  const now = new Date("2026-07-12T00:00:00Z");
+
+  it("labels near-term fixtures in both directions", () => {
+    expect(kickoffRelative("2026-07-15T00:00:00Z", now)).toBe("in 3 days");
+    expect(kickoffRelative("2026-07-10T00:00:00Z", now)).toBe("2 days ago");
+  });
+
+  it("suppresses far-future and ancient dates (no absurd 'in 1282 days')", () => {
+    expect(kickoffRelative("2030-01-11T00:00:00Z", now)).toBe("");
+    expect(kickoffRelative("2012-01-01T00:00:00Z", now)).toBe("");
+  });
+
+  it("returns empty for an unparseable date", () => {
+    expect(kickoffRelative("not-a-date", now)).toBe("");
   });
 });
 

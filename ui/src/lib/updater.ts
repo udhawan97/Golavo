@@ -188,7 +188,10 @@ export function useUpdaterController(): UpdaterController {
   const [skippedVersion, setSkippedVersion] = useState<string | null>(() => readStore(SKIP_KEY));
   const [lastCheckedAt, setLastCheckedAt] = useState<number | null>(() => {
     const raw = readStore(LAST_CHECK_KEY);
-    return raw ? Number(raw) : null;
+    const n = raw ? Number(raw) : NaN;
+    // Guard the one unvalidated persisted read: a corrupt value must not render
+    // "Last checked Invalid Date".
+    return Number.isFinite(n) ? n : null;
   });
   const [freshUpdateToast, setFreshUpdateToast] = useState<JustUpdated | null>(null);
 

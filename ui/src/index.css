@@ -44,6 +44,8 @@ a { color: inherit; }
 
   --link:       #9ab3dd;
   --focus:      #d4ad2e;
+  --info:       var(--wave);   /* informational icons/callouts */
+  --seal:       var(--gold);   /* the "on the record" accent (seal, active steps) */
 
   --home:       var(--gold);
   --draw:       var(--wave);
@@ -59,8 +61,12 @@ a { color: inherit; }
 
   --radius:     14px;
   --radius-sm:  9px;
+  --radius-xs:  7px;
+  --radius-pill: 999px;
   --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 28px rgba(0,0,0,.34);
   --shadow-sm:  0 1px 2px rgba(0,0,0,.35);
+  /* One-line top-lit highlight for panels/cards — physical depth, no new tier. */
+  --edge-light: inset 0 1px 0 rgba(255,255,255,.03);
 
   --maxw: 1080px;
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -202,6 +208,20 @@ body {
   background-repeat: no-repeat;
 }
 
+/* A whisper of paper tooth over the whole page — an inline SVG noise tile at
+   very low alpha. Fixed, pointer-transparent, and behind content; costs one
+   cached data-URI and no runtime work (not background-attachment, which thrashes). */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.045'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
 h1, h2, h3, h4 { line-height: 1.2; font-weight: 650; letter-spacing: -0.01em; }
 h1 { font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2rem); }
 h2 { font-size: 1.2rem; }
@@ -274,10 +294,10 @@ a:hover { text-decoration-color: currentColor; }
   background: linear-gradient(180deg, var(--surface-1), color-mix(in srgb, var(--surface-1) 88%, var(--ink)));
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), var(--edge-light);
 }
 .card--pad { padding: clamp(1rem, 2.2vw, 1.4rem); }
-.panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); }
+.panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--edge-light); }
 .panel__head {
   display: flex; align-items: center; gap: .6rem .6rem; padding: .85rem 1.1rem;
   border-bottom: 1px solid var(--border);
@@ -447,6 +467,62 @@ a:hover { text-decoration-color: currentColor; }
   position: absolute; top: -18px; right: -18px; width: 108px; height: 108px; opacity: .5; pointer-events: none;
 }
 .seal .panel__head { border-color: var(--gold-line); }
+/* One-shot "committed to the record" settle when a sealed page mounts. The
+   global reduced-motion rule neutralises it. */
+@keyframes seal-in { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: none; } }
+.seal { animation: seal-in .34s cubic-bezier(.2, .7, .2, 1) both; }
+
+/* Native <details> snaps open; ease just the revealed body so it feels calm. */
+@keyframes drawer-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+.drawer[open] .drawer__body { animation: drawer-in .18s ease both; }
+
+/* Metric headers carry a plain-language gloss on hover/focus. */
+.th-gloss { text-decoration: none; border-bottom: 1px dotted var(--text-dim); cursor: help; }
+
+/* Backtests: a summary strip + collapsible per-competition groups so the wall
+   of fold tables reads as a hierarchy, not a data dump. */
+.eval-leaders {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .8rem;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); box-shadow: var(--edge-light);
+}
+.eval-leaders__item { font-size: var(--text-sm); }
+/* Emphasis by weight, not colour — gold text fails AA contrast at this size in
+   the light theme (caught by the axe gate). */
+.eval-leaders__item b { color: var(--text); font-weight: 700; }
+.lab-group { border-top: 1px solid var(--border); padding-top: var(--space-4); }
+.lab-group > .lab-group__summary {
+  display: flex; align-items: baseline; justify-content: space-between; gap: .6rem;
+  cursor: pointer; list-style: none; padding: .2rem 0;
+}
+.lab-group__summary::-webkit-details-marker { display: none; }
+.lab-group__summary:hover { color: var(--text); }
+.is-leader th[scope="row"] { color: var(--text); font-weight: 700 !important; }
+
+/* First-run orientation card on the Games home — calm, one-time, dismissible. */
+.welcome {
+  display: flex; gap: var(--space-4); align-items: flex-start;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--gold-line); border-radius: var(--radius);
+  background:
+    radial-gradient(140px 140px at 0% 0%, var(--gold-soft), transparent 70%),
+    var(--surface-1);
+  box-shadow: var(--edge-light);
+}
+.welcome__icon { color: var(--gold); flex: none; margin-top: 2px; }
+.welcome__body { flex: 1; min-width: 0; }
+.welcome__title { margin: 0 0 .4rem; font-weight: 650; }
+.welcome__list { display: grid; gap: .3rem; font-size: var(--text-sm); color: var(--text-muted); }
+.welcome__list li { padding-left: 1rem; position: relative; }
+.welcome__list li::before { content: "·"; position: absolute; left: .25rem; color: var(--gold); }
+.welcome__dismiss {
+  flex: none; align-self: center; cursor: pointer;
+  border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text-muted);
+  border-radius: var(--radius-pill); padding: .35rem .8rem; font-size: var(--text-sm); font-weight: 600;
+}
+.welcome__dismiss:hover { color: var(--text); border-color: var(--gold-line); }
+@media (max-width: 560px) { .welcome { flex-wrap: wrap; } .welcome__dismiss { align-self: flex-start; } }
 
 /* ------------------------------------------------------- provenance ------- */
 .snap { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); padding: .8rem .9rem; }
@@ -991,7 +1067,16 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   display: flex; flex-direction: column; gap: var(--space-3);
   padding: var(--space-4);
   background: var(--surface-2); border: 1px solid var(--border-strong);
-  border-radius: var(--radius); box-shadow: var(--shadow);
+  border-radius: var(--radius); box-shadow: var(--shadow), var(--edge-light);
+}
+/* On a narrow screen the trigger sits far enough right that a right-anchored
+   panel spills off the left edge — pin it to the viewport instead so every
+   control stays reachable. */
+@media (max-width: 480px) {
+  .rc__panel {
+    position: fixed; top: 64px; left: 12px; right: 12px;
+    width: auto; max-width: none;
+  }
 }
 .rc__row { display: flex; align-items: center; gap: var(--space-3); justify-content: space-between; }
 .rc__legend { font-size: var(--text-sm); color: var(--text-muted); }

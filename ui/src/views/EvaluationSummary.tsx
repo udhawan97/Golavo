@@ -3,6 +3,7 @@ import type { EvalSummary, Fold, FoldModel, ModelFamily } from "../lib/contract"
 import { FAMILY_LABELS } from "../lib/contract";
 import { fetchEvalSummary } from "../lib/api";
 import { num } from "../lib/format";
+import { METRIC_GLOSS } from "../lib/glossary";
 import { useAsync } from "../lib/hooks";
 import { ReliabilityDiagram } from "../components/ReliabilityDiagram";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
@@ -14,7 +15,7 @@ export function EvaluationSummary() {
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.6rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
-        <h1>Evaluation</h1>
+        <h1>Backtests</h1>
         <p className="muted" style={{ maxWidth: "64ch" }}>
           Out-of-sample scores across held-out folds.{" "}
           <b style={{ color: "var(--text)" }}>Log loss is the headline metric</b> — it rewards honest
@@ -51,6 +52,36 @@ function groupByCompetition(folds: Fold[]): [string, Fold[]][] {
   return order.map((key) => [key, groups.get(key)!]);
 }
 
+/** Which family had the lowest log loss on each fold, tallied — the honest
+ *  "who led, how often" summary that the raw tables bury. Never averaged. */
+function leaderTally(folds: Fold[]): { family: ModelFamily; wins: number }[] {
+  const wins = new Map<ModelFamily, number>();
+  for (const fold of folds) {
+    if (fold.models.length === 0) continue;
+    const best = fold.models.reduce((a, b) => (b.log_loss < a.log_loss ? b : a));
+    wins.set(best.family, (wins.get(best.family) ?? 0) + 1);
+  }
+  return [...wins.entries()]
+    .map(([family, w]) => ({ family, wins: w }))
+    .sort((a, b) => b.wins - a.wins);
+}
+
+function LeaderStrip({ folds }: { folds: Fold[] }) {
+  const tally = leaderTally(folds);
+  if (tally.length === 0) return null;
+  return (
+    <div className="eval-leaders" role="note">
+      <span className="small muted">Lowest log loss across {folds.length} folds:</span>
+      {tally.map(({ family, wins }) => (
+        <span key={family} className="eval-leaders__item">
+          <b>{FAMILY_LABELS[family]}</b> {wins} {wins === 1 ? "fold" : "folds"}
+        </span>
+      ))}
+      <span className="small dim">· leadership flips by league and season — never averaged.</span>
+    </div>
+  );
+}
+
 function Summary({ data }: { data: EvalSummary }) {
   if (data.folds.length === 0) {
     return (
@@ -61,13 +92,19 @@ function Summary({ data }: { data: EvalSummary }) {
   }
   return (
     <>
+      <LeaderStrip folds={data.folds} />
       {groupByCompetition(data.folds).map(([competition, folds]) => (
-        <section key={competition} className="stack" style={{ ["--gap" as string]: "1rem" }}>
-          <h2 className="upper muted">{competition}</h2>
-          {folds.map((fold) => (
-            <FoldTable key={fold.fold_id} fold={fold} />
-          ))}
-        </section>
+        <details key={competition} className="lab-group" open>
+          <summary className="lab-group__summary">
+            <span className="upper muted">{competition}</span>
+            <span className="small dim">{folds.length} {folds.length === 1 ? "fold" : "folds"}</span>
+          </summary>
+          <div className="stack" style={{ ["--gap" as string]: "1rem", marginTop: "1rem" }}>
+            {folds.map((fold) => (
+              <FoldTable key={fold.fold_id} fold={fold} />
+            ))}
+          </div>
+        </details>
       ))}
       <Calibration folds={data.folds} />
     </>
@@ -90,15 +127,17 @@ function FoldTable({ fold }: { fold: Fold }) {
           <thead>
             <tr>
               <th scope="col">Model</th>
-              <th scope="col" className="headline-col">Log loss</th>
-              <th scope="col">Brier</th>
-              <th scope="col">ECE</th>
-              <th scope="col">RPS</th>
+              <th scope="col" className="headline-col">
+                <abbr className="th-gloss" title={METRIC_GLOSS.logLoss}>Log loss</abbr>
+              </th>
+              <th scope="col"><abbr className="th-gloss" title={METRIC_GLOSS.brier}>Brier</abbr></th>
+              <th scope="col"><abbr className="th-gloss" title={METRIC_GLOSS.ece}>ECE</abbr></th>
+              <th scope="col"><abbr className="th-gloss" title={METRIC_GLOSS.rps}>RPS</abbr></th>
             </tr>
           </thead>
           <tbody>
             {fold.models.map((m) => (
-              <tr key={m.family}>
+              <tr key={m.family} className={m.log_loss === minLL ? "is-leader" : undefined}>
                 <th scope="row" style={{ fontWeight: 550 }}>{FAMILY_LABELS[m.family]}</th>
                 <td className={`num headline-col${m.log_loss === minLL ? " cell-best" : ""}`}>
                   {num(m.log_loss, 3)}

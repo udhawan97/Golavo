@@ -19,6 +19,7 @@ import type {
   Outcome,
   Probs,
 } from "../lib/contract";
+import { useState } from "react";
 import { fetchMatchAnalysis } from "../lib/api";
 import { pct, pctWhole, utc } from "../lib/format";
 import { useAsync } from "../lib/hooks";
@@ -44,7 +45,8 @@ export function ModelCouncil({
   home: string;
   away: string;
 }) {
-  const state = useAsync(() => fetchMatchAnalysis(matchId), [matchId]);
+  const [retryTick, setRetryTick] = useState(0);
+  const state = useAsync(() => fetchMatchAnalysis(matchId), [matchId, retryTick]);
 
   return (
     <section className="panel" aria-labelledby="mc-h">
@@ -53,7 +55,7 @@ export function ModelCouncil({
         <KindChip state={state} />
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: "1.1rem" }}>
-        <Body state={state} home={home} away={away} />
+        <Body state={state} home={home} away={away} onRetry={() => setRetryTick((t) => t + 1)} />
       </div>
     </section>
   );
@@ -76,10 +78,12 @@ function Body({
   state,
   home,
   away,
+  onRetry,
 }: {
   state: ReturnType<typeof useAsync<Awaited<ReturnType<typeof fetchMatchAnalysis>>>>;
   home: string;
   away: string;
+  onRetry: () => void;
 }) {
   if (state.status === "loading")
     return (
@@ -91,11 +95,18 @@ function Body({
   if (state.status === "error") {
     const warming = /HTTP 503/.test(state.error.message);
     return (
-      <p className="small dim" style={{ margin: 0 }}>
-        {warming
-          ? "Model engine warming up — the council isn’t ready yet. Try again in a moment."
-          : "Couldn’t compute the model council for this fixture right now. The rest of the page is unaffected."}
-      </p>
+      <div className="stack" style={{ ["--gap" as string]: ".6rem" }}>
+        <p className="small dim" style={{ margin: 0 }}>
+          {warming
+            ? "Model engine warming up — the council isn’t ready yet."
+            : "Couldn’t compute the model council for this fixture right now. The rest of the page is unaffected."}
+        </p>
+        <div>
+          <button type="button" className="btn btn--ghost" onClick={onRetry}>
+            Try again
+          </button>
+        </div>
+      </div>
     );
   }
 

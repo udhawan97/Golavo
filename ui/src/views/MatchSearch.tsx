@@ -44,9 +44,10 @@ export function MatchSearch() {
   const debounced = useDebouncedValue(input, 250);
   const query = debounced.trim();
   const [competition, setCompetition] = useState(() => sessionStorage.getItem(SS_COMP) ?? "");
-  const [status, setStatus] = useState<StatusFilter>(
-    () => (sessionStorage.getItem(SS_STATUS) as StatusFilter) || "all",
-  );
+  const [status, setStatus] = useState<StatusFilter>(() => {
+    const stored = sessionStorage.getItem(SS_STATUS);
+    return stored === "played" || stored === "upcoming" ? stored : "all";
+  });
   // Autofocus only on a truly fresh visit; a restored search must not yank focus
   // (and scroll) back to the input when you return from a match.
   const autoFocusFresh = useRef(!sessionStorage.getItem(SS_Q));
@@ -361,7 +362,11 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
 function MatchResultRow({ match }: { match: MatchRow }) {
   const hasForecast = match.forecasts.length > 0;
   return (
-    <a className="ms-row" href={`#/match/${encodeURIComponent(match.match_id)}`}>
+    <a
+      className="ms-row"
+      href={`#/match/${encodeURIComponent(match.match_id)}`}
+      aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${utcDate(match.kickoff_utc)}${hasForecast ? ", has a sealed forecast" : ""}`}
+    >
       <div className="ms-row__main">
         <span className="ms-row__teams">
           {match.home_team} <span className="dim" style={{ fontWeight: 400 }}>v</span> {match.away_team}

@@ -4,12 +4,22 @@ import type { ArtifactStatus, Horizon, Probs, Uncertainty } from "../lib/contrac
 import { HORIZON_LABELS, STATUS_LABELS } from "../lib/contract";
 import { largestRemainder, shortHash } from "../lib/format";
 import { useCopy } from "../lib/hooks";
-import { CheckIcon, CopyIcon, InfoIcon } from "./icons";
+import { CheckIcon, ClockIcon, CopyIcon, InfoIcon, SealIcon, VoidIcon } from "./icons";
+
+/** A glyph per status so the chips are distinguishable without relying on colour
+ *  alone (helps colour-blind readers and quick scanning). */
+const STATUS_ICON: Record<ArtifactStatus, typeof CheckIcon> = {
+  sealed: SealIcon,
+  scored: CheckIcon,
+  abstained: ClockIcon,
+  voided: VoidIcon,
+};
 
 export function StatusChip({ status }: { status: ArtifactStatus }) {
+  const Icon = STATUS_ICON[status];
   return (
     <span className={`chip chip--${status}`}>
-      <span className="chip__dot" aria-hidden />
+      <Icon size={13} aria-hidden />
       {STATUS_LABELS[status]}
     </span>
   );

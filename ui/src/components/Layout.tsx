@@ -63,8 +63,11 @@ export function Layout({
   forecastSource?: ForecastSource | null;
   children: ReactNode;
 }) {
-  // Light uses the light lockup; dark and warm are both dark surfaces.
-  const lockup = prefs.theme === "light" ? "/brand/golavo-lockup-light.svg" : "/brand/golavo-lockup-dark.svg";
+  // Light uses the light lockup; dark and warm are both dark surfaces. The header
+  // uses the STATIC lockup — the animated variant runs an infinite keyframe loop
+  // that would composite on every page (costly in the Tauri WebView); the motion
+  // is reserved for the startup splash.
+  const lockup = prefs.theme === "light" ? "/brand/golavo-lockup-light-static.svg" : "/brand/golavo-lockup-dark-static.svg";
   // "sample" = fresh install serving synthetic demos; "mock" = web bundle. Both
   // are labelled honestly as sample data, never as live forecasts.
   const isSample = forecastSource === "sample" || DATA_SOURCE === "mock";

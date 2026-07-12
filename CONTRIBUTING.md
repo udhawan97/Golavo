@@ -35,7 +35,7 @@ make test                     # run the test suite
 make lint                     # ruff + mypy + eslint
 ```
 
-(`make` targets are placeholders during Phase 0–1; see the `Makefile`.)
+(These `make` targets are real — `setup`, `dev`, `test`, `lint`, `validate`, `build`, `ingest`, `index`, `evaluate`, `release-bump`, and `clean`; see the `Makefile` for the full list.)
 
 ## Branches, commits, PRs
 

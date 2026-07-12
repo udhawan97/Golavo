@@ -7,7 +7,7 @@
  * drawer, where an auditor looks for it, instead of bleeding into the headline.
  */
 import type { ReactNode } from "react";
-import { relative, utcDate } from "../lib/format";
+import { kickoffRelative, utcDate } from "../lib/format";
 import { CalendarIcon, PinIcon, TrophyIcon } from "./icons";
 import { MetaItem, MetaLine } from "./primitives";
 
@@ -40,8 +40,10 @@ export function MatchHeader({
       <MetaLine>
         <MetaItem icon={<TrophyIcon />}>{competition}</MetaItem>
         <MetaItem icon={<CalendarIcon />}>
-          <span className="num">{utcDate(kickoffUtc)}</span>{" "}
-          <span className="dim">· {relative(kickoffUtc)}</span>
+          <span className="num">{utcDate(kickoffUtc)}</span>
+          {kickoffRelative(kickoffUtc) && (
+            <> <span className="dim">· {kickoffRelative(kickoffUtc)}</span></>
+          )}
         </MetaItem>
         <MetaItem icon={<PinIcon />}>{venue}</MetaItem>
       </MetaLine>

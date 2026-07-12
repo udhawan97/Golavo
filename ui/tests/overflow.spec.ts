@@ -39,3 +39,23 @@ for (const width of WIDTHS) {
     });
   }
 }
+
+// The reading-comfort popover is right-anchored to the header "Aa" button; on a
+// narrow screen it must pin to the viewport, not spill off the left edge.
+test("reading-comfort popover stays on-screen @375", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/#/");
+  await page.locator("h1").first().waitFor();
+  await page.getByRole("button", { name: /reading comfort/i }).click();
+  const panel = page.locator(".rc__panel");
+  await panel.waitFor();
+  const box = await panel.boundingBox();
+  expect(box, "popover should be visible").not.toBeNull();
+  expect(box!.x, "popover left edge is on-screen").toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width, "popover right edge is on-screen").toBeLessThanOrEqual(375);
+  const overflow = await page.evaluate(() => {
+    const el = document.documentElement;
+    return { scroll: el.scrollWidth, client: el.clientWidth };
+  });
+  expect(overflow.scroll).toBeLessThanOrEqual(overflow.client);
+});

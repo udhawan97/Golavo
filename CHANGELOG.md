@@ -6,6 +6,66 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-07-12
+
+A polish-and-hardening pass from a full UX audit: fewer sharp edges, plainer
+words, a calmer surface, a faster first paint, and docs that finally match the
+post-pivot app. No new forecasting behaviour — every number is unchanged.
+
+### Fixed
+- **A malformed deep link no longer white-screens the app.** Route decoding is
+  guarded and a top-level error boundary catches any render-time throw, degrading
+  to a recoverable panel instead of a blank page.
+- **The startup splash can no longer hang forever.** If the local engine doesn't
+  answer within ~30s the splash offers a retry and guidance, and the health
+  probe times out instead of pending indefinitely.
+- **The AI narrative route no longer blocks the event loop** — its model call
+  runs off-thread, so a slow narration can't stall `/health` (which the startup
+  gate and updater poll) or any other request.
+- **The reading-comfort popover stays on screen on mobile** — it pins to the
+  viewport at narrow widths instead of spilling off the left edge.
+- **No more "Played · in 1282 days."** Relative kickoff times only show inside a
+  sensible window; far-future and long-past dates just show the date.
+- Defined two CSS tokens that were referenced but missing (AI panel styling);
+  guarded the last unvalidated persisted reads (updater last-check, search
+  filter); added a score-grid shape check so contract drift fails loudly.
+- Server: `fixtures/check` returns an honest 503 (not a 500) on a malformed
+  upstream response; the fixture diff no longer walks the index row-by-row.
+
+### Changed
+- **Plainer language on the everyday screens.** Metric jargon is glossed on
+  hover (ECE, RPS, log loss, Brier), "Elo · ordered logit" reads "Elo ratings",
+  and betting/stats shorthand (`1X2`, "marginals", `−ln(p)`, `P(H/D/A)`) is
+  reworded. Page titles now match their nav labels ("Backtests", "Track record").
+- **Backtests is readable at a glance** — a summary strip of who leads how many
+  folds, collapsible per-competition groups, glossed headers, and the leading
+  model highlighted per fold. Every number is still shown.
+- **A calmer, more tactile surface** — status and fact chips carry glyphs (not
+  colour alone), a faint paper-grain texture and top-lit card edges add depth,
+  and subtle reduced-motion-gated motion settles the seal stamp and drawers. The
+  header now uses the static logo (the animated mark is reserved for the splash).
+- Theme and reading controls are now reachable from **Settings › Appearance**, in
+  addition to the header.
+- Faster first paint: views are code-split and load on demand (initial JS ~193 KB,
+  down from ~297 KB), GET requests are cached and de-duplicated within a session
+  and cleared on any write, and the heavy heatmap/reliability charts are memoized.
+
+### Added
+- **A one-time welcome card** on the Games home — the three things Golavo does
+  (open a match, seal before kickoff, track the score), dismissible and calm.
+- **Retry buttons** on the model council and match notebook when the engine is
+  still warming up, instead of a dead-end message.
+
+### Docs & CI
+- Overhauled the docs site and READMEs for the post-pivot app: rewrote the
+  matchday page around the Games home and Match Cockpit, resynced the roadmap,
+  reconciled the privacy/security page with `SECURITY.md`, corrected the
+  architecture API surface, rewrote `ui/README.md`, refreshed the facts
+  catalogue, and added the missing `match_analysis` contract schema.
+- CI now compiles the Tauri desktop shell (`cargo check` + `clippy`) on every
+  PR, uses `npm ci`, and runs the accessibility gate over ten routes (up from
+  four) plus a mobile-popover regression test.
+
 ## [0.3.2] - 2026-07-12
 
 AI mode grows up: a deeper, cited read of the commentator notes for any match —
@@ -610,7 +670,14 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/udhawan97/Golavo/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/udhawan97/Golavo/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/udhawan97/Golavo/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/udhawan97/Golavo/compare/v0.2.6...v0.3.0
+[0.2.6]: https://github.com/udhawan97/Golavo/compare/v0.2.5...v0.2.6
+[0.2.5]: https://github.com/udhawan97/Golavo/compare/v0.2.4...v0.2.5
+[0.2.4]: https://github.com/udhawan97/Golavo/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/udhawan97/Golavo/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/udhawan97/Golavo/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/udhawan97/Golavo/compare/v0.2.0...v0.2.1

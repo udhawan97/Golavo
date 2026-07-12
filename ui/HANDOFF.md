@@ -1,5 +1,9 @@
 # Phase-0 UI Handoff — Forecast Audit Workbench
 
+> **Historical (Phase 0).** This is the original v0.1.0 handoff and describes a read-only,
+> CLI-only-sealing app that predates the Match Cockpit pivot. For the current routes, views, and
+> in-app sealing, see [`ui/README.md`](./README.md) and the [docs site](https://udhawan97.github.io/Golavo/).
+
 **Lane:** Claude (owns `ui/**` only).
 **BASE_SHA:** `211637a` (`origin/main` at start; matched the expected last-known SHA).
 **Branch:** `friendly-helper-claude/phase-0-audit-workbench-70fe73` — a pre-provisioned

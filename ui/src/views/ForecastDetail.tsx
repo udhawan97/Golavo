@@ -240,7 +240,7 @@ function VerdictPanel({ artifact, showBar, dim }: { artifact: ForecastArtifact; 
     <section className="panel" aria-labelledby="fc-h">
       <div className="panel__head">
         <h2 id="fc-h">Forecast</h2>
-        <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>1X2 · regulation</span>
+        <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>Win · Draw · Win — 90 min</span>
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: "1rem", opacity: dim ? 0.6 : 1 }}>
         <p className="verdict">{summary.headline}</p>
@@ -304,7 +304,7 @@ function PlainTerms({ artifact }: { artifact: ForecastArtifact }) {
                 <b className="num">{num(xg.away, 1)}</b> {match.away_team}
               </li>
             )}
-            <li>Model uncertainty for this fixture: <b>{forecast.uncertainty}</b></li>
+            <li>How uncertain the model is here: <b>{forecast.uncertainty}</b></li>
           </ul>
         </div>
       </div>
@@ -333,12 +333,12 @@ function ExpertDrawers({ artifact, mode }: { artifact: ForecastArtifact; mode: F
                 hint={`${pctWhole(sm.most_likely.probability)} of the time`} />
               {xg && <StatTile value={num(xg.home, 2)} label={`Expected goals · ${match.home_team}`} />}
               {xg && <StatTile value={num(xg.away, 2)} label={`Expected goals · ${match.away_team}`} />}
-              <StatTile value={pct(sm.tail.probability)} label={`Beyond ${sm.max_goals} goals a side`}
-                hint="folded into the tail" />
+              <StatTile value={pct(sm.tail.probability)} label={`Very high scores (${sm.max_goals + 1}+ a side)`}
+                hint="grouped into one number" />
             </div>
             <p className="small dim measure">
               Every cell is the sealed model's probability of that exact score. The grid's
-              win/draw/loss totals reproduce the 1X2 bar above; {pct(sm.tail.probability)} of the
+              win/draw/win totals reproduce the bar above; {pct(sm.tail.probability)} of the
               distribution lies beyond {sm.max_goals} goals for a side.
             </p>
           </div>
@@ -355,7 +355,7 @@ function ExpertDrawers({ artifact, mode }: { artifact: ForecastArtifact; mode: F
       </Drawer>
 
       {hasMarkets && (
-        <Drawer title="Outcome & goal summaries" defaultOpen={open} chip={<span className="chip chip--neutral">exact marginals</span>}>
+        <Drawer title="Outcome & goal summaries" defaultOpen={open} chip={<span className="chip chip--neutral">same grid, re-sliced</span>}>
           <DerivedMarketsBody artifact={artifact} />
         </Drawer>
       )}
@@ -396,8 +396,8 @@ function DerivedMarketsBody({ artifact }: { artifact: ForecastArtifact }) {
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.1rem" }}>
       <p className="small dim measure" style={{ margin: 0 }}>
-        Re-buckets of the sealed distribution above — no new model, no new data. Each figure is a
-        marginal of the same grid, so it reconciles with the 1X2 and score numbers exactly.
+        Re-buckets of the sealed distribution above — no new model, no new data. Every number here is
+        a re-slice of the same score grid, so it always adds up to the win/draw/win and score numbers.
       </p>
       {markets.doubleChance && (
         <div>

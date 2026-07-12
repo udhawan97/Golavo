@@ -103,6 +103,18 @@ export function relative(iso: string, now: Date = new Date()): string {
   return diffMs >= 0 ? `in ${mag}` : `${mag} ago`;
 }
 
+/** Like relative(), but only within a sane window around now, so a far-future
+ *  fixture or an ancient result never renders an absurd "in 1282 days" next to
+ *  a "Played" chip. Returns "" outside the window — the explicit date already
+ *  carries it. Keeps near-term context in both directions. */
+export function kickoffRelative(iso: string, now: Date = new Date()): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const days = (d.getTime() - now.getTime()) / 86_400_000;
+  if (days > 60 || days < -14) return "";
+  return relative(iso, now);
+}
+
 /** Truncate a hash for compact display: first 8 … last 6. */
 export function shortHash(h: string, head = 10, tail = 6): string {
   if (h.length <= head + tail + 1) return h;

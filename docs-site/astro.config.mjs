@@ -68,7 +68,7 @@ export default defineConfig({
           items: [
             { label: "Introduction", slug: "introduction" },
             { label: "Installation", slug: "installation" },
-            { label: "Your matchday", slug: "matchday" },
+            { label: "Games & the Match Cockpit", slug: "matchday" },
           ],
         },
         {
@@ -76,7 +76,7 @@ export default defineConfig({
           items: [
             { label: "Casual vs Expert", slug: "casual-vs-expert" },
             { label: "Local Intelligence", slug: "local-intelligence" },
-            { label: "The Prediction Ledger", slug: "prediction-ledger" },
+            { label: "Model Lab & Track record", slug: "prediction-ledger" },
           ],
         },
         {

@@ -10,6 +10,8 @@ import { SCHEMA_VERSION } from "../lib/contract";
 import { sourceDescription } from "../lib/api";
 import { AI_PROVIDERS, useAiProvider } from "../lib/ai";
 import { useKeepFixturesFresh } from "../lib/fixtures";
+import type { ReadingPrefs } from "../lib/hooks";
+import { ReadingControls } from "../components/ReadingComfort";
 import { useUpdater } from "../lib/updater-context";
 import { formatWhen } from "../lib/updater";
 import { DOCS_URL, RELEASES_URL } from "../lib/links";
@@ -20,7 +22,13 @@ function appVersionLabel(statusVersion: string | undefined): string {
   return injected ?? `source build (contract v${SCHEMA_VERSION})`;
 }
 
-export function Settings() {
+export function Settings({
+  prefs,
+  onChangePrefs,
+}: {
+  prefs?: ReadingPrefs;
+  onChangePrefs?: (patch: Partial<ReadingPrefs>) => void;
+} = {}) {
   const u = useUpdater();
   const [keepFresh, setKeepFresh] = useKeepFixturesFresh();
   const [aiProvider, setAiProvider] = useAiProvider();
@@ -57,6 +65,19 @@ export function Settings() {
           </div>
         </div>
       </section>
+
+      {prefs && onChangePrefs && (
+        <section className="panel" aria-labelledby="settings-appearance">
+          <div className="panel__head"><h2 id="settings-appearance">Appearance</h2></div>
+          <div className="panel__body stack" style={{ ["--gap" as string]: "var(--space-3)" }}>
+            <p className="small dim" style={{ margin: 0 }}>
+              The same theme and reading controls as the <span aria-hidden>“Aa”</span> button in the
+              header. Choices apply everywhere and are remembered on this device.
+            </p>
+            <ReadingControls prefs={prefs} onChange={onChangePrefs} />
+          </div>
+        </section>
+      )}
 
       <section className="panel" aria-labelledby="settings-data">
         <div className="panel__head"><h2 id="settings-data">Data</h2></div>

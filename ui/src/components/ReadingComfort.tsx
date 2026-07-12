@@ -37,7 +37,7 @@ export function ReadingComfort({
       <button
         type="button"
         className="icon-btn rc__trigger"
-        aria-haspopup="dialog"
+        aria-haspopup="true"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
         aria-label="Reading comfort — theme and text"
@@ -47,35 +47,51 @@ export function ReadingComfort({
         <span aria-hidden>Aa</span>
       </button>
       {open && (
-        <div className="rc__panel" id={panelId} role="dialog" aria-label="Reading comfort">
-          <Segmented<Theme>
-            legend="Theme"
-            value={prefs.theme}
-            onChange={(theme) => onChange({ theme })}
-            options={[["light", "Light"], ["dark", "Dark"], ["warm", "Warm"]]}
-          />
-          <Segmented<TextSize>
-            legend="Text size"
-            value={prefs.textSize}
-            onChange={(textSize) => onChange({ textSize })}
-            options={[["sm", "S"], ["md", "M"], ["lg", "L"], ["xl", "XL"]]}
-          />
-          <Segmented<Leading>
-            legend="Line spacing"
-            value={prefs.leading}
-            onChange={(leading) => onChange({ leading })}
-            options={[["normal", "Normal"], ["relaxed", "Relaxed"]]}
-          />
-          <Segmented<Contrast>
-            legend="Contrast"
-            value={prefs.contrast}
-            onChange={(contrast) => onChange({ contrast })}
-            options={[["normal", "Normal"], ["high", "High"]]}
-          />
+        <div className="rc__panel" id={panelId} role="group" aria-label="Reading comfort">
+          <ReadingControls prefs={prefs} onChange={onChange} />
           <p className="rc__note">Warm tones for comfortable evening reading.</p>
         </div>
       )}
     </div>
+  );
+}
+
+/** The theme / text-size / spacing / contrast controls, shared by the header
+ *  popover and the Settings › Appearance section so both stay in sync. */
+export function ReadingControls({
+  prefs,
+  onChange,
+}: {
+  prefs: ReadingPrefs;
+  onChange: (patch: Partial<ReadingPrefs>) => void;
+}) {
+  return (
+    <>
+      <Segmented<Theme>
+        legend="Theme"
+        value={prefs.theme}
+        onChange={(theme) => onChange({ theme })}
+        options={[["light", "Light"], ["dark", "Dark"], ["warm", "Warm"]]}
+      />
+      <Segmented<TextSize>
+        legend="Text size"
+        value={prefs.textSize}
+        onChange={(textSize) => onChange({ textSize })}
+        options={[["sm", "S"], ["md", "M"], ["lg", "L"], ["xl", "XL"]]}
+      />
+      <Segmented<Leading>
+        legend="Line spacing"
+        value={prefs.leading}
+        onChange={(leading) => onChange({ leading })}
+        options={[["normal", "Normal"], ["relaxed", "Relaxed"]]}
+      />
+      <Segmented<Contrast>
+        legend="Contrast"
+        value={prefs.contrast}
+        onChange={(contrast) => onChange({ contrast })}
+        options={[["normal", "Normal"], ["high", "High"]]}
+      />
+    </>
   );
 }
 

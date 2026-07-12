@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { ScoreMatrix } from "../lib/contract";
 import { pct } from "../lib/format";
 
@@ -9,7 +10,7 @@ import { pct } from "../lib/format";
  * reduced-motion rule covers it). Nothing here is derived in the UI — every
  * number comes straight from the sealed score_matrix.
  */
-export function ScoreMatrixHeatmap({
+function ScoreMatrixHeatmapImpl({
   matrix, home, away,
 }: { matrix: ScoreMatrix; home: string; away: string }) {
   const n = matrix.max_goals;
@@ -65,3 +66,7 @@ export function ScoreMatrixHeatmap({
     </div>
   );
 }
+
+/** Memoized: the grid rebuilds `flat()`/`maxCell` on every render, and its
+ *  props are stable across Casual/Expert toggles, so skip the recompute. */
+export const ScoreMatrixHeatmap = memo(ScoreMatrixHeatmapImpl);

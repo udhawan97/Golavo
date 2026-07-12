@@ -1,10 +1,25 @@
 import type { ReactNode } from "react";
-import { AlertIcon, EnsoGlyph } from "./icons";
+import { AlertIcon, EnsoGlyph, SearchIcon } from "./icons";
 
-export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
+/** `notfound` swaps the meditative ensō for a search glyph, so a "Page not
+ *  found" / "no match" screen reads as a dead end to act on — not as a page
+ *  that is still loading (the thin ensō ring is easily mistaken for a spinner). */
+export function EmptyState({
+  title,
+  children,
+  variant = "empty",
+}: {
+  title: string;
+  children?: ReactNode;
+  variant?: "empty" | "notfound";
+}) {
   return (
     <div className="state" role="status">
-      <EnsoGlyph className="state__glyph" />
+      {variant === "notfound" ? (
+        <SearchIcon size={44} className="state__glyph" />
+      ) : (
+        <EnsoGlyph className="state__glyph" />
+      )}
       <p className="state__title">{title}</p>
       {children && <p className="state__body">{children}</p>}
     </div>

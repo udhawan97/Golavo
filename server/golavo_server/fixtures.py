@@ -62,7 +62,13 @@ def _fetch(url: str) -> bytes:
 
 
 def _fetch_latest() -> tuple[str, str]:
-    ref = str(json.loads(_fetch(_COMMIT_API).decode("utf-8"))["sha"])
+    try:
+        ref = str(json.loads(_fetch(_COMMIT_API).decode("utf-8"))["sha"])
+    except (KeyError, TypeError, ValueError) as exc:
+        # A 200 whose body isn't the expected ``{"sha": ...}`` object (missing
+        # key, wrong shape, or not JSON) is still an upstream failure — surface it
+        # as the same honest 503 the route already handles, never a bare 500.
+        raise FixtureCheckError("unexpected upstream response") from exc
     return ref, _fetch(_RESULTS_RAW.format(ref=ref)).decode("utf-8")
 
 
@@ -92,9 +98,15 @@ def check_new_fixtures(
     if index_frame is not None and len(index_frame) > 0:
         import pandas as pd
 
-        for _, row in index_frame.iterrows():
-            date = pd.Timestamp(row["date"]).date().isoformat() if row["date"] is not None else ""
-            existing.add((date, str(row["home_norm"]), str(row["away_norm"])))
+        # Vectorized: build the (date, home_norm, away_norm) key set with pandas
+        # column ops instead of a Python-level ``iterrows`` over the whole 75k-row
+        # index on every call. Same key shape — a valid date becomes its
+        # ``YYYY-MM-DD`` string, a missing date becomes "".
+        dates = pd.to_datetime(index_frame["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        dates = dates.where(dates.notna(), "").astype(str)
+        home = index_frame["home_norm"].astype(str)
+        away = index_frame["away_norm"].astype(str)
+        existing = set(zip(dates, home, away, strict=True))
 
     new = [
         f

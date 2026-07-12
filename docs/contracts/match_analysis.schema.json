@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/match-analysis-0.3.0.schema.json",
+  "title": "MatchAnalysis",
+  "description": "The on-demand Match Cockpit read for one indexed fixture (a Replay for a played match, a Preview for a scheduled one). Computed leak-safe at the seal's own kickoff-1s cutoff and NEVER persisted: this is a live view, not a sealed forecast. A council of candidate families is shown side by side WITHOUT averaging — the two voices (ratings, goals) plus a climatology baseline, with the goal variants disclosed but not counted as extra opinions. Derived from core/golavo_core/analysis.py:build_match_analysis (ANALYSIS_SCHEMA_VERSION).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "analysis_kind",
+    "match",
+    "information_cutoff_utc",
+    "abstained",
+    "abstain_reason",
+    "uncertainty",
+    "team_history",
+    "min_team_matches",
+    "council",
+    "models",
+    "score_matrix",
+    "score_matrix_family"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.3.0"},
+    "analysis_kind": {
+      "enum": ["replay", "preview"],
+      "description": "replay = a completed fixture reconstructed with pre-kickoff data only (not a forecast that existed at the time; never enters the track record); preview = a scheduled fixture."
+    },
+    "match": {"$ref": "#/$defs/Match"},
+    "information_cutoff_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The single conservative cutoff, identical for replay and preview: kickoff - 1s. Every model trains on rows strictly before this instant; the machine-checked leak guard rejects any later row."
+    },
+    "abstained": {
+      "type": "boolean",
+      "description": "True when either side has fewer than min_team_matches qualifying matches inside the decay window; the voices carry no probabilities."
+    },
+    "abstain_reason": {"type": ["string", "null"]},
+    "uncertainty": {
+      "enum": ["high", "medium", "low"],
+      "description": "A coarse read on how much history backs the analysis, from the smaller of the two teams' qualifying-match counts."
+    },
+    "team_history": {
+      "type": "object",
+      "description": "Qualifying-match count per team (keyed by team name) inside the decay window ending at the cutoff.",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "min_team_matches": {"type": "integer", "minimum": 1},
+    "council": {"$ref": "#/$defs/Council"},
+    "models": {
+      "type": "array",
+      "description": "One entry per candidate family, in display order. Voices and the baseline carry probabilities; disclosed variants are present but role-flagged so they are never counted as extra opinions.",
+      "items": {"$ref": "#/$defs/ModelEntry"}
+    },
+    "score_matrix": {
+      "description": "The analysis-level exact-score distribution: the goal voice's grid, or null when the goal voice abstained or is absent.",
+      "oneOf": [{"$ref": "#/$defs/ScoreMatrix"}, {"type": "null"}]
+    },
+    "score_matrix_family": {
+      "type": ["string", "null"],
+      "description": "The family that produced score_matrix (the goal voice), or null when there is none."
+    }
+  },
+  "$defs": {
+    "Match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "match_id",
+        "competition",
+        "kickoff_utc",
+        "home_team",
+        "away_team",
+        "neutral_venue",
+        "is_complete"
+      ],
+      "properties": {
+        "match_id": {"type": "string", "minLength": 1},
+        "competition": {"type": "string"},
+        "kickoff_utc": {"type": "string", "format": "date-time"},
+        "home_team": {"type": "string", "minLength": 1},
+        "away_team": {"type": "string", "minLength": 1},
+        "neutral_venue": {"type": "boolean"},
+        "is_complete": {"type": "boolean"}
+      }
+    },
+    "Council": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A descriptive summary over the non-abstained VOICE entries only — no averaging. When the voices disagree on the likeliest outcome there is no single leading outcome and the UI shows the disagreement.",
+      "required": [
+        "voices",
+        "voices_agree",
+        "leading_outcome",
+        "max_delta_p",
+        "outcome_range"
+      ],
+      "properties": {
+        "voices": {"type": "integer", "minimum": 0},
+        "voices_agree": {"type": ["boolean", "null"]},
+        "leading_outcome": {
+          "oneOf": [{"enum": ["home", "draw", "away"]}, {"type": "null"}]
+        },
+        "max_delta_p": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "outcome_range": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["home", "draw", "away"],
+              "properties": {
+                "home": {"$ref": "#/$defs/Range"},
+                "draw": {"$ref": "#/$defs/Range"},
+                "away": {"$ref": "#/$defs/Range"}
+              }
+            },
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "Range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["low", "high"],
+      "properties": {
+        "low": {"type": "number", "minimum": 0, "maximum": 1},
+        "high": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "ModelEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "role", "method", "abstained", "probs", "expected_goals", "score_matrix", "params"],
+      "properties": {
+        "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson"]},
+        "role": {"enum": ["voice", "variant", "baseline"]},
+        "method": {"enum": ["ratings", "goals", "base_rate", "unknown"]},
+        "abstained": {"type": "boolean"},
+        "probs": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["home", "draw", "away"],
+              "properties": {
+                "home": {"type": "number", "minimum": 0, "maximum": 1},
+                "draw": {"type": "number", "minimum": 0, "maximum": 1},
+                "away": {"type": "number", "minimum": 0, "maximum": 1}
+              }
+            },
+            {"type": "null"}
+          ]
+        },
+        "expected_goals": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["home", "away"],
+              "properties": {
+                "home": {"type": "number", "minimum": 0},
+                "away": {"type": "number", "minimum": 0}
+              }
+            },
+            {"type": "null"}
+          ]
+        },
+        "score_matrix": {
+          "oneOf": [{"$ref": "#/$defs/ScoreMatrix"}, {"type": "null"}]
+        },
+        "params": {"type": ["object", "null"]}
+      }
+    },
+    "ScoreMatrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The exact-score distribution for a goal-based family. grid[i][j] is P(home=i, away=j) for 0..max_goals per side; everything beyond folds into the outcome-decomposed tail. grid + tail is an exact partition whose win/draw/loss marginals reproduce the family's probs (asserted on build). Same shape as the sealed forecast's score_matrix.",
+      "required": ["max_goals", "resolution", "grid", "tail", "most_likely", "total_probability"],
+      "properties": {
+        "max_goals": {"type": "integer", "minimum": 1},
+        "resolution": {"type": "integer", "minimum": 1},
+        "grid": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "tail": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["probability", "home", "draw", "away"],
+          "properties": {
+            "probability": {"type": "number", "minimum": 0, "maximum": 1},
+            "home": {"type": "number", "minimum": 0, "maximum": 1},
+            "draw": {"type": "number", "minimum": 0, "maximum": 1},
+            "away": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "most_likely": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["home", "away", "probability"],
+          "properties": {
+            "home": {"type": "integer", "minimum": 0},
+            "away": {"type": "integer", "minimum": 0},
+            "probability": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "total_probability": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}

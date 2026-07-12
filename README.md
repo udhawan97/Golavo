@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.3.2" src="https://img.shields.io/badge/version-v0.3.2-6082b8?style=flat-square">
+  <img alt="version v0.3.3" src="https://img.shields.io/badge/version-v0.3.3-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -43,7 +43,7 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.3.2 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.3.3 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, calibration record, optional guarded AI narration, and
@@ -70,16 +70,16 @@ the model; it may not help with the rewrite.
 - **After full time:** append a scored or voided successor; never edit the original claim.
 
 <details>
-<summary>&nbsp;🖥️&nbsp; See the actual Matchday workbench</summary>
+<summary>&nbsp;🖥️&nbsp; See a bundled sample-artifact view</summary>
 
 <br>
 
 <p align="center">
-  <img src="docs-site/public/screenshots/workbench-matchday.png" alt="Golavo's read-only Matchday workbench showing sealed, scored, abstained, and voided synthetic sample forecasts" width="920">
+  <img src="docs-site/public/screenshots/workbench-matchday.png" alt="Golavo's sealed-forecast list over synthetic sample artifacts, showing sealed, scored, abstained, and voided states" width="920">
 </p>
 
 <p align="center">
-  <sub>Bundled <strong>synthetic sample artifacts</strong> — clearly labelled in-app, never passed off as real forecasts.</sub>
+  <sub>The Model Lab's sealed-forecast list, rendered over bundled <strong>synthetic sample artifacts</strong> — clearly labelled in-app, never passed off as real forecasts. This is a sample view, not the Games home; the screenshot predates the Match Cockpit pivot.</sub>
 </p>
 
 </details>

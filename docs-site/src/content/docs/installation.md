@@ -64,7 +64,7 @@ way (Settings says so instead of showing dead controls). See
 
 ## Build the desktop app locally
 
-Prerequisites: Rust (stable), Node 20+, Python 3.12+, and the Tauri system
+Prerequisites: Rust (stable), Node 22+, Python 3.12+, and the Tauri system
 dependencies for your OS. Then:
 
 ```bash

@@ -348,8 +348,9 @@ async def create_seal(match_id: str, request: Request) -> JSONResponse:
     fixed allowlist; the pack, the training date, and the as-of are all resolved
     server-side, so a caller can neither backdate a seal nor choose an untrusted
     pack. The model fit runs off the event loop (``run_in_threadpool``) so a slow
-    seal never freezes /health or the rest of the API — unlike the older narrative
-    route. Idempotent per (fixture, family): a repeat returns the existing seal
+    seal never freezes /health or the rest of the API (the same discipline every
+    heavy route now follows). Idempotent per (fixture, family): a repeat returns
+    the existing seal
     (200), a new one is 201. Typed failures: ineligible fixture -> 422 with a
     reason_code, missing pack -> 503, genuine artifact collision -> 409.
     """
@@ -439,7 +440,7 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")
     try:
-        artifact = _load_artifact(path)
+        artifact = await run_in_threadpool(_load_artifact, path)
     except _BAD_ARTIFACT as exc:
         raise HTTPException(
             status_code=500, detail="forecast failed integrity verification"
@@ -459,13 +460,21 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
 
     # Fold any precomputed notebook's context/predictive facts into the bundle so
     # the model may cite them; coincidences are excluded and the numeric whitelist
-    # still governs. Absent a notebook, the bundle is exactly as before.
-    extra_facts, extra_numbers = _notebook_evidence(artifact_id)
-    bundle = build_evidence_bundle(
-        artifact, extra_facts=extra_facts, extra_numbers=extra_numbers
-    )
-    envelope = ai_gateway.generate_narration(
-        bundle, config, refresh=bool(body.get("refresh", False))
+    # still governs. Absent a notebook, the bundle is exactly as before. The bundle
+    # build and the model call run off the event loop (run_in_threadpool), mirroring
+    # create_seal/match_narrative, so a slow narration never freezes /health or the
+    # rest of the API.
+    def _build_bundle() -> dict[str, Any]:
+        extra_facts, extra_numbers = _notebook_evidence(artifact_id)
+        return build_evidence_bundle(
+            artifact, extra_facts=extra_facts, extra_numbers=extra_numbers
+        )
+
+    bundle = await run_in_threadpool(_build_bundle)
+    envelope = await run_in_threadpool(
+        lambda: ai_gateway.generate_narration(
+            bundle, config, refresh=bool(body.get("refresh", False))
+        )
     )
     # The UI resolves a claim's source_ids/number_refs against these trusted
     # bundle lookups to render citation chips with the exact engine display value.

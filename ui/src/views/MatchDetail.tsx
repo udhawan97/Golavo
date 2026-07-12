@@ -14,8 +14,10 @@ import type {
   MatchForecastLink,
   MatchNotebookResponse,
   MatchRow,
+  ModelFamily,
   SealEligibility,
 } from "../lib/contract";
+import { FAMILY_LABELS } from "../lib/contract";
 import { fetchMatch, fetchMatchNotebook, sealMatch, SealApiError } from "../lib/api";
 import { utc } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
@@ -161,8 +163,8 @@ function ForecastLinks({
           ))}
         </ul>
         <p className="small dim" style={{ margin: 0 }}>
-          The sealed probabilities live on the forecast page — this directory links to them, it
-          never re-renders or restates a number.
+          The sealed numbers live on the forecast page — this card only links to them. Nothing here
+          restates or recomputes a probability.
         </p>
       </div>
     </section>
@@ -243,18 +245,19 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
   return (
     <section className="panel" aria-labelledby="md-seal">
       <div className="panel__head">
-        <h2 id="md-seal">Track this prediction</h2>
+        <h2 id="md-seal">Seal this forecast</h2>
         <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
           deterministic · offline
         </span>
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: ".85rem" }}>
         <p className="small muted" style={{ margin: 0 }}>
-          The council above is a live preview. Put it on the record: seal an immutable,
-          auditable snapshot with the deterministic{" "}
-          <span className="mono">{eligibility.family}</span> model before kickoff. Only a sealed
-          prediction counts toward the forward track record — it runs on your machine, trains only
-          on pre-kickoff data, and writes once. No CLI, no network.
+          The council above is a live preview. Seal it to put it on the record — a snapshot from the{" "}
+          {FAMILY_LABELS[eligibility.family as ModelFamily] ?? eligibility.family} model, frozen before kickoff.
+        </p>
+        <p className="small muted" style={{ margin: 0 }}>
+          Only a sealed forecast counts toward your track record. It trains only on pre-kickoff data
+          and writes once.
         </p>
         <div>
           <button
@@ -264,7 +267,7 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
             disabled={state.status === "sealing"}
             aria-busy={state.status === "sealing"}
           >
-            {state.status === "sealing" ? "Sealing…" : "Seal this prediction"}
+            {state.status === "sealing" ? "Sealing…" : "Seal before kickoff"}
           </button>
         </div>
         {state.status === "error" && state.error && (
@@ -337,7 +340,8 @@ function SealUnknown({ match }: { match: MatchRow }) {
  *  per-match notebook endpoint and rendered through the shared NotebookFacts
  *  renderer. Subordinate to any seal: it is descriptive history, never a forecast. */
 function MatchNotebookBlock({ matchId }: { matchId: string }) {
-  const state = useAsync(() => fetchMatchNotebook(matchId), [matchId]);
+  const [retryTick, setRetryTick] = useState(0);
+  const state = useAsync(() => fetchMatchNotebook(matchId), [matchId, retryTick]);
   return (
     <section className="panel md-nb" aria-labelledby="md-nb-h">
       <div className="panel__head">
@@ -351,22 +355,35 @@ function MatchNotebookBlock({ matchId }: { matchId: string }) {
           The hidden facts, streaks, and coincidences behind this fixture — computed from the
           vendored packs. Never a forecast, and no AI wrote any of them.
         </p>
-        <NotebookBlockBody state={state} />
+        <NotebookBlockBody state={state} onRetry={() => setRetryTick((t) => t + 1)} />
       </div>
     </section>
   );
 }
 
-function NotebookBlockBody({ state }: { state: AsyncState<MatchNotebookResponse> }) {
+function NotebookBlockBody({
+  state,
+  onRetry,
+}: {
+  state: AsyncState<MatchNotebookResponse>;
+  onRetry: () => void;
+}) {
   if (state.status === "loading") return <BlockSkeleton lines={4} />;
   if (state.status === "error") {
     const warming = /HTTP 503/.test(state.error.message);
     return (
-      <p className="small dim" style={{ margin: 0 }}>
-        {warming
-          ? "Notebook engine warming up — the facts aren’t ready yet. Try again in a moment."
-          : "Couldn’t load the notebook for this fixture right now. The rest of the page is unaffected."}
-      </p>
+      <div className="stack" style={{ ["--gap" as string]: ".6rem" }}>
+        <p className="small dim" style={{ margin: 0 }}>
+          {warming
+            ? "Notebook engine warming up — the facts aren’t ready yet."
+            : "Couldn’t load the notebook for this fixture right now. The rest of the page is unaffected."}
+        </p>
+        <div>
+          <button type="button" className="btn btn--ghost" onClick={onRetry}>
+            Try again
+          </button>
+        </div>
+      </div>
     );
   }
 

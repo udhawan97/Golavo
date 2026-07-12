@@ -74,8 +74,16 @@ export async function pingHealth(): Promise<boolean> {
   try {
     const headers: Record<string, string> = { accept: "application/json" };
     if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
-    const res = await fetch(`${API_BASE}/health`, { headers });
-    return res.ok;
+    // Abort a hung probe so a blocked/slow engine can't leave the poll pending
+    // forever (a stalled /health is what strands the startup splash).
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 3000);
+    try {
+      const res = await fetch(`${API_BASE}/health`, { headers, signal: ctrl.signal });
+      return res.ok;
+    } finally {
+      clearTimeout(timeout);
+    }
   } catch {
     return false;
   }
@@ -152,6 +160,30 @@ function assertVersion(v: unknown, ctx: string): void {
 
 /** Minimal runtime guard so contract drift surfaces loudly instead of silently
  *  rendering malformed data. Not a full validator — the schema owner is Codex. */
+/** A score grid must be exactly (max_goals+1)² — the heatmap and market
+ *  re-buckets index it directly, so a short/ragged grid would throw mid-render.
+ *  Surface any drift as a loud ContractError instead of a silent TypeError. */
+function assertScoreMatrix(
+  sm: { max_goals?: unknown; grid?: unknown } | null | undefined,
+  ctx: string,
+): void {
+  if (!sm) return;
+  const n = sm.max_goals;
+  if (typeof n !== "number" || !Number.isInteger(n) || n < 0)
+    throw new ContractError(`${ctx}: score_matrix.max_goals must be a non-negative integer`);
+  if (!Array.isArray(sm.grid) || sm.grid.length !== n + 1)
+    throw new ContractError(
+      `${ctx}: score grid has ${(sm.grid as unknown[])?.length} rows (expected ${n + 1})`,
+    );
+  for (let i = 0; i < sm.grid.length; i++) {
+    const row = sm.grid[i];
+    if (!Array.isArray(row) || row.length !== n + 1)
+      throw new ContractError(
+        `${ctx}: score grid row ${i} has ${(row as unknown[])?.length} cols (expected ${n + 1})`,
+      );
+  }
+}
+
 function assertForecast(x: unknown, ctx: string): ForecastArtifact {
   const a = x as ForecastArtifact;
   if (!a || typeof a !== "object") throw new ContractError(`${ctx}: not an object`);
@@ -168,6 +200,7 @@ function assertForecast(x: unknown, ctx: string): ForecastArtifact {
     if (Math.abs(sum - 1) > 0.001)
       throw new ContractError(`${ctx}: probs sum to ${sum.toFixed(4)} (expected 1 ± 0.001)`);
   }
+  assertScoreMatrix(a.forecast.score_matrix, ctx);
   return a;
 }
 
@@ -279,10 +312,43 @@ function apiHeaders(): Record<string, string> {
   return headers;
 }
 
+/** Small read-through cache for idempotent GETs: coalesces concurrent identical
+ *  requests and serves a recent result, so back-navigation and the two
+ *  notebook/insight readers on one page don't each re-hit the network. Short
+ *  TTL — this is a courtesy, not a source of truth. Bypassed for search and
+ *  fixtures/check (which don't route through here), and cleared on any mutation
+ *  via `clearApiCache()`. */
+const GET_TTL_MS = 30_000;
+const GET_CACHE_MAX = 60;
+const getCache = new Map<string, { at: number; value: unknown }>();
+const getInflight = new Map<string, Promise<unknown>>();
+
+/** Drop all cached GETs — call after a write so stale reads can't survive it. */
+export function clearApiCache(): void {
+  getCache.clear();
+  getInflight.clear();
+}
+
 async function getJson(path: string): Promise<unknown> {
-  const res = await fetch(`${API_BASE}${path}`, { headers: apiHeaders() });
-  if (!res.ok) throw new Error(`GET ${path} → HTTP ${res.status}`);
-  return res.json();
+  const hit = getCache.get(path);
+  if (hit && performance.now() - hit.at < GET_TTL_MS) return hit.value;
+  const inflight = getInflight.get(path);
+  if (inflight) return inflight;
+
+  const request = (async () => {
+    const res = await fetch(`${API_BASE}${path}`, { headers: apiHeaders() });
+    if (!res.ok) throw new Error(`GET ${path} → HTTP ${res.status}`);
+    return res.json();
+  })();
+  getInflight.set(path, request);
+  try {
+    const value = await request;
+    if (getCache.size >= GET_CACHE_MAX) getCache.clear(); // crude LRU: bounded memory
+    getCache.set(path, { at: performance.now(), value });
+    return value;
+  } finally {
+    getInflight.delete(path);
+  }
 }
 
 export async function fetchForecasts(): Promise<ForecastArtifact[]> {
@@ -633,6 +699,9 @@ export async function sealMatch(matchId: string, family?: string): Promise<SealR
       res.status,
       "seal_rejected",
     );
+  // A new seal changes the forecast list, the match's eligibility, and the
+  // calibration record — drop cached reads so nothing serves the pre-seal view.
+  clearApiCache();
   return result;
 }
 
@@ -728,6 +797,7 @@ function assertMatchAnalysis(x: unknown, ctx: string): MatchAnalysisResponse {
           throw new ContractError(`${ctx}: ${m.family} probs sum to ${sum.toFixed(4)}`);
       }
     }
+    assertScoreMatrix(a.score_matrix, ctx);
   }
   return r;
 }

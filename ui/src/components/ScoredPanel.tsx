@@ -49,14 +49,14 @@ export function ScoredPanel({ artifact }: { artifact: ForecastArtifact }) {
         <div className="stat-grid">
           <StatTile
             value={num(metrics.prob_assigned_to_outcome, 3)}
-            label="Prob. assigned to outcome"
+            label="Chance it gave the actual result"
             hint="Higher means the seal committed more to what happened."
           />
           <StatTile
             value={num(metrics.log_loss, 3)}
             tone="gold"
             label={<>Log loss <span className="dim">· headline</span></>}
-            hint="−ln(p) of the sealed probability. Lower is better."
+            hint="How surprised the model was by the result — lower means it saw it coming."
           />
           <StatTile
             value={num(metrics.brier, 3)}

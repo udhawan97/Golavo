@@ -33,7 +33,7 @@ const factKey = (f: { id: string; subject: string }): string => `${f.id}::${f.su
 const GROUP_ORDER: FactLabel[] = ["predictive", "context", "coincidence"];
 
 const GROUP_NOTE: Record<FactLabel, string> = {
-  predictive: "Labelled base rates. Reported only — never applied to the model here.",
+  predictive: "Historical frequencies — shown for context, never fed into the forecast.",
   context: "Background from results — the setting the fixture sits in.",
   coincidence: "",
 };
@@ -133,7 +133,7 @@ export function NotebookFacts({
       })}
       <div className="nb-foot small dim">
         <span>
-          {notebook.family_size} pre-registered hypotheses · registry {notebook.registry_version}
+          {notebook.family_size} fixed fact-checks · rule set {notebook.registry_version}
         </span>
         {notebook.suppressed.length > 0 && (
           <span>
