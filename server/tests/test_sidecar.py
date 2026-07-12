@@ -2,11 +2,41 @@
 
 from __future__ import annotations
 
+import os
+from collections.abc import Iterator
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from golavo_server import main as server_main
 from golavo_server import runtime, sidecar
+
+# Environment variables the real sidecar entrypoint (``_serve``) writes directly
+# to ``os.environ`` when it boots. That is correct for the standalone sidecar
+# PROCESS, but ``test_sidecar_smoke_mode_boots_and_probes_health`` boots ``_serve``
+# IN-PROCESS (via ``_smoke``), so those writes land in this pytest process and are
+# never undone — unlike the ``monkeypatch``-based env changes elsewhere in this
+# file, which self-restore. A leaked ``GOLAVO_TOKEN`` then turns the token gate on
+# for every later test: run this file before ``test_ai_gateway`` and its
+# unauthenticated endpoint requests all 401. (CI's alphabetical order hides it —
+# ``test_ai_gateway`` runs first there.) See golavo_server.sidecar._serve.
+_SIDECAR_ENV_VARS = ("GOLAVO_TOKEN", "GOLAVO_DATA_DIR")
+
+
+@pytest.fixture(autouse=True)
+def _restore_sidecar_env() -> Iterator[None]:
+    """Snapshot and restore ``_serve``'s env vars around every test in this file
+    so an in-process sidecar boot can never leak its launch token (or data dir)
+    across a test boundary."""
+    saved = {name: os.environ.get(name) for name in _SIDECAR_ENV_VARS}
+    try:
+        yield
+    finally:
+        for name, value in saved.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
 
 
 def test_api_is_open_when_no_token_is_configured(monkeypatch) -> None:
