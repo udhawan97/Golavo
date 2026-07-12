@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
   <title id="title">Golavo intelligence boundary</title>
-  <desc id="desc">A plain-language answer to who controls a Golavo forecast, followed by a developer contract showing the deterministic engine, guarded facts and evidence, optional AI gateway, hard no-write boundary, and four read-only audience views.</desc>
+  <desc id="desc">A plain-language answer to who controls a Golavo match analysis, followed by a developer contract showing the deterministic engine, guarded facts and evidence, optional AI gateway, hard no-write boundary, and four read-only product surfaces.</desc>
   <defs>
     <linearGradient id="bg" x1="24" y1="24" x2="1256" y2="776" gradientUnits="userSpaceOnUse"><stop stop-color="#171B1A"/><stop offset=".56" stop-color="#101312"/><stop offset="1" stop-color="#0B0E0D"/></linearGradient>
     <linearGradient id="engine" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#173128"/><stop offset=".62" stop-color="#1B211F"/><stop offset="1" stop-color="#282216"/></linearGradient>
@@ -16,7 +16,7 @@
   <rect width="1280" height="800" rx="28" fill="#090B0A"/>
   <rect x="24" y="24" width="1232" height="752" rx="24" fill="url(#bg)" stroke="#2C302E" stroke-width="1.25"/>
   <rect x="25" y="25" width="1230" height="750" rx="23" fill="url(#dots)"/>
-  <text x="640" y="68" text-anchor="middle" class="title">Who Decides What a Golavo Forecast Says?</text>
+  <text x="640" y="68" text-anchor="middle" class="title">Who Decides What a Golavo Match Says?</text>
   <text x="640" y="94" text-anchor="middle" class="sub">The local engine chooses the numbers. Facts add context. Optional AI may explain — never edit.</text>
 
   <!-- Casual answer -->
@@ -79,12 +79,12 @@
   <!-- Same seal, different audiences -->
   <g transform="translate(48 650)">
     <rect width="1184" height="94" rx="18" fill="#121514" stroke="#343A37" stroke-width="1.25"/>
-    <text x="20" y="27" class="kicker" fill="#E7C34E">ONE SEALED FORECAST · FOUR READ-ONLY VIEWS</text>
+    <text x="20" y="27" class="kicker" fill="#E7C34E">ONE ENGINE · FOUR READ-ONLY PRODUCT SURFACES</text>
     <g transform="translate(20 42)">
-      <rect width="268" height="34" rx="10" fill="#0B6E4F" fill-opacity=".1" stroke="#2F9E73" stroke-opacity=".38"/><text x="14" y="22" class="kicker" fill="#7DD8B6">CASUAL</text><text x="84" y="22" class="small">plain-language read</text>
-      <rect x="284" width="268" height="34" rx="10" fill="#6082B8" fill-opacity=".1" stroke="#6082B8" stroke-opacity=".38"/><text x="298" y="22" class="kicker" fill="#9AB3DD">EXPERT</text><text x="366" y="22" class="small">seal + matrix + uncertainty</text>
-      <rect x="568" width="268" height="34" rx="10" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".38"/><text x="582" y="22" class="kicker" fill="#E7C34E">LEDGER</text><text x="650" y="22" class="small">results + calibration</text>
-      <rect x="852" width="292" height="34" rx="10" fill="#D9622B" fill-opacity=".08" stroke="#D9622B" stroke-opacity=".38"/><text x="866" y="22" class="kicker" fill="#E88A57">AI DEEP READ</text><text x="970" y="22" class="small">optional cited narrative</text>
+      <rect width="268" height="34" rx="10" fill="#0B6E4F" fill-opacity=".1" stroke="#2F9E73" stroke-opacity=".38"/><text x="14" y="22" class="kicker" fill="#7DD8B6">COCKPIT</text><text x="91" y="22" class="small">model voices + facts</text>
+      <rect x="284" width="268" height="34" rx="10" fill="#6082B8" fill-opacity=".1" stroke="#6082B8" stroke-opacity=".38"/><text x="298" y="22" class="kicker" fill="#9AB3DD">EXPERT</text><text x="366" y="22" class="small">grid + uncertainty</text>
+      <rect x="568" width="268" height="34" rx="10" fill="#C9A227" fill-opacity=".09" stroke="#C9A227" stroke-opacity=".38"/><text x="582" y="22" class="kicker" fill="#E7C34E">MODEL LAB</text><text x="674" y="22" class="small">seals + backtests</text>
+      <rect x="852" width="292" height="34" rx="10" fill="#D9622B" fill-opacity=".08" stroke="#D9622B" stroke-opacity=".38"/><text x="866" y="22" class="kicker" fill="#E88A57">AI ANALYST</text><text x="963" y="22" class="small">optional cited synthesis</text>
     </g>
   </g>
 </svg>

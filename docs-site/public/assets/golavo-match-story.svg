@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
-  <title id="title">How one Golavo forecast moves from prediction to an honest score</title>
-  <desc id="desc">A synthetic walkthrough showing a pre-kickoff home, draw and away forecast, an immutable sealed artifact with pinned model and source metadata, and a separate scored successor after a two-one result. The original probabilities remain unchanged.</desc>
+  <title id="title">How a Golavo Match Cockpit preview becomes a sealed forecast and an honest score</title>
+  <desc id="desc">A synthetic walkthrough showing separate model voices before kickoff, an immutable sealed artifact with pinned model and source metadata, and a separate scored successor after a two-one result. The original probabilities remain unchanged.</desc>
   <defs>
     <linearGradient id="bg" x1="24" y1="24" x2="1176" y2="596" gradientUnits="userSpaceOnUse"><stop stop-color="#171B1A"/><stop offset=".55" stop-color="#101312"/><stop offset="1" stop-color="#0B0E0D"/></linearGradient>
     <linearGradient id="sealCard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#173128"/><stop offset=".58" stop-color="#1E2423"/><stop offset="1" stop-color="#282216"/></linearGradient>
@@ -18,8 +18,8 @@
   <rect x="24" y="24" width="1152" height="572" rx="24" fill="url(#bg)" stroke="#2C302E" stroke-width="1.25"/>
   <rect x="25" y="25" width="1150" height="570" rx="23" fill="url(#waves)"/>
 
-  <text x="600" y="68" text-anchor="middle" class="title">One Forecast. Two Receipts. No Convenient Amnesia.</text>
-  <text x="600" y="95" text-anchor="middle" class="sub">Synthetic walkthrough · Everything stays visible; the moving ball simply shows the order.</text>
+  <text x="600" y="68" text-anchor="middle" class="title">Preview. Seal. Score. No Convenient Amnesia.</text>
+  <text x="600" y="95" text-anchor="middle" class="sub">Synthetic walkthrough · Compare first; only a deliberate pre-kickoff seal becomes a claim.</text>
 
   <!-- animated progress rail stays entirely in the gaps -->
   <path d="M372 308H436M764 308H828" class="route" marker-end="url(#arrow)"/>
@@ -28,10 +28,10 @@
   <g transform="translate(44 130)" filter="url(#shadow)">
     <rect width="328" height="364" rx="18" class="card"/>
     <rect width="328" height="364" rx="18" fill="none" stroke="#6082B8" stroke-width="2" class="halo"/>
-    <text x="20" y="31" class="kicker" fill="#9AB3DD">1 · BEFORE KICKOFF</text>
+    <text x="20" y="31" class="kicker" fill="#9AB3DD">1 · MODEL COUNCIL</text>
     <rect x="232" y="16" width="76" height="24" rx="12" fill="#6082B8" fill-opacity=".14"/><text x="270" y="32" text-anchor="middle" class="kicker" fill="#B9CBEB">14:00 UTC</text>
-    <text x="20" y="68" class="head">The model makes one claim</text>
-    <text x="20" y="90" class="small">Pinned source state · chronological fit</text>
+    <text x="20" y="68" class="head">Two voices stay separate</text>
+    <text x="20" y="90" class="small">Elo ratings · Dixon–Coles goals · baseline</text>
 
     <g transform="translate(20 112)">
       <rect width="288" height="58" rx="12" fill="#101312" stroke="#343A37"/>
@@ -42,7 +42,7 @@
     </g>
 
     <g transform="translate(20 186)">
-      <text x="0" y="16" class="kicker" fill="#E7C34E">WIN / DRAW / LOSS</text>
+      <text x="0" y="16" class="kicker" fill="#E7C34E">ONE VOICE · WIN / DRAW / LOSS</text>
       <rect y="28" width="288" height="18" rx="9" fill="#27302D"/>
       <path d="M9 28h129a9 9 0 010 18H9a9 9 0 010-18z" fill="#D4AD2E"/>
       <rect x="138" y="28" width="81" height="18" fill="#6082B8"/>
@@ -112,7 +112,7 @@
   </g>
   <path d="M194 524H978" fill="none" stroke="#343A37" stroke-width="1.5"/>
   <circle cx="194" cy="524" r="4" fill="#9AB3DD"/><circle cx="586" cy="524" r="4" fill="#E7C34E"/><circle cx="978" cy="524" r="4" fill="#E88A57"/>
-  <text x="194" y="551" text-anchor="middle" class="kicker" fill="#9AB3DD">PINNED DATA</text><text x="586" y="551" text-anchor="middle" class="kicker" fill="#E7C34E">SEALED FORECAST</text><text x="978" y="551" text-anchor="middle" class="kicker" fill="#E88A57">LINKED RESULT</text>
+  <text x="194" y="551" text-anchor="middle" class="kicker" fill="#9AB3DD">EXPLORATORY READ</text><text x="586" y="551" text-anchor="middle" class="kicker" fill="#E7C34E">SEALED FORECAST</text><text x="978" y="551" text-anchor="middle" class="kicker" fill="#E88A57">LINKED RESULT</text>
   <rect x="148" y="570" width="904" height="20" rx="10" fill="#C9A227" fill-opacity=".075" stroke="#C9A227" stroke-opacity=".28"/>
   <text x="600" y="584" text-anchor="middle" class="mono" fill="#E7C34E">THE RESULT SCORES THE CLAIM · IT DOES NOT GET TO REWRITE IT</text>
 </svg>

@@ -51,35 +51,53 @@
 > and season projections, observed xG/lineups/injuries, and a club forward loop are not.
 > This is a football analysis workbench, **not a betting product**.
 
-## The match
+## Golavo at a glance
+
+| If you are here to… | Start with | What you get |
+| --- | --- | --- |
+| **Read a match** | Games → open any past or upcoming fixture | Two separate model voices, the likely scoreline, honest disagreement, and three source-backed facts |
+| **Put a prediction on the record** | Seal an eligible upcoming international | An immutable pre-kickoff claim that is scored or voided later without rewriting the original |
+| **Audit the system** | Model Lab | Track record, chronological backtests, methodologies, calibration, artifact hashes, and provenance |
+| **Build or review the code** | [Architecture](https://udhawan97.github.io/Golavo/architecture/) → [Build from source](https://udhawan97.github.io/Golavo/build-from-source/) | The Tauri → React → FastAPI → deterministic Python boundary, typed contracts, and local verification commands |
+
+<p align="center">
+  <img src="docs-site/public/screenshots/games-home.png" alt="Golavo Games home with match search, league shortcuts, onboarding, and recent results" width="920">
+</p>
+
+<p align="center">
+  <sub><strong>Games first.</strong> A fresh install opens on football: search, leagues, recent results, and any honestly available upcoming fixtures.</sub>
+</p>
+
+## The Match Cockpit
 
 Most prediction products show you a number. Golavo shows you **where it came from,
 when it was locked, and what happened to it after the whistle**. The result may humble
 the model; it may not help with the rewrite.
 
 <p align="center">
-  <a href="docs-site/public/assets/golavo-match-story.svg"><img src="docs-site/public/assets/golavo-match-story.svg" alt="Animated synthetic Golavo walkthrough: a pre-kickoff home, draw and away forecast becomes an immutable sealed artifact, then a separate post-match receipt scores the unchanged claim and updates forward calibration" width="980"></a>
+  <img src="docs-site/public/screenshots/match-cockpit.png" alt="Golavo Match Cockpit replay comparing Elo ratings and Dixon–Coles probabilities without averaging them" width="920">
 </p>
 
 <p align="center">
-  <sub><strong>Synthetic walkthrough.</strong> All details stay visible; subtle motion only traces the order. Click for the full-size view.</sub>
+  <sub><strong>Two voices, one baseline, no fake consensus.</strong> This replay reconstructs the view using pre-kickoff data only and explains why the methods disagree.</sub>
 </p>
 
-- **Before kickoff:** pin the source, fit chronologically, and publish the probabilities.
-- **At the seal:** freeze the model state, cutoff, inputs, and payload digest.
-- **After full time:** append a scored or voided successor; never edit the original claim.
+- **Explore:** open any indexed match for a Replay (played) or Preview (scheduled).
+- **Compare:** Elo ratings and Dixon–Coles goals stay separate, with climatology shown only as a baseline.
+- **Seal:** for eligible upcoming internationals, freeze the model, cutoff, inputs, source state, probabilities, and digest.
+- **Score:** after full time, append a scored or voided successor; never edit the original claim.
 
 <details>
-<summary>&nbsp;🖥️&nbsp; See a bundled sample-artifact view</summary>
+<summary>&nbsp;🔏&nbsp; See how sealing keeps the receipts</summary>
 
 <br>
 
 <p align="center">
-  <img src="docs-site/public/screenshots/workbench-matchday.png" alt="Golavo's sealed-forecast list over synthetic sample artifacts, showing sealed, scored, abstained, and voided states" width="920">
+  <a href="docs-site/public/assets/golavo-match-story.svg"><img src="docs-site/public/assets/golavo-match-story.svg" alt="Animated Golavo walkthrough from a model council read to an immutable sealed claim and a separate scored successor" width="980"></a>
 </p>
 
 <p align="center">
-  <sub>The Model Lab's sealed-forecast list, rendered over bundled <strong>synthetic sample artifacts</strong> — clearly labelled in-app, never passed off as real forecasts. This is a sample view, not the Games home; the screenshot predates the Match Cockpit pivot.</sub>
+  <sub><strong>Synthetic walkthrough.</strong> The motion only traces the order; the model state, source receipt, seal, and later result remain separate and visible.</sub>
 </p>
 
 </details>
