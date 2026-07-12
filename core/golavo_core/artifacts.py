@@ -6,13 +6,16 @@ import copy
 import hashlib
 import json
 import math
+import os
 import subprocess
+import tempfile
+import threading
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 
 from golavo_core import __version__
 from golavo_core.ingest import (
@@ -32,6 +35,14 @@ SCHEMA_VERSION = "0.2.0"
 GENERATOR = f"golavo-core/{__version__}"
 DECAY_WINDOW_DAYS = 365 * 8
 MIN_TEAM_MATCHES = 10
+
+# One in-process lock guards every ledger write. A single sidecar process owns its
+# ledger directory, so serialising the collision check + atomic write + audit
+# append is enough to make concurrent seals of the same fixture (a double-click, a
+# retry storm) safe without a cross-process file lock. Content addressing already
+# guarantees repeat writes are byte-identical; the lock only removes the
+# interleaving window on the shared audit.jsonl.
+_WRITE_LOCK = threading.Lock()
 
 
 def _utc(value: str) -> datetime:
@@ -199,14 +210,52 @@ def _team_counts(train: pd.DataFrame, as_of: datetime, teams: tuple[str, str]) -
     }
 
 
-def _write_artifact(artifact: dict[str, Any], output_dir: Path) -> Path:
-    validate_artifact(artifact)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    path = output_dir / f"{artifact['artifact_id']}.json"
-    bytes_to_write = canonical_bytes(artifact) + b"\n"
-    if path.exists() and path.read_bytes() != bytes_to_write:
-        raise FileExistsError(f"immutable artifact collision at {path}")
-    path.write_bytes(bytes_to_write)
+def _atomic_write_bytes(path: Path, data: bytes) -> None:
+    """Write ``data`` to ``path`` atomically: a temp file in the same directory,
+    fsync'd, then ``os.replace``d into place.
+
+    ``Path.write_bytes`` is not atomic — a crash or a kill mid-write (the desktop
+    shell kills the sidecar on every exit) can leave a half-written ``fa_*.json``
+    whose bytes no longer hash to its content-addressed name. That truncated file
+    then makes every retry of the same seal trip the immutable-collision guard
+    forever. Writing to a sibling temp file and renaming means a failure can only
+    ever leave an orphaned ``*.tmp``, never a corrupt artifact.
+    """
+    fd, tmp_name = tempfile.mkstemp(dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp")
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
+
+
+def _is_valid_artifact_bytes(data: bytes, expected_id: str) -> bool:
+    """True iff ``data`` is a fully-formed artifact whose content id is ``expected_id``.
+
+    Used to distinguish a genuine (hash-collision) artifact already on disk from a
+    truncated partial write left by a killed process: a partial write fails to
+    parse or fails integrity verification and is therefore safe to overwrite, while
+    a valid rival under the same id would be a real content collision that must
+    never be silently clobbered.
+    """
+    try:
+        verify_artifact_integrity(json.loads(data), expected_id=expected_id)
+    except (ValueError, KeyError, ValidationError):
+        # A corrupt/partial file fails to parse (json.JSONDecodeError is a
+        # ValueError), fails schema (ValidationError), or fails the hash/id check
+        # (ValueError). Any other failure — e.g. an OSError reading the schema — is
+        # environmental, not evidence the file is corrupt, so let it propagate
+        # rather than silently overwrite a possibly-good artifact.
+        return False
+    return True
+
+
+def _append_audit_event(artifact: dict[str, Any], output_dir: Path) -> None:
     event = {
         "artifact_id": artifact["artifact_id"],
         "created_at_utc": artifact["provenance"]["created_at_utc"],
@@ -220,13 +269,35 @@ def _write_artifact(artifact: dict[str, Any], output_dir: Path) -> Path:
     if line not in existing:
         with audit_path.open("ab") as stream:
             stream.write(line)
+
+
+def _write_artifact(artifact: dict[str, Any], output_dir: Path) -> Path:
+    validate_artifact(artifact)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / f"{artifact['artifact_id']}.json"
+    bytes_to_write = canonical_bytes(artifact) + b"\n"
+    with _WRITE_LOCK:
+        write_needed = True
+        if path.exists():
+            existing = path.read_bytes()
+            if existing == bytes_to_write:
+                write_needed = False  # idempotent: this exact content is already sealed
+            elif _is_valid_artifact_bytes(existing, path.stem):
+                # A different, *valid* artifact under this id is a genuine content
+                # collision (the id is the hash of the content) and must never be
+                # silently overwritten.
+                raise FileExistsError(f"immutable artifact collision at {path}")
+            # else: a corrupt/truncated leftover from a killed write — repair it by
+            # falling through to the atomic overwrite below.
+        if write_needed:
+            _atomic_write_bytes(path, bytes_to_write)
+        _append_audit_event(artifact, output_dir)
     return path
 
 
-def seal_forecast(
+def build_forecast_artifact(
     *,
     pack_dir: Path,
-    output_dir: Path,
     date: str,
     home_team: str,
     away_team: str,
@@ -235,8 +306,20 @@ def seal_forecast(
     family: str = "elo_ordlogit",
     seed: int = 20260710,
     match_id: str | None = None,
-) -> Path:
-    """Seal a deterministic forecast and append one audit event."""
+) -> dict[str, Any]:
+    """Compute a sealed ForecastArtifact WITHOUT writing it to disk.
+
+    The deterministic core of ``seal_forecast`` — it reads the pinned pack and the
+    code SHA but never touches the ledger. It enforces every seal invariant — the
+    snapshot anchor is not in the future, exactly one fixture
+    matches, the fixture has no result yet, ``as_of`` is before kickoff, training
+    is cut off leak-free, the abstain floor is applied, and any goal-model score
+    matrix is proven coherent — then returns a fully content-addressed artifact
+    dict with its ``artifact_id`` and ``payload_sha256`` set. ``seal_forecast`` is
+    exactly this plus an atomic write, so an in-app forecast route can run the same
+    deterministic engine and persist through the one shared write path. Raises the
+    same typed ``ValueError``s as ``seal_forecast`` on any invariant violation.
+    """
     if family not in FAMILIES:
         raise ValueError(f"unknown model family: {family}")
     as_of = _utc(as_of_utc)
@@ -349,13 +432,48 @@ def seal_forecast(
     stable["provenance"].pop("payload_sha256")
     artifact["artifact_id"] = _artifact_id(stable)
     artifact["provenance"]["payload_sha256"] = payload_sha256(artifact)
+    return artifact
+
+
+def seal_forecast(
+    *,
+    pack_dir: Path,
+    output_dir: Path,
+    date: str,
+    home_team: str,
+    away_team: str,
+    as_of_utc: str,
+    horizon: str = "T-24h",
+    family: str = "elo_ordlogit",
+    seed: int = 20260710,
+    match_id: str | None = None,
+) -> Path:
+    """Seal a deterministic forecast to ``output_dir`` and append one audit event.
+
+    Thin wrapper over ``build_forecast_artifact`` (the deterministic engine) plus
+    the shared atomic write — kept as the stable entry point for the CLI and any
+    caller that wants compute-and-persist in one step.
+    """
+    artifact = build_forecast_artifact(
+        pack_dir=pack_dir,
+        date=date,
+        home_team=home_team,
+        away_team=away_team,
+        as_of_utc=as_of_utc,
+        horizon=horizon,
+        family=family,
+        seed=seed,
+        match_id=match_id,
+    )
     return _write_artifact(artifact, output_dir)
 
 
 def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Path) -> Path:
     """Score a seal from a newer snapshot, writing a superseding artifact."""
-    sealed = json.loads(artifact_path.read_text(encoding="utf-8"))
-    validate_artifact(sealed)
+    # Integrity-verify the input seal, not just its schema: a tampered fa_*.json
+    # must be rejected here rather than acquiring a scored successor and only being
+    # caught later when the calibration aggregator re-reads the ledger.
+    sealed = load_verified_artifact(artifact_path)
     if sealed["status"] != "sealed" or sealed["forecast"]["probs"] is None:
         raise ValueError("only a non-abstained sealed artifact can be scored")
     newer_snapshot = snapshot_descriptor(newer_pack_dir)
@@ -415,8 +533,9 @@ def void_forecast(
     *, artifact_path: Path, output_dir: Path, voided_at_utc: str, reason: str
 ) -> Path:
     """Void a seal (postponement, abandonment): an immutable successor, never a result."""
-    sealed = json.loads(artifact_path.read_text(encoding="utf-8"))
-    validate_artifact(sealed)
+    # Integrity-verify the input seal (see score_forecast): a hand-edited artifact
+    # must not be able to spawn a voided successor that launders the tamper.
+    sealed = load_verified_artifact(artifact_path)
     if sealed["status"] not in {"sealed", "abstained"}:
         raise ValueError("only a sealed or abstained artifact can be voided")
     if not reason.strip():
