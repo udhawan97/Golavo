@@ -30,6 +30,14 @@
     "createUpdaterArtifacts": false,
     "category": "Utility",
     "shortDescription": "Forecast Audit Workbench",
-    "longDescription": "Golavo bundles a local FastAPI sidecar and a read-only workbench over deterministic football forecasts sealed before kickoff and scored after full time."
+    "longDescription": "Golavo bundles a local FastAPI sidecar and a read-only workbench over deterministic football forecasts sealed before kickoff and scored after full time.",
+    "macOS": {
+      "dmg": {
+        "background": "src-tauri/dmg/background.png",
+        "windowSize": { "width": 660, "height": 460 },
+        "appPosition": { "x": 180, "y": 185 },
+        "applicationFolderPosition": { "x": 480, "y": 185 }
+      }
+    }
   }
 }
