@@ -268,14 +268,39 @@ def search_matches(
     away_norm = frame["away_norm"].fillna("")
     comp_norm = frame["competition"].fillna("").str.casefold()
 
-    mask = (
-        home_norm.str.contains(nq, regex=False)
-        | away_norm.str.contains(nq, regex=False)
-        | comp_norm.str.contains(nq, regex=False)
-    )
-    canonical = _load_aliases().get(nq, [])
-    if canonical:
-        canon_norms = {_normalize(name) for name in canonical}
+    aliases = _load_aliases()
+
+    def _token_mask(token: str) -> Any:
+        submask = (
+            home_norm.str.contains(token, regex=False)
+            | away_norm.str.contains(token, regex=False)
+            | comp_norm.str.contains(token, regex=False)
+        )
+        canonical = aliases.get(token, [])
+        if canonical:
+            canon_norms = {_normalize(name) for name in canonical}
+            submask = submask | home_norm.isin(canon_norms) | away_norm.isin(canon_norms)
+        return submask
+
+    # Tokenize on whitespace and AND the per-token matches, so a multi-word query
+    # like "argentina switzerland" requires BOTH terms to appear (in either team or
+    # the competition) instead of matching the whole string as one substring — which
+    # found nothing, because no single field literally contains "argentina switzerland".
+    # A single-token query reduces to the old behaviour exactly.
+    tokens = nq.split()
+    lead = tokens[0] if tokens else nq
+    if not tokens:
+        mask = pd.Series(False, index=frame.index)
+    else:
+        mask = _token_mask(tokens[0])
+        for token in tokens[1:]:
+            mask = mask & _token_mask(token)
+
+    # Multi-word former-name aliases (e.g. "soviet union" -> Russia) cannot be hit
+    # token-by-token, so also resolve the WHOLE query as an alias key and OR that in.
+    whole_alias = aliases.get(nq, [])
+    if whole_alias:
+        canon_norms = {_normalize(name) for name in whole_alias}
         mask = mask | home_norm.isin(canon_norms) | away_norm.isin(canon_norms)
 
     sel = frame.loc[mask]
@@ -287,17 +312,20 @@ def search_matches(
     if status == "played":
         sel = sel.loc[played]
     elif status == "upcoming":
-        now = pd.Timestamp.now(tz="UTC")
+        # kickoff is a 00:00 UTC day proxy, so compare against the START of today,
+        # not `now` — otherwise a fixture drops out of "upcoming" at UTC midnight on
+        # its own match day (kickoff 00:00 < now), exactly when interest peaks.
+        today = pd.Timestamp.now(tz="UTC").normalize()
         kickoff = pd.to_datetime(sel["kickoff_utc"], utc=True)
-        sel = sel.loc[(~played) & (kickoff >= now)]
+        sel = sel.loc[(~played) & (kickoff >= today)]
 
     total = int(len(sel))
 
     sel = sel.copy()
     h = sel["home_norm"].fillna("")
     a = sel["away_norm"].fillna("")
-    # False sorts before True (ascending), so prefix hits lead.
-    sel["_not_prefix"] = ~(h.str.startswith(nq) | a.str.startswith(nq))
+    # False sorts before True (ascending), so a leading-token prefix hit leads.
+    sel["_not_prefix"] = ~(h.str.startswith(lead) | a.str.startswith(lead))
     sel["_ko"] = pd.to_datetime(sel["kickoff_utc"], utc=True)
     sel = sel.sort_values(
         by=["_not_prefix", "_ko", "match_id"],

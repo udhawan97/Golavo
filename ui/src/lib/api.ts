@@ -435,14 +435,27 @@ export async function searchMatches(
     let rows = matches.slice();
     if (opts.competition) rows = rows.filter((m) => m.competition === opts.competition);
     if (opts.status === "played") rows = rows.filter((m) => m.is_complete);
-    else if (opts.status === "upcoming") rows = rows.filter((m) => !m.is_complete);
-    if (nq)
+    else if (opts.status === "upcoming") {
+      // Match the server: kickoff is a 00:00 UTC day proxy, so "upcoming" is
+      // measured from the start of today — a fixture stays listed on its match day.
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
       rows = rows.filter(
-        (m) =>
-          normalizeText(m.home_team).includes(nq) ||
-          normalizeText(m.away_team).includes(nq) ||
-          normalizeText(m.competition).includes(nq),
+        (m) => !m.is_complete && new Date(m.kickoff_utc).getTime() >= today.getTime(),
       );
+    }
+    // Tokenize like the server: every whitespace-separated term must appear in one
+    // of the team names or the competition, so "argentina switzerland" resolves.
+    const tokens = nq.split(/\s+/).filter(Boolean);
+    if (tokens.length)
+      rows = rows.filter((m) => {
+        const fields = [
+          normalizeText(m.home_team),
+          normalizeText(m.away_team),
+          normalizeText(m.competition),
+        ];
+        return tokens.every((tok) => fields.some((f) => f.includes(tok)));
+      });
     // Newest kickoff first, stable on match_id — deterministic paging.
     rows.sort(
       (a, b) =>

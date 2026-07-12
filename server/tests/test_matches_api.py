@@ -135,6 +135,54 @@ def test_search_happy_path_and_pagination(client):
     )
 
 
+def test_multi_team_query_ands_tokens(client):
+    # "brazil argentina" must resolve to the single Brazil v Argentina fixture — not
+    # 0 results (the old whole-string bug) and not every Brazil match.
+    body = client.get("/api/v1/matches/search", params={"q": "brazil argentina"}).json()
+    assert {m["match_id"] for m in body["matches"]} == {"m_target"}
+    # Order-independent: each token may match either team (or the competition).
+    reversed_ = client.get("/api/v1/matches/search", params={"q": "argentina brazil"}).json()
+    assert {m["match_id"] for m in reversed_["matches"]} == {"m_target"}
+    # A token that matches nothing yields nothing (AND semantics).
+    assert client.get("/api/v1/matches/search", params={"q": "brazil zzznope"}).json()["total"] == 0
+    # A single-token query is unchanged (every Brazil match).
+    single = client.get("/api/v1/matches/search", params={"q": "brazil"}).json()
+    assert {m["match_id"] for m in single["matches"]} == {"m_n1", "m_n2", "m_n3", "m_target"}
+
+
+def test_upcoming_includes_a_fixture_on_its_own_match_day(tmp_path, monkeypatch):
+    # A scheduled fixture whose 00:00 UTC day-proxy kickoff is TODAY must still count
+    # as upcoming; the old `kickoff >= now` excluded it the moment UTC midnight passed.
+    from datetime import UTC, datetime
+
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
+    rows = [_row("m_today", today, "Foo", "Bar", "foo", "bar", None, None, False,
+                 "Friendly", _INTL, "international")]
+    index_path = tmp_path / "today.parquet"
+    _build_index(index_path, rows)
+    monkeypatch.setattr(matches, "INDEX_PATH", index_path)
+    matches.reset_cache()
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", tmp_path / "ledger")
+    client = TestClient(server_main.app)
+    body = client.get("/api/v1/matches/search", params={"q": "foo", "status": "upcoming"}).json()
+    assert [m["match_id"] for m in body["matches"]] == ["m_today"]
+
+
+def test_multiword_alias_resolves_to_canonical_team(tmp_path, monkeypatch):
+    # A multi-word former name (real alias "soviet union" -> Russia) must still
+    # resolve to the canonical team, even though it can't match token-by-token.
+    rows = [_row("m_rus", "2030-01-01", "Russia", "Foo", "russia", "foo", None, None, False,
+                 "Friendly", _INTL, "international")]
+    index_path = tmp_path / "alias.parquet"
+    _build_index(index_path, rows)
+    monkeypatch.setattr(matches, "INDEX_PATH", index_path)
+    matches.reset_cache()
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", tmp_path / "ledger")
+    client = TestClient(server_main.app)
+    body = client.get("/api/v1/matches/search", params={"q": "soviet union"}).json()
+    assert "m_rus" in {m["match_id"] for m in body["matches"]}
+
+
 def test_search_min_chars_is_422(client):
     assert client.get("/api/v1/matches/search", params={"q": "a"}).status_code == 422
     assert client.get("/api/v1/matches/search", params={"q": "  "}).status_code == 422
