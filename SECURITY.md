@@ -20,13 +20,13 @@ keys, optional AI, and the update path.
 
 | Area | Commitment |
 |---|---|
-| **Local sidecar** | Binds `127.0.0.1` on an ephemeral port; every request requires a per-launch token. Strict CORS/CSP locked to the app origin. |
-| **Provider keys** | Stored in the OS keychain only — never in SQLite, logs, exports, or crash reports. A redaction filter runs on all logging. |
+| **Local sidecar** | Binds loopback (`127.0.0.1`) on an ephemeral port — a non-loopback bind is refused outright. Every `/api` request requires a per-launch token, handed to the sidecar through its **environment** (not a command-line argument), so it is not exposed in the process list. CORS is limited to the local dev and Tauri webview origins; the CSP restricts connections to self and loopback. |
+| **Provider keys** | Read from an environment variable, or on macOS the login keychain (`security`); sent only in a request header, and **never** written to artifacts, caches, logs, or responses (the AI gateway logs no request bodies or headers). There is no Windows/Linux credential store yet — those platforms use the environment variable. |
 | **Prompt injection** | Fetched text is sanitized and delimited as untrusted; the model has no shell/file tools; a CI red-team suite must fail closed on any attempt to change a probability or exfiltrate a key. |
 | **Data / model packs** | **Hash-verified before load:** each pack carries a per-file SHA-256 manifest, and every retained snapshot's manifest hash is pinned in `packs/snapshots.json`; the app re-hashes every declared file. Minisign **signature** verification against a pinned public key (authenticity, plus an unsigned-pack override) is **planned (ADR-0001), not yet implemented** — because the manifest lives inside the pack, today's check catches corruption, not a forged pack. |
-| **Updates** | A Tauri auto-updater has landed but is **gated on signing secrets that are not configured**, so released desktop builds are **unsigned pre-releases** carrying SHA-256 checksums only. The signed updater, signed artifacts, and offline signing-key escrow remain **planned (ADR-0001)** before any stable, signed release. |
-| **Migrations** | Backup-before-migrate, row-count verification, and a rollback offer on repeated failed launches. |
-| **Telemetry** | None. Crash reports are written locally; the user chooses whether to attach them to an issue. |
+| **Updates** | In-app updates are **cryptographically signed in CI and verified against a pinned public key** before install (v0.2.1+); every release asset also carries a SHA-256 checksum. The installers themselves are **not yet OS code-signed/notarized**, so a first manual install warns on macOS Gatekeeper / Windows SmartScreen. The signing key lives in offline escrow plus a CI secret. |
+| **Update safety** | On update the ledger is backed up and the new build is health-checked; a build that fails to launch is rolled back to the previous version. There is no database or migration layer today. |
+| **Telemetry** | None. No crash reporting exists — nothing about your usage, forecasts, or keys is collected or sent anywhere. |
 
 ## Out of scope
 
