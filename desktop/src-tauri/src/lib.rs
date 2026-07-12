@@ -240,8 +240,6 @@ fn spawn_sidecar(
             "127.0.0.1",
             "--port",
             &port.to_string(),
-            "--token",
-            token,
             "--data-dir",
             data_dir,
             // The sidecar exits if this shell dies. Belt-and-suspenders with the
@@ -249,7 +247,12 @@ fn spawn_sidecar(
             // Python child that Tauri's kill can't reach, so the child watches us.
             "--parent-pid",
             &std::process::id().to_string(),
-        ]);
+        ])
+        // Hand the launch token to the sidecar through the environment, never as a
+        // --token CLI argument: argv is readable by any same-user process via
+        // `ps`/pgrep. The sidecar's --token defaults to GOLAVO_TOKEN, so this is the
+        // exact same per-launch secret, just no longer exposed in the process list.
+        .env("GOLAVO_TOKEN", token);
     let (mut rx, child) = command.spawn().map_err(|e| e.to_string())?;
 
     // Drain the sidecar's output so its pipes never fill and we get diagnostics;

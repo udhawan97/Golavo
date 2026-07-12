@@ -82,6 +82,16 @@ def test_data_dir_honours_the_environment_override(monkeypatch, tmp_path) -> Non
     assert runtime.data_dir().name == "artifacts"
 
 
+def test_serve_refuses_a_non_loopback_host() -> None:
+    # The sidecar is local-only; binding a routable interface must be refused, not
+    # silently exposed. Loopback hosts are accepted.
+    for host in ("127.0.0.1", "localhost", "::1"):
+        sidecar._assert_loopback(host)  # no raise
+    for host in ("0.0.0.0", "192.168.1.10", "::"):
+        with pytest.raises(SystemExit):
+            sidecar._assert_loopback(host)
+
+
 def test_sidecar_version_mode_prints_and_exits_zero(capsys) -> None:
     from golavo_server import __version__
 

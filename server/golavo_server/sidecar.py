@@ -173,6 +173,20 @@ def _warm_search() -> None:
         pass
 
 
+# The sidecar is a local-only backend, so it must bind loopback — nothing on the
+# network should be able to reach the API (token-gated or not). A misconfigured
+# --host / GOLAVO_HOST that would expose it on a routable interface is refused.
+_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
+
+
+def _assert_loopback(host: str) -> None:
+    if host not in _LOOPBACK_HOSTS:
+        raise SystemExit(
+            f"refusing to bind the sidecar to non-loopback host {host!r}: the Golavo "
+            "API is local-only; use 127.0.0.1, localhost, or ::1"
+        )
+
+
 def _serve(
     host: str,
     port: int,
@@ -182,6 +196,7 @@ def _serve(
 ) -> None:
     """Run uvicorn (blocking). Env is set BEFORE importing the app so its
     module-level config (ledger dir) and the token gate see the right values."""
+    _assert_loopback(host)
     if token:
         os.environ["GOLAVO_TOKEN"] = token
     if data_dir:
