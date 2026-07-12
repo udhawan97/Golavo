@@ -16,6 +16,7 @@ import type {
   CalibrationSummary,
   CompetitionsResponse,
   EvalSummary,
+  FixturesCheckResponse,
   ForecastArtifact,
   MatchDetailResponse,
   MatchNotebookResponse,
@@ -389,6 +390,26 @@ export async function fetchNarrative(id: string, provider: AiProvider): Promise<
   });
   if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);
   return { ...base, ...(await res.json()) } as NarrativeResponse;
+}
+
+/**
+ * Opt-in fixture freshness (see the "keep fixtures up to date" setting).
+ *
+ * Hits the ONE network-reaching route, `/fixtures/check`, which reports upcoming
+ * games present upstream but not yet in this build's index. Best-effort: any
+ * failure (offline, 503, no backend) yields `null`, so this convenience never
+ * disrupts the app. Callers should invoke it ONLY when the user enabled the
+ * setting — the app must not reach the network otherwise.
+ */
+export async function checkNewFixtures(): Promise<FixturesCheckResponse | null> {
+  if (!API_BASE) return null;
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/fixtures/check`, { headers: apiHeaders() });
+    if (!res.ok) return null;
+    return (await res.json()) as FixturesCheckResponse;
+  } catch {
+    return null;
+  }
 }
 
 // ---- Match directory --------------------------------------------------------

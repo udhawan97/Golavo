@@ -396,6 +396,21 @@ export interface MatchDetailResponse {
   seal_eligibility?: SealEligibility;
 }
 
+/** An upcoming fixture present upstream but not yet in this build's index. */
+export interface NewFixture {
+  date: string;
+  home_team: string;
+  away_team: string;
+  competition: string;
+}
+
+export interface FixturesCheckResponse {
+  schema_version: SchemaVersion;
+  source_ref: string;
+  checked_at_utc: string;
+  new_fixtures: NewFixture[];
+}
+
 export interface CompetitionSummary {
   competition: string;
   source_kind: SourceKind;

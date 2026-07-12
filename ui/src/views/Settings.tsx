@@ -8,6 +8,7 @@
  */
 import { SCHEMA_VERSION } from "../lib/contract";
 import { sourceDescription } from "../lib/api";
+import { useKeepFixturesFresh } from "../lib/fixtures";
 import { useUpdater } from "../lib/updater-context";
 import { formatWhen } from "../lib/updater";
 import { DOCS_URL, RELEASES_URL } from "../lib/links";
@@ -20,6 +21,7 @@ function appVersionLabel(statusVersion: string | undefined): string {
 
 export function Settings() {
   const u = useUpdater();
+  const [keepFresh, setKeepFresh] = useKeepFixturesFresh();
   const version = appVersionLabel(u.status?.appVersion);
   // From the persisted skip, not the live phase — so it's manageable even on a
   // fresh boot with auto-check off, where no check has run this session.
@@ -51,6 +53,27 @@ export function Settings() {
               <a href={DOCS_URL} target="_blank" rel="noreferrer">Documentation</a>
             </span>
           </div>
+        </div>
+      </section>
+
+      <section className="panel" aria-labelledby="settings-data">
+        <div className="panel__head"><h2 id="settings-data">Data</h2></div>
+        <div className="panel__body stack settings__rows">
+          <div className="settings__row">
+            <label htmlFor="fixtures-toggle">Keep fixtures up to date</label>
+            <input
+              id="fixtures-toggle"
+              type="checkbox"
+              checked={keepFresh}
+              onChange={(e) => setKeepFresh(e.target.checked)}
+            />
+          </div>
+          <p className="dim settings__hint">
+            When on, Golavo asks the public CC0 fixture source, on launch, whether a new
+            upcoming international match has appeared, and flags it on the Matches page so you
+            can forecast it. This is the only time the app reaches the internet on its own —
+            it’s off by default, reads only public fixture data, and sends nothing.
+          </p>
         </div>
       </section>
 
