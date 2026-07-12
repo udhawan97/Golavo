@@ -64,6 +64,18 @@ datas += [
         "aliases.json",
     )
 ]
+# CC0 internationals pack: seal.resolve_pack_dir trains an in-app forward forecast
+# from this pinned snapshot, so the frozen app must carry it — without it every
+# in-app seal reports pack_unavailable. Only the internationals source is
+# forward-sealable today (the five openfootball leagues share one source_id and
+# can't be told apart), so only its pack ships (~6.7MB). validate_pack re-hashes
+# every manifest-listed file, so the whole pack directory is bundled at its
+# repo-relative layout for golavo_core.resources to resolve under sys._MEIPASS.
+datas += [
+    (path, "packs/martj42-internationals")
+    for path in glob.glob(os.path.join(ROOT, "packs", "martj42-internationals", "*"))
+    if os.path.isfile(path)
+]
 
 # uvicorn and the golavo packages import submodules dynamically; collect them so
 # the frozen server can actually boot. numpy/pandas/scipy/pyarrow are handled by

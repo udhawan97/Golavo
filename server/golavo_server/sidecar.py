@@ -296,10 +296,23 @@ def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
         )
         return 1
 
+    # The internationals pack must be bundled, else every in-app forecast seal
+    # reports pack_unavailable (the route can't train). A direct resolver check is
+    # the tightest guard — it needs no in-window fixture (none may be schedulable).
+    from golavo_server import seal
+
+    if seal.resolve_pack_dir("martj42-international-results", "international") is None:
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED — internationals pack not bundled; "
+            "in-app forecast sealing would report pack_unavailable",
+            file=sys.stderr,
+        )
+        return 1
+
     n = len(search_body["matches"])
     print(
         f"golavo-sidecar {__version__}: smoke OK on {host}:{port} "
-        f"(health + {n} search matches + notebook {match_id})"
+        f"(health + {n} search matches + notebook {match_id} + internationals pack)"
     )
     return 0
 

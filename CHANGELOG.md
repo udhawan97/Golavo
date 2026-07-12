@@ -6,7 +6,29 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-07-12
+
 ### Added
+- **Generate a forecast from inside the app — no CLI.** A new write route
+  `POST /api/v1/matches/{match_id}/seal` runs the same deterministic engine as
+  `golavo seal` (byte-identical) and persists an immutable artifact; `GET
+  /api/v1/matches/{match_id}` now carries a typed `seal_eligibility` verdict. The
+  match page shows a **Generate local forecast** button for an eligible fixture,
+  and an honest, reason-specific message otherwise (already played, seal window
+  closed, internationals-only, pack unavailable). Forward seals cover men's senior
+  internationals — the only source that maps to one pinned CC0 pack. The client
+  supplies only a match id and optional model family; the pack, training date, and
+  as-of are all resolved server-side, so a seal cannot be backdated or pointed at
+  an untrusted pack. Idempotent per (fixture, family), and it runs off the event
+  loop so a slow seal never freezes the rest of the API. **The desktop build now
+  bundles the internationals pack**, so sealing works in the installed app — the
+  `--smoke` probe fails the build if the pack is missing.
+- **Outcome & goal summaries on the forecast page.** Exact re-buckets of the
+  sealed score distribution — double chance, total-goal thresholds, and the
+  total-goals distribution — computed as true marginals of the same grid, so they
+  reconcile with the 1X2 and score numbers by construction. Analysis language
+  only; markets whose tail isn't exactly recoverable (both-teams-to-score, clean
+  sheets, per-team totals) are deliberately omitted.
 - **Match Search + a Commentator's Notebook for any game.** A new read-only search
   surface over a committed, deterministic Parquet index of **75,079 matches**
   (**49,505 internationals** from martj42 + **25,574 club** from the five openfootball
@@ -48,11 +70,24 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
     **Seal-from-UI is deferred — the API stays all-GET.**
   - **Quick wins:** Matchday + Ledger client-side filters; an AI Deep Read sample-mode
     note; Eval ↔ Ledger cross-links; a Settings footer link; not-found → search.
-  - Known gap: the vendored packs are historical, so `status=upcoming` (which requires
-    `kickoff >= now`) is **empty until a pack refresh** adds scheduled fixtures.
+  - Known gap: the vendored packs are historical, so `status=upcoming` (an unplayed
+    fixture kicking off today or later) is **empty until a pack refresh** adds
+    scheduled fixtures — likewise, in-app sealing has nothing in-window to seal
+    until then, and reports a typed `kickoff_passed`/`pack`-scoped reason honestly.
   - See [`docs/handoff/match-search.md`](docs/handoff/match-search.md).
 
 ### Fixed
+- **Search: multi-word queries and match-day fixtures.** Search now tokenizes the
+  query and requires every term to appear (in either team name or the
+  competition), so "argentina switzerland" resolves to that fixture instead of
+  returning nothing; multi-word former-name aliases (e.g. "soviet union" → Russia)
+  still resolve. `status=upcoming` now measures from the start of today (UTC)
+  rather than `now`, so a fixture stays listed through its own match day instead
+  of vanishing at the midnight-UTC day-proxy kickoff.
+- **Ledger writes are crash-safe.** Artifacts are written atomically (temp file +
+  rename) under a lock, a truncated file left by a killed process is repaired
+  rather than permanently blocking that fixture's id, and scoring/voiding now
+  integrity-verify the input seal before writing a successor.
 - **Frozen sidecar: on-demand Commentator's Notebooks were always empty (desktop
   regression in 0.2.3).** The PyInstaller spec bundled only three of the four
   runtime contract schemas — `docs/contracts/facts.schema.json` was missing — so
