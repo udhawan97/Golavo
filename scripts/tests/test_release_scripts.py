@@ -48,6 +48,14 @@ def fake_repo(tmp_path: Path) -> Path:
         "server/golavo_server/__init__.py": f'__version__ = "{v}"\n',
         # cff-version reproduces the header line the version template must NOT match.
         "CITATION.cff": f'cff-version: 1.2.0\nversion: {v}\ndate-released: "2020-01-01"\n',
+        "docs-site/src/components/Hero.astro": (
+            f'<span class="gh-status-dot"></span>v{v} · unsigned pre-alpha · local-first\n'
+        ),
+        "docs-site/src/content/docs/index.mdx": (
+            f"<p>Golavo is free, open source, local-first, and currently an "
+            f"unsigned v{v} pre-alpha.</p>\n"
+            f"Golavo is at **v{v}**, an unsigned pre-release.\n"
+        ),
     }
     for rel, content in files.items():
         path = tmp_path / rel
@@ -59,7 +67,7 @@ def fake_repo(tmp_path: Path) -> Path:
 def test_bump_rewrites_every_spot_and_recheck_passes(fake_repo: Path) -> None:
     assert bump_version.main(["0.2.0", "--root", str(fake_repo)]) == 0
     versions = bump_version.read_versions(fake_repo)
-    assert set(versions.values()) == {"0.2.0"}
+    assert set(versions) == {"0.2.0"}
     # Dependency pins must be untouched.
     assert 'tauri = { version = "2" }' in (fake_repo / "desktop/src-tauri/Cargo.toml").read_text()
     assert 'version = "2.11.5"' in (fake_repo / "desktop/src-tauri/Cargo.lock").read_text()
@@ -72,6 +80,20 @@ def test_bump_rewrites_every_spot_and_recheck_passes(fake_repo: Path) -> None:
 def test_check_fails_when_one_spot_disagrees(fake_repo: Path) -> None:
     spot = fake_repo / "ui/package.json"
     spot.write_text(spot.read_text().replace("0.1.0", "0.0.9"), encoding="utf-8")
+    with pytest.raises(SystemExit, match="disagree"):
+        bump_version.main(["--check", "--root", str(fake_repo)])
+
+
+def test_check_catches_a_mismatch_between_two_spots_in_the_SAME_file(fake_repo: Path) -> None:
+    # index.mdx carries two independent hardcoded mentions. Keying by file path
+    # alone would let the second reading silently clobber the first in the
+    # returned collection, masking exactly this case.
+    mdx = fake_repo / "docs-site/src/content/docs/index.mdx"
+    text = mdx.read_text()
+    assert text.count("0.1.0") == 2
+    # Desync only the SECOND occurrence.
+    first, _, rest = text.partition("0.1.0")
+    mdx.write_text(first + "0.1.0" + rest.replace("0.1.0", "0.9.9", 1), encoding="utf-8")
     with pytest.raises(SystemExit, match="disagree"):
         bump_version.main(["--check", "--root", str(fake_repo)])
 

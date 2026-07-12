@@ -38,6 +38,11 @@ SPOTS: list[tuple[str, str, int]] = [
     ("server/golavo_server/__init__.py", '__version__ = "{v}"', 1),
     # Leading newline anchors past the "cff-version:" header line.
     ("CITATION.cff", "\nversion: {v}", 1),
+    # Docs-site hardcoded "current version" mentions — these drift silently
+    # because docs-site's build succeeds either way; only this check catches it.
+    ("docs-site/src/components/Hero.astro", ">v{v} · unsigned pre-alpha · local-first", 1),
+    ("docs-site/src/content/docs/index.mdx", "unsigned v{v} pre-alpha", 1),
+    ("docs-site/src/content/docs/index.mdx", "Golavo is at **v{v}**", 1),
 ]
 
 
@@ -46,9 +51,15 @@ def _template_regex(template: str) -> re.Pattern[str]:
     return re.compile(re.escape(template).replace(re.escape("{v}"), f"({SEMVER})"))
 
 
-def read_versions(root: Path) -> dict[str, str]:
-    """Map each spot's path to the version it currently declares."""
-    found: dict[str, str] = {}
+def read_versions(root: Path) -> list[str]:
+    """The version found at each SPOTS entry, in order.
+
+    Indexed by position, NOT by file path: several files (index.mdx) carry more
+    than one independent spot, and keying by path would let a later spot's
+    reading silently overwrite an earlier one for the same file — masking a real
+    mismatch between two hardcoded mentions in one document.
+    """
+    found: list[str] = []
     for rel, template, count in SPOTS:
         text = (root / rel).read_text(encoding="utf-8")
         matches = _template_regex(template).findall(text)
@@ -57,15 +68,18 @@ def read_versions(root: Path) -> dict[str, str]:
                 f"{rel}: expected exactly {count} version spot(s) matching "
                 f"{template!r}, found {len(matches)}"
             )
-        found[rel] = matches[0]
+        found.append(matches[0])
     return found
 
 
 def check(root: Path, expected: str | None) -> None:
     versions = read_versions(root)
-    unique = sorted(set(versions.values()))
+    unique = sorted(set(versions))
     if len(unique) != 1:
-        detail = "\n".join(f"  {rel}: {v}" for rel, v in sorted(versions.items()))
+        detail = "\n".join(
+            f"  {rel} ({template!r}): {v}"
+            for (rel, template, _count), v in zip(SPOTS, versions, strict=True)
+        )
         raise SystemExit(f"version spots disagree:\n{detail}")
     current = unique[0]
     if expected is not None and current != expected:
@@ -77,18 +91,18 @@ def bump(root: Path, new: str) -> None:
     if not re.fullmatch(SEMVER, new):
         raise SystemExit(f"not a semver version: {new!r}")
     versions = read_versions(root)
-    current = versions[SPOTS[0][0]]
+    current = versions[0]
     if new == current:
         raise SystemExit(f"already at {new}")
-    for rel, template, count in SPOTS:
+    for (rel, template, count), old_version in zip(SPOTS, versions, strict=True):
         path = root / rel
         text = path.read_text(encoding="utf-8")
-        old = template.format(v=versions[rel])
+        old = template.format(v=old_version)
         replaced = text.replace(old, template.format(v=new))
         if replaced == text:
             raise SystemExit(f"{rel}: could not rewrite {old!r}")
         path.write_text(replaced, encoding="utf-8")
-        print(f"  {rel}: {versions[rel]} -> {new} ({count} spot)")
+        print(f"  {rel}: {old_version} -> {new} ({count} spot)")
     # A release bump is a release event: refresh the citation date alongside.
     citation = root / "CITATION.cff"
     text = citation.read_text(encoding="utf-8")
