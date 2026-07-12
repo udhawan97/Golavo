@@ -49,6 +49,33 @@ def data_dir() -> Path:
     return resource("data", "artifacts")
 
 
+def refresh_dir() -> Path | None:
+    """Writable directory holding a runtime-refreshed index + pinned pack, or None.
+
+    An opt-in refresh pulls a fresh internationals snapshot into a per-user
+    location so a newly published fixture becomes searchable and sealable without
+    a reinstall. It sits beside the writable ledger (``GOLAVO_DATA_DIR``). In
+    source/CI mode, where the ledger is the read-only bundled resource, there is
+    no writable refresh root, so this returns None — source mode refreshes via the
+    ``watch_and_seal`` script and a committed index instead.
+    """
+    override = os.environ.get("GOLAVO_DATA_DIR")
+    if not override:
+        return None
+    return Path(override).expanduser().parent / "refresh"
+
+
+def refreshed_pack_dir() -> Path | None:
+    """The pinned internationals CC0 pack a runtime refresh writes, or None.
+
+    A single, stable location inside the refresh dir so search (index rebuild),
+    sealing (pack resolution) and the refresh orchestrator all agree on where the
+    fresh snapshot lives. None whenever there is no writable refresh root.
+    """
+    root = refresh_dir()
+    return (root / "pack") if root is not None else None
+
+
 def sample_artifacts_dir() -> Path:
     """Bundled synthetic sample forecasts.
 

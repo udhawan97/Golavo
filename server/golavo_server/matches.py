@@ -27,16 +27,62 @@ from golavo_core import resources
 # The frozen UI contract (Workstream D) pins these envelopes at 0.2.0.
 SCHEMA_VERSION = "0.2.0"
 
+def _resolve_index_paths() -> dict[str, Path]:
+    """The refreshed index + side tables when a runtime refresh has produced them,
+    else the committed read-only bundle.
+
+    All-or-nothing on the refreshed *index*: a runtime refresh writes the Parquet,
+    its side tables and the alias map together, so gating on the index alone can
+    never mix fresh rows with a stale alias map. In source/CI mode there is no
+    refresh dir, so this always returns the bundle (and existing tests that repoint
+    the globals directly are unaffected).
+    """
+    from golavo_server import runtime  # local: avoid an import cycle at load
+
+    refreshed = runtime.refresh_dir()
+    if refreshed is not None and (refreshed / "matches_index.parquet").exists():
+        return {
+            "index": refreshed / "matches_index.parquet",
+            "meta": refreshed / "matches_index.meta.json",
+            "goalscorers": refreshed / "goalscorers.parquet",
+            "shootouts": refreshed / "shootouts.parquet",
+            "aliases": refreshed / "aliases.json",
+        }
+    return {
+        "index": Path(resources.match_index_path()),
+        "meta": Path(resources.match_index_meta_path()),
+        "goalscorers": Path(resources.match_index_goalscorers_path()),
+        "shootouts": Path(resources.match_index_shootouts_path()),
+        "aliases": Path(resources.match_index_aliases_path()),
+    }
+
+
 # Module globals so tests can point them at a tiny fixture index (mirrors the
-# ARTIFACT_DIR pattern in main.py). The bundled index is immutable within a
-# process, so it is loaded once and cached.
-INDEX_PATH = resources.match_index_path()
-INDEX_META_PATH = resources.match_index_meta_path()
-GOALSCORERS_PATH = resources.match_index_goalscorers_path()
-SHOOTOUTS_PATH = resources.match_index_shootouts_path()
-ALIASES_PATH = resources.match_index_aliases_path()
+# ARTIFACT_DIR pattern in main.py). The index is immutable within a process
+# (barring an explicit refresh), so it is loaded once and cached.
+_paths = _resolve_index_paths()
+INDEX_PATH = _paths["index"]
+INDEX_META_PATH = _paths["meta"]
+GOALSCORERS_PATH = _paths["goalscorers"]
+SHOOTOUTS_PATH = _paths["shootouts"]
+ALIASES_PATH = _paths["aliases"]
 
 _CACHE: Any = None  # the loaded index DataFrame; reset_cache() clears it
+
+
+def repoint_to_refreshed() -> None:
+    """Swing the module at the refreshed index and drop the cache.
+
+    Called after a successful runtime refresh so the next search / notebook reads
+    the fresh bytes. Idempotent, and a no-op when no refresh dir is present.
+    """
+    global INDEX_PATH, INDEX_META_PATH, GOALSCORERS_PATH, SHOOTOUTS_PATH, ALIASES_PATH
+    p = _resolve_index_paths()
+    INDEX_PATH, INDEX_META_PATH = p["index"], p["meta"]
+    GOALSCORERS_PATH = p["goalscorers"]
+    SHOOTOUTS_PATH = p["shootouts"]
+    ALIASES_PATH = p["aliases"]
+    reset_cache()
 
 
 class MatchIndexUnavailable(Exception):

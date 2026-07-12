@@ -87,12 +87,22 @@ def resolve_pack_dir(source_id: str | None, source_kind: str | None) -> Path | N
     Only sources that map to exactly one pack resolve: men's internationals today.
     A club row (all five openfootball leagues share one source_id) cannot be tied
     to a single pack and is intentionally unsupported here.
+
+    Prefers a runtime-refreshed pinned pack (from an in-app "pull it in" refresh)
+    over the bundled one, so a freshly published fixture seals from the snapshot
+    that actually carries it — the same fresh pack the search index was rebuilt
+    from, keeping search and sealing on one source of truth.
     """
     if source_kind != "international":
         return None
     name = _SOURCE_PACKS.get(source_id or "")
     if not name:
         return None
+    from golavo_server import runtime  # local: avoid an import cycle at load
+
+    refreshed = runtime.refreshed_pack_dir()
+    if refreshed is not None and (refreshed / "manifest.json").is_file():
+        return refreshed
     pack = Path(PACKS_DIR) / name
     return pack if (pack / "manifest.json").is_file() else None
 
