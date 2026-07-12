@@ -30,7 +30,7 @@ set -euo pipefail
 
 PORT="${GOLAVO_UPDATE_TEST_PORT:-8199}"
 TARGET="aarch64-apple-darwin"
-KEY_DEFAULT="$HOME/Documents/development/golavo-updater-keys/golavo-updater.key"
+KEY_DEFAULT="$HOME/Documents/development/security/golavo-updater-keys/golavo-updater.key"
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
