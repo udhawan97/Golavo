@@ -10,8 +10,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
+from starlette.concurrency import run_in_threadpool
 
-from golavo_server import __version__, matches, runtime
+from golavo_server import __version__, matches, runtime, seal
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
 # (ValueError), missing field (KeyError), unreadable file (OSError), or a broken
@@ -264,13 +265,15 @@ def list_competitions() -> dict[str, Any]:
 
 @app.get("/api/v1/matches/{match_id}")
 def get_match(match_id: str) -> dict[str, Any]:
-    """Return one indexed match by id, with any forecasts linked from the ledger."""
+    """Return one indexed match by id, with any forecasts linked from the ledger and
+    a typed seal-eligibility verdict for the in-app 'Generate local forecast' action."""
     try:
         detail = matches.get_match(match_id, forecasts_dir=ARTIFACT_DIR)
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
     if detail is None:
         raise HTTPException(status_code=404, detail="match not found")
+    detail["seal_eligibility"] = seal.eligibility(detail["match"])
     return detail
 
 
@@ -290,6 +293,50 @@ def match_notebook(match_id: str) -> dict[str, Any]:
     if result is None:
         raise HTTPException(status_code=404, detail="match not found")
     return result
+
+
+@app.post("/api/v1/matches/{match_id}/seal")
+async def create_seal(match_id: str, request: Request) -> JSONResponse:
+    """Seal ONE deterministic local forecast for a scheduled fixture.
+
+    The single write route, desktop-only (token-gated like every /api route). The
+    client names only the fixture id and, optionally, a model ``family`` from a
+    fixed allowlist; the pack, the training date, and the as-of are all resolved
+    server-side, so a caller can neither backdate a seal nor choose an untrusted
+    pack. The model fit runs off the event loop (``run_in_threadpool``) so a slow
+    seal never freezes /health or the rest of the API — unlike the older narrative
+    route. Idempotent per (fixture, family): a repeat returns the existing seal
+    (200), a new one is 201. Typed failures: ineligible fixture -> 422 with a
+    reason_code, missing pack -> 503, genuine artifact collision -> 409.
+    """
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    family = body.get("family") or seal.DEFAULT_FAMILY
+    if not isinstance(family, str):
+        raise HTTPException(
+            status_code=422,
+            detail={"reason_code": "unsupported_family", "message": "family must be a string"},
+        )
+
+    try:
+        result = await run_in_threadpool(
+            seal.seal_match, match_id, family=family, forecasts_dir=ARTIFACT_DIR
+        )
+    except seal.SealError as exc:
+        raise HTTPException(
+            status_code=exc.status_code,
+            detail={"reason_code": exc.reason_code, "message": exc.detail},
+        ) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={"reason_code": "engine_warming", "message": "match index unavailable"},
+        ) from exc
+    return JSONResponse(status_code=201 if result["created"] else 200, content=result)
 
 
 @app.get("/api/v1/calibration")
