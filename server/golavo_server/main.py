@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from golavo_server import __version__, matches, runtime, seal
+from golavo_server import __version__, analysis, matches, runtime, seal
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
 # (ValueError), missing field (KeyError), unreadable file (OSError), or a broken
@@ -263,6 +263,29 @@ def list_competitions() -> dict[str, Any]:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
 
 
+@app.get("/api/v1/matches/recent")
+def recent_matches(
+    limit: int = 24, competition: str | None = None, source_kind: str | None = None
+) -> dict[str, Any]:
+    """The Games home rails — upcoming fixtures and recent results from the index.
+
+    Declared BEFORE ``/matches/{match_id}`` so "recent" is never read as a match
+    id. Read-only navigation: it never seals, computes a number, or reaches the
+    network. Optionally narrowed to one ``competition`` or ``source_kind`` (the
+    league hubs). An empty ``upcoming`` rail is the honest state when the snapshot
+    holds no forward fixtures.
+    """
+    try:
+        return matches.recent_matches(
+            limit=limit,
+            competition=competition,
+            source_kind=source_kind,
+            forecasts_dir=ARTIFACT_DIR,
+        )
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+
+
 @app.get("/api/v1/matches/{match_id}")
 def get_match(match_id: str) -> dict[str, Any]:
     """Return one indexed match by id, with any forecasts linked from the ledger and
@@ -288,6 +311,27 @@ def match_notebook(match_id: str) -> dict[str, Any]:
     """
     try:
         result = matches.match_notebook(match_id, forecasts_dir=ARTIFACT_DIR)
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    return result
+
+
+@app.get("/api/v1/matches/{match_id}/analysis")
+async def match_analysis(match_id: str) -> dict[str, Any]:
+    """On-demand, leak-safe multi-model analysis (Replay for a played match,
+    Preview for a scheduled one) for ANY indexed match.
+
+    The single new read capability of the cockpit: it fits every council model at
+    the seal's own ``kickoff - 1s`` cutoff, so a Replay can never read the
+    fixture's result or any later match, and returns a descriptive council — two
+    voices plus a baseline, never an averaged consensus. Never writes, never
+    seals. The fit runs off the event loop so a slow analysis can't stall
+    /health. Fails closed to an honest ``available: false`` envelope, never a 500.
+    """
+    try:
+        result = await run_in_threadpool(analysis.match_analysis, match_id)
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
     if result is None:

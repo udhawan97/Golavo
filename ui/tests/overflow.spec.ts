@@ -5,13 +5,17 @@ import { expect, test } from "@playwright/test";
  *  their own overflow-x container, but the document must not. */
 
 const ROUTES = [
-  { name: "matchday", path: "/#/" },
+  { name: "games", path: "/#/" },
   { name: "search", path: "/#/matches" },
-  { name: "match-played", path: "/#/match/m_synthetic_played_01" },
+  { name: "leagues", path: "/#/leagues" },
+  { name: "league", path: "/#/league/premier-league" },
+  { name: "match-cockpit", path: "/#/match/m_synthetic_played_01" },
   { name: "forecast-outcome", path: "/#/forecast/fa_b44892255616a50d59bb" },
   { name: "forecast-goal", path: "/#/forecast/fa_5cb65a59b038d9586aea" },
-  { name: "ledger", path: "/#/ledger" },
-  { name: "eval", path: "/#/eval" },
+  { name: "lab", path: "/#/lab" },
+  { name: "track-record", path: "/#/lab/track-record" },
+  { name: "backtests", path: "/#/lab/backtests" },
+  { name: "methods", path: "/#/lab/methods" },
   { name: "settings", path: "/#/settings" },
 ];
 

@@ -8,13 +8,19 @@ import { ReadingComfort } from "./ReadingComfort";
 import { UpdatePill } from "./updates";
 import { DOCS_URL } from "../lib/links";
 
-function isActive(path: string, section: "matchday" | "matches" | "ledger" | "eval"): boolean {
-  if (section === "eval") return path.startsWith("/eval");
-  if (section === "ledger") return path.startsWith("/ledger");
-  // "matches" owns /matches and /match/{id}; keep it distinct from Matchday so
-  // opening the directory never also lights up the Matchday tab.
-  if (section === "matches") return path === "/matches" || path.startsWith("/match/");
-  return path === "/" || path.startsWith("/forecast");
+function isActive(path: string, section: "games" | "leagues" | "lab"): boolean {
+  if (section === "leagues") return path === "/leagues" || path.startsWith("/league/");
+  // Model Lab owns the relocated audit surface, sealed-forecast detail, and the
+  // legacy /ledger and /eval addresses that redirect into it.
+  if (section === "lab")
+    return (
+      path.startsWith("/lab") ||
+      path.startsWith("/forecast") ||
+      path.startsWith("/ledger") ||
+      path.startsWith("/eval")
+    );
+  // Games owns the home, the match directory, and any match cockpit.
+  return path === "/" || path === "/matches" || path.startsWith("/match/");
 }
 
 export function Layout({
@@ -56,10 +62,9 @@ export function Layout({
             <span className="visually-hidden">Golavo</span>
           </a>
           <nav className="nav" aria-label="Primary">
-            <a href="#/" aria-current={isActive(path, "matchday") ? "page" : undefined}>Matchday</a>
-            <a href="#/matches" aria-current={isActive(path, "matches") ? "page" : undefined}>Matches</a>
-            <a href="#/ledger" aria-current={isActive(path, "ledger") ? "page" : undefined}>Ledger</a>
-            <a href="#/eval" aria-current={isActive(path, "eval") ? "page" : undefined}>Evaluation</a>
+            <a href="#/" aria-current={isActive(path, "games") ? "page" : undefined}>Games</a>
+            <a href="#/leagues" aria-current={isActive(path, "leagues") ? "page" : undefined}>Leagues</a>
+            <a href="#/lab" aria-current={isActive(path, "lab") ? "page" : undefined}>Model Lab</a>
           </nav>
           <div className="site-header__tools">
             <UpdatePill />
@@ -68,7 +73,7 @@ export function Layout({
               href="#/matches"
               aria-label="Search matches"
               title="Search matches"
-              aria-current={isActive(path, "matches") ? "page" : undefined}
+              aria-current={path === "/matches" ? "page" : undefined}
             >
               <SearchIcon />
             </a>
@@ -89,21 +94,22 @@ export function Layout({
       {isSample && (
         <div className="sample-banner" role="note">
           <div className="container">
-            You’re exploring <strong>sample forecasts</strong> so you can see how Golavo works.
-            Forecasts you seal before kickoff will replace these and appear in your Ledger — the
-            samples are synthetic and never counted toward your forward record.
+            {DATA_SOURCE === "mock" ? (
+              <>
+                This is the <strong>web preview</strong>. Browsing and the facts work here, but the
+                model council needs the local Golavo app connected to the engine — sample forecasts
+                are synthetic and never counted toward any record.
+              </>
+            ) : (
+              <>
+                Your ledger is empty, so <strong>sample forecasts</strong> are shown under Model Lab
+                to illustrate sealing. Games, search, and the model council all use your real local
+                data — the samples are synthetic and never counted toward your record.
+              </>
+            )}
             <span className="sample-banner__cta">
-              {DATA_SOURCE === "mock" ? (
-                <>
-                  <a href={DOCS_URL} target="_blank" rel="noreferrer">How sealing works ›</a>
-                  <a href="#/matches">Search matches ›</a>
-                </>
-              ) : (
-                <>
-                  <a href="#/matches">Search matches ›</a>
-                  <a href={DOCS_URL} target="_blank" rel="noreferrer">How sealing works ›</a>
-                </>
-              )}
+              <a href="#/matches">Search matches ›</a>
+              <a href={DOCS_URL} target="_blank" rel="noreferrer">How it works ›</a>
             </span>
           </div>
         </div>
@@ -116,8 +122,8 @@ export function Layout({
       <footer className="site-footer">
         <div className="container">
           <span>
-            Golavo · Forecast Audit Workbench —{" "}
-            <span className="dim">read-only. Forecasts are sealed before kickoff, scored after full time.</span>
+            Golavo · Local Football Intelligence —{" "}
+            <span className="dim">read-only, offline, no account. Predictions you seal before kickoff are scored after full time.</span>
             {" · "}
             <a href="#/settings">Settings</a>
           </span>

@@ -6,6 +6,51 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-12
+
+The architecture rethink, first slice: Golavo opens on **games**, not on an audit
+form, and any match can be understood at an analyst level on demand. The sealing,
+provenance, calibration, and no-leakage machinery is unchanged — it moved behind
+the product, where it belongs.
+
+### Added
+- **Match Cockpit — a model council for any indexed match.** Opening a match now
+  computes an on-demand, leak-safe multi-model read at the seal's own
+  `kickoff − 1s` cutoff:
+  - a **Replay** for a played match (reconstructed with pre-kickoff data only — it
+    is *not* a forecast that existed at the time, and never enters the track
+    record) or a **Preview** for a scheduled one, each labelled and time-stamped;
+  - **two voices** — Elo (ratings) and Dixon–Coles (goals) — shown side by side
+    with whether they agree, plus a climatology **baseline** for reference. The
+    Poisson variants are disclosed, never counted as extra opinions, and nothing is
+    averaged into a synthetic consensus;
+  - model-implied goals (labelled *expected, not predicted*), the goal model's
+    coherent exact-score grid, and an honest **abstain** state when either side has
+    too little history.
+  New endpoint `GET /api/v1/matches/{id}/analysis` (contract 0.3.0, additive).
+- **Games-first home.** The default page is now **Games**: recent results and any
+  upcoming fixtures from the local index, a search entry to 75,000+ matches, and
+  league shortcuts. A fresh install with an empty ledger is a full, useful page —
+  offline, no account. New endpoint `GET /api/v1/matches/recent`.
+- **Leagues browse hub** for the five bundled club leagues and internationals.
+- **Model Lab.** Track record, Backtests, Methodologies, and the sealed-forecast
+  list are consolidated under one section. The new *Methodologies* page explains,
+  in plain terms, why three of the five families are really one voice.
+
+### Changed
+- **Primary navigation is now Games / Leagues / Model Lab.** The old Matchday /
+  Matches / Ledger / Evaluation tabs are gone; `#/ledger` and `#/eval` redirect
+  into Model Lab so existing links and exports keep working.
+- **Sealing is reframed as an expert "Track this prediction" action** — the cockpit
+  is the live read; sealing is how you put a pre-kickoff prediction on the record.
+  The seal engine, eligibility rules, and immutability are unchanged.
+
+### Notes
+- No fabricated capabilities: live club fixtures, standings, season projections,
+  and observed xG/lineups/injuries are **not** part of this release (no lawful open
+  source exists for the latter as of this writing). The Match Cockpit is honest
+  about what it can and cannot show.
+
 ## [0.2.6] - 2026-07-12
 
 ### Added

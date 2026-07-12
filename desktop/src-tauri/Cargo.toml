@@ -1,6 +1,6 @@
 [package]
 name = "golavo-desktop"
-version = "0.2.6"
+version = "0.3.0"
 description = "Golavo desktop shell (Tauri 2) — spawns and supervises the FastAPI sidecar."
 authors = ["Umang Dhawan"]
 license = "Apache-2.0"

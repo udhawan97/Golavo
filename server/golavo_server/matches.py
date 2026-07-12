@@ -406,6 +406,57 @@ def get_match(match_id: str, *, forecasts_dir: Path) -> dict[str, Any] | None:
     return {"schema_version": SCHEMA_VERSION, "match": match, "linked_by": linked_by}
 
 
+def recent_matches(
+    limit: int = 24,
+    *,
+    competition: str | None = None,
+    source_kind: str | None = None,
+    forecasts_dir: Path,
+) -> dict[str, Any]:
+    """The Games home rails: upcoming fixtures and the most recent results.
+
+    ``upcoming`` = scheduled rows (no result) with a kickoff at or after the start
+    of today, soonest first; ``recent`` = completed rows, newest first. Both are
+    capped at ``limit`` and may be narrowed to one ``competition`` or one
+    ``source_kind`` (e.g. all internationals). Pure navigation over the frozen
+    index — never a forecast, never a computed number. When no forward fixtures
+    exist in the snapshot the ``upcoming`` rail is honestly empty and the recent
+    rail still fills.
+    """
+    import pandas as pd
+
+    frame = _load_index()
+    limit = max(1, min(int(limit), 100))
+    if competition:
+        frame = frame.loc[frame["competition"] == competition]
+    if source_kind:
+        frame = frame.loc[frame["source_kind"] == source_kind]
+
+    played = frame["is_complete"].astype("boolean").fillna(False).astype(bool)
+    ko = pd.to_datetime(frame["kickoff_utc"], utc=True)
+    today = pd.Timestamp.now(tz="UTC").normalize()
+
+    upcoming_sel = (
+        frame.loc[(~played) & (ko >= today)]
+        .assign(_ko=ko.loc[(~played) & (ko >= today)])
+        .sort_values(by=["_ko", "match_id"], ascending=[True, True], kind="mergesort")
+        .head(limit)
+    )
+    recent_sel = (
+        frame.loc[played]
+        .assign(_ko=ko.loc[played])
+        .sort_values(by=["_ko", "match_id"], ascending=[False, True], kind="mergesort")
+        .head(limit)
+    )
+
+    by_match_id, by_fixture = artifact_links(Path(forecasts_dir))
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "upcoming": [_row_to_dict(row, by_match_id, by_fixture) for _, row in upcoming_sel.iterrows()],
+        "recent": [_row_to_dict(row, by_match_id, by_fixture) for _, row in recent_sel.iterrows()],
+    }
+
+
 def list_competitions() -> dict[str, Any]:
     """Distinct (competition, source_kind) with match counts, deterministically ordered."""
     frame = _load_index()

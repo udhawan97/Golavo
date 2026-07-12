@@ -1046,3 +1046,72 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   .nav { order: 3; width: 100%; margin-left: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .nav a { white-space: nowrap; }
 }
+
+/* ============================================================ pivot: Games,
+   Leagues, Model Cockpit (contract 0.3.0). Reuses the existing token system. */
+
+/* Search entry on the Games home */
+.search-cta {
+  display: flex; align-items: center; gap: .7rem; text-decoration: none; color: inherit;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-1); padding: .8rem 1rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.search-cta:hover { border-color: var(--gold-line); box-shadow: var(--shadow-sm); }
+.search-cta > span { flex: 1; min-width: 0; color: var(--text-muted); }
+.search-cta svg { color: var(--gold); flex: none; }
+
+/* League quick-chips (home) + hub cards */
+.league-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.league-chip {
+  text-decoration: none; color: var(--text); font-size: .88rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .35rem .8rem;
+  background: var(--surface-2); transition: border-color .15s ease, color .15s ease;
+}
+.league-chip:hover { border-color: var(--gold-line); color: var(--gold); }
+
+.league-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .9rem; }
+.league-card {
+  display: block; position: relative; text-decoration: none; color: inherit;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-1); padding: 1rem 1.1rem;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.league-card:hover { border-color: var(--gold-line); transform: translateY(-2px); box-shadow: var(--shadow); }
+.league-card__name { font-weight: 700; font-size: 1.05rem; }
+.league-card__note { margin-top: .3rem; }
+.league-card > svg { position: absolute; top: 1rem; right: 1rem; color: var(--text-dim); }
+
+/* Match rails on Games / League pages */
+.rail__title { font-size: 1rem; font-weight: 700; color: var(--text); margin: 0; }
+.game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .7rem; }
+.game-card {
+  display: block; text-decoration: none; color: inherit;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-1); padding: .7rem .85rem;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.game-card:hover { border-color: var(--gold-line); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.game-card__comp { font-weight: 600; }
+.game-card__teams {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .5rem;
+  margin: .35rem 0; font-weight: 650;
+}
+.game-card__team { min-width: 0; }
+.game-card__team--away { text-align: right; }
+.game-card__mid { text-align: center; }
+.game-card__score {
+  font-variant-numeric: tabular-nums; font-weight: 700;
+  background: var(--surface-3); border: 1px solid var(--border); border-radius: 7px; padding: .05rem .45rem;
+}
+.game-card__foot { color: var(--text-muted); }
+
+/* Model council */
+.council-voice { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); padding: .7rem .85rem; }
+.council-voice__head { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .5rem; }
+.council-voice__name { font-weight: 700; font-size: .95rem; }
+.council-more > summary {
+  cursor: pointer; font-size: .88rem; font-weight: 600; color: var(--text-muted);
+  padding: .3rem 0; user-select: none;
+}
+.council-more > summary:hover { color: var(--gold); }

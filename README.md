@@ -11,8 +11,9 @@
 <p align="center"><em>The numbers remember everything. The beautiful game still keeps the last word.</em></p>
 
 <p align="center">
-  An honest, local-first football forecasting workbench. Pin the data, test the models,<br>
-  seal the forecast before kickoff, and let the result score it later.<br>
+  An honest, local-first football intelligence cockpit. Open any match — past or upcoming —<br>
+  and see what the models predict, where they disagree, and why. Seal a prediction<br>
+  before kickoff to put it on the record.<br>
   No odds. No oracle. No moving the goalposts.
 </p>
 
@@ -25,7 +26,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.2.6" src="https://img.shields.io/badge/version-v0.2.6-6082b8?style=flat-square">
+  <img alt="version v0.3.0" src="https://img.shields.io/badge/version-v0.3.0-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -42,11 +43,13 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.2.6 pre-alpha** with OS-unsigned installers, built in the open. The deterministic
-> engine, historical backtests, international seal→score loop, calibration record,
-> optional guarded AI narration, and desktop packaging are implemented. Signing,
-> notarization, confirmed-lineup adapters, scorers, corners, cups, and a club forward
-> loop are not. This is a forecasting audit workbench, **not a betting product**.
+> Golavo is a **v0.3.0 pre-alpha** with OS-unsigned installers, built in the open. The
+> deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
+> match, Preview for a scheduled one), Games-first browsing, historical backtests, the
+> international seal→score loop, calibration record, optional guarded AI narration, and
+> desktop packaging are implemented. Signing, notarization, live club fixtures, standings
+> and season projections, observed xG/lineups/injuries, and a club forward loop are not.
+> This is a football analysis workbench, **not a betting product**.
 
 ## The match
 
@@ -87,9 +90,11 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 
 | | Do this | Get this |
 | :---: | --- | --- |
+| 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A leak-safe multi-model read: two voices (Elo ratings, the Dixon–Coles goal model) plus a climatology baseline, where they agree or disagree, and the exact-score grid — computed on demand, never averaged into a fake consensus |
+| ⚽ | **Browse Games, Leagues, and search 75,000 matches** — recent results, any upcoming fixtures, the big-five leagues | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
-| 🔏 | **Seal before kickoff** — freeze probabilities, model version, seed, parameters, cutoff, and inputs | An immutable claim the result cannot rewrite |
+| 🔏 | **Track a prediction — seal before kickoff** — freeze probabilities, model version, seed, parameters, cutoff, and inputs | An immutable claim the result cannot rewrite; the cockpit’s live preview, put on the record |
 | 🥅 | **Show the scorelines implied by the model** — exact-score grid plus an honest out-of-grid tail | The same goal distribution behind the 1X2 forecast, not a decorative second guess |
 | 🧾 | **Score after full time** — write a linked scored or voided successor | Outcome, assigned probability, log loss, Brier, or a real void reason |
 | 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
@@ -110,7 +115,9 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Artifacts** | Versioned JSON contracts for forecasts, evidence bundles, facts, and AI narration; canonical payload hashes and source snapshot ids |
 | **Models** | Climatological baseline, Elo ordinal-logit, independent Poisson, time-decayed Dixon–Coles, and bivariate Poisson; no permanent champion declared |
 | **Exact scores** | Goal-based seals include the coherent score grid they already imply, including an explicit high-score tail |
-| **Workbench** | Matchday, forecast detail, historical Evaluation, forward Ledger, provenance, scored/voided/superseded states, Casual and Expert presentation, "three things to know" insight cards, re-seal "what moved" deltas, and reading-comfort themes (incl. a warm low-blue mode) |
+| **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** (played match, reconstructed with pre-kickoff data only) or **Preview** (scheduled match). Two voices plus a baseline, honest disagreement, model-implied goals, and the goal model's score grid — machine-checked leak-safe, never sealed, never averaged |
+| **Navigation** | Games-first home (recent + upcoming rails, offline), Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
+| **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, provenance, scored/voided/superseded states, Casual and Expert presentation, "three things to know" insight cards, re-seal "what moved" deltas, and reading-comfort themes (incl. a warm low-blue mode) |
 | **Facts** | Pre-registered deterministic templates; sample/freshness/base-rate guardrails; coincidences capped and quarantined |
 | **AI Deep Read** | Implemented, off by default, and additive; enabled from Settings → Local intelligence (local Ollama/llama.cpp or BYOK); schema, citation, numeric-whitelist, grounding, and betting-language guards fail closed to local-only |
 | **Desktop** | Tauri 2 shell supervising a PyInstaller/FastAPI sidecar on an ephemeral loopback port with a fresh per-launch token |
@@ -376,7 +383,8 @@ not a legally binding promise made to a spreadsheet.
 | **5 — AI Deep Read** | optional evidence-bounded narration with fail-closed guards | ✅ shipped — off by default |
 | **7 — Facts** | deterministic Commentator's Notebook and quarantined coincidences | ✅ shipped |
 | **8 — Exact scores** | coherent score matrix plus Casual/Expert presentation | ✅ shipped |
-| **Next** | confirmed-lineup/BYOK adapters, scorers, corners, cups, club forward loop, hash-chained ledger, signed release | 🔭 planned |
+| **9 — Match Cockpit** | Games-first home, on-demand Replay/Preview model council for any match, Leagues browse, Model Lab relocation | ✅ shipped |
+| **Next** | live club fixtures, standings + season projections (League Outlook), lawful observed xG/lineups/injuries, club forward loop, hash-chained ledger, signed release | 🔭 planned |
 
 Kill switches, entry criteria, and the less photogenic details live in the
 [full roadmap](https://udhawan97.github.io/Golavo/roadmap/).

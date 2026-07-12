@@ -12,7 +12,11 @@
  */
 
 export const SCHEMA_VERSION = "0.2.0" as const;
+// 0.3.0 is additive: the on-demand MatchAnalysis read model (Match Cockpit) and
+// the Games-home recent rails. The sealed ForecastArtifact contract is unchanged
+// at 0.2.0, so the artifact/eval/calibration guards keep their existing set.
 export const ACCEPTED_SCHEMA_VERSIONS = ["0.1.0", "0.2.0"] as const;
+export const ANALYSIS_SCHEMA_VERSION = "0.3.0" as const;
 export type SchemaVersion = (typeof ACCEPTED_SCHEMA_VERSIONS)[number];
 
 export type ArtifactStatus = "sealed" | "scored" | "abstained" | "voided";
@@ -432,6 +436,81 @@ export interface MatchNotebookResponse {
   as_of_horizon: string | null;
   notebook: CommentatorsNotebook | null;
 }
+
+// ---- Match Cockpit: on-demand MatchAnalysis (contract 0.3.0, additive) -------
+// The read model behind the Match Cockpit. Computed on demand for ANY indexed
+// match at the seal's own kickoff−1s cutoff — leak-safe by construction — and
+// NEVER sealed. `analysis_kind` distinguishes a Replay (completed fixture,
+// reconstructed with pre-kickoff data) from a Preview (scheduled fixture). The
+// council is two voices (Elo ratings, the Dixon–Coles goal model) plus a
+// climatology baseline; the Poisson variants are disclosed, never averaged.
+
+export type AnalysisKind = "replay" | "preview";
+export type CouncilRole = "voice" | "variant" | "baseline";
+export type CouncilMethod = "ratings" | "goals" | "base_rate" | "unknown";
+
+export interface CouncilModel {
+  family: ModelFamily;
+  role: CouncilRole;
+  method: CouncilMethod;
+  abstained: boolean;
+  probs: Probs | null;
+  expected_goals: ExpectedGoals | null;
+  score_matrix: ScoreMatrix | null;
+  params: Record<string, unknown> | null;
+}
+
+export interface CouncilSummary {
+  voices: number;
+  voices_agree: boolean | null;
+  leading_outcome: Outcome | null;
+  max_delta_p: number | null;
+  outcome_range: Record<Outcome, { low: number; high: number }> | null;
+}
+
+export interface MatchAnalysis {
+  schema_version: string;
+  analysis_kind: AnalysisKind;
+  match: {
+    match_id: string;
+    competition: string;
+    kickoff_utc: string;
+    home_team: string;
+    away_team: string;
+    neutral_venue: boolean;
+    is_complete: boolean;
+  };
+  information_cutoff_utc: string;
+  abstained: boolean;
+  abstain_reason: string | null;
+  uncertainty: Uncertainty;
+  team_history: Record<string, number>;
+  min_team_matches: number;
+  council: CouncilSummary;
+  models: CouncilModel[];
+  score_matrix: ScoreMatrix | null;
+  score_matrix_family: ModelFamily | null;
+}
+
+/** The /matches/{id}/analysis envelope. Fails closed to available:false when a
+ *  fixture cannot be modelled (e.g. no kickoff), never a fabricated analysis. */
+export interface MatchAnalysisResponse {
+  available: boolean;
+  reason: string | null;
+  analysis: MatchAnalysis | null;
+}
+
+/** A directory row pair for the Games home rails. */
+export interface RecentMatchesResponse {
+  schema_version: SchemaVersion;
+  upcoming: MatchRow[];
+  recent: MatchRow[];
+}
+
+export const ANALYSIS_KIND_LABELS: Record<AnalysisKind, string> = {
+  replay: "Replay",
+  preview: "Preview",
+};
 
 export const FACT_LABEL_TEXT: Record<FactLabel, string> = {
   predictive: "Predictive",

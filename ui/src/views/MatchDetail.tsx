@@ -23,6 +23,7 @@ import { useAsync } from "../lib/hooks";
 import { ChevronRight, InfoIcon, ShieldCheckIcon } from "../components/icons";
 import { HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
 import { MatchHeader } from "../components/MatchHeader";
+import { ModelCouncil } from "../components/ModelCouncil";
 import { NotebookFacts } from "../components/CommentatorsNotebook";
 import { InsightCards } from "../components/InsightCards";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
@@ -88,6 +89,8 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
           </>
         }
       />
+
+      <ModelCouncil matchId={id} home={match.home_team} away={match.away_team} />
 
       {hasForecast ? (
         <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
@@ -190,8 +193,9 @@ function PlayedNoForecast({ match }: { match: MatchRow }) {
           ]}
         />
         <p className="small dim measure" style={{ margin: 0 }}>
-          To see how the models perform on fixtures that <em>were</em> sealed before kickoff, open the{" "}
-          <a href="#/eval">evaluation summary ›</a>
+          The model council above shows a <em>replay</em> — what each method would have said with
+          pre-kickoff data. To see how the models perform on fixtures that <em>were</em> sealed
+          before kickoff, open the <a href="#/lab/backtests">backtests ›</a>
         </p>
       </div>
     </section>
@@ -236,16 +240,18 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
   return (
     <section className="panel" aria-labelledby="md-seal">
       <div className="panel__head">
-        <h2 id="md-seal">Generate a local forecast</h2>
+        <h2 id="md-seal">Track this prediction</h2>
         <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
           deterministic · offline
         </span>
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: ".85rem" }}>
         <p className="small muted" style={{ margin: 0 }}>
-          Seal a forecast with the deterministic <span className="mono">{eligibility.family}</span>{" "}
-          model. It runs on your machine, trains only on data available before kickoff, and writes an
-          immutable, auditable artifact — no CLI, no network.
+          The council above is a live preview. Put it on the record: seal an immutable,
+          auditable snapshot with the deterministic{" "}
+          <span className="mono">{eligibility.family}</span> model before kickoff. Only a sealed
+          prediction counts toward the forward track record — it runs on your machine, trains only
+          on pre-kickoff data, and writes once. No CLI, no network.
         </p>
         <div>
           <button
@@ -255,7 +261,7 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
             disabled={state.status === "sealing"}
             aria-busy={state.status === "sealing"}
           >
-            {state.status === "sealing" ? "Sealing forecast…" : "Generate local forecast"}
+            {state.status === "sealing" ? "Sealing…" : "Seal this prediction"}
           </button>
         </div>
         {state.status === "error" && state.error && (
@@ -410,7 +416,7 @@ function FactLegend() {
 function Breadcrumb({ label }: { label?: string }) {
   return (
     <nav className="breadcrumb" aria-label="Breadcrumb">
-      <a href="#/matches">Matches</a>
+      <a href="#/">Games</a>
       {label && (
         <>
           <ChevronRight size={14} />

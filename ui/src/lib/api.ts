@@ -18,11 +18,13 @@ import type {
   EvalSummary,
   FixturesCheckResponse,
   ForecastArtifact,
+  MatchAnalysisResponse,
   MatchDetailResponse,
   MatchNotebookResponse,
   MatchRow,
   MatchSearchResponse,
   NotebookResponse,
+  RecentMatchesResponse,
   SealEligibility,
   SealResult,
   SourceKind,
@@ -670,4 +672,100 @@ export async function fetchMatchNotebook(matchId: string): Promise<MatchNotebook
     if (err instanceof Error && /HTTP 404/.test(err.message)) return unavailable;
     throw err;
   }
+}
+
+// ---- Match Cockpit: on-demand analysis (contract 0.3.0) ---------------------
+
+function assertMatchAnalysis(x: unknown, ctx: string): MatchAnalysisResponse {
+  const r = x as MatchAnalysisResponse;
+  if (!r || typeof r !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (typeof r.available !== "boolean")
+    throw new ContractError(`${ctx}: available is not a boolean`);
+  if (r.available) {
+    const a = r.analysis;
+    if (!a || typeof a !== "object") throw new ContractError(`${ctx}: available but no analysis`);
+    if (a.analysis_kind !== "replay" && a.analysis_kind !== "preview")
+      throw new ContractError(`${ctx}: bad analysis_kind ${String(a.analysis_kind)}`);
+    if (!Array.isArray(a.models)) throw new ContractError(`${ctx}: models is not an array`);
+    // Every model that reports probabilities must have them sum to 1 — the same
+    // honesty guard the artifact path uses.
+    for (const m of a.models) {
+      if (m.probs) {
+        const sum = m.probs.home + m.probs.draw + m.probs.away;
+        if (Math.abs(sum - 1) > 0.001)
+          throw new ContractError(`${ctx}: ${m.family} probs sum to ${sum.toFixed(4)}`);
+      }
+    }
+  }
+  return r;
+}
+
+/**
+ * On-demand multi-model analysis for one match (Replay for a played fixture,
+ * Preview for a scheduled one). Leak-safe and never sealed. In sample-data (mock)
+ * mode there is no engine, so this returns an honest `available: false` envelope
+ * rather than fabricating a council — mirroring how sealing refuses offline.
+ */
+export async function fetchMatchAnalysis(matchId: string): Promise<MatchAnalysisResponse> {
+  if (!API_BASE) {
+    return {
+      available: false,
+      reason:
+        "Model analysis runs in the connected Golavo app; this sample-data preview has no " +
+        "engine to fit the models. Open Golavo locally to see the council for this match.",
+      analysis: null,
+    };
+  }
+  try {
+    return assertMatchAnalysis(
+      await getJson(`/api/v1/matches/${encodeURIComponent(matchId)}/analysis`),
+      `matches/${matchId}/analysis`,
+    );
+  } catch (err) {
+    if (err instanceof Error && /HTTP 404/.test(err.message))
+      return { available: false, reason: "match not found", analysis: null };
+    throw err;
+  }
+}
+
+/**
+ * The Games-home rails: upcoming fixtures and recent results. Live mode hits
+ * `/api/v1/matches/recent`; mock mode splits the bundled rows the same way the
+ * server does (upcoming = scheduled from start-of-today; recent = completed,
+ * newest first), so the home works offline and in the web bundle.
+ */
+export interface RecentMatchesOptions {
+  competition?: string;
+  sourceKind?: SourceKind;
+}
+
+export async function fetchRecentMatches(
+  limit = 24,
+  opts: RecentMatchesOptions = {},
+): Promise<RecentMatchesResponse> {
+  if (!API_BASE) {
+    const { schema_version, matches } = await loadMockMatches();
+    let rows = matches.slice();
+    if (opts.competition) rows = rows.filter((m) => m.competition === opts.competition);
+    if (opts.sourceKind) rows = rows.filter((m) => m.source_kind === opts.sourceKind);
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const byKickoffDesc = (a: MatchRow, b: MatchRow) =>
+      b.kickoff_utc.localeCompare(a.kickoff_utc) || a.match_id.localeCompare(b.match_id);
+    const recent = rows.filter((m) => m.is_complete).sort(byKickoffDesc).slice(0, limit);
+    const upcoming = rows
+      .filter((m) => !m.is_complete && new Date(m.kickoff_utc).getTime() >= today.getTime())
+      .sort((a, b) => a.kickoff_utc.localeCompare(b.kickoff_utc) || a.match_id.localeCompare(b.match_id))
+      .slice(0, limit);
+    return { schema_version, upcoming, recent };
+  }
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (opts.competition) params.set("competition", opts.competition);
+  if (opts.sourceKind) params.set("source_kind", opts.sourceKind);
+  const body = (await getJson(`/api/v1/matches/recent?${params.toString()}`)) as RecentMatchesResponse;
+  if (!Array.isArray(body.recent) || !Array.isArray(body.upcoming))
+    throw new ContractError("matches/recent: missing rails");
+  body.recent.forEach((m, i) => assertMatchRow(m, `matches/recent.recent[${i}]`));
+  body.upcoming.forEach((m, i) => assertMatchRow(m, `matches/recent.upcoming[${i}]`));
+  return body;
 }
