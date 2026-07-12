@@ -359,12 +359,16 @@ def generate_narration(
     *,
     transport: Transport | None = None,
     cache: NarrationCache | None = None,
+    refresh: bool = False,
 ) -> NarrationEnvelope:
     """Produce a guard-validated narration for ``bundle``, or a safe fallback.
 
     ``transport`` is injected in tests; in production it is built from ``config``.
-    Never raises for provider/transport failures — those become an ``unavailable``
-    or ``local_only`` envelope so the caller (and UI) always has the forecast.
+    ``refresh`` skips the cache READ (a user-requested regeneration) but still
+    writes the new validated narration back, so a refresh never weakens a guard —
+    it only re-runs the same fail-closed pipeline. Never raises for
+    provider/transport failures — those become an ``unavailable`` or
+    ``local_only`` envelope so the caller (and UI) always has the forecast.
     """
     bundle_hash = bundle["bundle_hash"]
     cache = cache if cache is not None else _CACHE
@@ -382,9 +386,10 @@ def generate_narration(
     if config.is_off:
         return envelope("disabled", reason="AI is turned off; showing the local forecast only.")
 
-    cached = cache.get(bundle_hash, config)
-    if cached is not None:
-        return envelope("ok", narration=cached, cached=True)
+    if not refresh:
+        cached = cache.get(bundle_hash, config)
+        if cached is not None:
+            return envelope("ok", narration=cached, cached=True)
 
     if transport is None:
         transport = make_transport(config)

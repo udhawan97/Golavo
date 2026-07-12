@@ -6,6 +6,40 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-07-12
+
+AI mode grows up: a deeper, cited read of the commentator notes for any match —
+with honest progress while the model works, and one-click access once configured.
+
+### Added
+- **AI Analyst Read on the Match Cockpit.** Any indexed match — not just sealed
+  forecasts — can now get an optional AI synthesis of its Commentator's Notebook
+  and model council. The AI is explicitly instructed to go **deeper than the
+  page**: every claim must connect at least two pieces of evidence (fact ↔ fact,
+  or fact ↔ council probability), surface tensions and corroborations, and say
+  what remains unknown. It runs under exactly the sealed path's fail-closed
+  guards — numeric whitelist, mandatory citations, betting-lexicon rejection —
+  via a new match evidence bundle (`ma_*`, evidence schema 0.2.0) whose identity
+  can never masquerade as a sealed forecast's. New endpoint
+  `POST /api/v1/matches/{id}/narrative`.
+- **A refresh that regenerates.** "Refresh read" skips the cache and asks the
+  model again; the new output still passes every guard before a word is shown.
+- **Honest progress while the model thinks.** An indeterminate progress bar, the
+  factual pipeline stages, and an elapsed-seconds ticker with
+  expectation-setting copy ("local models think at their own pace — a minute is
+  normal; nothing shows until every number is verified"). Respects
+  reduced-motion.
+- **One-click AI toggle in the header** — shown only once a provider has been
+  configured (Settings or an AI panel remain the explicit first-time opt-in).
+  It flips the same persisted setting every AI panel reads, remembers the last
+  provider, and stays in sync app-wide.
+
+### Notes
+- AI remains **off by default**, local-first, and additive: it cannot change a
+  probability, and the deterministic analysis is complete without it. Verified
+  end-to-end against a real request/response cycle: a grounded synthesis passes
+  review; an output with one invented number is discarded to `local_only`.
+
 ## [0.3.1] - 2026-07-12
 
 Sharper commentator notes and a cleaner post-pivot flow.

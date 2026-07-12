@@ -1118,3 +1118,32 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   padding: .3rem 0; user-select: none;
 }
 .council-more > summary:hover { color: var(--gold); }
+
+/* --------------------------------------------- AI progress + quick toggle -- */
+.ai-progress {
+  height: 4px; border-radius: 999px; overflow: hidden;
+  background: var(--surface-3); border: 1px solid var(--border);
+  position: relative;
+}
+.ai-progress__fill {
+  position: absolute; inset-block: 0; width: 34%;
+  border-radius: 999px; background: var(--gold);
+  animation: ai-indeterminate 1.6s ease-in-out infinite;
+}
+@keyframes ai-indeterminate {
+  0% { left: -34%; }
+  100% { left: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-progress__fill { animation: none; width: 100%; opacity: .45; left: 0; }
+}
+.ai-progress__meta { margin-top: .35rem; }
+
+.ai-toggle { gap: .35rem; font-weight: 700; font-size: .78rem; letter-spacing: .04em; }
+.ai-toggle__text { line-height: 1; }
+.ai-toggle__dot {
+  width: 7px; height: 7px; border-radius: 999px;
+  background: var(--text-dim); transition: background .15s ease;
+}
+.ai-toggle__dot.on { background: var(--green); }
+.ai-toggle--on { color: var(--gold); border-color: var(--gold-line); }

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { SCHEMA_VERSION } from "../lib/contract";
 import { DATA_SOURCE, sourceDescription } from "../lib/api";
 import type { ForecastSource } from "../lib/api";
+import { AI_PROVIDERS, lastAiProvider, useAiProvider } from "../lib/ai";
 import type { ReadingPrefs } from "../lib/hooks";
 import { GearIcon, SearchIcon } from "./icons";
 import { ReadingComfort } from "./ReadingComfort";
@@ -21,6 +22,36 @@ function isActive(path: string, section: "games" | "leagues" | "lab"): boolean {
     );
   // Games owns the home, the match directory, and any match cockpit.
   return path === "/" || path === "/matches" || path.startsWith("/match/");
+}
+
+/** One-click AI mode from anywhere — but only once a provider has been chosen.
+ *
+ * Shown only when AI is currently on, or was configured before (a remembered
+ * last provider): a first-time user must still make the explicit opt-in choice
+ * in Settings or on an AI panel, so this toggle can never be the thing that
+ * turns AI on for the first time. Toggling changes the SAME persisted setting
+ * every AI panel reads — never a number, never a forecast. */
+function AiQuickToggle() {
+  const [provider, setProvider] = useAiProvider();
+  const last = lastAiProvider();
+  const on = provider !== "off";
+  if (!on && !last) return null; // never configured — no quick path into AI
+  const label = on
+    ? `AI on (${AI_PROVIDERS.find((p) => p.value === provider)?.label ?? provider}) — click to turn off`
+    : `AI off — click to turn back on (${AI_PROVIDERS.find((p) => p.value === last)?.label ?? last})`;
+  return (
+    <button
+      type="button"
+      className={`icon-btn ai-toggle${on ? " ai-toggle--on" : ""}`}
+      aria-pressed={on}
+      aria-label={label}
+      title={label}
+      onClick={() => setProvider(on ? "off" : (last as typeof provider))}
+    >
+      <span className="ai-toggle__text" aria-hidden>AI</span>
+      <span className={`ai-toggle__dot${on ? " on" : ""}`} aria-hidden />
+    </button>
+  );
 }
 
 export function Layout({
@@ -68,6 +99,7 @@ export function Layout({
           </nav>
           <div className="site-header__tools">
             <UpdatePill />
+            <AiQuickToggle />
             <a
               className="icon-btn"
               href="#/matches"

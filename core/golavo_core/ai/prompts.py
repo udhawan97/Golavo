@@ -13,9 +13,10 @@ from typing import Any
 
 from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_untrusted
 
-# Bump on any change to the system prompt below. Formatted as a date-anchored
-# revision so it sorts and is human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-11.2"
+# Bump on any change to the system prompt below or to the user-turn scaffolding
+# in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
+# human-legible in cache keys and provenance.
+PROMPT_VERSION = "golavo-narration-2026-07-12.1"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -99,6 +100,21 @@ def build_user_prompt(bundle: dict[str, Any], untrusted_context: str | None = No
         + (", ".join(f"{n['id']}={n['display']}" for n in bundle["allowed_numbers"]) or "(none)")
         + ".",
     ]
+    # Deeper synthesis when the bundle carries Commentator's Notebook facts
+    # (numbers namespaced nb_*) or is an on-demand match analysis: the reader
+    # already sees each fact on its own — the AI's value is CONNECTING them.
+    has_notebook = any(str(n["id"]).startswith("nb_") for n in bundle["allowed_numbers"])
+    if has_notebook or bundle.get("artifact_status") in ("preview", "replay"):
+        parts.append(
+            "\nSYNTHESIS: The facts include the Commentator's Notebook (number ids "
+            "starting `nb_`) and the model council (`mc_`). Do not merely restate a "
+            "single fact — the reader already sees each one. Every claim should CONNECT "
+            "at least two pieces of evidence: a fact with another fact, or a fact with a "
+            "council probability. Surface tensions (evidence pulling in opposite "
+            "directions), corroborations (evidence agreeing), and say plainly what "
+            "remains unknown. Depth means linking the listed evidence — never adding "
+            "outside knowledge, and never a number that is not on the allowed list."
+        )
     if untrusted_context:
         cleaned = sanitize_untrusted(untrusted_context)
         if cleaned:

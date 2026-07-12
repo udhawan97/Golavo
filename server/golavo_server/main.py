@@ -464,7 +464,9 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
     bundle = build_evidence_bundle(
         artifact, extra_facts=extra_facts, extra_numbers=extra_numbers
     )
-    envelope = ai_gateway.generate_narration(bundle, config)
+    envelope = ai_gateway.generate_narration(
+        bundle, config, refresh=bool(body.get("refresh", False))
+    )
     # The UI resolves a claim's source_ids/number_refs against these trusted
     # bundle lookups to render citation chips with the exact engine display value.
     sources = [
@@ -477,6 +479,89 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
     ]
     return {
         "artifact_id": artifact_id,
+        "bundle_hash": bundle["bundle_hash"],
+        "sources": sources,
+        "numbers": numbers,
+        **envelope.to_dict(),
+    }
+
+
+@app.post("/api/v1/matches/{match_id}/narrative")
+async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
+    """An OPTIONAL, guard-validated AI deep read of one match's notes + council.
+
+    The cockpit's "make the notes deeper" action: the on-demand MatchAnalysis
+    (Replay/Preview council) and the Commentator's Notebook are folded into a
+    match evidence bundle (`ma_*`, schema 0.2.0) and run through the SAME
+    fail-closed pipeline the sealed path uses — numeric whitelist, mandatory
+    citations, betting-lexicon rejection, one retry then local_only. Off by
+    default; `{"refresh": true}` skips the cache read to regenerate. The bundle
+    computation runs off the event loop.
+    """
+    from golavo_core.evidence import build_match_evidence_bundle  # lazy: AI guards
+    from golavo_core.facts import notebook_to_evidence
+
+    from golavo_server import ai_gateway
+
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+
+    try:
+        config = ai_gateway.resolve_provider(body)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    def _build_bundle() -> dict[str, Any] | None:
+        envelope = analysis.match_analysis(match_id)
+        if envelope is None:
+            return None
+        if not envelope.get("available") or envelope.get("analysis") is None:
+            raise ValueError(envelope.get("reason") or "analysis unavailable")
+        nb_facts: list[Any] = []
+        nb_numbers: list[Any] = []
+        pack_ids: tuple[str, ...] = ()
+        nb = matches.match_notebook(match_id, forecasts_dir=ARTIFACT_DIR)
+        if nb and nb.get("available") and nb.get("notebook"):
+            nb_facts, nb_numbers = notebook_to_evidence(nb["notebook"])
+            pack_ids = tuple(nb["notebook"].get("source_ids") or ())
+        return build_match_evidence_bundle(
+            envelope["analysis"],
+            notebook_facts=nb_facts,
+            notebook_numbers=nb_numbers,
+            pack_source_ids=pack_ids,
+        )
+
+    try:
+        bundle = await run_in_threadpool(_build_bundle)
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"reason_code": "analysis_unavailable", "message": str(exc)},
+        ) from exc
+    if bundle is None:
+        raise HTTPException(status_code=404, detail="match not found")
+
+    envelope = await run_in_threadpool(
+        lambda: ai_gateway.generate_narration(
+            bundle, config, refresh=bool(body.get("refresh", False))
+        )
+    )
+    sources = [
+        {"source_id": s["source_id"], "kind": s["kind"], "title": s["title"], "url": s["url"]}
+        for s in bundle["sources"]
+    ]
+    numbers = [
+        {"id": n["id"], "display": n["display"], "label": n["label"], "unit": n["unit"]}
+        for n in bundle["allowed_numbers"]
+    ]
+    return {
+        "match_id": match_id,
         "bundle_hash": bundle["bundle_hash"],
         "sources": sources,
         "numbers": numbers,

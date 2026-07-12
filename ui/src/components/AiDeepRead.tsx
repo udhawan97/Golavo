@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { ForecastArtifact } from "../lib/contract";
-import { DATA_SOURCE, fetchNarrative } from "../lib/api";
+import { DATA_SOURCE, fetchMatchNarrative, fetchNarrative } from "../lib/api";
 import {
   AI_PROVIDERS,
   useAiProvider,
@@ -14,19 +13,25 @@ import type {
 } from "../lib/ai";
 import { AlertIcon, CheckIcon, InfoIcon, LinkIcon } from "./icons";
 
+/** What the deep read runs over: a sealed forecast artifact, or a match's
+ *  on-demand notes + council (the cockpit). Same guards either way. */
+export type DeepReadSource =
+  | { kind: "forecast"; artifactId: string }
+  | { kind: "match"; matchId: string };
+
 type RunState =
   | { status: "idle" }
-  | { status: "loading" }
+  | { status: "loading"; refresh: boolean }
   | { status: "done"; data: NarrativeResponse }
   | { status: "error"; error: Error };
 
 // Factual pipeline stages — what the app actually does to assemble and check
 // the evidence. Deliberately NOT a depiction of model reasoning.
 const PIPELINE_STAGES = [
-  "Assembling the sealed evidence bundle",
+  "Assembling the evidence bundle",
   "Listing the numbers the engine allows",
-  "Reading the evidence with the model",
-  "Verifying every number against the seal",
+  "The model is reading and writing",
+  "Verifying every number against the whitelist",
 ];
 
 /** A tiny neutral mark for the AI panel header (kept local to avoid implying a
@@ -40,25 +45,30 @@ function ReadMark() {
   );
 }
 
-export function AiDeepRead({ artifact }: { artifact: ForecastArtifact }) {
+export function AiDeepRead({ source }: { source: DeepReadSource }) {
   const [provider, setProvider] = useAiProvider();
   const [state, setState] = useState<RunState>({ status: "idle" });
   const runId = useRef(0);
+  const sourceKey = source.kind === "forecast" ? source.artifactId : source.matchId;
 
   // Changing the provider (including back to Off) resets any prior result so the
   // panel never shows a narration attributed to the wrong provider.
   useEffect(() => {
-    // Invalidate any request started for the previous provider/artifact. Without
+    // Invalidate any request started for the previous provider/subject. Without
     // this, a slow old response can repopulate the panel after the selector has
     // changed and be shown under the wrong provider.
     runId.current += 1;
     setState({ status: "idle" });
-  }, [provider, artifact.artifact_id]);
+  }, [provider, sourceKey]);
 
-  const run = () => {
+  const run = (refresh = false) => {
     const id = ++runId.current;
-    setState({ status: "loading" });
-    fetchNarrative(artifact.artifact_id, provider).then(
+    setState({ status: "loading", refresh });
+    const request =
+      source.kind === "forecast"
+        ? fetchNarrative(source.artifactId, provider, { refresh })
+        : fetchMatchNarrative(source.matchId, provider, { refresh });
+    request.then(
       (data) => { if (id === runId.current) setState({ status: "done", data }); },
       (error) => {
         if (id === runId.current)
@@ -67,11 +77,12 @@ export function AiDeepRead({ artifact }: { artifact: ForecastArtifact }) {
     );
   };
 
+  const isMatch = source.kind === "match";
   return (
     <section className="panel ai-panel" aria-labelledby="ai-h">
       <div className="panel__head ai-panel__head">
         <span className="ai-panel__mark" aria-hidden><ReadMark /></span>
-        <h2 id="ai-h">AI Deep Read</h2>
+        <h2 id="ai-h">{isMatch ? "AI Analyst Read" : "AI Deep Read"}</h2>
         <span className="chip chip--neutral ai-panel__opt">Optional</span>
         <label className="ai-provider" style={{ marginLeft: "auto" }}>
           <span className="visually-hidden">AI provider</span>
@@ -79,7 +90,7 @@ export function AiDeepRead({ artifact }: { artifact: ForecastArtifact }) {
             value={provider}
             onChange={(e) => {
               // Invalidate synchronously at selection time; the effect below is
-              // the second line of defense for provider and artifact changes.
+              // the second line of defense for provider and subject changes.
               runId.current += 1;
               setProvider(e.target.value as AiProvider);
             }}
@@ -97,25 +108,40 @@ export function AiDeepRead({ artifact }: { artifact: ForecastArtifact }) {
           <p className="callout callout--info" style={{ fontSize: ".9rem" }}>
             <InfoIcon size={18} />
             <span>
-              This is a synthetic sample forecast — AI Deep Read is built for your own sealed
-              forecasts.
+              This is the sample-data preview — the AI read needs the local Golavo app
+              connected to a model.
             </span>
           </p>
         )}
         <p className="ai-disclaimer">
           <InfoIcon size={16} />
           <span>
-            AI only reads and cites the sealed numbers above. It <b>cannot change a
-            probability</b> and <b>does not improve accuracy</b>. Every number it may state is
-            one the deterministic engine already produced; anything unverifiable is dropped.
+            {isMatch ? (
+              <>
+                AI reads the notes and the model council above and writes a <b>deeper
+                synthesis</b> — connecting facts to each other and to the probabilities. It{" "}
+                <b>cannot change a number</b>; every figure it states is one the deterministic
+                engine already produced, and anything unverifiable is dropped.
+              </>
+            ) : (
+              <>
+                AI only reads and cites the sealed numbers above. It <b>cannot change a
+                probability</b> and <b>does not improve accuracy</b>. Every number it may state is
+                one the deterministic engine already produced; anything unverifiable is dropped.
+              </>
+            )}
           </span>
         </p>
 
         {provider === "off" && <OffCard />}
-        {provider !== "off" && state.status === "idle" && <IdleCard provider={provider} onRun={run} />}
-        {state.status === "loading" && <Pipeline />}
-        {state.status === "error" && <FallbackCard reason={state.error.message} />}
-        {state.status === "done" && <Result data={state.data} onRetry={run} />}
+        {provider !== "off" && state.status === "idle" && (
+          <IdleCard provider={provider} isMatch={isMatch} onRun={() => run(false)} />
+        )}
+        {state.status === "loading" && <Pipeline provider={provider} refresh={state.refresh} />}
+        {state.status === "error" && <FallbackCard reason={state.error.message} onRetry={() => run(false)} />}
+        {state.status === "done" && (
+          <Result data={state.data} isMatch={isMatch} onRefresh={() => run(true)} onRetry={() => run(false)} />
+        )}
       </div>
     </section>
   );
@@ -124,13 +150,16 @@ export function AiDeepRead({ artifact }: { artifact: ForecastArtifact }) {
 function OffCard() {
   return (
     <p className="ai-note">
-      AI is <b>off</b> — the default. The sealed forecast above stands entirely on its own.
-      Choose a local model or your own key from the selector to add an optional, cited reading.
+      AI is <b>off</b> — the default. The analysis above stands entirely on its own.
+      Choose a local model or your own key from the selector (or the AI toggle in the header)
+      to add an optional, cited reading.
     </p>
   );
 }
 
-function IdleCard({ provider, onRun }: { provider: AiProvider; onRun: () => void }) {
+function IdleCard({
+  provider, isMatch, onRun,
+}: { provider: AiProvider; isMatch: boolean; onRun: () => void }) {
   const meta = AI_PROVIDERS.find((p) => p.value === provider);
   return (
     <div className="stack" style={{ ["--gap" as string]: ".7rem" }}>
@@ -140,21 +169,40 @@ function IdleCard({ provider, onRun }: { provider: AiProvider; onRun: () => void
           : "Uses a local model on your machine — no key, no cloud. Start Ollama or llama.cpp first."}
       </p>
       <div>
-        <button type="button" className="ai-run" onClick={onRun}>Run AI Deep Read</button>
+        <button type="button" className="ai-run" onClick={onRun}>
+          {isMatch ? "Write the deeper read" : "Run AI Deep Read"}
+        </button>
       </div>
     </div>
   );
 }
 
-function Pipeline() {
+/** Honest, informative progress: the factual stages, an indeterminate bar, and
+ *  an elapsed-seconds ticker with expectation-setting copy — a local model can
+ *  legitimately take a minute, and the user should never wonder if it hung. */
+function Pipeline({ provider, refresh }: { provider: AiProvider; refresh: boolean }) {
   const [step, setStep] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const meta = AI_PROVIDERS.find((p) => p.value === provider);
   useEffect(() => {
-    const t = window.setInterval(() => setStep((s) => (s + 1) % PIPELINE_STAGES.length), 900);
-    return () => window.clearInterval(t);
+    const stage = window.setInterval(() => setStep((s) => (s + 1) % PIPELINE_STAGES.length), 1400);
+    const tick = window.setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => { window.clearInterval(stage); window.clearInterval(tick); };
   }, []);
+  const waitNote =
+    elapsed < 8
+      ? refresh
+        ? "Regenerating — skipping the cached read."
+        : "This runs once, then is cached."
+      : meta?.kind === "local"
+        ? "Local models think at their own pace — a minute is normal. Nothing shows until every number is verified."
+        : "Still waiting on the provider. Nothing shows until every number is verified.";
   return (
     <div className="ai-pipeline" role="status" aria-live="polite">
-      <span className="visually-hidden">Preparing the AI deep read…</span>
+      <span className="visually-hidden">Preparing the AI read…</span>
+      <div className="ai-progress" aria-hidden>
+        <span className="ai-progress__fill" />
+      </div>
       <ol>
         {PIPELINE_STAGES.map((label, i) => (
           <li key={label} className={i === step ? "on" : i < step ? "done" : ""} aria-hidden>
@@ -162,11 +210,16 @@ function Pipeline() {
           </li>
         ))}
       </ol>
+      <p className="ai-progress__meta small dim" style={{ margin: 0 }}>
+        <span className="num">{elapsed}s</span> · {waitNote}
+      </p>
     </div>
   );
 }
 
-function Result({ data, onRetry }: { data: NarrativeResponse; onRetry: () => void }) {
+function Result({
+  data, isMatch, onRefresh, onRetry,
+}: { data: NarrativeResponse; isMatch: boolean; onRefresh: () => void; onRetry: () => void }) {
   if (data.status === "disabled") return <OffCard />;
   if (data.status === "unavailable") return <FallbackCard reason={data.reason} unavailable />;
   if (data.status === "local_only") return <FallbackCard reason={data.reason} onRetry={onRetry} />;
@@ -180,12 +233,15 @@ function Result({ data, onRetry }: { data: NarrativeResponse; onRetry: () => voi
     <div className="stack" style={{ ["--gap" as string]: "1rem" }}>
       <div className="ai-verified">
         <CheckIcon size={15} />
-        <span>Every number below was verified against the sealed forecast. It explains those
-          numbers — it does not change them.</span>
+        <span>
+          {isMatch
+            ? "Every number below was verified against the engine's own analysis. The AI connects the evidence — it does not change it."
+            : "Every number below was verified against the sealed forecast. It explains those numbers — it does not change them."}
+        </span>
       </div>
 
       {claims.length > 0 && (
-        <ClaimList title="Reading" items={claims} sourceById={sourceById} numberById={numberById} />
+        <ClaimList title={isMatch ? "The deeper read" : "Reading"} items={claims} sourceById={sourceById} numberById={numberById} />
       )}
       {scenarios.length > 0 && (
         <ClaimList title="Scenarios" items={scenarios} sourceById={sourceById} numberById={numberById} />
@@ -199,7 +255,14 @@ function Result({ data, onRetry }: { data: NarrativeResponse; onRetry: () => voi
         <span className="dim">
           {data.provider} · {data.model} · prompt {data.prompt_version}
         </span>
-        <button type="button" className="ai-refresh" onClick={onRetry}>Re-run</button>
+        <button
+          type="button"
+          className="ai-refresh"
+          onClick={onRefresh}
+          title="Regenerate — skips the cache; the new output still passes every guard"
+        >
+          Refresh read
+        </button>
       </p>
     </div>
   );
@@ -259,11 +322,11 @@ function FallbackCard({
       {unavailable ? <InfoIcon size={18} /> : <AlertIcon size={18} />}
       <div>
         <div className="callout__title">
-          {unavailable ? "AI unavailable" : "Showing the local forecast only"}
+          {unavailable ? "AI unavailable" : "Showing the deterministic analysis only"}
         </div>
         {reason ??
-          "AI output could not be verified against the sealed numbers, so it was discarded. " +
-          "The forecast above is unaffected."}
+          "AI output could not be verified against the engine's numbers, so it was discarded. " +
+          "The analysis above is unaffected."}
         {onRetry && (
           <div style={{ marginTop: ".5rem" }}>
             <button type="button" className="ai-refresh" onClick={onRetry}>Try again</button>

@@ -356,8 +356,14 @@ export async function fetchCalibration(): Promise<CalibrationSummary> {
  * guard-validated narration or an explicit local-only fallback. This call can
  * never change or produce a probability.
  */
-export async function fetchNarrative(id: string, provider: AiProvider): Promise<NarrativeResponse> {
-  const base: NarrativeResponse = {
+export interface NarrativeOptions {
+  /** Skip the server cache read and regenerate (the user's "Refresh" action).
+   *  The regenerated output still runs the full fail-closed guard pipeline. */
+  refresh?: boolean;
+}
+
+function emptyNarrative(provider: AiProvider): NarrativeResponse {
+  return {
     status: "disabled",
     provider,
     model: "",
@@ -370,28 +376,54 @@ export async function fetchNarrative(id: string, provider: AiProvider): Promise<
     sources: [],
     numbers: [],
   };
+}
+
+const MOCK_AI_REASON =
+  "AI Deep Read needs the local Golavo app connected to a model. It is not " +
+  "available in this sample-data preview. The analysis above is complete without it.";
+
+async function postNarrative(
+  path: string,
+  provider: AiProvider,
+  opts: NarrativeOptions,
+): Promise<NarrativeResponse> {
+  const base = emptyNarrative(provider);
   if (provider === "off") return base;
-  if (!API_BASE) {
-    return {
-      ...base,
-      status: "unavailable",
-      reason:
-        "AI Deep Read needs the local Golavo app connected to a model. It is not " +
-        "available in this sample-data preview. The forecast above is complete without it.",
-    };
-  }
+  if (!API_BASE) return { ...base, status: "unavailable", reason: MOCK_AI_REASON };
   const headers: Record<string, string> = {
     accept: "application/json",
     "content-type": "application/json",
   };
   if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
-  const res = await fetch(`${API_BASE}/api/v1/forecasts/${encodeURIComponent(id)}/narrative`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ provider }),
+    body: JSON.stringify({ provider, ...(opts.refresh ? { refresh: true } : {}) }),
   });
   if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);
   return { ...base, ...(await res.json()) } as NarrativeResponse;
+}
+
+export async function fetchNarrative(
+  id: string,
+  provider: AiProvider,
+  opts: NarrativeOptions = {},
+): Promise<NarrativeResponse> {
+  return postNarrative(`/api/v1/forecasts/${encodeURIComponent(id)}/narrative`, provider, opts);
+}
+
+/**
+ * The cockpit's AI deep read: an optional, guard-validated synthesis of one
+ * match's Commentator's Notebook + model council. Same honesty rules as the
+ * forecast narrative — off by default, never faked offline, every number
+ * verified against the whitelist server-side.
+ */
+export async function fetchMatchNarrative(
+  matchId: string,
+  provider: AiProvider,
+  opts: NarrativeOptions = {},
+): Promise<NarrativeResponse> {
+  return postNarrative(`/api/v1/matches/${encodeURIComponent(matchId)}/narrative`, provider, opts);
 }
 
 /**

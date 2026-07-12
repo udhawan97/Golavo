@@ -131,7 +131,7 @@ function Detail({
       <ExpertDrawers artifact={artifact} mode={mode} />
 
       {/* Optional, off by default, and subordinate to the sealed numbers above. */}
-      <AiDeepRead artifact={artifact} />
+      <AiDeepRead source={{ kind: "forecast", artifactId: artifact.artifact_id }} />
     </div>
   );
 }

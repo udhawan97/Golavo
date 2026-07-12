@@ -5,122 +5,427 @@
   "description": "The only authoritative object the optional AI layer is shown. Optional candidate-fact context is separately fenced as untrusted data. Built deterministically from a sealed or scored ForecastArtifact, its allowed_numbers list is the exhaustive whitelist of every numeric value the AI is permitted to utter; the engine owns every number and the AI may never introduce one that is not here. This is a sibling contract to ForecastArtifact and never modifies it.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "bundle_id", "artifact_id", "artifact_status", "derived_from_payload_sha256", "match", "forecast_summary", "allowed_numbers", "facts", "features", "sources", "data_quality", "generator", "bundle_hash"],
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "artifact_id",
+    "artifact_status",
+    "derived_from_payload_sha256",
+    "match",
+    "forecast_summary",
+    "allowed_numbers",
+    "facts",
+    "features",
+    "sources",
+    "data_quality",
+    "generator",
+    "bundle_hash"
+  ],
   "properties": {
-    "schema_version": {"const": "0.1.0"},
-    "bundle_id": {"type": "string", "pattern": "^eb_[a-z0-9]{8,}$"},
-    "artifact_id": {"type": "string", "pattern": "^fa_[a-z0-9]{8,}$"},
-    "artifact_status": {"enum": ["sealed", "scored", "abstained", "voided"]},
-    "derived_from_payload_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-    "match": {"$ref": "#/$defs/Match"},
-    "forecast_summary": {"$ref": "#/$defs/ForecastSummary"},
+    "schema_version": {
+      "enum": [
+        "0.1.0",
+        "0.2.0"
+      ]
+    },
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^eb_[a-z0-9]{8,}$"
+    },
+    "artifact_id": {
+      "type": "string",
+      "pattern": "^(fa|ma)_[a-z0-9]{8,}$"
+    },
+    "artifact_status": {
+      "enum": [
+        "sealed",
+        "scored",
+        "abstained",
+        "voided",
+        "preview",
+        "replay"
+      ]
+    },
+    "derived_from_payload_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "match": {
+      "$ref": "#/$defs/Match"
+    },
+    "forecast_summary": {
+      "$ref": "#/$defs/ForecastSummary"
+    },
     "allowed_numbers": {
       "type": "array",
-      "items": {"$ref": "#/$defs/AllowedNumber"}
+      "items": {
+        "$ref": "#/$defs/AllowedNumber"
+      }
     },
-    "facts": {"type": "array", "items": {"$ref": "#/$defs/Fact"}},
-    "features": {"type": "array", "items": {"$ref": "#/$defs/Feature"}},
-    "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Source"}},
-    "data_quality": {"$ref": "#/$defs/DataQuality"},
-    "generator": {"type": "string", "minLength": 1},
-    "bundle_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+    "facts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Fact"
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Feature"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/Source"
+      }
+    },
+    "data_quality": {
+      "$ref": "#/$defs/DataQuality"
+    },
+    "generator": {
+      "type": "string",
+      "minLength": 1
+    },
+    "bundle_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
   },
   "$defs": {
     "Match": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["match_id", "competition", "kickoff_utc", "home_team", "away_team", "neutral_venue"],
+      "required": [
+        "match_id",
+        "competition",
+        "kickoff_utc",
+        "home_team",
+        "away_team",
+        "neutral_venue"
+      ],
       "properties": {
-        "match_id": {"type": "string", "minLength": 1},
-        "competition": {"type": "string", "minLength": 1},
-        "stage": {"type": ["string", "null"]},
-        "kickoff_utc": {"type": "string", "format": "date-time"},
-        "home_team": {"type": "string", "minLength": 1},
-        "away_team": {"type": "string", "minLength": 1},
-        "neutral_venue": {"type": "boolean"},
-        "city": {"type": ["string", "null"]},
-        "country": {"type": ["string", "null"]}
+        "match_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "competition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kickoff_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "home_team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "away_team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "neutral_venue": {
+          "type": "boolean"
+        },
+        "city": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "country": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "ForecastSummary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["market", "horizon", "uncertainty", "abstained", "leading_outcome"],
+      "required": [
+        "market",
+        "horizon",
+        "uncertainty",
+        "abstained",
+        "leading_outcome"
+      ],
       "properties": {
-        "market": {"const": "1x2_regulation"},
-        "horizon": {"enum": ["T-72h", "T-24h", "T-60m"]},
-        "uncertainty": {"enum": ["low", "medium", "high"]},
-        "abstained": {"type": "boolean"},
-        "leading_outcome": {"enum": ["home", "draw", "away", null]}
+        "market": {
+          "const": "1x2_regulation"
+        },
+        "horizon": {
+          "enum": [
+            "T-72h",
+            "T-24h",
+            "T-60m",
+            "pre-kickoff"
+          ]
+        },
+        "uncertainty": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "abstained": {
+          "type": "boolean"
+        },
+        "leading_outcome": {
+          "enum": [
+            "home",
+            "draw",
+            "away",
+            null
+          ]
+        }
       }
     },
     "AllowedNumber": {
       "type": "object",
       "additionalProperties": false,
       "description": "One numeric value the AI is permitted to state. `value` is the canonical engine number; `display` is the exact string the AI must echo and bind to this id in the same claim's number_refs.",
-      "required": ["id", "value", "unit", "label", "display", "source_ids"],
+      "required": [
+        "id",
+        "value",
+        "unit",
+        "label",
+        "display",
+        "source_ids"
+      ],
       "properties": {
-        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
-        "value": {"type": "number"},
-        "unit": {"enum": ["percent", "goals", "log_loss", "brier", "count"]},
-        "label": {"type": "string", "minLength": 1},
-        "display": {"type": "string", "minLength": 1},
-        "source_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "enum": [
+            "percent",
+            "goals",
+            "log_loss",
+            "brier",
+            "count"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
       }
     },
     "Fact": {
       "type": "object",
       "additionalProperties": false,
       "description": "A deterministic, templated statement the AI may cite verbatim or paraphrase. Every number appearing in `text` is enumerated in `number_refs`, each an id in allowed_numbers.",
-      "required": ["fact_id", "text", "kind", "source_ids", "number_refs"],
+      "required": [
+        "fact_id",
+        "text",
+        "kind",
+        "source_ids",
+        "number_refs"
+      ],
       "properties": {
-        "fact_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
-        "text": {"type": "string", "minLength": 1},
-        "kind": {"enum": ["forecast", "context", "result"]},
-        "source_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
-        "number_refs": {"type": "array", "items": {"type": "string"}}
+        "fact_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "forecast",
+            "context",
+            "result"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "number_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "Feature": {
       "type": "object",
       "additionalProperties": false,
       "description": "A typed input the deterministic engine exposed. Categorical/boolean features carry no number; numeric features point at an allowed_numbers id via value_ref.",
-      "required": ["feature_id", "name", "kind", "value", "value_ref", "source_ids"],
+      "required": [
+        "feature_id",
+        "name",
+        "kind",
+        "value",
+        "value_ref",
+        "source_ids"
+      ],
       "properties": {
-        "feature_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
-        "name": {"type": "string", "minLength": 1},
-        "kind": {"enum": ["categorical", "boolean", "numeric", "timestamp"]},
-        "value": {"type": ["string", "boolean", "null"]},
-        "value_ref": {"type": ["string", "null"]},
-        "source_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+        "feature_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "categorical",
+            "boolean",
+            "numeric",
+            "timestamp"
+          ]
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "null"
+          ]
+        },
+        "value_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
       }
     },
     "Source": {
       "type": "object",
       "additionalProperties": false,
       "description": "A citable origin. `engine` is the deterministic forecast engine itself (it owns the numbers); `snapshot` is a vendored, byte-pinned data pack.",
-      "required": ["source_id", "kind", "title", "url", "license"],
+      "required": [
+        "source_id",
+        "kind",
+        "title",
+        "url",
+        "license"
+      ],
       "properties": {
-        "source_id": {"type": "string", "minLength": 1},
-        "kind": {"enum": ["engine", "snapshot"]},
-        "title": {"type": "string", "minLength": 1},
-        "url": {"type": "string", "format": "uri"},
-        "license": {"type": "string", "minLength": 1},
-        "upstream_ref": {"type": ["string", "null"]},
-        "retrieved_at_utc": {"type": ["string", "null"], "format": "date-time"},
-        "upstream_committed_at_utc": {"type": ["string", "null"], "format": "date-time"},
-        "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"}
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "engine",
+            "snapshot"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "upstream_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "retrieved_at_utc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "upstream_committed_at_utc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        }
       }
     },
     "DataQuality": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["uncertainty", "abstained", "abstain_reason", "training_cutoff_utc"],
+      "required": [
+        "uncertainty",
+        "abstained",
+        "abstain_reason",
+        "training_cutoff_utc"
+      ],
       "properties": {
-        "uncertainty": {"enum": ["low", "medium", "high"]},
-        "abstained": {"type": "boolean"},
-        "abstain_reason": {"type": ["string", "null"]},
-        "training_cutoff_utc": {"type": "string", "format": "date-time"}
+        "uncertainty": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "abstained": {
+          "type": "boolean"
+        },
+        "abstain_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "training_cutoff_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     }
   }

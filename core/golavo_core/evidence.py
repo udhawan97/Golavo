@@ -671,3 +671,291 @@ def load_and_build(artifact_path: Path) -> dict[str, Any]:
     """Convenience: read an artifact JSON file and build its evidence bundle."""
     artifact = json.loads(Path(artifact_path).read_text(encoding="utf-8"))
     return build_evidence_bundle(artifact)
+
+
+# --- Match-analysis bundles (schema 0.2.0, additive) ---------------------------
+#
+# The same whitelist machinery, fed by the on-demand MatchAnalysis (the cockpit's
+# Replay/Preview council) plus the Commentator's Notebook — so the AI can write a
+# DEEPER read of the notes for ANY indexed match, under exactly the guards the
+# sealed path uses. The bundle id is `ma_*`, its status is the analysis kind
+# (never a sealed status), and its hash derives from the analysis payload — a
+# match bundle can never masquerade as a sealed forecast's evidence.
+
+MATCH_EVIDENCE_SCHEMA_VERSION = "0.2.0"
+_MATCH_ENGINE_SOURCE_ID = "engine:match_analysis"
+
+_VOICE_LABELS = {
+    "elo_ordlogit": "Elo ratings model",
+    "dixon_coles": "Dixon-Coles goal model",
+    "climatological": "climatology baseline",
+}
+
+
+def _match_sources(pack_source_ids: tuple[str, ...]) -> list[dict[str, Any]]:
+    sources: list[dict[str, Any]] = [
+        {
+            "source_id": _MATCH_ENGINE_SOURCE_ID,
+            "kind": "engine",
+            "title": "Golavo deterministic engine · on-demand model council",
+            "url": REPO_URL,
+            "license": ENGINE_LICENSE,
+        }
+    ]
+    for sid in pack_source_ids:
+        sources.append(
+            {
+                "source_id": sid,
+                "kind": "snapshot",
+                "title": f"Vendored data pack · {sid}",
+                "url": REPO_URL,
+                # Every bundled results pack is CC0 (packs/README.md; enforced by
+                # the license-isolation gate).
+                "license": "CC0-1.0",
+            }
+        )
+    return sources
+
+
+def _council_numbers(analysis: dict[str, Any], data_sources: list[str]) -> list[dict[str, Any]]:
+    match = analysis["match"]
+    numbers: list[dict[str, Any]] = []
+    labels = {
+        "home": f"{match['home_team']} win probability",
+        "draw": "Draw probability",
+        "away": f"{match['away_team']} win probability",
+    }
+    for entry in analysis["models"]:
+        probs = entry.get("probs")
+        family = entry["family"]
+        if probs is None or family not in _VOICE_LABELS:
+            continue  # variants are disclosure, not extra whitelisted voices
+        for key in _OUTCOME_KEYS:
+            numbers.append(
+                {
+                    "id": f"mc_{family}_prob_{key}",
+                    "value": _pct(probs[key]),
+                    "unit": "percent",
+                    "label": f"{labels[key]} · {_VOICE_LABELS[family]}",
+                    "display": _fmt_pct(probs[key]),
+                    "source_ids": data_sources,
+                }
+            )
+        xg = entry.get("expected_goals")
+        if xg is not None:
+            for side in ("home", "away"):
+                numbers.append(
+                    {
+                        "id": f"mc_{family}_xg_{side}",
+                        "value": round(float(xg[side]), 6),
+                        "unit": "goals",
+                        "label": f"Model expected goals · {match[f'{side}_team']} "
+                        f"({_VOICE_LABELS[family]})",
+                        "display": _fmt_goals(xg[side]),
+                        "source_ids": data_sources,
+                    }
+                )
+    score_matrix = analysis.get("score_matrix")
+    if score_matrix is not None:
+        ml = score_matrix["most_likely"]
+        numbers.append(
+            {
+                "id": "mc_most_likely_home",
+                "value": int(ml["home"]),
+                "unit": "count",
+                "label": f"Most likely scoreline: goals for {match['home_team']}",
+                "display": str(int(ml["home"])),
+                "source_ids": data_sources,
+            }
+        )
+        numbers.append(
+            {
+                "id": "mc_most_likely_away",
+                "value": int(ml["away"]),
+                "unit": "count",
+                "label": f"Most likely scoreline: goals for {match['away_team']}",
+                "display": str(int(ml["away"])),
+                "source_ids": data_sources,
+            }
+        )
+        numbers.append(
+            {
+                "id": "mc_most_likely_prob",
+                "value": _pct(ml["probability"]),
+                "unit": "percent",
+                "label": "Probability of the most likely scoreline (goal model)",
+                "display": _fmt_pct(ml["probability"]),
+                "source_ids": data_sources,
+            }
+        )
+    return numbers
+
+
+def _council_facts(analysis: dict[str, Any], data_sources: list[str]) -> list[dict[str, Any]]:
+    match = analysis["match"]
+    home, away = match["home_team"], match["away_team"]
+    kind = analysis["analysis_kind"]
+    facts: list[dict[str, Any]] = [
+        {
+            "fact_id": "analysis_kind",
+            "text": (
+                "This is a replay: every model was fit using only matches before kickoff. "
+                "It shows what the methods WOULD have said — it is not a forecast that "
+                "existed at the time and it never enters the track record."
+                if kind == "replay"
+                else "This is a preview computed from everything known so far. It is not "
+                "sealed and will move as new results arrive."
+            ),
+            "kind": "context",
+            "source_ids": [_MATCH_ENGINE_SOURCE_ID],
+            "number_refs": [],
+        }
+    ]
+    by_family = {entry["family"]: entry for entry in analysis["models"]}
+    for family in ("elo_ordlogit", "dixon_coles", "climatological"):
+        entry = by_family.get(family)
+        probs = entry.get("probs") if entry else None
+        if probs is None:
+            continue
+        role_note = (
+            " (a team-blind reference the voices must beat, not a third opinion)"
+            if family == "climatological"
+            else ""
+        )
+        facts.append(
+            {
+                "fact_id": f"council_{family}",
+                "text": (
+                    f"The {_VOICE_LABELS[family]}{role_note} puts this at {home} "
+                    f"{_fmt_pct(probs['home'])}, draw {_fmt_pct(probs['draw'])}, {away} "
+                    f"{_fmt_pct(probs['away'])}."
+                ),
+                "kind": "forecast",
+                "source_ids": data_sources,
+                "number_refs": [f"mc_{family}_prob_{key}" for key in _OUTCOME_KEYS],
+            }
+        )
+    council = analysis.get("council") or {}
+    if council.get("voices", 0) >= 2:
+        facts.append(
+            {
+                "fact_id": "council_agreement",
+                "text": (
+                    "The two model voices agree on the likeliest outcome."
+                    if council.get("voices_agree")
+                    else "The two model voices DISAGREE on the likeliest outcome — the ratings "
+                    "view and the recent-goals view genuinely part ways on this fixture."
+                ),
+                "kind": "forecast",
+                "source_ids": [_MATCH_ENGINE_SOURCE_ID],
+                "number_refs": [],
+            }
+        )
+    if analysis.get("abstained"):
+        facts.append(
+            {
+                "fact_id": "abstained",
+                "text": (
+                    "The engine abstained from modelling this fixture: at least one side has "
+                    "too little history to model honestly. No probabilities were issued."
+                ),
+                "kind": "context",
+                "source_ids": [_MATCH_ENGINE_SOURCE_ID],
+                "number_refs": [],
+            }
+        )
+    return facts
+
+
+def build_match_evidence_bundle(
+    analysis: dict[str, Any],
+    *,
+    notebook_facts: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
+    notebook_numbers: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
+    pack_source_ids: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Build the evidence bundle for one on-demand MatchAnalysis (no artifact).
+
+    Pure function of its inputs. ``notebook_facts``/``notebook_numbers`` are the
+    Commentator's Notebook fold (``notebook_to_evidence``) — appended verbatim, so
+    the notes the user reads and the numbers the AI may cite are the same set.
+    The AI layer treats this bundle exactly like an artifact bundle: same
+    whitelist, same citation rules, same fail-closed review.
+    """
+    kind = analysis.get("analysis_kind")
+    if kind not in {"preview", "replay"}:
+        raise ValueError(f"cannot build a match evidence bundle from analysis kind {kind!r}")
+
+    match = analysis["match"]
+    payload_hash = hashlib.sha256(_canonical_bytes(analysis)).hexdigest()
+    data_sources = [_MATCH_ENGINE_SOURCE_ID, *pack_source_ids]
+
+    council = analysis.get("council") or {}
+    leading = council.get("leading_outcome")
+
+    bundle: dict[str, Any] = {
+        "schema_version": MATCH_EVIDENCE_SCHEMA_VERSION,
+        "bundle_id": "eb_pending00",
+        "artifact_id": f"ma_{payload_hash[:20]}",
+        "artifact_status": kind,
+        "derived_from_payload_sha256": payload_hash,
+        "match": {
+            "match_id": match["match_id"],
+            "competition": match["competition"],
+            "stage": None,
+            "kickoff_utc": match["kickoff_utc"],
+            "home_team": match["home_team"],
+            "away_team": match["away_team"],
+            "neutral_venue": bool(match["neutral_venue"]),
+            "city": None,
+            "country": None,
+        },
+        "forecast_summary": {
+            "market": "1x2_regulation",
+            "horizon": "pre-kickoff",
+            "uncertainty": analysis["uncertainty"],
+            "abstained": bool(analysis["abstained"]),
+            "leading_outcome": leading,
+        },
+        "allowed_numbers": [
+            *_council_numbers(analysis, data_sources),
+            *notebook_numbers,
+        ],
+        "facts": [*_council_facts(analysis, data_sources), *notebook_facts],
+        "features": [
+            {
+                "feature_id": "analysis_kind",
+                "name": "Analysis kind",
+                "kind": "categorical",
+                "value": kind,
+                "value_ref": None,
+                "source_ids": [_MATCH_ENGINE_SOURCE_ID],
+            },
+            {
+                "feature_id": "information_cutoff",
+                "name": "Information cutoff (UTC)",
+                "kind": "timestamp",
+                "value": analysis["information_cutoff_utc"],
+                "value_ref": None,
+                "source_ids": [_MATCH_ENGINE_SOURCE_ID],
+            },
+        ],
+        "sources": _match_sources(pack_source_ids),
+        "data_quality": {
+            "uncertainty": analysis["uncertainty"],
+            "abstained": bool(analysis["abstained"]),
+            "abstain_reason": analysis.get("abstain_reason"),
+            "training_cutoff_utc": analysis["information_cutoff_utc"],
+        },
+        "generator": GENERATOR,
+        "bundle_hash": "0" * 64,
+    }
+
+    stable = copy.deepcopy(bundle)
+    stable.pop("bundle_id")
+    stable.pop("bundle_hash")
+    digest = hashlib.sha256(_canonical_bytes(stable)).hexdigest()
+    bundle["bundle_id"] = f"eb_{digest[:20]}"
+    bundle["bundle_hash"] = digest
+    validate_evidence_bundle(bundle)
+    return bundle

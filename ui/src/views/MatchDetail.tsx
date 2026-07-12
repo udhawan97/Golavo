@@ -22,6 +22,7 @@ import type { AsyncState } from "../lib/hooks";
 import { useAsync } from "../lib/hooks";
 import { ChevronRight, InfoIcon, ShieldCheckIcon } from "../components/icons";
 import { HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
+import { AiDeepRead } from "../components/AiDeepRead";
 import { MatchHeader } from "../components/MatchHeader";
 import { ModelCouncil } from "../components/ModelCouncil";
 import { NotebookFacts } from "../components/CommentatorsNotebook";
@@ -103,6 +104,8 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       <InsightCards source={{ kind: "match", matchId: id }} />
 
       <MatchNotebookBlock matchId={id} />
+
+      <AiDeepRead source={{ kind: "match", matchId: id }} />
     </div>
   );
 }

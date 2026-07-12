@@ -9,7 +9,7 @@
  *    gateway already validated against the sealed evidence bundle. The UI adds
  *    no number of its own.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type AiProvider = "off" | "ollama" | "llama_server" | "openai" | "anthropic";
 
@@ -67,20 +67,50 @@ export interface NarrativeResponse {
 // ---- Settings (persisted, OFF by default) -----------------------------------
 
 const AI_KEY = "golavo-ai-provider";
+const AI_LAST_KEY = "golavo-ai-last-provider";
+// One event keeps every useAiProvider() instance in sync, so the header quick
+// toggle, Settings, and the Deep Read panels always agree.
+const AI_EVENT = "golavo-ai-provider-changed";
 
-/** The chosen provider, persisted. Defaults to "off" — the whole app works
- *  identically with this untouched. */
+function readProvider(): AiProvider {
+  try {
+    const stored = localStorage.getItem(AI_KEY);
+    if (stored && AI_PROVIDERS.some((p) => p.value === stored)) return stored as AiProvider;
+  } catch { /* ignore */ }
+  return "off";
+}
+
+/** The last non-off provider the user chose — what the quick toggle re-enables. */
+export function lastAiProvider(): AiProvider | null {
+  try {
+    const stored = localStorage.getItem(AI_LAST_KEY);
+    if (stored && stored !== "off" && AI_PROVIDERS.some((p) => p.value === stored))
+      return stored as AiProvider;
+  } catch { /* ignore */ }
+  return null;
+}
+
+/** The chosen provider, persisted and app-wide reactive. Defaults to "off" —
+ *  the whole app works identically with this untouched. Choosing a real
+ *  provider also remembers it, so the quick toggle can re-enable it later. */
 export function useAiProvider(): [AiProvider, (p: AiProvider) => void] {
-  const [provider, setProvider] = useState<AiProvider>(() => {
-    try {
-      const stored = localStorage.getItem(AI_KEY);
-      if (stored && AI_PROVIDERS.some((p) => p.value === stored)) return stored as AiProvider;
-    } catch { /* ignore */ }
-    return "off";
-  });
+  const [provider, setProvider] = useState<AiProvider>(readProvider);
+  useEffect(() => {
+    const sync = () => setProvider(readProvider());
+    window.addEventListener(AI_EVENT, sync);
+    window.addEventListener("storage", sync); // another tab/window
+    return () => {
+      window.removeEventListener(AI_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
   const set = useCallback((p: AiProvider) => {
     setProvider(p);
-    try { localStorage.setItem(AI_KEY, p); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(AI_KEY, p);
+      if (p !== "off") localStorage.setItem(AI_LAST_KEY, p);
+    } catch { /* ignore */ }
+    window.dispatchEvent(new Event(AI_EVENT));
   }, []);
   return [provider, set];
 }
