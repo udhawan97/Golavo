@@ -6,6 +6,36 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-07-12
+
+### Added
+- **Redesigned match & forecast pages** — a calmer "workbench" layout: a unified
+  match header, a single trust strip, plain-language insight cards, and expert
+  detail tucked into collapsible drawers. Same sealed numbers, presentation only,
+  now with a UI test suite (Vitest).
+- **Opt-in "keep fixtures up to date"** (Settings → Data, off by default). When
+  on, Golavo asks the CC0 fixture source on launch whether a new upcoming
+  international match has appeared, and flags it on the Matches page. This is the
+  **only** time the app reaches the network on its own — it reads only public
+  fixture data and sends nothing. New read-only `GET /api/v1/fixtures/check`.
+
+### Changed
+- **Search remembers where you were.** The query, filters, and results survive
+  opening a match and pressing Back (persisted in sessionStorage, not the URL),
+  the empty state offers popular-search chips so the directory is browseable
+  without typing, and the warming / error / load-more states now offer Retry.
+- **The sidecar launch token is passed via the environment, not the command
+  line**, so it is no longer visible to other local processes via `ps`; the
+  sidecar also refuses to bind a non-loopback host. Verified end-to-end on a real
+  desktop build — the auth gate enforces the env-delivered token.
+
+### Fixed
+- **SECURITY.md corrected in both directions.** In-app updates are cryptographically
+  signed and verified against a pinned public key (not "planned/gated on secrets");
+  and the claimed logging-redaction filter, backup/verify migrations layer, and
+  local crash reporting were removed — none of those mechanisms exist. The
+  deterministic fact engine is no longer listed as planned.
+
 ## [0.2.4] - 2026-07-12
 
 ### Added
