@@ -11,12 +11,30 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
   );
 }
 
-export function ErrorState({ title = "Something went sideways", error }: { title?: string; error: Error }) {
+export function ErrorState({
+  title = "Something went sideways",
+  error,
+  onRetry,
+}: {
+  title?: string;
+  error: Error;
+  onRetry?: () => void;
+}) {
   return (
     <div className="state" role="alert">
       <AlertIcon size={48} className="state__glyph" style={{ color: "var(--orange)" }} />
       <p className="state__title">{title}</p>
       <p className="state__body">{error.message}</p>
+      {onRetry && (
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={onRetry}
+          style={{ marginTop: ".75rem" }}
+        >
+          Try again
+        </button>
+      )}
     </div>
   );
 }

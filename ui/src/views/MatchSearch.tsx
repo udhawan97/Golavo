@@ -28,18 +28,42 @@ const GROUPS: Array<{ kind: SourceKind; title: string }> = [
   { kind: "club", title: "Club leagues" },
 ];
 
+// Persist the search across navigation (open a match → Back) via sessionStorage,
+// not the URL hash — the hash router can't carry `?q=` and per-keystroke hash
+// writes scroll-jump.
+const SS_Q = "golavo-search-q";
+const SS_COMP = "golavo-search-comp";
+const SS_STATUS = "golavo-search-status";
+
+// A starting point so the directory is browseable without typing first.
+const POPULAR = ["FIFA World Cup", "Copa América", "UEFA Euro", "Brazil", "England", "Argentina"];
+
 export function MatchSearch() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(() => sessionStorage.getItem(SS_Q) ?? "");
   const debounced = useDebouncedValue(input, 250);
   const query = debounced.trim();
-  const [competition, setCompetition] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
+  const [competition, setCompetition] = useState(() => sessionStorage.getItem(SS_COMP) ?? "");
+  const [status, setStatus] = useState<StatusFilter>(
+    () => (sessionStorage.getItem(SS_STATUS) as StatusFilter) || "all",
+  );
+  // Autofocus only on a truly fresh visit; a restored search must not yank focus
+  // (and scroll) back to the input when you return from a match.
+  const autoFocusFresh = useRef(!sessionStorage.getItem(SS_Q));
 
   const [rows, setRows] = useState<MatchRow[]>([]);
   const [total, setTotal] = useState(0);
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<Error | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState(false);
+  const [retryTick, setRetryTick] = useState(0);
+
+  // Restore the query/filters after a round-trip into a match detail.
+  useEffect(() => {
+    sessionStorage.setItem(SS_Q, input);
+    sessionStorage.setItem(SS_COMP, competition);
+    sessionStorage.setItem(SS_STATUS, status);
+  }, [input, competition, status]);
 
   const comps = useAsync(fetchCompetitions, []);
 
@@ -67,6 +91,7 @@ export function MatchSearch() {
     }
     let alive = true;
     setPhase("loading");
+    setLoadMoreError(false);
     searchMatches(query, { ...opts, offset: 0, limit: PAGE }).then(
       (res) => {
         if (!alive) return;
@@ -87,13 +112,17 @@ export function MatchSearch() {
     return () => {
       alive = false;
     };
-  }, [query, opts]);
+  }, [query, opts, retryTick]);
+
+  // Re-run the current search (used by the "Try again" affordances).
+  const retry = () => setRetryTick((t) => t + 1);
 
   const loadMore = () => {
     if (query.length < 2 || loadingMore) return;
     const key = keyRef.current;
     const offset = rows.length;
     setLoadingMore(true);
+    setLoadMoreError(false);
     searchMatches(query, { ...opts, offset, limit: PAGE }).then(
       (res) => {
         setLoadingMore(false);
@@ -101,7 +130,10 @@ export function MatchSearch() {
         setRows((prev) => [...prev, ...res.matches]);
         setTotal(res.total);
       },
-      () => setLoadingMore(false),
+      () => {
+        setLoadingMore(false);
+        setLoadMoreError(true);
+      },
     );
   };
 
@@ -128,7 +160,7 @@ export function MatchSearch() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Search teams or competitions…"
           aria-label="Search matches"
-          autoFocus
+          autoFocus={autoFocusFresh.current}
         />
       </div>
 
@@ -165,9 +197,29 @@ export function MatchSearch() {
       </div>
 
       {phase === "idle" && (
-        <EmptyState title="Search the match directory">
-          Search 50,000+ matches — internationals and the big-five club leagues.
-        </EmptyState>
+        <div className="stack" style={{ ["--gap" as string]: ".9rem" }}>
+          <EmptyState title="Search the match directory">
+            Search 75,000+ matches — internationals and the big-five club leagues. Or jump in:
+          </EmptyState>
+          <div
+            className="ms-popular"
+            style={{ display: "flex", flexWrap: "wrap", gap: ".5rem", justifyContent: "center" }}
+          >
+            {POPULAR.map((q) => (
+              <button
+                key={q}
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => {
+                  autoFocusFresh.current = false;
+                  setInput(q);
+                }}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {phase === "warming" && (
@@ -175,7 +227,10 @@ export function MatchSearch() {
           <InfoIcon size={18} />
           <div>
             <div className="callout__title">Match engine warming up</div>
-            The match engine is still warming up — try again in a moment.
+            The match index is still loading (it takes a moment on first use).{" "}
+            <button type="button" className="btn btn--ghost" onClick={retry}>
+              Try again
+            </button>
           </div>
         </div>
       )}
@@ -187,7 +242,7 @@ export function MatchSearch() {
         </>
       )}
 
-      {phase === "error" && error && <ErrorState error={error} />}
+      {phase === "error" && error && <ErrorState error={error} onRetry={retry} />}
 
       {phase === "ready" && (
         rows.length === 0 ? (
@@ -219,10 +274,18 @@ export function MatchSearch() {
               );
             })}
             {rows.length < total && (
-              <div className="ms-loadmore">
+              <div className="ms-loadmore stack" style={{ ["--gap" as string]: ".5rem" }}>
                 <button type="button" className="btn" onClick={loadMore} disabled={loadingMore}>
                   {loadingMore ? "Loading…" : `Load more (${total - rows.length} more)`}
                 </button>
+                {loadMoreError && (
+                  <div className="small" role="alert" style={{ color: "var(--orange)" }}>
+                    Couldn’t load more matches.{" "}
+                    <button type="button" className="btn btn--ghost" onClick={loadMore}>
+                      Retry
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
