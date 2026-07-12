@@ -628,25 +628,78 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .splash {
   position: fixed; inset: 0; z-index: 40;
   display: grid; place-items: center; padding: 2rem;
-  background: var(--ink);
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--gold) 8%, transparent), transparent 60%),
+    var(--ink);
 }
 .splash__inner {
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  gap: 1.1rem; max-width: 30rem;
+  gap: 1.15rem; width: min(26rem, 100%);
 }
-.splash__logo { opacity: .95; }
-.splash__spinner {
-  width: 34px; height: 34px; border-radius: 50%;
-  border: 3px solid var(--border-strong);
-  border-top-color: var(--gold);
-  animation: splash-spin .9s linear infinite;
-  margin: .3rem 0 .1rem;
-}
-@keyframes splash-spin { to { transform: rotate(360deg); } }
+.splash__logo { opacity: .95; margin-bottom: .1rem; }
 .splash__title { font-size: 1.02rem; font-weight: 600; color: var(--text); }
-.splash__hint { font-size: .9rem; color: var(--text-muted); line-height: 1.5; min-height: 2.6em; }
+
+/* progress bar + status line ------------------------------------------------ */
+.splash__progress { width: 100%; display: flex; flex-direction: column; gap: .5rem; }
+.splash__bar {
+  height: 8px; width: 100%; border-radius: 999px; overflow: hidden;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+}
+.splash__fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold-brand), var(--gold));
+  transition: width .16s linear;
+  position: relative; overflow: hidden;
+}
+/* a slow shine sweeping the filled portion — pure entertainment */
+.splash__fill::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: translateX(-100%);
+  animation: splash-shine 1.9s ease-in-out infinite;
+}
+@keyframes splash-shine { to { transform: translateX(100%); } }
+.splash__status {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  font-size: .84rem; color: var(--text-muted);
+}
+.splash__pct {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-weight: 600; color: var(--gold);
+}
+:root[data-theme="light"] .splash__pct { color: #785808; }
+
+/* rotating fact card -------------------------------------------------------- */
+.splash__fact {
+  margin-top: .5rem; width: 100%;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  padding: .85rem 1rem; text-align: left;
+  animation: splash-fact-in .5s ease both;
+}
+.splash__fact-label {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: .35rem;
+}
+:root[data-theme="light"] .splash__fact-label { color: #785808; }
+.splash__ball {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-soft);
+}
+.splash__fact-text {
+  font-size: .9rem; line-height: 1.5; color: var(--text-muted); margin: 0;
+}
+@keyframes splash-fact-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .splash__spinner { animation-duration: 2.4s; }
+  .splash__fill { transition: none; }
+  .splash__fill::after { animation: none; display: none; }
+  .splash__fact { animation: none; }
 }
 
 /* ---------------------------------------------------- sample banner ------- */

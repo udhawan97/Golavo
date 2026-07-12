@@ -6,6 +6,17 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-07-11
+
+### Added
+- **Entertaining startup screen.** The loading splash now shows a live progress
+  bar with a status line ("Unpacking the forecasting engine…" → "Warming up the
+  models…" → "Almost ready…") and a rotating deck of genuinely-true, genuinely-
+  obscure football facts, so the ~30-40s first-launch unpack passes with
+  something to read instead of a bare spinner. The progress bar eases toward
+  ~94% and lets the app itself take over the moment the engine is ready — it
+  never claims to be finished before it is. Both themes, reduced-motion aware.
+
 ## [0.2.2] - 2026-07-11
 
 **Desktop first-run UX fixes.** Two problems a fresh desktop install hit:
