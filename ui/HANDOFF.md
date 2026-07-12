@@ -133,3 +133,62 @@ v0.1.0 cannot currently express; each was worked around read-only without invent
   pre-provisioned.
 - Preview ran on port 5174 locally (5173 held by another session); committed config keeps 5173.
 - A `golavo-ui` entry was added to the git-ignored `.claude/launch.json` for local preview only.
+
+---
+
+## Match Search & the per-match Commentator's Notebook (later addition)
+
+A read-only search surface over the committed 75k-match index, plus a Commentator's
+Notebook for *any* searched match. Additive to the workbench above — the sealed forecast
+views, the Ledger, and the AI panel are unchanged. Full engineering note:
+[`docs/handoff/match-search.md`](../docs/handoff/match-search.md).
+
+### Views → data source
+
+| View | Route | Endpoint (`VITE_GOLAVO_API` set) | Mock fallback (default) |
+| --- | --- | --- | --- |
+| Match search | `#/matches` | `GET {base}/api/v1/matches/search?q=&competition=&status=&limit=&offset=` + `GET {base}/api/v1/matches/competitions` | `src/mocks/matches.json` |
+| Match detail + Commentator's Notebook | `#/match/{id}` | `GET {base}/api/v1/matches/{id}` + `GET {base}/api/v1/matches/{id}/notebook` | same mock, by id |
+
+`src/lib/api.ts` gains `searchMatches`, `fetchCompetitions`, `fetchMatch`, and
+`fetchMatchNotebook`. Live mode hits the endpoints; a `503` (index unavailable) and mock
+mode both fall back to `src/mocks/matches.json` — a small **synthetic** contract fixture,
+labelled as such (not real fixtures). Contract types are additive in `src/lib/contract.ts`:
+`MatchRow`, `MatchSearchResponse`, `MatchDetailResponse` (with
+`linked_by: "match_id" | "fixture" | null`), `CompetitionsResponse`, and
+`MatchNotebookResponse` (reusing the Phase-7 `CommentatorsNotebook` type + `NotebookFacts`
+renderer). The search box is debounced; Load-more pages by `offset`, keyed so a stale page
+never appends to a newer query.
+
+### Honest states (rendered from engine fields alone)
+
+**Search result badge** — classifies by `is_complete` first, never `kickoff` vs now:
+
+| Condition | Badge |
+| --- | --- |
+| `is_complete` | `Played H–A` |
+| not complete, `kickoff` in the future | `Upcoming` |
+| not complete, `kickoff` in the past | `Result not in snapshot` (a midnight-UTC day-proxy kickoff is not proof of a played match) |
+| a ledger forecast links to the row | `Sealed forecast` chip alongside |
+
+**Match detail forecast block** — four states:
+
+| State | Shown |
+| --- | --- |
+| Sealed forecast linked | link to the sealed `#/forecast/{id}` (with `linked_by` provenance) |
+| Played, no seal | the recorded final score + "Golavo never retro-forecasts a played match" |
+| Future, no seal | "Sealing from inside the app lands in a future release; today, seals are written by the engine CLI" — **club matches** additionally note forward sealing covers internationals (historical-backtest-only) |
+| Past kickoff, no recorded score, no seal | "No result on record" (not "upcoming") |
+
+The **Commentator's Notebook** block is always shown for a found match, fed by the per-match
+notebook endpoint and rendered through the shared `NotebookFacts` renderer. It is
+descriptive history, subordinate to any seal, and never a forecast.
+
+### Deferred / notes
+
+- **Seal-from-UI is deferred — the API stays all-GET.** No write path was added here.
+- Match ↔ forecast linking is served from the **real ledger only**, so synthetic sample
+  ids can never attach to a real fixture (see the handoff note's sample-mode invariant).
+- `status=upcoming` is empty until a pack refresh adds forward-dated fixtures; Load-more and
+  the past-incomplete state are code-verified (server tests + the code path), not visibly
+  reproducible from the small mock alone.

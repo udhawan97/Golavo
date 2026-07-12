@@ -63,3 +63,28 @@ def narration_schema_path() -> Path:
 def facts_schema_path() -> Path:
     """Absolute path to the CommentatorsNotebook JSON schema (Phase 7, additive)."""
     return resource("docs", "contracts", "facts.schema.json")
+
+
+def match_index_path() -> Path:
+    """Absolute path to the committed, frozen match search index (Parquet)."""
+    return resource("data", "index", "matches_index.parquet")
+
+
+def match_index_meta_path() -> Path:
+    """Absolute path to the match index's schema/row-count/digest sidecar."""
+    return resource("data", "index", "matches_index.meta.json")
+
+
+def match_index_goalscorers_path() -> Path:
+    """Absolute path to the internationals goalscorers side table (Parquet)."""
+    return resource("data", "index", "goalscorers.parquet")
+
+
+def match_index_shootouts_path() -> Path:
+    """Absolute path to the internationals shootouts side table (Parquet)."""
+    return resource("data", "index", "shootouts.parquet")
+
+
+def match_index_aliases_path() -> Path:
+    """Absolute path to the former-name search alias map (JSON)."""
+    return resource("data", "index", "aliases.json")

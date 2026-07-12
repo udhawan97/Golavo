@@ -1,0 +1,43 @@
+{
+  "built_from": [
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "e76b38473d1401134cc00955dd64cc7174f38bfaa600dbb1dbc3d4a349611319",
+      "pack": "martj42-internationals",
+      "source_id": "martj42-international-results"
+    },
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "a8ed7e752c8c804eb1c488954bd5e5b0c8b84c0c6bc4ccc30402886d3684386d",
+      "pack": "openfootball-deu-bl",
+      "source_id": "openfootball-football-json"
+    },
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "ea2fb985a65b75c5fbd6159119353439bea4281b60f2453cea07a212a7fa51df",
+      "pack": "openfootball-eng-pl",
+      "source_id": "openfootball-football-json"
+    },
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "e4bc86471ed0d0e5b247422e08e60552e54b9a374bb9dac0a7739d8908c900a5",
+      "pack": "openfootball-esp-ll",
+      "source_id": "openfootball-football-json"
+    },
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "e9b64998f2f6cd3aba7a502b209ad68f03f4cb5ec544e6e55c2461323997ed1c",
+      "pack": "openfootball-fra-l1",
+      "source_id": "openfootball-football-json"
+    },
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "c339da0ad5feeb22972f3453761a11943f0f40ed0710197e72942e9dede92e83",
+      "pack": "openfootball-ita-sa",
+      "source_id": "openfootball-football-json"
+    }
+  ],
+  "parquet_sha256": "7ae1f64e88a5ffb7247e16511a4882cbd2fc9b5e04a20da82d74e32da5c4de3d",
+  "row_count": 75079,
+  "schema_version": "0.2.0"
+}

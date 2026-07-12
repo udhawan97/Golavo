@@ -6,7 +6,9 @@ import type {
   CommentatorsNotebook,
   EvalSummary,
   ForecastArtifact,
+  MatchRow,
   NotebookResponse,
+  SchemaVersion,
 } from "../lib/contract";
 
 const forecastModules = import.meta.glob<ForecastArtifact>("./forecasts/*.json", {
@@ -48,4 +50,17 @@ export async function loadMockEval(): Promise<EvalSummary> {
 export async function loadMockCalibration(): Promise<CalibrationSummary> {
   const mod = await import("./calibration.json");
   return mod.default as unknown as CalibrationSummary;
+}
+
+export interface MockMatches {
+  schema_version: SchemaVersion;
+  matches: MatchRow[];
+}
+
+/** Synthetic match directory, generated in lockstep with the sample artifacts
+ *  by scripts/generate_sample_artifacts.py. Every row carries a synthetic
+ *  source_id so it can never be mistaken for real data. */
+export async function loadMockMatches(): Promise<MockMatches> {
+  const mod = await import("./matches.json");
+  return mod.default as unknown as MockMatches;
 }

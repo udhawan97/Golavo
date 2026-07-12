@@ -8,7 +8,7 @@ from pathlib import Path
 
 from golavo_core.artifacts import score_forecast, seal_forecast, void_forecast
 from golavo_core.evaluation import write_club_evaluation, write_evaluation
-from golavo_core.ingest import write_parquet
+from golavo_core.ingest import build_match_index, default_index_packs, write_parquet
 from golavo_core.models import FAMILIES
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -21,6 +21,21 @@ def _parser() -> argparse.ArgumentParser:
     ingest = commands.add_parser("ingest", help="materialize the typed Parquet match table")
     ingest.add_argument("--pack", type=Path, default=REPO_ROOT / "packs/martj42-internationals")
     ingest.add_argument("--output", type=Path, default=REPO_ROOT / "data/warehouse/matches.parquet")
+
+    index = commands.add_parser(
+        "index", help="build the committed, deterministic match search index"
+    )
+    index.add_argument(
+        "--pack",
+        type=Path,
+        action="append",
+        dest="packs",
+        default=None,
+        help="pack dir to fold in (repeatable); defaults to one pack per source/league",
+    )
+    index.add_argument(
+        "--output", type=Path, default=REPO_ROOT / "data/index/matches_index.parquet"
+    )
 
     evaluate = commands.add_parser("evaluate", help="run frozen chronological folds")
     evaluate.add_argument("--pack", type=Path, default=REPO_ROOT / "packs/martj42-internationals")
@@ -110,6 +125,9 @@ def main() -> None:
     args = _parser().parse_args()
     if args.command == "ingest":
         print(write_parquet(args.pack, args.output))
+    elif args.command == "index":
+        packs = args.packs if args.packs else default_index_packs(REPO_ROOT)
+        print(build_match_index(packs, args.output))
     elif args.command == "evaluate":
         write_evaluation(
             args.pack,

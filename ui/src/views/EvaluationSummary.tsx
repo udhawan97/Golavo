@@ -20,6 +20,9 @@ export function EvaluationSummary() {
           <b style={{ color: "var(--text)" }}>Log loss is the headline metric</b> — it rewards honest
           probabilities and punishes overconfidence. Lower is better throughout.
         </p>
+        <p className="muted small">
+          <a href="#/ledger">Your real sealed forecasts live in the Ledger ›</a>
+        </p>
       </header>
 
       {state.status === "loading" && (

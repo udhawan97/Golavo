@@ -9,9 +9,8 @@
 import { SCHEMA_VERSION } from "../lib/contract";
 import { sourceDescription } from "../lib/api";
 import { useUpdater } from "../lib/updater-context";
-import { RELEASES_URL, formatWhen } from "../lib/updater";
-
-const DOCS_URL = "https://udhawan97.github.io/Golavo/";
+import { formatWhen } from "../lib/updater";
+import { DOCS_URL, RELEASES_URL } from "../lib/links";
 
 function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;

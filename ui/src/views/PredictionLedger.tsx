@@ -5,6 +5,7 @@
  * artifacts — never evaluation backtests. Those live under #/eval and are
  * labeled as such; the split is the product's honesty boundary.
  */
+import { useMemo, useState } from "react";
 import type { CalibrationChain, CalibrationSummary, Probs } from "../lib/contract";
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
 import { fetchCalibration } from "../lib/api";
@@ -23,7 +24,7 @@ export function PredictionLedger() {
           Real sealed forecasts and what happened after the whistle — never backtests.
           Each row is an immutable seal; scoring appends a successor from a strictly
           newer data snapshot and can never edit the seal.{" "}
-          <b style={{ color: "var(--text)" }}>Backtest folds live under Evaluation.</b>
+          <a href="#/eval"><b style={{ color: "var(--text)" }}>Backtest folds live under Evaluation ›</b></a>
         </p>
       </header>
 
@@ -68,37 +69,124 @@ function Ledger({ data }: { data: CalibrationSummary }) {
 
       <RunningCalibration data={data} />
 
-      <section className="stack" style={{ ["--gap" as string]: "1rem" }} aria-labelledby="chains-h">
-        <h2 id="chains-h" className="upper muted">Sealed → scored chains</h2>
-        <div className="card">
-          <div className="table-wrap" style={{ border: "none", borderRadius: 0 }}>
-            <table className="grid">
-              <thead>
-                <tr>
-                  <th scope="col">Fixture</th>
-                  <th scope="col">Kickoff (day proxy)</th>
-                  <th scope="col">Sealed</th>
-                  <th scope="col">P(H/D/A)</th>
-                  <th scope="col">Outcome</th>
-                  <th scope="col" className="headline-col">Log loss</th>
-                  <th scope="col">Brier</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.chains.map((chain) => (
-                  <ChainRow key={chain.sealed_artifact_id} chain={chain} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <p className="small dim" style={{ maxWidth: "70ch" }}>
-          The source publishes dates, not kickoff times, so seals close at 00:00 UTC on
-          match day — a conservative day-before cutoff. A voided row records a
-          postponement or abandonment with its reason; it never fabricates a result.
-        </p>
-      </section>
+      <ChainsTable chains={data.chains} />
     </>
+  );
+}
+
+type ChainCategory = "scored" | "awaiting" | "voided" | "abstained";
+const CATEGORY_LABELS: Record<ChainCategory, string> = {
+  scored: "Scored",
+  awaiting: "Awaiting",
+  voided: "Voided",
+  abstained: "Abstained",
+};
+
+/** One resolution bucket per chain. Terminal outcomes (scored/voided) win over
+ *  an abstention flag; a still-pending abstained seal reads as "abstained". */
+function chainCategory(chain: CalibrationChain): ChainCategory {
+  if (chain.resolution.status === "scored") return "scored";
+  if (chain.resolution.status === "voided") return "voided";
+  if (chain.abstained) return "abstained";
+  return "awaiting";
+}
+
+/** The sealed→scored chains table with client-side filters. The top count chips
+ *  stay UNfiltered (they summarize the whole ledger); this table narrows to a
+ *  resolution bucket and/or competition, and captions "showing n of m chains". */
+function ChainsTable({ chains }: { chains: CalibrationChain[] }) {
+  const [category, setCategory] = useState<ChainCategory | "all">("all");
+  const [competition, setCompetition] = useState<string>("all");
+
+  const categories = useMemo(() => {
+    const present = new Set(chains.map(chainCategory));
+    return (["scored", "awaiting", "voided", "abstained"] as ChainCategory[]).filter((c) => present.has(c));
+  }, [chains]);
+  const competitions = useMemo(
+    () => Array.from(new Set(chains.map((c) => c.match.competition))).sort((a, b) => a.localeCompare(b)),
+    [chains],
+  );
+
+  const filtered = useMemo(
+    () =>
+      chains.filter((chain) => {
+        if (category !== "all" && chainCategory(chain) !== category) return false;
+        if (competition !== "all" && chain.match.competition !== competition) return false;
+        return true;
+      }),
+    [chains, category, competition],
+  );
+
+  return (
+    <section className="stack" style={{ ["--gap" as string]: "1rem" }} aria-labelledby="chains-h">
+      <div className="hgroup">
+        <h2 id="chains-h" className="upper muted">Sealed → scored chains</h2>
+        <div className="mv-filters" role="group" aria-label="Filter chains">
+          <div className="mv-filter-chips" role="group" aria-label="Filter by resolution">
+            <FilterChip label="All" active={category === "all"} onClick={() => setCategory("all")} />
+            {categories.map((c) => (
+              <FilterChip key={c} label={CATEGORY_LABELS[c]} active={category === c} onClick={() => setCategory(c)} />
+            ))}
+          </div>
+          <label className="field mv-filter-field">
+            Competition
+            <select
+              className="select"
+              value={competition}
+              onChange={(e) => setCompetition(e.target.value)}
+            >
+              <option value="all">All competitions</option>
+              {competitions.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </div>
+      <p className="mv-filter-count small muted" role="status" aria-live="polite">
+        Showing {filtered.length} of {chains.length} chains
+      </p>
+      <div className="card">
+        <div className="table-wrap" style={{ border: "none", borderRadius: 0 }}>
+          <table className="grid">
+            <thead>
+              <tr>
+                <th scope="col">Fixture</th>
+                <th scope="col">Kickoff (day proxy)</th>
+                <th scope="col">Sealed</th>
+                <th scope="col">P(H/D/A)</th>
+                <th scope="col">Outcome</th>
+                <th scope="col" className="headline-col">Log loss</th>
+                <th scope="col">Brier</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((chain) => (
+                <ChainRow key={chain.sealed_artifact_id} chain={chain} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p className="small dim" style={{ maxWidth: "70ch" }}>
+        The source publishes dates, not kickoff times, so seals close at 00:00 UTC on
+        match day — a conservative day-before cutoff. A voided row records a
+        postponement or abandonment with its reason; it never fabricates a result.
+      </p>
+    </section>
+  );
+}
+
+function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className={`mv-filter-chip${active ? " is-active" : ""}`}
+      aria-pressed={active}
+      onClick={onClick}
+    >
+      {label}
+    </button>
   );
 }
 

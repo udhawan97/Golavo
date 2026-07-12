@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 
-from golavo_server import __version__, runtime
+from golavo_server import __version__, matches, runtime
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
 # (ValueError), missing field (KeyError), unreadable file (OSError), or a broken
@@ -224,6 +224,72 @@ def forecast_facts(artifact_id: str) -> dict[str, Any]:
     if not notebook_path.is_file():
         return {"artifact_id": artifact_id, "available": False, "notebook": None}
     return {"artifact_id": artifact_id, "available": True, "notebook": _read_json(notebook_path)}
+
+
+@app.get("/api/v1/matches/search")
+def search_matches(
+    q: str, competition: str | None = None, status: str | None = None,
+    limit: int = 25, offset: int = 0,
+) -> dict[str, Any]:
+    """Search the frozen, read-only match index (75k fixtures) by team or competition.
+
+    Read-only and pack-free: it never writes and never touches the model. Forecast
+    links are drawn from the REAL ledger (ARTIFACT_DIR), not the sample fallback, so
+    a synthetic sample id can never attach to a real fixture. Links are cheap
+    navigation — the forecast route still verifies each artifact's identity on serve.
+    """
+    if len(q.strip()) < 2:
+        raise HTTPException(status_code=422, detail="q must be at least 2 characters")
+    try:
+        return matches.search_matches(
+            q, competition=competition, status=status, limit=limit, offset=offset,
+            forecasts_dir=ARTIFACT_DIR,
+        )
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+
+
+@app.get("/api/v1/matches/competitions")
+def list_competitions() -> dict[str, Any]:
+    """List the distinct competitions in the index with their match counts.
+
+    Declared BEFORE ``/matches/{match_id}`` so "competitions" is never swallowed
+    as a match id.
+    """
+    try:
+        return matches.list_competitions()
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+
+
+@app.get("/api/v1/matches/{match_id}")
+def get_match(match_id: str) -> dict[str, Any]:
+    """Return one indexed match by id, with any forecasts linked from the ledger."""
+    try:
+        detail = matches.get_match(match_id, forecasts_dir=ARTIFACT_DIR)
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if detail is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    return detail
+
+
+@app.get("/api/v1/matches/{match_id}/notebook")
+def match_notebook(match_id: str) -> dict[str, Any]:
+    """Serve the deterministic Commentator's Notebook for one match.
+
+    Prefers a precomputed notebook beside a sealed forecast; else computes it on
+    demand at ``kickoff - 1s`` — the seal's own conservative cutoff — so the
+    notebook can never read the fixture's result or any later match. A build
+    failure fails closed to an honest empty envelope, never a 500.
+    """
+    try:
+        result = matches.match_notebook(match_id, forecasts_dir=ARTIFACT_DIR)
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    return result
 
 
 @app.get("/api/v1/calibration")

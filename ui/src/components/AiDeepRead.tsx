@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ForecastArtifact } from "../lib/contract";
-import { fetchNarrative } from "../lib/api";
+import { DATA_SOURCE, fetchNarrative } from "../lib/api";
 import {
   AI_PROVIDERS,
   useAiProvider,
@@ -93,6 +93,15 @@ export function AiDeepRead({ artifact }: { artifact: ForecastArtifact }) {
       </div>
 
       <div className="panel__body stack" style={{ ["--gap" as string]: ".9rem" }}>
+        {DATA_SOURCE === "mock" && (
+          <p className="callout callout--info" style={{ fontSize: ".9rem" }}>
+            <InfoIcon size={18} />
+            <span>
+              This is a synthetic sample forecast — AI Deep Read is built for your own sealed
+              forecasts.
+            </span>
+          </p>
+        )}
         <p className="ai-disclaimer">
           <InfoIcon size={16} />
           <span>

@@ -34,6 +34,33 @@ jobs:
         run: python scripts/validate_provenance.py
       - name: Validate canonical sample artifacts
         run: python scripts/validate_artifacts.py
+      - name: Match index — verify committed copy is a clean rebuild
+        # Rebuild the index from the CC0 packs and assert byte-identical output.
+        # Core deps are ==-pinned so pyarrow's Parquet encoding is stable; a
+        # mismatch means either a pack changed without a rebuild or a dep bump
+        # changed the bytes — in the latter case, rebuild + recommit the index.
+        run: |
+          python -m golavo_core index --output /tmp/rebuilt_index.parquet
+          python - <<'PY'
+          import hashlib, json, pathlib, sys
+
+          def sha256(path):
+              return hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()
+
+          rebuilt = sha256("/tmp/rebuilt_index.parquet")
+          committed = sha256("data/index/matches_index.parquet")
+          meta = json.loads(pathlib.Path("data/index/matches_index.meta.json").read_text())
+          committed_meta = meta["parquet_sha256"]
+
+          if not (rebuilt == committed == committed_meta):
+              print("::error::match index drift — committed copy is not a clean rebuild")
+              print(f"  rebuilt parquet sha256        = {rebuilt}")
+              print(f"  committed parquet sha256      = {committed}")
+              print(f"  committed meta parquet_sha256 = {committed_meta}")
+              print("Fix: run `python -m golavo_core index` and commit data/index/*.")
+              sys.exit(1)
+          print(f"match index OK: rebuild == committed ({rebuilt})")
+          PY
       - name: Test determinism, leakage, core, and API
         run: pytest -q
 

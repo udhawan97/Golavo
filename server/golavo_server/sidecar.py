@@ -159,6 +159,19 @@ def _warm_calibration() -> None:
         pass
 
 
+def _warm_search() -> None:
+    """Pre-load the frozen match index so the first /matches/search request does
+    not pay the ~25s pandas+parquet stall. Runs in a daemon thread the moment
+    serving starts. Best-effort: a missing/corrupt index is swallowed and the
+    first search fails closed (503) exactly as it would have anyway."""
+    try:
+        from golavo_server import matches
+
+        matches._load_index()
+    except Exception:  # noqa: BLE001 (warm-up must never crash the server)
+        pass
+
+
 def _serve(
     host: str,
     port: int,
@@ -181,13 +194,21 @@ def _serve(
             target=_watch_parent, args=(parent_pid,), name="watch-parent", daemon=True
         ).start()
     threading.Thread(target=_warm_calibration, name="warm-calibration", daemon=True).start()
+    threading.Thread(target=_warm_search, name="warm-search", daemon=True).start()
     uvicorn.run(app, host=host, port=port, log_level="warning")
 
 
 def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
     """Boot the server on an ephemeral port in a background thread and assert
-    that /health becomes ready. Returns 0 on success, 1 on timeout/failure."""
-    from golavo_server import __version__
+    that /health becomes ready AND the match-search surface answers. Returns 0
+    on success, 1 on timeout/failure.
+
+    The search probe is what catches a frozen build that dropped the
+    ``data/index`` datas entry: /health only proves the server booted, while a
+    missing index makes /matches/search fail closed with a 503. Smoke runs with
+    a token (see _serve), so the probe attaches it — /health is exempt, the
+    /api/* search route is not."""
+    from golavo_server import __version__, runtime
 
     host = "127.0.0.1"
     port = _free_loopback_port(host)
@@ -199,26 +220,54 @@ def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
     )
     thread.start()
 
-    url = f"http://{host}:{port}/health"
+    health_url = f"http://{host}:{port}/health"
     deadline = time.monotonic() + timeout
     last_error = "server did not start"
+    healthy = False
     while time.monotonic() < deadline:
         try:
-            with urllib.request.urlopen(url, timeout=2.0) as response:  # noqa: S310 (loopback only)
+            with urllib.request.urlopen(health_url, timeout=2.0) as response:  # noqa: S310 (loopback only)
                 body = json.loads(response.read().decode("utf-8"))
             if body.get("status") == "ok" and body.get("version") == __version__:
-                print(f"golavo-sidecar {__version__}: smoke OK on {host}:{port} ({body})")
-                return 0
+                healthy = True
+                break
             last_error = f"unexpected /health body: {body}"
         except Exception as exc:  # noqa: BLE001 (probe: any failure means not-ready-yet)
             last_error = str(exc)
         time.sleep(0.25)
 
-    print(
-        f"golavo-sidecar {__version__}: smoke FAILED after {timeout:.0f}s ({last_error})",
-        file=sys.stderr,
-    )
-    return 1
+    if not healthy:
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED after {timeout:.0f}s ({last_error})",
+            file=sys.stderr,
+        )
+        return 1
+
+    # The bundled match index must be reachable through the real API route.
+    search_url = f"http://{host}:{port}/api/v1/matches/search?q=br"
+    request = urllib.request.Request(search_url)  # noqa: S310 (loopback only)
+    if token:
+        request.add_header(runtime.TOKEN_HEADER, token)  # the /api/* gate is on in smoke mode
+    try:
+        with urllib.request.urlopen(request, timeout=5.0) as response:  # noqa: S310 (loopback only)
+            search_body = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001 (any failure => the search surface is broken)
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED — /matches/search probe error ({exc})",
+            file=sys.stderr,
+        )
+        return 1
+    if not isinstance(search_body.get("matches"), list):
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED — search returned no matches array "
+            f"({search_body})",
+            file=sys.stderr,
+        )
+        return 1
+
+    n = len(search_body["matches"])
+    print(f"golavo-sidecar {__version__}: smoke OK on {host}:{port} (health + {n} search matches)")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

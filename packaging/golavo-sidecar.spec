@@ -47,6 +47,20 @@ datas += [
     (path, "data/fixtures/sample_artifacts")
     for path in glob.glob(os.path.join(ROOT, "data", "fixtures", "sample_artifacts", "*.json"))
 ]
+# CC0 match search index: the frozen 75k-row Parquet plus its meta digest and
+# side tables. All sources are CC0-1.0 (guarded by check_license_isolation.sh);
+# no ODbL data ships here. Kept at the repo-relative layout so
+# golavo_core.resources resolves them under sys._MEIPASS when frozen (~2.4MB).
+datas += [
+    (os.path.join(ROOT, "data", "index", name), "data/index")
+    for name in (
+        "matches_index.parquet",
+        "matches_index.meta.json",
+        "goalscorers.parquet",
+        "shootouts.parquet",
+        "aliases.json",
+    )
+]
 
 # uvicorn and the golavo packages import submodules dynamically; collect them so
 # the frozen server can actually boot. numpy/pandas/scipy/pyarrow are handled by

@@ -14,9 +14,15 @@
 import { ACCEPTED_SCHEMA_VERSIONS } from "./contract";
 import type {
   CalibrationSummary,
+  CompetitionsResponse,
   EvalSummary,
   ForecastArtifact,
+  MatchDetailResponse,
+  MatchNotebookResponse,
+  MatchRow,
+  MatchSearchResponse,
   NotebookResponse,
+  SourceKind,
 } from "./contract";
 import type { AiProvider, NarrativeResponse } from "./ai";
 import {
@@ -24,6 +30,7 @@ import {
   loadMockEval,
   loadMockForecast,
   loadMockForecasts,
+  loadMockMatches,
   loadMockNotebook,
 } from "../mocks";
 
@@ -100,6 +107,19 @@ export function sourceDescription(source?: ForecastSource): string {
 
 export class ContractError extends Error {}
 
+/** A live HTTP error that carries the status code so a view can react to a
+ *  specific state — notably a 503 from the match index while it is still being
+ *  built by the engine. The message stays recognizable for older `/HTTP \d+/`
+ *  detection too. */
+export class ApiError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) {
+    super(`${message} (HTTP ${status})`);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 const HEX64 = /^[0-9a-f]{64}$/;
 
 function assertVersion(v: unknown, ctx: string): void {
@@ -156,12 +176,90 @@ function assertCalibration(x: unknown, ctx: string): CalibrationSummary {
   return c;
 }
 
-async function getJson(path: string): Promise<unknown> {
+const SOURCE_KINDS = ["international", "club"] as const;
+
+function isSourceKind(v: unknown): v is SourceKind {
+  return SOURCE_KINDS.includes(v as SourceKind);
+}
+
+function assertNonNegNumber(v: unknown, ctx: string, field: string): void {
+  if (typeof v !== "number" || !Number.isFinite(v) || v < 0)
+    throw new ContractError(`${ctx}: ${field} must be a finite number ≥ 0`);
+}
+
+function assertMatchRow(x: unknown, ctx: string): MatchRow {
+  const m = x as MatchRow;
+  if (!m || typeof m !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (typeof m.match_id !== "string" || !m.match_id.startsWith("m_"))
+    throw new ContractError(`${ctx}: match_id must start with "m_"`);
+  if (!isSourceKind(m.source_kind))
+    throw new ContractError(
+      `${ctx}: source_kind ${String(m.source_kind)} not in [${SOURCE_KINDS.join(", ")}]`,
+    );
+  const bothScores = m.home_score !== null && m.away_score !== null;
+  if (m.is_complete !== bothScores)
+    throw new ContractError(
+      `${ctx}: is_complete=${m.is_complete} must equal (both scores present)=${bothScores}`,
+    );
+  if (!Array.isArray(m.forecasts)) throw new ContractError(`${ctx}: forecasts is not an array`);
+  return m;
+}
+
+function assertMatchSearch(x: unknown, ctx: string): MatchSearchResponse {
+  const r = x as MatchSearchResponse;
+  if (!r || typeof r !== "object") throw new ContractError(`${ctx}: not an object`);
+  assertVersion(r.schema_version, ctx);
+  assertNonNegNumber(r.total, ctx, "total");
+  assertNonNegNumber(r.limit, ctx, "limit");
+  assertNonNegNumber(r.offset, ctx, "offset");
+  if (!Array.isArray(r.matches)) throw new ContractError(`${ctx}: matches is not an array`);
+  r.matches.forEach((m, i) => assertMatchRow(m, `${ctx}.matches[${i}]`));
+  return r;
+}
+
+function assertMatchDetail(x: unknown, ctx: string): MatchDetailResponse {
+  const r = x as MatchDetailResponse;
+  if (!r || typeof r !== "object") throw new ContractError(`${ctx}: not an object`);
+  assertVersion(r.schema_version, ctx);
+  assertMatchRow(r.match, `${ctx}.match`);
+  return r;
+}
+
+function assertCompetitions(x: unknown, ctx: string): CompetitionsResponse {
+  const r = x as CompetitionsResponse;
+  if (!r || typeof r !== "object") throw new ContractError(`${ctx}: not an object`);
+  assertVersion(r.schema_version, ctx);
+  if (!Array.isArray(r.competitions))
+    throw new ContractError(`${ctx}: competitions is not an array`);
+  r.competitions.forEach((c, i) => {
+    if (!isSourceKind(c.source_kind))
+      throw new ContractError(`${ctx}: competitions[${i}].source_kind invalid`);
+    assertNonNegNumber(c.n_matches, ctx, `competitions[${i}].n_matches`);
+  });
+  return r;
+}
+
+function assertMatchNotebook(x: unknown, ctx: string): MatchNotebookResponse {
+  const r = x as MatchNotebookResponse;
+  if (!r || typeof r !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (typeof r.available !== "boolean")
+    throw new ContractError(`${ctx}: available is not a boolean`);
+  if (r.available && !r.notebook)
+    throw new ContractError(`${ctx}: available but notebook is missing`);
+  return r;
+}
+
+/** Read-only request headers. Every request to the sidecar carries the
+ *  per-launch token when the shell injected one; source-mode dev servers run
+ *  open and simply omit it. */
+function apiHeaders(): Record<string, string> {
   const headers: Record<string, string> = { accept: "application/json" };
-  // Every request to the sidecar carries the per-launch token when the shell
-  // injected one; source-mode dev servers run open and simply omit it.
   if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
-  const res = await fetch(`${API_BASE}${path}`, { headers });
+  return headers;
+}
+
+async function getJson(path: string): Promise<unknown> {
+  const res = await fetch(`${API_BASE}${path}`, { headers: apiHeaders() });
   if (!res.ok) throw new Error(`GET ${path} → HTTP ${res.status}`);
   return res.json();
 }
@@ -273,4 +371,169 @@ export async function fetchNarrative(id: string, provider: AiProvider): Promise<
   });
   if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);
   return { ...base, ...(await res.json()) } as NarrativeResponse;
+}
+
+// ---- Match directory --------------------------------------------------------
+// Read-only search / detail / competitions / notebook over the engine's match
+// index. In mock mode the SAME rows the engine would emit are bundled, and the
+// filtering below is DISPLAY filtering only — it selects and paginates rows, it
+// never mints or alters a number. Both live and mock results pass the contract
+// guards, so drift surfaces loudly instead of rendering malformed data.
+
+const DEFAULT_SEARCH_LIMIT = 50;
+
+/** NFKD → strip diacritics → casefold, so "São"/"sao" and "München"/"munchen"
+ *  match. Shared by every mock-mode field comparison. */
+function normalizeText(s: string): string {
+  return s
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+}
+
+export interface MatchSearchOptions {
+  competition?: string;
+  status?: "played" | "upcoming";
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * Search the match index. Live mode hits `/api/v1/matches/search`; a 503 (the
+ * index is still being built) is surfaced as an `ApiError` with `status === 503`
+ * so the UI can show a "still warming up" state distinctly from a hard failure.
+ * Mock mode filters/paginates the bundled rows client-side with the same
+ * diacritic-insensitive substring match a server would use.
+ */
+export async function searchMatches(
+  q: string,
+  opts: MatchSearchOptions = {},
+): Promise<MatchSearchResponse> {
+  const limit = opts.limit ?? DEFAULT_SEARCH_LIMIT;
+  const offset = opts.offset ?? 0;
+  if (!API_BASE) {
+    const { schema_version, matches } = await loadMockMatches();
+    const nq = normalizeText(q.trim());
+    let rows = matches.slice();
+    if (opts.competition) rows = rows.filter((m) => m.competition === opts.competition);
+    if (opts.status === "played") rows = rows.filter((m) => m.is_complete);
+    else if (opts.status === "upcoming") rows = rows.filter((m) => !m.is_complete);
+    if (nq)
+      rows = rows.filter(
+        (m) =>
+          normalizeText(m.home_team).includes(nq) ||
+          normalizeText(m.away_team).includes(nq) ||
+          normalizeText(m.competition).includes(nq),
+      );
+    // Newest kickoff first, stable on match_id — deterministic paging.
+    rows.sort(
+      (a, b) =>
+        b.kickoff_utc.localeCompare(a.kickoff_utc) || a.match_id.localeCompare(b.match_id),
+    );
+    const total = rows.length;
+    const page = rows.slice(offset, offset + limit);
+    return assertMatchSearch(
+      { schema_version, query: q, total, limit, offset, matches: page },
+      "matches/search (mock)",
+    );
+  }
+  const params = new URLSearchParams({ q, limit: String(limit), offset: String(offset) });
+  if (opts.competition) params.set("competition", opts.competition);
+  if (opts.status) params.set("status", opts.status);
+  const path = `/api/v1/matches/search?${params.toString()}`;
+  const res = await fetch(`${API_BASE}${path}`, { headers: apiHeaders() });
+  if (res.status === 503) throw new ApiError("match index unavailable", 503);
+  if (!res.ok) throw new Error(`GET ${path} → HTTP ${res.status}`);
+  return assertMatchSearch(await res.json(), "matches/search");
+}
+
+/** One match by id. A 404 (or a missing mock row) yields null, mirroring
+ *  fetchForecast. */
+export async function fetchMatch(matchId: string): Promise<MatchDetailResponse | null> {
+  if (!API_BASE) {
+    const { schema_version, matches } = await loadMockMatches();
+    const match = matches.find((m) => m.match_id === matchId);
+    if (!match) return null;
+    return assertMatchDetail(
+      { schema_version, match, linked_by: match.forecasts.length > 0 ? "match_id" : null },
+      `matches/${matchId} (mock)`,
+    );
+  }
+  try {
+    const body = await getJson(`/api/v1/matches/${encodeURIComponent(matchId)}`);
+    return assertMatchDetail(body, `matches/${matchId}`);
+  } catch (err) {
+    if (err instanceof Error && /HTTP 404/.test(err.message)) return null;
+    throw err;
+  }
+}
+
+/** The distinct (competition, source_kind) groups with match counts — drives the
+ *  competition filter and grouping. Derived from the bundled rows in mock mode. */
+export async function fetchCompetitions(): Promise<CompetitionsResponse> {
+  if (!API_BASE) {
+    const { schema_version, matches } = await loadMockMatches();
+    const grouped = new Map<
+      string,
+      { competition: string; source_kind: SourceKind; n_matches: number }
+    >();
+    for (const m of matches) {
+      const key = `${m.source_kind} ${m.competition}`;
+      const entry =
+        grouped.get(key) ?? { competition: m.competition, source_kind: m.source_kind, n_matches: 0 };
+      entry.n_matches += 1;
+      grouped.set(key, entry);
+    }
+    const competitions = [...grouped.values()].sort(
+      (a, b) =>
+        a.competition.localeCompare(b.competition) || a.source_kind.localeCompare(b.source_kind),
+    );
+    return assertCompetitions({ schema_version, competitions }, "matches/competitions (mock)");
+  }
+  return assertCompetitions(await getJson("/api/v1/matches/competitions"), "matches/competitions");
+}
+
+/**
+ * The read-only Commentator's Notebook for a match (by match_id). Reuses the
+ * same CommentatorsNotebook the forecast-facts endpoint serves. A 404 or a match
+ * without a bundled notebook yields an honest unavailable envelope rather than
+ * an error. Never carries or changes a probability.
+ */
+export async function fetchMatchNotebook(matchId: string): Promise<MatchNotebookResponse> {
+  const unavailable: MatchNotebookResponse = {
+    available: false,
+    computed: null,
+    as_of_horizon: null,
+    notebook: null,
+  };
+  if (!API_BASE) {
+    const { matches } = await loadMockMatches();
+    const match = matches.find((m) => m.match_id === matchId);
+    if (!match) return unavailable;
+    // A match's notebook is keyed by the sealed forecast that produced it; reuse
+    // the same bundled-notebook lookup the /facts mock uses.
+    for (const link of match.forecasts) {
+      const env = await loadMockNotebook(link.artifact_id);
+      if (env.available && env.notebook)
+        return assertMatchNotebook(
+          {
+            available: true,
+            computed: "on_demand",
+            as_of_horizon: link.horizon,
+            notebook: env.notebook,
+          },
+          `matches/${matchId}/notebook (mock)`,
+        );
+    }
+    return unavailable;
+  }
+  try {
+    return assertMatchNotebook(
+      await getJson(`/api/v1/matches/${encodeURIComponent(matchId)}/notebook`),
+      `matches/${matchId}/notebook`,
+    );
+  } catch (err) {
+    if (err instanceof Error && /HTTP 404/.test(err.message)) return unavailable;
+    throw err;
+  }
 }

@@ -8,6 +8,7 @@
  * panel is subordinate to the sealed numbers — it never changes a forecast.
  */
 import type {
+  CommentatorsNotebook as NotebookData,
   FactLabel,
   ForecastArtifact,
   NotebookFact,
@@ -61,12 +62,29 @@ function NotebookBody({
 }) {
   if (state.status === "loading") return <BlockSkeleton lines={4} />;
   if (state.status === "error") return <ErrorState error={state.error} />;
-
   const { notebook, available } = state.data;
-  if (!available || !notebook || notebook.facts.length === 0) {
+  return <NotebookFacts notebook={available ? notebook : null} snapshots={snapshots} />;
+}
+
+/**
+ * Presentational notebook body — renders a resolved notebook (facts grouped by
+ * label, plus the provenance footer) or its honest empty state. Shared by the
+ * forecast-facts panel above and the per-match notebook block, which feeds a
+ * notebook that has no owning artifact. Callers own the loading/error framing;
+ * this component only renders a settled `notebook` value. `snapshots` resolves
+ * source chips to links when known — an empty list degrades to plain source ids.
+ */
+export function NotebookFacts({
+  notebook,
+  snapshots = [],
+}: {
+  notebook: NotebookData | null;
+  snapshots?: Snapshot[];
+}) {
+  if (!notebook || notebook.facts.length === 0) {
     return (
       <EmptyState title="No notebook for this fixture">
-        No deterministic facts have been computed for this artifact, or every candidate was
+        No deterministic facts have been computed for this fixture, or every candidate was
         suppressed by the sample and freshness guards. Nothing is invented to fill the gap.
       </EmptyState>
     );

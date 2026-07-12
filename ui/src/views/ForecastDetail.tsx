@@ -26,7 +26,7 @@ export function ForecastDetail({ id }: { id: string }) {
 
   const [artifact, all] = state.data;
   if (!artifact) {
-    return (<><Breadcrumb /><EmptyState title="Forecast not found">No sealed artifact matches this id. It may have been superseded or never existed.</EmptyState></>);
+    return (<><Breadcrumb /><EmptyState title="Forecast not found">No sealed artifact matches this id. It may have been superseded or never existed.{" "}<a href="#/matches">Search matches ›</a></EmptyState></>);
   }
   const supersededBy = all.find((a) => a.supersedes === artifact.artifact_id)?.artifact_id ?? null;
   return <Detail artifact={artifact} supersededBy={supersededBy} />;

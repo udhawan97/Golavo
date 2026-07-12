@@ -50,6 +50,10 @@ def _goal_forecast(
 OUTPUT_DIR = REPO_ROOT / "data/fixtures/sample_artifacts"
 UI_CALIBRATION_MOCK = REPO_ROOT / "ui/src/mocks/calibration.json"
 UI_FORECAST_MOCKS = REPO_ROOT / "ui/src/mocks/forecasts"
+UI_MATCHES_MOCK = REPO_ROOT / "ui/src/mocks/matches.json"
+# Every mock match row carries this synthetic source_id so a bundled row can
+# never be mistaken for real data, no matter how it is displayed.
+SYNTHETIC_SOURCE_ID = "golavo-synthetic-contract-fixtures"
 SNAPSHOT_HASH = hashlib.sha256(
     (REPO_ROOT / "data/fixtures/martj42-results-subset.csv").read_bytes()
 ).hexdigest()
@@ -144,6 +148,124 @@ def _finalize(artifact: dict[str, Any]) -> dict[str, Any]:
     return artifact
 
 
+def _forecast_link(artifact: dict[str, Any]) -> dict[str, Any]:
+    """The MatchForecastLink the UI uses to render the 'a sealed forecast exists'
+    state and deep-link to #/forecast/{artifact_id}."""
+    return {
+        "artifact_id": artifact["artifact_id"],
+        "status": artifact["status"],
+        "horizon": artifact["forecast"]["horizon"],
+        "sealed_at_utc": artifact["forecast"]["sealed_at_utc"],
+    }
+
+
+def _sealed_match_row(artifact: dict[str, Any]) -> dict[str, Any]:
+    """A MatchRow for one sample artifact — same synthetic identities, so mock
+    mode can demonstrate the 'sealed-forecast-exists' state. Scored artifacts
+    carry their actual result (played); the rest are not yet played."""
+    match = artifact["match"]
+    evaluation = artifact.get("evaluation")
+    if evaluation:
+        actual = evaluation["actual"]
+        home_score: int | None = actual["home_goals"]
+        away_score: int | None = actual["away_goals"]
+        is_complete = True
+    else:
+        home_score = away_score = None
+        is_complete = False
+    return {
+        "match_id": match["match_id"],
+        "kickoff_utc": match["kickoff_utc"],
+        "home_team": match["home_team"],
+        "away_team": match["away_team"],
+        "home_score": home_score,
+        "away_score": away_score,
+        "competition": match["competition"],
+        "country": match.get("country"),
+        "city": match.get("city"),
+        "neutral": match["neutral_venue"],
+        "is_complete": is_complete,
+        "source_kind": "international",
+        "source_id": SYNTHETIC_SOURCE_ID,
+        "forecasts": [_forecast_link(artifact)],
+    }
+
+
+def _synthetic_match_row(
+    index: int,
+    *,
+    played: bool,
+    club: bool,
+) -> dict[str, Any]:
+    """A fully synthetic MatchRow with NO sealed forecast — demonstrates the
+    'played, no seal' and 'future, no seal' states, split across a fake
+    international and a fake club competition to exercise grouping."""
+    phase = "played" if played else "future"
+    year = 2029 if played else 2031  # future rows sit past the 2030 sample block
+    club_null = None  # club rows exercise the null country/city path
+    return {
+        "match_id": f"m_synthetic_{phase}_{index:02d}",
+        "kickoff_utc": f"{year}-{index:02d}-{15 if played else 20}T18:00:00Z",
+        "home_team": f"Example {phase.capitalize()} Home {index}",
+        "away_team": f"Example {phase.capitalize()} Away {index}",
+        "home_score": (index + 1) % 4 if played else None,
+        "away_score": index % 3 if played else None,
+        "competition": "Example Club League" if club else "Example International League",
+        "country": club_null if club else "Example Country",
+        "city": club_null if club else "Example City",
+        "neutral": index % 2 == 0,
+        "is_complete": played,
+        "source_kind": "club" if club else "international",
+        "source_id": SYNTHETIC_SOURCE_ID,
+        "forecasts": [],
+    }
+
+
+def write_mock_matches(artifacts: list[dict[str, Any]]) -> None:
+    """Emit ui/src/mocks/matches.json deterministically from the SAME identities
+    as the sample artifacts, so the match ids stay in lockstep and the file is
+    never hand-maintained. Byte-stable: sorted keys, fixed values, no wall-clock.
+    Client-side mock filtering is display filtering of these engine-shaped rows —
+    it never mints or alters a number."""
+    rows: list[dict[str, Any]] = [_sealed_match_row(a) for a in artifacts]
+
+    # The hand-maintained notebook-demo forecast (preserved across regen because
+    # its filename is not fa_*.json) is the one bundled row that owns a notebook,
+    # so mock fetchMatchNotebook has something to serve. Read it for lockstep.
+    for demo_path in sorted(UI_FORECAST_MOCKS.glob("notebook_demo_*.json")):
+        demo = json.loads(demo_path.read_text(encoding="utf-8"))
+        match = demo["match"]
+        rows.append(
+            {
+                "match_id": match["match_id"],
+                "kickoff_utc": match["kickoff_utc"],
+                "home_team": match["home_team"],
+                "away_team": match["away_team"],
+                "home_score": None,
+                "away_score": None,
+                "competition": match["competition"],
+                "country": match.get("country"),
+                "city": match.get("city"),
+                "neutral": match["neutral_venue"],
+                "is_complete": False,
+                "source_kind": "international",
+                "source_id": SYNTHETIC_SOURCE_ID,
+                "forecasts": [_forecast_link(demo)],
+            }
+        )
+
+    # Played rows (scores, no seal): 4 international + 4 club.
+    rows += [_synthetic_match_row(i, played=True, club=i > 4) for i in range(1, 9)]
+    # Future rows (kickoff > 2030, no scores, no seal): include club examples.
+    rows += [_synthetic_match_row(i, played=False, club=i in (4, 8)) for i in range(1, 9)]
+
+    payload = {"schema_version": "0.2.0", "matches": rows}
+    UI_MATCHES_MOCK.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    print(f"wrote {len(rows)} mock match rows to {UI_MATCHES_MOCK}")
+
+
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for old in OUTPUT_DIR.glob("fa_*.json"):
@@ -203,6 +325,10 @@ def main() -> None:
         json.dumps(mock, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     print(f"wrote {UI_CALIBRATION_MOCK}")
+
+    # The UI's bundled match directory — emitted from the SAME synthetic
+    # identities so the match ids stay in lockstep with the sample artifacts.
+    write_mock_matches(artifacts)
 
 
 if __name__ == "__main__":

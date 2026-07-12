@@ -89,6 +89,10 @@ export const ClockIcon = ({ size = 15, ...p }: IconProps) => (
   <svg {...base(size, p)}><circle cx="12" cy="12" r="9" /><path d="M12 7.5V12l3 2" /></svg>
 );
 
+export const SearchIcon = ({ size = 18, ...p }: IconProps) => (
+  <svg {...base(size, p)}><circle cx="11" cy="11" r="7" /><path d="M20 20l-4.3-4.3" /></svg>
+);
+
 export const GlobeIcon = ({ size = 15, ...p }: IconProps) => (
   <svg {...base(size, p)}>
     <circle cx="12" cy="12" r="9" /><path d="M3 12h18" />

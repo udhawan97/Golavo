@@ -2,14 +2,18 @@ import type { ReactNode } from "react";
 import { SCHEMA_VERSION } from "../lib/contract";
 import { DATA_SOURCE, sourceDescription } from "../lib/api";
 import type { ForecastSource } from "../lib/api";
-import { GearIcon, MoonIcon, SunIcon } from "./icons";
+import { GearIcon, MoonIcon, SearchIcon, SunIcon } from "./icons";
 import { UpdatePill } from "./updates";
+import { DOCS_URL } from "../lib/links";
 
 type Theme = "dark" | "light";
 
-function isActive(path: string, section: "matchday" | "ledger" | "eval"): boolean {
+function isActive(path: string, section: "matchday" | "matches" | "ledger" | "eval"): boolean {
   if (section === "eval") return path.startsWith("/eval");
   if (section === "ledger") return path.startsWith("/ledger");
+  // "matches" owns /matches and /match/{id}; keep it distinct from Matchday so
+  // opening the directory never also lights up the Matchday tab.
+  if (section === "matches") return path === "/matches" || path.startsWith("/match/");
   return path === "/" || path.startsWith("/forecast");
 }
 
@@ -52,11 +56,21 @@ export function Layout({
           </a>
           <nav className="nav" aria-label="Primary">
             <a href="#/" aria-current={isActive(path, "matchday") ? "page" : undefined}>Matchday</a>
+            <a href="#/matches" aria-current={isActive(path, "matches") ? "page" : undefined}>Matches</a>
             <a href="#/ledger" aria-current={isActive(path, "ledger") ? "page" : undefined}>Ledger</a>
             <a href="#/eval" aria-current={isActive(path, "eval") ? "page" : undefined}>Evaluation</a>
           </nav>
           <div className="site-header__tools">
             <UpdatePill />
+            <a
+              className="icon-btn"
+              href="#/matches"
+              aria-label="Search matches"
+              title="Search matches"
+              aria-current={isActive(path, "matches") ? "page" : undefined}
+            >
+              <SearchIcon />
+            </a>
             <button
               type="button"
               className="icon-btn"
@@ -85,6 +99,19 @@ export function Layout({
             You’re exploring <strong>sample forecasts</strong> so you can see how Golavo works.
             Forecasts you seal before kickoff will replace these and appear in your Ledger — the
             samples are synthetic and never counted toward your forward record.
+            <span className="sample-banner__cta">
+              {DATA_SOURCE === "mock" ? (
+                <>
+                  <a href={DOCS_URL} target="_blank" rel="noreferrer">How sealing works ›</a>
+                  <a href="#/matches">Search matches ›</a>
+                </>
+              ) : (
+                <>
+                  <a href="#/matches">Search matches ›</a>
+                  <a href={DOCS_URL} target="_blank" rel="noreferrer">How sealing works ›</a>
+                </>
+              )}
+            </span>
           </div>
         </div>
       )}
@@ -98,6 +125,8 @@ export function Layout({
           <span>
             Golavo · Forecast Audit Workbench —{" "}
             <span className="dim">read-only. Forecasts are sealed before kickoff, scored after full time.</span>
+            {" · "}
+            <a href="#/settings">Settings</a>
           </span>
           <span className="dim">
             <span

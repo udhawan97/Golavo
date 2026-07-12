@@ -21,6 +21,24 @@ if [ -d core ]; then
   fi
 fi
 
+# 3) The bundled match index must carry ONLY CC0 sources into the sidecar.
+# Its meta records every source's license under built_from[].license; a single
+# non-CC0 entry means an ODbL (or otherwise share-alike) pack would ship frozen
+# inside the redistributed binary. Assert every source is CC0-1.0.
+META="data/index/matches_index.meta.json"
+if [ -f "$META" ]; then
+  if ! python3 - "$META" <<'PY'
+import json, sys
+meta = json.load(open(sys.argv[1], encoding="utf-8"))
+bad = [b for b in meta.get("built_from", []) if b.get("license") != "CC0-1.0"]
+sys.exit(1 if bad else 0)
+PY
+  then
+    echo "::error::match index bundles a non-CC0 source — ODbL must not ship in the sidecar"
+    fail=1
+  fi
+fi
+
 if [ "$fail" -eq 0 ]; then
   echo "license isolation: OK (no ODbL contamination of the CC0 core)."
 fi

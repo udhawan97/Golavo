@@ -3,6 +3,8 @@ import { Layout } from "./components/Layout";
 import { useHashRoute, useTheme } from "./lib/hooks";
 import { EmptyState } from "./components/states";
 import { MatchdayList } from "./views/MatchdayList";
+import { MatchSearch } from "./views/MatchSearch";
+import { MatchDetail } from "./views/MatchDetail";
 import { ForecastDetail } from "./views/ForecastDetail";
 import { EvaluationSummary } from "./views/EvaluationSummary";
 import { PredictionLedger } from "./views/PredictionLedger";
@@ -48,6 +50,11 @@ export default function App() {
 function Route({ path }: { path: string }) {
   if (path === "/" || path === "") return <MatchdayList />;
 
+  if (path === "/matches") return <MatchSearch />;
+
+  const match = path.match(/^\/match\/(.+)$/);
+  if (match) return <MatchDetail id={decodeURIComponent(match[1])} />;
+
   const forecast = path.match(/^\/forecast\/(.+)$/);
   if (forecast) return <ForecastDetail id={decodeURIComponent(forecast[1])} />;
 
@@ -59,7 +66,8 @@ function Route({ path }: { path: string }) {
 
   return (
     <EmptyState title="Page not found">
-      That route doesn’t exist. <a href="#/">Back to matchday ›</a>
+      That route doesn’t exist. <a href="#/">Back to matchday ›</a>{" "}
+      <a href="#/matches">Search matches ›</a>
     </EmptyState>
   );
 }

@@ -1,5 +1,6 @@
-import type { ForecastArtifact } from "../lib/contract";
-import { FAMILY_LABELS } from "../lib/contract";
+import { useMemo, useState } from "react";
+import type { ArtifactStatus, ForecastArtifact } from "../lib/contract";
+import { FAMILY_LABELS, STATUS_LABELS } from "../lib/contract";
 import { fetchForecasts } from "../lib/api";
 import { pct, relative, utc } from "../lib/format";
 import { useAsync } from "../lib/hooks";
@@ -30,17 +31,105 @@ export function MatchdayList() {
   );
 }
 
+type StatusFilter = ArtifactStatus | "all";
+
 function ForecastGrid({ artifacts }: { artifacts: ForecastArtifact[] }) {
-  // A forecast is "superseded" if a later artifact points back to it.
+  // A forecast is "superseded" if a later artifact points back to it. Computed
+  // over the FULL list so the flag stays correct even when its successor is
+  // filtered out of view.
   const supersededIds = new Set(artifacts.map((a) => a.supersedes).filter(Boolean) as string[]);
+
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [competition, setCompetition] = useState<string>("all");
+  const [team, setTeam] = useState("");
+
+  // Only offer status chips and competitions that actually appear — no dead filters.
+  const statuses = useMemo(() => {
+    const present = new Set(artifacts.map((a) => a.status));
+    return (["sealed", "scored", "abstained", "voided"] as ArtifactStatus[]).filter((s) => present.has(s));
+  }, [artifacts]);
+  const competitions = useMemo(
+    () => Array.from(new Set(artifacts.map((a) => a.match.competition))).sort((a, b) => a.localeCompare(b)),
+    [artifacts],
+  );
+
+  const query = team.trim().toLowerCase();
+  const filtered = useMemo(
+    () =>
+      artifacts.filter((a) => {
+        if (status !== "all" && a.status !== status) return false;
+        if (competition !== "all" && a.match.competition !== competition) return false;
+        if (query && !`${a.match.home_team} ${a.match.away_team}`.toLowerCase().includes(query)) return false;
+        return true;
+      }),
+    [artifacts, status, competition, query],
+  );
+
   return (
-    <ul className="md-grid">
-      {artifacts.map((a) => (
-        <li key={a.artifact_id}>
-          <MatchCard artifact={a} superseded={supersededIds.has(a.artifact_id)} />
-        </li>
-      ))}
-    </ul>
+    <div className="stack" style={{ ["--gap" as string]: "1rem" }}>
+      <div className="mv-filters" role="group" aria-label="Filter forecasts">
+        <div className="mv-filter-chips" role="group" aria-label="Filter by status">
+          <FilterChip label="All" active={status === "all"} onClick={() => setStatus("all")} />
+          {statuses.map((s) => (
+            <FilterChip key={s} label={STATUS_LABELS[s]} active={status === s} onClick={() => setStatus(s)} />
+          ))}
+        </div>
+        <label className="field mv-filter-field">
+          Competition
+          <select
+            className="select"
+            value={competition}
+            onChange={(e) => setCompetition(e.target.value)}
+          >
+            <option value="all">All competitions</option>
+            {competitions.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </label>
+        <label className="field mv-filter-field">
+          Team
+          <input
+            className="mv-filter-input"
+            type="search"
+            value={team}
+            onChange={(e) => setTeam(e.target.value)}
+            placeholder="Filter by team…"
+          />
+        </label>
+      </div>
+
+      <p className="mv-filter-count small muted" role="status" aria-live="polite">
+        Showing {filtered.length} of {artifacts.length} forecasts
+      </p>
+
+      {filtered.length === 0 ? (
+        <EmptyState title="No forecasts match these filters">
+          Adjust or clear the status, competition, or team filters to see sealed forecasts again.
+        </EmptyState>
+      ) : (
+        <ul className="md-grid">
+          {filtered.map((a) => (
+            <li key={a.artifact_id}>
+              <MatchCard artifact={a} superseded={supersededIds.has(a.artifact_id)} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className={`mv-filter-chip${active ? " is-active" : ""}`}
+      aria-pressed={active}
+      onClick={onClick}
+    >
+      {label}
+    </button>
   );
 }
 

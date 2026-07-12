@@ -6,6 +6,52 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Match Search + a Commentator's Notebook for any game.** A new read-only search
+  surface over a committed, deterministic Parquet index of **75,079 matches**
+  (**49,505 internationals** from martj42 + **25,574 club** from the five openfootball
+  leagues — EPL, La Liga, Bundesliga, Serie A, Ligue 1), built by
+  `python -m golavo_core index`. Four GET, token-gated, read-only endpoints:
+  `GET /api/v1/matches/search` (`q` < 2 chars → 422; index missing → 503;
+  `status` ∈ `played|upcoming` derived from `is_complete`, never a midnight-UTC
+  day-proxy kickoff), `/matches/competitions`, `/matches/{id}`
+  (`linked_by: "match_id"|"fixture"|null`), and `/matches/{id}/notebook`.
+  - **A Commentator's Notebook for *any* searched match.** A match without a precomputed
+    notebook gets one computed **on demand** at `as_of = kickoff − 1s` — the same
+    conservative horizon `seal_forecast` uses — so it can never read the fixture's own
+    result or any later match (leak-safe; tested and confirmed on the real index). A
+    sealed match with a precomputed notebook serves that instead
+    (`computed: "precomputed"` vs `"on_demand"`). This is the one deliberate tradeoff:
+    the sidecar now reads the frozen index at runtime, but it stays read-only in the
+    write sense (`build_notebook` writes nothing; the facts no-write invariant is
+    AST-enforced), the engine still owns every number, and the precomputed
+    `/forecasts/{id}/facts` path is untouched.
+  - **Sample forecasts can never masquerade as real seals.** Match ↔ forecast linking
+    scans the **real ledger only** (`ARTIFACT_DIR`), by `match_id` then a
+    `(date, home, away)` fallback, so a synthetic sample id can never attach to a real
+    match. Linking is cheap navigation (no integrity check); the forecast route still
+    recomputes each artifact's content-addressed identity on serve.
+  - **License gate — ODbL can never ship in the sidecar.** The index builder fails closed
+    unless every source pack is `CC0-1.0`, and both `check_license_isolation.sh` and CI
+    assert the committed index's `built_from` licenses are all CC0. Per-pack `match_id`s
+    are preserved across the merge (never re-hashed over the combined frame), a
+    cross-pack collision aborts the build, and CI rebuilds the index and asserts
+    byte-equality with the committed copy (`parquet_sha256`) — a drift means "rebuild +
+    recommit". The frozen index + side tables (~2.4 MB) are bundled into the desktop
+    sidecar.
+  - **UI:** a `/matches` search view (debounced, grouped internationals/club, filters,
+    honest badge states incl. "Result not in snapshot") and a `/match/{id}` detail with
+    four forecast states (sealed → link; played → "Golavo never retro-forecasts a played
+    match"; future → "sealing from inside the app lands in a future release", club-gated
+    to note historical-backtest-only; not-found → search) plus an always-on Commentator's
+    Notebook block. Nav entry, header search icon, and a sample-banner CTA.
+    **Seal-from-UI is deferred — the API stays all-GET.**
+  - **Quick wins:** Matchday + Ledger client-side filters; an AI Deep Read sample-mode
+    note; Eval ↔ Ledger cross-links; a Settings footer link; not-found → search.
+  - Known gap: the vendored packs are historical, so `status=upcoming` (which requires
+    `kickoff >= now`) is **empty until a pack refresh** adds scheduled fixtures.
+  - See [`docs/handoff/match-search.md`](docs/handoff/match-search.md).
+
 ## [0.2.2] - 2026-07-11
 
 **Desktop first-run UX fixes.** Two problems a fresh desktop install hit:
@@ -325,6 +371,6 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.2.2...HEAD
 [0.2.0]: https://github.com/udhawan97/Golavo/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/udhawan97/Golavo/releases/tag/v0.1.0

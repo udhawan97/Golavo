@@ -658,3 +658,91 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .sample-banner .container { padding-top: .7rem; padding-bottom: .7rem; }
 .sample-banner strong { color: var(--text); font-weight: 650; }
 :root[data-theme="light"] .sample-banner { color: #6b5a1e; }
+
+/* ------------------------------------------------- client-side filters (mv) - */
+/* Prefixed to avoid collisions with a parallel workstream's styles. Reuses the
+   theme tokens and mirrors the .mode-toggle / .select idiom already in use. */
+.mv-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .6rem 1rem; }
+.mv-filter-chips {
+  display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 2px;
+  border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border);
+}
+.mv-filter-chip {
+  border: 1px solid transparent; background: transparent; color: var(--text-muted);
+  font-size: .76rem; font-weight: 650; letter-spacing: .02em; padding: .26rem .72rem;
+  border-radius: 999px; cursor: pointer;
+}
+.mv-filter-chip:hover { color: var(--text); }
+.mv-filter-chip.is-active { background: var(--gold-soft); color: var(--text); border-color: var(--gold-line); }
+.mv-filter-field { min-width: 0; }
+.mv-filter-input {
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--radius-sm); padding: .4rem .6rem; font-size: .88rem;
+  font-family: inherit; min-width: 12rem;
+}
+.mv-filter-input:hover { border-color: var(--border-strong); }
+.mv-filter-input:focus-visible { outline: 2px solid var(--gold-line); outline-offset: 1px; }
+.mv-filter-count { margin: 0; }
+
+/* ---------------------------------------------- match search (ms) --------- */
+/* Prefixed to stay clear of the mv- filter styles above. Reuses theme tokens
+   and the .md-card hover idiom. */
+
+/* A muted status chip — "result not in snapshot", distinct from a played (green)
+   or upcoming (neutral) badge without implying a voided artifact. */
+.chip--muted {
+  color: var(--text-dim); background: color-mix(in srgb, var(--text-dim) 12%, transparent);
+  border-color: var(--border-strong);
+}
+
+.sample-banner__cta { display: inline-flex; flex-wrap: wrap; gap: .2rem 1rem; margin-left: .6rem; }
+.sample-banner__cta a { color: inherit; font-weight: 650; white-space: nowrap; }
+
+.ms-searchbox { position: relative; display: flex; align-items: center; }
+.ms-searchbox__icon { position: absolute; left: .85rem; color: var(--text-dim); pointer-events: none; }
+.ms-search {
+  width: 100%; background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--radius); padding: .7rem .9rem .7rem 2.5rem; font-size: 1rem; font-family: inherit;
+}
+.ms-search:hover { border-color: var(--border-strong); }
+.ms-search:focus-visible { outline: 2px solid var(--gold-line); outline-offset: 1px; }
+
+.ms-count { margin: 0; }
+.ms-group { display: flex; flex-direction: column; gap: .55rem; }
+.ms-group__head {
+  font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; color: var(--text-muted);
+  font-weight: 650; margin: 0;
+}
+.ms-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.ms-row {
+  display: flex; align-items: center; gap: .8rem 1rem; flex-wrap: wrap;
+  padding: .7rem .9rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-1); text-decoration: none; color: var(--text);
+}
+.ms-row:hover { border-color: var(--gold-line); background: var(--surface-2); }
+.ms-row__main { display: flex; flex-direction: column; gap: .2rem; min-width: 0; margin-right: auto; }
+.ms-row__teams { font-weight: 650; font-size: 1.02rem; }
+.ms-row__meta { display: flex; flex-wrap: wrap; gap: .3rem .5rem; color: var(--text-muted); font-size: .82rem; }
+.ms-row__badges { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.ms-loadmore { display: flex; justify-content: center; padding-top: .3rem; }
+.ms-loadmore .btn[disabled] { opacity: .6; cursor: default; }
+
+/* ---------------------------------------------- match detail (md) --------- */
+.md-fc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .55rem; }
+.md-fc-card {
+  display: flex; align-items: center; gap: .6rem 1rem; flex-wrap: wrap;
+  padding: .7rem .85rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); text-decoration: none; color: var(--text);
+}
+.md-fc-card:hover { border-color: var(--gold-line); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.md-fc-card__chips { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.md-fc-card__when { margin-left: auto; }
+
+.md-final { display: flex; align-items: baseline; flex-wrap: wrap; gap: .6rem; font-size: 1.15rem; font-weight: 650; }
+.md-final__score {
+  font-variant-numeric: tabular-nums lining-nums; font-weight: 750; color: var(--text);
+  background: var(--surface-3); border: 1px solid var(--border); border-radius: 8px; padding: .1rem .55rem;
+}
+
+.md-nb-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .7rem; }
+.md-nb-legend__note { color: var(--text-dim); }

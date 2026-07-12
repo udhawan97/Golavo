@@ -321,6 +321,80 @@ export interface NotebookResponse {
   notebook: CommentatorsNotebook | null;
 }
 
+// ---- Match directory (Workstream D) -----------------------------------------
+// The read-only match-search / match-detail / competitions endpoints, plus the
+// per-match notebook wrapper. A MatchRow is a DISPLAY projection of engine-
+// produced matches: the numbers (scores, forecast links) are copied verbatim,
+// never minted here. The server workstream implements the identical shapes; the
+// mock branch of lib/api.ts filters bundled rows client-side. Every mock row
+// carries a synthetic source_id so it can never be mistaken for real data.
+
+export type SourceKind = "international" | "club";
+
+/** A sealed forecast that exists for a match — enough to render the "seal
+ *  exists" state and deep-link to #/forecast/{artifact_id}. */
+export interface MatchForecastLink {
+  artifact_id: string;
+  status: ArtifactStatus;
+  horizon: Horizon;
+  sealed_at_utc: string;
+}
+
+export interface MatchRow {
+  match_id: string;
+  kickoff_utc: string; // ISO 8601
+  home_team: string;
+  away_team: string;
+  home_score: number | null;
+  away_score: number | null;
+  competition: string;
+  country: string | null;
+  city: string | null;
+  neutral: boolean;
+  /** Invariant: is_complete === (home_score !== null && away_score !== null). */
+  is_complete: boolean;
+  source_kind: SourceKind;
+  source_id: string;
+  forecasts: MatchForecastLink[];
+}
+
+export interface MatchSearchResponse {
+  schema_version: SchemaVersion;
+  query: string;
+  total: number;
+  limit: number;
+  offset: number;
+  matches: MatchRow[];
+}
+
+export interface MatchDetailResponse {
+  schema_version: SchemaVersion;
+  match: MatchRow;
+  linked_by: "match_id" | "fixture" | null;
+}
+
+export interface CompetitionSummary {
+  competition: string;
+  source_kind: SourceKind;
+  n_matches: number;
+}
+
+export interface CompetitionsResponse {
+  schema_version: SchemaVersion;
+  competitions: CompetitionSummary[];
+}
+
+/** Thin wrapper for the per-match notebook endpoint. Reuses the existing
+ *  CommentatorsNotebook (the same type fetchNotebook returns), so the notebook
+ *  UI is shared. A precomputed notebook is served as-is; otherwise the engine
+ *  may compute one on demand. Never carries or changes a probability. */
+export interface MatchNotebookResponse {
+  available: boolean;
+  computed: "precomputed" | "on_demand" | null;
+  as_of_horizon: string | null;
+  notebook: CommentatorsNotebook | null;
+}
+
 export const FACT_LABEL_TEXT: Record<FactLabel, string> = {
   predictive: "Predictive",
   context: "Context",

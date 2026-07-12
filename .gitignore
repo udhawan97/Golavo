@@ -67,6 +67,9 @@ packs/**/build/
 # Frozen, lawful CC0 demo bundles ARE tracked:
 !data/fixtures/
 !data/fixtures/**
+# The frozen CC0 match search index IS tracked (parquet is otherwise ignored):
+!data/index/
+!data/index/**
 
 # ---- Packaging / release output ----
 *.dmg

@@ -3,11 +3,22 @@ title: Your matchday
 description: The screens you'll use — Matchday, the Fixture Room, Forecast Theatre, the Commentator's Notebook, and After the Whistle.
 ---
 
-Golavo is organized around the matchday. The workbench today ships the Matchday list, the sealed **Forecast**, **After the Whistle** scoring, and the calibration **Ledger**; the richer surfaces below (dossiers, scorers/corners) are planned. Each item notes its status.
+Golavo is organized around the matchday. The workbench today ships the Matchday list, **Match Search** over every match in the index, the sealed **Forecast**, **After the Whistle** scoring, and the calibration **Ledger**; the richer surfaces below (dossiers, scorers/corners) are planned. Each item notes its status.
 
 ## Matchday
 
 Your favorites first: today's and upcoming fixtures for the teams and countries you follow, each with a forecast summary and freshness stamp.
+
+## Match Search *(shipped)*
+
+Search **any** of the ~75,000 matches in the bundled index — internationals and the five top European leagues — by team or competition. Every match opens its own page, and **every match page carries a Commentator's Notebook**: the same deterministic, source-backed facts, computed at the **pre-kickoff horizon** (one second before kickoff), so the notebook can never read the match's own result or anything that happened later.
+
+The page is honest about what it can and can't say:
+
+- **Played matches show the recorded result** — but Golavo **never** shows a retro-forecast for a match that has already kicked off. A forecast is only honest if it was sealed *before* kickoff; see [how the models perform](/Golavo/methodology/prediction/) instead.
+- **A match with a sealed forecast** links to it; nothing else invents one.
+- **Club leagues are historical-backtest data**, so their pages never imply a live forecast. Forward sealing currently covers internationals; sealing from inside the app is a future release (today, seals are written by the engine CLI).
+- Results the pinned data snapshot doesn't carry are shown as **"result not in snapshot"**, never guessed.
 
 ## Fixture Room
 

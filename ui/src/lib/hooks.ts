@@ -41,6 +41,18 @@ export function useAsync<T>(loader: () => Promise<T>, deps: unknown[]): AsyncSta
   return state;
 }
 
+/** Returns `value` delayed by `delayMs`, resetting the timer on every change.
+ *  Used to debounce a fast-changing input (e.g. a search box) before it drives
+ *  a fetch, so we query on a pause rather than on every keystroke. */
+export function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebounced(value), delayMs);
+    return () => window.clearTimeout(t);
+  }, [value, delayMs]);
+  return debounced;
+}
+
 type Theme = "dark" | "light";
 const THEME_KEY = "golavo-theme";
 

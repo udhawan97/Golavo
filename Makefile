@@ -1,4 +1,4 @@
-.PHONY: setup dev ingest evaluate test lint validate build clean release-bump
+.PHONY: setup dev ingest index evaluate test lint validate build clean release-bump
 
 setup:  ## Install core + server + ui + docs dev dependencies
 	python -m pip install -e "core[dev]" || python -m pip install -e core
@@ -16,6 +16,9 @@ test:  ## Run the Python test suite
 
 ingest:  ## Materialize the pinned internationals snapshot as Parquet
 	python -m golavo_core ingest
+
+index:  ## Build the committed, deterministic match search index (all packs + side tables)
+	python -m golavo_core index
 
 evaluate:  ## Regenerate frozen chronological evaluation artifacts
 	python -m golavo_core evaluate
