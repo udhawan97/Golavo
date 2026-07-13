@@ -179,6 +179,30 @@ def test_every_attack_fails_closed(name, builder, bundle: dict, refs: dict) -> N
     assert review.rejections or review.dropped
 
 
+def test_overtagged_number_ref_is_pruned_claim_survives(bundle: dict, refs: dict) -> None:
+    # A small model often references a number it only alludes to qualitatively
+    # without writing the digits. The dangling ref is pruned (no chip); the
+    # qualitative claim still stands, so an over-tag does not blank the read.
+    claim = _claim("Spain look the stronger side on recent form.", [refs["engine"]], ["prob_home"])
+    review = review_narration(_wrap([claim]), bundle)
+    assert review.accepted is True
+    served = review.narration["claims"][0]
+    assert served["number_refs"] == []  # prob_home pruned (its display isn't in the text)
+    assert "recent form" in served["text"]
+
+
+def test_malformed_candidate_fact_does_not_blank_grounded_claims(bundle: dict, refs: dict) -> None:
+    # An empty-quote candidate_fact would hard-fail the strict wire schema; it must
+    # be conformed away before the gate so the grounded claim survives.
+    home = refs["display"]["prob_home"]
+    raw = _wrap([_claim(f"France favoured at {home}.", [refs["engine"]], ["prob_home"])])
+    raw["candidate_facts"] = [{"text": "note", "quote": "", "source_url": "https://x.test"}]
+    review = review_narration(raw, bundle)  # candidate facts disabled by default
+    assert review.accepted is True
+    assert len(review.narration["claims"]) == 1
+    assert review.narration["candidate_facts"] == []
+
+
 def test_betting_language_drops_only_its_claim(bundle: dict, refs: dict) -> None:
     # Betting language is a per-claim soft drop (was a whole-read hard reject): the
     # wagering claim is removed — never shown — while the clean verified claims

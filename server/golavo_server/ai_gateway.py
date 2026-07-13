@@ -37,6 +37,7 @@ from urllib.parse import urlparse
 
 from golavo_core.ai import (
     BACKGROUND_ADDENDUM,
+    DEEP_ANALYSIS_ADDENDUM,
     PROMPT_VERSION,
     SYSTEM_PROMPT,
     build_user_prompt,
@@ -48,6 +49,15 @@ from golavo_core.ai.sanitize import sanitize_untrusted
 LOCAL_PROVIDERS = ("ollama", "llama_server")
 CLOUD_PROVIDERS = ("openai", "anthropic")
 KNOWN_PROVIDERS = ("off", *LOCAL_PROVIDERS, *CLOUD_PROVIDERS)
+
+# Two read depths. "fast" is a lean prompt + short output cap for a small model
+# (quick claims, ~30s). "deep" shows more evidence, asks for scenarios and
+# cross-evidence synthesis, and allows more output + a much longer timeout, so a
+# bigger model's extra minutes buy a genuinely richer read.
+KNOWN_DEPTHS = ("fast", "deep")
+_DEPTH_TIMEOUTS = {"fast": 120.0, "deep": 480.0}  # seconds; deep = up to 8 minutes
+_DEPTH_MAX_OUTPUT = {"fast": 1536, "deep": 4096}  # model output token cap (num_predict)
+_MAX_TIMEOUT = 480.0
 
 _DEFAULT_BASE_URLS = {
     "ollama": "http://localhost:11434/v1",
@@ -84,10 +94,25 @@ class ProviderConfig:
     allow_background: bool = False
     timeout_s: float = 30.0
     untrusted_context: str | None = None
+    depth: str = "fast"
+    # Per-bundle allow-lists, injected just before the transport call, so
+    # constrained decoding can enumerate exactly the valid citation ids — the
+    # model then CANNOT emit an invalid source or number id (or bloat the output
+    # by dumping every id it sees). Empty means "no enum constraint".
+    allowed_source_ids: tuple[str, ...] = ()
+    allowed_number_ids: tuple[str, ...] = ()
 
     @property
     def is_off(self) -> bool:
         return self.provider == "off"
+
+    @property
+    def is_deep(self) -> bool:
+        return self.depth == "deep"
+
+    @property
+    def max_output_tokens(self) -> int:
+        return _DEPTH_MAX_OUTPUT.get(self.depth, _DEPTH_MAX_OUTPUT["fast"])
 
     @property
     def is_cloud(self) -> bool:
@@ -101,6 +126,7 @@ class ProviderConfig:
             "base_url": self.base_url,
             "allow_candidate_facts": self.allow_candidate_facts,
             "allow_background": self.allow_background,
+            "depth": self.depth,
         }
 
 
@@ -126,17 +152,19 @@ def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
         base_url = _DEFAULT_BASE_URLS.get(provider)
     if provider in LOCAL_PROVIDERS:
         base_url = _validated_loopback_url(base_url)
-    # Local models run cold and free: the first call also loads the weights, which
-    # a small default would time out before generation even starts. Give them a
-    # generous default; cloud stays snappy. An explicit timeout_s always wins.
-    default_timeout = 120.0 if provider in LOCAL_PROVIDERS else 30.0
-    max_timeout = 180.0
+    depth = str(config.get("depth", "fast")).lower()
+    if depth not in KNOWN_DEPTHS:
+        raise ValueError(f"unknown depth {depth!r}; expected one of {KNOWN_DEPTHS}")
+    # The default timeout follows the depth: a fast read on a small model is quick;
+    # a deep read on a bigger model can legitimately take minutes (cold weights +
+    # a fuller prompt). An explicit timeout_s always wins, up to the hard ceiling.
+    default_timeout = _DEPTH_TIMEOUTS[depth] if provider in LOCAL_PROVIDERS else 30.0
     try:
         timeout_s = float(config.get("timeout_s", default_timeout))
     except (TypeError, ValueError) as exc:
-        raise ValueError(f"timeout_s must be a number between 1 and {int(max_timeout)}") from exc
-    if not math.isfinite(timeout_s) or not 1 <= timeout_s <= max_timeout:
-        raise ValueError(f"timeout_s must be a number between 1 and {int(max_timeout)}")
+        raise ValueError(f"timeout_s must be a number between 1 and {int(_MAX_TIMEOUT)}") from exc
+    if not math.isfinite(timeout_s) or not 1 <= timeout_s <= _MAX_TIMEOUT:
+        raise ValueError(f"timeout_s must be a number between 1 and {int(_MAX_TIMEOUT)}")
     return ProviderConfig(
         provider=provider,
         model=model,
@@ -145,6 +173,7 @@ def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
         allow_background=bool(config.get("allow_background", False)),
         timeout_s=timeout_s,
         untrusted_context=config.get("untrusted_context"),
+        depth=depth,
     )
 
 
@@ -219,23 +248,31 @@ def load_api_key(provider: str) -> str | None:
 
 # --- Transports (real network calls; injectable for tests) -------------------
 
-def _grounded_output_schema(allow_background: bool) -> dict[str, Any]:
+def _grounded_output_schema(
+    allow_background: bool,
+    source_ids: tuple[str, ...] = (),
+    number_ids: tuple[str, ...] = (),
+) -> dict[str, Any]:
     """A $ref-free JSON Schema for constrained decoding (``response_format``).
 
     Mirrors the wire narration schema's SHAPE so a small local model is forced to
     emit ``{claims, scenarios, candidate_facts}`` at the top level instead of
-    parroting the bundle back under a wrapper key. It is a decoding hint, not a
-    guard — ``review_narration`` still owns every safety rule. Kept strict-mode
-    compatible (all properties required, ``additionalProperties: false``, no
-    string length/pattern facets)."""
+    parroting the bundle back under a wrapper key. When ``source_ids`` /
+    ``number_ids`` are supplied they become ``enum`` constraints, so the model can
+    ONLY cite valid ids (no invented sources, no dumping every id it sees). It is
+    a decoding hint, not a guard — ``review_narration`` still owns every safety
+    rule. Kept strict-mode compatible (all properties required,
+    ``additionalProperties: false``, no string length/pattern facets)."""
+    source_item = {"type": "string", "enum": list(source_ids)} if source_ids else {"type": "string"}
+    number_item = {"type": "string", "enum": list(number_ids)} if number_ids else {"type": "string"}
     claim = {
         "type": "object",
         "additionalProperties": False,
         "required": ["text", "source_ids", "number_refs"],
         "properties": {
             "text": {"type": "string"},
-            "source_ids": {"type": "array", "items": {"type": "string"}},
-            "number_refs": {"type": "array", "items": {"type": "string"}},
+            "source_ids": {"type": "array", "items": source_item},
+            "number_refs": {"type": "array", "items": number_item},
         },
     }
     fact = {
@@ -273,6 +310,46 @@ def _grounded_output_schema(allow_background: bool) -> dict[str, Any]:
     }
 
 
+def build_ollama_payload(
+    config: ProviderConfig, system: str, user: str
+) -> tuple[str, dict[str, str], dict[str, Any]]:
+    """(url, headers, body) for Ollama's NATIVE structured-output chat endpoint.
+
+    Ollama's OpenAI-compatible ``response_format: json_schema`` is honored by some
+    models (llama3) but silently ignored by others (gemma free-writes prose). Its
+    native ``/api/chat`` ``format`` field reliably constrains EVERY model, and
+    ``think: false`` stops a reasoning model from burning minutes on hidden
+    thought. The context window is sized to the (already trimmed) prompt so a rich
+    bundle is not truncated, and ``num_predict`` grows for a deep read. ``base_url``
+    is the validated ``…/v1`` loopback; the native endpoint hangs off its root.
+    """
+    root = (config.base_url or "").rstrip("/")
+    if root.endswith("/v1"):
+        root = root[: -len("/v1")]
+    url = f"{root}/api/chat"
+    headers = {"Content-Type": "application/json"}
+    approx_tokens = (len(system) + len(user)) // 4
+    num_ctx = min(32768, max(4096, ((approx_tokens + config.max_output_tokens) // 2048 + 1) * 2048))
+    body: dict[str, Any] = {
+        "model": config.model,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        "stream": False,
+        "think": False,
+        "options": {
+            "temperature": 0,
+            "num_ctx": num_ctx,
+            "num_predict": config.max_output_tokens,
+        },
+        "format": _grounded_output_schema(
+            config.allow_background, config.allowed_source_ids, config.allowed_number_ids
+        ),
+    }
+    return url, headers, body
+
+
 def build_openai_payload(
     config: ProviderConfig, key: str | None, system: str, user: str
 ) -> tuple[str, dict[str, str], dict[str, Any]]:
@@ -295,12 +372,17 @@ def build_openai_payload(
             {"role": "user", "content": user},
         ],
         "temperature": 0,
+        "max_tokens": config.max_output_tokens,
         "response_format": {
             "type": "json_schema",
             "json_schema": {
                 "name": "AiNarration",
                 "strict": True,
-                "schema": _grounded_output_schema(config.allow_background),
+                "schema": _grounded_output_schema(
+                    config.allow_background,
+                    config.allowed_source_ids,
+                    config.allowed_number_ids,
+                ),
             },
         },
     }
@@ -319,7 +401,7 @@ def build_anthropic_payload(
         headers["x-api-key"] = key
     body: dict[str, Any] = {
         "model": config.model,
-        "max_tokens": 1024,
+        "max_tokens": config.max_output_tokens,
         "temperature": 0,
         "system": system,
         "messages": [{"role": "user", "content": user}],
@@ -347,6 +429,14 @@ def make_transport(config: ProviderConfig) -> Transport | None:
             url, headers, body = build_anthropic_payload(config, key, system, user)
             payload = _post_json(url, headers, body, config.timeout_s)
             return payload["content"][0]["text"]
+    elif config.provider == "ollama":
+        # Ollama's native endpoint constrains EVERY model to the schema (its
+        # OpenAI-compat json_schema is ignored by some), and lets us disable
+        # "thinking" and size the context window — see build_ollama_payload.
+        def transport(system: str, user: str) -> str:
+            url, headers, body = build_ollama_payload(config, system, user)
+            payload = _post_json(url, headers, body, config.timeout_s)
+            return payload["message"]["content"]
     else:
         def transport(system: str, user: str) -> str:
             url, headers, body = build_openai_payload(config, key, system, user)
@@ -408,6 +498,73 @@ def usable_local_models(installed: list[str]) -> list[str]:
     removed. Empty means "nothing usable is installed", which the caller reports
     honestly rather than trying (and failing) to narrate with an embedder."""
     return [m for m in installed if not any(h in m.lower() for h in _EMBEDDING_HINTS)]
+
+
+def _parse_param_size(value: Any) -> float | None:
+    """Parse an Ollama parameter-size string like ``11.9B`` or ``3.2B`` to billions."""
+    match = re.match(r"\s*([\d.]+)\s*([bm])", str(value), re.IGNORECASE)
+    if not match:
+        return None
+    try:
+        number = float(match.group(1))
+    except ValueError:
+        return None
+    return number / 1000 if match.group(2).lower() == "m" else number
+
+
+def list_local_models_detailed(config: ProviderConfig) -> list[dict[str, Any]]:
+    """Installed chat-capable models with sizes, for the Fast/Deep model picker.
+
+    Uses Ollama's native ``/api/tags`` (which carries ``parameter_size``); for a
+    generic OpenAI-compatible server it falls back to names only. Embedding-only
+    models are filtered out. Sorted smallest-first so the UI can default the Fast
+    slot to the smallest and Deep to the largest. ``[]`` on any failure.
+    """
+    root = (config.base_url or "").rstrip("/")
+    if root.endswith("/v1"):
+        root = root[: -len("/v1")]
+    try:
+        request = urllib.request.Request(
+            f"{root}/api/tags", headers={"Accept": "application/json"}, method="GET"
+        )
+        with urllib.request.urlopen(request, timeout=min(config.timeout_s, 5.0)) as response:  # noqa: S310 (loopback only)
+            payload = json.loads(response.read().decode("utf-8"))
+        raw = payload.get("models") if isinstance(payload, dict) else None
+        if not isinstance(raw, list):
+            raise ValueError("unexpected /api/tags shape")
+        models = []
+        for m in raw:
+            if not isinstance(m, dict) or not m.get("name"):
+                continue
+            name = str(m["name"])
+            if any(h in name.lower() for h in _EMBEDDING_HINTS):
+                continue
+            details = m.get("details") if isinstance(m.get("details"), dict) else {}
+            models.append(
+                {
+                    "name": name,
+                    "parameter_size": details.get("parameter_size"),
+                    "params_b": _parse_param_size(details.get("parameter_size")),
+                    "size_bytes": m.get("size") if isinstance(m.get("size"), int) else None,
+                }
+            )
+    except (
+        urllib.error.URLError,
+        http.client.HTTPException,
+        TimeoutError,
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+    ):
+        # Fall back to the names-only OpenAI-compatible list (no sizes).
+        return [
+            {"name": n, "parameter_size": None, "params_b": None, "size_bytes": None}
+            for n in usable_local_models(list_local_models(config))
+        ]
+    # Smallest first (unknown sizes sort last), then by name for stability.
+    models.sort(key=lambda m: (m["params_b"] is None, m["params_b"] or 0.0, m["name"]))
+    return models
 
 
 def _family_root(model: str) -> str:
@@ -496,18 +653,22 @@ class NarrationCache:
     """
 
     def __init__(self) -> None:
-        self._store: dict[tuple[str, str, str, str, bool, bool, str], dict[str, Any]] = {}
+        self._store: dict[tuple[str, str, str, str, str, bool, bool, str], dict[str, Any]] = {}
 
     @staticmethod
-    def key(bundle_hash: str, config: ProviderConfig) -> tuple[str, str, str, str, bool, bool, str]:
+    def key(
+        bundle_hash: str, config: ProviderConfig
+    ) -> tuple[str, str, str, str, str, bool, bool, str]:
         context = sanitize_untrusted(config.untrusted_context or "")
         context_hash = hashlib.sha256(context.encode("utf-8")).hexdigest() if context else ""
-        # allow_background is part of the key: a no-background cached read must
-        # never be served to a background-enabled request (and vice versa).
+        # allow_background and depth are part of the key: a fast (or no-background)
+        # cached read must never be served to a deep (or background-enabled)
+        # request, and vice versa — they produce different narrations.
         return (
             bundle_hash,
             config.provider,
             config.model,
+            config.depth,
             PROMPT_VERSION,
             config.allow_candidate_facts,
             config.allow_background,
@@ -593,6 +754,15 @@ def generate_narration(
             )
         run_config = replace(config, model=pick_local_model(config.model, usable))
 
+    # Inject this bundle's citation allow-lists so constrained decoding enumerates
+    # exactly the valid source and number ids (the model can neither invent a
+    # source nor dump every id it sees). review_narration still validates content.
+    run_config = replace(
+        run_config,
+        allowed_source_ids=tuple(str(s["source_id"]) for s in bundle["sources"]),
+        allowed_number_ids=tuple(str(n["id"]) for n in bundle["allowed_numbers"]),
+    )
+
     if transport is None:
         transport = make_transport(run_config)
     if transport is None:
@@ -601,12 +771,17 @@ def generate_narration(
             reason="No API key found for this provider. Add one to use it, or keep AI off.",
         )
 
-    # The background addendum is appended ONLY when the user opted in; it relaxes
-    # nothing about the grounded rules. PROMPT_VERSION already covers the change,
-    # and allow_background is in the cache key, so a background run never reuses a
-    # grounded-only cached narration.
-    system = SYSTEM_PROMPT + (BACKGROUND_ADDENDUM if run_config.allow_background else "")
-    user = build_user_prompt(bundle, run_config.untrusted_context)
+    # Addenda are appended per-mode; each relaxes nothing about the grounded rules.
+    # PROMPT_VERSION, allow_background, and depth are all in the cache key, so a
+    # deep/background run never reuses a fast/grounded-only cached narration. The
+    # deep addendum asks for more claims and scenarios; the depth also shows the
+    # model more evidence (see build_user_prompt).
+    system = (
+        SYSTEM_PROMPT
+        + (BACKGROUND_ADDENDUM if run_config.allow_background else "")
+        + (DEEP_ANALYSIS_ADDENDUM if run_config.is_deep else "")
+    )
+    user = build_user_prompt(bundle, run_config.untrusted_context, depth=run_config.depth)
 
     reasons: list[str] = []
     reached_provider = False  # did any attempt get a response back from the model?

@@ -32,7 +32,7 @@ import type {
   SealResult,
   SourceKind,
 } from "./contract";
-import type { AiProvider, NarrativeResponse } from "./ai";
+import type { AiDepth, AiProvider, NarrativeResponse } from "./ai";
 import {
   loadMockCalibration,
   loadMockEval,
@@ -478,6 +478,47 @@ export interface NarrativeOptions {
   /** Opt into the second, general-knowledge "background" lane (off by default).
    *  It never weakens the grounded whitelist; any number it writes is deleted. */
   allowBackground?: boolean;
+  /** "fast" (small model, quick claims) or "deep" (bigger model, richer read,
+   *  minutes). Chooses the timeout the server applies and the prompt depth. */
+  depth?: AiDepth;
+  /** Explicit local model to run (overrides the server's auto-pick). */
+  model?: string;
+  /** Client timeout hint the server clamps; deep reads get a long budget. */
+  timeoutS?: number;
+}
+
+/** A local model the server reports as installed (with size, when known). */
+export interface LocalModelInfo {
+  name: string;
+  parameter_size: string | null;
+  params_b: number | null;
+  size_bytes: number | null;
+}
+
+/** Default Fast/Deep assignment from installed models (server lists smallest
+ *  first): Fast = smallest, Deep = largest. With one model, both use it. */
+export function defaultModelAssignment(models: LocalModelInfo[]): { fast: string; deep: string } {
+  if (models.length === 0) return { fast: "", deep: "" };
+  return { fast: models[0].name, deep: models[models.length - 1].name };
+}
+
+/** List the local models installed on a provider (with sizes), for the model
+ *  picker. Empty in sample mode or when the local server is unreachable. */
+export async function fetchLocalModels(provider: AiProvider): Promise<LocalModelInfo[]> {
+  if (!API_BASE || (provider !== "ollama" && provider !== "llama_server")) return [];
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/v1/ai/local-models?provider=${encodeURIComponent(provider)}`,
+      { headers },
+    );
+    if (!res.ok) return [];
+    const body = (await res.json()) as { models?: LocalModelInfo[] };
+    return Array.isArray(body.models) ? body.models : [];
+  } catch {
+    return [];
+  }
 }
 
 function emptyNarrative(provider: AiProvider): NarrativeResponse {
@@ -520,6 +561,9 @@ async function postNarrative(
       provider,
       ...(opts.refresh ? { refresh: true } : {}),
       ...(opts.allowBackground ? { allow_background: true } : {}),
+      ...(opts.depth ? { depth: opts.depth } : {}),
+      ...(opts.model ? { model: opts.model } : {}),
+      ...(opts.timeoutS ? { timeout_s: opts.timeoutS } : {}),
     }),
   });
   if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);

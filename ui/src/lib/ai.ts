@@ -13,6 +13,15 @@ import { useCallback, useEffect, useState } from "react";
 
 export type AiProvider = "off" | "ollama" | "llama_server" | "openai" | "anthropic";
 
+/** Read depth. "fast" = a small model, quick claims (~seconds). "deep" = a bigger
+ *  model, a fuller prompt and richer synthesis (minutes). */
+export type AiDepth = "fast" | "deep";
+
+// The server applies these budgets; the client sends a matching timeout hint so a
+// slow deep read isn't abandoned early. Deep is up to 8 minutes.
+export const FAST_TIMEOUT_S = 120;
+export const DEEP_TIMEOUT_S = 480;
+
 export const AI_PROVIDERS: { value: AiProvider; label: string; kind: "off" | "local" | "cloud" }[] = [
   { value: "off", label: "Off", kind: "off" },
   { value: "ollama", label: "Local · Ollama", kind: "local" },
@@ -156,4 +165,57 @@ export function useAiBackground(): [boolean, (on: boolean) => void] {
     window.dispatchEvent(new Event(AI_BG_EVENT));
   }, []);
   return [on, set];
+}
+
+// ---- Fast / Deep model assignment (persisted, app-wide reactive) ------------
+// The user assigns which installed model runs each mode (Settings). Empty means
+// "let the server auto-pick". Reads send the assigned model for the chosen depth.
+
+const AI_FAST_MODEL_KEY = "golavo-ai-fast-model";
+const AI_DEEP_MODEL_KEY = "golavo-ai-deep-model";
+const AI_MODELS_EVENT = "golavo-ai-models-changed";
+
+function readModel(key: string): string {
+  try {
+    return localStorage.getItem(key) || "";
+  } catch {
+    return "";
+  }
+}
+
+export interface AiModelAssignment {
+  fastModel: string;
+  deepModel: string;
+  setFastModel: (m: string) => void;
+  setDeepModel: (m: string) => void;
+}
+
+/** The Fast and Deep model assignments, persisted and reactive across the app
+ *  (Settings and every Deep Read panel stay in sync). */
+export function useAiModels(): AiModelAssignment {
+  const [fastModel, setFast] = useState(() => readModel(AI_FAST_MODEL_KEY));
+  const [deepModel, setDeep] = useState(() => readModel(AI_DEEP_MODEL_KEY));
+  useEffect(() => {
+    const sync = () => {
+      setFast(readModel(AI_FAST_MODEL_KEY));
+      setDeep(readModel(AI_DEEP_MODEL_KEY));
+    };
+    window.addEventListener(AI_MODELS_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(AI_MODELS_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  const setFastModel = useCallback((m: string) => {
+    setFast(m);
+    try { localStorage.setItem(AI_FAST_MODEL_KEY, m); } catch { /* ignore */ }
+    window.dispatchEvent(new Event(AI_MODELS_EVENT));
+  }, []);
+  const setDeepModel = useCallback((m: string) => {
+    setDeep(m);
+    try { localStorage.setItem(AI_DEEP_MODEL_KEY, m); } catch { /* ignore */ }
+    window.dispatchEvent(new Event(AI_MODELS_EVENT));
+  }, []);
+  return { fastModel, deepModel, setFastModel, setDeepModel };
 }

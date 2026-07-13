@@ -21,9 +21,20 @@ The AI layer **explains and cites** the forecast. It **does not improve forecast
 
 Local endpoints are OpenAI-compatible: Ollama at `http://localhost:11434/v1`, llama-server at `http://127.0.0.1:8080/v1`. llama-server is preferred where hard schema-constrained JSON is needed (it supports GBNF grammars and `json_schema`/`response_format`).
 
+### Fast and Deep
+
+The read has two speeds, chosen with a toggle on the panel:
+
+- **Fast** — a small model (e.g. `llama3.2`) writes a few grounded claims in seconds.
+- **Deep analysis** — a bigger model (e.g. `gemma4:12b`) sees more of the evidence and writes a fuller synthesis — more claims, plus scenarios that connect facts to each other and surface tensions and corroborations. A 12B model on a rich match takes a few minutes (up to an 8-minute budget), with an honest progress note; if it times out you can retry or drop back to Fast in one tap.
+
+Assign which installed model runs each mode in **Settings → Local intelligence** (auto-set to your smallest for Fast and largest for Deep). An "advanced" control on the panel lets you run any specific installed model for a single read.
+
 ### Which local model runs
 
-You don't have to pull a specific model. Golavo probes the local server's `/v1/models` and runs whatever you already have, preferring the model that best matches its default (exact name → same base name → same family), and skipping embedding-only models. So a fresh Ollama with, say, `llama3.2` or `gemma` just works. To pin an exact model, set `GOLAVO_OLLAMA_MODEL` (or `GOLAVO_LLAMACPP_MODEL`). If the local server is unreachable or has no usable model, the panel says so plainly — start the server or pull a model, then retry. Local models load their weights on first use, so the first read can take up to a minute (the default timeout is generous for this).
+You don't have to pull a specific model. Golavo probes the local server, lists your installed models with their sizes, and — if you don't assign them yourself — uses the smallest for Fast and the largest for Deep, skipping embedding-only models. To pin an exact model outside the UI, set `GOLAVO_OLLAMA_MODEL` (or `GOLAVO_LLAMACPP_MODEL`). If the local server is unreachable or has no usable model, the panel says so plainly — start the server or pull a model, then retry. Local models load their weights on first use, so the first read is slower.
+
+Under the hood, the Ollama path uses the native `/api/chat` structured-output endpoint (its `format` grammar reliably constrains **every** model to the schema, and disables "thinking" so a reasoning model doesn't burn minutes), the context window is sized to fit the (trimmed) prompt, and decoding is **enum-constrained** to the bundle's real citation ids — so the model can neither invent a source nor drop a number the engine didn't produce.
 
 ## The evidence bundle is all AI ever sees
 

@@ -1,11 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import { DATA_SOURCE, fetchMatchNarrative, fetchNarrative } from "../lib/api";
+import {
+  DATA_SOURCE,
+  defaultModelAssignment,
+  fetchLocalModels,
+  fetchMatchNarrative,
+  fetchNarrative,
+} from "../lib/api";
+import type { LocalModelInfo } from "../lib/api";
 import {
   AI_PROVIDERS,
+  DEEP_TIMEOUT_S,
+  FAST_TIMEOUT_S,
   useAiBackground,
+  useAiModels,
   useAiProvider,
 } from "../lib/ai";
 import type {
+  AiDepth,
   AiProvider,
   BackgroundNote,
   NarrationClaim,
@@ -14,6 +25,11 @@ import type {
   SourceRef,
 } from "../lib/ai";
 import { AlertIcon, CheckIcon, InfoIcon, LinkIcon } from "./icons";
+
+/** A short size label for a model, e.g. "12B" or "" when unknown. */
+function modelSize(m: LocalModelInfo): string {
+  return m.parameter_size ? ` · ${m.parameter_size}` : "";
+}
 
 /** What the deep read runs over: a sealed forecast artifact, or a match's
  *  on-demand notes + council (the cockpit). Same guards either way. */
@@ -62,24 +78,70 @@ function ReadMark() {
 export function AiDeepRead({ source }: { source: DeepReadSource }) {
   const [provider, setProvider] = useAiProvider();
   const [allowBackground, setAllowBackground] = useAiBackground();
+  const { fastModel, deepModel, setFastModel, setDeepModel } = useAiModels();
+  // Depth is per-panel (resets to Fast each session); the model assignments live
+  // in Settings. `override` is the advanced "run this exact model" choice.
+  const [depth, setDepth] = useState<AiDepth>("fast");
+  const [override, setOverride] = useState<string>("");
+  const [models, setModels] = useState<LocalModelInfo[]>([]);
   const [state, setState] = useState<RunState>({ status: "idle" });
   const runId = useRef(0);
+  const skipInvalidate = useRef(false);
   const sourceKey = source.kind === "forecast" ? source.artifactId : source.matchId;
+  const isLocal = provider === "ollama" || provider === "llama_server";
 
-  // Changing the provider (including back to Off) resets any prior result so the
-  // panel never shows a narration attributed to the wrong provider.
+  // Load the installed local models, then SEED the Fast/Deep assignments if they
+  // are unset or no longer installed — so Deep runs the bigger model even if the
+  // user never opened Settings (Settings' picker does the same, idempotently).
   useEffect(() => {
-    // Invalidate any request started for the previous provider/subject. Without
-    // this, a slow old response can repopulate the panel after the selector has
-    // changed and be shown under the wrong provider.
+    let live = true;
+    setOverride("");
+    if (!isLocal) { setModels([]); return; }
+    fetchLocalModels(provider).then((m) => {
+      if (!live) return;
+      setModels(m);
+      if (m.length === 0) return;
+      const names = new Set(m.map((x) => x.name));
+      const def = defaultModelAssignment(m);
+      if (!fastModel || !names.has(fastModel)) setFastModel(def.fast);
+      if (!deepModel || !names.has(deepModel)) setDeepModel(def.deep);
+    });
+    return () => { live = false; };
+    // Re-seed only when the provider changes; the assignment setters are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider, isLocal]);
+
+  // A cloud provider has no depth/override UI; drop any leftover local choices so
+  // a stale "deep"/override can't ride along to a cloud request.
+  useEffect(() => {
+    if (!isLocal) { setDepth("fast"); setOverride(""); }
+  }, [isLocal]);
+
+  // Changing the provider, depth, model override, or subject resets any prior
+  // result so the panel never shows a narration attributed to the wrong run — but
+  // a deliberate switch-and-run (below) opts out so its in-flight run survives.
+  useEffect(() => {
+    if (skipInvalidate.current) { skipInvalidate.current = false; return; }
     runId.current += 1;
     setState({ status: "idle" });
-  }, [provider, sourceKey]);
+  }, [provider, sourceKey, depth, override]);
 
-  const run = (refresh = false) => {
+  const run = (refresh = false, depthArg: AiDepth = depth) => {
     const id = ++runId.current;
     setState({ status: "loading", refresh });
-    const opts = { refresh, allowBackground };
+    // The model to run (local only): an explicit override wins, else the depth's
+    // assigned model, else undefined (server auto-picks). A cloud provider never
+    // sends a local model id. Deep gets the long budget.
+    const model = isLocal
+      ? override || (depthArg === "deep" ? deepModel : fastModel) || undefined
+      : undefined;
+    const opts = {
+      refresh,
+      allowBackground,
+      depth: depthArg,
+      model,
+      timeoutS: depthArg === "deep" ? DEEP_TIMEOUT_S : FAST_TIMEOUT_S,
+    };
     const request =
       source.kind === "forecast"
         ? fetchNarrative(source.artifactId, provider, opts)
@@ -91,6 +153,15 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
           setState({ status: "error", error: error instanceof Error ? error : new Error(String(error)) });
       },
     );
+  };
+
+  // "Switch to Fast" after a deep timeout: flip the mode AND immediately run a
+  // fast read (one tap), surviving the depth-change invalidation.
+  const switchToFast = () => {
+    skipInvalidate.current = true;
+    setDepth("fast");
+    setOverride("");
+    run(false, "fast");
   };
 
   const isMatch = source.kind === "match";
@@ -149,20 +220,40 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
           </span>
         </p>
 
+        {provider !== "off" && isLocal && (
+          <DepthControls
+            depth={depth}
+            onDepth={setDepth}
+            models={models}
+            override={override}
+            onOverride={setOverride}
+            deepModel={deepModel}
+            fastModel={fastModel}
+          />
+        )}
+
         {provider === "off" && <OffCard />}
         {provider !== "off" && state.status === "idle" && (
           <IdleCard
             provider={provider}
             isMatch={isMatch}
+            depth={depth}
             onRun={() => run(false)}
             allowBackground={allowBackground}
             onToggleBackground={setAllowBackground}
           />
         )}
-        {state.status === "loading" && <Pipeline provider={provider} refresh={state.refresh} />}
+        {state.status === "loading" && <Pipeline provider={provider} refresh={state.refresh} depth={depth} />}
         {state.status === "error" && <FallbackCard reason={humanizeError(state.error)} onRetry={() => run(false)} />}
         {state.status === "done" && (
-          <Result data={state.data} isMatch={isMatch} onRefresh={() => run(true)} onRetry={() => run(false)} />
+          <Result
+            data={state.data}
+            isMatch={isMatch}
+            depth={depth}
+            onSwitchFast={depth === "deep" ? switchToFast : undefined}
+            onRefresh={() => run(true)}
+            onRetry={() => run(false)}
+          />
         )}
       </div>
     </section>
@@ -179,11 +270,90 @@ function OffCard() {
   );
 }
 
+/** The Fast / Deep segmented toggle plus a collapsed advanced model override.
+ *  Deep runs a bigger model for a richer read; the assignments live in Settings. */
+function DepthControls({
+  depth, onDepth, models, override, onOverride, deepModel, fastModel,
+}: {
+  depth: AiDepth;
+  onDepth: (d: AiDepth) => void;
+  models: LocalModelInfo[];
+  override: string;
+  onOverride: (m: string) => void;
+  deepModel: string;
+  fastModel: string;
+}) {
+  const [advanced, setAdvanced] = useState(false);
+  const active = override || (depth === "deep" ? deepModel : fastModel);
+  const installed = models.length === 0 || models.some((m) => m.name === active);
+  // Only promise "a bigger model" when Deep really resolves to a different model
+  // than Fast; with one model installed both are the same, so describe what
+  // actually changes (a fuller prompt) instead of overclaiming.
+  const biggerModel = Boolean(deepModel) && deepModel !== fastModel;
+  return (
+    <div className="ai-depth stack" style={{ ["--gap" as string]: ".5rem" }}>
+      <div className="ai-seg" role="group" aria-label="Analysis depth">
+        <button
+          type="button"
+          className={depth === "fast" ? "on" : ""}
+          aria-pressed={depth === "fast"}
+          onClick={() => onDepth("fast")}
+        >
+          Fast
+        </button>
+        <button
+          type="button"
+          className={depth === "deep" ? "on" : ""}
+          aria-pressed={depth === "deep"}
+          onClick={() => onDepth("deep")}
+        >
+          Deep analysis
+        </button>
+      </div>
+      <p className="small dim" style={{ margin: 0 }}>
+        {depth === "deep"
+          ? biggerModel
+            ? "A bigger model sees more of the evidence and writes scenarios — a richer read that can take a few minutes."
+            : "A fuller prompt and richer synthesis — more claims and scenarios connecting the evidence. Can take a few minutes."
+          : "A quick read from a small model — grounded claims in seconds."}
+      </p>
+      {models.length > 0 && (
+        <>
+          <button
+            type="button"
+            className="ai-depth__adv-toggle small dim"
+            aria-expanded={advanced}
+            onClick={() => setAdvanced((a) => !a)}
+          >
+            {advanced ? "▾" : "▸"} Advanced · {active
+              ? `model: ${active}${installed ? "" : " (not installed)"}`
+              : "auto model"}
+          </button>
+          {advanced && (
+            <label className="ai-depth__adv small">
+              <span className="dim">Run a specific model (this read only)</span>
+              <select value={override} onChange={(e) => onOverride(e.target.value)}>
+                <option value="">
+                  Auto — {depth === "deep" ? "Deep" : "Fast"} model{active ? ` (${active})` : ""}
+                </option>
+                {models.map((m) => (
+                  <option key={m.name} value={m.name}>{m.name}{modelSize(m)}</option>
+                ))}
+              </select>
+            </label>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function IdleCard({
-  provider, isMatch, onRun, allowBackground, onToggleBackground,
+  provider, isMatch, depth, onRun, allowBackground, onToggleBackground,
 }: {
   provider: AiProvider;
   isMatch: boolean;
+  depth: AiDepth;
   onRun: () => void;
   allowBackground: boolean;
   onToggleBackground: (on: boolean) => void;
@@ -209,7 +379,7 @@ function IdleCard({
       </label>
       <div>
         <button type="button" className="ai-run" onClick={onRun}>
-          {isMatch ? "Write the deeper read" : "Run AI Deep Read"}
+          {depth === "deep" ? "Run deep analysis" : isMatch ? "Write the read" : "Run AI Deep Read"}
         </button>
       </div>
     </div>
@@ -219,23 +389,28 @@ function IdleCard({
 /** Honest, informative progress: the factual stages, an indeterminate bar, and
  *  an elapsed-seconds ticker with expectation-setting copy — a local model can
  *  legitimately take a minute, and the user should never wonder if it hung. */
-function Pipeline({ provider, refresh }: { provider: AiProvider; refresh: boolean }) {
+function Pipeline({
+  provider, refresh, depth,
+}: { provider: AiProvider; refresh: boolean; depth: AiDepth }) {
   const [step, setStep] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const meta = AI_PROVIDERS.find((p) => p.value === provider);
+  const isDeep = depth === "deep";
   useEffect(() => {
     // Advance and STOP at the last stage — never wrap back to 0, which would
     // un-check completed steps and read as "restarting/stuck". The indeterminate
-    // bar and elapsed timer carry the sense of ongoing progress.
+    // bar and elapsed timer carry the sense of ongoing progress. Deep reads dwell
+    // longer per stage since the bigger model takes minutes.
     const stage = window.setInterval(
       () => setStep((s) => Math.min(s + 1, PIPELINE_STAGES.length - 1)),
-      1400,
+      isDeep ? 12000 : 1400,
     );
     const tick = window.setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => { window.clearInterval(stage); window.clearInterval(tick); };
-  }, []);
-  const waitNote =
-    elapsed < 8
+  }, [isDeep]);
+  const waitNote = isDeep
+    ? "Deep analysis — a bigger model is connecting the evidence. This can take a few minutes; nothing shows until every number is verified."
+    : elapsed < 8
       ? refresh
         ? "Regenerating — skipping the cached read."
         : "This runs once, then is cached."
@@ -263,8 +438,15 @@ function Pipeline({ provider, refresh }: { provider: AiProvider; refresh: boolea
 }
 
 function Result({
-  data, isMatch, onRefresh, onRetry,
-}: { data: NarrativeResponse; isMatch: boolean; onRefresh: () => void; onRetry: () => void }) {
+  data, isMatch, depth, onSwitchFast, onRefresh, onRetry,
+}: {
+  data: NarrativeResponse;
+  isMatch: boolean;
+  depth: AiDepth;
+  onSwitchFast?: () => void;
+  onRefresh: () => void;
+  onRetry: () => void;
+}) {
   if (data.status === "disabled") return <OffCard />;
   // "unavailable" is recoverable in live mode (start Ollama / pull a model / add a
   // key, then retry) but genuinely terminal in the sample-data preview, so only
@@ -277,8 +459,17 @@ function Result({
         onRetry={DATA_SOURCE === "mock" ? undefined : onRetry}
       />
     );
+  // A deep read that timed out: offer both a retry AND a one-tap switch to Fast.
+  const timedOut = data.status === "local_only" && /timed out|reached/i.test(data.reason ?? "");
   if (data.status === "local_only")
-    return <FallbackCard reason={data.reason} notes={data.notes} onRetry={onRetry} />;
+    return (
+      <FallbackCard
+        reason={data.reason}
+        notes={data.notes}
+        onRetry={onRetry}
+        onSwitchFast={depth === "deep" && timedOut ? onSwitchFast : undefined}
+      />
+    );
   if (data.status !== "ok" || !data.narration)
     return <FallbackCard reason={data.reason} notes={data.notes} onRetry={onRetry} />;
 
@@ -401,8 +592,14 @@ function BackgroundLane({ notes }: { notes: BackgroundNote[] }) {
 }
 
 function FallbackCard({
-  reason, unavailable = false, onRetry, notes,
-}: { reason: string | null; unavailable?: boolean; onRetry?: () => void; notes?: string[] }) {
+  reason, unavailable = false, onRetry, onSwitchFast, notes,
+}: {
+  reason: string | null;
+  unavailable?: boolean;
+  onRetry?: () => void;
+  onSwitchFast?: () => void;
+  notes?: string[];
+}) {
   // Surface the real, de-duplicated failure reasons (timeout vs unreachable vs a
   // specific guard rejection) so a user staring at "Try again" can see WHY it
   // failed instead of looping blindly.
@@ -425,9 +622,16 @@ function FallbackCard({
             </ul>
           </details>
         )}
-        {onRetry && (
-          <div style={{ marginTop: ".5rem" }}>
-            <button type="button" className="ai-refresh" onClick={onRetry}>Try again</button>
+        {(onRetry || onSwitchFast) && (
+          <div className="ai-fallback__actions" style={{ marginTop: ".5rem", display: "flex", gap: ".5rem" }}>
+            {onRetry && (
+              <button type="button" className="ai-refresh" onClick={onRetry}>Try again</button>
+            )}
+            {onSwitchFast && (
+              <button type="button" className="ai-refresh" onClick={onSwitchFast}>
+                Switch to Fast
+              </button>
+            )}
           </div>
         )}
       </div>

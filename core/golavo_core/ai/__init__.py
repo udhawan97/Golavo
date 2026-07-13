@@ -18,6 +18,7 @@ from golavo_core.ai.narration import (
 )
 from golavo_core.ai.prompts import (
     BACKGROUND_ADDENDUM,
+    DEEP_ANALYSIS_ADDENDUM,
     PROMPT_VERSION,
     SYSTEM_PROMPT,
     build_user_prompt,
@@ -33,6 +34,7 @@ from golavo_core.ai.whitelist import (
 
 __all__ = [
     "BACKGROUND_ADDENDUM",
+    "DEEP_ANALYSIS_ADDENDUM",
     "NARRATION_SCHEMA_VERSION",
     "PROMPT_VERSION",
     "SYSTEM_PROMPT",

@@ -143,6 +143,25 @@ def meta() -> dict[str, Any]:
     }
 
 
+@app.get("/api/v1/ai/local-models")
+def ai_local_models(provider: str = "ollama") -> dict[str, Any]:
+    """Installed local models (with sizes) for the Fast/Deep model picker.
+
+    Read-only and fail-safe: an unreachable local server yields an empty list, not
+    an error, so the Settings UI can show honest "start Ollama / pull a model"
+    guidance. Only local providers are probed; anything else returns no models.
+    """
+    from golavo_server import ai_gateway
+
+    if provider not in ai_gateway.LOCAL_PROVIDERS:
+        return {"provider": provider, "models": []}
+    try:
+        config = ai_gateway.resolve_provider({"provider": provider})
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"provider": provider, "models": ai_gateway.list_local_models_detailed(config)}
+
+
 @app.get("/api/v1/status")
 def engine_status() -> dict[str, Any]:
     """Live engine warm-up status for the UI's staged splash / warming card.

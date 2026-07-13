@@ -79,6 +79,79 @@ def _prune_unknown(narration: Any) -> Any:
     return out
 
 
+# Wire-schema string bounds, mirrored so a per-item conform can drop an item that
+# would hard-reject the whole narration at the schema gate. Keep in sync with
+# ai_narration.schema.json.
+_TEXT_MAX = {"claim": 600, "fact_text": 400, "fact_quote": 600, "fact_url": 400}
+
+
+def _clean_str_list(value: Any) -> list[str]:
+    """Non-empty string items only (the wire schema forbids empty ref/source ids)."""
+    if not isinstance(value, list):
+        return []
+    return [s for s in value if isinstance(s, str) and s.strip()]
+
+
+def _conform_claim(item: Any) -> dict[str, Any] | None:
+    if not isinstance(item, dict):
+        return None
+    text = item.get("text")
+    if not (isinstance(text, str) and 1 <= len(text) <= _TEXT_MAX["claim"]):
+        return None
+    return {
+        "text": text,
+        "source_ids": _clean_str_list(item.get("source_ids")),
+        "number_refs": _clean_str_list(item.get("number_refs")),
+    }
+
+
+def _conform_fact(item: Any) -> dict[str, Any] | None:
+    if not isinstance(item, dict):
+        return None
+    text, quote, url = item.get("text"), item.get("quote"), item.get("source_url")
+    if not (isinstance(text, str) and 1 <= len(text) <= _TEXT_MAX["fact_text"]):
+        return None
+    if not (isinstance(quote, str) and 1 <= len(quote) <= _TEXT_MAX["fact_quote"]):
+        return None
+    if not (isinstance(url, str) and 1 <= len(url) <= _TEXT_MAX["fact_url"]):
+        return None
+    return {"text": text, "quote": quote, "source_url": url}
+
+
+def _conform_arrays(
+    cleaned: dict[str, Any], *, allow_candidate_facts: bool, dropped: list[str]
+) -> None:
+    """Drop items that would fail the wire schema STRUCTURALLY, in place.
+
+    A small local model sometimes emits an empty quote, an over-long claim, or a
+    stray empty ref — any one of which hard-rejects the whole narration at the
+    strict schema gate. Dropping just the offending item keeps the good ones; the
+    content guards (numbers, betting, citations) still run per surviving item.
+    """
+    for key in ("claims", "scenarios"):
+        items = cleaned.get(key)
+        if isinstance(items, list):
+            conformed = [c for c in (_conform_claim(i) for i in items) if c is not None]
+            if len(conformed) != len(items):
+                dropped.append(f"{key}: dropped {len(items) - len(conformed)} malformed item(s)")
+            cleaned[key] = conformed
+        else:
+            cleaned[key] = []
+    raw_facts = cleaned.get("candidate_facts")
+    if not allow_candidate_facts:
+        # Disabled anyway — never let a malformed disabled fact fail the gate.
+        if isinstance(raw_facts, list) and raw_facts:
+            dropped.append(
+                f"candidate_facts: dropped {len(raw_facts)} "
+                "(candidate-fact ingestion is disabled)"
+            )
+        cleaned["candidate_facts"] = []
+    elif isinstance(raw_facts, list):
+        cleaned["candidate_facts"] = [f for f in (_conform_fact(i) for i in raw_facts) if f]
+    else:
+        cleaned["candidate_facts"] = []
+
+
 @dataclass
 class NarrationReview:
     """Outcome of reviewing one raw narration."""
@@ -157,18 +230,6 @@ def _review_item(
     if betting:
         dropped.append(f"{label}: dropped (betting lexicon {sorted(set(betting))})")
         return None
-    # An unsupported number: the offending claim is removed so its number never
-    # reaches the user. A claim survives only if every numeric token exactly
-    # matches a referenced number's trusted display.
-    bad_numbers = unsupported_number_tokens(
-        text, allowed_numbers, item["number_refs"], safe_literals
-    )
-    if bad_numbers:
-        dropped.append(
-            f"{label}: dropped ({len(bad_numbers)} numeric token(s) did not match "
-            "the exact display of a referenced number)"
-        )
-        return None
     if _COT_MARKER_RE.search(text):
         dropped.append(f"{label}: dropped (chain-of-thought marker in text)")
         return None
@@ -176,37 +237,32 @@ def _review_item(
     if not valid_sources:
         dropped.append(f"{label}: dropped (no citation resolves to a bundle source)")
         return None
-    bad_refs = [ref for ref in item["number_refs"] if ref not in allowed_number_ids]
-    if bad_refs:
-        dropped.append(f"{label}: dropped (number_refs not in allowed_numbers: {bad_refs})")
-        return None
 
+    # PRUNE the number_refs to only those that are genuinely usable: a real allowed
+    # id, whose trusted source this claim cites, AND whose display actually appears
+    # in the text. A small model routinely OVER-TAGS — referencing a number it
+    # alluded to qualitatively but never wrote. A dangling ref is pruned (no chip),
+    # not fatal, so a good qualitative claim survives instead of being dropped.
     number_by_id = {str(number["id"]): number for number in allowed_numbers}
-    uncited_refs = [
+    final_refs = [
         ref
         for ref in item["number_refs"]
-        if not set(number_by_id[ref]["source_ids"]).intersection(valid_sources)
+        if ref in number_by_id
+        and set(number_by_id[ref]["source_ids"]).intersection(valid_sources)
+        and str(number_by_id[ref]["display"]) in text
     ]
-    if uncited_refs:
+    # Every numeric token in the text must still be backed by a SURVIVING ref's
+    # exact display — otherwise the claim states an unsupported/fabricated number
+    # and is dropped so it never reaches the user. This is the number guarantee.
+    bad_numbers = unsupported_number_tokens(text, allowed_numbers, final_refs, safe_literals)
+    if bad_numbers:
         dropped.append(
-            f"{label}: dropped (number_refs lack one of their trusted sources: {uncited_refs})"
+            f"{label}: dropped ({len(bad_numbers)} numeric token(s) not backed by a "
+            "cited allowed number)"
         )
         return None
 
-    # Extra refs are also misleading: the UI renders them as trusted number
-    # chips. Require every referenced display to appear in this claim's text.
-    missing_displays = [
-        str(number["display"])
-        for number in allowed_numbers
-        if number["id"] in item["number_refs"] and str(number["display"]) not in text
-    ]
-    if missing_displays:
-        dropped.append(
-            f"{label}: dropped (number_refs not present in text: {missing_displays})"
-        )
-        return None
-
-    return {"text": text, "source_ids": valid_sources, "number_refs": list(item["number_refs"])}
+    return {"text": text, "source_ids": valid_sources, "number_refs": final_refs}
 
 
 def _review_candidate_fact(
@@ -313,6 +369,11 @@ def review_narration(
     # schema gate — pop it out first so a malformed note (too many, over-length,
     # bad `about`) can never hard-reject the grounded claims it rides alongside.
     raw_background = cleaned.pop("background", None)
+    # Conform each array to the wire schema's structural rules BEFORE the gate, so a
+    # single sloppy item from a small local model (an empty quote, an over-long
+    # claim, a stray empty ref) drops just itself instead of blanking the whole
+    # read. Content rules (numbers, citations) are still enforced per-item below.
+    _conform_arrays(cleaned, allow_candidate_facts=allow_candidate_facts, dropped=dropped)
     try:
         Draft202012Validator(_schema()).validate(cleaned)
     except ValidationError as exc:

@@ -8,6 +8,7 @@ prompt, JSON extraction, review — runs for real with no live model.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -109,6 +110,25 @@ def test_unknown_match_is_404(client):
     assert client.post("/api/v1/matches/m_nope/narrative", json={}).status_code == 404
 
 
+def test_local_models_endpoint_lists_installed_models(client, monkeypatch):
+    monkeypatch.setattr(
+        ai_gateway,
+        "list_local_models_detailed",
+        lambda config: [
+            {"name": "llama3.2:latest", "parameter_size": "3.2B", "params_b": 3.2, "size_bytes": 1},
+            {"name": "gemma:12b", "parameter_size": "12B", "params_b": 12.0, "size_bytes": 2},
+        ],
+    )
+    body = client.get("/api/v1/ai/local-models?provider=ollama").json()
+    assert body["provider"] == "ollama"
+    assert [m["name"] for m in body["models"]] == ["llama3.2:latest", "gemma:12b"]
+
+
+def test_local_models_endpoint_empty_for_non_local_provider(client):
+    body = client.get("/api/v1/ai/local-models?provider=openai").json()
+    assert body == {"provider": "openai", "models": []}
+
+
 def test_unknown_provider_is_400(client):
     r = client.post("/api/v1/matches/m_target/narrative", json={"provider": "skynet"})
     assert r.status_code == 400
@@ -118,11 +138,15 @@ def _echo_transport(system: str, user: str) -> str:
     """A canned model: cites the goal voice's home probability from the prompt.
 
     Parses the allowed-numbers line the real prompt carries, so the response is
-    grounded in the actual bundle — the review then accepts it for real.
+    grounded in the actual bundle — the review then accepts it for real. The line
+    reads ``id=display (label); id=display (label); …`` so the display ends at the
+    label's " (", the next entry's ";", or the trailing ".".
     """
-    marker = "mc_dixon_coles_prob_home="
+    marker = "`mc_dixon_coles_prob_home` = "
     start = user.index(marker) + len(marker)
-    display = user[start:].split(",")[0].strip().rstrip(".")
+    # The allowed-numbers list is one entry per line: "- `id` = display  (label)".
+    # The display ends at the label's "  (" or the end of the line.
+    display = re.split(r"\s\(|\n", user[start:], maxsplit=1)[0].strip()
     narration = {
         "claims": [
             {

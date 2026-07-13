@@ -241,21 +241,39 @@ def test_local_provider_is_restricted_to_loopback() -> None:
         resolve_provider({"provider": "llama_server", "base_url": "http://example.test/v1"})
 
 
-@pytest.mark.parametrize("timeout", [0, 181, float("nan"), "not-a-number"])
+@pytest.mark.parametrize("timeout", [0, 481, float("nan"), "not-a-number"])
 def test_provider_timeout_is_bounded(timeout) -> None:
-    with pytest.raises(ValueError, match="between 1 and 180"):
+    with pytest.raises(ValueError, match="between 1 and 480"):
         resolve_provider({"provider": "ollama", "timeout_s": timeout})
 
 
-def test_local_providers_default_to_a_generous_timeout() -> None:
-    # A cold local model also loads weights on the first call; the default must not
-    # time out before generation begins. Local gets a generous 120s default and
-    # 180s ceiling; cloud stays snappy at 30s.
+def test_default_timeout_follows_the_depth() -> None:
+    # Fast local reads default to 120s; a deep read (bigger model, fuller prompt)
+    # gets up to 8 minutes. Cloud stays snappy at 30s regardless of depth.
     assert resolve_provider({"provider": "ollama"}).timeout_s == 120.0
-    assert resolve_provider({"provider": "llama_server"}).timeout_s == 120.0
-    assert resolve_provider({"provider": "openai"}).timeout_s == 30.0
-    # An explicit request always wins over the default.
-    assert resolve_provider({"provider": "ollama", "timeout_s": 12}).timeout_s == 12.0
+    assert resolve_provider({"provider": "ollama", "depth": "fast"}).timeout_s == 120.0
+    assert resolve_provider({"provider": "ollama", "depth": "deep"}).timeout_s == 480.0
+    assert resolve_provider({"provider": "llama_server", "depth": "deep"}).timeout_s == 480.0
+    assert resolve_provider({"provider": "openai", "depth": "deep"}).timeout_s == 30.0
+    # An explicit request always wins over the depth default.
+    explicit = resolve_provider({"provider": "ollama", "depth": "deep", "timeout_s": 12})
+    assert explicit.timeout_s == 12.0
+
+
+def test_unknown_depth_is_rejected() -> None:
+    with pytest.raises(ValueError, match="unknown depth"):
+        resolve_provider({"provider": "ollama", "depth": "turbo"})
+
+
+def test_deep_read_asks_for_more_and_uses_a_longer_output_cap() -> None:
+    fast = resolve_provider({"provider": "ollama", "depth": "fast"})
+    deep = resolve_provider({"provider": "ollama", "depth": "deep"})
+    assert deep.max_output_tokens > fast.max_output_tokens
+    fast_url, _fh, fast_body = ai_gateway.build_ollama_payload(fast, "sys", "u" * 4000)
+    _du, _dh, deep_body = ai_gateway.build_ollama_payload(deep, "sys", "u" * 4000)
+    assert fast_url.endswith("/api/chat")          # native, constrained-decoding endpoint
+    assert fast_body["think"] is False and "format" in fast_body
+    assert fast_body["options"]["num_predict"] < deep_body["options"]["num_predict"]
 
 
 def test_local_model_can_be_pinned_by_env(monkeypatch) -> None:
@@ -403,6 +421,47 @@ def test_openai_payload_constrains_output_to_the_schema() -> None:
     )
     _u, _h, body_bg = build_openai_payload(bg, None, "sys", "user")
     assert "background" in body_bg["response_format"]["json_schema"]["schema"]["properties"]
+
+
+def test_grounded_schema_enumerates_valid_ids_when_supplied() -> None:
+    # Constrained decoding enumerates the exact citation ids so the model cannot
+    # invent a source or dump every id it sees.
+    schema = ai_gateway._grounded_output_schema(
+        False, source_ids=("engine:x", "pack:y"), number_ids=("prob_home", "prob_away")
+    )
+    claim = schema["properties"]["claims"]["items"]
+    assert claim["properties"]["source_ids"]["items"]["enum"] == ["engine:x", "pack:y"]
+    assert claim["properties"]["number_refs"]["items"]["enum"] == ["prob_home", "prob_away"]
+    # With no ids supplied there is no enum (plain strings) — e.g. a bundle-less path.
+    plain = ai_gateway._grounded_output_schema(False)
+    assert "enum" not in plain["properties"]["claims"]["items"]["properties"]["source_ids"]["items"]
+
+
+@pytest.mark.parametrize(
+    "raw, expected",
+    [("11.9B", 11.9), ("3.2B", 3.2), ("270M", 0.27), (None, None), ("weird", None)],
+)
+def test_parse_param_size(raw, expected) -> None:
+    assert ai_gateway._parse_param_size(raw) == expected
+
+
+def test_generate_narration_injects_bundle_ids_for_constrained_decoding(
+    bundle: dict, monkeypatch
+) -> None:
+    # The transport should receive a config carrying this bundle's citation
+    # allow-lists so decoding can enumerate them.
+    seen = {}
+
+    def capture(config):
+        seen["source_ids"] = config.allowed_source_ids
+        seen["number_ids"] = config.allowed_number_ids
+        return _canned(_valid_response(bundle))
+
+    monkeypatch.setattr(ai_gateway, "list_local_models", lambda config: ["llama3.2"])
+    monkeypatch.setattr(ai_gateway, "make_transport", capture)
+    generate_narration(bundle, resolve_provider({"provider": "ollama"}), cache=NarrationCache())
+    assert seen["source_ids"] == tuple(s["source_id"] for s in bundle["sources"])
+    assert "prob_home" in seen["number_ids"]
 
 
 def test_openai_transport_falls_back_to_json_object_when_schema_rejected(monkeypatch) -> None:

@@ -6,9 +6,12 @@
  * (auto-check toggle, manual check, skip management, last-update record);
  * source/dev builds get an honest note instead of broken affordances.
  */
+import { useEffect, useState } from "react";
 import { SCHEMA_VERSION } from "../lib/contract";
-import { sourceDescription } from "../lib/api";
-import { AI_PROVIDERS, useAiBackground, useAiProvider } from "../lib/ai";
+import { defaultModelAssignment, fetchLocalModels, sourceDescription } from "../lib/api";
+import type { LocalModelInfo } from "../lib/api";
+import { AI_PROVIDERS, useAiBackground, useAiModels, useAiProvider } from "../lib/ai";
+import type { AiProvider } from "../lib/ai";
 import { useKeepFixturesFresh } from "../lib/fixtures";
 import type { ReadingPrefs } from "../lib/hooks";
 import { ReadingControls } from "../components/ReadingComfort";
@@ -22,6 +25,78 @@ function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
   const injected = window.__GOLAVO_RUNTIME__?.appVersion;
   return injected ?? `source build (contract v${SCHEMA_VERSION})`;
+}
+
+/** Assign which installed local model runs the Fast and Deep reads. Auto-detects
+ *  a sensible default (Fast = smallest, Deep = largest) the first time. Only
+ *  meaningful for local providers; hidden otherwise. */
+function LocalModelPicker({ provider }: { provider: AiProvider }) {
+  const { fastModel, deepModel, setFastModel, setDeepModel } = useAiModels();
+  const [models, setModels] = useState<LocalModelInfo[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const isLocal = provider === "ollama" || provider === "llama_server";
+
+  useEffect(() => {
+    if (!isLocal) return;
+    let live = true;
+    setLoaded(false);
+    fetchLocalModels(provider).then((m) => {
+      if (!live) return;
+      setModels(m);
+      setLoaded(true);
+      // Auto-assign defaults when unset or when the stored choice is no longer
+      // installed, so the picker is never empty on a machine that has models.
+      const names = new Set(m.map((x) => x.name));
+      if (m.length > 0) {
+        const def = defaultModelAssignment(m);
+        if (!fastModel || !names.has(fastModel)) setFastModel(def.fast);
+        if (!deepModel || !names.has(deepModel)) setDeepModel(def.deep);
+      }
+    });
+    return () => { live = false; };
+    // Re-run only when the provider changes; assignment setters are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider, isLocal]);
+
+  if (!isLocal) return null;
+
+  const label = (m: LocalModelInfo) => `${m.name}${m.parameter_size ? ` · ${m.parameter_size}` : ""}`;
+  return (
+    <div className="settings__field ai-model-picker">
+      <div className="settings__row">
+        <label htmlFor="ai-fast-model">Fast model</label>
+        <select
+          id="ai-fast-model"
+          className="select"
+          value={fastModel}
+          disabled={models.length === 0}
+          onChange={(e) => setFastModel(e.target.value)}
+        >
+          {models.length === 0 && <option value="">{loaded ? "no models found" : "loading…"}</option>}
+          {models.map((m) => <option key={m.name} value={m.name}>{label(m)}</option>)}
+        </select>
+      </div>
+      <div className="settings__row">
+        <label htmlFor="ai-deep-model">Deep model</label>
+        <select
+          id="ai-deep-model"
+          className="select"
+          value={deepModel}
+          disabled={models.length === 0}
+          onChange={(e) => setDeepModel(e.target.value)}
+        >
+          {models.length === 0 && <option value="">{loaded ? "no models found" : "loading…"}</option>}
+          {models.map((m) => <option key={m.name} value={m.name}>{label(m)}</option>)}
+        </select>
+      </div>
+      <p className="settings__hint">
+        The <b>Fast</b> model runs the quick read (seconds); the <b>Deep</b> model runs the fuller
+        analysis (a bigger model, a few minutes). Pick them from the models you have installed —
+        auto-set to smallest and largest.{" "}
+        {loaded && models.length === 0 && "Start Ollama and pull a model to choose here."}
+      </p>
+    </div>
+  );
 }
 
 export function Settings({
@@ -130,6 +205,9 @@ export function Settings({
               that provider with your own key. The AI runs through Golavo’s local engine, so in this
               sample build it will show as unavailable until a desktop engine is connected.
             </p>
+
+            <LocalModelPicker provider={aiProvider} />
+
             <div className="settings__row">
               <label htmlFor="ai-background">AI background (general knowledge)</label>
               <input
