@@ -333,6 +333,11 @@ a:hover { text-decoration-color: currentColor; }
 .nb-group--quarantine { border-style: dashed; border-color: color-mix(in srgb, var(--orange) 45%, transparent); background: color-mix(in srgb, var(--orange) 7%, transparent); }
 .nb-group__head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); }
 .nb-warn { color: var(--orange); display: inline-flex; align-items: center; gap: .3rem; }
+.nb-subgroup__head {
+  display: flex; align-items: center; gap: .4rem;
+  padding: var(--space-3) var(--space-4) 0;
+  font-weight: 600; text-transform: uppercase; letter-spacing: .05em; font-size: var(--text-xs);
+}
 .nb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .nb-fact { padding: var(--space-3) var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
 .nb-fact + .nb-fact { border-top: 1px solid var(--border); }

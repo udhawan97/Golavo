@@ -578,6 +578,42 @@ export const FACT_SCOPE_TEXT: Record<FactScope, string> = {
   competition: "Competition",
 };
 
+/** UI-only sub-grouping of the "context" label into readable categories, by
+ *  template id. Display metadata — NOT part of the wire contract; an unknown id
+ *  falls to "other" so future templates render without a code change. */
+export type FactCategory = "form" | "head_to_head" | "records" | "signature" | "other";
+
+export const FACT_CATEGORY: Record<string, FactCategory> = {
+  unbeaten_run: "form",
+  winless_run: "form",
+  win_streak: "form",
+  clean_sheet_run: "form",
+  home_away_form: "form",
+  in_form_scorer: "form",
+  head_to_head_record: "head_to_head",
+  head_to_head_goals: "head_to_head",
+  biggest_win: "records",
+  neutral_venue_record: "records",
+  top_scorer: "records",
+  shootout_record: "records",
+  both_teams_scored_rate: "signature",
+  clean_sheet_rate: "signature",
+  scoring_trend: "signature",
+};
+
+export const FACT_CATEGORY_TEXT: Record<FactCategory, string> = {
+  form: "Form",
+  head_to_head: "Head-to-head",
+  records: "Records",
+  signature: "Signature stats",
+  other: "Other",
+};
+
+/** Stable display order for the context sub-groups. */
+export const FACT_CATEGORY_ORDER: FactCategory[] = [
+  "form", "head_to_head", "records", "signature", "other",
+];
+
 // ---- Display metadata (UI-side only — not part of the wire contract) --------
 
 export const FAMILY_LABELS: Record<ModelFamily, string> = {

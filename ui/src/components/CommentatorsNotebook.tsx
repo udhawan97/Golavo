@@ -7,23 +7,41 @@
  * not significance, and are never folded into the AI evidence bundle. The whole
  * panel is subordinate to the sealed numbers — it never changes a forecast.
  */
+import type { ReactNode } from "react";
 import type {
   CommentatorsNotebook as NotebookData,
+  FactCategory,
   FactLabel,
   ForecastArtifact,
   NotebookFact,
   NotebookResponse,
   Snapshot,
 } from "../lib/contract";
-import { FACT_LABEL_TEXT, FACT_SCOPE_TEXT } from "../lib/contract";
+import {
+  FACT_CATEGORY,
+  FACT_CATEGORY_ORDER,
+  FACT_CATEGORY_TEXT,
+  FACT_LABEL_TEXT,
+  FACT_SCOPE_TEXT,
+} from "../lib/contract";
 import { fetchNotebook } from "../lib/api";
 import { yearSpan } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync } from "../lib/hooks";
 import { topInsights } from "../lib/insights";
-import { AlertIcon } from "./icons";
+import { AlertIcon, FingerprintIcon, PulseIcon, TrophyIcon, VersusIcon } from "./icons";
 import { InfoPopover, RateBar } from "./primitives";
 import { BlockSkeleton, EmptyState, ErrorState } from "./states";
+
+const CATEGORY_ICON: Record<FactCategory, ReactNode> = {
+  form: <PulseIcon size={15} />,
+  head_to_head: <VersusIcon size={15} />,
+  records: <TrophyIcon size={15} />,
+  signature: <FingerprintIcon size={15} />,
+  other: null,
+};
+
+const factCategory = (f: NotebookFact): FactCategory => FACT_CATEGORY[f.id] ?? "other";
 
 /** A fact's identity within one notebook: template id + which team/pair it is
  *  about. Used to drop the facts already shown in "Three things to know" so the
@@ -176,11 +194,35 @@ function FactGroup({
           <span className="small muted">{GROUP_NOTE[label]}</span>
         )}
       </div>
-      <ul className="nb-list">
-        {facts.map((fact, i) => (
-          <FactRow key={`${fact.id}-${i}`} fact={fact} snapshots={snapshots} />
-        ))}
-      </ul>
+      {label === "context" ? (
+        // The context label spans many kinds of fact; sub-group it so a reader can
+        // scan Form / Head-to-head / Records / Signature at a glance.
+        <div className="stack" style={{ ["--gap" as string]: ".7rem" }}>
+          {FACT_CATEGORY_ORDER.map((cat) => {
+            const inCat = facts.filter((f) => factCategory(f) === cat);
+            if (inCat.length === 0) return null;
+            return (
+              <div key={cat} className="nb-subgroup">
+                <div className="nb-subgroup__head small muted">
+                  {CATEGORY_ICON[cat]}
+                  <span>{FACT_CATEGORY_TEXT[cat]}</span>
+                </div>
+                <ul className="nb-list">
+                  {inCat.map((fact, i) => (
+                    <FactRow key={`${fact.id}-${i}`} fact={fact} snapshots={snapshots} />
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <ul className="nb-list">
+          {facts.map((fact, i) => (
+            <FactRow key={`${fact.id}-${i}`} fact={fact} snapshots={snapshots} />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

@@ -32,10 +32,28 @@ export const CheckIcon = ({ size = 15, ...p }: IconProps) => (
 );
 
 /** A calm activity/pulse glyph — a dot with a heartbeat trace. Used for the
- *  header activity center trigger. */
+ *  header activity center trigger, and the "form" fact category. */
 export const PulseIcon = ({ size = 18, ...p }: IconProps) => (
   <svg {...base(size, p)}>
     <path d="M3 12h4l2-5 3 10 2-7 2 2h5" />
+  </svg>
+);
+
+/** Head-to-head glyph — two opposing arrows. */
+export const VersusIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M14 4l4 4-4 4" /><path d="M18 8H8" />
+    <path d="M10 20l-4-4 4-4" /><path d="M6 16h10" />
+  </svg>
+);
+
+/** Signature-stats glyph — a fingerprint-like set of arcs. */
+export const FingerprintIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M12 11a2 2 0 0 1 2 2c0 2-.5 4-1.5 6" />
+    <path d="M8.5 6.5A6 6 0 0 1 18 12c0 1.5-.2 3-.6 4.5" />
+    <path d="M6 12a6 6 0 0 1 3-5.2" />
+    <path d="M9.5 13c0-1.4 1.1-2.5 2.5-2.5" />
   </svg>
 );
 
