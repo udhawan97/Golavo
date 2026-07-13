@@ -19,6 +19,7 @@ from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 
 from golavo_core import __version__
 from golavo_core.ingest import (
+    co_source_descriptors,
     load_matches,
     snapshot_anchor_utc,
     snapshot_descriptor,
@@ -324,7 +325,12 @@ def build_forecast_artifact(
         raise ValueError(f"unknown model family: {family}")
     as_of = _utc(as_of_utc)
     snapshot = snapshot_descriptor(pack_dir)
-    anchor = _utc(snapshot_anchor_utc(snapshot))
+    # A pack may draw fixtures/kickoffs from a second CC0 source; record every source
+    # this seal rests on, and require the as-of to be after ALL their data states so no
+    # snapshot's availability is overstated.
+    co_sources = co_source_descriptors(pack_dir)
+    snapshots = [snapshot, *co_sources]
+    anchor = max(_utc(snapshot_anchor_utc(descriptor)) for descriptor in snapshots)
     if anchor > as_of:
         raise ValueError(
             "cannot seal as-of a time before the snapshot's data state existed "
@@ -413,7 +419,7 @@ def build_forecast_artifact(
             "code_git_sha": _code_sha(),
             "seed": seed,
         },
-        "inputs": {"training_cutoff_utc": _iso(cutoff), "snapshots": [snapshot]},
+        "inputs": {"training_cutoff_utc": _iso(cutoff), "snapshots": snapshots},
         "provenance": {
             "created_at_utc": created,
             "generator": GENERATOR,

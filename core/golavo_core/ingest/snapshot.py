@@ -53,6 +53,40 @@ def snapshot_descriptor(pack_dir: Path) -> dict[str, str]:
     return descriptor
 
 
+def co_source_descriptors(pack_dir: Path) -> list[dict[str, str]]:
+    """Snapshot descriptors for a pack's declared co-sources (e.g. a fixture/kickoff feed).
+
+    A pack whose match table draws fixtures or kickoff times from a second CC0 source
+    records it under manifest ``co_sources``; each entry names the exact file in the
+    pack (``sha256_file``) whose bytes are the verifiable provenance digest. These
+    descriptors are appended to a seal's ``inputs.snapshots`` so the artifact honestly
+    names every source it drew on — the training source AND the fixture source.
+    """
+    manifest = json.loads((pack_dir / "manifest.json").read_text(encoding="utf-8"))
+    descriptors: list[dict[str, str]] = []
+    for entry in manifest.get("co_sources", []):
+        ref = str(entry["upstream_ref"])
+        digest_file = entry.get("sha256_file")
+        sha = (
+            hashlib.sha256((pack_dir / str(digest_file)).read_bytes()).hexdigest()
+            if digest_file
+            else str(entry["sha256"])
+        )
+        descriptor = {
+            "snapshot_id": f"sp_{ref[:12]}",
+            "source_id": str(entry["source_id"]),
+            "url": str(entry["url"]),
+            "upstream_ref": ref,
+            "retrieved_at_utc": str(entry["retrieved_at_utc"]),
+            "sha256": sha,
+            "license": str(entry["license"]),
+        }
+        if entry.get("upstream_committed_at_utc"):
+            descriptor["upstream_committed_at_utc"] = str(entry["upstream_committed_at_utc"])
+        descriptors.append(descriptor)
+    return descriptors
+
+
 def snapshot_anchor_utc(descriptor: dict[str, Any]) -> str:
     """Return the time this snapshot's data state verifiably existed.
 

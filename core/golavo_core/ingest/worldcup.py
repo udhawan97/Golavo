@@ -134,6 +134,63 @@ def kickoff_overlay(parsed: pd.DataFrame) -> pd.DataFrame:
     ).reset_index(drop=True)
 
 
+def _match_key(frame: pd.DataFrame) -> pd.Series:
+    return (
+        pd.to_datetime(frame["date"]).dt.strftime("%Y-%m-%d")
+        + "|" + frame["home_team"].map(_normalize)
+        + "|" + frame["away_team"].map(_normalize)
+    )
+
+
+def missing_fixtures(
+    parsed: pd.DataFrame, reference: pd.DataFrame, city_country: dict[str, str]
+) -> pd.DataFrame:
+    """Scheduled World Cup fixtures present in worldcup.json but absent from the reference.
+
+    Returns rows shaped like martj42's results.csv (scores blank) so they can be appended
+    to an internationals pack: the fixture and its venue come from worldcup.json (CC0),
+    while training still draws only on the pack's real results. Only fixtures whose city
+    resolves to a country (via ``city_country``, built from worldcup's stadiums file) are
+    emitted — a missing mapping fails closed rather than writing a null-country row. World
+    Cup knockout venues are neutral for both sides.
+    """
+    columns = [
+        "date", "home_team", "away_team", "home_score", "away_score",
+        "tournament", "city", "country", "neutral",
+    ]
+    if parsed.empty:
+        return pd.DataFrame(columns=columns)
+    scheduled = parsed[~parsed["is_complete"]]
+    if scheduled.empty:
+        return pd.DataFrame(columns=columns)
+    have = set(_match_key(reference)) if not reference.empty else set()
+    rows: list[dict] = []
+    for key, row in zip(_match_key(scheduled), scheduled.itertuples(index=False), strict=True):
+        if key in have:
+            continue
+        city = None if row.city is None else str(row.city)
+        country = city_country.get(city or "")
+        if not country:
+            raise ValueError(
+                f"no country mapping for World Cup venue {city!r} "
+                f"({row.home_team} v {row.away_team}); refusing to write a null-country row"
+            )
+        rows.append(
+            {
+                "date": pd.Timestamp(row.date).strftime("%Y-%m-%d"),
+                "home_team": row.home_team,
+                "away_team": row.away_team,
+                "home_score": pd.NA,
+                "away_score": pd.NA,
+                "tournament": TOURNAMENT,
+                "city": city,
+                "country": country,
+                "neutral": True,
+            }
+        )
+    return pd.DataFrame(rows, columns=columns)
+
+
 def crosscheck_completed(parsed: pd.DataFrame, reference: pd.DataFrame) -> list[dict]:
     """Return every completed World Cup result that DISAGREES with the reference frame.
 

@@ -81,6 +81,34 @@ def _parse_iso(value: str) -> datetime:
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
+def _active_bundled_pack(source_id: str) -> Path | None:
+    """The greatest-anchor bundled pack for a source, from the bundled snapshots.json.
+
+    Mirrors ingest.default_index_packs so search and sealing resolve the SAME pack: a
+    newly bundled refresh (a higher snapshot anchor) becomes active for both at once.
+    Returns None when no snapshots registry is bundled (older frozen builds), so the
+    caller falls back to the pinned canonical pack and behavior is unchanged.
+    """
+    import json
+
+    from golavo_core.ingest import snapshot_anchor_utc
+
+    registry = Path(PACKS_DIR) / "snapshots.json"
+    if not registry.is_file():
+        return None
+    best: tuple[tuple[str, str], Path] | None = None
+    for entry in json.loads(registry.read_text(encoding="utf-8")).get("snapshots", []):
+        if str(entry.get("source_id")) != source_id:
+            continue
+        pack = Path(PACKS_DIR) / Path(str(entry["pack"])).name
+        if not (pack / "manifest.json").is_file():
+            continue
+        rank = (snapshot_anchor_utc(entry), str(entry["pack"]))
+        if best is None or rank > best[0]:
+            best = (rank, pack)
+    return best[1] if best is not None else None
+
+
 def resolve_pack_dir(source_id: str | None, source_kind: str | None) -> Path | None:
     """The pinned CC0 pack a fixture's forward seal must train from, or None.
 
@@ -88,10 +116,11 @@ def resolve_pack_dir(source_id: str | None, source_kind: str | None) -> Path | N
     A club row (all five openfootball leagues share one source_id) cannot be tied
     to a single pack and is intentionally unsupported here.
 
-    Prefers a runtime-refreshed pinned pack (from an in-app "pull it in" refresh)
-    over the bundled one, so a freshly published fixture seals from the snapshot
-    that actually carries it — the same fresh pack the search index was rebuilt
-    from, keeping search and sealing on one source of truth.
+    Resolution order, all keeping search and sealing on one source of truth:
+    a runtime-refreshed pack (an in-app "pull it in" refresh) first; then the
+    greatest-anchor bundled pack (the same one the search index is built from, so a
+    bundled refresh that adds fixtures becomes sealable too); then the pinned
+    canonical pack as a fallback.
     """
     if source_kind != "international":
         return None
@@ -103,6 +132,9 @@ def resolve_pack_dir(source_id: str | None, source_kind: str | None) -> Path | N
     refreshed = runtime.refreshed_pack_dir()
     if refreshed is not None and (refreshed / "manifest.json").is_file():
         return refreshed
+    active = _active_bundled_pack(source_id or "")
+    if active is not None:
+        return active
     pack = Path(PACKS_DIR) / name
     return pack if (pack / "manifest.json").is_file() else None
 

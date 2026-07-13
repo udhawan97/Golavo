@@ -13,6 +13,7 @@ from .openfootball import canonical_team, load_openfootball_table
 from .overlay import apply_exact_kickoffs
 from .snapshot import (
     assert_no_future_rows,
+    co_source_descriptors,
     load_match_table,
     snapshot_anchor_utc,
     snapshot_descriptor,
@@ -44,6 +45,7 @@ __all__ = [
     "apply_exact_kickoffs",
     "assert_no_future_rows",
     "build_match_index",
+    "co_source_descriptors",
     "canonical_team",
     "default_index_packs",
     "load_match_table",
