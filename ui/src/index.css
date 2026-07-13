@@ -1178,6 +1178,21 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 :root[data-theme="light"] .splash__pct { color: #785808; }
 
+/* reassurance note — calm, never alarming; shown only past the patience window */
+.splash__reassure {
+  margin: .1rem 0 0; width: 100%; text-align: center;
+  font-size: .82rem; line-height: 1.5; color: var(--text-dim);
+}
+.splash__elapsed {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+/* the failure-tier message reads as a full paragraph, not the flex status row */
+.splash__status--stalled {
+  display: block; text-align: center; line-height: 1.55;
+  color: var(--text-muted); margin: .2rem 0 1rem;
+}
+
 /* rotating fact card -------------------------------------------------------- */
 .splash__fact {
   margin-top: .5rem; width: 100%;
@@ -1222,6 +1237,54 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   .splash__fact { animation: none; }
   .splash__stage-swap { animation: none; }
   .splash__skip { transition: none; }
+}
+
+/* ---------------------------------------------------- spotlight tour ------ */
+.tour { position: fixed; inset: 0; z-index: 1000; }
+/* Full-screen, transparent, click-catching: the background is inert while the
+   tour shows, so a click on the highlighted element can't strand the overlay. */
+.tour__backdrop { position: fixed; inset: 0; cursor: default; }
+/* The dim comes from a huge spread shadow around the cutout; a soft gold ring
+   marks the spotlighted element. Non-interactive so clicks fall through to the
+   backdrop. */
+.tour__hole {
+  position: fixed; border-radius: var(--radius-md, 10px);
+  box-shadow: 0 0 0 9999px rgba(6, 10, 14, 0.66), 0 0 0 2px var(--gold);
+  pointer-events: none;
+  transition: top .18s ease, left .18s ease, width .18s ease, height .18s ease;
+}
+:root[data-theme="light"] .tour__hole { box-shadow: 0 0 0 9999px rgba(20, 26, 32, 0.42), 0 0 0 2px var(--gold); }
+.tour__card {
+  position: fixed;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-md, 10px); box-shadow: var(--shadow-lg, 0 12px 40px rgba(0,0,0,.4));
+  padding: 1rem 1.1rem 0.9rem; text-align: left;
+  animation: tour-card-in .2s ease both;
+}
+.tour__card:focus { outline: none; }
+.tour__step {
+  margin: 0 0 .3rem; font-size: .68rem; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--gold);
+}
+:root[data-theme="light"] .tour__step { color: #785808; }
+.tour__title { margin: 0 0 .4rem; font-size: 1.02rem; line-height: 1.3; }
+.tour__body { margin: 0 0 .8rem; font-size: .9rem; line-height: 1.5; color: var(--text-muted); }
+.tour__dots { display: flex; gap: .3rem; margin-bottom: .8rem; }
+.tour__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+.tour__dot--on { background: var(--gold); }
+.tour__actions { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.tour__nav { display: flex; gap: .5rem; }
+.tour__skip {
+  background: none; border: 0; padding: .35rem .1rem; font: inherit; font-size: .82rem;
+  color: var(--text-dim); cursor: pointer; border-radius: var(--radius-sm);
+}
+.tour__skip:hover { color: var(--text-muted); }
+.tour__skip:focus-visible,
+.tour__card .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@keyframes tour-card-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .tour__hole { transition: none; }
+  .tour__card { animation: none; }
 }
 
 /* ---------------------------------------------------- sample banner ------- */

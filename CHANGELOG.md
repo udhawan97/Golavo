@@ -39,6 +39,14 @@ deterministic notebook surfaces new "hidden" stats — all still engine-verified
   (opening/closing-stage scoring), penalty share of goals (scored penalties only),
   own-goal curios, all-time record in the fixture's competition (e.g. World-Cup-only
   form), and the penalty-shootout first-taker edge.
+- **First-launch spotlight tour.** A short, dependency-free coach-mark tour points
+  out the real UI on a fresh install: a home tour (open a match → Model Lab → local
+  AI in Settings) and, the first time a match is opened, a cockpit tour (the model
+  council → the notebook → the Fast/Deep AI read). It only fires when its target
+  actually exists (never over a still-warming, empty home), yields to the update
+  consent card, is seeded "done" for existing users so an update never replays it,
+  and is fully keyboard- and screen-reader-navigable. Replay it anytime from
+  Settings → Getting started. Desktop only.
 
 ### Changed
 - **AI Analyst Read, redesigned.** The wall of repeated citation chips is gone: claims
@@ -53,6 +61,17 @@ deterministic notebook surfaces new "hidden" stats — all still engine-verified
   schema `0.2.0 → 0.3.0` (additive `verdict` + `research_notes`); fact registry
   `2026.07.13 → 2026.07.14` (family size 35 → 44, still a fixed pre-registered
   constant). The prompt version bump rolls the narration cache.
+- **A slow first launch never looks like a failure.** The engine self-extracts on
+  first run, which can take past a minute; the splash now stays calm and patient
+  (wider on a first launch, tighter afterwards), shows a reassuring "still working,
+  nothing is wrong" note with elapsed time instead of an alarming stall screen, and
+  only offers a retry once the shell actually reports a failure.
+- **The engine restarts itself before ever showing an error.** If the local engine
+  stops before it is ready, the app silently restarts it once; only a second
+  failure surfaces a calm, focused "Try again" (which truly restarts the engine,
+  not just a timer). The shell keeps the window alive and hands the failure to the
+  UI rather than dying in a native dialog, and it no longer kills a slow-but-healthy
+  launch to "retry" it.
 
 ### Notes
 - Half-time/comeback club stats and the CC-BY-SA World Cup history pack are planned

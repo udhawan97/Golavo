@@ -194,12 +194,13 @@ function WindowBody({
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.5rem" }}>
       <WindowMeta data={data} />
-      {groups.map((g) => (
+      {groups.map((g, i) => (
         <CompetitionSection
           key={`${g.competition}|${g.sourceKind}`}
           competition={g.competition}
           sourceKind={g.sourceKind}
           matches={g.matches}
+          anchorFirst={i === 0}
         />
       ))}
     </div>
@@ -212,10 +213,12 @@ function CompetitionSection({
   competition,
   sourceKind,
   matches,
+  anchorFirst = false,
 }: {
   competition: string;
   sourceKind: MatchRow["source_kind"];
   matches: MatchRow[];
+  anchorFirst?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const slug = leagueSlugFor(competition, sourceKind);
@@ -228,8 +231,8 @@ function CompetitionSection({
         <span className="comp-section__count small muted">{matches.length}</span>
       </div>
       <div className="game-grid">
-        {shown.map((m) => (
-          <GameCard key={m.match_id} match={m} />
+        {shown.map((m, idx) => (
+          <GameCard key={m.match_id} match={m} anchor={anchorFirst && idx === 0} />
         ))}
       </div>
       {overflow > 0 &&
@@ -277,7 +280,7 @@ export function Rail({
   );
 }
 
-export function GameCard({ match }: { match: MatchRow }) {
+export function GameCard({ match, anchor = false }: { match: MatchRow; anchor?: boolean }) {
   const state = match.is_complete
     ? `played, final score ${match.home_score}–${match.away_score}`
     : "upcoming";
@@ -285,6 +288,7 @@ export function GameCard({ match }: { match: MatchRow }) {
     <a
       className="game-card"
       href={`#/match/${encodeURIComponent(match.match_id)}`}
+      data-tour={anchor ? "match-card" : undefined}
       aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}. Open analytics.`}
     >
       <div className="game-card__comp small muted">{match.competition}</div>
