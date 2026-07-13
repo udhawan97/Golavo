@@ -6,10 +6,11 @@ import { expect, test } from "@playwright/test";
  *  the 4.5:1 contrast floor. Uses the real deterministic mock pages. */
 
 const PAGES = [
-  { name: "games", path: "/#/" },
+  { name: "matchday", path: "/#/" },
   { name: "forecast", path: "/#/forecast/fa_5cb65a59b038d9586aea" },
   { name: "match-cockpit", path: "/#/match/m_synthetic_played_01" },
   { name: "methods", path: "/#/lab/methods" },
+  { name: "sealing-guide", path: "/#/guide/sealing" },
   // Table/form-dense routes: where a muted caption or header could slip contrast.
   { name: "search", path: "/#/matches" },
   { name: "leagues", path: "/#/leagues" },

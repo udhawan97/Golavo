@@ -1217,7 +1217,60 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   font-variant-numeric: tabular-nums; font-weight: 700;
   background: var(--surface-3); border: 1px solid var(--border); border-radius: 7px; padding: .05rem .45rem;
 }
-.game-card__foot { color: var(--text-muted); }
+.game-card__foot {
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+}
+.game-card__analyze {
+  display: inline-flex; align-items: center; gap: .15rem;
+  color: var(--gold); font-weight: 600;
+}
+.game-card:hover .game-card__analyze { text-decoration: underline; }
+:root[data-theme="light"] .game-card__analyze { color: #785808; }
+
+/* Matchday competition sections */
+.comp-section__head { display: flex; align-items: baseline; gap: .55rem; }
+.comp-section__count {
+  font-variant-numeric: tabular-nums;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: .02rem .5rem;
+}
+.comp-section__more {
+  align-self: flex-start; background: none; border: 0; padding: .2rem 0;
+  color: var(--gold); font: inherit; cursor: pointer; text-decoration: none;
+}
+.comp-section__more:hover { text-decoration: underline; }
+:root[data-theme="light"] .comp-section__more { color: #785808; }
+
+/* Sealing guide + compact seal prompt */
+.seal-compact { align-items: flex-start; }
+.seal-compact__actions { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.guide-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .85rem; }
+.guide-step {
+  display: flex; gap: .85rem; align-items: flex-start;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-1); padding: .9rem 1rem;
+}
+.guide-step__icon {
+  flex: none; display: grid; place-items: center;
+  width: 2rem; height: 2rem; border-radius: 999px;
+  background: var(--gold-soft); color: var(--gold); border: 1px solid var(--gold-line);
+}
+:root[data-theme="light"] .guide-step__icon { color: #785808; }
+.guide-step__title { font-size: .98rem; font-weight: 650; margin: 0; }
+.guide-example { display: flex; flex-direction: column; gap: .7rem; }
+.guide-example__head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.guide-example__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+/* Let both columns shrink below their content's intrinsic width (grid items
+   default to min-width:auto, which would otherwise force horizontal overflow on
+   narrow screens). */
+.guide-example__grid > * { min-width: 0; }
+.guide-example__forecast { padding: 1rem; display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.guide-example__teams { font-size: 1.05rem; }
+.guide-example__notes { margin: 0; padding-left: 1.1rem; color: var(--text-muted); display: flex; flex-direction: column; gap: .3rem; }
+@media (max-width: 640px) {
+  .guide-example__grid { grid-template-columns: 1fr; }
+}
 
 /* Model council */
 .council-voice { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); padding: .7rem .85rem; }

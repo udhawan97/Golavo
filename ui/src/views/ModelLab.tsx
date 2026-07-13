@@ -30,6 +30,11 @@ export function ModelLabHub() {
       title: "Sealed forecasts",
       note: "The immutable artifacts you’ve sealed, newest first.",
     },
+    {
+      href: "#/guide/sealing",
+      title: "Sealing guide",
+      note: "New to sealing? How a forecast gets on the record, in plain terms — with a worked example.",
+    },
   ];
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>

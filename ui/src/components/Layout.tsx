@@ -69,12 +69,13 @@ export function Layout({
   // that would composite on every page (costly in the Tauri WebView); the motion
   // is reserved for the startup splash.
   const lockup = prefs.theme === "light" ? "/brand/golavo-lockup-light-static.svg" : "/brand/golavo-lockup-dark-static.svg";
-  // "sample" = fresh install serving synthetic demos; "mock" = web bundle. Both
-  // are labelled honestly as sample data, never as live forecasts.
-  const isSample = forecastSource === "sample" || DATA_SOURCE === "mock";
+  // The desktop app never serves synthetic samples as data now (an empty ledger
+  // shows an empty list; the teaching example lives in the sealing guide). The
+  // ONLY sample surface left is the web preview bundle, labelled honestly.
+  const isSample = DATA_SOURCE === "mock";
   // Until the source is resolved (meta fetch pending in desktop mode), stay
-  // neutral rather than asserting "Live" — otherwise synthetic samples flash a
-  // "Live" badge for a frame before correcting, the exact thing to avoid.
+  // neutral rather than asserting "Live" — avoids a "Live" badge flashing before
+  // the source is known.
   const sourceKnown = forecastSource !== null || DATA_SOURCE === "mock";
   return (
     <>
@@ -97,7 +98,7 @@ export function Layout({
             <span className="visually-hidden">Golavo</span>
           </a>
           <nav className="nav" aria-label="Primary">
-            <a href="#/" aria-current={isActive(path, "games") ? "page" : undefined}>Games</a>
+            <a href="#/" aria-current={isActive(path, "games") ? "page" : undefined}>Matchday</a>
             <a href="#/leagues" aria-current={isActive(path, "leagues") ? "page" : undefined}>Leagues</a>
             <a href="#/lab" aria-current={isActive(path, "lab") ? "page" : undefined}>Model Lab</a>
           </nav>
@@ -131,19 +132,9 @@ export function Layout({
       {isSample && (
         <div className="sample-banner" role="note">
           <div className="container">
-            {DATA_SOURCE === "mock" ? (
-              <>
-                This is the <strong>web preview</strong>. Browsing and the facts work here, but the
-                model council needs the local Golavo app connected to the engine — sample forecasts
-                are synthetic and never counted toward any record.
-              </>
-            ) : (
-              <>
-                Your ledger is empty, so <strong>sample forecasts</strong> are shown under Model Lab
-                to illustrate sealing. Games, search, and the model council all use your real local
-                data — the samples are synthetic and never counted toward your record.
-              </>
-            )}
+            This is the <strong>web preview</strong>. Browsing and the facts work here, but the
+            deep analytics — the model council, team style, AI read — need the local Golavo app
+            connected to the engine. Nothing here counts toward any record.
             <span className="sample-banner__cta">
               <a href="#/matches">Search matches ›</a>
               <a href={DOCS_URL} target="_blank" rel="noreferrer">How it works ›</a>

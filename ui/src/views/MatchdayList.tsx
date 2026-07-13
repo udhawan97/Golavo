@@ -20,7 +20,7 @@ export function MatchdayList() {
         <h1>Sealed forecasts</h1>
         <p className="muted" style={{ maxWidth: "60ch" }}>
           Predictions you sealed before kickoff, scored after full time. Newest first. Open a match
-          from Games to seal a new one.
+          from Matchday to seal a new one.
         </p>
       </header>
 
@@ -28,7 +28,7 @@ export function MatchdayList() {
       {state.status === "error" && <ErrorState error={state.error} />}
       {state.status === "ready" && (
         state.data.length === 0
-          ? <EmptyState title="No forecasts sealed yet">When a forecast is sealed for an upcoming fixture, it will appear here.</EmptyState>
+          ? <EmptyState title="No forecasts sealed yet">Seal an upcoming international from its match page to start your record. <a href="#/guide/sealing">How sealing works ›</a></EmptyState>
           : <ForecastGrid artifacts={state.data} />
       )}
     </div>

@@ -507,6 +507,28 @@ export interface RecentMatchesResponse {
   recent: MatchRow[];
 }
 
+export type MatchWindow = "week" | "month" | "upcoming";
+
+export interface CompetitionCount {
+  competition: string;
+  source_kind: SourceKind;
+  n_matches: number;
+}
+
+/** The Matchday home feed: matches within a time window + per-competition counts.
+ *  week/month are anchored to the freshest result in the snapshot (see the server
+ *  `matches_window`); `latest_result_utc` lets the UI show an honest staleness note. */
+export interface MatchesWindowResponse {
+  schema_version: SchemaVersion;
+  window: MatchWindow;
+  window_start_utc: string | null;
+  window_end_utc: string | null;
+  latest_result_utc: string | null;
+  total: number;
+  matches: MatchRow[];
+  competitions: CompetitionCount[];
+}
+
 export const ANALYSIS_KIND_LABELS: Record<AnalysisKind, string> = {
   replay: "Replay",
   preview: "Preview",

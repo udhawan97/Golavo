@@ -5,7 +5,8 @@ import { expect, test } from "@playwright/test";
  *  their own overflow-x container, but the document must not. */
 
 const ROUTES = [
-  { name: "games", path: "/#/" },
+  { name: "matchday", path: "/#/" },
+  { name: "sealing-guide", path: "/#/guide/sealing" },
   { name: "search", path: "/#/matches" },
   { name: "leagues", path: "/#/leagues" },
   { name: "league", path: "/#/league/premier-league" },

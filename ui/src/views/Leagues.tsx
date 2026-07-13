@@ -6,35 +6,14 @@
  * yet — they require a fixtures feed and a simulator (later phases), and the app
  * must never imply a projection it can't compute.
  */
-import type { SourceKind } from "../lib/contract";
 import { fetchRecentMatches } from "../lib/api";
+import { LEAGUES } from "../lib/leagues";
 import { useAsync } from "../lib/hooks";
 import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
 import { ChevronRight } from "../components/icons";
-import { Rail } from "./GamesHome";
+import { Rail } from "./Matchday";
 
-interface League {
-  slug: string;
-  name: string;
-  competition?: string;
-  sourceKind?: SourceKind;
-  note: string;
-}
-
-export const LEAGUES: League[] = [
-  { slug: "internationals", name: "Internationals", sourceKind: "international",
-    note: "Men’s senior internationals — the one surface that refreshes on demand." },
-  { slug: "premier-league", name: "Premier League", competition: "English Premier League",
-    note: "England · bundled 2010–11 onward (historical)." },
-  { slug: "la-liga", name: "La Liga", competition: "La Liga",
-    note: "Spain · bundled 2012–13 onward (historical)." },
-  { slug: "bundesliga", name: "Bundesliga", competition: "Bundesliga",
-    note: "Germany · bundled 2010–11 onward (historical)." },
-  { slug: "serie-a", name: "Serie A", competition: "Serie A",
-    note: "Italy · bundled 2013–14 onward (historical)." },
-  { slug: "ligue-1", name: "Ligue 1", competition: "Ligue 1",
-    note: "France · bundled 2014–15 onward (historical)." },
-];
+export { LEAGUES } from "../lib/leagues";
 
 export function LeaguesHub() {
   return (

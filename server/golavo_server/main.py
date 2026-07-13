@@ -72,34 +72,22 @@ EVAL_SUMMARY_PATHS = runtime.eval_summary_paths()
 
 
 def _forecasts_dir() -> Path:
-    """Where the forecast surface reads from.
+    """Where the forecast surface reads from — always the real ledger.
 
-    Serves the live ledger once it holds a real seal; until then falls back to
-    the bundled synthetic samples so a fresh install shows how Golavo works
-    instead of an empty shell. Calibration always reads the real ledger
-    (ARTIFACT_DIR), so the samples never skew the forward record.
-
-    The ledger is chosen only when it holds at least one WELL-FORMED artifact:
-    a crash that left a single truncated ``fa_*.json`` must not switch us off the
-    samples and leave the user staring at a blank Matchday. (Full integrity is
-    still enforced per-artifact at serve time; this is just a cheap gate to pick
-    the source.)
+    Synthetic samples are NEVER served as data: an empty ledger honestly shows an
+    empty forecast list, and the one teaching example lives inside the in-app
+    sealing guide (bundled UI-side), not on the forecast routes. This makes the
+    honesty invariant "samples are never passed off as real forecasts" hold at the
+    source — a ``#/forecast/fa_<sample-id>`` deep link now 404s honestly rather
+    than rendering a synthetic artifact as a real page.
     """
-    if ARTIFACT_DIR.exists():
-        for path in ARTIFACT_DIR.glob("fa_*.json"):
-            try:
-                obj = json.loads(path.read_text(encoding="utf-8"))
-            except (ValueError, OSError):
-                continue
-            if isinstance(obj, dict) and "artifact_id" in obj:
-                return ARTIFACT_DIR
-    return SAMPLE_DIR
+    return ARTIFACT_DIR
 
 
 def showing_samples() -> bool:
-    """True when the forecast surface is serving bundled synthetic samples (a
-    fresh install with an empty ledger) rather than the user's real seals."""
-    return _forecasts_dir() == SAMPLE_DIR
+    """Retained for envelope compatibility; the forecast surface never serves
+    samples now, so this is always False."""
+    return False
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -294,6 +282,22 @@ def recent_matches(
             source_kind=source_kind,
             forecasts_dir=ARTIFACT_DIR,
         )
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+
+
+@app.get("/api/v1/matches/window")
+def matches_window(window: str, limit: int = 200) -> dict[str, Any]:
+    """The Matchday home: matches in a time window (week | month | upcoming).
+
+    Declared BEFORE ``/matches/{match_id}`` so "window" is never read as a match
+    id. Results-first: week/month are anchored to the freshest result in the
+    snapshot so a stale bundle degrades honestly instead of showing an empty page.
+    """
+    if window not in ("week", "month", "upcoming"):
+        raise HTTPException(status_code=422, detail="window must be week, month, or upcoming")
+    try:
+        return matches.matches_window(window, limit=limit, forecasts_dir=ARTIFACT_DIR)
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
 

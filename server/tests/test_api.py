@@ -34,28 +34,25 @@ def test_read_only_forecast_and_eval_routes(monkeypatch) -> None:
     assert combined["primary_metric"] == "log_loss"
 
 
-def test_fresh_install_serves_sample_forecasts_from_the_empty_ledger(monkeypatch, tmp_path) -> None:
-    # A fresh desktop install has an empty writable ledger. Rather than an empty
-    # shell, the forecast surface falls back to the bundled synthetic samples so
-    # the user sees how Golavo works. (Each sample carries its own synthetic
-    # provenance in-app.)
+def test_fresh_install_shows_an_empty_forecast_list(monkeypatch, tmp_path) -> None:
+    # Synthetic samples are never served as data: a fresh install with an empty
+    # ledger honestly shows an empty forecast list (the UI links to the sealing
+    # guide, where the one teaching example lives).
     empty_ledger = tmp_path / "ledger"
     empty_ledger.mkdir()
     monkeypatch.setattr(server_main, "ARTIFACT_DIR", empty_ledger)
     client = TestClient(server_main.app)
 
-    forecasts = client.get("/api/v1/forecasts").json()
-    assert len(forecasts) == 8  # the bundled sample fixtures
-    one = forecasts[0]["artifact_id"]
-    assert client.get(f"/api/v1/forecasts/{one}").json()["artifact_id"] == one
-
-    # But the FORWARD calibration must stay honest — samples never count.
+    assert client.get("/api/v1/forecasts").json() == []
+    # A sample-id deep link now 404s honestly rather than rendering a synthetic
+    # artifact as a real page.
+    assert client.get("/api/v1/forecasts/fa_5cb65a59b038d9586aea").status_code == 404
     calib = client.get("/api/v1/calibration").json()
     assert calib.get("count", 0) == 0
 
 
-def test_real_ledger_takes_precedence_over_the_samples(monkeypatch, tmp_path) -> None:
-    # Once the user has a real sealed forecast, the samples give way entirely.
+def test_real_ledger_serves_real_seals(monkeypatch, tmp_path) -> None:
+    # The forecast surface reads the real ledger and only the real ledger.
     ledger = tmp_path / "ledger"
     ledger.mkdir()
     samples = REPO_ROOT / "data/fixtures/sample_artifacts"
@@ -65,28 +62,31 @@ def test_real_ledger_takes_precedence_over_the_samples(monkeypatch, tmp_path) ->
     client = TestClient(server_main.app)
 
     forecasts = client.get("/api/v1/forecasts").json()
-    assert len(forecasts) == 1  # only the real ledger, not the 8 samples
+    assert len(forecasts) == 1
 
 
-def test_a_lone_corrupt_seal_does_not_blank_the_app(monkeypatch, tmp_path) -> None:
-    # A crash could leave a single truncated fa_*.json. That must NOT switch us
-    # off the samples into a blank Matchday — the source gate ignores unparseable
-    # files, so we keep serving the samples.
+def test_a_lone_corrupt_seal_does_not_crash_the_list(monkeypatch, tmp_path) -> None:
+    # A crash could leave a single truncated fa_*.json. The list must fail closed
+    # (skip it) and return an empty list, never a 500.
     ledger = tmp_path / "ledger"
     ledger.mkdir()
     (ledger / "fa_truncated.json").write_text("{ not valid json", encoding="utf-8")
     monkeypatch.setattr(server_main, "ARTIFACT_DIR", ledger)
     client = TestClient(server_main.app)
 
-    assert len(client.get("/api/v1/forecasts").json()) == 8  # still the samples
+    resp = client.get("/api/v1/forecasts")
+    assert resp.status_code == 200
+    assert resp.json() == []
 
 
-def test_meta_signals_sample_vs_ledger_mode(monkeypatch, tmp_path) -> None:
+def test_meta_always_reports_ledger_source(monkeypatch, tmp_path) -> None:
+    # Samples are never served, so meta always reports the honest "ledger" source
+    # (the key is kept for envelope compatibility).
     empty = tmp_path / "empty"
     empty.mkdir()
     monkeypatch.setattr(server_main, "ARTIFACT_DIR", empty)
     client = TestClient(server_main.app)
-    assert client.get("/api/v1/meta").json()["forecast_source"] == "sample"
+    assert client.get("/api/v1/meta").json()["forecast_source"] == "ledger"
 
     samples = REPO_ROOT / "data/fixtures/sample_artifacts"
     real = next(samples.glob("fa_*.json"))

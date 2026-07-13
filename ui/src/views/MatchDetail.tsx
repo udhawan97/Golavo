@@ -22,7 +22,7 @@ import { fetchMatch, fetchMatchNotebook, sealMatch, SealApiError } from "../lib/
 import { utc } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync } from "../lib/hooks";
-import { ChevronRight, InfoIcon, ShieldCheckIcon } from "../components/icons";
+import { ChevronRight, InfoIcon, SealIcon, ShieldCheckIcon } from "../components/icons";
 import { HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
 import { AiDeepRead } from "../components/AiDeepRead";
 import { MatchHeader } from "../components/MatchHeader";
@@ -242,24 +242,17 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
     }
   };
 
+  // Sealing is a small side feature now — a compact prompt, not the showcase.
+  // The analytics above are the point; this is the optional "put it on the record".
   return (
-    <section className="panel" aria-labelledby="md-seal">
-      <div className="panel__head">
-        <h2 id="md-seal">Seal this forecast</h2>
-        <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
-          deterministic · offline
-        </span>
-      </div>
-      <div className="panel__body stack" style={{ ["--gap" as string]: ".85rem" }}>
-        <p className="small muted" style={{ margin: 0 }}>
-          The council above is a live preview. Seal it to put it on the record — a snapshot from the{" "}
-          {FAMILY_LABELS[eligibility.family as ModelFamily] ?? eligibility.family} model, frozen before kickoff.
-        </p>
-        <p className="small muted" style={{ margin: 0 }}>
-          Only a sealed forecast counts toward your track record. It trains only on pre-kickoff data
-          and writes once.
-        </p>
-        <div>
+    <div className="callout callout--info seal-compact" aria-labelledby="md-seal">
+      <SealIcon size={18} />
+      <div className="stack" style={{ ["--gap" as string]: ".6rem" }}>
+        <div id="md-seal">
+          <b>Put this on the record?</b> Sealing freezes the council above before kickoff — the only
+          thing that counts toward your track record. <a href="#/guide/sealing">What is sealing? ›</a>
+        </div>
+        <div className="seal-compact__actions">
           <button
             type="button"
             className="btn btn--primary"
@@ -269,6 +262,9 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
           >
             {state.status === "sealing" ? "Sealing…" : "Seal before kickoff"}
           </button>
+          <span className="small muted">
+            {FAMILY_LABELS[eligibility.family as ModelFamily] ?? eligibility.family} · deterministic · offline
+          </span>
         </div>
         {state.status === "error" && state.error && (
           <div className="callout callout--void" role="alert">
@@ -293,7 +289,7 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -314,7 +310,7 @@ function SealIneligible({ eligibility }: { eligibility: SealEligibility }) {
       <InfoIcon size={18} />
       <div>
         <div className="callout__title">No forecast for this fixture</div>
-        {message}
+        {message} <a href="#/guide/sealing">What is sealing? ›</a>
       </div>
     </div>
   );
@@ -330,7 +326,8 @@ function SealUnknown({ match }: { match: MatchRow }) {
         This build doesn’t report in-app sealing for this fixture.
         {match.source_kind === "club" && (
           <> Forward sealing currently covers internationals; club leagues are backtesting data.</>
-        )}
+        )}{" "}
+        <a href="#/guide/sealing">What is sealing? ›</a>
       </div>
     </div>
   );
@@ -436,7 +433,7 @@ function FactLegend() {
 function Breadcrumb({ label }: { label?: string }) {
   return (
     <nav className="breadcrumb" aria-label="Breadcrumb">
-      <a href="#/">Games</a>
+      <a href="#/">Matchday</a>
       {label && (
         <>
           <ChevronRight size={14} />

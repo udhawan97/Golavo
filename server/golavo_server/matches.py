@@ -512,6 +512,107 @@ def recent_matches(
     }
 
 
+WINDOW_DAYS = {"week": 7, "month": 30}
+
+
+def matches_window(
+    window: str,
+    limit: int = 200,
+    *,
+    forecasts_dir: Path,
+) -> dict[str, Any]:
+    """The Matchday home: matches within a time window, results-first.
+
+    ``window``:
+      * ``week`` / ``month`` — completed results in the 7 / 30 days ENDING at the
+        freshest completed kickoff in the index (the "anchor"), not the calendar.
+        When the snapshot is fresh the anchor is ~yesterday and this behaves like a
+        calendar window; when the bundled snapshot is stale it degrades to "the most
+        recent week/month of results in this data" and is never misleadingly empty.
+        The UI labels the real range and flags staleness honestly.
+      * ``upcoming`` — scheduled rows (no result) with a kickoff at or after the
+        start of today, soonest first. Calendar-relative and honestly empty when the
+        snapshot holds no forward fixtures.
+
+    Grouping/curation is left to the UI (a product concern). ``competitions`` counts
+    and ``total`` are computed over the FULL window, before the ``limit`` page cut,
+    so the section headers are honest even when the page is truncated.
+    """
+    import pandas as pd
+
+    frame = _load_index()
+    limit = max(1, min(int(limit), 500))
+
+    played = frame["is_complete"].astype("boolean").fillna(False).astype(bool)
+    ko = pd.to_datetime(frame["kickoff_utc"], utc=True)
+    today = pd.Timestamp.now(tz="UTC").normalize()
+
+    played_ko = ko.loc[played]
+    latest_result = played_ko.max() if not played_ko.empty else None
+    latest_result_utc = _iso_utc(latest_result) if latest_result is not None else None
+
+    if window == "upcoming":
+        sel = frame.loc[(~played) & (ko >= today)].assign(_ko=ko.loc[(~played) & (ko >= today)])
+        sel = sel.sort_values(by=["_ko", "match_id"], ascending=[True, True], kind="mergesort")
+        window_start_utc = _iso_utc(today)
+        window_end_utc = None
+    elif window in WINDOW_DAYS:
+        days = WINDOW_DAYS[window]
+        if latest_result is None:
+            sel = frame.iloc[0:0].assign(_ko=ko.iloc[0:0])
+            window_start_utc = window_end_utc = None
+        else:
+            anchor_day = latest_result.normalize()
+            start_day = anchor_day - pd.Timedelta(days=days - 1)
+            ko_day = ko.dt.normalize()
+            mask = played & (ko_day >= start_day) & (ko_day <= anchor_day)
+            sel = frame.loc[mask].assign(_ko=ko.loc[mask])
+            sel = sel.sort_values(by=["_ko", "match_id"], ascending=[False, True], kind="mergesort")
+            window_start_utc = _iso_utc(start_day)
+            window_end_utc = _iso_utc(anchor_day)
+    else:  # defensive: the route validates, but never trust the caller blindly
+        raise ValueError(f"unknown window: {window!r}")
+
+    total = int(len(sel))
+    competitions = _competition_counts(sel)
+
+    page = sel.head(limit)
+    by_match_id, by_fixture = artifact_links(Path(forecasts_dir))
+    rows = [_row_to_dict(row, by_match_id, by_fixture) for _, row in page.iterrows()]
+
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "window": window,
+        "window_start_utc": window_start_utc,
+        "window_end_utc": window_end_utc,
+        "latest_result_utc": latest_result_utc,
+        "total": total,
+        "matches": rows,
+        "competitions": competitions,
+    }
+
+
+def _competition_counts(sel: Any) -> list[dict[str, Any]]:
+    """(competition, source_kind, n_matches) over a selection, deterministically
+    ordered (source_kind then competition). Empty selection -> empty list."""
+    if len(sel) == 0:
+        return []
+    grouped = (
+        sel.groupby(["competition", "source_kind"], dropna=False)
+        .size()
+        .reset_index(name="n_matches")
+        .sort_values(by=["source_kind", "competition"], kind="mergesort")
+    )
+    return [
+        {
+            "competition": _str_or_none(rec["competition"]),
+            "source_kind": _str_or_none(rec["source_kind"]),
+            "n_matches": int(rec["n_matches"]),
+        }
+        for _, rec in grouped.iterrows()
+    ]
+
+
 def list_competitions() -> dict[str, Any]:
     """Distinct (competition, source_kind) with match counts, deterministically ordered."""
     frame = _load_index()

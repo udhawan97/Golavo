@@ -3,10 +3,10 @@ import { Layout } from "./components/Layout";
 import { useHashRoute, useReadingPrefs } from "./lib/hooks";
 import type { ReadingPrefs } from "./lib/hooks";
 import { BlockSkeleton, EmptyState, Loading } from "./components/states";
-// The Games home is the default landing, so it stays in the main bundle. Every
+// The Matchday home is the default landing, so it stays in the main bundle. Every
 // other view is split out and loaded on first navigation — the initial download
 // carries only what a fresh "open on football" launch needs.
-import { GamesHome } from "./views/GamesHome";
+import { MatchdayHome } from "./views/Matchday";
 const LeaguesHub = lazy(() => import("./views/Leagues").then((m) => ({ default: m.LeaguesHub })));
 const LeagueView = lazy(() => import("./views/Leagues").then((m) => ({ default: m.LeagueView })));
 const ModelLabHub = lazy(() => import("./views/ModelLab").then((m) => ({ default: m.ModelLabHub })));
@@ -18,6 +18,7 @@ const ForecastDetail = lazy(() => import("./views/ForecastDetail").then((m) => (
 const EvaluationSummary = lazy(() => import("./views/EvaluationSummary").then((m) => ({ default: m.EvaluationSummary })));
 const PredictionLedger = lazy(() => import("./views/PredictionLedger").then((m) => ({ default: m.PredictionLedger })));
 const Settings = lazy(() => import("./views/Settings").then((m) => ({ default: m.Settings })));
+const SealingGuide = lazy(() => import("./views/SealingGuide").then((m) => ({ default: m.SealingGuide })));
 import { UpdaterContext } from "./lib/updater-context";
 import { useUpdaterController } from "./lib/updater";
 import { UpdateConsentCard, UpdateSheet, UpdatedToast } from "./components/updates";
@@ -136,7 +137,7 @@ function Route({
   prefs: ReadingPrefs;
   onChangePrefs: (patch: Partial<ReadingPrefs>) => void;
 }) {
-  if (path === "/" || path === "" || path === "/games") return <GamesHome />;
+  if (path === "/" || path === "" || path === "/games") return <MatchdayHome />;
 
   if (path === "/matches") return <MatchSearch />;
 
@@ -163,9 +164,11 @@ function Route({
 
   if (path === "/settings") return <Settings prefs={prefs} onChangePrefs={onChangePrefs} />;
 
+  if (path === "/guide/sealing") return <SealingGuide />;
+
   return (
     <EmptyState title="Page not found" variant="notfound">
-      That route doesn’t exist. <a href="#/">Back to games ›</a>{" "}
+      That route doesn’t exist. <a href="#/">Back to Matchday ›</a>{" "}
       <a href="#/matches">Search matches ›</a>
     </EmptyState>
   );

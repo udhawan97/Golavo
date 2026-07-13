@@ -18,11 +18,14 @@ import type {
   EvalSummary,
   FixturesCheckResponse,
   ForecastArtifact,
+  CompetitionCount,
   MatchAnalysisResponse,
   MatchDetailResponse,
   MatchNotebookResponse,
   MatchRow,
   MatchSearchResponse,
+  MatchWindow,
+  MatchesWindowResponse,
   NotebookResponse,
   RecentMatchesResponse,
   SealEligibility,
@@ -915,5 +918,89 @@ export async function fetchRecentMatches(
     throw new ContractError("matches/recent: missing rails");
   body.recent.forEach((m, i) => assertMatchRow(m, `matches/recent.recent[${i}]`));
   body.upcoming.forEach((m, i) => assertMatchRow(m, `matches/recent.upcoming[${i}]`));
+  return body;
+}
+
+/** UTC midnight (ms) of an ISO timestamp — used to compare kickoffs by day, so a
+ *  real 21:45 kickoff and a 00:00 day-proxy on the same day are treated alike. */
+function utcDayMs(iso: string): number {
+  const d = new Date(iso);
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
+function competitionCounts(rows: MatchRow[]): CompetitionCount[] {
+  const by = new Map<string, CompetitionCount>();
+  for (const m of rows) {
+    const key = `${m.competition}|${m.source_kind}`;
+    const c = by.get(key);
+    if (c) c.n_matches += 1;
+    else by.set(key, { competition: m.competition, source_kind: m.source_kind, n_matches: 1 });
+  }
+  return Array.from(by.values()).sort(
+    (a, b) => a.source_kind.localeCompare(b.source_kind) || a.competition.localeCompare(b.competition),
+  );
+}
+
+const WINDOW_DAYS: Record<Exclude<MatchWindow, "upcoming">, number> = { week: 7, month: 30 };
+
+/**
+ * The Matchday home feed. Live mode hits `/api/v1/matches/window`; mock mode
+ * mirrors the SAME anchor semantics over the bundled rows (week/month bound to
+ * the freshest completed kickoff), so the home is deterministic offline and in
+ * the web bundle regardless of the wall clock.
+ */
+export async function fetchMatchesWindow(
+  window: MatchWindow,
+  limit = 200,
+): Promise<MatchesWindowResponse> {
+  if (!API_BASE) {
+    const { schema_version, matches } = await loadMockMatches();
+    const completed = matches.filter((m) => m.is_complete);
+    const latestMs = completed.length
+      ? Math.max(...completed.map((m) => utcDayMs(m.kickoff_utc)))
+      : null;
+    const latest_result_utc = latestMs !== null ? new Date(latestMs).toISOString() : null;
+
+    let sel: MatchRow[];
+    let window_start_utc: string | null;
+    let window_end_utc: string | null;
+    if (window === "upcoming") {
+      const today = new Date();
+      const todayMs = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+      sel = matches
+        .filter((m) => !m.is_complete && new Date(m.kickoff_utc).getTime() >= todayMs)
+        .sort((a, b) => a.kickoff_utc.localeCompare(b.kickoff_utc) || a.match_id.localeCompare(b.match_id));
+      window_start_utc = new Date(todayMs).toISOString();
+      window_end_utc = null;
+    } else if (latestMs === null) {
+      sel = [];
+      window_start_utc = window_end_utc = null;
+    } else {
+      const days = WINDOW_DAYS[window];
+      const startMs = latestMs - (days - 1) * 86_400_000;
+      sel = completed
+        .filter((m) => utcDayMs(m.kickoff_utc) >= startMs && utcDayMs(m.kickoff_utc) <= latestMs)
+        .sort((a, b) => b.kickoff_utc.localeCompare(a.kickoff_utc) || a.match_id.localeCompare(b.match_id));
+      window_start_utc = new Date(startMs).toISOString();
+      window_end_utc = new Date(latestMs).toISOString();
+    }
+    return {
+      schema_version,
+      window,
+      window_start_utc,
+      window_end_utc,
+      latest_result_utc,
+      total: sel.length,
+      matches: sel.slice(0, limit),
+      competitions: competitionCounts(sel),
+    };
+  }
+  const params = new URLSearchParams({ window, limit: String(limit) });
+  const body = (await getJson(`/api/v1/matches/window?${params.toString()}`)) as MatchesWindowResponse;
+  if (!Array.isArray(body.matches) || !Array.isArray(body.competitions))
+    throw new ContractError("matches/window: missing matches/competitions");
+  if (body.window !== window)
+    throw new ContractError(`matches/window: echoed window ${body.window} != ${window}`);
+  body.matches.forEach((m, i) => assertMatchRow(m, `matches/window.matches[${i}]`));
   return body;
 }
