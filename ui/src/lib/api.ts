@@ -59,7 +59,7 @@ const RUNTIME: RuntimeConfig =
 
 const RAW_BASE =
   RUNTIME.apiBase ?? (import.meta.env.VITE_GOLAVO_API as string | undefined);
-const API_BASE = RAW_BASE ? RAW_BASE.replace(/\/+$/, "") : undefined;
+export const API_BASE = RAW_BASE ? RAW_BASE.replace(/\/+$/, "") : undefined;
 const API_TOKEN = RUNTIME.token;
 const IS_DESKTOP = typeof RUNTIME.apiBase === "string";
 
@@ -356,7 +356,7 @@ function assertMatchNotebook(x: unknown, ctx: string): MatchNotebookResponse {
 /** Read-only request headers. Every request to the sidecar carries the
  *  per-launch token when the shell injected one; source-mode dev servers run
  *  open and simply omit it. */
-function apiHeaders(): Record<string, string> {
+export function apiHeaders(): Record<string, string> {
   const headers: Record<string, string> = { accept: "application/json" };
   if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
   return headers;
@@ -486,6 +486,11 @@ export interface NarrativeOptions {
   model?: string;
   /** Client timeout hint the server clamps; deep reads get a long budget. */
   timeoutS?: number;
+  /** Opt into the web-research lane (Wikipedia + web search). The ONLY flag that
+   *  lets the read reach the general web; off by default. */
+  allowResearch?: boolean;
+  /** Client-generated progress-tracking id; enables the live pipeline. */
+  jobId?: string;
 }
 
 /** A local model the server reports as installed (with size, when known). */
@@ -583,9 +588,11 @@ async function postNarrative(
       provider,
       ...(opts.refresh ? { refresh: true } : {}),
       ...(opts.allowBackground ? { allow_background: true } : {}),
+      ...(opts.allowResearch ? { allow_research: true } : {}),
       ...(opts.depth ? { depth: opts.depth } : {}),
       ...(opts.model ? { model: opts.model } : {}),
       ...(opts.timeoutS ? { timeout_s: opts.timeoutS } : {}),
+      ...(opts.jobId ? { job_id: opts.jobId } : {}),
     }),
   });
   if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);

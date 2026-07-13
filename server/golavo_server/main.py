@@ -558,7 +558,7 @@ async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
     from golavo_core.evidence import build_match_evidence_bundle  # lazy: AI guards
     from golavo_core.facts import notebook_to_evidence
 
-    from golavo_server import ai_gateway
+    from golavo_server import ai_gateway, jobs
 
     try:
         body = await request.json()
@@ -571,6 +571,18 @@ async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
         config = ai_gateway.resolve_provider(body)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    # Optional client-generated progress-tracking id (idempotency key). Absent →
+    # no tracking, identical to before. A running collision is a 409.
+    job_id = body.get("job_id")
+    job = None
+    if isinstance(job_id, str) and job_id:
+        if not jobs.JOB_ID_RE.match(job_id):
+            raise HTTPException(status_code=400, detail="malformed job_id")
+        try:
+            job = jobs.store().start(job_id)
+        except jobs.JobConflict as exc:
+            raise HTTPException(status_code=409, detail="job already running") from exc
 
     def _build_bundle() -> dict[str, Any] | None:
         envelope = analysis.match_analysis(match_id)
@@ -606,15 +618,46 @@ async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
     if bundle is None:
         raise HTTPException(status_code=404, detail="match not found")
 
-    envelope = await run_in_threadpool(
-        lambda: ai_gateway.generate_narration(
-            bundle, config, refresh=bool(body.get("refresh", False))
-        )
-    )
+    # Progress + cancel hooks (no-ops when there's no job). The web-research lane
+    # runs only when the user opted in (allow_research in the body); the fetchers
+    # never touch the network otherwise or in CI (GOLAVO_NO_RESEARCH=1).
+    def _progress(stage: str, detail: str, counts: dict[str, Any]) -> None:
+        if job is not None:
+            jobs.store().update(job.job_id, stage=stage, detail=detail, counts=counts)
+
+    def _cancelled() -> bool:
+        return job is not None and jobs.store().is_cancelled(job.job_id)
+
+    researcher = None
+    if config.allow_research:
+        from golavo_server.research import run_research
+
+        researcher = lambda: run_research(bundle, config.depth, progress=_progress)  # noqa: E731
+
+    def _run() -> Any:
+        try:
+            env = ai_gateway.generate_narration(
+                bundle, config,
+                refresh=bool(body.get("refresh", False)),
+                researcher=researcher,
+                progress=_progress,
+                is_cancelled=_cancelled,
+            )
+            if job is not None:
+                jobs.store().finish(job.job_id)
+            return env
+        except Exception:
+            if job is not None:
+                jobs.store().fail(job.job_id, "narration failed")
+            raise
+
+    envelope = await run_in_threadpool(_run)
+    # Bundle sources plus the web-research sources (which never enter the bundle).
     sources = [
         {"source_id": s["source_id"], "kind": s["kind"], "title": s["title"], "url": s["url"]}
         for s in bundle["sources"]
     ]
+    sources.extend(envelope.web_sources)
     numbers = [
         {"id": n["id"], "display": n["display"], "label": n["label"], "unit": n["unit"]}
         for n in bundle["allowed_numbers"]
@@ -624,8 +667,36 @@ async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
         "bundle_hash": bundle["bundle_hash"],
         "sources": sources,
         "numbers": numbers,
+        "job_id": job.job_id if job is not None else None,
         **envelope.to_dict(),
     }
+
+
+@app.get("/api/v1/ai/jobs/{job_id}")
+def ai_job_progress(job_id: str) -> dict[str, Any]:
+    """Live progress for an in-flight AI read (polled by the UI). 404 when the id
+    is unknown or has been pruned; 400 on a malformed id."""
+    from golavo_server import jobs
+
+    if not jobs.JOB_ID_RE.match(job_id):
+        raise HTTPException(status_code=400, detail="malformed job_id")
+    job = jobs.store().get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    return job.to_dict()
+
+
+@app.post("/api/v1/ai/jobs/{job_id}/cancel")
+def ai_job_cancel(job_id: str) -> dict[str, Any]:
+    """Request cancellation of an in-flight AI read. The generator checks between
+    stages; an in-flight model call is not aborted (the read may still finish and
+    cache)."""
+    from golavo_server import jobs
+
+    if not jobs.JOB_ID_RE.match(job_id):
+        raise HTTPException(status_code=400, detail="malformed job_id")
+    cancelled = jobs.store().cancel(job_id)
+    return {"job_id": job_id, "cancelled": bool(cancelled)}
 
 
 @app.get("/api/v1/eval/summary")

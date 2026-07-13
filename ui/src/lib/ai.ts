@@ -182,6 +182,43 @@ export function useAiBackground(): [boolean, (on: boolean) => void] {
   return [on, set];
 }
 
+const AI_RESEARCH_KEY = "golavo-ai-research";
+const AI_RESEARCH_EVENT = "golavo-ai-research-changed";
+
+function readResearch(): boolean {
+  try {
+    return localStorage.getItem(AI_RESEARCH_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Whether the optional web-research lane is enabled. Off by default; persisted
+ *  and app-wide reactive. When on, a Fast/Deep read may fetch Wikipedia + a web
+ *  search before writing, and surface a clearly-badged "Analyst research" section
+ *  (numbers there are checked against the page, never the engine). This is the
+ *  ONLY setting that lets the app reach the general web. */
+export function useAiResearch(): [boolean, (on: boolean) => void] {
+  const [on, setOn] = useState<boolean>(readResearch);
+  useEffect(() => {
+    const sync = () => setOn(readResearch());
+    window.addEventListener(AI_RESEARCH_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(AI_RESEARCH_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  const set = useCallback((next: boolean) => {
+    setOn(next);
+    try {
+      localStorage.setItem(AI_RESEARCH_KEY, next ? "1" : "0");
+    } catch { /* ignore */ }
+    window.dispatchEvent(new Event(AI_RESEARCH_EVENT));
+  }, []);
+  return [on, set];
+}
+
 // ---- Fast / Deep model assignment (persisted, app-wide reactive) ------------
 // The user assigns which installed model runs each mode (Settings). Empty means
 // "let the server auto-pick". Reads send the assigned model for the chosen depth.

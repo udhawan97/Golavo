@@ -39,6 +39,7 @@ from golavo_core.ai import (
     BACKGROUND_ADDENDUM,
     DEEP_ANALYSIS_ADDENDUM,
     PROMPT_VERSION,
+    RESEARCH_ADDENDUM,
     SYSTEM_PROMPT,
     build_user_prompt,
     review_narration,
@@ -92,6 +93,7 @@ class ProviderConfig:
     base_url: str | None
     allow_candidate_facts: bool = False
     allow_background: bool = False
+    allow_research: bool = False
     timeout_s: float = 30.0
     untrusted_context: str | None = None
     depth: str = "fast"
@@ -101,6 +103,9 @@ class ProviderConfig:
     # by dumping every id it sees). Empty means "no enum constraint".
     allowed_source_ids: tuple[str, ...] = ()
     allowed_number_ids: tuple[str, ...] = ()
+    # The exact URLs the sidecar fetched this run — a research note's source_url
+    # is enum-locked to these, so the model cannot invent one.
+    allowed_research_urls: tuple[str, ...] = ()
 
     @property
     def is_off(self) -> bool:
@@ -126,6 +131,7 @@ class ProviderConfig:
             "base_url": self.base_url,
             "allow_candidate_facts": self.allow_candidate_facts,
             "allow_background": self.allow_background,
+            "allow_research": self.allow_research,
             "depth": self.depth,
         }
 
@@ -171,6 +177,7 @@ def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
         base_url=base_url,
         allow_candidate_facts=bool(config.get("allow_candidate_facts", False)),
         allow_background=bool(config.get("allow_background", False)),
+        allow_research=bool(config.get("allow_research", False)),
         timeout_s=timeout_s,
         untrusted_context=config.get("untrusted_context"),
         depth=depth,
@@ -206,6 +213,10 @@ class NarrationEnvelope:
     cached: bool = False
     reason: str | None = None
     notes: list[str] = field(default_factory=list)
+    # Web-research provenance (never enters the bundle/hash): the kind:"web" source
+    # entries the UI renders, and an honest status summary of the research run.
+    web_sources: list[dict[str, Any]] = field(default_factory=list)
+    research: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -218,6 +229,8 @@ class NarrationEnvelope:
             "cached": self.cached,
             "reason": self.reason,
             "notes": self.notes,
+            "web_sources": self.web_sources,
+            "research": self.research,
         }
 
 
@@ -371,7 +384,8 @@ def build_ollama_payload(
             "num_predict": config.max_output_tokens,
         },
         "format": _grounded_output_schema(
-            config.allow_background, config.allowed_source_ids, config.allowed_number_ids
+            config.allow_background, config.allowed_source_ids, config.allowed_number_ids,
+            allow_research=config.allow_research, research_urls=config.allowed_research_urls,
         ),
     }
     return url, headers, body
@@ -409,6 +423,8 @@ def build_openai_payload(
                     config.allow_background,
                     config.allowed_source_ids,
                     config.allowed_number_ids,
+                    allow_research=config.allow_research,
+                    research_urls=config.allowed_research_urls,
                 ),
             },
         },
@@ -680,17 +696,17 @@ class NarrationCache:
     """
 
     def __init__(self) -> None:
-        self._store: dict[tuple[str, str, str, str, str, bool, bool, str], dict[str, Any]] = {}
+        self._store: dict[tuple[str, str, str, str, str, bool, bool, bool, str], dict[str, Any]] = {}
 
     @staticmethod
     def key(
         bundle_hash: str, config: ProviderConfig
-    ) -> tuple[str, str, str, str, str, bool, bool, str]:
+    ) -> tuple[str, str, str, str, str, bool, bool, bool, str]:
         context = sanitize_untrusted(config.untrusted_context or "")
         context_hash = hashlib.sha256(context.encode("utf-8")).hexdigest() if context else ""
-        # allow_background and depth are part of the key: a fast (or no-background)
-        # cached read must never be served to a deep (or background-enabled)
-        # request, and vice versa — they produce different narrations.
+        # allow_background/allow_research and depth are part of the key: a fast (or
+        # no-background, or no-research) cached read must never be served to a deep
+        # (or background/research-enabled) request — they produce different reads.
         return (
             bundle_hash,
             config.provider,
@@ -699,11 +715,12 @@ class NarrationCache:
             PROMPT_VERSION,
             config.allow_candidate_facts,
             config.allow_background,
+            config.allow_research,
             context_hash,
         )
 
     def get(self, bundle_hash: str, config: ProviderConfig) -> dict[str, Any] | None:
-        """Return ``{"narration": ..., "model": ...}`` for a hit, else None."""
+        """Return ``{"narration", "model", "web_sources"}`` for a hit, else None."""
         return self._store.get(self.key(bundle_hash, config))
 
     def set(
@@ -712,8 +729,15 @@ class NarrationCache:
         config: ProviderConfig,
         narration: dict[str, Any],
         model: str,
+        web_sources: list[dict[str, Any]] | None = None,
     ) -> None:
-        self._store[self.key(bundle_hash, config)] = {"narration": narration, "model": model}
+        # web_sources ride in the entry so a cached research read still renders its
+        # chips WITHOUT re-fetching (cache hit = zero network).
+        self._store[self.key(bundle_hash, config)] = {
+            "narration": narration,
+            "model": model,
+            "web_sources": list(web_sources or []),
+        }
 
 
 _CACHE = NarrationCache()
@@ -728,6 +752,9 @@ def generate_narration(
     transport: Transport | None = None,
     cache: NarrationCache | None = None,
     refresh: bool = False,
+    researcher: Callable[[], Any] | None = None,
+    progress: Callable[[str, str, dict[str, Any]], None] | None = None,
+    is_cancelled: Callable[[], bool] | None = None,
 ) -> NarrationEnvelope:
     """Produce a guard-validated narration for ``bundle``, or a safe fallback.
 
@@ -763,7 +790,22 @@ def generate_narration(
     if not refresh:
         cached = cache.get(bundle_hash, config)
         if cached is not None:
-            return envelope("ok", narration=cached["narration"], model=cached["model"], cached=True)
+            return envelope(
+                "ok",
+                narration=cached["narration"],
+                model=cached["model"],
+                cached=True,
+                web_sources=cached.get("web_sources", []),
+            )
+
+    def _emit(stage: str, detail: str, counts: dict[str, Any] | None = None) -> None:
+        if progress:
+            progress(stage, detail, counts or {})
+
+    def _cancelled() -> bool:
+        return bool(is_cancelled and is_cancelled())
+
+    _emit("assembling_evidence", "Assembling the evidence")
 
     # Local providers: target a model the server actually has, and fail fast with
     # an honest, actionable message when it has none — otherwise a missing default
@@ -781,6 +823,36 @@ def generate_narration(
             )
         run_config = replace(config, model=pick_local_model(config.model, usable))
 
+    # Web research (opt-in): runs ONLY on a cache miss, AFTER the read-before-probe
+    # cache check above, so a cached read never triggers a fetch. Fail-soft — any
+    # failure yields zero sources and an honest note; the read proceeds engine-only.
+    research_result: Any = None
+    web_sources: list[dict[str, Any]] = []
+    research_meta: dict[str, Any] | None = None
+    research_corpus: dict[str, str] = {}
+    research_prompt_sources: list[dict[str, Any]] = []
+    if config.allow_research and researcher is not None and not _cancelled():
+        _emit("researching", "Researching the web", {"fetched": 0, "planned": 0})
+        try:
+            research_result = researcher()
+        except Exception:  # research must never fail the whole read
+            research_result = None
+        if research_result is not None:
+            web_sources = list(research_result.envelope_sources())
+            research_corpus = dict(research_result.corpus())
+            research_prompt_sources = list(research_result.prompt_sources())
+            research_meta = {
+                "enabled": True,
+                "fetched": len(research_result.sources),
+                "planned": research_result.planned,
+                "notes": list(research_result.notes),
+            }
+    elif config.allow_research:
+        research_meta = {"enabled": True, "fetched": 0, "planned": 0, "notes": []}
+
+    if _cancelled():
+        return envelope("local_only", reason="cancelled", web_sources=web_sources)
+
     # Inject this bundle's citation allow-lists so constrained decoding enumerates
     # exactly the valid source and number ids (the model can neither invent a
     # source nor dump every id it sees). review_narration still validates content.
@@ -788,6 +860,7 @@ def generate_narration(
         run_config,
         allowed_source_ids=tuple(str(s["source_id"]) for s in bundle["sources"]),
         allowed_number_ids=tuple(str(n["id"]) for n in bundle["allowed_numbers"]),
+        allowed_research_urls=tuple(s["url"] for s in research_prompt_sources),
     )
 
     if transport is None:
@@ -807,12 +880,22 @@ def generate_narration(
         SYSTEM_PROMPT
         + (BACKGROUND_ADDENDUM if run_config.allow_background else "")
         + (DEEP_ANALYSIS_ADDENDUM if run_config.is_deep else "")
+        # Only add the research instructions when pages were actually fetched.
+        + (RESEARCH_ADDENDUM if research_prompt_sources else "")
     )
-    user = build_user_prompt(bundle, run_config.untrusted_context, depth=run_config.depth)
+    user = build_user_prompt(
+        bundle,
+        run_config.untrusted_context,
+        depth=run_config.depth,
+        research_sources=research_prompt_sources or None,
+    )
 
     reasons: list[str] = []
     reached_provider = False  # did any attempt get a response back from the model?
+    _emit("writing", "The model is reading and writing")
     for _ in range(MAX_ATTEMPTS):
+        if _cancelled():
+            return envelope("local_only", reason="cancelled", web_sources=web_sources)
         try:
             raw_text = transport(system, user)
         except TimeoutError:
@@ -840,16 +923,23 @@ def generate_narration(
         if raw is None:
             reasons.append("model output was not valid JSON")
             continue
+        _emit("verifying", "Verifying every number against the engine")
         review = review_narration(
             raw,
             bundle,
             allow_candidate_facts=run_config.allow_candidate_facts,
             allow_background=run_config.allow_background,
+            allow_research=run_config.allow_research,
+            research_corpus=research_corpus,
         )
         if review.accepted and review.narration is not None:
-            cache.set(bundle_hash, config, review.narration, model=run_config.model)
+            cache.set(
+                bundle_hash, config, review.narration, model=run_config.model,
+                web_sources=web_sources,
+            )
             return envelope(
-                "ok", model=run_config.model, narration=review.narration, notes=review.dropped
+                "ok", model=run_config.model, narration=review.narration,
+                notes=review.dropped, web_sources=web_sources, research=research_meta,
             )
         reasons.append("; ".join(review.rejections) or "narration failed review")
 
@@ -865,4 +955,7 @@ def generate_narration(
             "The AI provider could not be reached or timed out; "
             "showing the local forecast only."
         )
-    return envelope("local_only", model=run_config.model, reason=reason, notes=reasons)
+    return envelope(
+        "local_only", model=run_config.model, reason=reason, notes=reasons,
+        web_sources=web_sources, research=research_meta,
+    )

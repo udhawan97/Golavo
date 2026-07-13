@@ -20,6 +20,7 @@ from golavo_core.ai.prompts import (
     BACKGROUND_ADDENDUM,
     DEEP_ANALYSIS_ADDENDUM,
     PROMPT_VERSION,
+    RESEARCH_ADDENDUM,
     SYSTEM_PROMPT,
     build_user_prompt,
 )
@@ -37,6 +38,7 @@ __all__ = [
     "DEEP_ANALYSIS_ADDENDUM",
     "NARRATION_SCHEMA_VERSION",
     "PROMPT_VERSION",
+    "RESEARCH_ADDENDUM",
     "SYSTEM_PROMPT",
     "NarrationReview",
     "build_user_prompt",

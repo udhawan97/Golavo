@@ -14,8 +14,10 @@ import {
   useAiBackground,
   useAiModels,
   useAiProvider,
+  useAiResearch,
 } from "../../lib/ai";
 import type { AiDepth, AiProvider, NarrativeResponse } from "../../lib/ai";
+import { newJobId, usePolledProgress } from "../../lib/aiProgress";
 import { FlaskIcon, InfoIcon, TelescopeIcon } from "../icons";
 import { Pipeline } from "./AiPipeline";
 import { Result } from "./AiResult";
@@ -34,7 +36,7 @@ export type DeepReadSource =
 
 type RunState =
   | { status: "idle" }
-  | { status: "loading"; refresh: boolean }
+  | { status: "loading"; refresh: boolean; jobId: string | null }
   | { status: "done"; data: NarrativeResponse }
   | { status: "error"; error: Error };
 
@@ -52,6 +54,7 @@ function ReadMark() {
 export function AiDeepRead({ source }: { source: DeepReadSource }) {
   const [provider, setProvider] = useAiProvider();
   const [allowBackground, setAllowBackground] = useAiBackground();
+  const [allowResearch] = useAiResearch();
   const { fastModel, deepModel, setFastModel, setDeepModel } = useAiModels();
   // Depth is per-panel (resets to Fast each session); the model assignments live
   // in Settings. `override` is the advanced "run this exact model" choice.
@@ -102,7 +105,8 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
 
   const run = (refresh = false, depthArg: AiDepth = depth) => {
     const id = ++runId.current;
-    setState({ status: "loading", refresh });
+    const jobId = newJobId();
+    setState({ status: "loading", refresh, jobId });
     // The model to run (local only): an explicit override wins, else the depth's
     // assigned model, else undefined (server auto-picks). A cloud provider never
     // sends a local model id. Deep gets the long budget.
@@ -112,9 +116,11 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
     const opts = {
       refresh,
       allowBackground,
+      allowResearch,
       depth: depthArg,
       model,
       timeoutS: depthArg === "deep" ? DEEP_TIMEOUT_S : FAST_TIMEOUT_S,
+      jobId,
     };
     const request =
       source.kind === "forecast"
@@ -137,6 +143,9 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
     setOverride("");
     run(false, "fast");
   };
+
+  const loadingJobId = state.status === "loading" ? state.jobId : null;
+  const progress = usePolledProgress(loadingJobId, state.status === "loading");
 
   const isMatch = source.kind === "match";
   return (
@@ -217,7 +226,15 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
             onToggleBackground={setAllowBackground}
           />
         )}
-        {state.status === "loading" && <Pipeline provider={provider} refresh={state.refresh} depth={depth} />}
+        {state.status === "loading" && (
+          <Pipeline
+            provider={provider}
+            refresh={state.refresh}
+            depth={depth}
+            research={allowResearch}
+            progress={progress}
+          />
+        )}
         {state.status === "error" && (
           <ErrorCard error={state.error} onRetry={() => run(false)} />
         )}
