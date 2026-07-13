@@ -6,17 +6,42 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-13
+
+Two-speed local AI: a **Fast** fallback for a quick read and a genuinely deeper
+**Deep analysis** that puts a bigger local model to work — a richer synthesis, not
+the same answer slower.
+
+### Added
+- **Fast / Deep local AI.** A toggle on the AI read chooses the speed. **Fast**
+  runs a small model (e.g. `llama3.2`) for a few grounded claims in seconds.
+  **Deep analysis** runs a bigger model (e.g. `gemma4:12b`) over MORE of the
+  evidence with a richer-synthesis instruction — more claims plus scenarios that
+  connect facts to each other and surface tensions and corroborations — in a few
+  minutes (up to an 8-minute budget). The progress note is honest about the wait,
+  and a one-tap **Switch to Fast** (which also starts the fast read) recovers if a
+  deep read times out.
+- **Assign your models.** Settings → Local intelligence lists your installed
+  models with sizes and lets you pick which one runs Fast and which runs Deep
+  (auto-set to smallest and largest). An "advanced" control on the panel runs any
+  specific installed model for a single read. New read-only `GET
+  /api/v1/ai/local-models`.
+- Under the hood: the Ollama path now uses the native `/api/chat` structured-output
+  endpoint (its `format` grammar constrains **every** model, `think:false` stops a
+  reasoning model wasting minutes), the context window is sized to the prompt, and
+  decoding is **enum-constrained** to the bundle's real citation ids. The prompt is
+  trimmed (~40k→~11k chars) so a model fits context and stays fast.
+
 ### Changed
 - The optional AI read is more forgiving of natural analytical prose so a single
-  idiom no longer blanks the whole read: betting language is now dropped per-claim
-  (like an unsupported number) instead of hard-rejecting the entire narration, and
-  "edge" ("have the edge in midfield") is no longer treated as a wagering term.
-  The guarantee is unchanged — a dropped claim's content is never shown.
-- A local model that times out is no longer retried (an immediate retry of a slow
-  model just doubles the wait); local requests get a slightly longer default
-  window. Note: a large local model (e.g. a 12B) is not well suited to the rich
-  Match Cockpit bundle — it can take several minutes; a small instruct model such
-  as `llama3.2` returns in seconds.
+  idiom no longer blanks the whole read: betting language and an unsupported number
+  are dropped per-claim instead of hard-rejecting the entire narration; an
+  over-tagged number reference (one the model alluded to but didn't state) is
+  pruned rather than fatal; "edge" is no longer treated as a wagering term. The
+  guarantee is unchanged — every number is validated against the full sealed
+  whitelist and a dropped claim's content is never shown.
+- A local model that times out is no longer retried (an immediate retry just
+  doubles the wait).
 
 ## [0.5.2] - 2026-07-13
 
