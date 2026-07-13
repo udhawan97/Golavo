@@ -6,6 +6,46 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-13
+
+An analytics-first elevation: the wait is honest and informative, the home leads
+with real matches, and the Match Cockpit becomes the showcase — a multi-model
+read with form, team style, and source-backed notes on every game. Every sealed
+number is unchanged.
+
+### Added
+- **Honest, staged startup.** A new `GET /api/v1/status` reports the match-index
+  warm-up state (without triggering the slow load), so the splash shows real
+  stages — "unpacking the engine" then "waking the match library" — with a
+  rotating deck of witty wait-copy, hidden-feature tips, and football facts. A
+  "browse while it warms" escape and a home warming card replace the old
+  flashing skeletons; the matches query now waits for the index instead of
+  blocking ~25s inside it. A header activity centre surfaces live background work
+  (warm-up, update download, fixture checks) and hides when idle.
+- **Matchday home (was Games).** Leads with finished results from the last week
+  (anchored to the freshest result in the snapshot, so a stale bundle degrades
+  honestly), with Last week / Last month / Upcoming filters, grouped by
+  competition with the big-five leagues and major internationals first. Every
+  card links to its Match Cockpit and shows an "Analyze" affordance.
+- **Match Cockpit showcase.** Recent-form strips (last-5 W/D/L per side), a
+  "how they attack & defend" style profile (fitted-from-results multipliers,
+  honestly labelled — no event data exists), a dedicated score outlook, and a
+  categorised Commentator's Notebook (Form / Head-to-head / Records / Signature).
+  A new `in_form_scorer` fact highlights a team's hot scorer (internationals).
+- **Sealing guide.** A plain-language `#/guide/sealing` page — pick → read
+  council → seal → scored → track record — with one annotated synthetic example.
+- **Optional AI background lane.** On top of the strictly-grounded read, the model
+  may add qualitative colour (managers, style, rivalries) from its own general
+  knowledge — off by default, clearly badged as not-Golavo-data and may-be-
+  outdated, and forbidden from stating any number (anything numeric is deleted).
+
+### Changed
+- **Sealing is a small side feature now**, not the front door: a compact prompt on
+  match pages plus the new guide, and synthetic samples are never shown as data
+  (an empty ledger shows an empty list; the desktop sample banner is gone).
+- **Faster cockpits.** A content-addressed disk cache and a background warm of the
+  home-window matches mean re-opening a match skips the five model fits.
+
 ## [0.3.3] - 2026-07-12
 
 A polish-and-hardening pass from a full UX audit: fewer sharp edges, plainer
@@ -670,7 +710,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/udhawan97/Golavo/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/udhawan97/Golavo/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/udhawan97/Golavo/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/udhawan97/Golavo/compare/v0.3.0...v0.3.1
