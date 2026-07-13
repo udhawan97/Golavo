@@ -102,7 +102,7 @@ post-pivot app. No new forecasting behaviour — every number is unchanged.
   reconciled the privacy/security page with `SECURITY.md`, corrected the
   architecture API surface, rewrote `ui/README.md`, refreshed the facts
   catalogue, and added the missing `match_analysis` contract schema.
-- CI now compiles the Tauri desktop shell (`cargo check` + `clippy`) on every
+- CI now compiles the Tauri desktop shell (`cargo check`) on every
   PR, uses `npm ci`, and runs the accessibility gate over ten routes (up from
   four) plus a mobile-popover regression test.
 

@@ -1,6 +1,16 @@
 # Golavo Architecture Rethink — Match Cockpit Pivot Plan
 
-**Status:** PLAN ONLY — nothing implemented.
+> **⚠️ SUPERSEDED (2026-07-12).** This plan was written at v0.2.6 (`49a346e`) and
+> its Phase 0/1 recommendations were **implemented** in v0.3.0–v0.3.3 (Match
+> Cockpit pivot, Games-first home, Model Lab, on-demand leak-safe council). Its
+> "current-state" claims below (§0–§2, and the §13.3 schema-version mechanics)
+> now misdescribe the shipped code — e.g. `GET /api/v1/matches/{id}/analysis`
+> exists, the nav is Games/Leagues/Model Lab, and `ANALYSIS_SCHEMA_VERSION` is a
+> separate field. Read it as a historical record of the pivot's rationale, **not**
+> as an authority on today's architecture. For forward expansion decisions see
+> [`expansion-plan.md`](expansion-plan.md).
+
+**Status:** SUPERSEDED — Phase 0/1 implemented in v0.3.0–v0.3.3 (was "PLAN ONLY").
 **Prepared:** 2026-07-12, against `main` @ `49a346e` (v0.2.6), worktree clean.
 **Method:** five-lane repository inspection (UI, core engine, server+data, docs+tests, primary-source license audit) before any proposal. Every material claim below carries a file:line reference or is marked UNVERIFIED.
 

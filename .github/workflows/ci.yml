@@ -32,6 +32,14 @@ jobs:
         run: ruff check .
       - name: Validate pinned source provenance
         run: python scripts/validate_provenance.py
+      - name: Validate the source registry and its license gates
+        # Ties data/sources/registry.json to the bundled packs: a source that is
+        # not registered, is misclassified (e.g. an ODbL/CC-BY-SA/rejected class
+        # folded into the CC0 index), or whose license disagrees with its manifest
+        # fails here before it can reach users.
+        run: python scripts/validate_sources.py
+      - name: Third-party notices are current
+        run: python scripts/gen_third_party_notices.py --check
       - name: Validate canonical sample artifacts
         run: python scripts/validate_artifacts.py
       - name: Match index — verify committed copy is a clean rebuild

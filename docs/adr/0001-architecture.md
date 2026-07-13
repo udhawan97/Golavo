@@ -7,7 +7,7 @@
 ## Context
 
 Golavo is a local-first, offline-capable desktop app with a Python statistical
-core (Dixon-Coles / bivariate Poisson, DuckDB/Parquet warehouse), a rich UI, an
+core (Dixon-Coles / bivariate Poisson, Parquet warehouse via pandas/pyarrow), a rich UI, an
 optional AI layer, and a requirement for signed auto-updates with backup and
 rollback on macOS and Windows.
 

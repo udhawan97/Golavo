@@ -2,7 +2,7 @@
 
 Boundaries (each a submodule):
     ingest     - source adapters + immutable snapshotter
-    warehouse  - Parquet + DuckDB views and schema migrations
+    warehouse  - Parquet match index + side tables (pandas/pyarrow)
     models     - Elo, Dixon-Coles, bivariate Poisson, corners, scorers, calibration
     artifacts  - immutable Phase 0 ForecastArtifact seal/score pipeline
     ledger     - planned hash-chained ledger (ADR-0001, Phase 1)
