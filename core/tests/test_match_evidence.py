@@ -128,7 +128,7 @@ def test_notebook_numbers_fold_into_the_match_bundle() -> None:
         source_ids=["test-source"],
         validate=True,
     )
-    nb_facts, nb_numbers = notebook_to_evidence(notebook)
+    nb_facts, nb_numbers, _nb_extra = notebook_to_evidence(notebook)
     analysis = build_match_analysis(matches=history, match_row=fixture)
     bundle = build_match_evidence_bundle(
         analysis,
@@ -140,6 +140,48 @@ def test_notebook_numbers_fold_into_the_match_bundle() -> None:
     assert any(i.startswith("nb_") for i in ids), "notebook numbers must be citable"
     # Engine numbers keep their ids alongside the fold — nothing was displaced.
     assert "mc_elo_ordlogit_prob_home" in ids
+
+
+def test_scorer_facts_cite_a_dataset_scoped_source() -> None:
+    """A goalscorer-derived fact gets a `<pack>#goalscorers` source id so the AI's
+    citation chips vary; the match bundle resolves every scoped id."""
+    from golavo_core.facts.evidence import _scope_sources
+
+    fact = {"id": "top_scorer", "source_ids": ["test-source"], "label": "context"}
+    scoped, extras = _scope_sources(fact)
+    assert scoped == ["test-source#goalscorers"]
+    assert extras and extras[0]["source_id"] == "test-source#goalscorers"
+
+    # A results-derived fact keeps the base id (shared with the council numbers).
+    base_fact = {"id": "unbeaten_run", "source_ids": ["test-source"], "label": "context"}
+    base_scoped, base_extras = _scope_sources(base_fact)
+    assert base_scoped == ["test-source"]
+    assert base_extras == []
+
+
+def test_match_bundle_resolves_dataset_scoped_sources() -> None:
+    from golavo_core.evidence import build_match_evidence_bundle, validate_evidence_bundle
+
+    analysis = build_match_analysis(matches=_history(), match_row=_fixture())
+    fact = {
+        "fact_id": "nb_top_scorer_0",
+        "text": "Aland's leading scorer in this data has 12 goals for them.",
+        "kind": "context",
+        "source_ids": ["test-source#goalscorers"],
+        "number_refs": [],
+    }
+    extra_sources = [{
+        "source_id": "test-source#goalscorers",
+        "title": "Vendored data pack · test-source · goalscorer records",
+    }]
+    bundle = build_match_evidence_bundle(
+        analysis, notebook_facts=[fact], pack_source_ids=("test-source",),
+        extra_sources=extra_sources,
+    )
+    ids = {s["source_id"] for s in bundle["sources"]}
+    assert "test-source#goalscorers" in ids
+    assert "test-source" in ids  # base results source still present for the council
+    validate_evidence_bundle(bundle)  # every cited id resolves
 
 
 def test_preview_kind_flows_through() -> None:

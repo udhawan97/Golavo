@@ -89,7 +89,11 @@ def verify_notebook_pipeline_pure(
     # The input artifact must be untouched by building the notebook.
     assert_no_number_written(before, artifact)
 
-    extra_facts, extra_numbers = notebook_to_evidence(notebook)
+    # Sealed path keeps base pack ids (its bundle sources carry richer snapshot
+    # metadata under the base id); per-dataset scoping is the match-bundle's job.
+    extra_facts, extra_numbers, _extra_sources = notebook_to_evidence(
+        notebook, scope_datasets=False
+    )
     base = build_evidence_bundle(before)
     folded = build_evidence_bundle(before, extra_facts=extra_facts, extra_numbers=extra_numbers)
 

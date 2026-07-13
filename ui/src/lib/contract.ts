@@ -611,6 +611,11 @@ export const FACT_CATEGORY: Record<string, FactCategory> = {
   both_teams_scored_rate: "signature",
   clean_sheet_rate: "signature",
   scoring_trend: "signature",
+  goal_timing_profile: "signature",
+  penalty_goal_share: "signature",
+  tournament_record: "records",
+  shootout_first_shooter_edge: "records",
+  own_goal_quirk: "other",
 };
 
 export const FACT_CATEGORY_TEXT: Record<FactCategory, string> = {
@@ -695,6 +700,26 @@ export const FACT_DISPLAY: Record<string, FactDisplay> = {
   scoring_trend: {
     title: "Scoring momentum",
     explainer: "Recent goals per game compared with the run immediately before it.",
+  },
+  goal_timing_profile: {
+    title: "When they score",
+    explainer: "Whether this team’s goals skew toward the opening or closing stages.",
+  },
+  penalty_goal_share: {
+    title: "Penalty share",
+    explainer: "How much of this team’s scoring comes from penalties (scored only).",
+  },
+  tournament_record: {
+    title: "Record in this competition",
+    explainer: "This team’s all-time win record in the fixture’s competition.",
+  },
+  shootout_first_shooter_edge: {
+    title: "Shooting first",
+    explainer: "How often the side taking the first penalty goes on to win the shootout.",
+  },
+  own_goal_quirk: {
+    title: "Own goals gifted",
+    explainer: "A curio: how many own goals this team has benefited from.",
   },
   home_advantage_base_rate: {
     title: "Home advantage",

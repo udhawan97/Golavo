@@ -38,7 +38,7 @@ def load_side_tables(pack_dir: Path) -> tuple[pd.DataFrame | None, pd.DataFrame 
         goalscorers = pd.read_csv(
             gs_path,
             dtype={"home_team": "string", "away_team": "string", "team": "string",
-                   "scorer": "string"},
+                   "scorer": "string", "minute": "string"},
             parse_dates=["date"],
         )
         goalscorers["own_goal"] = _read_bool(goalscorers["own_goal"])
@@ -48,7 +48,8 @@ def load_side_tables(pack_dir: Path) -> tuple[pd.DataFrame | None, pd.DataFrame 
     if so_path.is_file():
         shootouts = pd.read_csv(
             so_path,
-            dtype={"home_team": "string", "away_team": "string", "winner": "string"},
+            dtype={"home_team": "string", "away_team": "string", "winner": "string",
+                   "first_shooter": "string"},
             parse_dates=["date"],
         )
 

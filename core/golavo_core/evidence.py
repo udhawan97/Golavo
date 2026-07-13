@@ -692,7 +692,10 @@ _VOICE_LABELS = {
 }
 
 
-def _match_sources(pack_source_ids: tuple[str, ...]) -> list[dict[str, Any]]:
+def _match_sources(
+    pack_source_ids: tuple[str, ...],
+    extra_sources: tuple[dict[str, Any], ...] = (),
+) -> list[dict[str, Any]]:
     sources: list[dict[str, Any]] = [
         {
             "source_id": _MATCH_ENGINE_SOURCE_ID,
@@ -707,10 +710,28 @@ def _match_sources(pack_source_ids: tuple[str, ...]) -> list[dict[str, Any]]:
             {
                 "source_id": sid,
                 "kind": "snapshot",
-                "title": f"Vendored data pack · {sid}",
+                "title": f"Vendored data pack · {sid} · match results",
                 "url": REPO_URL,
                 # Every bundled results pack is CC0 (packs/README.md; enforced by
                 # the license-isolation gate).
+                "license": "CC0-1.0",
+            }
+        )
+    # Per-dataset attributions (goalscorers/shootouts) from the notebook fold, so
+    # scorer/shootout facts cite a distinct source and the AI chips vary. Finalized
+    # here from the minimal descriptors notebook_to_evidence produced.
+    seen = {s["source_id"] for s in sources}
+    for extra in extra_sources:
+        sid = str(extra["source_id"])
+        if sid in seen:
+            continue
+        seen.add(sid)
+        sources.append(
+            {
+                "source_id": sid,
+                "kind": "snapshot",
+                "title": str(extra["title"]),
+                "url": REPO_URL,
                 "license": "CC0-1.0",
             }
         )
@@ -896,6 +917,7 @@ def build_match_evidence_bundle(
     notebook_facts: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
     notebook_numbers: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
     pack_source_ids: tuple[str, ...] = (),
+    extra_sources: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
 ) -> dict[str, Any]:
     """Build the evidence bundle for one on-demand MatchAnalysis (no artifact).
 
@@ -963,7 +985,7 @@ def build_match_evidence_bundle(
                 "source_ids": [_MATCH_ENGINE_SOURCE_ID],
             },
         ],
-        "sources": _match_sources(pack_source_ids),
+        "sources": _match_sources(pack_source_ids, tuple(extra_sources)),
         "data_quality": {
             "uncertainty": analysis["uncertainty"],
             "abstained": bool(analysis["abstained"]),

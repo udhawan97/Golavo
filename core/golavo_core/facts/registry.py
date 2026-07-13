@@ -19,14 +19,19 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from . import coincidence, context, predictive, signature
+from . import coincidence, context, events, predictive, signature
 from ._history import Candidate, TemplateContext
 
-REGISTRY_VERSION = "2026.07.13"
+REGISTRY_VERSION = "2026.07.14"
 
 _ID_RE = re.compile(r"[a-z][a-z0-9_]*\Z")
 _LABELS = ("predictive", "context", "coincidence")
 _SCOPES = ("team", "head_to_head", "match", "competition")
+# Which vendored dataset a template reads from — used ONLY to attribute a fact to
+# a finer source id (``<pack>#<dataset>``) in the AI evidence bundle, so the
+# citation chips vary instead of all resolving to one "data pack". Never changes
+# the leak-safe computation.
+_DATASETS = ("results", "goalscorers", "shootouts")
 
 # The maximum coincidence-labelled facts the notebook will emit for one match.
 COINCIDENCE_CAP = 3
@@ -47,6 +52,8 @@ class Template:
     min_sample: int
     staleness_days: int | None
     fn: Callable[[TemplateContext], list[Candidate]]
+    # The vendored dataset this template reads (for citation attribution only).
+    dataset: str = "results"
 
 
 REGISTRY: tuple[Template, ...] = (
@@ -81,9 +88,35 @@ REGISTRY: tuple[Template, ...] = (
         signature.head_to_head_goals,
     ),
     # --- context: internationals-only (scorers + shootouts) ---
-    Template("top_scorer", "1.0.0", "context", "team", 2, 10, None, context.top_scorer),
-    Template("in_form_scorer", "1.0.0", "context", "team", 2, 5, 400, context.in_form_scorer),
-    Template("shootout_record", "1.0.0", "context", "team", 2, 3, None, context.shootout_record),
+    Template(
+        "top_scorer", "1.0.0", "context", "team", 2, 10, None, context.top_scorer,
+        dataset="goalscorers",
+    ),
+    Template(
+        "in_form_scorer", "1.0.0", "context", "team", 2, 5, 400, context.in_form_scorer,
+        dataset="goalscorers",
+    ),
+    Template(
+        "shootout_record", "1.0.0", "context", "team", 2, 3, None, context.shootout_record,
+        dataset="shootouts",
+    ),
+    # --- context: event-derived from the goalscorers/shootouts packs (new) ---
+    Template(
+        "goal_timing_profile", "1.0.0", "context", "team", 2, 20, 400,
+        events.goal_timing_profile, dataset="goalscorers",
+    ),
+    Template(
+        "penalty_goal_share", "1.0.0", "context", "team", 2, 5, 400,
+        events.penalty_goal_share, dataset="goalscorers",
+    ),
+    Template(
+        "tournament_record", "1.0.0", "context", "team", 2, 8, None,
+        context.tournament_record,
+    ),
+    Template(
+        "shootout_first_shooter_edge", "1.0.0", "predictive", "competition", 1, 50, None,
+        events.shootout_first_shooter_edge, dataset="shootouts",
+    ),
     # --- predictive: labelled base rates (never applied to the model here) ---
     Template(
         "home_advantage_base_rate", "1.0.0", "predictive", "competition", 1, 100, None,
@@ -106,7 +139,16 @@ REGISTRY: tuple[Template, ...] = (
         "calendar_date_repeat", "1.0.0", "coincidence", "team", 2, 3, None,
         coincidence.calendar_date_repeat,
     ),
+    Template(
+        "own_goal_quirk", "1.0.0", "coincidence", "team", 2, 3, None,
+        events.own_goal_quirk, dataset="goalscorers",
+    ),
 )
+
+
+# template id -> the vendored dataset it reads, for per-dataset AI citation
+# attribution (see golavo_core.facts.evidence.notebook_to_evidence).
+DATASET_BY_TEMPLATE: dict[str, str] = {tmpl.id: tmpl.dataset for tmpl in REGISTRY}
 
 
 def _validate_registry() -> None:
@@ -125,6 +167,8 @@ def _validate_registry() -> None:
             raise ValueError(f"template {tmpl.id!r} must have arity >= 1")
         if tmpl.min_sample < 1:
             raise ValueError(f"template {tmpl.id!r} must have min_sample >= 1")
+        if tmpl.dataset not in _DATASETS:
+            raise ValueError(f"template {tmpl.id!r} has unknown dataset {tmpl.dataset!r}")
 
 
 _validate_registry()

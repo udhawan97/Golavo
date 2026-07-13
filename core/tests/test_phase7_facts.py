@@ -406,7 +406,7 @@ def test_full_pipeline_writes_no_engine_number(tmp_path: Path) -> None:
 # --------------------------------------------------------------------------- #
 def test_fold_excludes_coincidences_and_namespaces_numbers() -> None:
     nb = _intl_notebook()
-    facts, numbers = notebook_to_evidence(nb)
+    facts, numbers, _extra = notebook_to_evidence(nb)
     foldable = [f for f in nb["facts"] if f["label"] in ("context", "predictive")]
     assert len(facts) == len(foldable)
     assert all(f["kind"] == "context" for f in facts)
@@ -430,7 +430,7 @@ def test_folded_bundle_is_valid_and_preserves_engine_numbers(tmp_path: Path) -> 
     matches = load_matches(T0_PACK)
     gs, so = load_side_tables(T0_PACK)
     nb = notebook_for_artifact(artifact, matches, goalscorers=gs, shootouts=so)
-    extra_facts, extra_numbers = notebook_to_evidence(nb)
+    extra_facts, extra_numbers, _extra2 = notebook_to_evidence(nb)
 
     base = build_evidence_bundle(artifact)
     folded = build_evidence_bundle(

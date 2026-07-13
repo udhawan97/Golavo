@@ -448,6 +448,55 @@ def in_form_scorer(ctx: TemplateContext) -> list[Candidate]:
     return out
 
 
+def tournament_record(ctx: TemplateContext) -> list[Candidate]:
+    """A team's all-time record IN THIS COMPETITION (e.g. World-Cup-only form).
+
+    Only meaningful when the fixture's competition is a named tournament and the
+    team actually plays across several competitions — so it never fires for a club
+    side whose every match is the same league (the degenerate case).
+    """
+    comp = ctx.competition
+    if not comp or comp == "Friendly":
+        return []
+    out: list[Candidate] = []
+    for team, _ in _sides(ctx):
+        persp = team_perspective(ctx.matches, team)
+        if persp.empty or persp["tournament"].nunique() < 2:
+            continue
+        in_comp = persp.loc[persp["tournament"].eq(comp)]
+        n = int(len(in_comp))
+        if n == 0:
+            continue
+        wins = int((in_comp["result"] == "W").sum())
+        draws = int((in_comp["result"] == "D").sum())
+        losses = n - wins - draws
+        nb = NumberBag()
+        w = nb.count("wins", wins)
+        n_d = nb.count("matches", n)
+        rate = nb.percent("win_rate", wins / n)
+        out.append(
+            Candidate(
+                subject=team,
+                # Competition named in ``values``; the text stays generic so a
+                # tournament name that carried a digit could never break discipline.
+                text=(
+                    f"{team} have won {w} of their {n_d} matches in this competition "
+                    f"in this data ({rate})."
+                ),
+                values={"competition": comp, "matches": n, "wins": wins,
+                        "draws": draws, "losses": losses},
+                numbers=nb.items(),
+                sample_n=n,
+                denominator=n,
+                base_rate=wins / n,
+                first_date=pd.Timestamp(in_comp["date"].min()),
+                last_date=pd.Timestamp(in_comp["date"].max()),
+                specificity=clamp_unit(abs(wins - losses) / max(n, 1)),
+            )
+        )
+    return out
+
+
 def shootout_record(ctx: TemplateContext) -> list[Candidate]:
     """Internationals only: penalty-shootout win/loss record."""
     shootouts = ctx.shootouts

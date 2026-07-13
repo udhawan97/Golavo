@@ -113,7 +113,8 @@ def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
     The notebook sidecar is not integrity-verified (unlike the artifact), so a
     corrupt, truncated, or older-schema file must fail closed: treat it as no
     notebook rather than 500 the optional AI route. The bundle still builds from
-    the verified artifact alone.
+    the verified artifact alone. The sealed path keeps base pack ids (its sources
+    carry richer snapshot metadata), so per-dataset scoping is off here.
     """
     notebook_path = _forecasts_dir() / "notebooks" / f"{artifact_id}.json"
     if not notebook_path.is_file():
@@ -121,7 +122,10 @@ def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
     from golavo_core.facts import notebook_to_evidence  # lazy: pulls the AI guards
 
     try:
-        return notebook_to_evidence(_read_json(notebook_path))
+        facts, numbers, _extra = notebook_to_evidence(
+            _read_json(notebook_path), scope_datasets=False
+        )
+        return facts, numbers
     except (OSError, ValueError, KeyError, TypeError):
         return [], []
 
@@ -576,16 +580,18 @@ async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
             raise ValueError(envelope.get("reason") or "analysis unavailable")
         nb_facts: list[Any] = []
         nb_numbers: list[Any] = []
+        nb_extra: list[Any] = []
         pack_ids: tuple[str, ...] = ()
         nb = matches.match_notebook(match_id, forecasts_dir=ARTIFACT_DIR)
         if nb and nb.get("available") and nb.get("notebook"):
-            nb_facts, nb_numbers = notebook_to_evidence(nb["notebook"])
+            nb_facts, nb_numbers, nb_extra = notebook_to_evidence(nb["notebook"])
             pack_ids = tuple(nb["notebook"].get("source_ids") or ())
         return build_match_evidence_bundle(
             envelope["analysis"],
             notebook_facts=nb_facts,
             notebook_numbers=nb_numbers,
             pack_source_ids=pack_ids,
+            extra_sources=nb_extra,
         )
 
     try:
