@@ -95,8 +95,11 @@ def test_replay_analysis_shape_and_leak_safe_cutoff(client):
     body = client.get("/api/v1/matches/m_target/analysis").json()
     assert body["available"] is True
     a = body["analysis"]
-    assert a["schema_version"] == "0.3.0"
+    assert a["schema_version"] == "0.4.0"
     assert a["analysis_kind"] == "replay"
+    # 0.4.0 additions present on a modelled fixture.
+    assert set(a["team_form"]) == {"Alpha", "Beta"}
+    assert a["team_style"] is not None
     assert a["abstained"] is False
     # Two voices, never five; the score grid is the goal voice's.
     assert a["council"]["voices"] == 2
@@ -133,3 +136,92 @@ def test_recent_rails_have_results_and_honest_upcoming(client):
 def test_recent_is_declared_before_match_id_route(client):
     # "recent" must not be swallowed as a match id (would 404 as a match).
     assert client.get("/api/v1/matches/recent").status_code == 200
+
+
+# --------------------------------------------------------------------------- #
+# L2 disk cache (R7 latency mitigation)
+# --------------------------------------------------------------------------- #
+@pytest.fixture
+def cached_client(tmp_path, monkeypatch):
+    """A client with a real meta.json (for the fingerprint) and a writable disk
+    cache dir, so the L2 path is exercised."""
+    from golavo_server import runtime
+
+    index_path = tmp_path / "matches_index.parquet"
+    _build_index(index_path, _rows())
+    meta_path = tmp_path / "matches_index.meta.json"
+    meta_path.write_text('{"row_count": 98, "manifest_sha256": "abc"}', encoding="utf-8")
+    cache_dir = tmp_path / "analysis-cache"
+    monkeypatch.setattr(matches, "INDEX_PATH", index_path)
+    monkeypatch.setattr(matches, "INDEX_META_PATH", meta_path)
+    monkeypatch.setattr(runtime, "analysis_cache_dir", lambda: cache_dir)
+    empty_ledger = tmp_path / "ledger"
+    empty_ledger.mkdir()
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", empty_ledger)
+    return TestClient(server_main.app), cache_dir, meta_path
+
+
+def test_disk_cache_survives_an_l1_reset(cached_client, monkeypatch):
+    client, cache_dir, _ = cached_client
+    first = client.get("/api/v1/matches/m_target/analysis").json()
+    assert first["available"] is True
+    assert list(cache_dir.glob("an_*.json")), "a disk cache file should be written"
+
+    # Clear the in-process memo; the second call must be served from disk. Prove it
+    # by making a recompute impossible — any refit would raise.
+    matches.reset_cache()
+    server_analysis.reset_cache()
+    import golavo_core.analysis as core_analysis
+
+    def _boom(*a, **k):
+        raise AssertionError("should have been served from the disk cache, not recomputed")
+
+    monkeypatch.setattr(core_analysis, "build_match_analysis", _boom)
+    second = client.get("/api/v1/matches/m_target/analysis").json()
+    assert second["available"] is True
+    assert second["analysis"]["schema_version"] == "0.4.0"
+
+
+def test_disk_cache_invalidates_when_the_fingerprint_changes(cached_client, monkeypatch):
+    client, cache_dir, meta_path = cached_client
+    client.get("/api/v1/matches/m_target/analysis")
+    assert list(cache_dir.glob("an_*.json"))
+
+    # A new index (meta bytes change) → new fingerprint → the old file is not read.
+    matches.reset_cache()
+    server_analysis.reset_cache()
+    meta_path.write_text('{"row_count": 98, "manifest_sha256": "DIFFERENT"}', encoding="utf-8")
+    import golavo_core.analysis as core_analysis
+
+    monkeypatch.setattr(
+        core_analysis, "build_match_analysis",
+        lambda *a, **k: (_ for _ in ()).throw(AssertionError("miss expected")),
+    )
+    # A miss now hits the (raising) recompute → fails closed to available:false,
+    # proving the stale-fingerprint file was NOT served.
+    body = client.get("/api/v1/matches/m_target/analysis").json()
+    assert body["available"] is False
+
+
+def test_corrupt_cache_file_is_ignored_and_recomputed(cached_client):
+    client, cache_dir, _ = cached_client
+    # Prime the cache to learn the file path, then corrupt it.
+    client.get("/api/v1/matches/m_target/analysis")
+    files = list(cache_dir.glob("an_*.json"))
+    assert files
+    files[0].write_text("{ not json", encoding="utf-8")
+
+    matches.reset_cache()
+    server_analysis.reset_cache()
+    body = client.get("/api/v1/matches/m_target/analysis").json()
+    assert body["available"] is True  # recomputed despite the corrupt file
+    assert body["analysis"]["schema_version"] == "0.4.0"
+
+
+def test_source_mode_writes_no_disk_cache(client, monkeypatch):
+    # Default client has no analysis_cache_dir override → runtime returns None.
+    from golavo_server import runtime
+
+    monkeypatch.setattr(runtime, "analysis_cache_dir", lambda: None)
+    body = client.get("/api/v1/matches/m_target/analysis").json()
+    assert body["available"] is True  # still works, memo-only

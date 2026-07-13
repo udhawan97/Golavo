@@ -169,13 +169,17 @@ def _warm_calibration() -> None:
 
 def _warm_search() -> None:
     """Pre-load the frozen match index so the first /matches/search request does
-    not pay the ~25s pandas+parquet stall. Runs in a daemon thread the moment
-    serving starts. Best-effort: a missing/corrupt index is swallowed and the
-    first search fails closed (503) exactly as it would have anyway."""
+    not pay the ~25s pandas+parquet stall, then precompute the council for the
+    home-window matches so the first cockpit open is likely already cached. Runs
+    in a daemon thread the moment serving starts. Best-effort: a missing/corrupt
+    index is swallowed and the first search fails closed (503) as it would anyway.
+    The analysis warm runs AFTER the index load in this same thread, so it queues
+    behind the load instead of racing it into a double parquet read."""
     try:
-        from golavo_server import matches
+        from golavo_server import analysis, matches
 
         matches._load_index()
+        analysis.warm_home_window()
     except Exception:  # noqa: BLE001 (warm-up must never crash the server)
         pass
 

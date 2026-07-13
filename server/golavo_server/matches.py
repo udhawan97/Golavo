@@ -69,6 +69,7 @@ SHOOTOUTS_PATH = _paths["shootouts"]
 ALIASES_PATH = _paths["aliases"]
 
 _CACHE: Any = None  # the loaded index DataFrame; reset_cache() clears it
+_FINGERPRINT: str | None = None  # content hash of the index, for the analysis cache
 
 # Advisory warm-up state for the UI's staged splash / warming card. Written only
 # from _load_index(); dict-key writes are atomic under the GIL, so no lock is
@@ -104,9 +105,10 @@ class MatchIndexUnavailable(Exception):
 
 def reset_cache() -> None:
     """Drop the cached index frame (tests call this after repointing INDEX_PATH)."""
-    global _CACHE, _META_ROWS
+    global _CACHE, _META_ROWS, _FINGERPRINT
     _CACHE = None
     _META_ROWS = "unread"
+    _FINGERPRINT = None
     _WARM["state"] = "cold"
     _WARM["since_utc"] = None
     _WARM["error"] = None
@@ -160,6 +162,31 @@ def _meta_row_count() -> int | None:
     except Exception:  # noqa: BLE001 (missing/corrupt meta -> unknown count)
         _META_ROWS = None
     return _META_ROWS
+
+
+def index_fingerprint() -> str:
+    """A content hash of the active index, for content-addressed caches.
+
+    Prefers the index meta.json (it embeds every pack's ``manifest_sha256``, so any
+    refresh/rebuild changes it) and falls back to hashing the parquet bytes. Any
+    change to the index bytes changes the fingerprint, so a cache keyed on it can
+    never serve an analysis fitted on a different index. Memoized; reset with the
+    frame in ``reset_cache``/``repoint_to_refreshed``.
+    """
+    global _FINGERPRINT
+    if _FINGERPRINT is not None:
+        return _FINGERPRINT
+    import hashlib
+
+    try:
+        data = Path(INDEX_META_PATH).read_bytes()
+    except OSError:
+        try:
+            data = Path(INDEX_PATH).read_bytes()
+        except OSError:
+            data = b"unknown"
+    _FINGERPRINT = hashlib.sha256(data).hexdigest()
+    return _FINGERPRINT
 
 
 def index_status() -> dict[str, Any]:

@@ -76,6 +76,20 @@ def refreshed_pack_dir() -> Path | None:
     return (root / "pack") if root is not None else None
 
 
+def analysis_cache_dir() -> Path | None:
+    """Writable directory for the on-demand council disk cache, or None.
+
+    A content-addressed L2 cache so re-opening a match (or the same match after a
+    restart) doesn't refit five models. It sits beside the writable ledger; in
+    source/CI mode there is no writable root, so this returns None and the analysis
+    memo stays in-process only.
+    """
+    override = os.environ.get("GOLAVO_DATA_DIR")
+    if not override:
+        return None
+    return Path(override).expanduser().parent / "analysis-cache"
+
+
 def sample_artifacts_dir() -> Path:
     """Bundled synthetic sample forecasts.
 
