@@ -97,7 +97,7 @@ function useFocusTrap(active: boolean, onEscape: () => void) {
 
 /** Release notes, rendered safely: plain text only, bullets recognised, never
  *  raw HTML. Long bodies are capped — the release page has the rest. */
-function ReleaseNotes({ notes }: { notes: string }) {
+export function ReleaseNotes({ notes }: { notes: string }) {
   const capped = notes.length > 2400 ? `${notes.slice(0, 2400)}…` : notes;
   const lines = capped.split(/\r?\n/);
   const blocks: ReactNode[] = [];
@@ -131,7 +131,7 @@ function ReleasesLink({ children = "releases page" }: { children?: ReactNode }) 
   );
 }
 
-function ProgressBar({ downloaded, total }: { downloaded: number; total: number | null }) {
+export function ProgressBar({ downloaded, total }: { downloaded: number; total: number | null }) {
   const pct = total ? Math.min(100, Math.round((downloaded / total) * 100)) : null;
   // Announce at coarse steps only — per-chunk aria-live would spam screen readers.
   const coarse = pct === null ? null : Math.floor(pct / 25) * 25;

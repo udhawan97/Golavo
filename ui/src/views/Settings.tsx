@@ -13,7 +13,9 @@ import { useKeepFixturesFresh } from "../lib/fixtures";
 import type { ReadingPrefs } from "../lib/hooks";
 import { ReadingControls } from "../components/ReadingComfort";
 import { useUpdater } from "../lib/updater-context";
-import { formatWhen } from "../lib/updater";
+import { ERROR_HINTS, ERROR_TITLES, formatBytes, formatWhen } from "../lib/updater";
+import type { UpdaterController } from "../lib/updater";
+import { ProgressBar, ReleaseNotes } from "../components/updates";
 import { DOCS_URL, RELEASES_URL } from "../lib/links";
 
 function appVersionLabel(statusVersion: string | undefined): string {
@@ -158,12 +160,7 @@ export function Settings({
             </p>
           )}
 
-          {u.isDesktop && u.status && !u.status.enabled && (
-            <p className="dim">
-              This desktop build has no signed updater (development build). Update with a
-              fresh download from the <a href={RELEASES_URL} target="_blank" rel="noreferrer">releases page</a>.
-            </p>
-          )}
+          {u.isDesktop && u.status && !u.status.enabled && <FallbackUpdates u={u} />}
 
           {u.isDesktop && u.status?.enabled && (
             <>
@@ -230,6 +227,167 @@ export function Settings({
           )}
         </div>
       </section>
+    </div>
+  );
+}
+
+/**
+ * Updates panel for builds WITHOUT the signed updater (dev/source builds).
+ *
+ * Rather than dead-ending on a "go to the releases page" link, this fetches the
+ * latest release straight from GitHub and downloads the correct installer, then
+ * opens it. The final install step is manual (drag to Applications / run the
+ * setup) because Golavo does NOT cryptographically verify the artifact here (the
+ * signed updater's job) — trust is the OS's installer check. The copy says so
+ * plainly, and the check is manual to honour the no-surprise-network promise.
+ */
+function FallbackUpdates({ u }: { u: UpdaterController }) {
+  const current = u.status?.appVersion ?? "";
+  const platform = u.status?.platform ?? "other";
+  const phase = u.fallbackPhase;
+
+  const installHint =
+    platform === "windows"
+      ? "This runs the official installer — follow its prompts. Golavo stops its background helper so the installer can replace it; reopen Golavo when it finishes."
+      : platform === "macos"
+        ? "This opens the disk image — drag Golavo into your Applications folder (replacing the old one), then reopen Golavo."
+        : "Open the downloaded file to install, then reopen Golavo.";
+
+  return (
+    <div className="stack settings__rows" data-testid="fallback-updates">
+      <p className="dim">
+        This build doesn’t include the signed auto-updater, so Golavo can’t swap itself in
+        place. It can still fetch the latest release from GitHub and download the installer
+        for you — you finish the install yourself. Nothing is downloaded until you click.
+      </p>
+      <p className="dim">
+        Unlike the signed auto-updater, Golavo <b>can’t cryptographically verify this download
+        itself</b> — your operating system checks the installer when you open it, so only
+        update on a network you trust. The installer replaces the Golavo app only; your ledger
+        and data are left untouched (no automatic backup is taken on this path).
+      </p>
+
+      {phase.kind === "checking" ? (
+        <p role="status" aria-live="polite">Checking GitHub for the latest release…</p>
+      ) : phase.kind === "downloading" ? (
+        <>
+          <p>Downloading Golavo {phase.rel.version}…</p>
+          <ProgressBar downloaded={phase.downloaded} total={phase.total} />
+          <div className="settings__row">
+            <button type="button" className="btn" onClick={() => void u.fallbackCancel()}>
+              Cancel
+            </button>
+          </div>
+        </>
+      ) : phase.kind === "ready" ? (
+        <>
+          <p role="status" aria-live="polite">
+            <strong>Golavo {phase.rel.version}</strong> is downloaded.
+          </p>
+          <p className="settings__hint">{installHint}</p>
+          {phase.openError && (
+            <p className="dim">
+              Couldn’t open it automatically ({phase.openError.message}). It’s saved at{" "}
+              <code>{phase.path}</code> — open it yourself, or download again.
+            </p>
+          )}
+          <div className="settings__row">
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => void u.fallbackOpen()}
+            >
+              Open installer
+            </button>
+            <button type="button" className="btn btn--ghost" onClick={() => void u.fallbackDownload()}>
+              Download again
+            </button>
+          </div>
+          {!phase.openError && (
+            <p className="settings__hint">
+              Saved at <code>{phase.path}</code> (re-download only if it won’t open).
+            </p>
+          )}
+        </>
+      ) : phase.kind === "available" ? (
+        <>
+          <p role="status" aria-live="polite">
+            <strong>Golavo {phase.rel.version}</strong> is available
+            {current ? <> — you have {current}</> : null}.
+          </p>
+          {phase.rel.notes && <ReleaseNotes notes={phase.rel.notes} />}
+          {phase.rel.assetUrl ? (
+            <>
+              <div className="settings__row">
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={() => void u.fallbackDownload()}
+                >
+                  Download {phase.rel.version}
+                  {phase.rel.assetSize ? ` (${formatBytes(phase.rel.assetSize)})` : ""}
+                </button>
+                <button type="button" className="btn btn--ghost" onClick={() => void u.fallbackCheck()}>
+                  Check again
+                </button>
+              </div>
+              <p className="settings__hint">{installHint}</p>
+            </>
+          ) : (
+            <p className="settings__hint">
+              There’s no installer for your platform in that release. Update from the{" "}
+              <a href={RELEASES_URL} target="_blank" rel="noreferrer">releases page</a>.
+            </p>
+          )}
+        </>
+      ) : phase.kind === "upToDate" ? (
+        <>
+          <p role="status" aria-live="polite">
+            You’re on the latest version{phase.version ? ` — Golavo ${phase.version}` : ""}.
+          </p>
+          <div className="settings__row">
+            <span className="dim">
+              {u.lastCheckedAt ? `Last checked ${formatWhen(u.lastCheckedAt)}` : ""}
+            </span>
+            <button type="button" className="btn" onClick={() => void u.fallbackCheck()}>
+              Check again
+            </button>
+          </div>
+        </>
+      ) : phase.kind === "error" ? (
+        <>
+          <p role="status" aria-live="polite"><strong>{ERROR_TITLES[phase.error.kind]}</strong></p>
+          {ERROR_HINTS[phase.error.kind] && (
+            <p className="dim">{ERROR_HINTS[phase.error.kind]}</p>
+          )}
+          <p className="dim">{phase.error.message}</p>
+          <div className="settings__row">
+            <button
+              type="button"
+              className="btn"
+              onClick={() =>
+                // Retry the exact action that failed (tracked on the phase), so a
+                // failed re-check re-checks instead of downloading a stale rel.
+                phase.retry === "download" ? void u.fallbackDownload() : void u.fallbackCheck()
+              }
+            >
+              Try again
+            </button>
+            <a href={RELEASES_URL} target="_blank" rel="noreferrer">releases page</a>
+          </div>
+        </>
+      ) : (
+        <div className="settings__row">
+          <span>
+            {u.lastCheckedAt
+              ? `Last checked ${formatWhen(u.lastCheckedAt)}`
+              : "Not checked yet"}
+          </span>
+          <button type="button" className="btn" onClick={() => void u.fallbackCheck()}>
+            Check for updates
+          </button>
+        </div>
+      )}
     </div>
   );
 }

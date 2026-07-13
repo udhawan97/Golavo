@@ -26,6 +26,27 @@ export type MockCheckBehavior =
   | { outcome: "upToDate" }
   | { outcome: "error"; kind: string; message: string };
 
+/** Behaviour of the GitHub-release fallback path (unsigned builds). */
+export type MockFallbackCheck =
+  | {
+      outcome: "available";
+      version: string;
+      notes?: string | null;
+      assetName?: string;
+      assetUrl?: string;
+      assetSize?: number | null;
+    }
+  | { outcome: "noAsset"; version: string; notes?: string | null }
+  | { outcome: "upToDate"; version: string }
+  | { outcome: "error"; kind: string; message: string };
+
+export interface MockFallbackScenario {
+  /** What fallback_check resolves/rejects with. Default: available 9.9.9 dmg. */
+  check?: MockFallbackCheck;
+  /** If set, fallback_open rejects with this. */
+  openError?: { kind: string; message: string };
+}
+
 export interface MockUpdaterScenario {
   /** Reported by updater_status. Defaults: 0.2.6 / enabled / macos. */
   appVersion?: string;
@@ -34,6 +55,8 @@ export interface MockUpdaterScenario {
   justUpdated?: MockJustUpdated | null;
   /** What updater_check resolves/rejects with. Default: upToDate. */
   check?: MockCheckBehavior;
+  /** GitHub-release fallback behaviour (only reached when enabled === false). */
+  fallback?: MockFallbackScenario;
   /** Seeded before the app scripts run (e.g. golavo-updates-autocheck). */
   localStorage?: Record<string, string>;
 }
@@ -44,6 +67,9 @@ export interface MockTauriHandle {
   emit: (event: string, payload: unknown) => void;
   /** Every command name the app invoked, in order. */
   invoked: string[];
+  /** Resolve the pending fallback_download promise (the Rust command returns a
+   *  path on success). No-op if nothing is downloading. */
+  resolveDownload: (path: string) => void;
 }
 
 declare global {
@@ -77,7 +103,24 @@ export async function installMockTauri(
     };
     const check: MockCheckBehavior = sc.check ?? { outcome: "upToDate" };
 
-    window.__TAURI_MOCK__ = { emit, invoked };
+    const RELEASES = "https://github.com/udhawan97/Golavo/releases";
+    const DOWNLOAD_PREFIX = "https://github.com/udhawan97/Golavo/releases/download/";
+    // The fallback download command doesn't resolve until the test says so, so
+    // the "downloading" UI (and cancel) can be exercised — mirroring the real
+    // command that only returns once the stream finishes.
+    let pendingDownload: { resolve: (p: string) => void; reject: (e: unknown) => void } | null =
+      null;
+
+    window.__TAURI_MOCK__ = {
+      emit,
+      invoked,
+      resolveDownload: (path: string) => {
+        if (pendingDownload) {
+          pendingDownload.resolve(path);
+          pendingDownload = null;
+        }
+      },
+    };
     window.__TAURI__ = {
       core: {
         invoke: <T>(cmd: string): Promise<T> => {
@@ -121,6 +164,65 @@ export async function installMockTauri(
               return Promise.resolve(null as T);
             case "updater_relaunch":
               return Promise.resolve(null as T);
+
+            // -- GitHub-release fallback (unsigned builds) --------------------
+            case "fallback_check": {
+              const fb = sc.fallback?.check ?? { outcome: "available", version: "9.9.9" };
+              if (fb.outcome === "error") {
+                return Promise.reject({ kind: fb.kind, message: fb.message });
+              }
+              if (fb.outcome === "upToDate") {
+                return Promise.resolve({
+                  version: fb.version,
+                  available: false,
+                  notes: null,
+                  assetName: null,
+                  assetUrl: null,
+                  assetSize: null,
+                  releasesUrl: RELEASES,
+                } as T);
+              }
+              if (fb.outcome === "noAsset") {
+                return Promise.resolve({
+                  version: fb.version,
+                  available: true,
+                  notes: fb.notes ?? null,
+                  assetName: null,
+                  assetUrl: null,
+                  assetSize: null,
+                  releasesUrl: RELEASES,
+                } as T);
+              }
+              return Promise.resolve({
+                version: fb.version,
+                available: true,
+                notes: fb.notes ?? null,
+                assetName: fb.assetName ?? `Golavo_${fb.version}_aarch64.dmg`,
+                assetUrl:
+                  fb.assetUrl ??
+                  `${DOWNLOAD_PREFIX}v${fb.version}/Golavo_${fb.version}_aarch64.dmg`,
+                assetSize: fb.assetSize ?? 100 * 1024 * 1024,
+                releasesUrl: RELEASES,
+              } as T);
+            }
+            case "fallback_download":
+              // Held open until the test resolves it (or fallback_cancel rejects).
+              return new Promise<T>((resolve, reject) => {
+                pendingDownload = {
+                  resolve: (p: string) => resolve(p as T),
+                  reject,
+                };
+              });
+            case "fallback_cancel":
+              if (pendingDownload) {
+                pendingDownload.reject({ kind: "cancelled", message: "Download cancelled." });
+                pendingDownload = null;
+              }
+              return Promise.resolve(null as T);
+            case "fallback_open":
+              if (sc.fallback?.openError) return Promise.reject(sc.fallback.openError);
+              return Promise.resolve(null as T);
+
             default:
               return Promise.reject(new Error(`mock-tauri: unknown command ${cmd}`));
           }

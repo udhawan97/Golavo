@@ -183,13 +183,115 @@ test("Settings honesty: enabled build shows the controls", async ({ page }) => {
   await expect(page.getByText("cryptographically verified")).toBeVisible();
 });
 
-test("Settings honesty: unsigned dev build says so instead of faking controls", async ({ page }) => {
+test("Settings honesty: unsigned dev build offers the GitHub-release fallback", async ({ page }) => {
   await installMockTauri(page, { enabled: false });
   await gotoSettings(page);
-  await expect(page.getByText("This desktop build has no signed updater")).toBeVisible();
+  // No signed-path controls or consent (there is no signed updater here)…
   await expect(page.getByRole("button", { name: "Check now" })).toHaveCount(0);
-  // No consent card either — there is nothing to consent to.
   await expect(page.getByRole("region", { name: "Automatic update checks" })).toHaveCount(0);
+  // …but a real, honest fallback: fetch the latest release + download it.
+  await expect(page.getByText(/fetch the latest release from GitHub/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Check for updates" })).toBeVisible();
+});
+
+test("fallback: check → available → download → ready → open", async ({ page }) => {
+  await installMockTauri(page, {
+    enabled: false,
+    appVersion: "0.5.1",
+    fallback: {
+      check: { outcome: "available", version: "9.9.9", notes: "- Fixes bug A", assetSize: 100 * 1024 * 1024 },
+    },
+  });
+  await gotoSettings(page);
+
+  await page.getByRole("button", { name: "Check for updates" }).click();
+  await expect(page.getByText(/9\.9\.9 is available/)).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "Fixes bug A" })).toBeVisible();
+
+  await page.getByRole("button", { name: /Download 9\.9\.9/ }).click();
+
+  // Downloading UI + live progress driven by the fallback-progress event.
+  const bar = page.getByRole("progressbar", { name: "Download progress" });
+  await expect(bar).toBeVisible();
+  await emit(page, "updater://fallback-progress", { downloaded: 50 * 1024 * 1024, total: 100 * 1024 * 1024 });
+  await expect(bar).toHaveAttribute("aria-valuenow", "50");
+
+  // Rust resolves the command with the saved path → "ready".
+  await page.evaluate(() => window.__TAURI_MOCK__.resolveDownload("/tmp/Golavo_9.9.9.dmg"));
+  await expect(page.getByText(/9\.9\.9 is downloaded/)).toBeVisible();
+
+  await page.getByRole("button", { name: "Open installer" }).click();
+  const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);
+  expect(invoked).toContain("fallback_open");
+});
+
+test("fallback: open failure keeps the downloaded file, not a dead-end", async ({ page }) => {
+  await installMockTauri(page, {
+    enabled: false,
+    fallback: {
+      check: { outcome: "available", version: "9.9.9" },
+      openError: { kind: "other", message: "no default app" },
+    },
+  });
+  await gotoSettings(page);
+  await page.getByRole("button", { name: "Check for updates" }).click();
+  await page.getByRole("button", { name: /Download 9\.9\.9/ }).click();
+  await page.evaluate(() => window.__TAURI_MOCK__.resolveDownload("/tmp/Golavo_9.9.9.dmg"));
+  await page.getByRole("button", { name: "Open installer" }).click();
+
+  // The download is preserved: the error explains, the saved path shows, and
+  // Open installer is still there to retry.
+  await expect(page.getByText(/Couldn’t open it automatically/)).toBeVisible();
+  await expect(page.getByText("/tmp/Golavo_9.9.9.dmg")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open installer" })).toBeVisible();
+});
+
+test("fallback: cancel mid-download returns cleanly to the offer", async ({ page }) => {
+  await installMockTauri(page, { enabled: false, fallback: { check: { outcome: "available", version: "9.9.9" } } });
+  await gotoSettings(page);
+  await page.getByRole("button", { name: "Check for updates" }).click();
+  await page.getByRole("button", { name: /Download 9\.9\.9/ }).click();
+  await expect(page.getByRole("progressbar", { name: "Download progress" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Cancel" }).click();
+  // Back to the offer — the download button is clickable again, no error card.
+  await expect(page.getByRole("button", { name: /Download 9\.9\.9/ })).toBeVisible();
+});
+
+test("fallback: up to date is an honest confirmation", async ({ page }) => {
+  await installMockTauri(page, { enabled: false, fallback: { check: { outcome: "upToDate", version: "0.5.1" } } });
+  await gotoSettings(page);
+  await page.getByRole("button", { name: "Check for updates" }).click();
+  await expect(page.getByText(/on the latest version.*Golavo 0\.5\.1/)).toBeVisible();
+});
+
+test("fallback: check error shows named copy + releases fallback", async ({ page }) => {
+  await installMockTauri(page, {
+    enabled: false,
+    fallback: { check: { outcome: "error", kind: "unreachable", message: "dns error" } },
+  });
+  await gotoSettings(page);
+  await page.getByRole("button", { name: "Check for updates" }).click();
+  await expect(page.getByText("Couldn’t reach GitHub")).toBeVisible();
+  await expect(page.getByText("dns error")).toBeVisible();
+  await expect(page.getByRole("link", { name: "releases page" })).toBeVisible();
+
+  // A failed CHECK must retry the check (not download a stale rel).
+  await page.getByRole("button", { name: "Try again" }).click();
+  const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);
+  expect(invoked.filter((c) => c === "fallback_check").length).toBeGreaterThanOrEqual(2);
+  expect(invoked).not.toContain("fallback_download");
+});
+
+test("fallback: newer release with no installer for this platform points at releases", async ({ page }) => {
+  await installMockTauri(page, {
+    enabled: false,
+    fallback: { check: { outcome: "noAsset", version: "9.9.9" } },
+  });
+  await gotoSettings(page);
+  await page.getByRole("button", { name: "Check for updates" }).click();
+  await expect(page.getByText(/no installer for your platform/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Download/ })).toHaveCount(0);
 });
 
 test("Settings honesty: source build (no Tauri) points at git pull", async ({ page }) => {

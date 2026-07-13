@@ -17,6 +17,7 @@
 //!      installer path exits the process without firing those events, and the
 //!      NSIS template only kills the main exe — never a live sidecar.
 
+mod fallback_update;
 mod health;
 mod updater;
 
@@ -117,6 +118,10 @@ pub fn run() {
             #[cfg(feature = "updater")]
             app.manage(updater::UpdaterEngine::default());
 
+            // The GitHub-release fallback updater is always available (it works
+            // in unsigned dev/source builds too); its engine is managed here.
+            app.manage(fallback_update::FallbackEngine::default());
+
             // 1. port + token.
             let port = health::pick_free_port()?;
             let token = health::generate_token();
@@ -214,6 +219,10 @@ pub fn run() {
             updater::updater_cancel,
             updater::updater_install_and_restart,
             updater::updater_relaunch,
+            fallback_update::fallback_check,
+            fallback_update::fallback_download,
+            fallback_update::fallback_cancel,
+            fallback_update::fallback_open,
         ])
         .build(tauri::generate_context!())
         .expect("error building Golavo desktop shell")

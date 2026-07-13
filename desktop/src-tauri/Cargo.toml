@@ -28,6 +28,16 @@ getrandom = "0.2"
 # tree transitively via tauri-plugin-dialog, so this adds no new download.
 rfd = "0.16"
 
+# The GitHub-release FALLBACK updater (src/fallback_update.rs) works in EVERY
+# build — including unsigned dev/source builds that lack the signed updater
+# below. It hits the public GitHub releases API and streams the platform
+# installer, so it needs an HTTPS client + semver comparison. Both are already
+# compiled into every build transitively (reqwest via `tauri`, semver too), so
+# depending on them directly adds no new download; default-features are off so
+# we reuse tauri's rustls stack via feature unification and never pull openssl.
+reqwest = { version = "0.13", default-features = false, features = ["json", "stream"] }
+semver = "1"
+
 # The updater is wired but gated behind this feature: a default local/CI build
 # has NO active updater (no signing key exists). Maintainers holding the keys
 # build with `--features updater`. See src/updater.rs and docs/updates-rollback.md.
