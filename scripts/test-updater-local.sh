@@ -96,10 +96,13 @@ cp "${BUNDLE_DIR}/macos/"Golavo*.app.tar.gz "$SERVE/Golavo_${NEXT}_aarch64.app.t
 cp "${BUNDLE_DIR}/macos/"Golavo*.app.tar.gz.sig "$SERVE/Golavo_${NEXT}_aarch64.app.tar.gz.sig"
 
 echo "==> restoring the version bump"
+# Must cover every file bump_version.py touches (all 14 spots) — a short list
+# silently leaves docs-site bumped to $NEXT in the working tree after the harness exits.
 git restore desktop/src-tauri/tauri.conf.json desktop/src-tauri/Cargo.toml \
   desktop/src-tauri/Cargo.lock desktop/package.json ui/package.json \
   core/pyproject.toml server/pyproject.toml core/golavo_core/__init__.py \
-  server/golavo_server/__init__.py CITATION.cff
+  server/golavo_server/__init__.py CITATION.cff docs-site/package.json \
+  docs-site/src/components/Hero.astro docs-site/src/content/docs/index.mdx
 
 echo "==> writing latest.json (mac-only manifest for the local harness)"
 python3 - "$SERVE" "$NEXT" "$PORT" <<'PY'
