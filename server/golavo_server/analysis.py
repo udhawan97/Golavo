@@ -78,7 +78,8 @@ def _disk_read(path: Path) -> dict[str, Any] | None:
     analysis = obj.get("analysis") if isinstance(obj, dict) else None
     # Validate the schema version on read: a cache written by an older engine must
     # be treated as a miss (and deleted), never served as if current.
-    if not isinstance(analysis, dict) or analysis.get("schema_version") != _analysis_schema_version():
+    want = _analysis_schema_version()
+    if not isinstance(analysis, dict) or analysis.get("schema_version") != want:
         try:
             path.unlink()
         except OSError:
@@ -200,7 +201,9 @@ def warm_home_window(limit: int = 12) -> None:
             .sort_values(by=["_ko", "match_id"], ascending=[True, True], kind="mergesort")
             .head(limit)
         )
-        ids = list(recent["match_id"].astype("string")) + list(upcoming["match_id"].astype("string"))
+        ids = list(recent["match_id"].astype("string")) + list(
+            upcoming["match_id"].astype("string")
+        )
         for mid in ids:
             try:
                 match_analysis(str(mid))

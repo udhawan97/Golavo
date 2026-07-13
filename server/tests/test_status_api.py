@@ -14,8 +14,7 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 from golavo_server import main as server_main
-from golavo_server import matches
-from golavo_server import runtime
+from golavo_server import matches, runtime
 
 # The frozen index schema, verbatim (order matters for the parquet round-trip).
 COLUMNS = [

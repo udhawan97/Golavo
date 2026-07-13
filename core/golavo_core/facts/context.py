@@ -398,12 +398,12 @@ def in_form_scorer(ctx: TemplateContext) -> list[Candidate]:
             continue
         in_window = team_goals.loc[
             team_goals.apply(
-                lambda row: (
+                lambda row, _keys=keys: (
                     pd.Timestamp(row["date"]).normalize(),
                     str(row["home_team"]),
                     str(row["away_team"]),
                 )
-                in keys,
+                in _keys,
                 axis=1,
             )
         ]
@@ -427,8 +427,16 @@ def in_form_scorer(ctx: TemplateContext) -> list[Candidate]:
         out.append(
             Candidate(
                 subject=team,
-                text=f"{team}'s most in-form scorer has {g} goals across their last {m_d} internationals in this data.",
-                values={"scorer": str(name), "goals": goals, "window_matches": m, "penalties": penalties},
+                text=(
+                    f"{team}'s most in-form scorer has {g} goals across their "
+                    f"last {m_d} internationals in this data."
+                ),
+                values={
+                    "scorer": str(name),
+                    "goals": goals,
+                    "window_matches": m,
+                    "penalties": penalties,
+                },
                 numbers=nb.items(),
                 sample_n=m,
                 denominator=m,

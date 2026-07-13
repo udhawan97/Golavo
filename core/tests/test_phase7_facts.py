@@ -251,9 +251,17 @@ def _form_ctx(goalscorers):
         day = f"2024-{(i % 12) + 1:02d}-05"
         opp = rivals[i % 3]
         rows.append({
-            "match_id": f"m{i:02d}", "date": pd.Timestamp(day), "kickoff_utc": pd.Timestamp(day, tz="UTC"),
-            "home_team": "Alpha", "away_team": opp, "home_score": 2, "away_score": 1,
-            "is_complete": True, "neutral": False, "tournament": "Friendly", "competition": "Friendly",
+            "match_id": f"m{i:02d}",
+            "date": pd.Timestamp(day),
+            "kickoff_utc": pd.Timestamp(day, tz="UTC"),
+            "home_team": "Alpha",
+            "away_team": opp,
+            "home_score": 2,
+            "away_score": 1,
+            "is_complete": True,
+            "neutral": False,
+            "tournament": "Friendly",
+            "competition": "Friendly",
         })
     matches = pd.DataFrame(rows)
     return TemplateContext(

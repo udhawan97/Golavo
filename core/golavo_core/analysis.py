@@ -120,7 +120,9 @@ def _recent_form(train: pd.DataFrame, team: str, n: int = 5) -> list[dict[str, A
     already pre-cutoff and completed-only), so it is safe to render even when the
     council abstains. Each entry is one result from the team's perspective.
     """
-    mask = train["home_team"].astype("string").eq(team) | train["away_team"].astype("string").eq(team)
+    home = train["home_team"].astype("string").eq(team)
+    away = train["away_team"].astype("string").eq(team)
+    mask = home | away
     rows = train.loc[mask]
     if rows.empty:
         return []

@@ -19,7 +19,7 @@ pandas/pyarrow are imported INSIDE functions to keep the frozen sidecar's boot
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -128,7 +128,7 @@ def _load_index() -> Any:
         return _CACHE
     if _WARM["state"] == "cold":
         _WARM["state"] = "warming"
-        _WARM["since_utc"] = datetime.now(timezone.utc).isoformat()
+        _WARM["since_utc"] = datetime.now(UTC).isoformat()
     import pandas as pd
 
     path = Path(INDEX_PATH)

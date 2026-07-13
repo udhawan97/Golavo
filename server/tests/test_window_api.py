@@ -121,7 +121,9 @@ def test_invalid_window_is_422(client) -> None:
 
 def test_empty_index_yields_null_anchor_and_empty_arrays(tmp_path, monkeypatch) -> None:
     # An index with no completed rows: week/month anchor is null, arrays empty.
-    only_upcoming = [_row("m_up", "2030-01-01", "Asian Cup", _INTL, "international", complete=False)]
+    only_upcoming = [
+        _row("m_up", "2030-01-01", "Asian Cup", _INTL, "international", complete=False)
+    ]
     df = pd.DataFrame(only_upcoming)
     df["date"] = pd.to_datetime(df["date"])
     df["kickoff_utc"] = pd.to_datetime(df["kickoff_utc"], utc=True)

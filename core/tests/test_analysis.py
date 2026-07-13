@@ -204,7 +204,8 @@ def test_team_form_is_last_five_pre_cutoff_and_leak_safe() -> None:
         ])],
         ignore_index=True,
     )
-    assert build_match_analysis(matches=poisoned, match_row=fixture)["team_form"] == analysis["team_form"]
+    reanalysis = build_match_analysis(matches=poisoned, match_row=fixture)
+    assert reanalysis["team_form"] == analysis["team_form"]
 
 
 def test_team_form_present_even_when_the_council_abstains() -> None:
