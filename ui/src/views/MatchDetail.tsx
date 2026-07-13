@@ -32,6 +32,9 @@ import { TeamStyleProfile } from "../components/TeamStyleProfile";
 import { ScoreOutlook } from "../components/ScoreOutlook";
 import { NotebookFacts } from "../components/CommentatorsNotebook";
 import { InsightCards } from "../components/InsightCards";
+import { TourOverlay } from "../components/TourOverlay";
+import { COCKPIT_TOUR, useTour } from "../lib/tour";
+import { useUpdater } from "../lib/updater-context";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
 export function MatchDetail({ id }: { id: string }) {
@@ -87,6 +90,12 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       ? analysisState.data.analysis
       : null;
 
+  // The cockpit micro-tour fires the first time a match is opened. It yields to
+  // the update-consent card and, via useTour, only starts once its panels exist,
+  // so it never spotlights a bare loading skeleton with no anchor.
+  const { consentNeeded } = useUpdater();
+  const cockpitTour = useTour(COCKPIT_TOUR, !consentNeeded);
+
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <Breadcrumb label={`${match.home_team} v ${match.away_team}`} />
@@ -108,12 +117,14 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
 
       {analysis && <FormStripsRow analysis={analysis} />}
 
-      <ModelCouncil
-        state={analysisState}
-        home={match.home_team}
-        away={match.away_team}
-        onRetry={() => setRetryTick((t) => t + 1)}
-      />
+      <div data-tour="cockpit-council">
+        <ModelCouncil
+          state={analysisState}
+          home={match.home_team}
+          away={match.away_team}
+          onRetry={() => setRetryTick((t) => t + 1)}
+        />
+      </div>
 
       {analysis && <TeamStyleProfile analysis={analysis} expert={mode === "expert"} />}
       {analysis && <ScoreOutlook analysis={analysis} home={match.home_team} away={match.away_team} />}
@@ -128,9 +139,15 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
 
       <InsightCards source={{ kind: "match", matchId: id }} />
 
-      <MatchNotebookBlock matchId={id} />
+      <div data-tour="cockpit-notebook">
+        <MatchNotebookBlock matchId={id} />
+      </div>
 
-      <AiDeepRead source={{ kind: "match", matchId: id }} />
+      <div data-tour="cockpit-ai">
+        <AiDeepRead source={{ kind: "match", matchId: id }} />
+      </div>
+
+      <TourOverlay ctrl={cockpitTour} />
     </div>
   );
 }

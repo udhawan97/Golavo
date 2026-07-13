@@ -1,23 +1,69 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HAS_BACKEND, fetchForecastSource, pingHealth } from "./api";
 import type { ForecastSource } from "./api";
 
-/** After this long with no healthy /health, tell the user rather than easing a
- *  progress bar toward 94% forever. Polling continues in the background, so a
- *  slow-but-alive engine still recovers on its own. */
-const STALL_AFTER_MS = 30_000;
+/** How long the splash waits before it softens into a calm "still working" note
+ *  (never a failure — the shell owns that verdict via `backend://failed`). Wider
+ *  on a first launch, where the onefile engine self-extracts and antivirus
+ *  rescans the fresh binaries; tighter once the app has started before. */
+const REASSURE_FIRST_MS = 120_000;
+const REASSURE_RETURNING_MS = 45_000;
+
+/** Safety net: if the shell somehow never reports ready OR failed and /health
+ *  never answers, surface a manual retry anyway rather than reassure forever.
+ *  Set beyond the shell's own worst-case budget (first wait + one silent retry). */
+const BACKSTOP_MS = 6 * 60_000;
+
+/** Per-version flag: a fresh install (or a just-updated binary that re-triggers
+ *  extraction/AV cost) is treated as a first launch. Version-stamped so an update
+ *  gets first-launch patience once, then tightens. */
+function launchFlagKey(): string {
+  const version =
+    (globalThis as { __GOLAVO_RUNTIME__?: { appVersion?: string } }).__GOLAVO_RUNTIME__
+      ?.appVersion ?? "dev";
+  return `golavo-launched-ok:${version}`;
+}
+
+function isFirstLaunch(): boolean {
+  try {
+    return localStorage.getItem(launchFlagKey()) !== "1";
+  } catch {
+    return true; // no storage (private mode): be generous, treat as first.
+  }
+}
+
+function recordLaunched(): void {
+  try {
+    localStorage.setItem(launchFlagKey(), "1");
+  } catch {
+    /* private mode — it just won't persist; harmless */
+  }
+}
+
+/** The Tauri bridge, if this is the desktop shell (source/web builds return
+ *  undefined and every desktop-only path becomes a no-op). */
+function bridge(): Window["__TAURI__"] {
+  return typeof window !== "undefined" ? window.__TAURI__ : undefined;
+}
+
+/** Ask the shell to restart the local engine (fresh generation, same port). A
+ *  no-op with no bridge. Never throws to the caller. */
+async function invokeRestart(): Promise<void> {
+  try {
+    await bridge()?.core.invoke("restart_sidecar");
+  } catch {
+    /* the health poll / next failed event still governs what the user sees */
+  }
+}
 
 /** The two real, observable startup stages (plus the terminal "done").
  *  - extracting: the onefile sidecar is self-extracting; /health not answering.
- *  - index:      /health answers, but the heavy match index is still loading.
- *  The stage BOUNDARY is real (driven by /health then /status), so the bar's
- *  jump into stage 2 marks genuine progress, not a fake curve. */
+ *  - index:      /health answers, but the heavy match index is still loading. */
 export type SplashStage = "extracting" | "index" | "done";
 
 /** Per-stage eased progress. Each stage eases toward a ceiling and never claims
  *  completion until the real signal arrives, so the bar is honest within a stage
- *  and honest at the boundary. Stage 2 floors above stage 1's ceiling so the
- *  transition is a visible step forward, not a jump backward. */
+ *  and honest at the boundary. */
 export function stageProgress(stage: SplashStage, secondsInStage: number): number {
   const t = Math.max(0, secondsInStage);
   if (stage === "extracting") return 70 * (1 - Math.exp(-t / 12)); // 0 -> ~70
@@ -28,74 +74,113 @@ export function stageProgress(stage: SplashStage, secondsInStage: number): numbe
 export interface BackendStatus {
   /** True once the local engine answers (or immediately in mock mode). */
   ready: boolean;
-  /** True when startup has taken long enough to warrant an escape hatch. */
-  stalled: boolean;
-  /** Restart the wait from zero (clears `stalled`, kicks a fresh poll). */
+  /** True once startup has run long enough to warrant a calm "still working"
+   *  note. Cosmetic only — it never means anything is wrong. */
+  reassure: boolean;
+  /** True only when the SHELL reported the engine failed AND the automatic
+   *  single retry has already been spent — i.e. time to offer a manual retry. */
+  failed: boolean;
+  /** Milliseconds since the current attempt began (for honest elapsed copy). */
+  elapsedMs: number;
+  /** Manually restart the engine and wait again (clears `failed`). */
   retry: () => void;
 }
 
-/** Readiness of the local engine.
+/** Readiness of the local engine, and the one owner of the launch verdict.
  *
- *  The desktop sidecar is a onefile Python bundle that self-extracts on every
- *  launch (~30-40s the first time), so the window opens well before the backend
- *  answers. This gates the app behind a splash until then. Two signals, either
- *  wins: the shell's `backend://ready` event (fast) and a `/health` poll
- *  (fallback for a missed event / source-web mode). Mock mode is ready at once.
- *  If neither signal arrives within STALL_AFTER_MS, `stalled` flips so the
- *  splash can offer a retry instead of a permanent 94%. */
+ *  Two ready signals, either wins: the shell's `backend://ready` event and a
+ *  `/health` poll (fallback for a missed event / source-web mode). FAILURE is
+ *  never guessed from a timer — it comes only from the shell's `backend://failed`
+ *  event, so the UI and shell can never contradict each other. The first failure
+ *  is absorbed by ONE silent restart; only a second failure surfaces to the user.
+ *  A generous backstop covers the (shouldn't-happen) case of total silence. */
 export function useBackendReady(): BackendStatus {
   const [ready, setReady] = useState(() => !HAS_BACKEND);
-  const [stalled, setStalled] = useState(false);
+  const [reassure, setReassure] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [attempt, setAttempt] = useState(0);
+  const autoRetried = useRef(false);
 
   useEffect(() => {
     if (!HAS_BACKEND) return;
     let alive = true;
-    let timer: number | undefined;
-    let unlisten: (() => void) | undefined;
+    let poll: number | undefined;
+    let tick: number | undefined;
+    const unlisten: Array<() => void> = [];
     const startedAt = performance.now();
+    const reassureAfter = isFirstLaunch() ? REASSURE_FIRST_MS : REASSURE_RETURNING_MS;
+
     const markReady = () => {
-      if (alive) {
-        setReady(true);
-        setStalled(false);
-      }
+      if (!alive) return;
+      recordLaunched();
+      setReady(true);
+      setReassure(false);
+      setFailed(false);
     };
 
-    const bridge = typeof window !== "undefined" ? window.__TAURI__ : undefined;
-    bridge?.event
-      .listen("backend://ready", markReady)
-      .then((un) => {
-        if (alive) unlisten = un;
-        else un();
-      })
-      .catch(() => {
-        /* no bridge (source-web mode) — the poll below covers it */
-      });
+    const onFailed = () => {
+      if (!alive) return;
+      if (!autoRetried.current) {
+        // Absorb the first failure with one silent restart — most first-launch
+        // stumbles (an AV scan, a transient port clash) clear on a second try.
+        autoRetried.current = true;
+        setReassure(true);
+        void invokeRestart();
+        return;
+      }
+      setFailed(true);
+    };
 
-    const poll = async () => {
+    const b = bridge();
+    b?.event.listen("backend://ready", markReady).then(
+      (un) => (alive ? unlisten.push(un) : un()),
+      () => {},
+    );
+    b?.event.listen("backend://failed", onFailed).then(
+      (un) => (alive ? unlisten.push(un) : un()),
+      () => {},
+    );
+
+    const runPoll = async () => {
       if (!alive) return;
       if (await pingHealth()) {
         markReady();
         return;
       }
-      if (alive && performance.now() - startedAt > STALL_AFTER_MS) setStalled(true);
-      timer = window.setTimeout(poll, 1500);
+      poll = window.setTimeout(runPoll, 1500);
     };
-    void poll();
+    void runPoll();
+
+    tick = window.setInterval(() => {
+      if (!alive) return;
+      const ms = performance.now() - startedAt;
+      setElapsedMs(ms);
+      if (ms > reassureAfter) setReassure(true);
+      // Backstop only — the shell should have emitted failed long before this.
+      if (ms > BACKSTOP_MS) setFailed(true);
+    }, 1000);
 
     return () => {
       alive = false;
-      unlisten?.();
-      if (timer !== undefined) window.clearTimeout(timer);
+      unlisten.forEach((un) => un());
+      if (poll !== undefined) window.clearTimeout(poll);
+      if (tick !== undefined) window.clearInterval(tick);
     };
   }, [attempt]);
 
   const retry = useCallback(() => {
-    setStalled(false);
+    setFailed(false);
+    setReassure(true);
+    setElapsedMs(0);
+    void invokeRestart();
+    // Re-run the effect (fresh listeners + poll + elapsed clock). autoRetried is
+    // intentionally left true: a manual attempt that fails again shows `failed`
+    // immediately rather than silently restarting once more.
     setAttempt((n) => n + 1);
   }, []);
 
-  return { ready, stalled, retry };
+  return { ready, reassure, failed, elapsedMs, retry };
 }
 
 /** The forecast data source once the backend is ready — drives the honest

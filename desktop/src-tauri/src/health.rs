@@ -7,7 +7,52 @@
 
 use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
+
+/// Why a supervised health wait ended. The shell treats these very differently:
+/// a `Healthy` sidecar releases the splash; an `Exited` one (the process died
+/// before answering — a crash) is the only case worth an automatic restart; a
+/// `TimedOut` one is alive-but-slow, which we surface as a recoverable failure
+/// the user can retry rather than silently killing a launch that might have been
+/// seconds from ready.
+pub enum HealthOutcome {
+    Healthy(Duration),
+    Exited,
+    TimedOut,
+}
+
+/// Poll `/health` until it reports ok, the deadline passes, or the process exits,
+/// watching `terminated` so the caller can tell a genuine early process-exit apart
+/// from a slow-but-alive extraction. Never kills anything; it only observes.
+pub fn wait_for_health_or_exit(
+    port: u16,
+    token: &str,
+    terminated: &AtomicBool,
+    timeout: Duration,
+) -> HealthOutcome {
+    let started = Instant::now();
+    let deadline = started + timeout;
+    let Ok(addr) = format!("127.0.0.1:{port}").parse::<SocketAddr>() else {
+        return HealthOutcome::TimedOut;
+    };
+    let request = format!(
+        "GET /health HTTP/1.1\r\nHost: 127.0.0.1\r\nx-golavo-token: {token}\r\nConnection: close\r\n\r\n"
+    );
+    while Instant::now() < deadline {
+        if let Ok(true) = probe(&addr, &request) {
+            return HealthOutcome::Healthy(started.elapsed());
+        }
+        // Only trust `terminated` as an early-exit signal once /health has had a
+        // real chance to answer negatively: the flag is also set by the output
+        // drain on channel close, and a slow probe should not be mistaken for it.
+        if terminated.load(Ordering::SeqCst) {
+            return HealthOutcome::Exited;
+        }
+        std::thread::sleep(Duration::from_millis(250));
+    }
+    HealthOutcome::TimedOut
+}
 
 /// Ask the OS for a free TCP port on loopback, then release it. There is an
 /// unavoidable (tiny) race between releasing it here and the sidecar binding it;
@@ -22,32 +67,6 @@ pub fn generate_token() -> String {
     let mut buf = [0u8; 32];
     getrandom::getrandom(&mut buf).expect("OS RNG must be available");
     buf.iter().map(|byte| format!("{byte:02x}")).collect()
-}
-
-/// Poll `http://127.0.0.1:<port>/health` until it reports ok, or the timeout
-/// elapses. Returns Ok(elapsed) on success.
-pub fn wait_for_health(port: u16, token: &str, timeout: Duration) -> Result<Duration, String> {
-    let started = Instant::now();
-    let deadline = started + timeout;
-    let addr: SocketAddr = format!("127.0.0.1:{port}")
-        .parse()
-        .map_err(|e| format!("bad loopback addr: {e}"))?;
-    let request = format!(
-        "GET /health HTTP/1.1\r\nHost: 127.0.0.1\r\nx-golavo-token: {token}\r\nConnection: close\r\n\r\n"
-    );
-
-    let mut last = String::from("no connection yet");
-    while Instant::now() < deadline {
-        match probe(&addr, &request) {
-            Ok(true) => return Ok(started.elapsed()),
-            Ok(false) => last = "sidecar responded but /health not ok".into(),
-            Err(e) => last = e,
-        }
-        std::thread::sleep(Duration::from_millis(250));
-    }
-    Err(format!(
-        "sidecar /health not ready on 127.0.0.1:{port} within {timeout:?} ({last})"
-    ))
 }
 
 /// Ask the sidecar to exit itself (token-gated POST /api/v1/shutdown). Used

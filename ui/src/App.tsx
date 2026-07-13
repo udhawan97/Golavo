@@ -26,6 +26,8 @@ import { useBackendReady, useForecastSource } from "./lib/startup";
 import { StartupSplash } from "./components/StartupSplash";
 import { startWarmupPolling, useWarmupStatus } from "./lib/warmup";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { TourOverlay } from "./components/TourOverlay";
+import { HOME_TOUR, seedExistingUser, useTour } from "./lib/tour";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
  *  home's own warming card. A wedged index can never strand the user: search and
@@ -37,12 +39,19 @@ export default function App() {
   const [prefs, setPrefs] = useReadingPrefs();
   // The splash paints before the app shell; warm reads as a dark surface there.
   const splashTheme = prefs.theme === "light" ? "light" : "dark";
-  const { ready: backendReady, stalled, retry } = useBackendReady();
+  const { ready: backendReady, reassure, failed, elapsedMs, retry } = useBackendReady();
   const forecastSource = useForecastSource(backendReady);
   const warmup = useWarmupStatus();
   const [skippedWarmup, setSkippedWarmup] = useState(false);
   // One controller for the whole app: header pill, sheet, settings, toast.
   const updater = useUpdaterController();
+
+  // First-launch orientation. Seed returning users as "done" once so an update
+  // never replays the newcomer tour. The home tour yields to the update-consent
+  // card and only fires once a real match card exists (see useTour).
+  useEffect(() => { seedExistingUser(); }, []);
+  const onHome = path === "/" || path === "" || path === "/games";
+  const homeTour = useTour(HOME_TOUR, onHome && backendReady && !updater.consentNeeded);
 
   // Once /health answers, start the shared status poll (drives the stage-2 splash,
   // the home warming card, and the activity center from one place).
@@ -66,15 +75,17 @@ export default function App() {
   // loading. Stage 2 is escapable (skip button + cap) so the user is never held
   // hostage — the home continues the same messaging in a smaller card.
   const holdForIndex = backendReady && warmup.phase === "warming" && !skippedWarmup;
-  if (!backendReady || holdForIndex) {
+  if (!backendReady || holdForIndex || failed) {
     return (
       <StartupSplash
         theme={splashTheme}
         stage={backendReady ? "index" : "extracting"}
         rows={warmup.rows}
-        stalled={stalled}
+        reassure={reassure}
+        failed={failed}
+        elapsedMs={elapsedMs}
         onRetry={retry}
-        onSkip={backendReady ? () => setSkippedWarmup(true) : undefined}
+        onSkip={backendReady && !failed ? () => setSkippedWarmup(true) : undefined}
       />
     );
   }
@@ -103,6 +114,7 @@ export default function App() {
       <UpdateSheet />
       <UpdateConsentCard />
       <UpdatedToast />
+      <TourOverlay ctrl={homeTour} />
     </UpdaterContext.Provider>
   );
 }

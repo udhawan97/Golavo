@@ -20,6 +20,7 @@ import { ERROR_HINTS, ERROR_TITLES, formatBytes, formatWhen } from "../lib/updat
 import type { UpdaterController } from "../lib/updater";
 import { ProgressBar, ReleaseNotes } from "../components/updates";
 import { DOCS_URL, RELEASES_URL } from "../lib/links";
+import { replayTours, tourEnabled } from "../lib/tour";
 
 function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
@@ -153,6 +154,33 @@ export function Settings({
               header. Choices apply everywhere and are remembered on this device.
             </p>
             <ReadingControls prefs={prefs} onChange={onChangePrefs} />
+          </div>
+        </section>
+      )}
+
+      {tourEnabled() && (
+        <section className="panel" aria-labelledby="settings-tour">
+          <div className="panel__head"><h2 id="settings-tour">Getting started</h2></div>
+          <div className="panel__body stack" style={{ ["--gap" as string]: "var(--space-3)" }}>
+            <div className="settings__row">
+              <div>
+                <label>Show the guided tour again</label>
+                <p className="settings__hint" style={{ margin: ".2rem 0 0" }}>
+                  Replays the short spotlight tour of the home and a match’s cockpit.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => {
+                  // Land on the home first so the tour's first anchor exists.
+                  window.location.hash = "#/";
+                  replayTours();
+                }}
+              >
+                Replay tour
+              </button>
+            </div>
           </div>
         </section>
       )}

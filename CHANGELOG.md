@@ -6,7 +6,28 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.6.0] - 2026-07-13
+### Added
+- **First-launch spotlight tour.** A short, dependency-free coach-mark tour points
+  out the real UI on a fresh install: a home tour (open a match → Model Lab → local
+  AI in Settings) and, the first time a match is opened, a cockpit tour (the model
+  council → the notebook → the Fast/Deep AI read). It only fires when its target
+  actually exists (never over a still-warming, empty home), yields to the update
+  consent card, is seeded "done" for existing users so an update never replays it,
+  and is fully keyboard- and screen-reader-navigable. Replay it anytime from
+  Settings → Getting started. Desktop only.
+
+### Changed
+- **A slow first launch never looks like a failure.** The engine self-extracts on
+  first run, which can take past a minute; the splash now stays calm and patient
+  (wider on a first launch, tighter afterwards), shows a reassuring "still working,
+  nothing is wrong" note with elapsed time instead of an alarming stall screen, and
+  only offers a retry once the shell actually reports a failure.
+- **The engine restarts itself before ever showing an error.** If the local engine
+  stops before it is ready, the app silently restarts it once; only a second
+  failure surfaces a calm, focused "Try again" (which truly restarts the engine,
+  not just a timer). The shell keeps the window alive and hands the failure to the
+  UI rather than dying in a native dialog, and it no longer kills a slow-but-healthy
+  launch to "retry" it.
 
 Two-speed local AI: a **Fast** fallback for a quick read and a genuinely deeper
 **Deep analysis** that puts a bigger local model to work — a richer synthesis, not

@@ -100,7 +100,7 @@ export function Layout({
           <nav className="nav" aria-label="Primary">
             <a href="#/" aria-current={isActive(path, "games") ? "page" : undefined}>Matchday</a>
             <a href="#/leagues" aria-current={isActive(path, "leagues") ? "page" : undefined}>Leagues</a>
-            <a href="#/lab" aria-current={isActive(path, "lab") ? "page" : undefined}>Model Lab</a>
+            <a href="#/lab" data-tour="nav-lab" aria-current={isActive(path, "lab") ? "page" : undefined}>Model Lab</a>
           </nav>
           <div className="site-header__tools">
             <UpdatePill />
@@ -119,6 +119,7 @@ export function Layout({
             <a
               className="icon-btn"
               href="#/settings"
+              data-tour="nav-settings"
               aria-label="Settings — about & updates"
               title="Settings"
               aria-current={path.startsWith("/settings") ? "page" : undefined}

@@ -43,14 +43,20 @@ export function StartupSplash({
   theme,
   stage = "extracting",
   rows = null,
-  stalled = false,
+  reassure = false,
+  failed = false,
+  elapsedMs = 0,
   onRetry,
   onSkip,
 }: {
   theme: "dark" | "light";
   stage?: SplashStage;
   rows?: number | null;
-  stalled?: boolean;
+  /** Past the patience threshold but still starting — show a calm note. */
+  reassure?: boolean;
+  /** The shell reported the engine failed after its own retry — offer a manual one. */
+  failed?: boolean;
+  elapsedMs?: number;
   onRetry?: () => void;
   onSkip?: () => void;
 }) {
@@ -58,6 +64,7 @@ export function StartupSplash({
   const stageStart = useRef<number>(performance.now());
   const deck = useMemo(() => buildWaitDeck(Math.floor(Math.random() * 12)), []);
   const [card, setCard] = useState(0);
+  const retryRef = useRef<HTMLButtonElement>(null);
 
   // Reset the eased progress clock whenever the real stage changes, so stage 2
   // starts from its own floor (a visible step forward), not wherever stage 1 was.
@@ -66,38 +73,50 @@ export function StartupSplash({
   }, [stage]);
 
   useEffect(() => {
+    if (failed) return; // progress clock is meaningless once we've stopped.
     const id = window.setInterval(() => {
       setPct(stageProgress(stage, (performance.now() - stageStart.current) / 1000));
     }, 120);
     return () => window.clearInterval(id);
-  }, [stage]);
+  }, [stage, failed]);
 
   useEffect(() => {
-    // Slower rotation under reduced motion — abrupt swaps are the fallback, so
-    // fewer of them is kinder.
     const period = prefersReducedMotion() ? 9000 : 6000;
     const id = window.setInterval(() => setCard((c) => (c + 1) % deck.length), period);
     return () => window.clearInterval(id);
   }, [deck.length]);
+
+  // Move focus to the retry action the moment the failure tier appears, so a
+  // keyboard/screen-reader user lands on the one thing to do.
+  useEffect(() => {
+    if (failed) retryRef.current?.focus();
+  }, [failed]);
 
   const lockup =
     theme === "dark" ? "/brand/golavo-lockup-dark.svg" : "/brand/golavo-lockup-light.svg";
   const rounded = Math.round(pct);
   const { title, status, announce } = copyFor(stage, IS_DESKTOP_SHELL, rows);
   const current = deck[card];
+  const elapsedSec = Math.floor(elapsedMs / 1000);
 
-  if (stalled) {
+  if (failed) {
     return (
-      <div className="splash" aria-label="Golavo is taking longer than expected">
+      <div className="splash" aria-label="Golavo could not start the engine">
         <div className="splash__inner">
           <img className="splash__logo" src={lockup} alt="Golavo" height={40} width={162} />
-          <p className="splash__title">The local engine is taking a while</p>
-          <p className="splash__status splash__status--stalled" role="status">
-            It usually starts within a minute. If it doesn’t, quitting and
-            reopening Golavo — or reinstalling — clears a stuck launch.
+          <p className="splash__title">The local engine didn’t start</p>
+          {/* One announcement, with focus moved to the button below. */}
+          <p className="splash__status splash__status--stalled" role="alert">
+            This is usually temporary. Try again, and if it keeps happening,
+            quitting and reopening Golavo — or reinstalling — clears a stuck launch.
           </p>
           {onRetry && (
-            <button type="button" className="btn btn--primary" onClick={onRetry}>
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={onRetry}
+              ref={retryRef}
+            >
               Try again
             </button>
           )}
@@ -134,6 +153,16 @@ export function StartupSplash({
             <span className="splash__pct">{rounded}%</span>
           </div>
         </div>
+
+        {/* Reassurance: shown only past the patience threshold. The elapsed
+            seconds tick silently (aria-hidden) so screen readers aren't spammed;
+            the reassuring sentence is announced exactly once via its keyed node. */}
+        {reassure && (
+          <p className="splash__reassure">
+            <span role="status">Still working — nothing is wrong; a first launch can take a couple of minutes.</span>{" "}
+            <span className="splash__elapsed" aria-hidden="true">{elapsedSec}s</span>
+          </p>
+        )}
 
         {current && (
           <div className="splash__fact" key={card} aria-hidden="true">
