@@ -1,69 +1,90 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { IS_DESKTOP_SHELL } from "../lib/updater";
+import { stageProgress } from "../lib/startup";
+import type { SplashStage } from "../lib/startup";
+import { buildWaitDeck } from "../lib/waitContent";
 
-/** Genuinely true, genuinely obscure football facts to pass the ~30-40s the
- *  onefile engine takes to unpack on a cold launch. Kept factual on purpose —
- *  this is a forecast-audit app; even the loading screen shouldn't make things
- *  up. Each is one sentence so it fits without reflow. */
-const FACTS: readonly string[] = [
-  "“Soccer” is British slang — short for as-SOC-iation football, coined to tell it apart from rugby.",
-  "Brazil is the only country to appear at every men's World Cup since the tournament began in 1930.",
-  "The most lopsided professional match ever finished 149–0 — every goal an own goal, scored in protest, in Madagascar in 2002.",
-  "Denmark won Euro 1992 without qualifying: they were called up at the last minute to replace Yugoslavia.",
-  "Vatican City fields its own national team, drawn mostly from Swiss Guards and clergy.",
-  "Only three people have won the World Cup as both player and manager: Zagallo, Beckenbauer, and Deschamps.",
-  "The fastest World Cup goal came after 11 seconds — Hakan Şükür for Turkey in 2002.",
-  "The goal net was patented in 1891 by a Liverpool engineer, John Brodie.",
-  "A regulation match ball must measure 68–70 cm around — the same spec used at the World Cup.",
-  "Nearly 200,000 fans packed the Maracanã for the 1950 World Cup final, still a record crowd.",
-  "The oldest club in the world, Sheffield FC, was founded in 1857 — before the modern rules of the game even existed.",
-  "A single Law of the Game (Law 11, offside) has been rewritten more than any other in football's history.",
-];
-
-/** Time-based progress: real extraction gives us no signal, so we ease toward
- *  ~94% and let the app itself replace the splash the moment the backend is
- *  ready. Fast early, slows near the end — never stalls on a fixed number, never
- *  claims to be finished before it is. */
-function estimateProgress(elapsedSeconds: number): number {
-  return 94 * (1 - Math.exp(-elapsedSeconds / 12));
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function statusFor(pct: number, desktop: boolean): string {
-  if (!desktop) return "Connecting to the local server…";
-  if (pct < 38) return "Unpacking the forecasting engine…";
-  if (pct < 72) return "Warming up the models…";
-  return "Almost ready…";
+/** Stage title + status line. Everything here is TRUE for the stage it names:
+ *  stage 1 is a real self-extract, stage 2 is a real index load. */
+function copyFor(stage: SplashStage, desktop: boolean, rows: number | null): {
+  title: string;
+  status: string;
+  announce: string;
+} {
+  if (!desktop) {
+    return {
+      title: "Connecting to the local server…",
+      status: "Connecting to the local server…",
+      announce: "Starting Golavo — connecting to the local server.",
+    };
+  }
+  if (stage === "extracting") {
+    return {
+      title: "Unpacking the engine…",
+      status: "First launch takes the longest — the whole engine self-extracts.",
+      announce: "Starting Golavo — unpacking the engine. This can take up to a minute.",
+    };
+  }
+  const seated = rows ? rows.toLocaleString() : "75,000+";
+  return {
+    title: "Waking the match library…",
+    status: `Engine is up — seating ${seated} matches.`,
+    announce: "Engine running — waking the match library. Almost ready.",
+  };
 }
 
 export function StartupSplash({
   theme,
+  stage = "extracting",
+  rows = null,
   stalled = false,
   onRetry,
+  onSkip,
 }: {
   theme: "dark" | "light";
+  stage?: SplashStage;
+  rows?: number | null;
   stalled?: boolean;
   onRetry?: () => void;
+  onSkip?: () => void;
 }) {
   const [pct, setPct] = useState(0);
-  const [fact, setFact] = useState(() => Math.floor(Math.random() * FACTS.length));
+  const stageStart = useRef<number>(performance.now());
+  const deck = useMemo(() => buildWaitDeck(Math.floor(Math.random() * 12)), []);
+  const [card, setCard] = useState(0);
+
+  // Reset the eased progress clock whenever the real stage changes, so stage 2
+  // starts from its own floor (a visible step forward), not wherever stage 1 was.
+  useEffect(() => {
+    stageStart.current = performance.now();
+  }, [stage]);
 
   useEffect(() => {
-    const start = performance.now();
     const id = window.setInterval(() => {
-      setPct(estimateProgress((performance.now() - start) / 1000));
+      setPct(stageProgress(stage, (performance.now() - stageStart.current) / 1000));
     }, 120);
     return () => window.clearInterval(id);
-  }, []);
+  }, [stage]);
 
   useEffect(() => {
-    const id = window.setInterval(() => setFact((f) => (f + 1) % FACTS.length), 5200);
+    // Slower rotation under reduced motion — abrupt swaps are the fallback, so
+    // fewer of them is kinder.
+    const period = prefersReducedMotion() ? 9000 : 6000;
+    const id = window.setInterval(() => setCard((c) => (c + 1) % deck.length), period);
     return () => window.clearInterval(id);
-  }, []);
+  }, [deck.length]);
 
   const lockup =
     theme === "dark" ? "/brand/golavo-lockup-dark.svg" : "/brand/golavo-lockup-light.svg";
   const rounded = Math.round(pct);
-  const status = statusFor(pct, IS_DESKTOP_SHELL);
+  const { title, status, announce } = copyFor(stage, IS_DESKTOP_SHELL, rows);
+  const current = deck[card];
 
   if (stalled) {
     return (
@@ -87,14 +108,15 @@ export function StartupSplash({
 
   return (
     <div className="splash" aria-label="Golavo is starting up">
-      {/* One calm, stable announcement for assistive tech — not the ticking %. */}
-      <p className="visually-hidden" role="status">
-        Starting Golavo. First launch can take up to a minute while the engine unpacks.
+      {/* One calm announcement per stage — not the ticking %. `key` re-announces
+          only when the stage-specific text actually changes. */}
+      <p className="visually-hidden" role="status" key={announce}>
+        {announce}
       </p>
 
       <div className="splash__inner">
         <img className="splash__logo" src={lockup} alt="Golavo" height={40} width={162} />
-        <p className="splash__title">Starting the local engine…</p>
+        <p className="splash__title splash__stage-swap" key={title}>{title}</p>
 
         <div className="splash__progress">
           <div
@@ -113,12 +135,20 @@ export function StartupSplash({
           </div>
         </div>
 
-        <div className="splash__fact" key={fact} aria-hidden="true">
-          <span className="splash__fact-label">
-            <span className="splash__ball" /> Did you know
-          </span>
-          <p className="splash__fact-text">{FACTS[fact]}</p>
-        </div>
+        {current && (
+          <div className="splash__fact" key={card} aria-hidden="true">
+            <span className="splash__fact-label">
+              <span className="splash__ball" /> {current.label}
+            </span>
+            <p className="splash__fact-text">{current.text}</p>
+          </div>
+        )}
+
+        {onSkip && (
+          <button type="button" className="splash__skip" onClick={onSkip}>
+            Browse while the library warms ›
+          </button>
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,24 @@ import type { ForecastSource } from "./api";
  *  slow-but-alive engine still recovers on its own. */
 const STALL_AFTER_MS = 30_000;
 
+/** The two real, observable startup stages (plus the terminal "done").
+ *  - extracting: the onefile sidecar is self-extracting; /health not answering.
+ *  - index:      /health answers, but the heavy match index is still loading.
+ *  The stage BOUNDARY is real (driven by /health then /status), so the bar's
+ *  jump into stage 2 marks genuine progress, not a fake curve. */
+export type SplashStage = "extracting" | "index" | "done";
+
+/** Per-stage eased progress. Each stage eases toward a ceiling and never claims
+ *  completion until the real signal arrives, so the bar is honest within a stage
+ *  and honest at the boundary. Stage 2 floors above stage 1's ceiling so the
+ *  transition is a visible step forward, not a jump backward. */
+export function stageProgress(stage: SplashStage, secondsInStage: number): number {
+  const t = Math.max(0, secondsInStage);
+  if (stage === "extracting") return 70 * (1 - Math.exp(-t / 12)); // 0 -> ~70
+  if (stage === "index") return 72 + 25 * (1 - Math.exp(-t / 9)); //  72 -> ~97
+  return 100;
+}
+
 export interface BackendStatus {
   /** True once the local engine answers (or immediately in mock mode). */
   ready: boolean;

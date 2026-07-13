@@ -146,6 +146,18 @@ def meta() -> dict[str, Any]:
     }
 
 
+@app.get("/api/v1/status")
+def engine_status() -> dict[str, Any]:
+    """Live engine warm-up status for the UI's staged splash / warming card.
+
+    Reports the match-index warm state; it NEVER triggers the (slow) index load
+    itself, so it answers in microseconds even mid-warmup. Token-gated like every
+    /api route — the UI only polls it after /health answers, so it doesn't need
+    the /health exemption.
+    """
+    return {"version": __version__, **matches.index_status()}
+
+
 @app.post("/api/v1/shutdown")
 def shutdown() -> dict[str, bool]:
     """Desktop-only: the shell asks the sidecar to exit before installing an update.

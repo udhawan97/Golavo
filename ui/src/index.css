@@ -798,6 +798,17 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 .update-progress__label { font-size: .82rem; }
 
+/* home warming card — a smaller continuation of the splash while the index loads */
+.warmup-hero {
+  padding: 1.25rem 1.35rem;
+  display: flex; flex-direction: column; gap: .8rem;
+  background: var(--surface-1);
+}
+.warmup-hero__title { font-size: 1.05rem; font-weight: 600; margin: 0; }
+.warmup-hero__status { font-size: .9rem; line-height: 1.5; margin: 0; max-width: var(--measure); }
+.warmup-hero__bar { margin: .1rem 0; }
+.splash__fact--compact { margin-top: 0; padding: .7rem .85rem; }
+
 .consent-card, .update-toast {
   position: fixed; right: 1rem; bottom: 1rem; z-index: 55;
   padding: 1rem 1.1rem; box-shadow: var(--shadow);
@@ -903,10 +914,24 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: none; }
 }
+/* the stage title crossfades on a real stage change (reuses the fact keyframe) */
+.splash__stage-swap { animation: splash-fact-in .45s ease both; }
+/* escape hatch on stage 2 — a quiet ghost link, never competing with the logo */
+.splash__skip {
+  margin-top: .25rem;
+  background: none; border: 0; padding: .35rem .5rem;
+  font: inherit; font-size: .82rem; color: var(--text-dim);
+  cursor: pointer; border-radius: var(--radius-sm);
+  transition: color .15s ease;
+}
+.splash__skip:hover { color: var(--text-muted); }
+.splash__skip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
   .splash__fill { transition: none; }
   .splash__fill::after { animation: none; display: none; }
   .splash__fact { animation: none; }
+  .splash__stage-swap { animation: none; }
+  .splash__skip { transition: none; }
 }
 
 /* ---------------------------------------------------- sample banner ------- */
@@ -1232,3 +1257,32 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 .ai-toggle__dot.on { background: var(--green); }
 .ai-toggle--on { color: var(--gold); border-color: var(--gold-line); }
+
+/* ---- header activity center ------------------------------------------------ */
+.activity { position: relative; display: inline-flex; }
+.activity__trigger { position: relative; }
+.activity__dot {
+  position: absolute; top: 5px; right: 5px;
+  width: 7px; height: 7px; border-radius: 999px; background: var(--gold);
+  box-shadow: 0 0 0 0 var(--gold-soft);
+  animation: activity-pulse 2s ease-in-out infinite;
+}
+@keyframes activity-pulse {
+  0%   { box-shadow: 0 0 0 0 var(--gold-soft); }
+  70%  { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.activity__panel { min-width: 16rem; }
+.activity__row {
+  display: flex; flex-direction: column; gap: .35rem;
+  padding-bottom: var(--space-3); border-bottom: 1px solid var(--border);
+}
+.activity__row:last-child { padding-bottom: 0; border-bottom: 0; }
+.activity__label { font-size: var(--text-sm); font-weight: 550; color: var(--text); }
+.activity__bar { margin: 0; }
+.activity__detail { margin: 0; }
+.activity__action { align-self: flex-start; padding: .32rem .7rem; font-size: var(--text-sm); }
+.activity__empty { margin: 0; font-size: var(--text-sm); }
+@media (prefers-reduced-motion: reduce) {
+  .activity__dot { animation: none; }
+}

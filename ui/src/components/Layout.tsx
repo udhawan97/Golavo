@@ -6,6 +6,7 @@ import { AI_PROVIDERS, lastAiProvider, useAiProvider } from "../lib/ai";
 import type { ReadingPrefs } from "../lib/hooks";
 import { GearIcon, SearchIcon } from "./icons";
 import { ReadingComfort } from "./ReadingComfort";
+import { ActivityCenter } from "./ActivityCenter";
 import { UpdatePill } from "./updates";
 import { DOCS_URL } from "../lib/links";
 
@@ -102,6 +103,7 @@ export function Layout({
           </nav>
           <div className="site-header__tools">
             <UpdatePill />
+            <ActivityCenter />
             <AiQuickToggle />
             <a
               className="icon-btn"

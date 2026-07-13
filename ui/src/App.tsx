@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Layout } from "./components/Layout";
 import { useHashRoute, useReadingPrefs } from "./lib/hooks";
 import type { ReadingPrefs } from "./lib/hooks";
@@ -23,7 +23,13 @@ import { useUpdaterController } from "./lib/updater";
 import { UpdateConsentCard, UpdateSheet, UpdatedToast } from "./components/updates";
 import { useBackendReady, useForecastSource } from "./lib/startup";
 import { StartupSplash } from "./components/StartupSplash";
+import { startWarmupPolling, useWarmupStatus } from "./lib/warmup";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+
+/** Longest we hold the splash on stage 2 (index warm) before releasing to the
+ *  home's own warming card. A wedged index can never strand the user: search and
+ *  cockpit already have honest 503 states. */
+const INDEX_STAGE_CAP_MS = 45_000;
 
 export default function App() {
   const [path] = useHashRoute();
@@ -32,15 +38,45 @@ export default function App() {
   const splashTheme = prefs.theme === "light" ? "light" : "dark";
   const { ready: backendReady, stalled, retry } = useBackendReady();
   const forecastSource = useForecastSource(backendReady);
+  const warmup = useWarmupStatus();
+  const [skippedWarmup, setSkippedWarmup] = useState(false);
   // One controller for the whole app: header pill, sheet, settings, toast.
   const updater = useUpdaterController();
+
+  // Once /health answers, start the shared status poll (drives the stage-2 splash,
+  // the home warming card, and the activity center from one place).
+  useEffect(() => {
+    if (backendReady) startWarmupPolling();
+  }, [backendReady]);
+
+  // Auto-release stage 2 after a cap so a stuck index warm never holds the app.
+  useEffect(() => {
+    if (!backendReady || warmup.phase !== "warming") return;
+    const id = window.setTimeout(() => setSkippedWarmup(true), INDEX_STAGE_CAP_MS);
+    return () => window.clearTimeout(id);
+  }, [backendReady, warmup.phase]);
 
   // Calm scroll reset on navigation (respects reduced-motion via CSS).
   useEffect(() => { window.scrollTo({ top: 0 }); }, [path]);
 
   // Hold the app behind a splash until the (slow-to-extract) engine is up, so a
-  // long first launch never looks like a broken window.
-  if (!backendReady) return <StartupSplash theme={splashTheme} stalled={stalled} onRetry={retry} />;
+  // long first launch never looks like a broken window. Stage 1 = the sidecar
+  // self-extracting (no /health); stage 2 = /health up but the match index still
+  // loading. Stage 2 is escapable (skip button + cap) so the user is never held
+  // hostage — the home continues the same messaging in a smaller card.
+  const holdForIndex = backendReady && warmup.phase === "warming" && !skippedWarmup;
+  if (!backendReady || holdForIndex) {
+    return (
+      <StartupSplash
+        theme={splashTheme}
+        stage={backendReady ? "index" : "extracting"}
+        rows={warmup.rows}
+        stalled={stalled}
+        onRetry={retry}
+        onSkip={backendReady ? () => setSkippedWarmup(true) : undefined}
+      />
+    );
+  }
 
   return (
     <UpdaterContext.Provider value={updater}>

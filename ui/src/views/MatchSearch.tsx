@@ -14,6 +14,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MatchRow, NewFixture, SourceKind } from "../lib/contract";
 import { ApiError, checkNewFixtures, fetchCompetitions, searchMatches } from "../lib/api";
 import { useKeepFixturesFresh } from "../lib/fixtures";
+import { beginActivity, endActivity } from "../lib/activity";
 import { utcDate } from "../lib/format";
 import { useAsync, useDebouncedValue } from "../lib/hooks";
 import { InfoIcon, SearchIcon } from "../components/icons";
@@ -309,11 +310,15 @@ function NewFixturesNotice() {
   useEffect(() => {
     if (!enabled) return;
     let alive = true;
-    checkNewFixtures().then((res) => {
-      if (alive && res) setFresh(res.new_fixtures);
-    });
+    beginActivity("fixtures", "Checking upstream fixtures…");
+    checkNewFixtures()
+      .then((res) => {
+        if (alive && res) setFresh(res.new_fixtures);
+      })
+      .finally(() => endActivity("fixtures"));
     return () => {
       alive = false;
+      endActivity("fixtures");
     };
   }, [enabled]);
   if (!enabled || fresh.length === 0) return null;

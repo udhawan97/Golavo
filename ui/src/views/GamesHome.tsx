@@ -15,6 +15,8 @@ import { useAsync } from "../lib/hooks";
 import type { AsyncState } from "../lib/hooks";
 import { BlockSkeleton, ErrorState } from "../components/states";
 import { ChevronRight, SealIcon, SearchIcon } from "../components/icons";
+import { useWarmupStatus } from "../lib/warmup";
+import { WarmupHero } from "../components/EngineWarmup";
 
 const WELCOME_KEY = "golavo-welcome-dismissed";
 
@@ -67,7 +69,7 @@ const LEAGUES: { slug: string; name: string }[] = [
 ];
 
 export function GamesHome() {
-  const state = useAsync(() => fetchRecentMatches(24), []);
+  const warmup = useWarmupStatus();
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.5rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
@@ -95,7 +97,10 @@ export function GamesHome() {
         ))}
       </nav>
 
-      <Rails state={state} />
+      {/* Hold the matches query until the index is warm — firing it early blocks
+          ~25s inside pandas' import lock, showing bare skeletons. The store flips
+          to ready the moment the index is up, and HomeRails then fetches instantly. */}
+      {warmup.phase === "warming" ? <WarmupHero rows={warmup.rows} /> : <HomeRails />}
 
       <p className="small dim" style={{ margin: 0 }}>
         Tracking predictions before kickoff? Your sealed forecasts and their scores live in{" "}
@@ -103,6 +108,12 @@ export function GamesHome() {
       </p>
     </div>
   );
+}
+
+/** Owns the recent-matches fetch — mounted only once the index is warm. */
+function HomeRails() {
+  const state = useAsync(() => fetchRecentMatches(24), []);
+  return <Rails state={state} />;
 }
 
 function Rails({ state }: { state: AsyncState<RecentMatchesResponse> }) {

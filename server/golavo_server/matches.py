@@ -19,6 +19,7 @@ pandas/pyarrow are imported INSIDE functions to keep the frozen sidecar's boot
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -69,6 +70,14 @@ ALIASES_PATH = _paths["aliases"]
 
 _CACHE: Any = None  # the loaded index DataFrame; reset_cache() clears it
 
+# Advisory warm-up state for the UI's staged splash / warming card. Written only
+# from _load_index(); dict-key writes are atomic under the GIL, so no lock is
+# needed for this coarse, read-mostly hint. index_status() reports it and NEVER
+# triggers the (slow) load itself, so /api/v1/status answers in microseconds even
+# mid-warmup.
+_WARM: dict[str, Any] = {"state": "cold", "since_utc": None, "error": None}
+_META_ROWS: Any = "unread"  # memoized row_count from meta.json: "unread" | int | None
+
 
 def repoint_to_refreshed() -> None:
     """Swing the module at the refreshed index and drop the cache.
@@ -95,8 +104,12 @@ class MatchIndexUnavailable(Exception):
 
 def reset_cache() -> None:
     """Drop the cached index frame (tests call this after repointing INDEX_PATH)."""
-    global _CACHE
+    global _CACHE, _META_ROWS
     _CACHE = None
+    _META_ROWS = "unread"
+    _WARM["state"] = "cold"
+    _WARM["since_utc"] = None
+    _WARM["error"] = None
 
 
 def _load_index() -> Any:
@@ -104,22 +117,60 @@ def _load_index() -> Any:
 
     Lazy on purpose: pandas/pyarrow cost ~25s to import from the frozen bundle,
     so the first search pays it (the sidecar warms it in the background) while
-    /health and the forecast surface stay light.
+    /health and the forecast surface stay light. Drives the advisory ``_WARM``
+    state machine (cold -> warming -> ready|error) so the UI splash can show
+    honest, real-stage progress instead of a pure fake curve.
     """
     global _CACHE
     if _CACHE is not None:
         return _CACHE
+    if _WARM["state"] == "cold":
+        _WARM["state"] = "warming"
+        _WARM["since_utc"] = datetime.now(timezone.utc).isoformat()
     import pandas as pd
 
     path = Path(INDEX_PATH)
     if not path.exists():
+        _WARM["state"] = "error"
+        _WARM["error"] = f"match index not found at {path}"
         raise MatchIndexUnavailable(f"match index not found at {path}")
     try:
         frame = pd.read_parquet(path)
     except Exception as exc:  # noqa: BLE001 (any read/parse failure => unavailable)
+        _WARM["state"] = "error"
+        _WARM["error"] = f"match index unreadable: {exc}"
         raise MatchIndexUnavailable(f"match index unreadable: {exc}") from exc
     _CACHE = frame
+    _WARM["state"] = "ready"
     return frame
+
+
+def _meta_row_count() -> int | None:
+    """Row count from the index meta.json, memoized. Cheap: a small JSON read, no
+    pandas/pyarrow — safe to call during warmup. Any failure -> None."""
+    global _META_ROWS
+    if _META_ROWS != "unread":
+        return _META_ROWS
+    import json
+
+    try:
+        meta = json.loads(Path(INDEX_META_PATH).read_text(encoding="utf-8"))
+        value = meta.get("row_count")
+        _META_ROWS = int(value) if value is not None else None
+    except Exception:  # noqa: BLE001 (missing/corrupt meta -> unknown count)
+        _META_ROWS = None
+    return _META_ROWS
+
+
+def index_status() -> dict[str, Any]:
+    """Live warm-up status for the UI. Reports only; never triggers the load."""
+    ready = _CACHE is not None
+    return {
+        "index_ready": ready,
+        "index_state": "ready" if ready else _WARM["state"],
+        "index_rows": _meta_row_count(),
+        "warming_since": _WARM["since_utc"],
+    }
 
 
 def _normalize(text: Any) -> str:

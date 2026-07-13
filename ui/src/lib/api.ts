@@ -89,6 +89,52 @@ export async function pingHealth(): Promise<boolean> {
   }
 }
 
+/** The engine warm-up state reported by GET /api/v1/status. Drives the staged
+ *  splash (real stages, not a fake curve) and the home warming card. */
+export interface EngineStatus {
+  index_ready: boolean;
+  index_state: "cold" | "warming" | "ready" | "error";
+  index_rows: number | null;
+  warming_since: string | null;
+}
+
+/** Poll the engine's warm-up status.
+ *
+ *  Deliberately a DIRECT fetch (not routed through the 30s read-through cache in
+ *  getJson) — a cached "warming" would strand the splash forever. Returns:
+ *   - EngineStatus on success,
+ *   - "unsupported" for a 404 (an older sidecar without the route — the caller
+ *     then behaves exactly as it did before this feature: treat as ready),
+ *   - null on any network failure/timeout (keep polling).
+ *  Mock mode reports ready instantly. Never throws. */
+export async function fetchEngineStatus(): Promise<EngineStatus | "unsupported" | null> {
+  if (!API_BASE) {
+    return { index_ready: true, index_state: "ready", index_rows: null, warming_since: null };
+  }
+  try {
+    const headers: Record<string, string> = { accept: "application/json" };
+    if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 3000);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/status`, { headers, signal: ctrl.signal });
+      if (res.status === 404) return "unsupported";
+      if (!res.ok) return null;
+      const body = (await res.json()) as Partial<EngineStatus>;
+      return {
+        index_ready: body.index_ready === true,
+        index_state: body.index_state ?? "warming",
+        index_rows: typeof body.index_rows === "number" ? body.index_rows : null,
+        warming_since: body.warming_since ?? null,
+      };
+    } finally {
+      clearTimeout(timeout);
+    }
+  } catch {
+    return null;
+  }
+}
+
 export type ForecastSource = "mock" | "sample" | "ledger";
 
 /** Whether the forecast list is real user seals ("ledger") or bundled synthetic
