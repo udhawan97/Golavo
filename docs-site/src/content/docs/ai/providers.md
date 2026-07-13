@@ -21,6 +21,10 @@ The AI layer **explains and cites** the forecast. It **does not improve forecast
 
 Local endpoints are OpenAI-compatible: Ollama at `http://localhost:11434/v1`, llama-server at `http://127.0.0.1:8080/v1`. llama-server is preferred where hard schema-constrained JSON is needed (it supports GBNF grammars and `json_schema`/`response_format`).
 
+### Which local model runs
+
+You don't have to pull a specific model. Golavo probes the local server's `/v1/models` and runs whatever you already have, preferring the model that best matches its default (exact name → same base name → same family), and skipping embedding-only models. So a fresh Ollama with, say, `llama3.2` or `gemma` just works. To pin an exact model, set `GOLAVO_OLLAMA_MODEL` (or `GOLAVO_LLAMACPP_MODEL`). If the local server is unreachable or has no usable model, the panel says so plainly — start the server or pull a model, then retry. Local models load their weights on first use, so the first read can take up to a minute (the default timeout is generous for this).
+
 ## The evidence bundle is all AI ever sees
 
 AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed features, source records, data-quality flags, and an explicit `allowed_numbers` list. It has no access to the internet by default and no write path to probabilities. The bundle is built deterministically from a sealed artifact (`golavo_core.evidence`) — the same artifact in yields the same bundle, byte-for-byte.
@@ -28,7 +32,7 @@ AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed f
 ## Hard rules
 
 1. Output is schema-validated JSON (`claims`, `scenarios`, `candidate_facts`).
-2. **Numeric whitelist** — every numeric token must exactly match the trusted display of an `allowed_numbers` id referenced by that same claim. Units and references cannot be swapped; spelled, fractional, compound, and scientific notation fail closed. Any mismatch rejects the output (one retry, then Local-only fallback).
+2. **Numeric whitelist** — every numeric token must exactly match the trusted display of an `allowed_numbers` id referenced by that same claim. Units and references cannot be swapped; spelled, fractional, compound, and scientific notation fail closed. Any mismatch rejects the output (one retry, then Local-only fallback). Harmless extra keys a small model adds are pruned rather than failing the whole answer; the betting and credential scanners fold Unicode look-alikes and strip zero-width characters so obfuscated terms are still caught.
 3. Claims without `source_ids` are dropped; numbered claims must cite one of the number's own trusted sources.
 4. A betting-lexicon filter rejects "locks," "units," and odds formats.
 5. Chain-of-thought is never exposed. The analysis animation shows factual pipeline stages only (snapshot → features → model → seal).

@@ -6,6 +6,45 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-07-13
+
+Local AI now just works with whatever model you have, fails honestly when it
+can't, and a batch of user-flow gaps around the optional AI read are closed. The
+deterministic engine and every number are unchanged — these are reliability and
+clarity fixes to the optional layer on top.
+
+### Fixed
+- **Local AI works with the model you actually have.** The app only ever asked
+  the local server for its built-in default model (`llama3.1`); if you hadn't
+  pulled that exact model, Ollama/llama.cpp returned "model not found" and the
+  read looped forever on "AI output could not be verified." Golavo now probes the
+  local server's installed models and runs the closest match (preferring the same
+  family), so it works out of the box with any model you've pulled. Set
+  `GOLAVO_OLLAMA_MODEL` / `GOLAVO_LLAMACPP_MODEL` to pin a specific one.
+- **Honest failures instead of a silent loop.** When no local model is reachable
+  you get a clear, actionable message (start the server / pull a model) with a
+  working **Try again** button — previously a dead end. The "showing the local
+  forecast only" reason now distinguishes *couldn't reach the model / timed out*
+  from *the model answered but its output failed the guards*, and the real
+  reasons are shown under a "What happened" disclosure. Raw `HTTP 503` no longer
+  leaks to the screen; it shows an "engine still warming up" hint instead.
+- **A cached AI read survives the local server being stopped**, instead of
+  flipping to "unavailable." Truncated local/cloud responses now fall back
+  cleanly rather than erroring, and an embedding-only local install reports "no
+  usable model" instead of looping on garbage output.
+- **A corrupt notebook file can no longer 500 the AI read** — it fails closed and
+  is treated as "no notebook," so the forecast read still works.
+- The loading animation no longer resets its checklist to the first step (which
+  read as "restarting"); local models get a longer default timeout to load.
+
+### Changed
+- Small local models that decorate their JSON with harmless extra keys, or return
+  a slightly-off optional "background" note, no longer have their whole (otherwise
+  valid) answer thrown away — extras are pruned and bad background notes are
+  dropped individually, with the grounded, cited claims preserved.
+- The betting-lexicon and credential scanners now fold Unicode look-alikes and
+  strip zero-width characters, closing an obfuscation gap in the AI guards.
+
 ## [0.5.0] - 2026-07-13
 
 Free/open expansion, phase one: attribution and licensing become machine-checked,
