@@ -218,13 +218,70 @@ def load_api_key(provider: str) -> str | None:
 
 # --- Transports (real network calls; injectable for tests) -------------------
 
+def _grounded_output_schema(allow_background: bool) -> dict[str, Any]:
+    """A $ref-free JSON Schema for constrained decoding (``response_format``).
+
+    Mirrors the wire narration schema's SHAPE so a small local model is forced to
+    emit ``{claims, scenarios, candidate_facts}`` at the top level instead of
+    parroting the bundle back under a wrapper key. It is a decoding hint, not a
+    guard — ``review_narration`` still owns every safety rule. Kept strict-mode
+    compatible (all properties required, ``additionalProperties: false``, no
+    string length/pattern facets)."""
+    claim = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["text", "source_ids", "number_refs"],
+        "properties": {
+            "text": {"type": "string"},
+            "source_ids": {"type": "array", "items": {"type": "string"}},
+            "number_refs": {"type": "array", "items": {"type": "string"}},
+        },
+    }
+    fact = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["text", "quote", "source_url"],
+        "properties": {
+            "text": {"type": "string"},
+            "quote": {"type": "string"},
+            "source_url": {"type": "string"},
+        },
+    }
+    properties: dict[str, Any] = {
+        "claims": {"type": "array", "items": claim},
+        "scenarios": {"type": "array", "items": claim},
+        "candidate_facts": {"type": "array", "items": fact},
+    }
+    required = ["claims", "scenarios", "candidate_facts"]
+    if allow_background:
+        properties["background"] = {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["text"],
+                "properties": {"text": {"type": "string"}},
+            },
+        }
+        required.append("background")
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": required,
+        "properties": properties,
+    }
+
+
 def build_openai_payload(
     config: ProviderConfig, key: str | None, system: str, user: str
 ) -> tuple[str, dict[str, str], dict[str, Any]]:
     """(url, headers, body) for an OpenAI-compatible chat completion.
 
     The key goes ONLY in the Authorization header — never in the body — so it
-    cannot leak into the prompt, the cache, or a log of the request body.
+    cannot leak into the prompt, the cache, or a log of the request body. The body
+    constrains decoding to the narration schema (``json_schema``) so even a small
+    local model returns the exact ``{claims, scenarios, candidate_facts}`` shape;
+    the transport falls back to plain ``json_object`` if a server rejects it.
     """
     url = f"{(config.base_url or '').rstrip('/')}/chat/completions"
     headers = {"Content-Type": "application/json"}
@@ -237,7 +294,14 @@ def build_openai_payload(
             {"role": "user", "content": user},
         ],
         "temperature": 0,
-        "response_format": {"type": "json_object"},
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "AiNarration",
+                "strict": True,
+                "schema": _grounded_output_schema(config.allow_background),
+            },
+        },
     }
     return url, headers, body
 
@@ -285,7 +349,17 @@ def make_transport(config: ProviderConfig) -> Transport | None:
     else:
         def transport(system: str, user: str) -> str:
             url, headers, body = build_openai_payload(config, key, system, user)
-            payload = _post_json(url, headers, body, config.timeout_s)
+            try:
+                payload = _post_json(url, headers, body, config.timeout_s)
+            except urllib.error.HTTPError as exc:
+                # An older/edge OpenAI-compatible server may reject the
+                # json_schema response_format. Fall back once to plain
+                # json_object — the review guards still enforce the real shape.
+                if exc.code in (400, 404, 422, 500):
+                    body["response_format"] = {"type": "json_object"}
+                    payload = _post_json(url, headers, body, config.timeout_s)
+                else:
+                    raise
             return payload["choices"][0]["message"]["content"]
 
     return transport

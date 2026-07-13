@@ -6,6 +6,29 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-07-13
+
+Makes the optional local AI read actually produce output on the Match Cockpit,
+where a small local model faced with the large council+notebook bundle would
+otherwise return nothing.
+
+### Fixed
+- **The AI Analyst Read now works with local models on rich matches.** Faced with
+  the big evidence bundle, a small local model would parrot the bundle back under
+  a wrapper key instead of the required shape, so every attempt failed schema
+  validation ("'claims' is a required property") and the panel showed only the
+  deterministic analysis. Golavo now constrains local/OpenAI decoding to the
+  narration schema (`response_format: json_schema`, with a safe fallback for
+  servers that don't support it) and sharpens the prompt, so the model returns
+  the right `{claims, scenarios, candidate_facts}` shape.
+- **One wrong number no longer blanks the whole read.** If a model states a figure
+  that doesn't exactly match the engine's sealed number, that single claim is now
+  dropped (its number never shown) while the other verified claims stand — instead
+  of hard-rejecting the entire narration. The number guarantee is unchanged: a
+  claim survives only if every figure exactly matches a cited engine number.
+- Fixed a false positive where "both" (as in "both teams scored") was treated as
+  the number 2 and dropped an otherwise-correct claim.
+
 ## [0.5.1] - 2026-07-13
 
 Local AI now just works with whatever model you have, fails honestly when it

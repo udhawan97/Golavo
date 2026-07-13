@@ -111,7 +111,9 @@ _NARRATION_NUMBER_WORDS = (
     "quarters",
     "couple",
     "pair",
-    "both",
+    # "both" is deliberately NOT here: "both teams scored" is idiomatic football
+    # prose, not a numeric claim — treating it as the number 2 was a false positive
+    # that dropped otherwise-verified claims. (Same spirit as one/two being prose.)
 )
 _NARRATION_WORD_ALTERNATION = "|".join(
     sorted(_NARRATION_NUMBER_WORDS, key=len, reverse=True)

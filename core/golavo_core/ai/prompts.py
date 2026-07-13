@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-13.1"
+PROMPT_VERSION = "golavo-narration-2026-07-13.2"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -54,11 +54,13 @@ own framing (e.g. "the most likely single result"). Never imply more confidence
 than the probabilities support. Abstention and high uncertainty are legitimate
 outcomes to explain, not to paper over.
 
-OUTPUT: Return ONLY a JSON object with keys `claims`, `scenarios`, and
-`candidate_facts`, matching the AiNarration schema. `candidate_facts` are
-OPTIONAL proposals for facts NOT in the bundle; each needs an exact `quote` and a
-`source_url`; they are never treated as established and never carry a number.
-Leave any array empty rather than padding it."""
+OUTPUT: Return ONLY a single JSON object whose TOP-LEVEL keys are exactly
+`claims`, `scenarios`, and `candidate_facts` (each an array). Do NOT wrap it in
+another object and do NOT nest it under a name such as "AiNarration" — the three
+keys must be at the very top level. `candidate_facts` are OPTIONAL proposals for
+facts NOT in the bundle; each needs an exact `quote` and a `source_url`; they are
+never treated as established and never carry a number. Leave any array empty
+rather than padding it."""
 
 
 # Appended to the system prompt ONLY when the user has enabled the optional

@@ -179,6 +179,23 @@ def test_every_attack_fails_closed(name, builder, bundle: dict, refs: dict) -> N
     assert review.rejections or review.dropped
 
 
+def test_fabricated_number_drops_only_its_claim(bundle: dict, refs: dict) -> None:
+    # A small local model that gets ONE fact's number wrong must not blank the
+    # entire read: the offending claim is dropped (its bad number never shown),
+    # while the other verified claims stand. The guarantee is preserved — a claim
+    # survives only if every numeric token matches a referenced display exactly.
+    home = refs["display"]["prob_home"]
+    good = _claim(f"France are favoured at {home}.", [refs["engine"]], ["prob_home"])
+    bad = _claim("France win probability is actually 91%.", [refs["engine"]], ["prob_home"])
+    review = review_narration(_wrap([good, bad]), bundle)
+    assert review.accepted is True
+    serialized = json.dumps(review.narration)
+    assert home in serialized          # the good claim survived
+    assert "91%" not in serialized     # the fabricated number never reaches the user
+    assert len(review.narration["claims"]) == 1
+    assert any("dropped" in d for d in review.dropped)
+
+
 def test_extra_claim_field_is_pruned_not_rejected(bundle: dict, refs: dict) -> None:
     """A harmless extra field (small local models love a ``confidence``) is pruned
     like a volunteered reasoning key — the clean claim survives, and the extra

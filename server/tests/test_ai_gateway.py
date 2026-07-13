@@ -384,6 +384,48 @@ def test_truncated_local_response_falls_back_not_raises(bundle: dict) -> None:
     assert env.narration is None
 
 
+def test_openai_payload_constrains_output_to_the_schema() -> None:
+    # Constrained decoding forces a small local model to emit the exact
+    # {claims, scenarios, candidate_facts} shape instead of parroting the bundle.
+    cfg = ProviderConfig(provider="ollama", model="llama3.2", base_url="http://127.0.0.1:11434/v1")
+    _url, _headers, body = build_openai_payload(cfg, None, "sys", "user")
+    rf = body["response_format"]
+    assert rf["type"] == "json_schema"
+    schema = rf["json_schema"]["schema"]
+    assert set(schema["required"]) == {"claims", "scenarios", "candidate_facts"}
+    assert schema["additionalProperties"] is False
+    assert "background" not in schema["properties"]  # off unless opted in
+
+    bg = ProviderConfig(
+        provider="ollama", model="llama3.2", base_url="http://127.0.0.1:11434/v1",
+        allow_background=True,
+    )
+    _u, _h, body_bg = build_openai_payload(bg, None, "sys", "user")
+    assert "background" in body_bg["response_format"]["json_schema"]["schema"]["properties"]
+
+
+def test_openai_transport_falls_back_to_json_object_when_schema_rejected(monkeypatch) -> None:
+    # An older OpenAI-compatible server may reject json_schema response_format.
+    # The transport retries once with plain json_object rather than failing.
+    import urllib.error
+
+    seen: list[str] = []
+
+    def fake_post(url, headers, body, timeout):
+        seen.append(body["response_format"]["type"])
+        if body["response_format"]["type"] == "json_schema":
+            raise urllib.error.HTTPError(url, 400, "unsupported response_format", {}, None)
+        content = '{"claims":[],"scenarios":[],"candidate_facts":[]}'
+        return {"choices": [{"message": {"content": content}}]}
+
+    monkeypatch.setattr(ai_gateway, "_post_json", fake_post)
+    cfg = ProviderConfig(provider="llama_server", model="m", base_url="http://127.0.0.1:8080/v1")
+    transport = ai_gateway.make_transport(cfg)
+    out = transport("sys", "user")
+    assert "claims" in out
+    assert seen == ["json_schema", "json_object"]  # tried schema, then fell back
+
+
 def test_cache_separates_prompt_context_and_candidate_fact_mode(bundle: dict) -> None:
     cache = NarrationCache()
     calls = {"n": 0}

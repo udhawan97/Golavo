@@ -31,7 +31,7 @@ AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed f
 
 ## Hard rules
 
-1. Output is schema-validated JSON (`claims`, `scenarios`, `candidate_facts`).
+1. Output is schema-validated JSON (`claims`, `scenarios`, `candidate_facts`). Local and OpenAI-compatible decoding is constrained to this schema (`response_format: json_schema`), so even a small local model returns the right shape rather than free-form prose. A claim whose number doesn't match the engine's exact display is dropped individually — its number is never shown — while the other verified claims stand.
 2. **Numeric whitelist** — every numeric token must exactly match the trusted display of an `allowed_numbers` id referenced by that same claim. Units and references cannot be swapped; spelled, fractional, compound, and scientific notation fail closed. Any mismatch rejects the output (one retry, then Local-only fallback). Harmless extra keys a small model adds are pruned rather than failing the whole answer; the betting and credential scanners fold Unicode look-alikes and strip zero-width characters so obfuscated terms are still caught.
 3. Claims without `source_ids` are dropped; numbered claims must cite one of the number's own trusted sources.
 4. A betting-lexicon filter rejects "locks," "units," and odds formats.

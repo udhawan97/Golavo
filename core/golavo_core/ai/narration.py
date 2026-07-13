@@ -139,22 +139,31 @@ def _review_item(
     text = item["text"]
     label = f"{kind}[{index}]"
 
-    # Hard rejects: a single one fails the entire narration (fail closed).
+    # Hard rejects: a single one fails the entire narration (fail closed). Betting
+    # language and credential shapes are categorically forbidden content — their
+    # presence signals a misbehaving model, not one droppable claim.
     betting = contains_betting_lexicon(text)
     if betting:
         rejections.append(f"{label}: betting lexicon {sorted(set(betting))}")
-    bad_numbers = unsupported_number_tokens(
-        text, allowed_numbers, item["number_refs"], safe_literals
-    )
-    if bad_numbers:
-        rejections.append(
-            f"{label}: {len(bad_numbers)} numeric token(s) did not match exact "
-            "displays of referenced numbers"
-        )
     if contains_secret_pattern(text):
         rejections.append(f"{label}: credential-shaped content")
 
     # Soft drops: remove just this claim, keep the rest.
+    # An unsupported number is a SOFT drop, not a hard reject: the offending claim
+    # is removed so its number never reaches the user, while other verified claims
+    # still stand. A small local model that gets one fact's number wrong (or
+    # writes an idiom the scanner reads as a number) must not blank the whole read.
+    # The guarantee is intact — a claim survives ONLY if every numeric token
+    # exactly matches a referenced number's trusted display.
+    bad_numbers = unsupported_number_tokens(
+        text, allowed_numbers, item["number_refs"], safe_literals
+    )
+    if bad_numbers:
+        dropped.append(
+            f"{label}: dropped ({len(bad_numbers)} numeric token(s) did not match "
+            "the exact display of a referenced number)"
+        )
+        return None
     if _COT_MARKER_RE.search(text):
         dropped.append(f"{label}: dropped (chain-of-thought marker in text)")
         return None

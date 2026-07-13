@@ -17,6 +17,7 @@ from golavo_core.ai.whitelist import (
     contains_betting_lexicon,
     extract_numbers,
     number_matches,
+    unsupported_number_tokens,
     unsupported_numbers,
 )
 
@@ -73,6 +74,15 @@ class TestNumberMatching:
         allowed = [50.0, 27.0, 23.0]
         assert unsupported_numbers("home 50%, draw 27%", allowed) == []
         assert unsupported_numbers("home 73%", allowed) == [73.0]
+
+    def test_both_teams_idiom_is_not_a_numeric_token(self) -> None:
+        # "Both teams scored" is football prose, not the number 2. It must not be
+        # flagged as an unsupported number (it was a false positive that dropped
+        # otherwise-verified claims).
+        allowed = [{"id": "n1", "display": "55.0%", "value": 55.0, "source_ids": ["s"]}]
+        assert unsupported_number_tokens("Both teams have scored recently.", allowed, [], []) == []
+        # A genuinely unsupported number in the same shape is still caught.
+        assert unsupported_number_tokens("Both teams scored 9 times.", allowed, [], []) == ["9"]
 
 
 class TestBettingLexicon:
