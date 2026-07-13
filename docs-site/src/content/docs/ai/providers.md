@@ -21,12 +21,20 @@ The AI layer **explains and cites** the forecast. It **does not improve forecast
 
 Local endpoints are OpenAI-compatible: Ollama at `http://localhost:11434/v1`, llama-server at `http://127.0.0.1:8080/v1`. llama-server is preferred where hard schema-constrained JSON is needed (it supports GBNF grammars and `json_schema`/`response_format`).
 
+### The verdict and the deeper read
+
+Every read opens with a one-line **verdict** — the engine's single most likely outcome, stated with its own probability (e.g. "Spain to win — 41.6%"). It is held to exactly the same rules as any claim: the number must be one the engine produced, or the verdict is dropped (never guessed). Below it, the read is instructed to **connect** the evidence — the reader already sees every fact and probability on screen, so the AI's value is in linking them (tensions between the models, corroborations, historical analogues), not restating a number in isolation.
+
 ### Fast and Deep
 
 The read has two speeds, chosen with a toggle on the panel:
 
 - **Fast** — a small model (e.g. `llama3.2`) writes a few grounded claims in seconds.
-- **Deep analysis** — a bigger model (e.g. `gemma4:12b`) sees more of the evidence and writes a fuller synthesis — more claims, plus scenarios that connect facts to each other and surface tensions and corroborations. A 12B model on a rich match takes a few minutes (up to an 8-minute budget), with an honest progress note; if it times out you can retry or drop back to Fast in one tap.
+- **Deep analysis** — a bigger model (e.g. `gemma4:12b`) sees more of the evidence and writes a fuller synthesis — more claims, plus scenarios that connect facts to each other and surface tensions and corroborations. A 12B model on a rich match takes a few minutes (up to an 8-minute budget); it now reports **real staged progress** (assembling → researching → writing → verifying) with a live detail line and source counts, and you can cancel or drop back to Fast in one tap.
+
+### Web research (opt-in)
+
+Off by default, and the **only** setting that lets Golavo reach the general web. With "Let the AI research on the web" enabled in Settings, a read fetches a few **Wikipedia** pages and a **web search** for the fixture and adds a clearly-separated **"Analyst research"** section. That lane is badged **not engine-verified**: each finding must quote its fetched page **verbatim** (checked after fetching), its `source_url` must be one of the URLs actually fetched, and any number in it is checked against that quote — never rescued by an engine number. A failed or paraphrased note is dropped; a bad research lane can never void the grounded read. Fetches are https-only against a fixed host allowlist (`en.wikipedia.org`, DuckDuckGo's keyless HTML endpoints) with a proper User-Agent; web search is best-effort and falls back to Wikipedia-only when it is unavailable. The `GOLAVO_NO_RESEARCH=1` kill switch disables all of it (set in CI).
 
 Assign which installed model runs each mode in **Settings → Local intelligence** (auto-set to your smallest for Fast and largest for Deep). An "advanced" control on the panel lets you run any specific installed model for a single read.
 
@@ -38,15 +46,15 @@ Under the hood, the Ollama path uses the native `/api/chat` structured-output en
 
 ## The evidence bundle is all AI ever sees
 
-AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed features, source records, data-quality flags, and an explicit `allowed_numbers` list. It has no access to the internet by default and no write path to probabilities. The bundle is built deterministically from a sealed artifact (`golavo_core.evidence`) — the same artifact in yields the same bundle, byte-for-byte.
+AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed features, source records, data-quality flags, and an explicit `allowed_numbers` list. It has no write path to probabilities, and no access to the internet unless you turn on web research (above) — in which case fetched pages are fed to it strictly as fenced *untrusted data* that can never change a number. The bundle is built deterministically from a sealed artifact (`golavo_core.evidence`) — the same artifact in yields the same bundle, byte-for-byte. Facts derived from the goalscorer or shootout data now carry a per-file source id (`<pack>#goalscorers` / `#shootouts`) so the read's citations are attributed distinctly rather than all resolving to one "data pack".
 
 ## Hard rules
 
-1. Output is schema-validated JSON (`claims`, `scenarios`, `candidate_facts`). Local and OpenAI-compatible decoding is constrained to this schema (`response_format: json_schema`), so even a small local model returns the right shape rather than free-form prose. A claim whose number doesn't match the engine's exact display is dropped individually — its number is never shown — while the other verified claims stand.
+1. Output is schema-validated JSON (`verdict`, `claims`, `scenarios`, `candidate_facts`, and — when their lanes are on — `research_notes` and `background`). Local and OpenAI-compatible decoding is constrained to this schema (`response_format: json_schema`), so even a small local model returns the right shape rather than free-form prose. A claim whose number doesn't match the engine's exact display is dropped individually — its number is never shown — while the other verified claims stand. The verdict and the optional research/background lanes are reviewed separately, so a bad one is dropped without voiding the grounded claims.
 2. **Numeric whitelist** — every numeric token must exactly match the trusted display of an `allowed_numbers` id referenced by that same claim. Units and references cannot be swapped; spelled, fractional, compound, and scientific notation fail closed. Any mismatch rejects the output (one retry, then Local-only fallback). Harmless extra keys a small model adds are pruned rather than failing the whole answer; the betting and credential scanners fold Unicode look-alikes and strip zero-width characters so obfuscated terms are still caught.
 3. Claims without `source_ids` are dropped; numbered claims must cite one of the number's own trusted sources.
 4. A betting-lexicon filter rejects "locks," "units," and odds formats.
-5. Chain-of-thought is never exposed. The analysis animation shows factual pipeline stages only (snapshot → features → model → seal).
+5. Chain-of-thought is never exposed. The progress animation shows factual pipeline stages only (assembling evidence → researching the web → the model writing → verifying every number), reported by the sidecar rather than guessed.
 
 ## Confirmed facts become typed features (planned)
 

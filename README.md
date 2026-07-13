@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.6.0" src="https://img.shields.io/badge/version-v0.6.0-6082b8?style=flat-square">
+  <img alt="version v0.7.0" src="https://img.shields.io/badge/version-v0.7.0-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -43,7 +43,7 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.6.0 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.7.0 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, calibration record, optional guarded AI narration, and
@@ -117,7 +117,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 🧾 | **Score after full time** — write a linked scored or voided successor | Outcome, assigned probability, log loss, Brier, or a real void reason |
 | 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
 | 🗒️ | **Open the Commentator's Notebook** — signature form stats you don't usually see: both-teams-scored rate, scoring momentum, clean-sheet rate, and the goal character of the head-to-head | Facts that add something the scoreline and the model can't — de-duplicated from the headline picks, labelled predictive / contextual / coincidence, and never invented |
-| 🤖 | **Enable the AI Analyst Read** *(optional)* — local Ollama/llama.cpp or cloud BYOK, with a one-click header toggle once configured. Pick **Fast** (a small model, seconds) or **Deep analysis** (a bigger model, a few minutes) | A cited synthesis of any match's notes + model council (and of sealed forecasts) — it connects the evidence, never authors a number. Deep puts a bigger model on more of the evidence for a richer read with scenarios; a dropped claim's content is never shown |
+| 🤖 | **Enable the AI Analyst Read** *(optional)* — local Ollama/llama.cpp or cloud BYOK, with a one-click header toggle once configured. Pick **Fast** (a small model, seconds) or **Deep analysis** (a bigger model, a few minutes); optionally let it **research the web** | Opens with a one-line **verdict**, then a cited synthesis that *connects* the evidence (never authors a number), with real staged progress. Deep puts a bigger model on more of the evidence with scenarios; opt-in web research adds a separate, clearly-badged *not-engine-verified* section. A dropped claim's content is never shown |
 | 👓 | **Switch Casual / Expert** | Plain-language reading or full seal, provenance, uncertainty, and score-matrix detail — same numbers, different studs |
 | 🖥️ | **Run locally** — source web app or Tauri desktop shell | A private workbench with no account, ads, or hosted forecasting backend |
 
@@ -151,20 +151,28 @@ the AI wearing a very confident scarf.
 
 | | Statistical engine | Optional AI layer |
 |---|---|---|
-| **Owns** | Every probability, expected-goal value, score matrix, and evaluation metric | Narrative and scenario explanation |
+| **Owns** | Every probability, expected-goal value, score matrix, and evaluation metric | A one-line verdict, narrative, and scenario explanation |
 | **Receives** | Pinned, typed local data | A deterministic evidence bundle with exact allowed numbers and sources |
-| **May** | Rerun when a confirmed fact becomes a typed feature *(full workflow planned)* | Cite facts and propose candidate facts for review |
-| **May never** | Hide a failed seal or rewrite history | Invent, adjust, override, or loosely paraphrase a number |
+| **May** | Rerun when a confirmed fact becomes a typed feature *(full workflow planned)* | Cite facts, connect the evidence, and — only if you opt in — add web-researched context in a clearly-separated, *not-engine-verified* lane |
+| **May never** | Hide a failed seal or rewrite history | Invent, adjust, override, or loosely paraphrase an engine number |
 
 The **Commentator's Notebook** sits between statistics and prose. Its fact templates
 are deterministic and source-backed; a machine-checked dependency rule prevents them
 from importing forecast, model, or calibration writers. Coincidences are welcome in
 the pub. They do not get a key to the model.
 
-AI is **off by default**. When enabled, every claim must survive schema validation,
-source checks, an exact numeric whitelist, quote grounding where required, and a
-betting-language filter. A failed response becomes `local_only`; the forecast carries
-on untouched. The AI may explain the scorecard. It may not borrow the pen.
+AI is **off by default**. When enabled, the read opens with a one-line **verdict** (the
+engine's most likely outcome) and then *connects* the evidence rather than restating it.
+Every claim must survive schema validation, source checks, an exact numeric whitelist,
+quote grounding where required, and a betting-language filter. A failed response becomes
+`local_only`; the forecast carries on untouched.
+
+Turning on **web research** (a separate, off-by-default setting) lets a read fetch a few
+Wikipedia pages and a web search for the fixture and add an **"Analyst research"** section
+— clearly badged **not engine-verified**, with each finding quoting its source page
+verbatim and its numbers checked against that quote, never against the engine. It is the
+only setting that lets the app reach the general web. The AI may explain the scorecard,
+and cite the wider world beside it — but it may not borrow the pen.
 
 <p align="center">
   <a href="docs-site/public/assets/golavo-intelligence-boundary.svg"><img src="docs-site/public/assets/golavo-intelligence-boundary.svg" alt="Who controls a Golavo forecast: the local deterministic engine makes every number, evidence adds sourced context, and optional AI may explain but cannot edit the sealed forecast" width="980"></a>

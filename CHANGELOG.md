@@ -6,6 +6,58 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-14
+
+A smarter, more polished AI read: it now leads with a one-line **verdict**, connects
+the evidence instead of restating it, can **research the fixture on the web** (opt-in),
+and shows **real progress** while it works. The cockpit gained new analytics, and the
+deterministic notebook surfaces new "hidden" stats — all still engine-verified.
+
+### Added
+- **AI verdict + deeper synthesis.** Every read opens with a one-line most-likely
+  outcome ("Spain to win — 41.6%", engine-verified), then claims that *connect* at
+  least two pieces of evidence — tensions between the models, corroborations,
+  historical analogues — instead of restating a number the reader already sees.
+- **Web research lane (opt-in, off by default).** With "Let the AI research on the
+  web" on, a read fetches a few **Wikipedia** pages and a **web search** for the
+  fixture and adds a clearly-separated **"Analyst research"** section. It is badged
+  **not engine-verified**: each finding must quote the fetched page verbatim, and its
+  numbers are checked against that quote — never against the engine. The grounded read
+  keeps its hard guarantee. Web search is best-effort and falls back to Wikipedia-only.
+  This is the only setting that lets the app reach the general web; fetches are
+  https-only against a host allowlist with a proper User-Agent.
+- **Real, server-reported progress.** The long Deep read now shows genuine stages
+  (assembling → researching → writing → verifying) with a live detail line
+  ("Reading: … — Wikipedia") and source counts, driven by a new
+  `GET /api/v1/ai/jobs/{id}` poll — no more guessed progress bar. Includes a cancel
+  action and a graceful simulated fallback for older sidecars.
+- **New cockpit analytics.** Both-teams-to-score and clean-sheet probabilities
+  (exact, from the goal model's full matrix), over/under goal lines and total-goal
+  bands, an **outcome-range band** showing where the model voices land, and
+  **expected goals against** in the team-style profile.
+- **New deterministic facts** from data already shipped: goal-timing skew
+  (opening/closing-stage scoring), penalty share of goals (scored penalties only),
+  own-goal curios, all-time record in the fixture's competition (e.g. World-Cup-only
+  form), and the penalty-shootout first-taker edge.
+
+### Changed
+- **AI Analyst Read, redesigned.** The wall of repeated citation chips is gone: claims
+  read as editorial prose with small footnote markers, and every source is listed once
+  in a deduplicated **"Evidence used"** legend with per-source cited counts. A gold-lit
+  verdict hero, scenario bullets, a staged "AI at work" animation, and generous spacing
+  replace the cramped layout.
+- **Citations now vary by dataset.** A scorer or shootout fact is attributed to the
+  specific pack file it came from (results / goalscorers / shootouts), so the AI's
+  citations are no longer all identical.
+- Match-analysis schema `0.4.0 → 0.4.1` (additive `derived_markets`); AI narration
+  schema `0.2.0 → 0.3.0` (additive `verdict` + `research_notes`); fact registry
+  `2026.07.13 → 2026.07.14` (family size 35 → 44, still a fixed pre-registered
+  constant). The prompt version bump rolls the narration cache.
+
+### Notes
+- Half-time/comeback club stats and the CC-BY-SA World Cup history pack are planned
+  follow-ups (they involve a committed-index rebuild and licensing sign-off).
+
 ## [0.6.0] - 2026-07-13
 
 Two-speed local AI: a **Fast** fallback for a quick read and a genuinely deeper

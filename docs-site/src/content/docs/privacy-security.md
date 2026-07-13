@@ -9,7 +9,7 @@ Golavo runs from local files and has no accounts, telemetry, or ads. The one opt
 
 - **No account.** No sign-up, no cloud profile.
 - **No telemetry, no ads.** Nothing about your usage is collected or sold.
-- **No runtime network call unless you opt in.** Rebuilding the pinned sourcepack is an explicit network action. The AI layer is off by default; enabling it contacts either a local model (Ollama / llama.cpp) or a BYOK cloud provider you choose. Update checks (desktop app) follow the same rule: off until you answer the one-time consent card, and even then only a once-a-day "is there a newer version?" request to GitHub — downloads start only when you click.
+- **No runtime network call unless you opt in.** Rebuilding the pinned sourcepack is an explicit network action. The AI layer is off by default; enabling it contacts either a local model (Ollama / llama.cpp) or a BYOK cloud provider you choose. **AI web research** is a further, separate opt-in: when on, a read fetches a few pages from a fixed allowlist (`en.wikipedia.org` and DuckDuckGo's keyless HTML search) over https with a proper User-Agent, and never posts your data anywhere; it is disabled entirely by `GOLAVO_NO_RESEARCH=1`. Update checks (desktop app) follow the same rule: off until you answer the one-time consent card, and even then only a once-a-day "is there a newer version?" request to GitHub — downloads start only when you click.
 - **BYOK keys stay yours.** A cloud provider key is read from your environment or the OS keychain, sent only in the request header, and never logged or written into an artifact. Golavo ships with the AI layer disabled.
 - **No crash reporting.** No crash reporter exists — nothing about your usage, forecasts, or keys is collected or sent anywhere.
 
