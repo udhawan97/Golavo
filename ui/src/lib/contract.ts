@@ -16,7 +16,7 @@ export const SCHEMA_VERSION = "0.2.0" as const;
 // the Games-home recent rails. The sealed ForecastArtifact contract is unchanged
 // at 0.2.0, so the artifact/eval/calibration guards keep their existing set.
 export const ACCEPTED_SCHEMA_VERSIONS = ["0.1.0", "0.2.0"] as const;
-export const ANALYSIS_SCHEMA_VERSION = "0.4.0" as const;
+export const ANALYSIS_SCHEMA_VERSION = "0.4.1" as const;
 export type SchemaVersion = (typeof ACCEPTED_SCHEMA_VERSIONS)[number];
 
 export type ArtifactStatus = "sealed" | "scored" | "abstained" | "voided";
@@ -521,6 +521,18 @@ export interface MatchAnalysis {
   models: CouncilModel[];
   score_matrix: ScoreMatrix | null;
   score_matrix_family: ModelFamily | null;
+  /** Exact BTTS + clean-sheet marginals (0.4.1+); optional so a 0.4.0 backend
+   *  degrades gracefully. Null when the goal voice abstained. */
+  derived_markets?: DerivedMarkets | null;
+}
+
+/** Both-teams-to-score and clean-sheet marginals, computed exactly from the goal
+ *  voice's full joint matrix (not recoverable from the truncated score grid). */
+export interface DerivedMarkets {
+  family: string;
+  source: "full_resolution_matrix";
+  btts: { yes: number; no: number };
+  clean_sheets: { home: number; away: number };
 }
 
 /** The /matches/{id}/analysis envelope. Fails closed to available:false when a

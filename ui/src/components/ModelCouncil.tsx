@@ -187,6 +187,10 @@ function Council({
         ))}
       </div>
 
+      {c.outcome_range && c.voices >= 2 && (
+        <OutcomeRangeBand range={c.outcome_range} home={home} away={away} />
+      )}
+
       {c.max_delta_p != null && !c.voices_agree && (
         <div className="callout callout--info">
           <InfoIcon size={18} />
@@ -234,6 +238,57 @@ function Council({
         </div>
       </details>
     </>
+  );
+}
+
+/** Where the voices land per outcome: the low→high spread across the models,
+ *  drawn as a band with a tick at each end. This is the disagreement made
+ *  visible — not a new number, and never an average. */
+function OutcomeRangeBand({
+  range,
+  home,
+  away,
+}: {
+  range: Record<Outcome, { low: number; high: number }>;
+  home: string;
+  away: string;
+}) {
+  const rows: { key: Outcome; label: string }[] = [
+    { key: "home", label: home },
+    { key: "draw", label: "Draw" },
+    { key: "away", label: away },
+  ];
+  return (
+    <div className="range-band">
+      <div className="range-band__cap small dim">
+        Where the voices land — the spread across models, not a new number.
+      </div>
+      {rows.map(({ key, label }) => {
+        const { low, high } = range[key];
+        const lo = pctWhole(low);
+        const hi = pctWhole(high);
+        const same = lo === hi;
+        return (
+          <div
+            key={key}
+            className="range-row"
+            role="img"
+            aria-label={`${label}: ${same ? `${lo}` : `between ${lo} and ${hi}`} across the models`}
+          >
+            <span className="range-row__label">{label}</span>
+            <span className="range-row__track" aria-hidden>
+              <span
+                className={`range-row__band range-row__band--${key}`}
+                style={{ left: `${low * 100}%`, width: `${Math.max(0, (high - low) * 100)}%` }}
+              />
+              <span className="range-row__tick" style={{ left: `${low * 100}%` }} />
+              <span className="range-row__tick" style={{ left: `${high * 100}%` }} />
+            </span>
+            <span className="range-row__val num">{same ? lo : `${lo}–${hi}`}</span>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

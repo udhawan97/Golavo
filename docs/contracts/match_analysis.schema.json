@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://udhawan97.github.io/Golavo/contracts/match-analysis-0.4.0.schema.json",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/match-analysis-0.4.1.schema.json",
   "title": "MatchAnalysis",
   "description": "The on-demand Match Cockpit read for one indexed fixture (a Replay for a played match, a Preview for a scheduled one). Computed leak-safe at the seal's own kickoff-1s cutoff and NEVER persisted: this is a live view, not a sealed forecast. A council of candidate families is shown side by side WITHOUT averaging — the two voices (ratings, goals) plus a climatology baseline, with the goal variants disclosed but not counted as extra opinions. Derived from core/golavo_core/analysis.py:build_match_analysis (ANALYSIS_SCHEMA_VERSION).",
   "type": "object",
@@ -20,10 +20,11 @@
     "council",
     "models",
     "score_matrix",
-    "score_matrix_family"
+    "score_matrix_family",
+    "derived_markets"
   ],
   "properties": {
-    "schema_version": {"const": "0.4.0"},
+    "schema_version": {"const": "0.4.1"},
     "analysis_kind": {
       "enum": ["replay", "preview"],
       "description": "replay = a completed fixture reconstructed with pre-kickoff data only (not a forecast that existed at the time; never enters the track record); preview = a scheduled fixture."
@@ -75,9 +76,40 @@
     "score_matrix_family": {
       "type": ["string", "null"],
       "description": "The family that produced score_matrix (the goal voice), or null when there is none."
+    },
+    "derived_markets": {
+      "description": "Exact both-teams-to-score and clean-sheet marginals computed from the goal voice's FULL joint matrix at build time (not recoverable from the outcome-decomposed score grid). Null when the goal voice abstained or is absent.",
+      "oneOf": [{"$ref": "#/$defs/DerivedMarkets"}, {"type": "null"}]
     }
   },
   "$defs": {
+    "DerivedMarkets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "source", "btts", "clean_sheets"],
+      "properties": {
+        "family": {"type": "string"},
+        "source": {"const": "full_resolution_matrix"},
+        "btts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["yes", "no"],
+          "properties": {
+            "yes": {"type": "number", "minimum": 0, "maximum": 1},
+            "no": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "clean_sheets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["home", "away"],
+          "properties": {
+            "home": {"type": "number", "minimum": 0, "maximum": 1},
+            "away": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        }
+      }
+    },
     "FormEntry": {
       "type": "object",
       "additionalProperties": false,

@@ -95,15 +95,20 @@ def test_replay_analysis_shape_and_leak_safe_cutoff(client):
     body = client.get("/api/v1/matches/m_target/analysis").json()
     assert body["available"] is True
     a = body["analysis"]
-    assert a["schema_version"] == "0.4.0"
+    assert a["schema_version"] == "0.4.1"
     assert a["analysis_kind"] == "replay"
-    # 0.4.0 additions present on a modelled fixture.
+    # 0.4.x additions present on a modelled fixture.
     assert set(a["team_form"]) == {"Alpha", "Beta"}
     assert a["team_style"] is not None
     assert a["abstained"] is False
     # Two voices, never five; the score grid is the goal voice's.
     assert a["council"]["voices"] == 2
     assert a["score_matrix_family"] == "dixon_coles"
+    # 0.4.1: exact BTTS + clean-sheet marginals from the goal voice's full matrix.
+    dm = a["derived_markets"]
+    assert dm is not None and dm["source"] == "full_resolution_matrix"
+    assert abs(dm["btts"]["yes"] + dm["btts"]["no"] - 1.0) < 1e-6
+    assert 0.0 <= dm["clean_sheets"]["home"] <= 1.0
     roles = {m["family"]: m["role"] for m in a["models"]}
     assert roles["elo_ordlogit"] == "voice"
     assert roles["dixon_coles"] == "voice"
@@ -179,7 +184,7 @@ def test_disk_cache_survives_an_l1_reset(cached_client, monkeypatch):
     monkeypatch.setattr(core_analysis, "build_match_analysis", _boom)
     second = client.get("/api/v1/matches/m_target/analysis").json()
     assert second["available"] is True
-    assert second["analysis"]["schema_version"] == "0.4.0"
+    assert second["analysis"]["schema_version"] == "0.4.1"
 
 
 def test_disk_cache_invalidates_when_the_fingerprint_changes(cached_client, monkeypatch):
@@ -215,7 +220,7 @@ def test_corrupt_cache_file_is_ignored_and_recomputed(cached_client):
     server_analysis.reset_cache()
     body = client.get("/api/v1/matches/m_target/analysis").json()
     assert body["available"] is True  # recomputed despite the corrupt file
-    assert body["analysis"]["schema_version"] == "0.4.0"
+    assert body["analysis"]["schema_version"] == "0.4.1"
 
 
 def test_source_mode_writes_no_disk_cache(client, monkeypatch):

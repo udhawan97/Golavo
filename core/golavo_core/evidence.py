@@ -788,6 +788,29 @@ def _council_numbers(analysis: dict[str, Any], data_sources: list[str]) -> list[
                 "source_ids": data_sources,
             }
         )
+    markets = analysis.get("derived_markets")
+    if markets is not None:
+        numbers.append(
+            {
+                "id": "mc_btts_yes",
+                "value": _pct(markets["btts"]["yes"]),
+                "unit": "percent",
+                "label": "Both teams to score (goal model)",
+                "display": _fmt_pct(markets["btts"]["yes"]),
+                "source_ids": data_sources,
+            }
+        )
+        for side in ("home", "away"):
+            numbers.append(
+                {
+                    "id": f"mc_clean_sheet_{side}",
+                    "value": _pct(markets["clean_sheets"][side]),
+                    "unit": "percent",
+                    "label": f"Clean-sheet probability · {match[f'{side}_team']} (goal model)",
+                    "display": _fmt_pct(markets["clean_sheets"][side]),
+                    "source_ids": data_sources,
+                }
+            )
     return numbers
 
 

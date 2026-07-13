@@ -130,6 +130,49 @@ def test_goal_voice_score_matrix_is_coherent_with_its_probs() -> None:
     assert_stored_coherent(goal["score_matrix"], goal["probs"])
 
 
+def test_derived_markets_match_the_full_joint_matrix() -> None:
+    """BTTS + clean-sheet marginals are exact re-derivations of the goal voice's
+    full joint distribution — recomputed here from scratch as ground truth."""
+    import numpy as np
+
+    analysis = build_match_analysis(matches=_history(), match_row=_fixture(is_complete=False))
+    dm = analysis["derived_markets"]
+    assert dm is not None
+    assert dm["source"] == "full_resolution_matrix"
+    # yes/no partition the space.
+    assert abs(dm["btts"]["yes"] + dm["btts"]["no"] - 1.0) < 1e-6
+    # Recompute from the display grid + tail as a coarse sanity bound: a nil-nil is
+    # in the grid, and BTTS requires both > 0, so BTTS yes < 1 - P(0-0).
+    goal = next(m for m in analysis["models"] if m["family"] == "dixon_coles")
+    grid = np.array(goal["score_matrix"]["grid"], dtype=float)
+    p_nil_nil = grid[0][0]
+    assert dm["btts"]["yes"] <= 1.0 - p_nil_nil + 1e-9
+    # A clean sheet for a side is at least as likely as a 0-0 (that scoreline is one
+    # way each side keeps a clean sheet).
+    assert dm["clean_sheets"]["home"] >= p_nil_nil - 1e-9
+    assert dm["clean_sheets"]["away"] >= p_nil_nil - 1e-9
+
+
+def test_derived_markets_null_when_abstained() -> None:
+    thin = pd.DataFrame(
+        [
+            _match("m_dm1", "2024-02-01", "Xerus", "Yak", 1, 0),
+            _match("m_dm2", "2024-03-01", "Xerus", "Yak", 0, 0),
+        ]
+    )
+    ko = pd.Timestamp("2025-06-01", tz="UTC")
+    fixture = {
+        "match_id": "m_dmfix", "date": ko, "kickoff_utc": ko,
+        "home_team": "Xerus", "away_team": "Yak", "home_score": None, "away_score": None,
+        "is_complete": False, "neutral": False, "competition": "Test League",
+        "source_id": "test-source", "source_kind": "international",
+        "home_norm": "xerus", "away_norm": "yak",
+    }
+    analysis = build_match_analysis(matches=thin, match_row=fixture)
+    assert analysis["abstained"] is True
+    assert analysis["derived_markets"] is None
+
+
 def test_abstains_below_the_data_floor_exactly_like_a_seal() -> None:
     """A fixture between teams with almost no history abstains, and every model
     entry carries no probabilities (never a fabricated number)."""

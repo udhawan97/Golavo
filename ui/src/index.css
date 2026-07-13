@@ -1595,6 +1595,32 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .style-bar--away { background: var(--seg-away); }
 .style-row__side--home .style-bar { margin-left: auto; }
 
+/* Outcome-range band — the low→high spread across the voices per outcome. */
+.range-band { display: flex; flex-direction: column; gap: var(--space-2); }
+.range-band__cap { margin-bottom: var(--space-1); }
+.range-row { display: grid; grid-template-columns: 8ch minmax(0, 1fr) 7ch; align-items: center; gap: var(--space-3); }
+.range-row__label { font-size: var(--text-sm); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.range-row__track { position: relative; height: 8px; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--border); }
+.range-row__band { position: absolute; top: 0; bottom: 0; border-radius: 999px; opacity: .55; }
+.range-row__band--home { background: var(--seg-home); }
+.range-row__band--draw { background: var(--seg-draw); }
+.range-row__band--away { background: var(--seg-away); }
+.range-row__tick { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: var(--text); border-radius: 1px; }
+.range-row__val { font-size: var(--text-sm); color: var(--text); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* Score-outlook markets — over/under + BTTS mini-bars and detail lines. */
+.market-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); }
+.market-tile { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
+.market-tile__label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+.market-bar { position: relative; height: 10px; border-radius: 999px; overflow: hidden; background: var(--seg-away); border: 1px solid var(--border); }
+.market-bar__over { position: absolute; inset-block: 0; left: 0; background: var(--seg-home); }
+.market-tile__legend { display: flex; justify-content: space-between; gap: var(--space-2); }
+.market-tile__legend b { color: var(--text); }
+.market-lines { list-style: none; margin: 0; display: grid; gap: .3rem; }
+.market-lines li { display: flex; align-items: baseline; gap: var(--space-3); font-size: var(--text-sm); }
+.market-lines li > :first-child { min-width: 8ch; color: var(--text-muted); }
+.market-lines li .num { font-variant-numeric: tabular-nums; color: var(--text); }
+
 /* Model council */
 .council-voice { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); padding: .7rem .85rem; }
 .council-voice__head { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .5rem; }

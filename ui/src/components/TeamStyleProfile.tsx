@@ -114,6 +114,17 @@ export function TeamStyleProfile({
             expert={expert}
           />
         )}
+        {h.expected_goals_against != null && a.expected_goals_against != null && (
+          <MirrorRow
+            label="Model goals against"
+            hint="expected · lower = tighter"
+            homeFrac={Math.min(1, h.expected_goals_against / 3.5)}
+            awayFrac={Math.min(1, a.expected_goals_against / 3.5)}
+            homeText={h.expected_goals_against.toFixed(2)}
+            awayText={a.expected_goals_against.toFixed(2)}
+            expert={expert}
+          />
+        )}
 
         <p className="small dim" style={{ margin: 0 }}>
           These are the goal model’s multipliers fitted from past scorelines (time-decayed,

@@ -42,7 +42,7 @@ from golavo_core.ingest import training_rows
 from golavo_core.models import fit_model
 from golavo_core.score_matrix import assert_model_coherent, build_score_matrix
 
-ANALYSIS_SCHEMA_VERSION = "0.4.0"
+ANALYSIS_SCHEMA_VERSION = "0.4.1"
 
 # The fitted attack/defence multipliers are clipped to this band (mirrors
 # PoissonModel); a baseline of 1.0 is league-average.
@@ -187,6 +187,34 @@ def _council_summary(voice_entries: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _derived_markets(matrix: Any) -> dict[str, Any]:
+    """Exact both-teams-to-score and clean-sheet marginals from the FULL joint
+    matrix (not the display-truncated grid, whose tail is decomposed only by
+    outcome and so cannot recover these exactly).
+
+    ``matrix[i, j]`` = P(home scores i, away scores j). A clean sheet for a side
+    means the OPPONENT scores zero.
+    """
+    import numpy as np
+
+    m = np.asarray(matrix, dtype=float)
+    p_home_zero = float(m[0, :].sum())   # home scores 0
+    p_away_zero = float(m[:, 0].sum())   # away scores 0
+    p_nil_nil = float(m[0, 0])
+    btts_yes = 1.0 - p_home_zero - p_away_zero + p_nil_nil
+    btts_yes = min(1.0, max(0.0, btts_yes))
+    return {
+        "family": GOAL_VOICE,
+        "source": "full_resolution_matrix",
+        "btts": {"yes": round(btts_yes, 6), "no": round(1.0 - btts_yes, 6)},
+        # A clean sheet for the home side = the away side scores zero, and v.v.
+        "clean_sheets": {
+            "home": round(p_away_zero, 6),
+            "away": round(p_home_zero, 6),
+        },
+    }
+
+
 def build_match_analysis(
     *,
     matches: pd.DataFrame,
@@ -237,6 +265,7 @@ def build_match_analysis(
     }
 
     goal_model = None  # the fitted goal-voice model, for the team-style profile
+    goal_matrix = None  # the goal voice's full joint matrix, for derived markets
     entries: list[dict[str, Any]] = []
     for family in families:
         entry: dict[str, Any] = {
@@ -272,6 +301,8 @@ def build_match_analysis(
                     # expected goals, or we do not attach it.
                     assert_model_coherent(prediction.matrix, score_matrix, probs, expected_goals)
                     entry["score_matrix"] = score_matrix
+                    if family == GOAL_VOICE:
+                        goal_matrix = prediction.matrix
         entries.append(entry)
 
     voice_entries = [e for e in entries if e["role"] == "voice"]
@@ -309,6 +340,11 @@ def build_match_analysis(
             },
         }
 
+    # Exact BTTS / clean-sheet marginals — computed from the goal voice's full
+    # joint matrix at build time because they are NOT exactly recoverable from the
+    # stored, outcome-decomposed score grid. None when the goal voice abstained.
+    derived_markets = _derived_markets(goal_matrix) if goal_matrix is not None else None
+
     reason = None
     if abstained:
         reason = (
@@ -341,4 +377,5 @@ def build_match_analysis(
         "models": entries,
         "score_matrix": score_matrix,
         "score_matrix_family": GOAL_VOICE if score_matrix is not None else None,
+        "derived_markets": derived_markets,
     }
