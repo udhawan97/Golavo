@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-12.1"
+PROMPT_VERSION = "golavo-narration-2026-07-13.1"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -59,6 +59,29 @@ OUTPUT: Return ONLY a JSON object with keys `claims`, `scenarios`, and
 OPTIONAL proposals for facts NOT in the bundle; each needs an exact `quote` and a
 `source_url`; they are never treated as established and never carry a number.
 Leave any array empty rather than padding it."""
+
+
+# Appended to the system prompt ONLY when the user has enabled the optional
+# background lane. It relaxes NOTHING about the grounded rules above: claims and
+# scenarios stay bound to the whitelist. The background array is a separate,
+# numberless channel.
+BACKGROUND_ADDENDUM = """
+
+OPTIONAL BACKGROUND (the user has enabled this): You MAY additionally return a
+`background` array of AT MOST 4 short notes of qualitative context drawn from
+your OWN general knowledge — managers and their tendencies, playing-style
+reputations, rivalry or tournament history, notable narratives. This is the one
+place you may go beyond the bundle.
+HARD RULES for `background` (a note that breaks any of these is deleted before
+the user sees it):
+- ABSOLUTELY NO NUMBERS in any form: no digits, no spelled-out quantities, no
+  dates, no scores, no ages, no rankings, no counts. Write qualitatively only.
+- No betting or gambling language.
+- No probabilities, predictions, or restating/contradicting an engine number.
+- Your general knowledge may be OUTDATED — write it as background colour, framed
+  as such, never as current fact.
+- Never move background content into `claims` or `scenarios`, and never cite it
+  as engine evidence. `claims`/`scenarios` remain strictly bundle-grounded."""
 
 
 def _bundle_view(bundle: dict[str, Any]) -> dict[str, Any]:

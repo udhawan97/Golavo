@@ -294,3 +294,83 @@ def test_number_reference_must_cite_one_of_its_own_sources(bundle: dict, refs: d
     )
     raw = _wrap([_claim("France have 1.2 expected goals.", [refs["snapshot"]], ["xg_home"])])
     assert review_narration(raw, altered).accepted is False
+
+
+# --------------------------------------------------------------------------- #
+# Background lane (opt-in general-knowledge colour) — zero-number whitelist
+# --------------------------------------------------------------------------- #
+def _grounded_claim(refs: dict) -> list[dict]:
+    home = refs["display"]["prob_home"]
+    return [_claim(f"France favoured at {home}.", [refs["engine"]], ["prob_home"])]
+
+
+def _with_background(refs: dict, notes: list[str]) -> dict:
+    raw = _wrap(_grounded_claim(refs))
+    raw["background"] = [{"text": t} for t in notes]
+    return raw
+
+
+@pytest.mark.parametrize(
+    "note",
+    [
+        "Deschamps has managed France for 3 spells.",   # digit
+        "Their rivalry spans three decades.",           # spelled-out
+        "They meet about 1/2 the time in finals.",      # fraction
+        "France won the 2018 World Cup.",               # year (digit)
+        "Value is on the underdog tonight.",            # betting lexicon
+    ],
+)
+def test_background_note_with_a_number_or_betting_term_is_dropped(
+    note: str, bundle: dict, refs: dict
+) -> None:
+    review = review_narration(_with_background(refs, [note]), bundle, allow_background=True)
+    # The grounded claim still stands; the bad note is deleted, not hard-rejected.
+    assert review.accepted is True
+    assert review.narration["background"] == []
+    assert any("background" in d for d in review.dropped)
+
+
+def test_background_numberless_note_with_a_safe_literal_survives(bundle: dict, refs: dict) -> None:
+    review = review_narration(
+        _with_background(refs, ["Didier Deschamps favours a compact, counter-attacking shape."]),
+        bundle,
+        allow_background=True,
+    )
+    assert review.accepted is True
+    assert len(review.narration["background"]) == 1
+    assert "Deschamps" in review.narration["background"][0]["text"]
+
+
+def test_background_disabled_by_default_strips_volunteered_notes(bundle: dict, refs: dict) -> None:
+    review = review_narration(_with_background(refs, ["Some qualitative colour."]), bundle)
+    assert review.accepted is True
+    assert review.narration["background"] == []
+    assert any("background lane disabled" in d for d in review.dropped)
+
+
+def test_old_shape_without_background_still_validates(bundle: dict, refs: dict) -> None:
+    raw = _wrap(_grounded_claim(refs))  # no "background" key at all
+    review = review_narration(raw, bundle, allow_background=True)
+    assert review.accepted is True
+    assert review.narration["background"] == []
+
+
+def test_background_never_rescues_a_fabricated_number_in_a_claim(bundle: dict, refs: dict) -> None:
+    # The grounded lane's hard-reject is unchanged: a fabricated number in a CLAIM
+    # still voids the WHOLE narration, even with a perfectly clean background note.
+    raw = _wrap([_claim("France win probability is 99.9%.", [refs["engine"]], ["prob_home"])])
+    raw["background"] = [{"text": "A rich rivalry with plenty of history."}]
+    review = review_narration(raw, bundle, allow_background=True)
+    assert review.accepted is False
+    assert review.narration is None
+
+
+def test_dirty_background_never_voids_clean_claims(bundle: dict, refs: dict) -> None:
+    # The reverse: a number in the BACKGROUND lane must never fail the narration —
+    # it is dropped while the grounded claims are served.
+    review = review_narration(
+        _with_background(refs, ["They have met 12 times."]), bundle, allow_background=True
+    )
+    assert review.accepted is True
+    assert len(review.narration["claims"]) == 1
+    assert review.narration["background"] == []

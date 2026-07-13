@@ -31,7 +31,7 @@ from golavo_core.ai.whitelist import (
     unsupported_number_tokens,
 )
 
-NARRATION_SCHEMA_VERSION = "0.1.0"
+NARRATION_SCHEMA_VERSION = "0.2.0"
 
 # Keys that may carry model reasoning. Removed everywhere before validation so a
 # model that volunteers a scratchpad still yields a clean, schema-valid result
@@ -196,11 +196,51 @@ def _review_candidate_fact(
     return {"text": text, "quote": quote, "source_url": fact["source_url"]}
 
 
+def _review_background_note(
+    note: dict[str, Any],
+    *,
+    index: int,
+    safe_literals: list[str],
+    dropped: list[str],
+) -> dict[str, Any] | None:
+    """Review one background note under a ZERO-number whitelist.
+
+    The background lane carries qualitative colour from the model's own general
+    knowledge — never a number. Any digit, spelled-out number, or fraction, any
+    betting term, credential shape, or chain-of-thought marker DROPS the note.
+    Crucially this NEVER hard-rejects the narration: a bad note is silently
+    deleted (audited in ``dropped``) while the grounded lanes keep their existing
+    hard-reject semantics. The allowed-number set is the empty list, hard-coded —
+    it must never share the grounded lane's allowed_numbers.
+    """
+    text = note["text"]
+    label = f"background[{index}]"
+    # Empty allowed set + empty refs => EVERY number token is unsupported.
+    if unsupported_number_tokens(text, [], [], safe_literals):
+        dropped.append(f"{label}: dropped (background must be numberless)")
+        return None
+    if contains_betting_lexicon(text):
+        dropped.append(f"{label}: dropped (betting lexicon)")
+        return None
+    if contains_secret_pattern(text):
+        dropped.append(f"{label}: dropped (credential-shaped content)")
+        return None
+    if _COT_MARKER_RE.search(text):
+        dropped.append(f"{label}: dropped (chain-of-thought marker)")
+        return None
+    out: dict[str, Any] = {"text": text}
+    about = note.get("about")
+    if about in ("home", "away", "match"):
+        out["about"] = about
+    return out
+
+
 def review_narration(
     raw: Any,
     bundle: dict[str, Any],
     *,
     allow_candidate_facts: bool = False,
+    allow_background: bool = False,
 ) -> NarrationReview:
     """Review a raw model output against ``bundle``; see module docstring."""
     from jsonschema import Draft202012Validator, ValidationError
@@ -260,6 +300,22 @@ def review_narration(
             "(candidate-fact ingestion is disabled)"
         )
 
+    # Background lane: a parallel, numberless channel. It NEVER contributes to
+    # `rejections`, so a bad background note can never void the grounded output.
+    clean_background: list[dict[str, Any]] = []
+    raw_background = cleaned.get("background") or []
+    if allow_background and isinstance(raw_background, list):
+        for index, note in enumerate(raw_background):
+            reviewed = _review_background_note(
+                note, index=index, safe_literals=safe_literals, dropped=dropped
+            )
+            if reviewed is not None:
+                clean_background.append(reviewed)
+    elif raw_background:
+        dropped.append(
+            f"background: dropped {len(raw_background)} (background lane disabled)"
+        )
+
     if rejections:
         return NarrationReview(False, None, rejections, dropped)
 
@@ -273,5 +329,6 @@ def review_narration(
         "claims": clean_claims,
         "scenarios": clean_scenarios,
         "candidate_facts": clean_candidates,
+        "background": clean_background,
     }
     return NarrationReview(True, narration, rejections, dropped)

@@ -8,7 +8,7 @@
  */
 import { SCHEMA_VERSION } from "../lib/contract";
 import { sourceDescription } from "../lib/api";
-import { AI_PROVIDERS, useAiProvider } from "../lib/ai";
+import { AI_PROVIDERS, useAiBackground, useAiProvider } from "../lib/ai";
 import { useKeepFixturesFresh } from "../lib/fixtures";
 import type { ReadingPrefs } from "../lib/hooks";
 import { ReadingControls } from "../components/ReadingComfort";
@@ -32,6 +32,7 @@ export function Settings({
   const u = useUpdater();
   const [keepFresh, setKeepFresh] = useKeepFixturesFresh();
   const [aiProvider, setAiProvider] = useAiProvider();
+  const [aiBackground, setAiBackground] = useAiBackground();
   const version = appVersionLabel(u.status?.appVersion);
   // From the persisted skip, not the live phase — so it's manageable even on a
   // fresh boot with auto-check off, where no check has run this session.
@@ -126,6 +127,22 @@ export function Settings({
               on your machine and send nothing out; the BYOK options send the evidence bundle to
               that provider with your own key. The AI runs through Golavo’s local engine, so in this
               sample build it will show as unavailable until a desktop engine is connected.
+            </p>
+            <div className="settings__row">
+              <label htmlFor="ai-background">AI background (general knowledge)</label>
+              <input
+                id="ai-background"
+                type="checkbox"
+                checked={aiBackground}
+                onChange={(e) => setAiBackground(e.target.checked)}
+              />
+            </div>
+            <p className="settings__hint">
+              Optional second lane, off by default. When on, the model may add qualitative colour —
+              managers, style reputations, rivalries — from its <b>own general knowledge</b>. It is
+              clearly badged as not-Golavo-data, may be outdated, and is <b>forbidden from stating any
+              number</b>: anything numeric it writes is deleted before you see it. The grounded read
+              above it is unchanged.
             </p>
           </div>
         </div>

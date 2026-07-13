@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { DATA_SOURCE, fetchMatchNarrative, fetchNarrative } from "../lib/api";
 import {
   AI_PROVIDERS,
+  useAiBackground,
   useAiProvider,
 } from "../lib/ai";
 import type {
   AiProvider,
+  BackgroundNote,
   NarrationClaim,
   NarrativeResponse,
   NumberRef,
@@ -47,6 +49,7 @@ function ReadMark() {
 
 export function AiDeepRead({ source }: { source: DeepReadSource }) {
   const [provider, setProvider] = useAiProvider();
+  const [allowBackground, setAllowBackground] = useAiBackground();
   const [state, setState] = useState<RunState>({ status: "idle" });
   const runId = useRef(0);
   const sourceKey = source.kind === "forecast" ? source.artifactId : source.matchId;
@@ -64,10 +67,11 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
   const run = (refresh = false) => {
     const id = ++runId.current;
     setState({ status: "loading", refresh });
+    const opts = { refresh, allowBackground };
     const request =
       source.kind === "forecast"
-        ? fetchNarrative(source.artifactId, provider, { refresh })
-        : fetchMatchNarrative(source.matchId, provider, { refresh });
+        ? fetchNarrative(source.artifactId, provider, opts)
+        : fetchMatchNarrative(source.matchId, provider, opts);
     request.then(
       (data) => { if (id === runId.current) setState({ status: "done", data }); },
       (error) => {
@@ -135,7 +139,13 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
 
         {provider === "off" && <OffCard />}
         {provider !== "off" && state.status === "idle" && (
-          <IdleCard provider={provider} isMatch={isMatch} onRun={() => run(false)} />
+          <IdleCard
+            provider={provider}
+            isMatch={isMatch}
+            onRun={() => run(false)}
+            allowBackground={allowBackground}
+            onToggleBackground={setAllowBackground}
+          />
         )}
         {state.status === "loading" && <Pipeline provider={provider} refresh={state.refresh} />}
         {state.status === "error" && <FallbackCard reason={state.error.message} onRetry={() => run(false)} />}
@@ -158,8 +168,14 @@ function OffCard() {
 }
 
 function IdleCard({
-  provider, isMatch, onRun,
-}: { provider: AiProvider; isMatch: boolean; onRun: () => void }) {
+  provider, isMatch, onRun, allowBackground, onToggleBackground,
+}: {
+  provider: AiProvider;
+  isMatch: boolean;
+  onRun: () => void;
+  allowBackground: boolean;
+  onToggleBackground: (on: boolean) => void;
+}) {
   const meta = AI_PROVIDERS.find((p) => p.value === provider);
   return (
     <div className="stack" style={{ ["--gap" as string]: ".7rem" }}>
@@ -168,6 +184,17 @@ function IdleCard({
           ? "Uses your own API key (kept in your OS keychain, never logged). A short request is sent to your chosen provider."
           : "Uses a local model on your machine — no key, no cloud. Start Ollama or llama.cpp first."}
       </p>
+      <label className="ai-bg-toggle">
+        <input
+          type="checkbox"
+          checked={allowBackground}
+          onChange={(e) => onToggleBackground(e.target.checked)}
+        />
+        <span>
+          Also ask for <b>AI background</b> — the model’s own general knowledge (managers, style,
+          rivalries). Clearly badged, may be outdated, and <b>no numbers</b> allowed.
+        </span>
+      </label>
       <div>
         <button type="button" className="ai-run" onClick={onRun}>
           {isMatch ? "Write the deeper read" : "Run AI Deep Read"}
@@ -228,6 +255,7 @@ function Result({
   const sourceById = new Map<string, SourceRef>(data.sources.map((s) => [s.source_id, s]));
   const numberById = new Map<string, NumberRef>(data.numbers.map((n) => [n.id, n]));
   const { claims, scenarios } = data.narration;
+  const background = data.narration.background ?? [];
 
   return (
     <div className="stack" style={{ ["--gap" as string]: "1rem" }}>
@@ -249,6 +277,8 @@ function Result({
       {claims.length === 0 && scenarios.length === 0 && (
         <p className="ai-note">The model returned nothing it could ground in the evidence.</p>
       )}
+
+      {background.length > 0 && <BackgroundLane notes={background} />}
 
       <p className="ai-meta">
         {data.cached && <span className="chip chip--neutral">cached</span>}
@@ -311,6 +341,32 @@ function ClaimList({
         ))}
       </ul>
     </div>
+  );
+}
+
+/** The second, clearly-separated lane: general-knowledge colour from the model.
+ *  Badged as not-Golavo-data, may-be-outdated; no number chips, no source chips
+ *  (there are none by design — anything numeric was deleted server-side). */
+function BackgroundLane({ notes }: { notes: BackgroundNote[] }) {
+  return (
+    <details className="ai-background">
+      <summary>
+        <span className="ai-background__badge">Model memory — not Golavo data · may be outdated</span>
+        <span className="dim small"> · {notes.length} note{notes.length === 1 ? "" : "s"}</span>
+      </summary>
+      <p className="small dim ai-background__note" style={{ marginTop: ".5rem" }}>
+        Qualitative context from the model’s own general knowledge — not verified, not from Golavo’s
+        data, and possibly out of date. Any number it tried to state was removed.
+      </p>
+      <ul className="ai-background__list">
+        {notes.map((n, i) => (
+          <li key={i}>
+            <span className="ai-background__mark" aria-hidden title="unverified">◇</span>
+            {n.text}
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 

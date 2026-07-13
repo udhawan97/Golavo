@@ -475,6 +475,9 @@ export interface NarrativeOptions {
   /** Skip the server cache read and regenerate (the user's "Refresh" action).
    *  The regenerated output still runs the full fail-closed guard pipeline. */
   refresh?: boolean;
+  /** Opt into the second, general-knowledge "background" lane (off by default).
+   *  It never weakens the grounded whitelist; any number it writes is deleted. */
+  allowBackground?: boolean;
 }
 
 function emptyNarrative(provider: AiProvider): NarrativeResponse {
@@ -513,7 +516,11 @@ async function postNarrative(
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ provider, ...(opts.refresh ? { refresh: true } : {}) }),
+    body: JSON.stringify({
+      provider,
+      ...(opts.refresh ? { refresh: true } : {}),
+      ...(opts.allowBackground ? { allow_background: true } : {}),
+    }),
   });
   if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);
   return { ...base, ...(await res.json()) } as NarrativeResponse;

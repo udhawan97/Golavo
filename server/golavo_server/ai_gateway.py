@@ -35,6 +35,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from golavo_core.ai import (
+    BACKGROUND_ADDENDUM,
     PROMPT_VERSION,
     SYSTEM_PROMPT,
     build_user_prompt,
@@ -76,6 +77,7 @@ class ProviderConfig:
     model: str
     base_url: str | None
     allow_candidate_facts: bool = False
+    allow_background: bool = False
     timeout_s: float = 30.0
     untrusted_context: str | None = None
 
@@ -94,6 +96,7 @@ class ProviderConfig:
             "model": self.model,
             "base_url": self.base_url,
             "allow_candidate_facts": self.allow_candidate_facts,
+            "allow_background": self.allow_background,
         }
 
 
@@ -127,6 +130,7 @@ def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
         model=model,
         base_url=base_url,
         allow_candidate_facts=bool(config.get("allow_candidate_facts", False)),
+        allow_background=bool(config.get("allow_background", False)),
         timeout_s=timeout_s,
         untrusted_context=config.get("untrusted_context"),
     )
@@ -326,18 +330,21 @@ class NarrationCache:
     """In-memory cache keyed by every input that can affect a narration."""
 
     def __init__(self) -> None:
-        self._store: dict[tuple[str, str, str, str, bool, str], dict[str, Any]] = {}
+        self._store: dict[tuple[str, str, str, str, bool, bool, str], dict[str, Any]] = {}
 
     @staticmethod
-    def key(bundle_hash: str, config: ProviderConfig) -> tuple[str, str, str, str, bool, str]:
+    def key(bundle_hash: str, config: ProviderConfig) -> tuple[str, str, str, str, bool, bool, str]:
         context = sanitize_untrusted(config.untrusted_context or "")
         context_hash = hashlib.sha256(context.encode("utf-8")).hexdigest() if context else ""
+        # allow_background is part of the key: a no-background cached read must
+        # never be served to a background-enabled request (and vice versa).
         return (
             bundle_hash,
             config.provider,
             config.model,
             PROMPT_VERSION,
             config.allow_candidate_facts,
+            config.allow_background,
             context_hash,
         )
 
@@ -399,7 +406,11 @@ def generate_narration(
             reason="No API key found for this provider. Add one to use it, or keep AI off.",
         )
 
-    system = SYSTEM_PROMPT
+    # The background addendum is appended ONLY when the user opted in; it relaxes
+    # nothing about the grounded rules. PROMPT_VERSION already covers the change,
+    # and allow_background is in the cache key, so a background run never reuses a
+    # grounded-only cached narration.
+    system = SYSTEM_PROMPT + (BACKGROUND_ADDENDUM if config.allow_background else "")
     user = build_user_prompt(bundle, config.untrusted_context)
 
     reasons: list[str] = []
@@ -423,7 +434,10 @@ def generate_narration(
             reasons.append("model output was not valid JSON")
             continue
         review = review_narration(
-            raw, bundle, allow_candidate_facts=config.allow_candidate_facts
+            raw,
+            bundle,
+            allow_candidate_facts=config.allow_candidate_facts,
+            allow_background=config.allow_background,
         )
         if review.accepted and review.narration is not None:
             cache.set(bundle_hash, config, review.narration)

@@ -688,6 +688,29 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
 .ai-chip--num { font-family: var(--font-mono); color: var(--text); border-color: var(--gold-line); background: var(--gold-soft); }
 .ai-chip--src:hover { border-color: var(--link); color: var(--link); }
 .ai-chip--engine { border-color: var(--green-soft); }
+/* Opt-in for the second (general-knowledge) lane */
+.ai-bg-toggle {
+  display: flex; gap: .5rem; align-items: flex-start;
+  font-size: .84rem; color: var(--text-muted); line-height: 1.45;
+}
+.ai-bg-toggle input { margin-top: .15rem; flex: none; width: 1.05rem; height: 1.05rem; accent-color: var(--gold-brand); }
+
+/* The background lane — visually separated (dashed) and clearly badged. */
+.ai-background {
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
+  padding: .6rem .85rem; background: color-mix(in srgb, var(--surface-2) 40%, transparent);
+}
+.ai-background > summary { cursor: pointer; font-size: .84rem; }
+.ai-background__badge {
+  display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--text-muted);
+  border: 1px solid var(--border-strong); border-radius: 999px; padding: .1rem .5rem;
+}
+.ai-background__note { max-width: var(--measure); }
+.ai-background__list { list-style: none; margin: .5rem 0 0; padding: 0; display: grid; gap: .5rem; }
+.ai-background__list li { font-size: .92rem; line-height: 1.5; display: flex; gap: .45rem; }
+.ai-background__mark { color: var(--text-dim); flex: none; }
+
 .ai-meta { display: flex; align-items: center; gap: .6rem; font-size: .78rem; flex-wrap: wrap; }
 .ai-refresh {
   background: none; border: none; color: var(--link); cursor: pointer;

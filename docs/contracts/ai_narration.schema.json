@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://udhawan97.github.io/Golavo/contracts/ai-narration-0.1.0.schema.json",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/ai-narration-0.2.0.schema.json",
   "title": "AiNarration",
-  "description": "The forced structured output of Golavo's optional AI layer, produced ONLY from a MatchEvidenceBundle. It carries no probabilities and no authority: it explains and cites the engine's numbers. Every number in any text field must resolve to an allowed_numbers id in the source bundle, or the whole narration is rejected and the app falls back to local-only. This is the wire schema the model is constrained to; the served narration additionally stamps provenance (see AiNarrationEnvelope in golavo_server.ai_gateway).",
+  "description": "The forced structured output of Golavo's optional AI layer, produced ONLY from a MatchEvidenceBundle. It carries no probabilities and no authority: it explains and cites the engine's numbers. Every number in any text field must resolve to an allowed_numbers id in the source bundle, or the whole narration is rejected and the app falls back to local-only. The OPTIONAL background lane is a separate, clearly-badged channel of qualitative colour from the model's own general knowledge — forbidden from stating any number and never folded into evidence. This is the wire schema the model is constrained to; the served narration additionally stamps provenance (see AiNarrationEnvelope in golavo_server.ai_gateway).",
   "type": "object",
   "additionalProperties": false,
   "required": ["claims", "scenarios", "candidate_facts"],
@@ -21,9 +21,24 @@
       "type": "array",
       "description": "Proposed NEW facts the model believes are relevant but that are NOT in the bundle. They are never rendered as engine facts and never touch a probability; each needs an exact source quote and, downstream, allowlisted-source + quote-match + explicit user confirmation before it could ever become a typed feature.",
       "items": {"$ref": "#/$defs/CandidateFact"}
+    },
+    "background": {
+      "type": "array",
+      "description": "OPTIONAL. Qualitative context from the model's OWN general knowledge (managers, playing-style reputations, rivalry/tournament history) — enabled only when the user opts in. Clearly badged as not-Golavo-data and may be outdated. Forbidden from stating any number in any form; numberless notes only. Never folded into evidence, notebooks, or allowed_numbers. Not in `required` so older outputs stay valid.",
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/BackgroundNote"}
     }
   },
   "$defs": {
+    "BackgroundNote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1, "maxLength": 360},
+        "about": {"enum": ["home", "away", "match"]}
+      }
+    },
     "Claim": {
       "type": "object",
       "additionalProperties": false,

@@ -29,11 +29,19 @@ export interface NarrationClaim {
   number_refs: string[];
 }
 
+/** A note in the optional general-knowledge lane — no numbers, no citations. */
+export interface BackgroundNote {
+  text: string;
+  about?: "home" | "away" | "match";
+}
+
 export interface AiNarration {
   schema_version: string;
   claims: NarrationClaim[];
   scenarios: NarrationClaim[];
   candidate_facts: unknown[];
+  /** Optional: present only when the background lane was enabled (may be empty). */
+  background?: BackgroundNote[];
 }
 
 export interface SourceRef {
@@ -113,4 +121,39 @@ export function useAiProvider(): [AiProvider, (p: AiProvider) => void] {
     window.dispatchEvent(new Event(AI_EVENT));
   }, []);
   return [provider, set];
+}
+
+const AI_BG_KEY = "golavo-ai-background";
+const AI_BG_EVENT = "golavo-ai-background-changed";
+
+function readBackground(): boolean {
+  try {
+    return localStorage.getItem(AI_BG_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Whether the optional general-knowledge "background" lane is enabled. Off by
+ *  default; persisted and app-wide reactive (Settings and the Deep Read panels
+ *  stay in sync). Enabling it never weakens the grounded whitelist. */
+export function useAiBackground(): [boolean, (on: boolean) => void] {
+  const [on, setOn] = useState<boolean>(readBackground);
+  useEffect(() => {
+    const sync = () => setOn(readBackground());
+    window.addEventListener(AI_BG_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(AI_BG_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  const set = useCallback((next: boolean) => {
+    setOn(next);
+    try {
+      localStorage.setItem(AI_BG_KEY, next ? "1" : "0");
+    } catch { /* ignore */ }
+    window.dispatchEvent(new Event(AI_BG_EVENT));
+  }, []);
+  return [on, set];
 }
