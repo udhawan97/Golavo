@@ -1,12 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://udhawan97.github.io/Golavo/contracts/ai-narration-0.2.0.schema.json",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/ai-narration-0.3.0.schema.json",
   "title": "AiNarration",
-  "description": "The forced structured output of Golavo's optional AI layer, produced ONLY from a MatchEvidenceBundle. It carries no probabilities and no authority: it explains and cites the engine's numbers. Every number in any text field must resolve to an allowed_numbers id in the source bundle, or the whole narration is rejected and the app falls back to local-only. The OPTIONAL background lane is a separate, clearly-badged channel of qualitative colour from the model's own general knowledge — forbidden from stating any number and never folded into evidence. This is the wire schema the model is constrained to; the served narration additionally stamps provenance (see AiNarrationEnvelope in golavo_server.ai_gateway).",
+  "description": "The forced structured output of Golavo's optional AI layer, produced ONLY from a MatchEvidenceBundle. It carries no probabilities and no authority: it explains and cites the engine's numbers. Every number in a claim/scenario/verdict must resolve to an allowed_numbers id in the source bundle, or the whole narration is rejected and the app falls back to local-only. The OPTIONAL verdict is a one-line most-likely-outcome summary under the same engine rules. The OPTIONAL research_notes lane carries web-sourced findings whose numbers are checked against the fetched page (NOT the engine) and are clearly badged as not-engine-verified. The OPTIONAL background lane is qualitative colour from the model's own general knowledge — forbidden from stating any number. This is the wire schema the model is constrained to; the served narration additionally stamps provenance (see AiNarrationEnvelope in golavo_server.ai_gateway).",
   "type": "object",
   "additionalProperties": false,
   "required": ["claims", "scenarios", "candidate_facts"],
   "properties": {
+    "verdict": {
+      "description": "OPTIONAL one-line most-likely-outcome summary. Same numeric + citation rules as a claim; null when the model has no grounded verdict. Not in `required` so older outputs stay valid.",
+      "oneOf": [{"$ref": "#/$defs/Claim"}, {"type": "null"}]
+    },
     "claims": {
       "type": "array",
       "description": "Grounded observations about this forecast. Each must cite at least one source_id; claims without one are dropped.",
@@ -22,6 +26,12 @@
       "description": "Proposed NEW facts the model believes are relevant but that are NOT in the bundle. They are never rendered as engine facts and never touch a probability; each needs an exact source quote and, downstream, allowlisted-source + quote-match + explicit user confirmation before it could ever become a typed feature.",
       "items": {"$ref": "#/$defs/CandidateFact"}
     },
+    "research_notes": {
+      "type": "array",
+      "description": "OPTIONAL web-research findings — enabled only when the user opts into web research. Each quote must appear VERBATIM in a page the sidecar actually fetched, its source_url must be one of those fetched URLs, and any number in the text must appear in the quote (checked against the fetched page, NOT the engine). Clearly badged as not-engine-verified. Not in `required` so older outputs stay valid.",
+      "maxItems": 8,
+      "items": {"$ref": "#/$defs/ResearchNote"}
+    },
     "background": {
       "type": "array",
       "description": "OPTIONAL. Qualitative context from the model's OWN general knowledge (managers, playing-style reputations, rivalry/tournament history) — enabled only when the user opts in. Clearly badged as not-Golavo-data and may be outdated. Forbidden from stating any number in any form; numberless notes only. Never folded into evidence, notebooks, or allowed_numbers. Not in `required` so older outputs stay valid.",
@@ -30,6 +40,16 @@
     }
   },
   "$defs": {
+    "ResearchNote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "quote", "source_url"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1, "maxLength": 400},
+        "quote": {"type": "string", "minLength": 12, "maxLength": 600},
+        "source_url": {"type": "string", "minLength": 1, "maxLength": 400}
+      }
+    },
     "BackgroundNote": {
       "type": "object",
       "additionalProperties": false,

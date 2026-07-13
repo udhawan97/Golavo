@@ -411,9 +411,10 @@ def test_openai_payload_constrains_output_to_the_schema() -> None:
     rf = body["response_format"]
     assert rf["type"] == "json_schema"
     schema = rf["json_schema"]["schema"]
-    assert set(schema["required"]) == {"claims", "scenarios", "candidate_facts"}
+    assert set(schema["required"]) == {"verdict", "claims", "scenarios", "candidate_facts"}
     assert schema["additionalProperties"] is False
     assert "background" not in schema["properties"]  # off unless opted in
+    assert "research_notes" not in schema["properties"]  # off unless opted in
 
     bg = ProviderConfig(
         provider="ollama", model="llama3.2", base_url="http://127.0.0.1:11434/v1",

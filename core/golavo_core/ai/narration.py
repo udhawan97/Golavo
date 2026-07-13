@@ -31,7 +31,7 @@ from golavo_core.ai.whitelist import (
     unsupported_number_tokens,
 )
 
-NARRATION_SCHEMA_VERSION = "0.2.0"
+NARRATION_SCHEMA_VERSION = "0.3.0"
 
 # Keys that may carry model reasoning. Removed everywhere before validation so a
 # model that volunteers a scratchpad still yields a clean, schema-valid result
@@ -53,11 +53,18 @@ _COT_MARKER_RE = re.compile(r"(?i)</?think|<\|.*?\|>|chain[-_ ]of[-_ ]thought")
 # narration. We prune to these known keys before validation, exactly as _strip_cot
 # strips reasoning keys. Safety is untouched: every served field is rebuilt from
 # known keys in the reviewers below, so a pruned extra could never reach the user.
-_TOP_KEYS = frozenset({"claims", "scenarios", "candidate_facts", "background"})
+# `verdict` is a single Claim-shaped object (or null); `research_notes` a list of
+# ResearchNote objects. Both are 0.3.0 additions, popped before the wire gate and
+# reviewed in their own lanes, exactly like `background`.
+_TOP_KEYS = frozenset(
+    {"verdict", "claims", "scenarios", "candidate_facts", "research_notes", "background"}
+)
+_CLAIM_KEYS = frozenset({"text", "source_ids", "number_refs"})
 _ITEM_KEYS = {
-    "claims": frozenset({"text", "source_ids", "number_refs"}),
-    "scenarios": frozenset({"text", "source_ids", "number_refs"}),
+    "claims": _CLAIM_KEYS,
+    "scenarios": _CLAIM_KEYS,
     "candidate_facts": frozenset({"text", "quote", "source_url"}),
+    "research_notes": frozenset({"text", "quote", "source_url"}),
     "background": frozenset({"text", "about"}),
 }
 
@@ -67,6 +74,11 @@ def _prune_unknown(narration: Any) -> Any:
     if not isinstance(narration, dict):
         return narration
     out = {key: value for key, value in narration.items() if key in _TOP_KEYS}
+    # `verdict` is a single object, not a list — prune its inner keys to the claim
+    # shape so a stray extra never fails the per-item conform.
+    verdict = out.get("verdict")
+    if isinstance(verdict, dict):
+        out["verdict"] = {k: v for k, v in verdict.items() if k in _CLAIM_KEYS}
     for key, allowed in _ITEM_KEYS.items():
         items = out.get(key)
         if isinstance(items, list):
@@ -348,12 +360,87 @@ def _review_background_note(
     return out
 
 
+_RESEARCH_MAX_NOTES = 8
+_RESEARCH_MIN_QUOTE = 12  # a quote shorter than this is not a defensible attribution
+_RESEARCH_MAX_QUOTE = 600
+_RESEARCH_MAX_TEXT = 400
+_WS_RE = re.compile(r"\s+")
+_QUOTE_FOLD = str.maketrans(
+    {"‘": "'", "’": "'", "“": '"', "”": '"',
+     "–": "-", "—": "-", "‒": "-", "−": "-"}
+)
+
+
+def _normalize_for_quote_match(text: str) -> str:
+    """Fold a string for a tolerant verbatim-substring check: NFKC, casefold,
+    curly quotes/dashes to ASCII, whitespace runs collapsed to single spaces."""
+    import unicodedata
+
+    folded = unicodedata.normalize("NFKC", text).translate(_QUOTE_FOLD).casefold()
+    return _WS_RE.sub(" ", folded).strip()
+
+
+def _review_research_note(
+    note: Any,
+    *,
+    index: int,
+    research_corpus: dict[str, str],
+    safe_literals: list[str],
+    dropped: list[str],
+) -> dict[str, Any] | None:
+    """Review one web-research note. Honesty, not engine-grounding, is the gate:
+    the quote must appear VERBATIM (after normalization) in the page the sidecar
+    actually fetched, and every number in the note's text must appear in that
+    quote — never rescued by an engine number. Like ``background``, a failing note
+    is soft-dropped and NEVER voids the grounded claims.
+    """
+    label = f"research_notes[{index}]"
+    if not isinstance(note, dict):
+        dropped.append(f"{label}: dropped (malformed research note)")
+        return None
+    text, quote, url = note.get("text"), note.get("quote"), note.get("source_url")
+    if not (isinstance(text, str) and 1 <= len(text) <= _RESEARCH_MAX_TEXT):
+        dropped.append(f"{label}: dropped (text length out of range)")
+        return None
+    if not (isinstance(quote, str) and _RESEARCH_MIN_QUOTE <= len(quote) <= _RESEARCH_MAX_QUOTE):
+        dropped.append(f"{label}: dropped (quote length out of range)")
+        return None
+    if not isinstance(url, str) or url not in research_corpus:
+        dropped.append(f"{label}: dropped (source_url was not one the sidecar fetched)")
+        return None
+    # Honesty gate: the quote must be a verbatim (normalized) span of the fetched
+    # page — a paraphrase or invention drops the note.
+    if _normalize_for_quote_match(quote) not in _normalize_for_quote_match(research_corpus[url]):
+        dropped.append(f"{label}: dropped (quote not found verbatim in the fetched page)")
+        return None
+    # Number provenance: every number the note's TEXT states must appear in the
+    # QUOTE. Engine numbers do NOT rescue a research number — the lane lives and
+    # dies by the fetched material.
+    quote_numbers = extract_numbers(quote, safe_literals)
+    for token in extract_numbers(text, safe_literals):
+        if not any(number_matches(token, q) for q in quote_numbers):
+            dropped.append(f"{label}: dropped (number {token} not in the quote)")
+            return None
+    if contains_betting_lexicon(text) or contains_betting_lexicon(quote):
+        dropped.append(f"{label}: dropped (betting lexicon)")
+        return None
+    if contains_secret_pattern(text) or contains_secret_pattern(quote):
+        dropped.append(f"{label}: dropped (credential-shaped content)")
+        return None
+    if _COT_MARKER_RE.search(text) or _COT_MARKER_RE.search(quote):
+        dropped.append(f"{label}: dropped (chain-of-thought marker)")
+        return None
+    return {"text": text, "quote": quote, "source_url": url}
+
+
 def review_narration(
     raw: Any,
     bundle: dict[str, Any],
     *,
     allow_candidate_facts: bool = False,
     allow_background: bool = False,
+    allow_research: bool = False,
+    research_corpus: dict[str, str] | None = None,
 ) -> NarrationReview:
     """Review a raw model output against ``bundle``; see module docstring."""
     from jsonschema import Draft202012Validator, ValidationError
@@ -365,10 +452,13 @@ def review_narration(
         return NarrationReview(False, None, ["output is not a JSON object"], dropped)
 
     cleaned = _prune_unknown(_strip_cot(copy.deepcopy(raw)))
-    # The optional background lane is validated per-note below, NOT by the wire
-    # schema gate — pop it out first so a malformed note (too many, over-length,
-    # bad `about`) can never hard-reject the grounded claims it rides alongside.
+    # The optional background/research lanes and the verdict are validated in their
+    # own lanes below, NOT by the wire schema gate — pop them first so a malformed
+    # item (too many, over-length, a bad verdict) can never hard-reject the
+    # grounded claims they ride alongside.
     raw_background = cleaned.pop("background", None)
+    raw_research = cleaned.pop("research_notes", None)
+    raw_verdict = cleaned.pop("verdict", None)
     # Conform each array to the wire schema's structural rules BEFORE the gate, so a
     # single sloppy item from a small local model (an empty quote, an over-long
     # claim, a stray empty ref) drops just itself instead of blanking the whole
@@ -403,6 +493,32 @@ def review_narration(
             )
             if reviewed is not None:
                 out.append(reviewed)
+
+    # Verdict: reviewed under the SAME engine rules as a claim (engine numbers only,
+    # must cite a bundle source). An invalid verdict becomes null and is audited —
+    # it NEVER voids the grounded claims. Its own rejections are collected locally
+    # so a fabricated number in the verdict cannot fail the whole read.
+    clean_verdict: dict[str, Any] | None = None
+    conformed_verdict = _conform_claim(raw_verdict) if raw_verdict is not None else None
+    if conformed_verdict is not None:
+        verdict_rejections: list[str] = []
+        reviewed_verdict = _review_item(
+            conformed_verdict,
+            kind="verdict",
+            index=0,
+            allowed_numbers=allowed_numbers,
+            safe_literals=safe_literals,
+            source_ids=source_ids,
+            allowed_number_ids=allowed_number_ids,
+            rejections=verdict_rejections,
+            dropped=dropped,
+        )
+        if reviewed_verdict is not None and not verdict_rejections:
+            clean_verdict = reviewed_verdict
+        else:
+            dropped.append("verdict: dropped (did not survive the engine-grounding check)")
+    elif raw_verdict is not None:
+        dropped.append("verdict: dropped (malformed)")
 
     clean_candidates: list[dict[str, Any]] = []
     if allow_candidate_facts:
@@ -441,6 +557,31 @@ def review_narration(
         count = len(raw_background) if isinstance(raw_background, list) else 1
         dropped.append(f"background: dropped {count} (background lane disabled)")
 
+    # Web-research lane: honesty-gated (quote must be verbatim in a fetched page),
+    # numbers checked against the quote not the engine. Like background, it NEVER
+    # contributes to `rejections`.
+    corpus = research_corpus or {}
+    clean_research: list[dict[str, Any]] = []
+    if allow_research and corpus and isinstance(raw_research, list):
+        if len(raw_research) > _RESEARCH_MAX_NOTES:
+            dropped.append(
+                f"research_notes: kept first {_RESEARCH_MAX_NOTES} of {len(raw_research)}"
+            )
+        for index, note in enumerate(raw_research[:_RESEARCH_MAX_NOTES]):
+            reviewed = _review_research_note(
+                note,
+                index=index,
+                research_corpus=corpus,
+                safe_literals=safe_literals,
+                dropped=dropped,
+            )
+            if reviewed is not None:
+                clean_research.append(reviewed)
+    elif raw_research:
+        count = len(raw_research) if isinstance(raw_research, list) else 1
+        reason = "no fetched corpus" if allow_research else "research lane disabled"
+        dropped.append(f"research_notes: dropped {count} ({reason})")
+
     if rejections:
         return NarrationReview(False, None, rejections, dropped)
 
@@ -451,9 +592,11 @@ def review_narration(
 
     narration = {
         "schema_version": NARRATION_SCHEMA_VERSION,
+        "verdict": clean_verdict,
         "claims": clean_claims,
         "scenarios": clean_scenarios,
         "candidate_facts": clean_candidates,
+        "research_notes": clean_research,
         "background": clean_background,
     }
     return NarrationReview(True, narration, rejections, dropped)

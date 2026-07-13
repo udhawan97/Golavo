@@ -252,16 +252,20 @@ def _grounded_output_schema(
     allow_background: bool,
     source_ids: tuple[str, ...] = (),
     number_ids: tuple[str, ...] = (),
+    *,
+    allow_research: bool = False,
+    research_urls: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     """A $ref-free JSON Schema for constrained decoding (``response_format``).
 
     Mirrors the wire narration schema's SHAPE so a small local model is forced to
-    emit ``{claims, scenarios, candidate_facts}`` at the top level instead of
-    parroting the bundle back under a wrapper key. When ``source_ids`` /
+    emit ``{verdict, claims, scenarios, candidate_facts}`` at the top level instead
+    of parroting the bundle back under a wrapper key. When ``source_ids`` /
     ``number_ids`` are supplied they become ``enum`` constraints, so the model can
-    ONLY cite valid ids (no invented sources, no dumping every id it sees). It is
-    a decoding hint, not a guard — ``review_narration`` still owns every safety
-    rule. Kept strict-mode compatible (all properties required,
+    ONLY cite valid ids (no invented sources, no dumping every id it sees); when
+    ``research_urls`` are supplied a research note's ``source_url`` is enum-locked to
+    a fetched URL. It is a decoding hint, not a guard — ``review_narration`` still
+    owns every safety rule. Kept strict-mode compatible (all properties required,
     ``additionalProperties: false``, no string length/pattern facets)."""
     source_item = {"type": "string", "enum": list(source_ids)} if source_ids else {"type": "string"}
     number_item = {"type": "string", "enum": list(number_ids)} if number_ids else {"type": "string"}
@@ -286,11 +290,34 @@ def _grounded_output_schema(
         },
     }
     properties: dict[str, Any] = {
+        # A non-null claim object: the guard nulls a garbage verdict, so keeping the
+        # decoding shape a plain claim stays strict-mode friendly (no oneOf/null).
+        "verdict": claim,
         "claims": {"type": "array", "items": claim},
         "scenarios": {"type": "array", "items": claim},
         "candidate_facts": {"type": "array", "items": fact},
     }
-    required = ["claims", "scenarios", "candidate_facts"]
+    required = ["verdict", "claims", "scenarios", "candidate_facts"]
+    if allow_research:
+        url_item = (
+            {"type": "string", "enum": list(research_urls)}
+            if research_urls
+            else {"type": "string"}
+        )
+        properties["research_notes"] = {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["text", "quote", "source_url"],
+                "properties": {
+                    "text": {"type": "string"},
+                    "quote": {"type": "string"},
+                    "source_url": url_item,
+                },
+            },
+        }
+        required.append("research_notes")
     if allow_background:
         properties["background"] = {
             "type": "array",
