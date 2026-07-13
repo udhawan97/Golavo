@@ -12,4 +12,4 @@ The engine owns every probability; nothing here performs network I/O outside
 `ingest`. Apache-2.0 licensed so the science stays reusable.
 """
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"

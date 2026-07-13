@@ -6,6 +6,13 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-13
+
+Free/open expansion, phase one: attribution and licensing become machine-checked,
+World Cup seals close at the real kickoff, and the 2026 semifinals are sealable —
+supplied by CC0 worldcup.json where martj42 hasn't published them yet, always
+trained on martj42 history, with both sources named in every artifact.
+
 ### Added
 - **Source registry & attribution gates (Phase 0).** `data/sources/registry.json`
   (schema-validated) is now the machine-readable record of every dataset Golavo
