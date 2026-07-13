@@ -6,6 +6,35 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Source registry & attribution gates (Phase 0).** `data/sources/registry.json`
+  (schema-validated) is now the machine-readable record of every dataset Golavo
+  carries, plans, or has rejected — contributors, license, license URL, and a
+  license classification. `scripts/validate_sources.py` (in CI) ties it to the
+  bundled packs, so an unregistered, misclassified, or license-mismatched source
+  fails before it can reach the index. `THIRD_PARTY_NOTICES.md` is generated from
+  the registry (CI `--check`), `LICENSES/` carries the full CC0/Apache texts, and
+  the first Hypothesis property tests fuzz probability canonicalization and the
+  training-cutoff invariant. The full free/open expansion plan lives in
+  `docs/handoff/expansion-plan.md`.
+- **Exact World Cup kickoff times.** A pack may carry an optional,
+  manifest-declared `kickoffs.csv` overlay (built from CC0
+  openfootball/worldcup.json by `scripts/build_worldcup_overlay.py`) that
+  `load_matches` splices onto matching internationals rows, so a World Cup seal's
+  window closes at the real kickoff instead of the conservative 00:00 UTC day
+  proxy. Completed results are cross-checked against martj42 and the build fails
+  closed on any disagreement; `is_complete` is untouched so upcoming fixtures
+  never enter training; and a pack without the overlay is byte-for-byte unchanged
+  (the committed index too).
+
+### Fixed
+- Cleared the ruff violations v0.4.0 left on `main` (line lengths, an import
+  sort, `datetime.UTC`, and an unbound loop variable in the in_form_scorer
+  template), all behavior-preserving, restoring a green lint gate.
+- Doc truth: SUPERSEDED banner on the architecture-rethink plan (its Phase 0/1
+  shipped in v0.3.x), corrected DuckDB "warehouse" language that was never a
+  dependency, and removed the false clippy-in-CI CHANGELOG claim.
+
 ## [0.4.0] - 2026-07-13
 
 An analytics-first elevation: the wait is honest and informative, the home leads
