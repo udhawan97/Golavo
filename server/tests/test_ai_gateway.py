@@ -127,6 +127,20 @@ def test_response_with_fences_and_thinking_is_parsed(bundle: dict) -> None:
     assert env.status == "ok"
 
 
+def test_harmless_extra_keys_are_pruned_not_rejected(bundle: dict) -> None:
+    # Small local models routinely decorate items with extras (claim_id, kind,
+    # confidence). The strict wire schema would reject them; pruning keeps the
+    # otherwise-valid narration. The number guarantee is unaffected — the served
+    # claim is rebuilt from known keys only, so nothing extra reaches the user.
+    payload = _valid_response(bundle)
+    payload["claims"][0].update({"claim_id": "c1", "kind": "outcome", "confidence": 0.9})
+    payload["version"] = "made-up"
+    env = generate_narration(bundle, _cfg(), transport=_canned(payload), cache=NarrationCache())
+    assert env.status == "ok"
+    served = env.narration["claims"][0]
+    assert set(served) == {"text", "source_ids", "number_refs"}
+
+
 # --- Adversarial transports fail closed to local_only ------------------------
 
 def _attack_change_probability(bundle: dict) -> dict:
@@ -233,6 +247,73 @@ def test_provider_timeout_is_bounded(timeout) -> None:
         resolve_provider({"provider": "ollama", "timeout_s": timeout})
 
 
+def test_local_providers_default_to_a_generous_timeout() -> None:
+    # A cold local model also loads weights on the first call; the old 30s default
+    # timed that out before generation began. Local gets 90s; cloud stays 30s.
+    assert resolve_provider({"provider": "ollama"}).timeout_s == 90.0
+    assert resolve_provider({"provider": "llama_server"}).timeout_s == 90.0
+    assert resolve_provider({"provider": "openai"}).timeout_s == 30.0
+    # An explicit request always wins over the default.
+    assert resolve_provider({"provider": "ollama", "timeout_s": 12}).timeout_s == 12.0
+
+
+def test_local_model_can_be_pinned_by_env(monkeypatch) -> None:
+    monkeypatch.setenv("GOLAVO_OLLAMA_MODEL", "mistral-small")
+    assert resolve_provider({"provider": "ollama"}).model == "mistral-small"
+    # An explicit model in the request still wins over the env pin.
+    assert resolve_provider({"provider": "ollama", "model": "phi3"}).model == "phi3"
+
+
+@pytest.mark.parametrize(
+    "requested, installed, expected",
+    [
+        ("llama3.1", ["llama3.1"], "llama3.1"),               # exact
+        ("llama3.1", ["gemma:2b", "llama3.1:latest"], "llama3.1:latest"),  # same base
+        ("llama3.1", ["gemma4:12b", "llama3.2:latest"], "llama3.2:latest"),  # same family
+        ("llama3.1", ["qwen2:7b", "mistral:latest"], "qwen2:7b"),  # first installed
+    ],
+)
+def test_pick_local_model_prefers_the_closest_installed(requested, installed, expected) -> None:
+    assert ai_gateway.pick_local_model(requested, installed) == expected
+
+
+def test_list_local_models_is_empty_when_the_server_is_unreachable() -> None:
+    cfg = resolve_provider(
+        {"provider": "llama_server", "base_url": "http://127.0.0.1:9/v1", "timeout_s": 1}
+    )
+    assert ai_gateway.list_local_models(cfg) == []
+
+
+def test_generate_narration_retargets_a_local_default_to_an_installed_model(
+    bundle: dict, monkeypatch
+) -> None:
+    # The UI sends only {"provider": "ollama"}, so the server defaults to a model
+    # the user may not have pulled. The gateway must probe the local server and
+    # run whatever IS installed, stamping the model it actually used.
+    monkeypatch.setattr(ai_gateway, "list_local_models", lambda config: ["gemma4:12b-it-qat"])
+    monkeypatch.setattr(
+        ai_gateway, "make_transport", lambda config: _canned(_valid_response(bundle))
+    )
+    cfg = resolve_provider({"provider": "ollama"})
+    env = generate_narration(bundle, cfg, cache=NarrationCache())
+    assert env.status == "ok"
+    assert env.model == "gemma4:12b-it-qat"
+
+
+def test_generate_narration_is_unavailable_when_no_local_model_is_installed(
+    bundle: dict, monkeypatch
+) -> None:
+    def _tripwire(config):
+        raise AssertionError("no model may be contacted when the local server is empty")
+
+    monkeypatch.setattr(ai_gateway, "list_local_models", lambda config: [])
+    monkeypatch.setattr(ai_gateway, "make_transport", _tripwire)
+    cfg = resolve_provider({"provider": "ollama"})
+    env = generate_narration(bundle, cfg, cache=NarrationCache())
+    assert env.status == "unavailable"
+    assert "local model" in (env.reason or "").lower()
+
+
 def test_cache_separates_prompt_context_and_candidate_fact_mode(bundle: dict) -> None:
     cache = NarrationCache()
     calls = {"n": 0}
@@ -326,15 +407,18 @@ def test_endpoint_unreachable_local_provider_falls_back(monkeypatch, tmp_path) -
     client = TestClient(server_main.app)
     artifact_id = json.loads(sealed.read_text())["artifact_id"]
 
-    # A local provider pointed at a dead port: the call fails, we fall back. This
-    # proves the endpoint never blocks on or crashes from an absent model.
+    # A local provider pointed at a dead port: the model list probe fails, so the
+    # endpoint reports an honest, actionable "unavailable" (no model reachable)
+    # rather than the misleading "local_only" (which implies a model ran and its
+    # output failed verification). Either way it never blocks or crashes.
     res = client.post(
         f"/api/v1/forecasts/{artifact_id}/narrative",
         json={"provider": "llama_server", "base_url": "http://127.0.0.1:9/v1", "timeout_s": 1},
     )
     assert res.status_code == 200
     body = res.json()
-    assert body["status"] == "local_only"
+    assert body["status"] == "unavailable"
+    assert body["reason"] and "local model" in body["reason"].lower()
     assert body["narration"] is None
     # The citation lookups travel with every response so the UI can resolve chips
     # regardless of AI status.

@@ -47,6 +47,37 @@ _COT_KEYS = frozenset(
 )
 _COT_MARKER_RE = re.compile(r"(?i)</?think|<\|.*?\|>|chain[-_ ]of[-_ ]thought")
 
+# The wire schema (ai_narration.schema.json) is additionalProperties:false at every
+# level. Small local models routinely decorate items with harmless extras — an
+# ``id``, a ``kind``, a ``confidence`` — which would hard-reject an otherwise good
+# narration. We prune to these known keys before validation, exactly as _strip_cot
+# strips reasoning keys. Safety is untouched: every served field is rebuilt from
+# known keys in the reviewers below, so a pruned extra could never reach the user.
+_TOP_KEYS = frozenset({"claims", "scenarios", "candidate_facts", "background"})
+_ITEM_KEYS = {
+    "claims": frozenset({"text", "source_ids", "number_refs"}),
+    "scenarios": frozenset({"text", "source_ids", "number_refs"}),
+    "candidate_facts": frozenset({"text", "quote", "source_url"}),
+    "background": frozenset({"text", "about"}),
+}
+
+
+def _prune_unknown(narration: Any) -> Any:
+    """Drop keys the wire schema does not define, at every object level."""
+    if not isinstance(narration, dict):
+        return narration
+    out = {key: value for key, value in narration.items() if key in _TOP_KEYS}
+    for key, allowed in _ITEM_KEYS.items():
+        items = out.get(key)
+        if isinstance(items, list):
+            out[key] = [
+                {k: v for k, v in item.items() if k in allowed}
+                if isinstance(item, dict)
+                else item
+                for item in items
+            ]
+    return out
+
 
 @dataclass
 class NarrationReview:
@@ -251,7 +282,7 @@ def review_narration(
     if not isinstance(raw, dict):
         return NarrationReview(False, None, ["output is not a JSON object"], dropped)
 
-    cleaned = _strip_cot(copy.deepcopy(raw))
+    cleaned = _prune_unknown(_strip_cot(copy.deepcopy(raw)))
     try:
         Draft202012Validator(_schema()).validate(cleaned)
     except ValidationError as exc:

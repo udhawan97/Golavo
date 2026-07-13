@@ -166,7 +166,6 @@ ATTACKS = [
     ("word_number_smuggle", _word_number_smuggle),
     ("unicode_digit_smuggle", _unicode_digit_smuggle),
     ("scoreline_smuggle", _scoreline_smuggle),
-    ("schema_extra_field", _schema_extra_field),
     ("not_an_object", _not_an_object),
 ]
 
@@ -178,6 +177,20 @@ def test_every_attack_fails_closed(name, builder, bundle: dict, refs: dict) -> N
     assert review.narration is None
     # And the raw text of the attack never survives into an output.
     assert review.rejections or review.dropped
+
+
+def test_extra_claim_field_is_pruned_not_rejected(bundle: dict, refs: dict) -> None:
+    """A harmless extra field (small local models love a ``confidence``) is pruned
+    like a volunteered reasoning key — the clean claim survives, and the extra
+    never reaches the served narration. The number/betting/secret guards still run
+    on ``text``, so this relaxes the object SHAPE only, never the guarantees.
+    """
+    review = review_narration(_schema_extra_field(refs), bundle)
+    assert review.accepted is True
+    assert review.narration is not None
+    for claim in review.narration["claims"]:
+        assert set(claim) == {"text", "source_ids", "number_refs"}
+    assert "confidence" not in json.dumps(review.narration)
 
 
 def test_chain_of_thought_key_is_stripped_not_surfaced(bundle: dict, refs: dict) -> None:

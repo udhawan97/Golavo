@@ -30,7 +30,7 @@ import subprocess
 import urllib.error
 import urllib.request
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 from urllib.parse import urlparse
 
@@ -61,6 +61,9 @@ _DEFAULT_MODELS = {
 }
 _ENV_KEYS = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY"}
 _ENV_BASE_URLS = {"ollama": "OLLAMA_BASE_URL", "llama_server": "LLAMACPP_BASE_URL"}
+# Optional pin for the local model to use, for machines with several pulled.
+# When unset, a local provider auto-resolves to whatever model is installed.
+_ENV_MODELS = {"ollama": "GOLAVO_OLLAMA_MODEL", "llama_server": "GOLAVO_LLAMACPP_MODEL"}
 
 # A transport takes (system_prompt, user_prompt) and returns the model's raw
 # text. It never receives an API key — the real transports add the key to a
@@ -106,7 +109,10 @@ def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
     provider = str(config.get("provider", "off")).lower()
     if provider not in KNOWN_PROVIDERS:
         raise ValueError(f"unknown provider {provider!r}; expected one of {KNOWN_PROVIDERS}")
-    model = str(config.get("model") or _DEFAULT_MODELS.get(provider, "local-model")).strip()
+    env_model = os.environ.get(_ENV_MODELS[provider]) if provider in _ENV_MODELS else None
+    model = str(
+        config.get("model") or env_model or _DEFAULT_MODELS.get(provider, "local-model")
+    ).strip()
     if not model or len(model) > 120:
         raise ValueError("model must contain 1-120 characters")
     requested_base_url = config.get("base_url")
@@ -119,8 +125,12 @@ def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
         base_url = _DEFAULT_BASE_URLS.get(provider)
     if provider in LOCAL_PROVIDERS:
         base_url = _validated_loopback_url(base_url)
+    # Local models run cold and free: the first call also loads the weights, which
+    # a small default would time out before generation even starts. Give them a
+    # generous default; cloud stays snappy. An explicit timeout_s always wins.
+    default_timeout = 90.0 if provider in LOCAL_PROVIDERS else 30.0
     try:
-        timeout_s = float(config.get("timeout_s", 30.0))
+        timeout_s = float(config.get("timeout_s", default_timeout))
     except (TypeError, ValueError) as exc:
         raise ValueError("timeout_s must be a number between 1 and 120") from exc
     if not math.isfinite(timeout_s) or not 1 <= timeout_s <= 120:
@@ -280,6 +290,58 @@ def make_transport(config: ProviderConfig) -> Transport | None:
     return transport
 
 
+# --- Local model discovery ---------------------------------------------------
+# A local provider (Ollama, llama.cpp) is keyless and free, but the user may not
+# have pulled the model this app defaults to. Rather than fail every attempt with
+# a "model not found" the user cannot see, we ask the local server which models
+# it actually has and target one of those. Both servers expose the
+# OpenAI-compatible ``GET /v1/models``. Any failure yields an empty list, which
+# the caller turns into an honest "no local model" message.
+
+def list_local_models(config: ProviderConfig) -> list[str]:
+    """Model ids installed on a local provider; ``[]`` on any failure."""
+    url = f"{(config.base_url or '').rstrip('/')}/models"
+    request = urllib.request.Request(url, headers={"Accept": "application/json"}, method="GET")
+    try:
+        with urllib.request.urlopen(request, timeout=min(config.timeout_s, 5.0)) as response:  # noqa: S310 (loopback only)
+            payload = json.loads(response.read().decode("utf-8"))
+        data = payload.get("data") if isinstance(payload, dict) else None
+        if not isinstance(data, list):
+            return []
+        return [str(m["id"]) for m in data if isinstance(m, dict) and m.get("id")]
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError, KeyError, TypeError):
+        return []
+
+
+def _family_root(model: str) -> str:
+    """The model family without a tag or minor version: ``llama3.1:q4`` -> ``llama3``."""
+    base = model.split(":", 1)[0]
+    return re.sub(r"\.\d+$", "", base)
+
+
+def pick_local_model(requested: str, installed: list[str]) -> str:
+    """Choose an installed model for a local run, preferring the requested one.
+
+    In order: an exact match; a model sharing the requested base name (a
+    ``llama3.1`` default happily uses an installed ``llama3.1:latest``); a model
+    in the same family (``llama3.1`` default prefers an installed ``llama3.2``
+    over an unrelated one, so the app's own default family wins over, say, a
+    heavyweight the user also happens to have pulled); finally the first installed
+    model, so the app still works with whatever is present.
+    """
+    if requested in installed:
+        return requested
+    base = requested.split(":", 1)[0]
+    for name in installed:
+        if name.split(":", 1)[0] == base:
+            return name
+    root = _family_root(requested)
+    for name in installed:
+        if _family_root(name) == root:
+            return name
+    return installed[0]
+
+
 # --- JSON extraction ---------------------------------------------------------
 
 def extract_json_object(text: str) -> dict[str, Any] | None:
@@ -392,6 +454,22 @@ def generate_narration(
 
     if config.is_off:
         return envelope("disabled", reason="AI is turned off; showing the local forecast only.")
+
+    # Local providers: target a model the server actually has, and fail fast with
+    # an honest, actionable message when it has none — otherwise a missing default
+    # model surfaces to the user as an unexplained "could not be verified" loop.
+    # Only in the production path: an injected transport (tests) brings its own
+    # canned output and must not trigger a live probe. Resolving here, before the
+    # cache read, keeps the cache key aligned with the model we actually run.
+    if transport is None and config.provider in LOCAL_PROVIDERS:
+        installed = list_local_models(config)
+        if not installed:
+            return envelope(
+                "unavailable",
+                reason="No local model is reachable. Start Ollama (or llama.cpp) and "
+                "pull at least one model, then try again.",
+            )
+        config = replace(config, model=pick_local_model(config.model, installed))
 
     if not refresh:
         cached = cache.get(bundle_hash, config)
