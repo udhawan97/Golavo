@@ -52,7 +52,7 @@
       "fields": "World Cup fixtures/results with exact kickoff time + UTC offset, round, venue city, stadium timezone/coords (separate stadiums file); knockout placeholders W###/L### before teams resolve",
       "attribution": "World Cup fixtures and kickoff times from openfootball/worldcup.json (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-12",
-      "notes": "Planned (Loop 2). Fixture/kickoff-enrichment overlay onto the internationals source; excluded from model training; completed results cross-checked against martj42 and fail closed on disagreement. Reject W###/L### placeholder fixtures until resolved."
+      "notes": "Bundled as a fixture/kickoff co-source inside the refreshed internationals pack: supplies the World Cup fixtures martj42 has not published yet plus exact kickoff times. Excluded from model training (martj42 remains the sole training source); completed results are cross-checked against martj42 and the build fails closed on disagreement; W###/L### placeholder fixtures are rejected until the bracket resolves."
     },
     {
       "source_id": "geonames",

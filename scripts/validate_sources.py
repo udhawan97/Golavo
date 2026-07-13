@@ -81,6 +81,26 @@ def validate_bundled_packs(by_id: dict[str, dict[str, Any]]) -> None:
                 f"{pack}: manifest license {manifest.get('license')!r} disagrees with "
                 f"registry license {entry['license']!r} for {source_id!r}"
             )
+        # A pack may draw fixtures/kickoffs from a co-source (e.g. worldcup.json); it is
+        # bundled just as much as the primary, so it too must be a registered, bundleable,
+        # license-matching source.
+        for co in manifest.get("co_sources", []):
+            co_id = str(co.get("source_id"))
+            co_entry = by_id.get(co_id)
+            if co_entry is None:
+                raise ValueError(
+                    f"{pack}: co-source {co_id!r} is bundled but absent from the source registry"
+                )
+            if co_entry["classification"] not in BUNDLEABLE:
+                raise ValueError(
+                    f"{pack}: co-source {co_id!r} is classified {co_entry['classification']!r}, "
+                    f"which must never be bundled (bundleable: {sorted(BUNDLEABLE)})"
+                )
+            if str(co.get("license")) != str(co_entry["license"]):
+                raise ValueError(
+                    f"{pack}: co-source {co_id!r} license {co.get('license')!r} disagrees with "
+                    f"registry license {co_entry['license']!r}"
+                )
 
 
 def main() -> None:

@@ -98,5 +98,8 @@ def test_seal_resolver_falls_back_to_bundle_without_a_refreshed_pack(
     monkeypatch.setenv("GOLAVO_DATA_DIR", str(ledger))
 
     resolved = seal.resolve_pack_dir("martj42-international-results", "international")
-    # Bundled internationals pack (present in source mode) — never the empty refresh.
-    assert resolved == Path(seal.PACKS_DIR) / "martj42-internationals"
+    # A bundled internationals pack (the greatest-anchor one, present in source mode) —
+    # never the empty refresh dir.
+    assert resolved is not None
+    assert (resolved / "manifest.json").is_file()
+    assert resolved != tmp_path / "app" / "refresh" / "pack"

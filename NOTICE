@@ -32,6 +32,21 @@ Coverage is historical completed seasons only, gated per league by
 docs/handoff/openfootball-audit.md.
 
 --------------------------------------------------------------------------
+WORLD CUP FIXTURE / KICKOFF CO-SOURCE
+--------------------------------------------------------------------------
+
+openfootball/worldcup.json — CC0-1.0 (public domain dedication).
+Source: https://github.com/openfootball/worldcup.json
+
+The refreshed internationals pack carries the scheduled World Cup fixtures
+martj42 has not published yet, plus exact kickoff times, sourced from
+worldcup.json. It is a fixture/kickoff co-source only: martj42 remains the sole
+model-training source, completed results are cross-checked against martj42 (the
+build fails closed on any disagreement), and the exact commit, retrieval time,
+filenames, and SHA-256 digests are recorded under `co_sources` in the pack's
+manifest.json. A copy of the CC0 1.0 legal text is vendored beside the data.
+
+--------------------------------------------------------------------------
 REJECTED DEPENDENCIES
 --------------------------------------------------------------------------
 

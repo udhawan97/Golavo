@@ -26,6 +26,17 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   closed on any disagreement; `is_complete` is untouched so upcoming fixtures
   never enter training; and a pack without the overlay is byte-for-byte unchanged
   (the committed index too).
+- **The 2026 World Cup semifinals are sealable.** martj42 hasn't published the
+  semifinals yet, so the refreshed internationals pack now also carries the
+  scheduled World Cup fixtures worldcup.json has but martj42 lacks (France–Spain,
+  England–Argentina), added as internationals rows with exact kickoffs.
+  `build_forecast_artifact` trains only on martj42's results and records BOTH
+  sources in each artifact's provenance (martj42 as the training source,
+  worldcup.json as the fixture/kickoff co-source); `resolve_pack_dir` now selects
+  the greatest-anchor bundled pack so search and sealing stay on one source of
+  truth. `scripts/build_worldcup_refresh.py` builds the pack (cross-checking every
+  completed result against martj42, failing closed on disagreement), and the
+  source registry, notices, and license gate now cover bundled co-sources.
 
 ### Fixed
 - Cleared the ruff violations v0.4.0 left on `main` (line lengths, an import

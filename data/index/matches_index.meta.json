@@ -2,8 +2,8 @@
   "built_from": [
     {
       "license": "CC0-1.0",
-      "manifest_sha256": "e76b38473d1401134cc00955dd64cc7174f38bfaa600dbb1dbc3d4a349611319",
-      "pack": "martj42-internationals",
+      "manifest_sha256": "7280572f4d3ae31c2f6f6cfa47ad84a99d6540c3b6fc6b54ee6ae724279dc4a7",
+      "pack": "martj42-internationals-f73286079f8c",
       "source_id": "martj42-international-results"
     },
     {
@@ -37,7 +37,7 @@
       "source_id": "openfootball-football-json"
     }
   ],
-  "parquet_sha256": "7ae1f64e88a5ffb7247e16511a4882cbd2fc9b5e04a20da82d74e32da5c4de3d",
-  "row_count": 75079,
+  "parquet_sha256": "bce58aef77e9965e6b94b081700f6e63a93cdb45d6fd690e29625a09ffd8e990",
+  "row_count": 75081,
   "schema_version": "0.2.0"
 }

@@ -65,15 +65,29 @@ datas += [
     )
 ]
 # CC0 internationals pack: seal.resolve_pack_dir trains an in-app forward forecast
-# from this pinned snapshot, so the frozen app must carry it — without it every
-# in-app seal reports pack_unavailable. Only the internationals source is
-# forward-sealable today (the five openfootball leagues share one source_id and
-# can't be told apart), so only its pack ships (~6.7MB). validate_pack re-hashes
-# every manifest-listed file, so the whole pack directory is bundled at its
-# repo-relative layout for golavo_core.resources to resolve under sys._MEIPASS.
+# from the greatest-anchor internationals snapshot, so the frozen app must carry
+# that pack AND packs/snapshots.json (which seal.resolve_pack_dir reads to find it).
+# Only the internationals source is forward-sealable today (the five openfootball
+# leagues share one source_id and can't be told apart), so only its active pack
+# ships (~6.7MB). Selecting it dynamically here keeps the freeze correct across
+# refreshes without editing the spec. validate_pack re-hashes every manifest-listed
+# file, so the whole pack dir is bundled at its repo-relative layout for
+# golavo_core.resources to resolve under sys._MEIPASS.
+import json as _json  # noqa: E402
+
+_snap_path = os.path.join(ROOT, "packs", "snapshots.json")
+datas += [(_snap_path, "packs")]
+_intl = [
+    e for e in _json.load(open(_snap_path))["snapshots"]
+    if str(e["source_id"]) == "martj42-international-results"
+]
+_active = max(
+    _intl,
+    key=lambda e: (str(e.get("upstream_committed_at_utc") or e["retrieved_at_utc"]), str(e["pack"])),
+)["pack"]
 datas += [
-    (path, "packs/martj42-internationals")
-    for path in glob.glob(os.path.join(ROOT, "packs", "martj42-internationals", "*"))
+    (path, _active)
+    for path in glob.glob(os.path.join(ROOT, _active, "*"))
     if os.path.isfile(path)
 ]
 

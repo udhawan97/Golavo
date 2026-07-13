@@ -56,6 +56,14 @@
       "source_id": "martj42-international-results",
       "upstream_committed_at_utc": "2026-07-07T23:01:13Z",
       "upstream_ref": "273c731492df960cae363317e8e78e2be4b4b7cf"
+    },
+    {
+      "manifest_sha256": "7280572f4d3ae31c2f6f6cfa47ad84a99d6540c3b6fc6b54ee6ae724279dc4a7",
+      "pack": "packs/martj42-internationals-f73286079f8c",
+      "retrieved_at_utc": "2026-07-13T04:46:29Z",
+      "source_id": "martj42-international-results",
+      "upstream_committed_at_utc": "2026-07-11T08:33:26Z",
+      "upstream_ref": "f73286079f8c6b48a59f8a16e895d757119dca71"
     }
   ]
 }

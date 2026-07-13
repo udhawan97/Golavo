@@ -25,13 +25,13 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Attribution: Club football results from openfootball/football.json (Gerald Bauer and contributors), CC0-1.0.
 - Notes: Bundled, search/backtest only (five leagues share one source_id, so not seal-eligible). Naive local kickoff time; club rows carry kickoff_precision=day.
 
-### openfootball/worldcup.json — available, not bundled
+### openfootball/worldcup.json — **bundled**
 
 - Source: https://github.com/openfootball/worldcup.json
 - Contributors: Gerald Bauer, openfootball contributors
 - License: CC0-1.0 (https://github.com/openfootball/worldcup.json/blob/master/LICENSE.md)
 - Attribution: World Cup fixtures and kickoff times from openfootball/worldcup.json (Gerald Bauer and contributors), CC0-1.0.
-- Notes: Planned (Loop 2). Fixture/kickoff-enrichment overlay onto the internationals source; excluded from model training; completed results cross-checked against martj42 and fail closed on disagreement. Reject W###/L### placeholder fixtures until resolved.
+- Notes: Bundled as a fixture/kickoff co-source inside the refreshed internationals pack: supplies the World Cup fixtures martj42 has not published yet plus exact kickoff times. Excluded from model training (martj42 remains the sole training source); completed results are cross-checked against martj42 and the build fails closed on disagreement; W###/L### placeholder fixtures are rejected until the bracket resolves.
 
 ## Bundled enrichment data (CC BY)
 

@@ -27,10 +27,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import build_sourcepack as bsp
-
-from golavo_core.ingest.snapshot import load_match_table
+import pandas as pd
 from golavo_core.ingest.worldcup import (
-    TOURNAMENT,
     crosscheck_completed,
     kickoff_overlay,
     missing_fixtures,
@@ -44,6 +42,12 @@ _CC_COUNTRY = {"us": "United States", "ca": "Canada", "mx": "Mexico"}
 def _fetch_json(url: str) -> dict:
     with urllib.request.urlopen(url, timeout=30) as resp:
         return json.loads(resp.read().decode("utf-8"))
+
+
+def _read_or_fetch(local: Path | None, commit: str, year: str, name: str) -> dict:
+    if local is not None:
+        return json.loads(local.read_text(encoding="utf-8"))
+    return _fetch_json(WC_RAW.format(commit=commit, year=year, name=name))
 
 
 def _sha256(path: Path) -> str:
@@ -72,27 +76,28 @@ def main() -> None:
     parser.add_argument("--martj42-ref", required=True, help="full martj42 commit sha")
     parser.add_argument("--wc-commit", required=True, help="pinned worldcup.json commit sha")
     parser.add_argument("--year", default="2026")
-    parser.add_argument("--output", type=Path, help="pack dir (default packs/martj42-internationals-<ref12>)")
+    parser.add_argument("--output", type=Path, help="output pack dir")
     parser.add_argument("--wc-input", type=Path, help="local worldcup.json (skip fetch)")
-    parser.add_argument("--stadiums-input", type=Path, help="local worldcup.stadiums.json (skip fetch)")
+    parser.add_argument("--stadiums-input", type=Path, help="local worldcup.stadiums.json")
     args = parser.parse_args()
 
-    out_dir: Path = args.output or bsp.REPO_ROOT / f"packs/martj42-internationals-{args.martj42_ref[:12]}"
+    default_dir = bsp.REPO_ROOT / f"packs/martj42-internationals-{args.martj42_ref[:12]}"
+    out_dir: Path = args.output or default_dir
     if out_dir.exists():
         raise FileExistsError(f"{out_dir} already exists; snapshots are immutable — pick a new dir")
 
-    wc = json.loads(args.wc_input.read_text()) if args.wc_input else _fetch_json(
-        WC_RAW.format(commit=args.wc_commit, year=args.year, name="worldcup.json")
-    )
-    stadiums = json.loads(args.stadiums_input.read_text()) if args.stadiums_input else _fetch_json(
-        WC_RAW.format(commit=args.wc_commit, year=args.year, name="worldcup.stadiums.json")
-    )
+    wc = _read_or_fetch(args.wc_input, args.wc_commit, args.year, "worldcup.json")
+    stad = _read_or_fetch(args.stadiums_input, args.wc_commit, args.year, "worldcup.stadiums.json")
+    stadiums = stad["stadiums"] if isinstance(stad, dict) else stad
     city_country = {s["city"]: _CC_COUNTRY.get(s["cc"], s["cc"]) for s in stadiums}
 
     out_dir.mkdir(parents=True)
     _download_martj42(args.martj42_ref, out_dir)
 
-    reference = load_match_table(out_dir)
+    # Read the reference straight from results.csv — the cross-check and fixture-merge only
+    # need date/teams/scores, and current-name rows (the 2026 fixtures) need no renaming.
+    reference = pd.read_csv(out_dir / "results.csv", parse_dates=["date"])
+    reference["is_complete"] = reference[["home_score", "away_score"]].notna().all(axis=1)
     parsed = parse_worldcup(wc)
 
     disagreements = crosscheck_completed(parsed, reference)

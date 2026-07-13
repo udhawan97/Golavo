@@ -37,7 +37,13 @@ def _load(path: Path) -> Any:
 
 
 def _bundled_source_ids() -> set[str]:
-    return {str(s["source_id"]) for s in _load(SNAPSHOTS_PATH)["snapshots"]}
+    ids: set[str] = set()
+    for snap in _load(SNAPSHOTS_PATH)["snapshots"]:
+        ids.add(str(snap["source_id"]))
+        manifest = _load(REPO_ROOT / str(snap["pack"]) / "manifest.json")
+        for co in manifest.get("co_sources", []):
+            ids.add(str(co["source_id"]))
+    return ids
 
 
 def render() -> str:

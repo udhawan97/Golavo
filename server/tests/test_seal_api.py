@@ -83,6 +83,11 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(matches, "INDEX_PATH", index_path)
     matches.reset_cache()
     monkeypatch.setattr(server_main, "ARTIFACT_DIR", tmp_path / "ledger")
+    # Pin sealing to the canonical fallback pack (the stable, co-source-free martj42
+    # snapshot whose Norway v England id and 00:00 kickoff proxy these tests assume).
+    # The greatest-anchor-pack resolution is covered hermetically in
+    # test_seal_pack_resolution.py.
+    monkeypatch.setattr(seal, "_active_bundled_pack", lambda source_id: None)
     return TestClient(server_main.app)
 
 
