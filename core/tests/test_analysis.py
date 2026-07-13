@@ -176,3 +176,82 @@ def test_missing_kickoff_is_refused_not_guessed() -> None:
     fixture["kickoff_utc"] = None
     with pytest.raises(AnalysisUnavailable):
         build_match_analysis(matches=_history(), match_row=fixture)
+
+
+def test_team_form_is_last_five_pre_cutoff_and_leak_safe() -> None:
+    """Form is the last five completed results per team, oldest-first, and never
+    reads the fixture's own result or any later row."""
+    history = _history()
+    fixture = _fixture(is_complete=True)
+    analysis = build_match_analysis(matches=history, match_row=fixture)
+
+    for team in ("Aland", "Borda"):
+        form = analysis["team_form"][team]
+        assert 1 <= len(form) <= 5
+        assert all(e["result"] in {"W", "D", "L"} for e in form)
+        # oldest-first
+        dates = [e["date"] for e in form]
+        assert dates == sorted(dates)
+        # never the fixture's own kickoff day or later
+        assert all(e["date"] < "2025-06-01" for e in form)
+
+    # Poisoning the frame with the fixture result + a later match must not change
+    # the form (same leak guard as the council).
+    poisoned = pd.concat(
+        [history, pd.DataFrame([
+            _match("m_fixture0001", "2025-06-01", "Aland", "Borda", 3, 0),
+            _match("m_future0001", "2025-07-01", "Aland", "Borda", 5, 0),
+        ])],
+        ignore_index=True,
+    )
+    assert build_match_analysis(matches=poisoned, match_row=fixture)["team_form"] == analysis["team_form"]
+
+
+def test_team_form_present_even_when_the_council_abstains() -> None:
+    thin = pd.DataFrame([
+        _match("m_thin1", "2024-02-01", "Xerus", "Yak", 1, 0),
+        _match("m_thin2", "2024-03-01", "Xerus", "Yak", 0, 0),
+    ])
+    ko = pd.Timestamp("2025-06-01", tz="UTC")
+    fixture = {
+        "match_id": "m_thinfix", "date": ko, "kickoff_utc": ko,
+        "home_team": "Xerus", "away_team": "Yak", "home_score": None, "away_score": None,
+        "is_complete": False, "neutral": False, "competition": "Test League",
+        "source_id": "test-source", "source_kind": "international",
+        "home_norm": "xerus", "away_norm": "yak",
+    }
+    analysis = build_match_analysis(matches=thin, match_row=fixture)
+    assert analysis["abstained"] is True
+    assert analysis["team_style"] is None                 # nothing fitted
+    assert len(analysis["team_form"]["Xerus"]) == 2       # but history still renders
+    assert len(analysis["team_form"]["Yak"]) == 2
+
+
+def test_team_style_matches_the_goal_voice_fit() -> None:
+    """team_style is the goal-voice model's own fitted multipliers — verified by
+    refitting dixon_coles on the same leak-safe frame."""
+    from golavo_core.ingest import training_rows
+    from golavo_core.models import fit_model
+
+    history = _history()
+    fixture = _fixture(is_complete=False)
+    analysis = build_match_analysis(matches=history, match_row=fixture)
+    style = analysis["team_style"]
+
+    assert style["family"] == "dixon_coles"
+    assert style["derivation"] == "fitted_from_results"
+
+    cutoff = analysis["information_cutoff_utc"]
+    train = training_rows(history, cutoff)
+    model = fit_model("dixon_coles", train, cutoff)
+    for team in ("Aland", "Borda"):
+        assert style["teams"][team]["attack"] == round(float(model.attack[team]), 6)
+        assert style["teams"][team]["defence"] == round(float(model.defence[team]), 6)
+        # multipliers stay inside the disclosed clip band
+        assert 0.35 <= style["teams"][team]["attack"] <= 2.8
+        assert 0.35 <= style["teams"][team]["defence"] <= 2.8
+
+    # expected_goals mirror the fixture's expected goals from the goal voice.
+    goal = next(m for m in analysis["models"] if m["family"] == "dixon_coles")
+    assert style["teams"]["Aland"]["expected_goals_for"] == goal["expected_goals"]["home"]
+    assert style["teams"]["Aland"]["expected_goals_against"] == goal["expected_goals"]["away"]

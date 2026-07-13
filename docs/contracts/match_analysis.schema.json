@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://udhawan97.github.io/Golavo/contracts/match-analysis-0.3.0.schema.json",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/match-analysis-0.4.0.schema.json",
   "title": "MatchAnalysis",
   "description": "The on-demand Match Cockpit read for one indexed fixture (a Replay for a played match, a Preview for a scheduled one). Computed leak-safe at the seal's own kickoff-1s cutoff and NEVER persisted: this is a live view, not a sealed forecast. A council of candidate families is shown side by side WITHOUT averaging — the two voices (ratings, goals) plus a climatology baseline, with the goal variants disclosed but not counted as extra opinions. Derived from core/golavo_core/analysis.py:build_match_analysis (ANALYSIS_SCHEMA_VERSION).",
   "type": "object",
@@ -15,13 +15,15 @@
     "uncertainty",
     "team_history",
     "min_team_matches",
+    "team_form",
+    "team_style",
     "council",
     "models",
     "score_matrix",
     "score_matrix_family"
   ],
   "properties": {
-    "schema_version": {"const": "0.3.0"},
+    "schema_version": {"const": "0.4.0"},
     "analysis_kind": {
       "enum": ["replay", "preview"],
       "description": "replay = a completed fixture reconstructed with pre-kickoff data only (not a forecast that existed at the time; never enters the track record); preview = a scheduled fixture."
@@ -47,6 +49,19 @@
       "additionalProperties": {"type": "integer", "minimum": 0}
     },
     "min_team_matches": {"type": "integer", "minimum": 1},
+    "team_form": {
+      "type": "object",
+      "description": "The last up-to-five completed results per team (keyed by team name), oldest-first, computed from the same leak-safe pre-cutoff frame. Present even when the council abstains — it is descriptive history, never a forecast.",
+      "additionalProperties": {
+        "type": "array",
+        "maxItems": 5,
+        "items": {"$ref": "#/$defs/FormEntry"}
+      }
+    },
+    "team_style": {
+      "description": "The goal voice's own fitted per-team attack/defence multipliers (from results only, baseline 1.0, clipped), plus this fixture's expected goals. Null when the council abstained (nothing was fitted). NOT event data — no shots, xG, lineups exist.",
+      "oneOf": [{"$ref": "#/$defs/TeamStyle"}, {"type": "null"}]
+    },
     "council": {"$ref": "#/$defs/Council"},
     "models": {
       "type": "array",
@@ -63,6 +78,53 @@
     }
   },
   "$defs": {
+    "FormEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One completed result from a team's perspective (pre-cutoff).",
+      "required": ["result", "opponent", "gf", "ga", "date", "is_home", "neutral"],
+      "properties": {
+        "result": {"enum": ["W", "D", "L"]},
+        "opponent": {"type": "string", "minLength": 1},
+        "gf": {"type": "integer", "minimum": 0},
+        "ga": {"type": "integer", "minimum": 0},
+        "date": {"type": "string", "format": "date"},
+        "is_home": {"type": "boolean"},
+        "neutral": {"type": "boolean"}
+      }
+    },
+    "TeamStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Fitted-from-results style profile from the goal voice. Attack/defence are league-relative multipliers (baseline 1.0; lower defence = tighter). NOT a tactical scouting report — no event data exists.",
+      "required": ["family", "derivation", "baseline", "clip", "teams"],
+      "properties": {
+        "family": {"type": "string"},
+        "derivation": {"const": "fitted_from_results"},
+        "baseline": {"type": "number"},
+        "clip": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min", "max"],
+          "properties": {"min": {"type": "number"}, "max": {"type": "number"}}
+        },
+        "teams": {
+          "type": "object",
+          "description": "Keyed by team name.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["attack", "defence", "expected_goals_for", "expected_goals_against"],
+            "properties": {
+              "attack": {"type": "number"},
+              "defence": {"type": "number"},
+              "expected_goals_for": {"type": ["number", "null"]},
+              "expected_goals_against": {"type": ["number", "null"]}
+            }
+          }
+        }
+      }
+    },
     "Match": {
       "type": "object",
       "additionalProperties": false,

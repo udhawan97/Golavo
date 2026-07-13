@@ -846,6 +846,24 @@ function assertMatchAnalysis(x: unknown, ctx: string): MatchAnalysisResponse {
           throw new ContractError(`${ctx}: ${m.family} probs sum to ${sum.toFixed(4)}`);
       }
     }
+    // 0.4.0 additions — optional so an older backend degrades gracefully.
+    if (a.team_form) {
+      for (const [team, entries] of Object.entries(a.team_form)) {
+        if (!Array.isArray(entries) || entries.length > 5)
+          throw new ContractError(`${ctx}: team_form[${team}] is not a ≤5 array`);
+        for (const e of entries) {
+          if (e.result !== "W" && e.result !== "D" && e.result !== "L")
+            throw new ContractError(`${ctx}: team_form[${team}] bad result ${String(e.result)}`);
+        }
+      }
+    }
+    if (a.team_style) {
+      const { min, max } = a.team_style.clip;
+      for (const [team, s] of Object.entries(a.team_style.teams)) {
+        if (s.attack < min || s.attack > max || s.defence < min || s.defence > max)
+          throw new ContractError(`${ctx}: team_style[${team}] multiplier out of clip band`);
+      }
+    }
     assertScoreMatrix(a.score_matrix, ctx);
   }
   return r;

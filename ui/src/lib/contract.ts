@@ -16,7 +16,7 @@ export const SCHEMA_VERSION = "0.2.0" as const;
 // the Games-home recent rails. The sealed ForecastArtifact contract is unchanged
 // at 0.2.0, so the artifact/eval/calibration guards keep their existing set.
 export const ACCEPTED_SCHEMA_VERSIONS = ["0.1.0", "0.2.0"] as const;
-export const ANALYSIS_SCHEMA_VERSION = "0.3.0" as const;
+export const ANALYSIS_SCHEMA_VERSION = "0.4.0" as const;
 export type SchemaVersion = (typeof ACCEPTED_SCHEMA_VERSIONS)[number];
 
 export type ArtifactStatus = "sealed" | "scored" | "abstained" | "voided";
@@ -468,6 +468,33 @@ export interface CouncilSummary {
   outcome_range: Record<Outcome, { low: number; high: number }> | null;
 }
 
+/** One completed result from a team's perspective (pre-cutoff), for the form strip. */
+export interface FormEntry {
+  result: "W" | "D" | "L";
+  opponent: string;
+  gf: number;
+  ga: number;
+  date: string; // YYYY-MM-DD
+  is_home: boolean;
+  neutral: boolean;
+}
+
+export interface TeamStyleEntry {
+  attack: number;
+  defence: number;
+  expected_goals_for: number | null;
+  expected_goals_against: number | null;
+}
+
+/** The goal voice's fitted-from-results style profile. NOT event data. */
+export interface TeamStyle {
+  family: ModelFamily;
+  derivation: "fitted_from_results";
+  baseline: number;
+  clip: { min: number; max: number };
+  teams: Record<string, TeamStyleEntry>;
+}
+
 export interface MatchAnalysis {
   schema_version: string;
   analysis_kind: AnalysisKind;
@@ -486,6 +513,10 @@ export interface MatchAnalysis {
   uncertainty: Uncertainty;
   team_history: Record<string, number>;
   min_team_matches: number;
+  /** Last-5 results per team (optional so an older 0.3.0 backend degrades gracefully). */
+  team_form?: Record<string, FormEntry[]>;
+  /** Fitted style profile, or null when abstained (optional for the same reason). */
+  team_style?: TeamStyle | null;
   council: CouncilSummary;
   models: CouncilModel[];
   score_matrix: ScoreMatrix | null;

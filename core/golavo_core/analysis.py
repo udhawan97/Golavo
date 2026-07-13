@@ -42,7 +42,12 @@ from golavo_core.ingest import training_rows
 from golavo_core.models import fit_model
 from golavo_core.score_matrix import assert_model_coherent, build_score_matrix
 
-ANALYSIS_SCHEMA_VERSION = "0.3.0"
+ANALYSIS_SCHEMA_VERSION = "0.4.0"
+
+# The fitted attack/defence multipliers are clipped to this band (mirrors
+# PoissonModel); a baseline of 1.0 is league-average.
+_STYLE_CLIP = {"min": 0.35, "max": 2.8}
+_STYLE_BASELINE = 1.0
 
 # The council, in display order. Two voices + one baseline; the goal model's
 # variants are disclosed, never counted as extra opinions.
@@ -106,6 +111,37 @@ def _team_counts(
 
 def _uncertainty(minimum_count: int) -> str:
     return "high" if minimum_count < 20 else "medium" if minimum_count < 40 else "low"
+
+
+def _recent_form(train: pd.DataFrame, team: str, n: int = 5) -> list[dict[str, Any]]:
+    """The team's last ``n`` completed results BEFORE the cutoff, oldest-first.
+
+    Descriptive history straight off the leak-safe training frame (``train`` is
+    already pre-cutoff and completed-only), so it is safe to render even when the
+    council abstains. Each entry is one result from the team's perspective.
+    """
+    mask = train["home_team"].astype("string").eq(team) | train["away_team"].astype("string").eq(team)
+    rows = train.loc[mask]
+    if rows.empty:
+        return []
+    rows = rows.assign(_d=pd.to_datetime(rows["date"], utc=True))
+    rows = rows.sort_values(by=["_d", "match_id"], kind="mergesort").tail(n)
+    out: list[dict[str, Any]] = []
+    for _, r in rows.iterrows():
+        is_home = str(r["home_team"]) == team
+        gf = int(r["home_score"]) if is_home else int(r["away_score"])
+        ga = int(r["away_score"]) if is_home else int(r["home_score"])
+        result = "W" if gf > ga else "D" if gf == ga else "L"
+        out.append({
+            "result": result,
+            "opponent": str(r["away_team"]) if is_home else str(r["home_team"]),
+            "gf": gf,
+            "ga": ga,
+            "date": pd.Timestamp(r["date"]).date().isoformat(),
+            "is_home": bool(is_home),
+            "neutral": bool(r.get("neutral") or False),
+        })
+    return out
 
 
 def _modal_outcome(probs: dict[str, float]) -> str:
@@ -191,6 +227,14 @@ def build_match_analysis(
     minimum_count = min(counts.values())
     abstained = minimum_count < MIN_TEAM_MATCHES
 
+    # Descriptive form is computed before the abstain branch: it must render even
+    # when the council abstains (history exists below the model floor).
+    team_form = {
+        home_team: _recent_form(train, home_team),
+        away_team: _recent_form(train, away_team),
+    }
+
+    goal_model = None  # the fitted goal-voice model, for the team-style profile
     entries: list[dict[str, Any]] = []
     for family in families:
         entry: dict[str, Any] = {
@@ -205,6 +249,8 @@ def build_match_analysis(
         }
         if not abstained:
             model = fit_model(family, train, cutoff_iso)
+            if family == GOAL_VOICE:
+                goal_model = model
             prediction = model.predict(home_team, away_team, neutral)
             probs = {
                 key: round(float(value), 6)
@@ -234,6 +280,33 @@ def build_match_analysis(
     goal_entry = next((e for e in entries if e["family"] == GOAL_VOICE), None)
     score_matrix = goal_entry["score_matrix"] if goal_entry else None
 
+    # "How they attack & defend" — the goal voice's own fitted per-team multipliers
+    # (time-decayed, prior-shrunk, from results only). These are exactly the numbers
+    # the council already trusts, read off the fitted model — no new estimator, no
+    # new leak surface. None when abstained (nothing was fitted).
+    team_style = None
+    if goal_model is not None and goal_entry is not None:
+        eg = goal_entry.get("expected_goals") or {"home": None, "away": None}
+
+        def _style(team: str, xg_for: Any, xg_against: Any) -> dict[str, Any]:
+            return {
+                "attack": round(float(goal_model.attack.get(team, _STYLE_BASELINE)), 6),
+                "defence": round(float(goal_model.defence.get(team, _STYLE_BASELINE)), 6),
+                "expected_goals_for": xg_for,
+                "expected_goals_against": xg_against,
+            }
+
+        team_style = {
+            "family": GOAL_VOICE,
+            "derivation": "fitted_from_results",
+            "baseline": _STYLE_BASELINE,
+            "clip": dict(_STYLE_CLIP),
+            "teams": {
+                home_team: _style(home_team, eg.get("home"), eg.get("away")),
+                away_team: _style(away_team, eg.get("away"), eg.get("home")),
+            },
+        }
+
     reason = None
     if abstained:
         reason = (
@@ -260,6 +333,8 @@ def build_match_analysis(
         "uncertainty": _uncertainty(minimum_count),
         "team_history": {home_team: counts[home_team], away_team: counts[away_team]},
         "min_team_matches": MIN_TEAM_MATCHES,
+        "team_form": team_form,
+        "team_style": team_style,
         "council": council,
         "models": entries,
         "score_matrix": score_matrix,
