@@ -765,37 +765,176 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
   border: 1px solid var(--border-strong); background: var(--surface-1); color: var(--text); }
 .ai-model-picker { display: grid; gap: .5rem; margin: .2rem 0 .1rem; }
 .ai-fallback__actions button { white-space: nowrap; }
-.ai-pipeline ol { list-style: none; display: grid; gap: .4rem; }
-.ai-pipeline li {
-  display: flex; align-items: center; gap: .55rem; font-size: .86rem;
-  color: var(--text-muted); opacity: .55; transition: opacity .3s ease;
+/* --- Staged pipeline (the "AI at work" experience) ------------------------- */
+.ai-stages { list-style: none; display: grid; gap: 0; margin: 0; }
+.ai-stage {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-2) 0; position: relative; font-size: .9rem;
+  color: var(--text-muted); opacity: .55; transition: opacity .3s ease, color .3s ease;
 }
-.ai-pipeline li.on { opacity: 1; color: var(--text); }
-.ai-pipeline li.done { opacity: .8; }
-.ai-pipeline__dot {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); flex: none;
+.ai-stage__icon {
+  flex: none; display: grid; place-items: center; width: 2rem; height: 2rem;
+  border-radius: 50%; border: 1px solid var(--border); background: var(--surface-1);
+  color: var(--text-dim); z-index: 1; transition: color .3s ease, border-color .3s ease, background .3s ease;
 }
-.ai-pipeline li.on .ai-pipeline__dot { background: var(--seal); box-shadow: 0 0 0 3px var(--gold-soft); }
-.ai-pipeline li.done .ai-pipeline__dot { background: var(--green); }
-.ai-verified {
-  display: flex; gap: .5rem; align-items: flex-start; font-size: .84rem;
-  color: var(--green-brand); background: var(--green-soft);
-  border: 1px solid var(--green-soft); border-radius: var(--radius-sm); padding: .55rem .8rem;
+/* A rail connecting the circles; fills as stages complete. */
+.ai-stage:not(:last-child) .ai-stage__icon::after {
+  content: ""; position: absolute; left: 1rem; top: 2rem; width: 2px; height: calc(100% - 2rem);
+  background: var(--border); transform: translateX(-1px); z-index: 0;
 }
-.ai-verified svg { flex: none; margin-top: 2px; }
-.ai-subhead { font-size: .74rem; text-transform: uppercase; letter-spacing: .09em; color: var(--text-muted); }
-.ai-claims { list-style: none; display: grid; gap: .8rem; }
-.ai-claim { border-left: 2px solid var(--border-strong); padding-left: .8rem; }
-.ai-claim p { font-size: .95rem; line-height: 1.5; }
-.ai-chips { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .45rem; }
-.ai-chip {
-  display: inline-flex; align-items: center; gap: .25rem; font-size: .74rem;
-  padding: .15rem .5rem; border-radius: 999px; border: 1px solid var(--border);
-  text-decoration: none; color: var(--text-muted); background: var(--surface-1);
+.ai-stage.done { opacity: 1; color: var(--text); }
+.ai-stage.done .ai-stage__icon {
+  color: var(--green); border-color: color-mix(in srgb, var(--green) 45%, transparent);
+  background: var(--green-soft); animation: ai-stage-pop .25s ease both;
 }
-.ai-chip--num { font-family: var(--font-mono); color: var(--text); border-color: var(--gold-line); background: var(--gold-soft); }
-.ai-chip--src:hover { border-color: var(--link); color: var(--link); }
-.ai-chip--engine { border-color: var(--green-soft); }
+.ai-stage.done:not(:last-child) .ai-stage__icon::after { background: var(--gold-line); }
+.ai-stage.on { opacity: 1; color: var(--text); }
+.ai-stage.on .ai-stage__icon {
+  color: var(--gold); border-color: var(--gold-line); background: var(--gold-soft);
+  animation: ai-stage-glow 2s ease-in-out infinite;
+}
+@keyframes ai-stage-glow {
+  0% { box-shadow: 0 0 0 0 var(--gold-soft); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes ai-stage-pop {
+  from { transform: scale(.92); } to { transform: scale(1); }
+}
+.ai-stage__detail {
+  margin-top: var(--space-2); font-size: var(--text-sm);
+  background: linear-gradient(90deg, var(--text-muted), var(--text), var(--text-muted));
+  background-size: 200% 100%; -webkit-background-clip: text; background-clip: text;
+  color: transparent; animation: ai-scan 2.4s linear infinite;
+}
+@keyframes ai-scan { to { background-position: -200% 0; } }
+.ai-stage__count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.ai-subhead { font-size: .74rem; text-transform: uppercase; letter-spacing: .09em; color: var(--text-muted); display: inline-flex; align-items: center; gap: .4rem; }
+.ai-subhead svg { color: var(--text-dim); }
+
+/* --- Verdict hero — the engine's most-likely outcome, gold-lit ------------- */
+.ai-verdict {
+  display: flex; gap: var(--space-4); align-items: flex-start;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--gold-line); border-radius: var(--radius);
+  background:
+    radial-gradient(140px 140px at 0% 0%, var(--gold-soft), transparent 70%),
+    var(--surface-1);
+  box-shadow: var(--edge-light);
+}
+.ai-verdict__icon {
+  flex: none; display: grid; place-items: center; width: 2.2rem; height: 2.2rem;
+  border-radius: 999px; margin-top: 2px;
+  background: var(--gold-soft); color: var(--gold); border: 1px solid var(--gold-line);
+}
+:root[data-theme="light"] .ai-verdict__icon { color: #785808; }
+.ai-verdict__body { min-width: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.ai-verdict__kicker {
+  font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .08em;
+  font-weight: 700; color: var(--text-muted);
+}
+.ai-verdict__text { font-size: var(--text-lg); font-weight: 650; line-height: 1.32; letter-spacing: -0.01em; }
+
+/* --- Claims as editorial prose (footnotes, not a chip wall) ---------------- */
+.ai-claims { list-style: none; display: grid; gap: var(--space-5); }
+.ai-claim { min-width: 0; }
+.ai-claims--bulleted .ai-claim { display: flex; gap: var(--space-3); }
+.ai-claim__bullet { flex: none; margin-top: .35rem; color: var(--gold); }
+.ai-claim__main { min-width: 0; }
+.ai-claim__text { font-size: var(--text-base); line-height: 1.6; }
+.ai-claim__nums { display: inline-flex; flex-wrap: wrap; gap: .35rem; margin-top: var(--space-2); }
+
+/* Verified engine number — quiet monospace, inline. */
+.ai-num {
+  display: inline-flex; align-items: center; font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums; font-size: .82em; color: var(--text);
+  padding: .05rem .4rem; border-radius: 6px;
+  border: 1px solid var(--gold-line); background: var(--gold-soft);
+}
+
+/* Footnote marker — a superscript button that opens a source popover. */
+.ai-fnote-wrap { position: relative; display: inline; white-space: nowrap; }
+.ai-fnote {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--link); font-size: .68em; font-weight: 700; vertical-align: super;
+  line-height: 1; padding: 0 .1em; font-variant-numeric: tabular-nums;
+}
+.ai-fnote:hover { text-decoration: underline; }
+.ai-fnote__panel {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 30;
+  width: max-content; max-width: min(20rem, 78vw);
+  display: flex; flex-direction: column; gap: .35rem;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-3); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow);
+  font-size: var(--text-sm); white-space: normal; text-align: left;
+}
+.ai-fnote__title { font-weight: 650; color: var(--text); }
+.ai-fnote__kind { font-size: var(--text-xs); color: var(--text-dim); }
+.ai-fnote__actions { display: flex; flex-wrap: wrap; gap: .5rem var(--space-3); margin-top: .2rem; }
+.ai-fnote__actions a { display: inline-flex; align-items: center; gap: .25rem; }
+
+/* --- Evidence legend — the deduplicated source list ------------------------ */
+.ai-evidence { display: flex; flex-direction: column; gap: var(--space-2); }
+.ai-evidence__head { margin-bottom: var(--space-1); }
+.ai-evidence__list { list-style: none; display: grid; gap: var(--space-1); margin: 0; }
+.ai-evidence__item {
+  display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center;
+  gap: var(--space-3); padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-1);
+}
+.ai-evidence__item:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.ai-evidence__num {
+  display: grid; place-items: center; width: 1.4rem; height: 1.4rem; flex: none;
+  border-radius: 50%; font: 650 .7rem/1 var(--font-mono);
+  color: var(--gold); background: var(--gold-soft); border: 1px solid var(--gold-line);
+}
+:root[data-theme="light"] .ai-evidence__num { color: #785808; }
+.ai-evidence__icon { display: inline-flex; color: var(--text-dim); }
+.ai-evidence__item--engine .ai-evidence__icon { color: var(--green); }
+.ai-evidence__item--web .ai-evidence__icon { color: var(--wave); }
+.ai-evidence__body { min-width: 0; display: flex; flex-direction: column; }
+.ai-evidence__body a, .ai-evidence__title { font-size: var(--text-sm); color: var(--text); text-decoration: none; overflow: hidden; text-overflow: ellipsis; }
+.ai-evidence__body a { color: var(--link); display: inline-flex; align-items: center; gap: .25rem; }
+.ai-evidence__body a:hover { text-decoration: underline; }
+.ai-evidence__kind { font-size: var(--text-xs); color: var(--text-dim); }
+.ai-evidence__count { font-size: var(--text-xs); }
+
+/* --- Analyst research lane — web-sourced, clearly not engine-verified ------ */
+.ai-research {
+  display: flex; flex-direction: column; gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed color-mix(in srgb, var(--wave) 45%, transparent);
+  border-radius: var(--radius-sm);
+  background:
+    radial-gradient(160px 100px at 100% 0%, var(--wave-soft), transparent 70%),
+    color-mix(in srgb, var(--surface-2) 40%, transparent);
+}
+.ai-research__head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.ai-research__mark { display: inline-flex; color: var(--wave); }
+.ai-research__badge {
+  display: inline-block; font-size: .66rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--wave);
+  border: 1px solid color-mix(in srgb, var(--wave) 45%, transparent);
+  border-radius: 999px; padding: .1rem .5rem;
+}
+.ai-research__note { max-width: var(--measure); }
+.ai-research__list { list-style: none; display: grid; gap: var(--space-4); margin: 0; }
+.ai-research__item { display: flex; flex-direction: column; gap: var(--space-2); }
+.ai-research__text { font-size: var(--text-base); line-height: 1.55; }
+.ai-research__quote {
+  margin: 0; padding: .3rem 0 .3rem var(--space-3); font-style: italic;
+  font-size: var(--text-sm); color: var(--text-muted);
+  border-left: 2px solid color-mix(in srgb, var(--wave) 45%, transparent);
+}
+.ai-research__link {
+  display: inline-flex; align-items: center; gap: .3rem; width: fit-content;
+  font-size: var(--text-xs); padding: .18rem .55rem; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--link); text-decoration: none;
+  background: var(--surface-1);
+}
+.ai-research__link:hover { border-color: var(--link); }
 /* Opt-in for the second (general-knowledge) lane */
 .ai-bg-toggle {
   display: flex; gap: .5rem; align-items: flex-start;
@@ -820,11 +959,26 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
 .ai-background__mark { color: var(--text-dim); flex: none; }
 
 .ai-meta { display: flex; align-items: center; gap: .6rem; font-size: .78rem; flex-wrap: wrap; }
+.ai-meta__verified {
+  display: inline-flex; align-items: center; gap: .35rem; color: var(--green);
+  font-weight: 550;
+}
+.ai-meta__verified svg { flex: none; }
 .ai-refresh {
   background: none; border: none; color: var(--link); cursor: pointer;
   font-size: .82rem; text-decoration: underline; padding: 0;
 }
 .ai-fallback { font-size: .9rem; }
+
+/* Reduced motion: the global kill-switch stops the animations, but the shimmer
+   detail line paints its text with an animated gradient clipped to `transparent`
+   — frozen, that would be invisible. Restore a solid colour explicitly. */
+@media (prefers-reduced-motion: reduce) {
+  .ai-stage__detail {
+    -webkit-background-clip: border-box; background-clip: border-box;
+    background: none; color: var(--text-muted);
+  }
+}
 
 /* ------------------------------------------- Casual/Expert + score grid --- */
 /* Depth toggle: a segmented pill. It changes how much is shown, never the

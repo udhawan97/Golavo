@@ -1,0 +1,80 @@
+{
+  "status": "ok",
+  "provider": "ollama",
+  "model": "sample-fixture",
+  "prompt_version": "golavo-narration-sample",
+  "bundle_hash": "sample0000000000",
+  "cached": false,
+  "reason": null,
+  "notes": [],
+  "sources": [
+    { "source_id": "engine:match_analysis", "kind": "engine", "title": "Golavo deterministic engine · on-demand model council", "url": "" },
+    { "source_id": "pack#results", "kind": "snapshot", "title": "Vendored data pack · international results", "url": "https://github.com/martj42/international_results" },
+    { "source_id": "pack#goalscorers", "kind": "snapshot", "title": "Vendored data pack · goalscorer records", "url": "https://github.com/martj42/international_results" },
+    { "source_id": "pack#shootouts", "kind": "snapshot", "title": "Vendored data pack · penalty shootouts", "url": "https://github.com/martj42/international_results" },
+    { "source_id": "web_1", "kind": "web", "title": "2026 FIFA World Cup — Wikipedia", "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup" }
+  ],
+  "numbers": [
+    { "id": "mc_home_win", "display": "54%", "label": "Home win probability (council)", "unit": "percent" },
+    { "id": "mc_draw", "display": "26%", "label": "Draw probability (council)", "unit": "percent" },
+    { "id": "mc_away_win", "display": "20%", "label": "Away win probability (council)", "unit": "percent" },
+    { "id": "mc_xg_home", "display": "1.7", "label": "Expected goals, home", "unit": "goals" },
+    { "id": "nb_home_unbeaten", "display": "11", "label": "Home unbeaten run (matches)", "unit": "matches" },
+    { "id": "nb_clean_sheets", "display": "6", "label": "Home clean sheets in last 8", "unit": "matches" }
+  ],
+  "narration": {
+    "schema_version": "0.3.0",
+    "verdict": {
+      "text": "The council makes the home side clear favourites at 54%, with the draw a distant second.",
+      "source_ids": ["engine:match_analysis"],
+      "number_refs": ["mc_home_win", "mc_draw"]
+    },
+    "claims": [
+      {
+        "text": "The 54% home edge is not a lone signal — it rides on an 11-match unbeaten run and six clean sheets in the last eight, so the model's confidence and the form record point the same way.",
+        "source_ids": ["engine:match_analysis", "pack#results"],
+        "number_refs": ["mc_home_win", "nb_home_unbeaten", "nb_clean_sheets"]
+      },
+      {
+        "text": "Where the voices disagree is the draw: the goals model reads 1.7 expected goals for the hosts, high enough that a low-scoring stalemate is less likely than the raw 26% draw figure suggests.",
+        "source_ids": ["engine:match_analysis"],
+        "number_refs": ["mc_xg_home", "mc_draw"]
+      },
+      {
+        "text": "The away side's route in is width and set-pieces rather than open play, and the goalscorer record shows their goals cluster among two forwards.",
+        "source_ids": ["pack#goalscorers"],
+        "number_refs": []
+      }
+    ],
+    "scenarios": [
+      {
+        "text": "If the hosts score first, the clean-sheet record makes a 1-0 or 2-0 grind the most probable finish; the 54% edge would firm further.",
+        "source_ids": ["engine:match_analysis", "pack#results"],
+        "number_refs": ["mc_home_win"]
+      },
+      {
+        "text": "A level game past the hour tilts toward the away side's set-piece threat and, if it reaches penalties, a shootout — where the records are close.",
+        "source_ids": ["pack#shootouts"],
+        "number_refs": []
+      }
+    ],
+    "candidate_facts": [],
+    "research_notes": [
+      {
+        "text": "The two nations have met three times at previous World Cups, the hosts winning twice.",
+        "quote": "The teams have met on three occasions at the FIFA World Cup.",
+        "source_url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup",
+        "title": "2026 FIFA World Cup — Wikipedia"
+      },
+      {
+        "text": "The tournament is the first to feature 48 teams, expanding the group stage.",
+        "quote": "The tournament will be the first to include 48 teams.",
+        "source_url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup",
+        "title": "2026 FIFA World Cup — Wikipedia"
+      }
+    ],
+    "background": [
+      { "text": "Both managers favour a possession-based build-up, though this reflects the model's general knowledge and may be out of date." }
+    ]
+  }
+}

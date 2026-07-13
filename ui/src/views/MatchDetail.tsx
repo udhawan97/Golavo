@@ -24,7 +24,7 @@ import type { AsyncState } from "../lib/hooks";
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { ChevronRight, InfoIcon, SealIcon, ShieldCheckIcon } from "../components/icons";
 import { HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
-import { AiDeepRead } from "../components/AiDeepRead";
+import { AiDeepRead } from "../components/ai/AiDeepRead";
 import { MatchHeader } from "../components/MatchHeader";
 import { ModelCouncil } from "../components/ModelCouncil";
 import { FormStripsRow } from "../components/FormStrip";

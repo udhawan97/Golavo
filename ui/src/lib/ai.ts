@@ -44,18 +44,33 @@ export interface BackgroundNote {
   about?: "home" | "away" | "match";
 }
 
+/** A web-research note (narration schema 0.3.0+). Its numbers were verified
+ *  against the quoted page text — NOT against the engine — so the UI must keep
+ *  it visually separate from the engine-verified read. */
+export interface ResearchNote {
+  text: string;
+  quote?: string | null;
+  source_url: string;
+  title?: string | null;
+}
+
 export interface AiNarration {
   schema_version: string;
+  /** One-line most-likely-outcome verdict (0.3.0+); engine-verified numbers only. */
+  verdict?: NarrationClaim | null;
   claims: NarrationClaim[];
   scenarios: NarrationClaim[];
   candidate_facts: unknown[];
+  /** Optional: present only when the web-research lane was enabled (0.3.0+). */
+  research_notes?: ResearchNote[];
   /** Optional: present only when the background lane was enabled (may be empty). */
   background?: BackgroundNote[];
 }
 
 export interface SourceRef {
   source_id: string;
-  kind: "engine" | "snapshot";
+  /** "web" appears only when the opt-in research lane fetched pages (0.3.0+). */
+  kind: "engine" | "snapshot" | "web";
   title: string;
   url: string;
 }

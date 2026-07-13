@@ -5,8 +5,8 @@ import {
   fetchLocalModels,
   fetchMatchNarrative,
   fetchNarrative,
-} from "../lib/api";
-import type { LocalModelInfo } from "../lib/api";
+} from "../../lib/api";
+import type { LocalModelInfo } from "../../lib/api";
 import {
   AI_PROVIDERS,
   DEEP_TIMEOUT_S,
@@ -14,17 +14,12 @@ import {
   useAiBackground,
   useAiModels,
   useAiProvider,
-} from "../lib/ai";
-import type {
-  AiDepth,
-  AiProvider,
-  BackgroundNote,
-  NarrationClaim,
-  NarrativeResponse,
-  NumberRef,
-  SourceRef,
-} from "../lib/ai";
-import { AlertIcon, CheckIcon, InfoIcon, LinkIcon } from "./icons";
+} from "../../lib/ai";
+import type { AiDepth, AiProvider, NarrativeResponse } from "../../lib/ai";
+import { FlaskIcon, InfoIcon, TelescopeIcon } from "../icons";
+import { Pipeline } from "./AiPipeline";
+import { Result } from "./AiResult";
+import { FallbackCard, humanizeError, OffCard } from "./AiFallback";
 
 /** A short size label for a model, e.g. "12B" or "" when unknown. */
 function modelSize(m: LocalModelInfo): string {
@@ -42,27 +37,6 @@ type RunState =
   | { status: "loading"; refresh: boolean }
   | { status: "done"; data: NarrativeResponse }
   | { status: "error"; error: Error };
-
-// Factual pipeline stages — what the app actually does to assemble and check
-// the evidence. Deliberately NOT a depiction of model reasoning.
-const PIPELINE_STAGES = [
-  "Assembling the evidence bundle",
-  "Listing the numbers the engine allows",
-  "The model is reading and writing",
-  "Verifying every number against the whitelist",
-];
-
-/** Turn a raw transport error ("AI narrative → HTTP 503") into a calm, honest
- *  user-facing line. 503 means the local engine is still warming; other codes get
- *  a generic recoverable message instead of leaking the wire status text. */
-function humanizeError(error: Error): string {
-  const msg = error.message || "";
-  if (/HTTP 503/.test(msg))
-    return "The local engine is still warming up. Give it a moment, then try again.";
-  if (/HTTP \d{3}/.test(msg))
-    return "The AI request couldn’t be completed. The analysis above is unaffected — try again in a moment.";
-  return msg || "The AI request failed. The analysis above is unaffected.";
-}
 
 /** A tiny neutral mark for the AI panel header (kept local to avoid implying a
  *  brand or agent identity). */
@@ -190,7 +164,7 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
         </label>
       </div>
 
-      <div className="panel__body stack" style={{ ["--gap" as string]: ".9rem" }}>
+      <div className="panel__body stack" style={{ ["--gap" as string]: "var(--space-4)" }}>
         {DATA_SOURCE === "mock" && (
           <p className="callout callout--info" style={{ fontSize: ".9rem" }}>
             <InfoIcon size={18} />
@@ -244,7 +218,9 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
           />
         )}
         {state.status === "loading" && <Pipeline provider={provider} refresh={state.refresh} depth={depth} />}
-        {state.status === "error" && <FallbackCard reason={humanizeError(state.error)} onRetry={() => run(false)} />}
+        {state.status === "error" && (
+          <ErrorCard error={state.error} onRetry={() => run(false)} />
+        )}
         {state.status === "done" && (
           <Result
             data={state.data}
@@ -260,14 +236,8 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
   );
 }
 
-function OffCard() {
-  return (
-    <p className="ai-note">
-      AI is <b>off</b> — the default. The analysis above stands entirely on its own.
-      Choose a local model or your own key from the selector (or the AI toggle in the header)
-      to add an optional, cited reading.
-    </p>
-  );
+function ErrorCard({ error, onRetry }: { error: Error; onRetry: () => void }) {
+  return <FallbackCard reason={humanizeError(error)} onRetry={onRetry} />;
 }
 
 /** The Fast / Deep segmented toggle plus a collapsed advanced model override.
@@ -307,7 +277,7 @@ function DepthControls({
           aria-pressed={depth === "deep"}
           onClick={() => onDepth("deep")}
         >
-          Deep analysis
+          <TelescopeIcon size={14} /> Deep analysis
         </button>
       </div>
       <p className="small dim" style={{ margin: 0 }}>
@@ -325,7 +295,7 @@ function DepthControls({
             aria-expanded={advanced}
             onClick={() => setAdvanced((a) => !a)}
           >
-            {advanced ? "▾" : "▸"} Advanced · {active
+            <FlaskIcon size={13} /> Advanced · {active
               ? `model: ${active}${installed ? "" : " (not installed)"}`
               : "auto model"}
           </button>
@@ -381,259 +351,6 @@ function IdleCard({
         <button type="button" className="ai-run" onClick={onRun}>
           {depth === "deep" ? "Run deep analysis" : isMatch ? "Write the read" : "Run AI Deep Read"}
         </button>
-      </div>
-    </div>
-  );
-}
-
-/** Honest, informative progress: the factual stages, an indeterminate bar, and
- *  an elapsed-seconds ticker with expectation-setting copy — a local model can
- *  legitimately take a minute, and the user should never wonder if it hung. */
-function Pipeline({
-  provider, refresh, depth,
-}: { provider: AiProvider; refresh: boolean; depth: AiDepth }) {
-  const [step, setStep] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
-  const meta = AI_PROVIDERS.find((p) => p.value === provider);
-  const isDeep = depth === "deep";
-  useEffect(() => {
-    // Advance and STOP at the last stage — never wrap back to 0, which would
-    // un-check completed steps and read as "restarting/stuck". The indeterminate
-    // bar and elapsed timer carry the sense of ongoing progress. Deep reads dwell
-    // longer per stage since the bigger model takes minutes.
-    const stage = window.setInterval(
-      () => setStep((s) => Math.min(s + 1, PIPELINE_STAGES.length - 1)),
-      isDeep ? 12000 : 1400,
-    );
-    const tick = window.setInterval(() => setElapsed((e) => e + 1), 1000);
-    return () => { window.clearInterval(stage); window.clearInterval(tick); };
-  }, [isDeep]);
-  const waitNote = isDeep
-    ? "Deep analysis — a bigger model is connecting the evidence. This can take a few minutes; nothing shows until every number is verified."
-    : elapsed < 8
-      ? refresh
-        ? "Regenerating — skipping the cached read."
-        : "This runs once, then is cached."
-      : meta?.kind === "local"
-        ? "Local models think at their own pace — a minute is normal. Nothing shows until every number is verified."
-        : "Still waiting on the provider. Nothing shows until every number is verified.";
-  return (
-    <div className="ai-pipeline" role="status" aria-live="polite">
-      <span className="visually-hidden">Preparing the AI read…</span>
-      <div className="ai-progress" aria-hidden>
-        <span className="ai-progress__fill" />
-      </div>
-      <ol>
-        {PIPELINE_STAGES.map((label, i) => (
-          <li key={label} className={i === step ? "on" : i < step ? "done" : ""} aria-hidden>
-            <span className="ai-pipeline__dot" />{label}
-          </li>
-        ))}
-      </ol>
-      <p className="ai-progress__meta small dim" style={{ margin: 0 }}>
-        <span className="num">{elapsed}s</span> · {waitNote}
-      </p>
-    </div>
-  );
-}
-
-function Result({
-  data, isMatch, depth, onSwitchFast, onRefresh, onRetry,
-}: {
-  data: NarrativeResponse;
-  isMatch: boolean;
-  depth: AiDepth;
-  onSwitchFast?: () => void;
-  onRefresh: () => void;
-  onRetry: () => void;
-}) {
-  if (data.status === "disabled") return <OffCard />;
-  // "unavailable" is recoverable in live mode (start Ollama / pull a model / add a
-  // key, then retry) but genuinely terminal in the sample-data preview, so only
-  // offer a retry when there's a real backend to retry against.
-  if (data.status === "unavailable")
-    return (
-      <FallbackCard
-        reason={data.reason}
-        unavailable
-        onRetry={DATA_SOURCE === "mock" ? undefined : onRetry}
-      />
-    );
-  // A deep read that timed out: offer both a retry AND a one-tap switch to Fast.
-  const timedOut = data.status === "local_only" && /timed out|reached/i.test(data.reason ?? "");
-  if (data.status === "local_only")
-    return (
-      <FallbackCard
-        reason={data.reason}
-        notes={data.notes}
-        onRetry={onRetry}
-        onSwitchFast={depth === "deep" && timedOut ? onSwitchFast : undefined}
-      />
-    );
-  if (data.status !== "ok" || !data.narration)
-    return <FallbackCard reason={data.reason} notes={data.notes} onRetry={onRetry} />;
-
-  const sourceById = new Map<string, SourceRef>(data.sources.map((s) => [s.source_id, s]));
-  const numberById = new Map<string, NumberRef>(data.numbers.map((n) => [n.id, n]));
-  const { claims, scenarios } = data.narration;
-  const background = data.narration.background ?? [];
-
-  return (
-    <div className="stack" style={{ ["--gap" as string]: "1rem" }}>
-      <div className="ai-verified">
-        <CheckIcon size={15} />
-        <span>
-          {isMatch
-            ? "Every number below was verified against the engine's own analysis. The AI connects the evidence — it does not change it."
-            : "Every number below was verified against the sealed forecast. It explains those numbers — it does not change them."}
-        </span>
-      </div>
-
-      {claims.length > 0 && (
-        <ClaimList title={isMatch ? "The deeper read" : "Reading"} items={claims} sourceById={sourceById} numberById={numberById} />
-      )}
-      {scenarios.length > 0 && (
-        <ClaimList title="Scenarios" items={scenarios} sourceById={sourceById} numberById={numberById} />
-      )}
-      {claims.length === 0 && scenarios.length === 0 && (
-        <p className="ai-note">The model returned nothing it could ground in the evidence.</p>
-      )}
-
-      {background.length > 0 && <BackgroundLane notes={background} />}
-
-      <p className="ai-meta">
-        {data.cached && <span className="chip chip--neutral">cached</span>}
-        <span className="dim">
-          {data.provider} · {data.model} · prompt {data.prompt_version}
-        </span>
-        <button
-          type="button"
-          className="ai-refresh"
-          onClick={onRefresh}
-          title="Regenerate — skips the cache; the new output still passes every guard"
-        >
-          Refresh read
-        </button>
-      </p>
-    </div>
-  );
-}
-
-function ClaimList({
-  title, items, sourceById, numberById,
-}: {
-  title: string;
-  items: NarrationClaim[];
-  sourceById: Map<string, SourceRef>;
-  numberById: Map<string, NumberRef>;
-}) {
-  return (
-    <div className="stack" style={{ ["--gap" as string]: ".55rem" }}>
-      <h3 className="ai-subhead">{title}</h3>
-      <ul className="ai-claims">
-        {items.map((claim, i) => (
-          <li key={i} className="ai-claim">
-            <p>{claim.text}</p>
-            <div className="ai-chips">
-              {claim.number_refs.map((ref) => {
-                const num = numberById.get(ref);
-                return num ? (
-                  <span key={ref} className="ai-chip ai-chip--num" title={num.label}>{num.display}</span>
-                ) : null;
-              })}
-              {claim.source_ids.map((sid) => {
-                const src = sourceById.get(sid);
-                if (!src) return null;
-                return (
-                  <a
-                    key={sid}
-                    className={`ai-chip ai-chip--src ai-chip--${src.kind}`}
-                    href={src.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    title={`${src.kind}: ${src.title}`}
-                  >
-                    <LinkIcon size={12} />{src.title}
-                  </a>
-                );
-              })}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/** The second, clearly-separated lane: general-knowledge colour from the model.
- *  Badged as not-Golavo-data, may-be-outdated; no number chips, no source chips
- *  (there are none by design — anything numeric was deleted server-side). */
-function BackgroundLane({ notes }: { notes: BackgroundNote[] }) {
-  return (
-    <details className="ai-background">
-      <summary>
-        <span className="ai-background__badge">Model memory — not Golavo data · may be outdated</span>
-        <span className="dim small"> · {notes.length} note{notes.length === 1 ? "" : "s"}</span>
-      </summary>
-      <p className="small dim ai-background__note" style={{ marginTop: ".5rem" }}>
-        Qualitative context from the model’s own general knowledge — not verified, not from Golavo’s
-        data, and possibly out of date. Any number it tried to state was removed.
-      </p>
-      <ul className="ai-background__list">
-        {notes.map((n, i) => (
-          <li key={i}>
-            <span className="ai-background__mark" aria-hidden title="unverified">◇</span>
-            {n.text}
-          </li>
-        ))}
-      </ul>
-    </details>
-  );
-}
-
-function FallbackCard({
-  reason, unavailable = false, onRetry, onSwitchFast, notes,
-}: {
-  reason: string | null;
-  unavailable?: boolean;
-  onRetry?: () => void;
-  onSwitchFast?: () => void;
-  notes?: string[];
-}) {
-  // Surface the real, de-duplicated failure reasons (timeout vs unreachable vs a
-  // specific guard rejection) so a user staring at "Try again" can see WHY it
-  // failed instead of looping blindly.
-  const details = Array.from(new Set((notes ?? []).filter((n) => n && n.trim())));
-  return (
-    <div className="callout callout--info ai-fallback">
-      {unavailable ? <InfoIcon size={18} /> : <AlertIcon size={18} />}
-      <div>
-        <div className="callout__title">
-          {unavailable ? "AI unavailable" : "Showing the deterministic analysis only"}
-        </div>
-        {reason ??
-          "AI output could not be verified against the engine's numbers, so it was discarded. " +
-          "The analysis above is unaffected."}
-        {details.length > 0 && (
-          <details className="ai-fallback__details" style={{ marginTop: ".4rem" }}>
-            <summary className="small dim">What happened</summary>
-            <ul className="small dim" style={{ margin: ".3rem 0 0", paddingLeft: "1.1rem" }}>
-              {details.map((d, i) => <li key={i}>{d}</li>)}
-            </ul>
-          </details>
-        )}
-        {(onRetry || onSwitchFast) && (
-          <div className="ai-fallback__actions" style={{ marginTop: ".5rem", display: "flex", gap: ".5rem" }}>
-            {onRetry && (
-              <button type="button" className="ai-refresh" onClick={onRetry}>Try again</button>
-            )}
-            {onSwitchFast && (
-              <button type="button" className="ai-refresh" onClick={onSwitchFast}>
-                Switch to Fast
-              </button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

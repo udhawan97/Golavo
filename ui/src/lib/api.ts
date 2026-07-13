@@ -39,6 +39,7 @@ import {
   loadMockForecast,
   loadMockForecasts,
   loadMockMatches,
+  loadMockNarrative,
   loadMockNotebook,
 } from "../mocks";
 
@@ -541,14 +542,35 @@ const MOCK_AI_REASON =
   "AI Deep Read needs the local Golavo app connected to a model. It is not " +
   "available in this sample-data preview. The analysis above is complete without it.";
 
+/** In mock mode only, and only when a test explicitly sets the golavo-ai-fixture
+ *  flag, return a bundled sample narrative so the redesigned read is visually
+ *  testable. Absent the flag (the default) this returns null and the caller
+ *  falls back to the honest "unavailable" envelope — never a fabricated read. */
+async function mockNarrative(
+  subjectId: string,
+  base: NarrativeResponse,
+): Promise<NarrativeResponse | null> {
+  let flag: string | null = null;
+  try { flag = localStorage.getItem("golavo-ai-fixture"); } catch { /* ignore */ }
+  if (!flag) return null;
+  const fixture = await loadMockNarrative(subjectId);
+  if (!fixture || typeof fixture !== "object") return null;
+  return { ...base, ...(fixture as Partial<NarrativeResponse>) };
+}
+
 async function postNarrative(
   path: string,
   provider: AiProvider,
   opts: NarrativeOptions,
+  subjectId: string,
 ): Promise<NarrativeResponse> {
   const base = emptyNarrative(provider);
   if (provider === "off") return base;
-  if (!API_BASE) return { ...base, status: "unavailable", reason: MOCK_AI_REASON };
+  if (!API_BASE) {
+    const fixture = await mockNarrative(subjectId, base);
+    if (fixture) return { ...fixture, status: fixture.status || "ok" };
+    return { ...base, status: "unavailable", reason: MOCK_AI_REASON };
+  }
   const headers: Record<string, string> = {
     accept: "application/json",
     "content-type": "application/json",
@@ -575,7 +597,7 @@ export async function fetchNarrative(
   provider: AiProvider,
   opts: NarrativeOptions = {},
 ): Promise<NarrativeResponse> {
-  return postNarrative(`/api/v1/forecasts/${encodeURIComponent(id)}/narrative`, provider, opts);
+  return postNarrative(`/api/v1/forecasts/${encodeURIComponent(id)}/narrative`, provider, opts, id);
 }
 
 /**
@@ -589,7 +611,7 @@ export async function fetchMatchNarrative(
   provider: AiProvider,
   opts: NarrativeOptions = {},
 ): Promise<NarrativeResponse> {
-  return postNarrative(`/api/v1/matches/${encodeURIComponent(matchId)}/narrative`, provider, opts);
+  return postNarrative(`/api/v1/matches/${encodeURIComponent(matchId)}/narrative`, provider, opts, matchId);
 }
 
 /**

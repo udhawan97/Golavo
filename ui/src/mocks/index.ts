@@ -19,6 +19,15 @@ const notebookModules = import.meta.glob<CommentatorsNotebook>("./notebooks/*.js
   import: "default",
 });
 
+// Sample AI narratives — used ONLY when a test flag is set (golavo-ai-fixture),
+// so the redesigned AI read is visually testable in mock mode. Never returned
+// by default; the panel's sample-data callout stays visible on top of any
+// fixture render, keeping the honesty rule ("the UI never fabricates a
+// narration") intact.
+const narrativeModules = import.meta.glob<unknown>("./narratives/*.json", {
+  import: "default",
+});
+
 /** All mock artifacts, sorted newest-first by seal time. */
 export async function loadMockForecasts(): Promise<ForecastArtifact[]> {
   const loaded = await Promise.all(Object.values(forecastModules).map((imp) => imp()));
@@ -38,6 +47,14 @@ export async function loadMockNotebook(id: string): Promise<NotebookResponse> {
   const entry = Object.entries(notebookModules).find(([path]) => path.endsWith(`/${id}.json`));
   if (!entry) return { artifact_id: id, available: false, notebook: null };
   return { artifact_id: id, available: true, notebook: await entry[1]() };
+}
+
+/** A sample narrative keyed by subject id (narratives/<id>.json), or null when
+ *  absent. Only consulted behind the golavo-ai-fixture test flag. */
+export async function loadMockNarrative(id: string): Promise<unknown | null> {
+  const entry = Object.entries(narrativeModules).find(([path]) => path.endsWith(`/${id}.json`));
+  if (!entry) return null;
+  return entry[1]();
 }
 
 export async function loadMockEval(): Promise<EvalSummary> {

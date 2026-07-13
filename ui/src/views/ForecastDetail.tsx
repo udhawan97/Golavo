@@ -15,7 +15,7 @@ import { ScoreMatrixHeatmap } from "../components/ScoreMatrixHeatmap";
 import { SealStamp } from "../components/SealStamp";
 import { Provenance } from "../components/Provenance";
 import { ScoredPanel } from "../components/ScoredPanel";
-import { AiDeepRead } from "../components/AiDeepRead";
+import { AiDeepRead } from "../components/ai/AiDeepRead";
 import { CommentatorsNotebook } from "../components/CommentatorsNotebook";
 import { InsightCards } from "../components/InsightCards";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";

@@ -181,3 +181,61 @@ export const EnsoGlyph = ({ size = 54, ...p }: IconProps) => (
     <path d="M17.5 5.5A9 9 0 1 0 20 12" opacity=".8" />
   </svg>
 );
+
+/** Writing glyph — a quill sweeping to a baseline. The AI "writing" stage. */
+export const QuillIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M20 4c-5 .4-9.2 2.8-11.7 6.9L6 16" />
+    <path d="M19 8.5c-2.6 1-4.8 2.6-6.6 4.8" />
+    <path d="M6 16l-1 4" />
+    <path d="M4 20h7" />
+  </svg>
+);
+
+/** Evidence-bundle glyph — an isometric parcel. The "assembling" stage. */
+export const BundleIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M12 3l7.5 4.3v9.4L12 21l-7.5-4.3V7.3z" />
+    <path d="M12 12v9" />
+    <path d="M4.5 7.3L12 12l7.5-4.7" />
+  </svg>
+);
+
+/** Deep-analysis flavor — a telescope aimed at a small star. */
+export const TelescopeIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M4 13.5L18 7" />
+    <path d="M15.5 5.5l2 4.5" />
+    <circle cx="6" cy="14.5" r="2" />
+    <path d="M9 15.5l-2 5.5M6.5 16.5l2.5 4.5" />
+    <path d="M20.5 12.5v2M19.5 13.5h2" />
+  </svg>
+);
+
+/** Erlenmeyer flask — the advanced/model-override disclosure. */
+export const FlaskIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M10 3v5l-5.5 10a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V3" />
+    <path d="M9 3h6" />
+    <path d="M7.5 15.5h9" />
+  </svg>
+);
+
+/** A checked list — the "verifying" stage and the evidence legend. */
+export const ChecklistIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <rect x="4" y="3.5" width="16" height="17" rx="2.5" />
+    <path d="M7.5 9l1.5 1.5L12 7.5" />
+    <path d="M7.5 15l1.5 1.5L12 13.5" />
+    <path d="M14.5 9.5h3M14.5 15.5h3" />
+  </svg>
+);
+
+/** Outbound-link marker for web sources. */
+export const ExternalLinkIcon = ({ size = 12, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M19 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" />
+    <path d="M14 4h6v6" />
+    <path d="M20 4l-9 9" />
+  </svg>
+);
