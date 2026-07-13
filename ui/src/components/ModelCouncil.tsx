@@ -16,15 +16,13 @@
 import type {
   CouncilModel,
   MatchAnalysis,
+  MatchAnalysisResponse,
   Outcome,
   Probs,
 } from "../lib/contract";
-import { useState } from "react";
-import { fetchMatchAnalysis } from "../lib/api";
-import { pct, pctWhole, utc } from "../lib/format";
-import { useAsync } from "../lib/hooks";
-import { ProbabilityBar, StatTile, TrustStrip, UncertaintyTag } from "./primitives";
-import { ScoreMatrixHeatmap } from "./ScoreMatrixHeatmap";
+import { pctWhole, utc } from "../lib/format";
+import type { AsyncState } from "../lib/hooks";
+import { ProbabilityBar, TrustStrip } from "./primitives";
 import { BlockSkeleton, Loading } from "./states";
 import { InfoIcon, ShieldCheckIcon } from "./icons";
 
@@ -36,18 +34,19 @@ const VOICE_LABEL: Record<string, string> = {
 const OUTCOME_TEXT = (o: Outcome, home: string, away: string): string =>
   o === "home" ? home : o === "away" ? away : "a draw";
 
+type AnalysisState = AsyncState<MatchAnalysisResponse>;
+
 export function ModelCouncil({
-  matchId,
+  state,
   home,
   away,
+  onRetry,
 }: {
-  matchId: string;
+  state: AnalysisState;
   home: string;
   away: string;
+  onRetry: () => void;
 }) {
-  const [retryTick, setRetryTick] = useState(0);
-  const state = useAsync(() => fetchMatchAnalysis(matchId), [matchId, retryTick]);
-
   return (
     <section className="panel" aria-labelledby="mc-h">
       <div className="panel__head">
@@ -55,13 +54,13 @@ export function ModelCouncil({
         <KindChip state={state} />
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: "1.1rem" }}>
-        <Body state={state} home={home} away={away} onRetry={() => setRetryTick((t) => t + 1)} />
+        <Body state={state} home={home} away={away} onRetry={onRetry} />
       </div>
     </section>
   );
 }
 
-function KindChip({ state }: { state: ReturnType<typeof useAsync<Awaited<ReturnType<typeof fetchMatchAnalysis>>>> }) {
+function KindChip({ state }: { state: AnalysisState }) {
   if (state.status !== "ready" || !state.data.available || !state.data.analysis) return null;
   const kind = state.data.analysis.analysis_kind;
   return (
@@ -80,7 +79,7 @@ function Body({
   away,
   onRetry,
 }: {
-  state: ReturnType<typeof useAsync<Awaited<ReturnType<typeof fetchMatchAnalysis>>>>;
+  state: AnalysisState;
   home: string;
   away: string;
   onRetry: () => void;
@@ -161,7 +160,6 @@ function Council({
   const voices = models.filter((m) => m.role === "voice" && m.probs);
   const baseline = models.find((m) => m.role === "baseline" && m.probs);
   const variants = models.filter((m) => m.role === "variant" && m.probs);
-  const goal = models.find((m) => m.family === analysis.score_matrix_family);
   const c = analysis.council;
 
   const lead =
@@ -202,35 +200,8 @@ function Council({
         </div>
       )}
 
-      {/* Likely goals & score — from the goal model only. */}
-      {goal?.score_matrix && goal.expected_goals && (
-        <div className="stack" style={{ ["--gap" as string]: ".6rem" }}>
-          <div className="stat-grid">
-            <StatTile
-              value={`${goal.score_matrix.most_likely.home}–${goal.score_matrix.most_likely.away}`}
-              label="Most likely score"
-              hint={`${pct(goal.score_matrix.most_likely.probability)} · goal model`}
-            />
-            <StatTile
-              value={goal.expected_goals.home.toFixed(2)}
-              label={`Model goals · ${home}`}
-              hint="expected, not predicted"
-            />
-            <StatTile
-              value={goal.expected_goals.away.toFixed(2)}
-              label={`Model goals · ${away}`}
-              hint="expected, not predicted"
-            />
-            <StatTile value={<UncertaintyTag level={analysis.uncertainty} />} label="Confidence" />
-          </div>
-          <details className="council-more">
-            <summary>Full exact-score grid (goal model)</summary>
-            <div style={{ marginTop: ".75rem" }}>
-              <ScoreMatrixHeatmap matrix={goal.score_matrix} home={home} away={away} />
-            </div>
-          </details>
-        </div>
-      )}
+      {/* Likely goals & score live in the Score outlook section below, from the
+          same goal model. */}
 
       {/* Baseline + variants — disclosed, never a vote. */}
       <details className="council-more">

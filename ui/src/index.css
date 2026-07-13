@@ -1272,6 +1272,39 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   .guide-example__grid { grid-template-columns: 1fr; }
 }
 
+/* Recent form strips */
+.form-strips { padding: .9rem 1rem; display: flex; flex-direction: column; gap: .6rem; background: var(--surface-1); }
+.form-strips__head { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; flex-wrap: wrap; }
+.form-strips__title { font-weight: 650; }
+.form-row { display: flex; align-items: center; gap: .6rem; }
+.form-row__team { min-width: 8rem; font-weight: 550; }
+.form-row__chips { display: inline-flex; gap: .3rem; }
+.form-chip {
+  display: inline-grid; place-items: center;
+  width: 1.5rem; height: 1.5rem; border-radius: 6px;
+  font-size: .78rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  border: 1px solid transparent;
+}
+.form-chip--w { background: color-mix(in srgb, var(--green) 22%, transparent); color: var(--text); border-color: color-mix(in srgb, var(--green) 45%, transparent); }
+.form-chip--d { background: color-mix(in srgb, var(--wave) 20%, transparent); color: var(--text); border-color: color-mix(in srgb, var(--wave) 40%, transparent); }
+.form-chip--l { background: color-mix(in srgb, var(--red) 20%, transparent); color: var(--text); border-color: color-mix(in srgb, var(--red) 42%, transparent); }
+@media (max-width: 480px) { .form-row__team { min-width: 6rem; } }
+
+/* Team style profile — mirrored bars around a centre spine */
+.style-profile__teams { display: flex; justify-content: space-between; font-weight: 600; }
+.style-row { display: flex; flex-direction: column; gap: .25rem; }
+.style-row__label { font-size: .88rem; font-weight: 550; }
+.style-row__bars { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .35rem; }
+.style-row__side { display: flex; align-items: center; gap: .4rem; min-width: 0; }
+.style-row__side--home { justify-content: flex-end; flex-direction: row; }
+.style-row__side--away { justify-content: flex-start; }
+.style-row__num { font-size: .78rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.style-row__spine { width: 2px; height: 1.1rem; background: var(--border-strong); border-radius: 2px; }
+.style-bar { height: .7rem; border-radius: 4px; }
+.style-bar--home { background: var(--seg-home); }
+.style-bar--away { background: var(--seg-away); }
+.style-row__side--home .style-bar { margin-left: auto; }
+
 /* Model council */
 .council-voice { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); padding: .7rem .85rem; }
 .council-voice__head { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .5rem; }

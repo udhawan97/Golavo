@@ -18,15 +18,18 @@ import type {
   SealEligibility,
 } from "../lib/contract";
 import { FAMILY_LABELS } from "../lib/contract";
-import { fetchMatch, fetchMatchNotebook, sealMatch, SealApiError } from "../lib/api";
+import { fetchMatch, fetchMatchAnalysis, fetchMatchNotebook, sealMatch, SealApiError } from "../lib/api";
 import { utc } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
-import { useAsync } from "../lib/hooks";
+import { useAsync, useForecastMode } from "../lib/hooks";
 import { ChevronRight, InfoIcon, SealIcon, ShieldCheckIcon } from "../components/icons";
 import { HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
 import { AiDeepRead } from "../components/AiDeepRead";
 import { MatchHeader } from "../components/MatchHeader";
 import { ModelCouncil } from "../components/ModelCouncil";
+import { FormStripsRow } from "../components/FormStrip";
+import { TeamStyleProfile } from "../components/TeamStyleProfile";
+import { ScoreOutlook } from "../components/ScoreOutlook";
 import { NotebookFacts } from "../components/CommentatorsNotebook";
 import { InsightCards } from "../components/InsightCards";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
@@ -73,6 +76,16 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
   const venue = match.city
     ? `${match.city}${match.country ? `, ${match.country}` : ""}`
     : match.country ?? "—";
+  const [mode] = useForecastMode();
+
+  // Single fetch owner: the council, form strips, style profile, and score
+  // outlook all read this one leak-safe analysis (coalesced + cached in api.ts).
+  const [retryTick, setRetryTick] = useState(0);
+  const analysisState = useAsync(() => fetchMatchAnalysis(id), [id, retryTick]);
+  const analysis =
+    analysisState.status === "ready" && analysisState.data.available
+      ? analysisState.data.analysis
+      : null;
 
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
@@ -93,7 +106,17 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         }
       />
 
-      <ModelCouncil matchId={id} home={match.home_team} away={match.away_team} />
+      {analysis && <FormStripsRow analysis={analysis} />}
+
+      <ModelCouncil
+        state={analysisState}
+        home={match.home_team}
+        away={match.away_team}
+        onRetry={() => setRetryTick((t) => t + 1)}
+      />
+
+      {analysis && <TeamStyleProfile analysis={analysis} expert={mode === "expert"} />}
+      {analysis && <ScoreOutlook analysis={analysis} home={match.home_team} away={match.away_team} />}
 
       {hasForecast ? (
         <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
