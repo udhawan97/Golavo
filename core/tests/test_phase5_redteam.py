@@ -179,6 +179,22 @@ def test_every_attack_fails_closed(name, builder, bundle: dict, refs: dict) -> N
     assert review.rejections or review.dropped
 
 
+def test_betting_language_drops_only_its_claim(bundle: dict, refs: dict) -> None:
+    # Betting language is a per-claim soft drop (was a whole-read hard reject): the
+    # wagering claim is removed — never shown — while the clean verified claims
+    # stand. A single analytical idiom must not blank the entire read.
+    home = refs["display"]["prob_home"]
+    good = _claim(f"France are favoured at {home}.", [refs["engine"]], ["prob_home"])
+    tout = _claim("France are a lock — back them with three units of value.", [refs["engine"]])
+    review = review_narration(_wrap([good, tout]), bundle)
+    assert review.accepted is True
+    serialized = json.dumps(review.narration)
+    assert home in serialized                 # the clean claim survived
+    assert "lock" not in serialized and "units" not in serialized  # wagering never shown
+    assert len(review.narration["claims"]) == 1
+    assert any("betting" in d for d in review.dropped)
+
+
 def test_fabricated_number_drops_only_its_claim(bundle: dict, refs: dict) -> None:
     # A small local model that gets ONE fact's number wrong must not blank the
     # entire read: the offending claim is dropped (its bad number never shown),

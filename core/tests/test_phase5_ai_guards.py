@@ -99,6 +99,12 @@ class TestBettingLexicon:
         # "picky", "evaluate" contain betting stems but as substrings only.
         assert contains_betting_lexicon("a picky evaluate-and-lockstep review") == []
 
+    def test_edge_is_analytical_prose_not_betting(self) -> None:
+        # "have the edge", "an edge in midfield" is core sports-analysis language,
+        # not wagering — it must not be flagged (it dropped good claims otherwise).
+        assert contains_betting_lexicon("Spain have the edge in midfield") == []
+        assert contains_betting_lexicon("a cutting-edge pressing system") == []
+
 
 class TestSanitizer:
     def test_strips_control_tokens_and_fences(self) -> None:

@@ -129,13 +129,14 @@ def resolve_provider(config: dict[str, Any] | None) -> ProviderConfig:
     # Local models run cold and free: the first call also loads the weights, which
     # a small default would time out before generation even starts. Give them a
     # generous default; cloud stays snappy. An explicit timeout_s always wins.
-    default_timeout = 90.0 if provider in LOCAL_PROVIDERS else 30.0
+    default_timeout = 120.0 if provider in LOCAL_PROVIDERS else 30.0
+    max_timeout = 180.0
     try:
         timeout_s = float(config.get("timeout_s", default_timeout))
     except (TypeError, ValueError) as exc:
-        raise ValueError("timeout_s must be a number between 1 and 120") from exc
-    if not math.isfinite(timeout_s) or not 1 <= timeout_s <= 120:
-        raise ValueError("timeout_s must be a number between 1 and 120")
+        raise ValueError(f"timeout_s must be a number between 1 and {int(max_timeout)}") from exc
+    if not math.isfinite(timeout_s) or not 1 <= timeout_s <= max_timeout:
+        raise ValueError(f"timeout_s must be a number between 1 and {int(max_timeout)}")
     return ProviderConfig(
         provider=provider,
         model=model,
@@ -612,10 +613,14 @@ def generate_narration(
     for _ in range(MAX_ATTEMPTS):
         try:
             raw_text = transport(system, user)
+        except TimeoutError:
+            # A slow local model that timed out will just time out again on an
+            # immediate retry — stop rather than doubling the user's wait.
+            reasons.append("provider call timed out")
+            break
         except (
             urllib.error.URLError,
             http.client.HTTPException,
-            TimeoutError,
             OSError,
             KeyError,
             ValueError,
@@ -623,6 +628,9 @@ def generate_narration(
             IndexError,
         ) as exc:
             # Never surface provider internals or anything that might echo a key.
+            if isinstance(getattr(exc, "reason", None), TimeoutError):
+                reasons.append("provider call timed out")
+                break
             reasons.append(f"provider call failed ({type(exc).__name__})")
             continue
         reached_provider = True

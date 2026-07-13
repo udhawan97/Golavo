@@ -139,22 +139,27 @@ def _review_item(
     text = item["text"]
     label = f"{kind}[{index}]"
 
-    # Hard rejects: a single one fails the entire narration (fail closed). Betting
-    # language and credential shapes are categorically forbidden content — their
-    # presence signals a misbehaving model, not one droppable claim.
-    betting = contains_betting_lexicon(text)
-    if betting:
-        rejections.append(f"{label}: betting lexicon {sorted(set(betting))}")
+    # Hard reject: credential shapes void the entire narration (fail closed). A key
+    # or token leaking anywhere is categorically unacceptable and unambiguous.
     if contains_secret_pattern(text):
         rejections.append(f"{label}: credential-shaped content")
 
-    # Soft drops: remove just this claim, keep the rest.
-    # An unsupported number is a SOFT drop, not a hard reject: the offending claim
-    # is removed so its number never reaches the user, while other verified claims
-    # still stand. A small local model that gets one fact's number wrong (or
-    # writes an idiom the scanner reads as a number) must not blank the whole read.
-    # The guarantee is intact — a claim survives ONLY if every numeric token
-    # exactly matches a referenced number's trusted display.
+    # Soft drops: remove just this claim, keep the rest. Each of these removes the
+    # offending claim so its content never reaches the user, while other verified
+    # claims still stand — a small local model that trips one check on one fact
+    # must not blank the whole read. The guarantees are intact: a claim survives
+    # ONLY if it is clean.
+    #
+    # Betting/gambling language is dropped per-claim (was a whole-read reject): an
+    # analytical idiom like "have the edge" should not delete six good claims, and
+    # any genuine wagering phrasing is still never shown.
+    betting = contains_betting_lexicon(text)
+    if betting:
+        dropped.append(f"{label}: dropped (betting lexicon {sorted(set(betting))})")
+        return None
+    # An unsupported number: the offending claim is removed so its number never
+    # reaches the user. A claim survives only if every numeric token exactly
+    # matches a referenced number's trusted display.
     bad_numbers = unsupported_number_tokens(
         text, allowed_numbers, item["number_refs"], safe_literals
     )

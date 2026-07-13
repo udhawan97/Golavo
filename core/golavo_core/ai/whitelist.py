@@ -66,7 +66,9 @@ _BETTING_TERMS = (
     "punt",
     "punter",
     "ev",
-    "edge",
+    # "edge" deliberately omitted: "have the edge", "an edge in midfield" is core
+    # sports-analysis vocabulary, not wagering. (Betting is a per-claim soft drop
+    # now, but a word this common should not be flagged at all.)
     "tip",
     "tips",
     "tipster",

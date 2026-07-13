@@ -6,6 +6,18 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- The optional AI read is more forgiving of natural analytical prose so a single
+  idiom no longer blanks the whole read: betting language is now dropped per-claim
+  (like an unsupported number) instead of hard-rejecting the entire narration, and
+  "edge" ("have the edge in midfield") is no longer treated as a wagering term.
+  The guarantee is unchanged — a dropped claim's content is never shown.
+- A local model that times out is no longer retried (an immediate retry of a slow
+  model just doubles the wait); local requests get a slightly longer default
+  window. Note: a large local model (e.g. a 12B) is not well suited to the rich
+  Match Cockpit bundle — it can take several minutes; a small instruct model such
+  as `llama3.2` returns in seconds.
+
 ## [0.5.2] - 2026-07-13
 
 Makes the optional local AI read actually produce output on the Match Cockpit,

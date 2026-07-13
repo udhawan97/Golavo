@@ -241,17 +241,18 @@ def test_local_provider_is_restricted_to_loopback() -> None:
         resolve_provider({"provider": "llama_server", "base_url": "http://example.test/v1"})
 
 
-@pytest.mark.parametrize("timeout", [0, 121, float("nan"), "not-a-number"])
+@pytest.mark.parametrize("timeout", [0, 181, float("nan"), "not-a-number"])
 def test_provider_timeout_is_bounded(timeout) -> None:
-    with pytest.raises(ValueError, match="between 1 and 120"):
+    with pytest.raises(ValueError, match="between 1 and 180"):
         resolve_provider({"provider": "ollama", "timeout_s": timeout})
 
 
 def test_local_providers_default_to_a_generous_timeout() -> None:
-    # A cold local model also loads weights on the first call; the old 30s default
-    # timed that out before generation began. Local gets 90s; cloud stays 30s.
-    assert resolve_provider({"provider": "ollama"}).timeout_s == 90.0
-    assert resolve_provider({"provider": "llama_server"}).timeout_s == 90.0
+    # A cold local model also loads weights on the first call; the default must not
+    # time out before generation begins. Local gets a generous 120s default and
+    # 180s ceiling; cloud stays snappy at 30s.
+    assert resolve_provider({"provider": "ollama"}).timeout_s == 120.0
+    assert resolve_provider({"provider": "llama_server"}).timeout_s == 120.0
     assert resolve_provider({"provider": "openai"}).timeout_s == 30.0
     # An explicit request always wins over the default.
     assert resolve_provider({"provider": "ollama", "timeout_s": 12}).timeout_s == 12.0
