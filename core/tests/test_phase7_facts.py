@@ -239,6 +239,96 @@ def test_family_size_is_a_fixed_registry_constant() -> None:
 # --------------------------------------------------------------------------- #
 # Internationals-only scorers/shootouts; no fabricated club events
 # --------------------------------------------------------------------------- #
+def _form_ctx(goalscorers):
+    """A TemplateContext for team 'Alpha': 12 completed matches v rotating rivals,
+    all before the cutoff. team_perspective takes the last 10 as the window."""
+    import pandas as pd
+    from golavo_core.facts._history import TemplateContext
+
+    rows = []
+    rivals = ["Bravo", "Charlie", "Delta"]
+    for i in range(12):
+        day = f"2024-{(i % 12) + 1:02d}-05"
+        opp = rivals[i % 3]
+        rows.append({
+            "match_id": f"m{i:02d}", "date": pd.Timestamp(day), "kickoff_utc": pd.Timestamp(day, tz="UTC"),
+            "home_team": "Alpha", "away_team": opp, "home_score": 2, "away_score": 1,
+            "is_complete": True, "neutral": False, "tournament": "Friendly", "competition": "Friendly",
+        })
+    matches = pd.DataFrame(rows)
+    return TemplateContext(
+        matches=matches, home_team="Alpha", away_team="Zulu", competition="Friendly",
+        neutral=False, as_of=pd.Timestamp("2025-06-01", tz="UTC"),
+        kickoff=pd.Timestamp("2025-06-01", tz="UTC"), source_ids=("s",),
+        goalscorers=goalscorers, shootouts=None,
+    )
+
+
+def _gs_row(date, home, away, team, scorer, own_goal=False, penalty=False):
+    import pandas as pd
+    return {"date": pd.Timestamp(date), "home_team": home, "away_team": away,
+            "team": team, "scorer": scorer, "own_goal": own_goal, "penalty": penalty}
+
+
+def test_in_form_scorer_scopes_to_the_recent_window_and_excludes_own_goals() -> None:
+    import pandas as pd
+    from golavo_core.facts.context import in_form_scorer
+
+    # Opponents rotate Bravo/Charlie/Delta by month index (i%3): Jan=Bravo,
+    # Feb=Charlie, Mar=Delta, Apr=Bravo, May=Charlie, Jun=Delta, Jul=Bravo, ...
+    # 4 goals for "Rush" inside the last-10 window (Mar..Dec), plus a Jan goal
+    # (OUTSIDE the window) and an own goal (excluded).
+    gs = pd.DataFrame([
+        _gs_row("2024-03-05", "Alpha", "Delta", "Alpha", "Rush"),     # Mar, in window
+        _gs_row("2024-04-05", "Alpha", "Bravo", "Alpha", "Rush"),     # Apr
+        _gs_row("2024-05-05", "Alpha", "Charlie", "Alpha", "Rush"),   # May
+        _gs_row("2024-06-05", "Alpha", "Delta", "Alpha", "Rush"),     # Jun -> 4 total
+        _gs_row("2024-01-05", "Alpha", "Bravo", "Alpha", "Rush"),     # Jan, OUT of window
+        _gs_row("2024-07-05", "Alpha", "Bravo", "Alpha", "Rush", own_goal=True),  # excluded
+    ])
+    facts = in_form_scorer(_form_ctx(gs))
+    alpha = [c for c in facts if c.subject == "Alpha"]
+    assert len(alpha) == 1
+    c = alpha[0]
+    assert c.values["scorer"] == "Rush"
+    assert c.values["goals"] == 4          # window only, own goal excluded
+    assert c.values["window_matches"] == 10
+    # Player name never appears in the whitelist-safe text.
+    assert "Rush" not in c.text
+
+
+def test_in_form_scorer_needs_at_least_three_goals() -> None:
+    import pandas as pd
+    from golavo_core.facts.context import in_form_scorer
+
+    gs = pd.DataFrame([
+        _gs_row("2024-05-05", "Alpha", "Bravo", "Alpha", "Quiet"),
+        _gs_row("2024-06-05", "Alpha", "Charlie", "Alpha", "Quiet"),
+    ])
+    assert in_form_scorer(_form_ctx(gs)) == []
+
+
+def test_in_form_scorer_tie_breaks_alphabetically() -> None:
+    import pandas as pd
+    from golavo_core.facts.context import in_form_scorer
+
+    gs = pd.DataFrame([
+        _gs_row("2024-03-05", "Alpha", "Delta", "Alpha", "Zed"),
+        _gs_row("2024-04-05", "Alpha", "Bravo", "Alpha", "Zed"),
+        _gs_row("2024-05-05", "Alpha", "Charlie", "Alpha", "Zed"),
+        _gs_row("2024-03-05", "Alpha", "Delta", "Alpha", "Abe"),
+        _gs_row("2024-04-05", "Alpha", "Bravo", "Alpha", "Abe"),
+        _gs_row("2024-05-05", "Alpha", "Charlie", "Alpha", "Abe"),
+    ])
+    facts = [c for c in in_form_scorer(_form_ctx(gs)) if c.subject == "Alpha"]
+    assert facts and facts[0].values["scorer"] == "Abe"  # tie -> alphabetical
+
+
+def test_in_form_scorer_is_empty_without_goalscorers() -> None:
+    from golavo_core.facts.context import in_form_scorer
+    assert in_form_scorer(_form_ctx(None)) == []
+
+
 def test_scorer_and_shootout_facts_are_internationals_only() -> None:
     intl_ids = {f["id"] for f in _intl_notebook()["facts"]}
     club_ids = {f["id"] for f in _club_notebook()["facts"]}

@@ -362,6 +362,84 @@ def top_scorer(ctx: TemplateContext) -> list[Candidate]:
     return out
 
 
+def in_form_scorer(ctx: TemplateContext) -> list[Candidate]:
+    """Internationals only: the team's most in-form scorer over its last N matches.
+
+    Unlike ``top_scorer`` (all-time leading scorer), this scopes to the team's most
+    recent completed matches before the cutoff — "who's hot right now". Emits only
+    when the leader has a meaningful tally in the window, so a single goal never
+    reads as "in form". The player NAME lives in ``values`` (never in the
+    whitelist-safe text), exactly like ``top_scorer``.
+    """
+    scorers = ctx.goalscorers
+    if scorers is None or scorers.empty:
+        return []
+    window = 10  # the "recent" horizon, in the team's own completed matches
+    out: list[Candidate] = []
+    for team, _ in _sides(ctx):
+        persp = team_perspective(ctx.matches, team)
+        if persp.empty:
+            continue
+        recent = persp.tail(window)
+        m = int(len(recent))
+        # Reconstruct the (date, home_team, away_team) keys of the recent matches so
+        # the scorer join is exact (a shared date can't merge two fixtures).
+        keys = set()
+        for _, r in recent.iterrows():
+            day = pd.Timestamp(r["date"]).normalize()
+            if bool(r["is_home"]):
+                keys.add((day, team, str(r["opponent"])))
+            else:
+                keys.add((day, str(r["opponent"]), team))
+        team_goals = scorers.loc[
+            scorers["team"].eq(team) & (~scorers["own_goal"].astype("boolean").fillna(False))
+        ]
+        if team_goals.empty:
+            continue
+        in_window = team_goals.loc[
+            team_goals.apply(
+                lambda row: (
+                    pd.Timestamp(row["date"]).normalize(),
+                    str(row["home_team"]),
+                    str(row["away_team"]),
+                )
+                in keys,
+                axis=1,
+            )
+        ]
+        if in_window.empty:
+            continue
+        tally = in_window.groupby("scorer").size()
+        # Deterministic tie-break: most goals, then alphabetical scorer name.
+        name, goals = sorted(tally.items(), key=lambda kv: (-int(kv[1]), str(kv[0])))[0]
+        goals = int(goals)
+        if goals < 3:  # below this it is noise, not "in form"
+            continue
+        penalties = int(
+            in_window.loc[
+                in_window["scorer"].eq(name)
+                & in_window["penalty"].astype("boolean").fillna(False)
+            ].shape[0]
+        )
+        nb = NumberBag()
+        g = nb.count("goals", goals)
+        m_d = nb.count("window_matches", m)
+        out.append(
+            Candidate(
+                subject=team,
+                text=f"{team}'s most in-form scorer has {g} goals across their last {m_d} internationals in this data.",
+                values={"scorer": str(name), "goals": goals, "window_matches": m, "penalties": penalties},
+                numbers=nb.items(),
+                sample_n=m,
+                denominator=m,
+                first_date=pd.Timestamp(in_window["date"].min()),
+                last_date=pd.Timestamp(in_window["date"].max()),
+                specificity=clamp_unit(goals / 10.0),
+            )
+        )
+    return out
+
+
 def shootout_record(ctx: TemplateContext) -> list[Candidate]:
     """Internationals only: penalty-shootout win/loss record."""
     shootouts = ctx.shootouts
