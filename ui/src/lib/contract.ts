@@ -614,6 +614,98 @@ export const FACT_CATEGORY_ORDER: FactCategory[] = [
   "form", "head_to_head", "records", "signature", "other",
 ];
 
+/** Plain-language display copy for every registered fact template. The engine's
+ *  exact, number-disciplined sentence remains the detailed source of truth; this
+ *  metadata gives casual readers a short label and a one-line explanation for
+ *  scanning. Unknown future templates fall back gracefully in the notebook. */
+export interface FactDisplay {
+  title: string;
+  explainer: string;
+}
+
+export const FACT_DISPLAY: Record<string, FactDisplay> = {
+  unbeaten_run: {
+    title: "Unbeaten run",
+    explainer: "How long this team has gone without losing.",
+  },
+  winless_run: {
+    title: "Wait for a win",
+    explainer: "How long it has been since this team last won.",
+  },
+  win_streak: {
+    title: "Winning streak",
+    explainer: "Consecutive wins in the team’s current run.",
+  },
+  clean_sheet_run: {
+    title: "Clean-sheet streak",
+    explainer: "Consecutive matches without conceding a goal.",
+  },
+  home_away_form: {
+    title: "Venue form",
+    explainer: "Recent results in the same home-or-away role as this fixture.",
+  },
+  in_form_scorer: {
+    title: "In-form scorer",
+    explainer: "The leading scorer across this team’s most recent matches.",
+  },
+  head_to_head_record: {
+    title: "Previous meetings",
+    explainer: "The win, draw and loss record when these teams have met.",
+  },
+  head_to_head_goals: {
+    title: "Goals when they meet",
+    explainer: "The scoring character of previous meetings between these teams.",
+  },
+  biggest_win: {
+    title: "Biggest win",
+    explainer: "The widest winning scoreline in the available history.",
+  },
+  neutral_venue_record: {
+    title: "Neutral-ground record",
+    explainer: "How this team has performed away from either side’s home ground.",
+  },
+  top_scorer: {
+    title: "Leading scorer",
+    explainer: "The team’s highest-scoring player in the available data.",
+  },
+  shootout_record: {
+    title: "Penalty shootouts",
+    explainer: "How often this team has won a shootout in the available history.",
+  },
+  both_teams_scored_rate: {
+    title: "Both teams scored",
+    explainer: "How often each side found the net in this team’s recent matches.",
+  },
+  clean_sheet_rate: {
+    title: "Clean sheets",
+    explainer: "How often this team stopped the opposition from scoring recently.",
+  },
+  scoring_trend: {
+    title: "Scoring momentum",
+    explainer: "Recent goals per game compared with the run immediately before it.",
+  },
+  home_advantage_base_rate: {
+    title: "Home advantage",
+    explainer: "How often the home side has won in this competition’s history.",
+  },
+  competition_debut_base_rate: {
+    title: "First-year teams",
+    explainer: "How often newly arrived teams have won during their first year.",
+  },
+  day_of_week_streak: {
+    title: "Day-of-week streak",
+    explainer: "A calendar pattern kept separate from the forecast.",
+  },
+  scoreline_repeat: {
+    title: "Repeated scoreline",
+    explainer: "A score that has appeared more than once in this matchup.",
+  },
+  calendar_date_repeat: {
+    title: "Calendar-date echo",
+    explainer: "A date pattern shown as trivia, never as predictive evidence.",
+  },
+};
+
 // ---- Display metadata (UI-side only — not part of the wire contract) --------
 
 export const FAMILY_LABELS: Record<ModelFamily, string> = {

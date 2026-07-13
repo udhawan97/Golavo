@@ -21,6 +21,7 @@ import {
   FACT_CATEGORY,
   FACT_CATEGORY_ORDER,
   FACT_CATEGORY_TEXT,
+  FACT_DISPLAY,
   FACT_LABEL_TEXT,
   FACT_SCOPE_TEXT,
 } from "../lib/contract";
@@ -29,8 +30,15 @@ import { yearSpan } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync } from "../lib/hooks";
 import { topInsights } from "../lib/insights";
-import { AlertIcon, FingerprintIcon, PulseIcon, TrophyIcon, VersusIcon } from "./icons";
-import { InfoPopover, RateBar } from "./primitives";
+import {
+  AlertIcon,
+  ChevronDown,
+  FingerprintIcon,
+  PulseIcon,
+  TrophyIcon,
+  VersusIcon,
+} from "./icons";
+import { InfoPopover } from "./primitives";
 import { BlockSkeleton, EmptyState, ErrorState } from "./states";
 
 const CATEGORY_ICON: Record<FactCategory, ReactNode> = {
@@ -136,6 +144,15 @@ export function NotebookFacts({
           look fuller.
         </p>
       )}
+      {!allInSummary && remaining.length > 0 && (
+        <div className="nb-reading-key small">
+          <span className="nb-reading-key__mark" aria-hidden>01</span>
+          <span>
+            <b>Quick read first.</b> Open a section for simple stat cards, then open any card for
+            the exact wording, date range and source.
+          </span>
+        </div>
+      )}
       {GROUP_ORDER.map((label) => {
         const facts = remaining.filter((f) => f.label === label);
         if (facts.length === 0) return null;
@@ -197,27 +214,38 @@ function FactGroup({
       {label === "context" ? (
         // The context label spans many kinds of fact; sub-group it so a reader can
         // scan Form / Head-to-head / Records / Signature at a glance.
-        <div className="stack" style={{ ["--gap" as string]: ".7rem" }}>
+        <div className="nb-categories">
           {FACT_CATEGORY_ORDER.map((cat) => {
             const inCat = facts.filter((f) => factCategory(f) === cat);
             if (inCat.length === 0) return null;
             return (
-              <div key={cat} className="nb-subgroup">
-                <div className="nb-subgroup__head small muted">
-                  {CATEGORY_ICON[cat]}
-                  <span>{FACT_CATEGORY_TEXT[cat]}</span>
-                </div>
-                <ul className="nb-list">
+              <details key={cat} className="nb-subgroup">
+                <summary className="nb-subgroup__summary">
+                  <span className={`nb-subgroup__icon nb-subgroup__icon--${cat}`} aria-hidden>
+                    {CATEGORY_ICON[cat]}
+                  </span>
+                  <span className="nb-subgroup__copy">
+                    <b>{FACT_CATEGORY_TEXT[cat]}</b>
+                    <span>{categorySummary(inCat)}</span>
+                  </span>
+                  <span className="nb-subgroup__glance" aria-hidden>
+                    {inCat.slice(0, 3).map((fact, i) => (
+                      <span key={`${fact.id}-${i}`}>{glanceValue(fact)}</span>
+                    ))}
+                  </span>
+                  <ChevronDown className="nb-subgroup__chevron" size={17} />
+                </summary>
+                <ul className="nb-list nb-list--grid">
                   {inCat.map((fact, i) => (
                     <FactRow key={`${fact.id}-${i}`} fact={fact} snapshots={snapshots} />
                   ))}
                 </ul>
-              </div>
+              </details>
             );
           })}
         </div>
       ) : (
-        <ul className="nb-list">
+        <ul className="nb-list nb-list--grid">
           {facts.map((fact, i) => (
             <FactRow key={`${fact.id}-${i}`} fact={fact} snapshots={snapshots} />
           ))}
@@ -229,25 +257,70 @@ function FactGroup({
 
 function FactRow({ fact, snapshots }: { fact: NotebookFact; snapshots: Snapshot[] }) {
   const span = yearSpan(fact.date_range);
+  const display = FACT_DISPLAY[fact.id] ?? {
+    title: FACT_CATEGORY_TEXT[factCategory(fact)],
+    explainer: "A source-backed match fact from the available history.",
+  };
   return (
     <li className="nb-fact">
-      <p className="nb-fact__text">{fact.text}</p>
-      {fact.base_rate !== null && (
-        <RateBar value={fact.base_rate} caption={`${(fact.base_rate * 100).toFixed(1)}% base rate`} />
-      )}
+      <div className="nb-fact__top">
+        <div className="nb-fact__copy">
+          <span className="nb-fact__subj">{fact.subject}</span>
+          <h4>{display.title}</h4>
+          <p className="nb-fact__simple">{display.explainer}</p>
+        </div>
+        {fact.base_rate !== null && <RateDial value={fact.base_rate} />}
+      </div>
       <div className="nb-fact__meta">
-        <span className="nb-fact__subj">{fact.subject} · {FACT_SCOPE_TEXT[fact.scope]}</span>
-        <span className="nb-metric">
-          <b>{fact.sample_n.toLocaleString()}</b> in sample
+        <span className="nb-metric nb-metric--sample">
+          <b>{fact.sample_n.toLocaleString()}</b> {fact.sample_n === 1 ? "match" : "matches"}
           {fact.denominator !== fact.sample_n ? <> / {fact.denominator.toLocaleString()}</> : null}
         </span>
         {span && <span className="nb-metric">{span}</span>}
-        <span className="nb-fact__src">
-          <SourcePopover ids={fact.source_ids} snapshots={snapshots} />
-        </span>
+        <span className="nb-metric">{FACT_SCOPE_TEXT[fact.scope]}</span>
       </div>
+      <details className="nb-fact__detail">
+        <summary>Full stat &amp; source</summary>
+        <div className="nb-fact__detail-body">
+          <p className="nb-fact__text">{fact.text}</p>
+          <span className="nb-fact__src">
+            Source <SourcePopover ids={fact.source_ids} snapshots={snapshots} />
+          </span>
+        </div>
+      </details>
     </li>
   );
+}
+
+function RateDial({ value }: { value: number }) {
+  const safe = Math.max(0, Math.min(1, value));
+  const percent = Math.round(safe * 100);
+  return (
+    <div
+      className="nb-rate"
+      style={{ ["--rate" as string]: `${safe * 360}deg` }}
+      role="img"
+      aria-label={`${percent}% historical rate`}
+    >
+      <span className="nb-rate__value num">{percent}%</span>
+      <span className="nb-rate__label">rate</span>
+    </div>
+  );
+}
+
+function glanceValue(fact: NotebookFact): string {
+  if (fact.base_rate !== null) return `${Math.round(fact.base_rate * 100)}%`;
+  const preferred = fact.numbers.find((n) =>
+    ["run", "goals_for", "avg_goals", "recent_per_game", "goals", "meetings"].includes(n.key),
+  );
+  return preferred?.display ?? fact.numbers[0]?.display ?? "•";
+}
+
+function categorySummary(facts: NotebookFact[]): string {
+  const names = [...new Set(facts.map((fact) => FACT_DISPLAY[fact.id]?.title ?? "Other stat"))];
+  const preview = names.slice(0, 2).join(" · ");
+  const more = names.length > 2 ? ` +${names.length - 2}` : "";
+  return `${facts.length} ${facts.length === 1 ? "stat" : "stats"}${preview ? ` · ${preview}${more}` : ""}`;
 }
 
 /** Source as a quiet ⓘ reveal rather than a row of mono pack-id chips — the same
