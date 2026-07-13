@@ -36,6 +36,18 @@ const PIPELINE_STAGES = [
   "Verifying every number against the whitelist",
 ];
 
+/** Turn a raw transport error ("AI narrative → HTTP 503") into a calm, honest
+ *  user-facing line. 503 means the local engine is still warming; other codes get
+ *  a generic recoverable message instead of leaking the wire status text. */
+function humanizeError(error: Error): string {
+  const msg = error.message || "";
+  if (/HTTP 503/.test(msg))
+    return "The local engine is still warming up. Give it a moment, then try again.";
+  if (/HTTP \d{3}/.test(msg))
+    return "The AI request couldn’t be completed. The analysis above is unaffected — try again in a moment.";
+  return msg || "The AI request failed. The analysis above is unaffected.";
+}
+
 /** A tiny neutral mark for the AI panel header (kept local to avoid implying a
  *  brand or agent identity). */
 function ReadMark() {
@@ -148,7 +160,7 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
           />
         )}
         {state.status === "loading" && <Pipeline provider={provider} refresh={state.refresh} />}
-        {state.status === "error" && <FallbackCard reason={state.error.message} onRetry={() => run(false)} />}
+        {state.status === "error" && <FallbackCard reason={humanizeError(state.error)} onRetry={() => run(false)} />}
         {state.status === "done" && (
           <Result data={state.data} isMatch={isMatch} onRefresh={() => run(true)} onRetry={() => run(false)} />
         )}
@@ -212,7 +224,13 @@ function Pipeline({ provider, refresh }: { provider: AiProvider; refresh: boolea
   const [elapsed, setElapsed] = useState(0);
   const meta = AI_PROVIDERS.find((p) => p.value === provider);
   useEffect(() => {
-    const stage = window.setInterval(() => setStep((s) => (s + 1) % PIPELINE_STAGES.length), 1400);
+    // Advance and STOP at the last stage — never wrap back to 0, which would
+    // un-check completed steps and read as "restarting/stuck". The indeterminate
+    // bar and elapsed timer carry the sense of ongoing progress.
+    const stage = window.setInterval(
+      () => setStep((s) => Math.min(s + 1, PIPELINE_STAGES.length - 1)),
+      1400,
+    );
     const tick = window.setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => { window.clearInterval(stage); window.clearInterval(tick); };
   }, []);
@@ -248,9 +266,21 @@ function Result({
   data, isMatch, onRefresh, onRetry,
 }: { data: NarrativeResponse; isMatch: boolean; onRefresh: () => void; onRetry: () => void }) {
   if (data.status === "disabled") return <OffCard />;
-  if (data.status === "unavailable") return <FallbackCard reason={data.reason} unavailable />;
-  if (data.status === "local_only") return <FallbackCard reason={data.reason} onRetry={onRetry} />;
-  if (data.status !== "ok" || !data.narration) return <FallbackCard reason={data.reason} onRetry={onRetry} />;
+  // "unavailable" is recoverable in live mode (start Ollama / pull a model / add a
+  // key, then retry) but genuinely terminal in the sample-data preview, so only
+  // offer a retry when there's a real backend to retry against.
+  if (data.status === "unavailable")
+    return (
+      <FallbackCard
+        reason={data.reason}
+        unavailable
+        onRetry={DATA_SOURCE === "mock" ? undefined : onRetry}
+      />
+    );
+  if (data.status === "local_only")
+    return <FallbackCard reason={data.reason} notes={data.notes} onRetry={onRetry} />;
+  if (data.status !== "ok" || !data.narration)
+    return <FallbackCard reason={data.reason} notes={data.notes} onRetry={onRetry} />;
 
   const sourceById = new Map<string, SourceRef>(data.sources.map((s) => [s.source_id, s]));
   const numberById = new Map<string, NumberRef>(data.numbers.map((n) => [n.id, n]));
@@ -371,8 +401,12 @@ function BackgroundLane({ notes }: { notes: BackgroundNote[] }) {
 }
 
 function FallbackCard({
-  reason, unavailable = false, onRetry,
-}: { reason: string | null; unavailable?: boolean; onRetry?: () => void }) {
+  reason, unavailable = false, onRetry, notes,
+}: { reason: string | null; unavailable?: boolean; onRetry?: () => void; notes?: string[] }) {
+  // Surface the real, de-duplicated failure reasons (timeout vs unreachable vs a
+  // specific guard rejection) so a user staring at "Try again" can see WHY it
+  // failed instead of looping blindly.
+  const details = Array.from(new Set((notes ?? []).filter((n) => n && n.trim())));
   return (
     <div className="callout callout--info ai-fallback">
       {unavailable ? <InfoIcon size={18} /> : <AlertIcon size={18} />}
@@ -383,6 +417,14 @@ function FallbackCard({
         {reason ??
           "AI output could not be verified against the engine's numbers, so it was discarded. " +
           "The analysis above is unaffected."}
+        {details.length > 0 && (
+          <details className="ai-fallback__details" style={{ marginTop: ".4rem" }}>
+            <summary className="small dim">What happened</summary>
+            <ul className="small dim" style={{ margin: ".3rem 0 0", paddingLeft: "1.1rem" }}>
+              {details.map((d, i) => <li key={i}>{d}</li>)}
+            </ul>
+          </details>
+        )}
         {onRetry && (
           <div style={{ marginTop: ".5rem" }}>
             <button type="button" className="ai-refresh" onClick={onRetry}>Try again</button>

@@ -236,9 +236,25 @@ def unsupported_numbers(
     return unsupported
 
 
+# Zero-width and formatting characters an attacker could splice inside a word to
+# dodge a whole-word scan ("u<zwsp>nits"). Removed before the betting/secret
+# scans, alongside NFKC folding, so obfuscated forms are caught like plain ones.
+# Soft hyphen, the U+200B–U+200F zero-width/bidi set, word joiner, and BOM.
+_INVISIBLE_RE = re.compile("[­​-‏⁠﻿]")
+
+
+def _normalize_for_scan(text: str) -> str:
+    """NFKC-fold and strip invisible characters before a lexical scan.
+
+    Mirrors the numeric scanner's NFKC step so the betting and secret gates cannot
+    be bypassed with fullwidth glyphs or zero-width splices.
+    """
+    return _INVISIBLE_RE.sub("", unicodedata.normalize("NFKC", text))
+
+
 def contains_betting_lexicon(text: str) -> list[str]:
     """Betting/gambling terms found in ``text`` (empty == clean)."""
-    return [match.group().lower() for match in _BETTING_RE.finditer(text)]
+    return [match.group().lower() for match in _BETTING_RE.finditer(_normalize_for_scan(text))]
 
 
 # Secret / credential shapes. The model never receives any key (the gateway
@@ -258,7 +274,8 @@ _SECRET_PATTERNS = (
 
 def contains_secret_pattern(text: str) -> list[str]:
     """Credential-shaped substrings found in ``text`` (empty == clean)."""
+    scanned = _normalize_for_scan(text)
     found: list[str] = []
     for pattern in _SECRET_PATTERNS:
-        found.extend(match.group(0) for match in pattern.finditer(text))
+        found.extend(match.group(0) for match in pattern.finditer(scanned))
     return found

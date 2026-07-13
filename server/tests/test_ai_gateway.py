@@ -314,6 +314,76 @@ def test_generate_narration_is_unavailable_when_no_local_model_is_installed(
     assert "local model" in (env.reason or "").lower()
 
 
+def test_embedding_only_local_install_is_unavailable_not_a_garbage_loop(
+    bundle: dict, monkeypatch
+) -> None:
+    # If the only installed model is an embedder, a chat narration is impossible.
+    # Report it honestly instead of picking it and looping on local_only.
+    def _tripwire(config):
+        raise AssertionError("an embedding model must not be contacted for narration")
+
+    monkeypatch.setattr(ai_gateway, "list_local_models", lambda config: ["nomic-embed-text:latest"])
+    monkeypatch.setattr(ai_gateway, "make_transport", _tripwire)
+    cfg = resolve_provider({"provider": "ollama"})
+    env = generate_narration(bundle, cfg, cache=NarrationCache())
+    assert env.status == "unavailable"
+    assert "local model" in (env.reason or "").lower()
+
+
+def test_cached_local_narration_survives_the_model_server_stopping(
+    bundle: dict, monkeypatch
+) -> None:
+    # First run generates + caches while the local server is up; then the server
+    # goes away (probe returns []). A refresh-less read must still serve the cached
+    # narration rather than reporting unavailable — the cache read precedes the probe.
+    cache = NarrationCache()
+    monkeypatch.setattr(ai_gateway, "list_local_models", lambda config: ["gemma4:12b-it-qat"])
+    monkeypatch.setattr(
+        ai_gateway, "make_transport", lambda config: _canned(_valid_response(bundle))
+    )
+    cfg = resolve_provider({"provider": "ollama"})
+    first = generate_narration(bundle, cfg, cache=cache)
+    assert first.status == "ok" and first.cached is False
+    assert first.model == "gemma4:12b-it-qat"  # stamped with the model that ran
+
+    monkeypatch.setattr(ai_gateway, "list_local_models", lambda config: [])  # server stopped
+    second = generate_narration(bundle, cfg, cache=cache)
+    assert second.status == "ok"
+    assert second.cached is True
+    assert second.model == "gemma4:12b-it-qat"  # the real generating model, not the default
+
+
+def test_local_only_reason_distinguishes_unreachable_from_unverified(bundle: dict) -> None:
+    # All attempts fail at the transport => the honest reason is "unreachable/timed
+    # out", NOT "could not be verified against the sealed numbers".
+    def _boom(system: str, user: str) -> str:
+        raise TimeoutError("slow model")
+
+    env = generate_narration(bundle, _cfg(), transport=_boom, cache=NarrationCache())
+    assert env.status == "local_only"
+    assert "reached or timed out" in (env.reason or "")
+    assert "could not be verified" not in (env.reason or "")
+
+    # A response that comes back but fails the guards => "could not be verified".
+    liar = _canned(_attack_change_probability(bundle))
+    env2 = generate_narration(bundle, _cfg(), transport=liar, cache=NarrationCache())
+    assert env2.status == "local_only"
+    assert "could not be verified" in (env2.reason or "")
+
+
+def test_truncated_local_response_falls_back_not_raises(bundle: dict) -> None:
+    # urllib can raise http.client.HTTPException (e.g. IncompleteRead), which is
+    # NOT an OSError/URLError. It must be caught and become a local_only fallback.
+    import http.client
+
+    def _truncated(system: str, user: str) -> str:
+        raise http.client.IncompleteRead(b"partial")
+
+    env = generate_narration(bundle, _cfg(), transport=_truncated, cache=NarrationCache())
+    assert env.status == "local_only"
+    assert env.narration is None
+
+
 def test_cache_separates_prompt_context_and_candidate_fact_mode(bundle: dict) -> None:
     cache = NarrationCache()
     calls = {"n": 0}

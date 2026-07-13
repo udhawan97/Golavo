@@ -108,13 +108,22 @@ def _load_artifact(path: Path) -> dict[str, Any]:
 
 
 def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
-    """Evidence facts + numbers from a precomputed notebook, or ((), ()) if none."""
+    """Evidence facts + numbers from a precomputed notebook, or ((), ()) if none.
+
+    The notebook sidecar is not integrity-verified (unlike the artifact), so a
+    corrupt, truncated, or older-schema file must fail closed: treat it as no
+    notebook rather than 500 the optional AI route. The bundle still builds from
+    the verified artifact alone.
+    """
     notebook_path = _forecasts_dir() / "notebooks" / f"{artifact_id}.json"
     if not notebook_path.is_file():
         return [], []
     from golavo_core.facts import notebook_to_evidence  # lazy: pulls the AI guards
 
-    return notebook_to_evidence(_read_json(notebook_path))
+    try:
+        return notebook_to_evidence(_read_json(notebook_path))
+    except (OSError, ValueError, KeyError, TypeError):
+        return [], []
 
 
 @app.get("/health")

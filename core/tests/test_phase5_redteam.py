@@ -387,3 +387,49 @@ def test_dirty_background_never_voids_clean_claims(bundle: dict, refs: dict) -> 
     assert review.accepted is True
     assert len(review.narration["claims"]) == 1
     assert review.narration["background"] == []
+
+
+def test_schema_invalid_background_cannot_void_grounded_claims(bundle: dict, refs: dict) -> None:
+    # A background lane that violates the WIRE SCHEMA (too many notes, over-length
+    # text, or a bad `about` enum) must not hard-reject the grounded claims it rides
+    # with. The lane is validated per-note, off the schema pass/fail gate.
+    raw = _wrap(_grounded_claim(refs))
+    raw["background"] = [
+        {"text": "Note one, qualitative colour."},
+        {"text": "Note two."},
+        {"text": "Note three."},
+        {"text": "Note four."},
+        {"text": "Note five, beyond the maxItems of four."},   # exceeds schema maxItems
+        {"text": "x" * 500},                                    # exceeds maxLength 360
+        {"text": "A rivalry note.", "about": "stadium"},        # invalid enum
+    ]
+    review = review_narration(raw, bundle, allow_background=True)
+    assert review.accepted is True, review.rejections
+    assert len(review.narration["claims"]) == 1
+    assert len(review.narration["background"]) <= 4
+    assert all(1 <= len(n["text"]) <= 360 for n in review.narration["background"])
+
+
+def test_malformed_background_note_is_dropped_not_crash(bundle: dict, refs: dict) -> None:
+    raw = _wrap(_grounded_claim(refs))
+    raw["background"] = ["not a dict", {"no_text": True}, {"text": ""}]
+    review = review_narration(raw, bundle, allow_background=True)
+    assert review.accepted is True
+    assert review.narration["background"] == []
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "France are a ｖａｌｕｅ pick tonight.",   # fullwidth "value"
+        "This is a wa­ger on France.",      # soft-hyphen inside "wager"
+        "Consider the o​dds carefully.",    # zero-width space inside "odds"
+    ],
+)
+def test_obfuscated_betting_lexicon_is_still_caught(text: str, bundle: dict, refs: dict) -> None:
+    # NFKC folding + invisible-char stripping means unicode-obfuscated betting
+    # terms are rejected exactly like their plain forms.
+    raw = _wrap([_claim(text, [refs["engine"]])])
+    review = review_narration(raw, bundle)
+    assert review.accepted is False
+    assert review.narration is None

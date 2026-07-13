@@ -22,6 +22,7 @@ in a request header, and never logged, cached, or returned.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import math
 import os
@@ -298,6 +299,12 @@ def make_transport(config: ProviderConfig) -> Transport | None:
 # OpenAI-compatible ``GET /v1/models``. Any failure yields an empty list, which
 # the caller turns into an honest "no local model" message.
 
+# Substrings that mark a model as embedding-only (no chat completion). Picking
+# one as the fallback would produce garbage the guards reject, stranding the user
+# in a "local_only" loop; treating it as absent yields an honest "pull a model".
+_EMBEDDING_HINTS = ("embed", "bge", "nomic-embed", "minilm", "e5-", "gte-")
+
+
 def list_local_models(config: ProviderConfig) -> list[str]:
     """Model ids installed on a local provider; ``[]`` on any failure."""
     url = f"{(config.base_url or '').rstrip('/')}/models"
@@ -309,8 +316,23 @@ def list_local_models(config: ProviderConfig) -> list[str]:
         if not isinstance(data, list):
             return []
         return [str(m["id"]) for m in data if isinstance(m, dict) and m.get("id")]
-    except (urllib.error.URLError, TimeoutError, OSError, ValueError, KeyError, TypeError):
+    except (
+        urllib.error.URLError,
+        http.client.HTTPException,
+        TimeoutError,
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+    ):
         return []
+
+
+def usable_local_models(installed: list[str]) -> list[str]:
+    """Installed models a chat completion can actually run — embedding-only models
+    removed. Empty means "nothing usable is installed", which the caller reports
+    honestly rather than trying (and failing) to narrate with an embedder."""
+    return [m for m in installed if not any(h in m.lower() for h in _EMBEDDING_HINTS)]
 
 
 def _family_root(model: str) -> str:
@@ -389,7 +411,14 @@ def extract_json_object(text: str) -> dict[str, Any] | None:
 # --- Caching -----------------------------------------------------------------
 
 class NarrationCache:
-    """In-memory cache keyed by every input that can affect a narration."""
+    """In-memory cache keyed by every input that can affect a narration.
+
+    Keyed by the REQUESTED model (as the user asked, before local auto-resolution),
+    so a cached read is served even after the local model server is later stopped —
+    the cache read never depends on a live ``/v1/models`` probe. The model that
+    actually produced the narration is stored alongside it so the served envelope
+    stamps the real model, not the requested default.
+    """
 
     def __init__(self) -> None:
         self._store: dict[tuple[str, str, str, str, bool, bool, str], dict[str, Any]] = {}
@@ -411,10 +440,17 @@ class NarrationCache:
         )
 
     def get(self, bundle_hash: str, config: ProviderConfig) -> dict[str, Any] | None:
+        """Return ``{"narration": ..., "model": ...}`` for a hit, else None."""
         return self._store.get(self.key(bundle_hash, config))
 
-    def set(self, bundle_hash: str, config: ProviderConfig, narration: dict[str, Any]) -> None:
-        self._store[self.key(bundle_hash, config)] = narration
+    def set(
+        self,
+        bundle_hash: str,
+        config: ProviderConfig,
+        narration: dict[str, Any],
+        model: str,
+    ) -> None:
+        self._store[self.key(bundle_hash, config)] = {"narration": narration, "model": model}
 
 
 _CACHE = NarrationCache()
@@ -441,12 +477,15 @@ def generate_narration(
     """
     bundle_hash = bundle["bundle_hash"]
     cache = cache if cache is not None else _CACHE
+    # ``config`` is the REQUESTED config (default/requested model); it keys the
+    # cache and is the default stamp. Local auto-resolution swaps the model only
+    # for the actual generation, into ``run_config``.
 
-    def envelope(status: str, **kwargs: Any) -> NarrationEnvelope:
+    def envelope(status: str, *, model: str | None = None, **kwargs: Any) -> NarrationEnvelope:
         return NarrationEnvelope(
             status=status,
             provider=config.provider,
-            model=config.model,
+            model=model or config.model,
             prompt_version=PROMPT_VERSION,
             bundle_hash=bundle_hash,
             **kwargs,
@@ -455,29 +494,32 @@ def generate_narration(
     if config.is_off:
         return envelope("disabled", reason="AI is turned off; showing the local forecast only.")
 
+    # Cache read comes BEFORE any live probe, keyed by the requested model: a
+    # narration generated earlier is still served even if the local model server
+    # has since been stopped. The stored model is what actually produced it.
+    if not refresh:
+        cached = cache.get(bundle_hash, config)
+        if cached is not None:
+            return envelope("ok", narration=cached["narration"], model=cached["model"], cached=True)
+
     # Local providers: target a model the server actually has, and fail fast with
     # an honest, actionable message when it has none — otherwise a missing default
     # model surfaces to the user as an unexplained "could not be verified" loop.
     # Only in the production path: an injected transport (tests) brings its own
-    # canned output and must not trigger a live probe. Resolving here, before the
-    # cache read, keeps the cache key aligned with the model we actually run.
+    # canned output and must not trigger a live probe.
+    run_config = config
     if transport is None and config.provider in LOCAL_PROVIDERS:
-        installed = list_local_models(config)
-        if not installed:
+        usable = usable_local_models(list_local_models(config))
+        if not usable:
             return envelope(
                 "unavailable",
                 reason="No local model is reachable. Start Ollama (or llama.cpp) and "
                 "pull at least one model, then try again.",
             )
-        config = replace(config, model=pick_local_model(config.model, installed))
-
-    if not refresh:
-        cached = cache.get(bundle_hash, config)
-        if cached is not None:
-            return envelope("ok", narration=cached, cached=True)
+        run_config = replace(config, model=pick_local_model(config.model, usable))
 
     if transport is None:
-        transport = make_transport(config)
+        transport = make_transport(run_config)
     if transport is None:
         return envelope(
             "unavailable",
@@ -488,15 +530,17 @@ def generate_narration(
     # nothing about the grounded rules. PROMPT_VERSION already covers the change,
     # and allow_background is in the cache key, so a background run never reuses a
     # grounded-only cached narration.
-    system = SYSTEM_PROMPT + (BACKGROUND_ADDENDUM if config.allow_background else "")
-    user = build_user_prompt(bundle, config.untrusted_context)
+    system = SYSTEM_PROMPT + (BACKGROUND_ADDENDUM if run_config.allow_background else "")
+    user = build_user_prompt(bundle, run_config.untrusted_context)
 
     reasons: list[str] = []
+    reached_provider = False  # did any attempt get a response back from the model?
     for _ in range(MAX_ATTEMPTS):
         try:
             raw_text = transport(system, user)
         except (
             urllib.error.URLError,
+            http.client.HTTPException,
             TimeoutError,
             OSError,
             KeyError,
@@ -507,6 +551,7 @@ def generate_narration(
             # Never surface provider internals or anything that might echo a key.
             reasons.append(f"provider call failed ({type(exc).__name__})")
             continue
+        reached_provider = True
         raw = extract_json_object(raw_text)
         if raw is None:
             reasons.append("model output was not valid JSON")
@@ -514,17 +559,26 @@ def generate_narration(
         review = review_narration(
             raw,
             bundle,
-            allow_candidate_facts=config.allow_candidate_facts,
-            allow_background=config.allow_background,
+            allow_candidate_facts=run_config.allow_candidate_facts,
+            allow_background=run_config.allow_background,
         )
         if review.accepted and review.narration is not None:
-            cache.set(bundle_hash, config, review.narration)
-            return envelope("ok", narration=review.narration, notes=review.dropped)
+            cache.set(bundle_hash, config, review.narration, model=run_config.model)
+            return envelope(
+                "ok", model=run_config.model, narration=review.narration, notes=review.dropped
+            )
         reasons.append("; ".join(review.rejections) or "narration failed review")
 
-    return envelope(
-        "local_only",
-        reason="AI output could not be verified against the sealed numbers; "
-        "showing the local forecast only.",
-        notes=reasons,
-    )
+    # Honest reason: distinguish "never reached the model" (unreachable/timed out)
+    # from "the model answered but its output failed the guards".
+    if reached_provider:
+        reason = (
+            "AI output could not be verified against the sealed numbers; "
+            "showing the local forecast only."
+        )
+    else:
+        reason = (
+            "The AI provider could not be reached or timed out; "
+            "showing the local forecast only."
+        )
+    return envelope("local_only", model=run_config.model, reason=reason, notes=reasons)

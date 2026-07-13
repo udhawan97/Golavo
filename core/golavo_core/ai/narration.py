@@ -227,8 +227,12 @@ def _review_candidate_fact(
     return {"text": text, "quote": quote, "source_url": fact["source_url"]}
 
 
+_BG_MAX_NOTES = 4  # mirrors the wire schema's background maxItems.
+_BG_MAX_TEXT = 360  # mirrors the wire schema's BackgroundNote.text maxLength.
+
+
 def _review_background_note(
-    note: dict[str, Any],
+    note: Any,
     *,
     index: int,
     safe_literals: list[str],
@@ -242,10 +246,18 @@ def _review_background_note(
     Crucially this NEVER hard-rejects the narration: a bad note is silently
     deleted (audited in ``dropped``) while the grounded lanes keep their existing
     hard-reject semantics. The allowed-number set is the empty list, hard-coded —
-    it must never share the grounded lane's allowed_numbers.
+    it must never share the grounded lane's allowed_numbers. Because the lane is
+    validated here rather than by the wire schema (see ``review_narration``), this
+    also enforces the note's own shape (a dict with a 1–360 char ``text``).
     """
-    text = note["text"]
     label = f"background[{index}]"
+    if not isinstance(note, dict) or not isinstance(note.get("text"), str):
+        dropped.append(f"{label}: dropped (malformed background note)")
+        return None
+    text = note["text"]
+    if not 1 <= len(text) <= _BG_MAX_TEXT:
+        dropped.append(f"{label}: dropped (text length out of range)")
+        return None
     # Empty allowed set + empty refs => EVERY number token is unsupported.
     if unsupported_number_tokens(text, [], [], safe_literals):
         dropped.append(f"{label}: dropped (background must be numberless)")
@@ -283,6 +295,10 @@ def review_narration(
         return NarrationReview(False, None, ["output is not a JSON object"], dropped)
 
     cleaned = _prune_unknown(_strip_cot(copy.deepcopy(raw)))
+    # The optional background lane is validated per-note below, NOT by the wire
+    # schema gate — pop it out first so a malformed note (too many, over-length,
+    # bad `about`) can never hard-reject the grounded claims it rides alongside.
+    raw_background = cleaned.pop("background", None)
     try:
         Draft202012Validator(_schema()).validate(cleaned)
     except ValidationError as exc:
@@ -333,19 +349,22 @@ def review_narration(
 
     # Background lane: a parallel, numberless channel. It NEVER contributes to
     # `rejections`, so a bad background note can never void the grounded output.
+    # (raw_background was popped before schema validation, above.)
     clean_background: list[dict[str, Any]] = []
-    raw_background = cleaned.get("background") or []
     if allow_background and isinstance(raw_background, list):
-        for index, note in enumerate(raw_background):
+        if len(raw_background) > _BG_MAX_NOTES:
+            dropped.append(
+                f"background: kept first {_BG_MAX_NOTES} of {len(raw_background)} notes"
+            )
+        for index, note in enumerate(raw_background[:_BG_MAX_NOTES]):
             reviewed = _review_background_note(
                 note, index=index, safe_literals=safe_literals, dropped=dropped
             )
             if reviewed is not None:
                 clean_background.append(reviewed)
     elif raw_background:
-        dropped.append(
-            f"background: dropped {len(raw_background)} (background lane disabled)"
-        )
+        count = len(raw_background) if isinstance(raw_background, list) else 1
+        dropped.append(f"background: dropped {count} (background lane disabled)")
 
     if rejections:
         return NarrationReview(False, None, rejections, dropped)

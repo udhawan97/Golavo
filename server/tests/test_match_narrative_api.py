@@ -78,6 +78,14 @@ def _reset():
     ai_gateway._CACHE._store.clear()
 
 
+@pytest.fixture(autouse=True)
+def _stub_local_models(monkeypatch):
+    # These tests inject a canned transport via make_transport; stub the local
+    # model probe too so they exercise the pipeline deterministically and never
+    # depend on a real Ollama/llama.cpp being up on the test machine.
+    monkeypatch.setattr(ai_gateway, "list_local_models", lambda config: ["llama3.2:latest"])
+
+
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     index_path = tmp_path / "matches_index.parquet"

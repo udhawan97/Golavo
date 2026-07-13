@@ -66,6 +66,28 @@ def test_facts_endpoint_404_for_unknown_artifact(monkeypatch, tmp_path) -> None:
     assert client.get("/api/v1/forecasts/fa_missing00/facts").status_code == 404
 
 
+def test_corrupt_notebook_does_not_500_the_narrative_route(monkeypatch, tmp_path) -> None:
+    # The notebook sidecar is not integrity-verified. A truncated/corrupt file
+    # (partial write, hand-edit, older schema after an update) must fail closed:
+    # the route still returns a normal envelope, treating it as no notebook.
+    ledger = tmp_path / "ledger"
+    artifact_id = _seal(ledger)
+    notebook_path = ledger / "notebooks" / f"{artifact_id}.json"
+    notebook_path.parent.mkdir(parents=True, exist_ok=True)
+    notebook_path.write_text('{"facts": [ {"label": "context"', encoding="utf-8")  # truncated JSON
+
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", ledger)
+    client = TestClient(server_main.app)
+
+    res = client.post(f"/api/v1/forecasts/{artifact_id}/narrative", json={})
+    assert res.status_code == 200
+    body = res.json()
+    assert body["status"] == "disabled"  # provider off, but the bundle still built
+    number_ids = {number["id"] for number in body["numbers"]}
+    assert {"prob_home", "prob_draw", "prob_away"} <= number_ids  # engine numbers intact
+    assert not any(nid.startswith("nb_") for nid in number_ids)  # corrupt notebook skipped
+
+
 def test_narrative_folds_notebook_numbers_into_the_whitelist(monkeypatch, tmp_path) -> None:
     ledger = tmp_path / "ledger"
     artifact_id = _seal(ledger)
