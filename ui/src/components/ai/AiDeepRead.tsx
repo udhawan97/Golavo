@@ -18,7 +18,7 @@ import {
 } from "../../lib/ai";
 import type { AiDepth, AiProvider, NarrativeResponse } from "../../lib/ai";
 import { newJobId, usePolledProgress } from "../../lib/aiProgress";
-import { ClockIcon, FlaskIcon, GlobeIcon, InfoIcon, SearchIcon } from "../icons";
+import { ClockIcon, GlobeIcon, InfoIcon, SearchIcon } from "../icons";
 import { Pipeline } from "./AiPipeline";
 import { Result } from "./AiResult";
 import type { AiDisplayContext } from "./AiResult";
@@ -351,7 +351,7 @@ function DepthControls({
   checkingLocal: boolean;
   onRefreshLocal: () => Promise<LocalProviderStatus | null>;
 }) {
-  const [advanced, setAdvanced] = useState(false);
+  const [modelPickerOpen, setModelPickerOpen] = useState(false);
   const active = override || (depth === "deep" ? deepModel : fastModel);
   const installed = models.length === 0 || models.some((m) => m.name === active);
   // Only promise "a bigger model" when Deep really resolves to a different model
@@ -395,14 +395,15 @@ function DepthControls({
           <button
             type="button"
             className="ai-depth__adv-toggle small dim"
-            aria-expanded={advanced}
-            onClick={() => setAdvanced((a) => !a)}
+            aria-expanded={modelPickerOpen}
+            onClick={() => setModelPickerOpen((open) => !open)}
           >
-            <FlaskIcon size={13} /> Advanced · {active
+            {depth === "fast" ? <ClockIcon size={13} /> : <SearchIcon size={13} />}
+            {depth === "fast" ? "Basic" : "Advanced"} · {active
               ? `model: ${active}${installed ? "" : " (not installed)"}`
               : "auto model"}
           </button>
-          {advanced && (
+          {modelPickerOpen && (
             <label className="ai-depth__adv small">
               <span className="dim">Run a specific model (this read only)</span>
               <select value={override} onChange={(e) => onOverride(e.target.value)}>

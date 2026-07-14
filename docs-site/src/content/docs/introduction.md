@@ -9,7 +9,7 @@ Golavo is a local-first, open-source football forecasting project. It implements
 
 - A **forward forecast pipeline**: sealed pre-kickoff JSON artifacts are replayable and never mutated when scored.
 - A **provenance-first engine**: each artifact records the pinned source snapshot and content hashes.
-- A **local source-mode core, API, and desktop app**, with an optional AI layer that is off by default. The deterministic **fact engine** (the Commentator's Notebook) shipped in v0.2.0; the hash-chained multi-artifact ledger remains planned (ADR-0001).
+- A **local source-mode core, API, and desktop app**, with an optional AI layer that is off by default. A built-in Ollama guide can install and assign recommended Fast/Deep models with visible progress; the deterministic **fact engine** (the Commentator's Notebook) remains useful without AI. The hash-chained multi-artifact ledger remains planned (ADR-0001).
 
 ## What Golavo is not
 

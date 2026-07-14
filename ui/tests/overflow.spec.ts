@@ -45,6 +45,25 @@ for (const width of WIDTHS) {
   }
 }
 
+test("long club names wrap inside match cards", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/#/");
+  const card = page.locator(".game-card").first();
+  await card.waitFor();
+  const teams = card.locator(".game-card__team");
+  await teams.nth(0).evaluate((node) => { node.textContent = "Nottingham Forest"; });
+  await teams.nth(1).evaluate((node) => { node.textContent = "Wolverhampton Wanderers"; });
+
+  const cardBox = await card.boundingBox();
+  expect(cardBox).not.toBeNull();
+  for (let index = 0; index < 2; index += 1) {
+    const teamBox = await teams.nth(index).boundingBox();
+    expect(teamBox).not.toBeNull();
+    expect(teamBox!.x).toBeGreaterThanOrEqual(cardBox!.x);
+    expect(teamBox!.x + teamBox!.width).toBeLessThanOrEqual(cardBox!.x + cardBox!.width);
+  }
+});
+
 // The reading-comfort popover is right-anchored to the header "Aa" button; on a
 // narrow screen it must pin to the viewport, not spill off the left edge.
 test("reading-comfort popover stays on-screen @375", async ({ page }) => {

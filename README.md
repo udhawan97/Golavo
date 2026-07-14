@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.9.0" src="https://img.shields.io/badge/version-v0.9.0-6082b8?style=flat-square">
+  <img alt="version v0.10.0" src="https://img.shields.io/badge/version-v0.10.0-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -44,7 +44,7 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.9.0 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.10.0 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, calibration record, optional guarded AI narration, and
@@ -141,7 +141,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
 | 🗒️ | **Read Match Notes** — form timelines, fitted team style, scorer and head-to-head features, plus signature stats and records | Source-backed evidence in an editorial hierarchy, de-duplicated from the headline picks, with sample/freshness guards and coincidences quarantined |
 | 🏆 | **Read the match's history** — club comeback/lead records from recorded half-time scores, plus a trophy-and-awards shelf on exact FIFA World Cup fixtures | Source-backed context with visible sample limits and as-of filtering, never a second forecast engine |
-| 🤖 | **Enable the AI Analyst Read** *(optional)* — local Ollama/llama.cpp or cloud BYOK, with a one-click header toggle once configured. Pick **Fast** (a small model, seconds) or **Deep analysis** (a bigger model, usually 5–8 minutes); optionally let it **research the web** | Opens with a one-line **verdict**, then a cited synthesis that *connects* the evidence (never authors a number), with real staged progress. Deep puts a bigger model on more of the evidence with scenarios; opt-in web research adds a separate, clearly-badged *not-engine-verified* section. A dropped claim's content is never shown |
+| 🤖 | **Enable the AI Analyst Read** *(optional)* — use the built-in Ollama guide to install a Fast or Deep model, connect llama.cpp, or bring a cloud key. Pick **Fast** (a small model, seconds) or **Deep analysis** (a bigger model, usually 5–8 minutes); optionally let it **research the web** | Opens with a one-line **verdict**, then a cited synthesis that *connects* the evidence (never authors a number), with real staged progress. Deep puts a bigger model on more of the evidence with scenarios; opt-in web research adds a separate, clearly-badged *not-engine-verified* section. A dropped claim's content is never shown |
 | 👓 | **Switch Casual / Expert** | Plain-language reading or full seal, provenance, uncertainty, and score-matrix detail — same numbers, different studs |
 | 🖥️ | **Run locally** — source web app or Tauri desktop shell | A private workbench with no account, ads, or hosted forecasting backend |
 
@@ -162,7 +162,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Your Call / My Season** | Kickoff-locked score picks with SHA-256 integrity, durable local storage, five deterministic rivals, 3 / 1 / +1 scoring, standings, history, filters, cumulative points, and streaks |
 | **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, provenance, scored/voided/superseded states, Casual and Expert presentation, "three things to know" insight cards, re-seal "what moved" deltas, and reading-comfort themes (incl. a warm low-blue mode) |
 | **Facts** | Pre-registered deterministic templates; sample/freshness/base-rate guardrails; coincidences capped and quarantined |
-| **AI Deep Read** | Implemented, off by default, and additive; enabled from Settings → Local intelligence (local Ollama/llama.cpp or BYOK); schema, citation, numeric-whitelist, grounding, and betting-language guards fail closed to local-only |
+| **AI Deep Read** | Implemented, off by default, and additive; Settings and the match panel include an Ollama setup/download guide with real readiness, progress and cancellation. Local Ollama/llama.cpp and BYOK reads all pass schema, citation, numeric-whitelist, grounding, and betting-language guards that fail closed to local-only |
 | **Desktop** | Tauri 2 shell supervising a PyInstaller/FastAPI sidecar on an ephemeral loopback port with a fresh per-launch token |
 | **Distribution** | macOS DMG and Windows MSI/EXE builds plus checksums; **signed in-app updates** (consent-first, verified, ledger backed up first) from v0.2.1; OS signing/notarization still gated on real credentials |
 | **Not yet shipped** | Confirmed-lineup/BYOK data adapters, scorers, corners, cups, club forward forecasting, hash-chained multi-artifact ledger, signed public release |
@@ -198,6 +198,22 @@ Wikipedia pages and a web search for the fixture and add an **"Analyst research"
 verbatim and its numbers checked against that quote, never against the engine. It is the
 only setting that lets the app reach the general web. The AI may explain the scorecard,
 and cite the wider world beside it — but it may not borrow the pen.
+
+<details>
+<summary>&nbsp;🦙&nbsp; Run Fast and Deep locally with Ollama — no terminal required</summary>
+
+1. Open **Settings → Local intelligence**. The setup guide is visible even while AI is Off.
+2. Install and open [Ollama for macOS](https://ollama.com/download/mac), then choose
+   **Check again**. Golavo talks only to Ollama on this Mac.
+3. Download the recommended **Fast** model (`llama3.2:latest`, about 2.0 GB) or
+   **Deep** model (`gemma4:12b-it-qat`, about 7.2 GB) inside Golavo. Progress and
+   cancellation stay in the app; selecting a model enables Local · Ollama automatically.
+
+The same guide is available beside the AI controls on a match. Nothing downloads until
+you click, and installing a model never uploads match data. See the full
+[local model guide](https://udhawan97.github.io/Golavo/ai/providers/#set-up-ollama-inside-golavo).
+
+</details>
 
 <p align="center">
   <a href="docs-site/public/assets/golavo-intelligence-boundary.svg"><img src="docs-site/public/assets/golavo-intelligence-boundary.svg" alt="Who controls a Golavo forecast: the local deterministic engine makes every number, evidence adds sourced context, and optional AI may explain but cannot edit the sealed forecast" width="980"></a>

@@ -30,6 +30,7 @@ import { startWarmupPolling, useWarmupStatus } from "./lib/warmup";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { TourOverlay } from "./components/TourOverlay";
 import { HOME_TOUR, seedExistingUser, useTour } from "./lib/tour";
+import { useExternalLinks } from "./lib/external-links";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
  *  home's own warming card. A wedged index can never strand the user: search and
@@ -37,6 +38,7 @@ import { HOME_TOUR, seedExistingUser, useTour } from "./lib/tour";
 const INDEX_STAGE_CAP_MS = 45_000;
 
 export default function App() {
+  useExternalLinks();
   const [path] = useHashRoute();
   const [prefs, setPrefs] = useReadingPrefs();
   // The splash paints before the app shell; warm reads as a dark surface there.

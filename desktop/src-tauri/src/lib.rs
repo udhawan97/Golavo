@@ -71,7 +71,8 @@ struct SidecarState {
 pub fn run() {
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_dialog::init());
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init());
 
     // Signed auto-update is gated behind the `updater` feature: only a maintainer
     // build that holds the key pair registers the plugin (see src/updater.rs).
@@ -181,7 +182,9 @@ pub fn run() {
 /// widens the patience because a cold self-extract + AV rescan is legitimately
 /// slow the very first time.
 fn supervise_launch(app: AppHandle, port: u16, token: String, first_launch: bool) {
-    let Some(state) = app.try_state::<SidecarState>() else { return };
+    let Some(state) = app.try_state::<SidecarState>() else {
+        return;
+    };
     let terminated = match state.terminated.lock() {
         Ok(guard) => guard.clone(),
         Err(_) => return,

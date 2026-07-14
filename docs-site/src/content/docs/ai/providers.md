@@ -32,6 +32,36 @@ The read has two speeds, chosen with a toggle on the panel:
 - **Fast** — a small model (e.g. `llama3.2`) writes a few grounded claims in seconds.
 - **Deep analysis** — a bigger model (e.g. `gemma4:12b`) sees more of the evidence and writes a fuller synthesis — more claims, plus scenarios that connect facts to each other and surface tensions and corroborations. A 12B model on a rich match usually takes **5–8 minutes**; it reports **real staged progress** (assembling → researching → writing → verifying) with a live detail line and source counts, and you can cancel or drop back to Fast in one tap.
 
+## Set up Ollama inside Golavo
+
+The casual path requires no terminal commands:
+
+1. Open **Settings → Local intelligence**. The guide remains visible while AI is
+   **Off**, so setup does not depend on already knowing which provider to choose.
+2. If Ollama is missing, choose **Download Ollama** to open the
+   [official macOS download](https://ollama.com/download/mac). Move Ollama to
+   Applications and open it once. Existing users can simply open Ollama and choose
+   **Check again**. The [official macOS setup guide](https://docs.ollama.com/macos)
+   is linked beside the installer.
+3. Choose a recommended model inside Golavo:
+
+   | Read | Recommended model | Approximate download | Intended use |
+   |---|---|---:|---|
+   | **Fast** | [`llama3.2:latest`](https://ollama.com/library/llama3.2) | 2.0 GB | short grounded read in seconds |
+   | **Deep** | [`gemma4:12b-it-qat`](https://ollama.com/library/gemma4) | 7.2 GB | fuller evidence synthesis and scenarios |
+
+Golavo asks its loopback sidecar to use Ollama's native pull API, then shows real
+download status, transferred bytes, percentage, and **Cancel**. Only these curated
+buttons may initiate a pull; arbitrary model names are not accepted by the download
+route. A completed model is assigned to Fast or Deep and Local · Ollama is enabled.
+If the model is already installed, the operation completes without downloading it
+again.
+
+The compact **Get or manage local models** guide on every Ollama analysis panel uses
+the same status and controls. No download begins until you click. Ollama fetches model
+layers from its registry and stores them locally; Golavo does not upload the evidence
+bundle or match data during installation.
+
 ### Web research (opt-in)
 
 Off by default, and the **only** setting that lets Golavo reach the general web. With "Let the AI research on the web" enabled in Settings, a read fetches a few **Wikipedia** pages and a **web search** for the fixture and adds a clearly-separated **"Analyst research"** section. That lane is badged **not engine-verified**: each finding must quote its fetched page **verbatim** (checked after fetching), its `source_url` must be one of the URLs actually fetched, and any number in it is checked against that quote — never rescued by an engine number. A failed or paraphrased note is dropped; a bad research lane can never void the grounded read. Fetches are https-only against a fixed host allowlist (`en.wikipedia.org`, DuckDuckGo's keyless HTML endpoints) with a proper User-Agent; web search is best-effort and falls back to Wikipedia-only when it is unavailable. The `GOLAVO_NO_RESEARCH=1` kill switch disables all of it (set in CI).
@@ -40,7 +70,13 @@ Assign which installed model runs each mode in **Settings → Local intelligence
 
 ### Which local model runs
 
-You don't have to pull a specific model. Golavo probes the local server, lists your installed models with their sizes, and — if you don't assign them yourself — uses the smallest for Fast and the largest for Deep, skipping embedding-only models. To pin an exact model outside the UI, set `GOLAVO_OLLAMA_MODEL` (or `GOLAVO_LLAMACPP_MODEL`). If the local server is unreachable or has no usable model, the panel says so plainly — start the server or pull a model, then retry. Local models load their weights on first use, so the first read is slower.
+Golavo probes the local server, lists installed models with their sizes, and — if you
+do not use the recommended buttons or assign them yourself — uses the smallest for
+Fast and the largest for Deep, skipping embedding-only models. To pin an exact model
+outside the UI, set `GOLAVO_OLLAMA_MODEL` (or `GOLAVO_LLAMACPP_MODEL`). If the local
+server is unreachable, has no models, or has no usable chat model, the panel names that
+state and offers a real re-check path. Local models load their weights on first use, so
+the first read is slower.
 
 Under the hood, the Ollama path uses the native `/api/chat` structured-output endpoint (its `format` grammar reliably constrains **every** model to the schema, and disables "thinking" so a reasoning model doesn't burn minutes), the context window is sized to fit the (trimmed) prompt, and decoding is **enum-constrained** to the bundle's real citation ids — so the model can neither invent a source nor drop a number the engine didn't produce.
 

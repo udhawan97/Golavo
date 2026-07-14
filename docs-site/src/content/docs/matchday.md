@@ -113,6 +113,12 @@ Notebook is the deeper cut rather than a repeat. See the
 
 An optional narrative and scenario synthesis, always subordinate to the deterministic numbers.
 It reads and connects the match's notes and model council (and sealed forecasts), cites only the
-engine's numbers, and can never change one — a single unsupported figure benches the whole
-answer. It runs locally (Ollama / llama.cpp) or via BYOK cloud, and is enabled from
-Settings → Local intelligence. See [AI providers](/Golavo/ai/providers/).
+engine's numbers, and can never change one. The result opens with a verdict, groups the strongest
+findings and scenarios for a quick read, keeps exact evidence behind disclosure, and separates
+opt-in web findings under a not-engine-verified badge.
+
+Choose **Fast** for a short read from the smaller assigned model, or **Deep analysis** for more
+evidence and connected scenarios from the larger model (usually 5–8 minutes). The panel reports
+whether local AI is ready and includes a compact **Get or manage local models** guide. The web
+research checkbox lives beside the read so network use is visible when you request it. It runs
+locally (Ollama / llama.cpp) or via BYOK cloud. See [AI providers](/Golavo/ai/providers/).

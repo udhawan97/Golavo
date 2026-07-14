@@ -20,6 +20,13 @@ All of it computes on your machine over data you've already synced. Staleness is
 
 AI is **off by default**. Enable it in **Settings → Local intelligence** by choosing a provider (local Ollama or llama.cpp, or your own OpenAI/Anthropic key); an **AI Deep Read** panel then appears, recessed, on forecast pages. It only reads and cites the numbers the deterministic engine already produced — it cannot change a probability and does not improve accuracy. Turning AI off changes nothing about the numbers. See [AI providers](/Golavo/ai/providers/).
 
+For Ollama, you do not need to begin in a terminal. The setup guide is visible in
+Settings even while AI is Off and is also available beside the match analysis controls.
+It checks whether Ollama is running, links to the official installer, offers the
+recommended Fast and Deep models, and shows real download progress with cancellation.
+Choosing a model enables Local · Ollama and assigns it to the matching read. Nothing is
+downloaded automatically. See [Set up Ollama inside Golavo](/Golavo/ai/providers/#set-up-ollama-inside-golavo).
+
 ## What "local" does not mean
 
 Local means local *computation* over *cached* data. It does not mean magically current offline data — the latest results still have to be synced when you have a network. Golavo always shows how fresh its data is.

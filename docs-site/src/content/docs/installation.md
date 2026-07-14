@@ -32,6 +32,21 @@ On first launch the OS will warn (unsigned build):
 - **Windows** — SmartScreen shows "Windows protected your PC." Click **More
   info** → **Run anyway**.
 
+### Optional: add local AI with Ollama
+
+Golavo's deterministic match analysis works without AI. If you want the optional
+Fast or Deep narrative, open **Settings → Local intelligence** after installation:
+
+1. Use Golavo's link to install [Ollama for macOS](https://ollama.com/download/mac),
+   then keep Ollama open.
+2. Choose **Check again** so Golavo can confirm the loopback service is ready.
+3. Download the recommended Fast or Deep model inside Golavo. The app shows progress,
+   transferred size, and a cancel action, then assigns the model automatically.
+
+The same guide appears beside the AI analysis controls. Model installation is explicit,
+stores the model locally through Ollama, and never uploads match data. Full details:
+[AI providers & local models](/Golavo/ai/providers/#set-up-ollama-inside-golavo).
+
 ### Staying up to date
 
 From v0.2.1 on, Golavo updates **in-app**: a one-time card asks whether to

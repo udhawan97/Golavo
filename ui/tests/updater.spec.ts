@@ -35,6 +35,18 @@ function emit(page: Page, event: string, payload: unknown) {
   );
 }
 
+test("Settings external links open through the desktop system browser", async ({ page }) => {
+  await installMockTauri(page, { enabled: false, localStorage: CONSENT_ANSWERED });
+  await gotoSettings(page);
+
+  await page.getByRole("link", { name: "Releases", exact: true }).click();
+  await page.getByRole("link", { name: "Documentation", exact: true }).click();
+
+  const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);
+  expect(invoked.filter((command) => command === "plugin:opener|open_url")).toHaveLength(2);
+  await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+});
+
 test("first boot: consent card, Enable checks runs a check, pill appears", async ({ page }) => {
   await installMockTauri(page, { check: AVAILABLE });
   await page.goto("/#/");
@@ -291,7 +303,8 @@ test("fallback: newer release with no installer for this platform points at rele
   await gotoSettings(page);
   await page.getByRole("button", { name: "Check for updates" }).click();
   await expect(page.getByText(/no installer for your platform/)).toBeVisible();
-  await expect(page.getByRole("button", { name: /Download/ })).toHaveCount(0);
+  const updates = page.getByRole("region", { name: "Updates" });
+  await expect(updates.getByRole("button", { name: /Download/ })).toHaveCount(0);
 });
 
 test("Settings honesty: source build (no Tauri) points at git pull", async ({ page }) => {

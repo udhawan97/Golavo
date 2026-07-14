@@ -6,6 +6,60 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-07-14
+
+Local AI is now something a casual user can set up and understand inside Golavo.
+The Analyst Read and Commentator's Notebook are calmer and more visual, Fast and
+Deep have clearly different jobs, and Ollama models can be installed without a
+terminal while Golavo shows exactly what is running.
+
+### Added
+- **Guided Ollama setup.** A three-step guide appears in Settings even while AI is
+  off, and a compact copy sits beside the match analysis controls. It links to the
+  official macOS installer and help, checks whether Ollama is running, and explains
+  the local-only privacy boundary in plain language.
+- **In-app local model downloads.** Golavo offers a curated Fast model
+  (`llama3.2:latest`, about 2.0 GB) and Deep model (`gemma4:12b-it-qat`, about
+  7.2 GB), streams real Ollama download progress, shows transferred bytes, and lets
+  the user cancel. Downloads never begin automatically.
+- **One-click model assignment.** Choosing or installing a recommended model enables
+  Local · Ollama and assigns it to Fast or Deep. Installed models are detected and
+  marked Ready; the full picker remains available for custom assignments.
+- **Visible local-AI readiness.** The analysis panel distinguishes Ollama being off,
+  Ollama running with no models, and usable installed models, with a real re-check
+  path after the user starts the local service.
+- **Quick web-research control.** The opt-in web-search checkbox now lives beside the
+  analysis controls as well as in Settings, so network use is visible at the moment
+  a read is requested.
+
+### Changed
+- **AI Analyst Read, rebuilt for scanning.** The result is structured as a verdict,
+  key findings, scenario cards, clearly separated analyst research, and expandable
+  evidence rather than a long undifferentiated text wall.
+- **Commentator's Notebook, rebuilt for scanning.** Predictive, context, and
+  coincidence material is grouped into visual sections with compact stat cards,
+  dials, icons, comparison colour, and progressive disclosure for exact wording,
+  date ranges, samples, and sources.
+- **Fast and Deep are meaningfully different.** Fast uses the smaller assigned model
+  for a short grounded read; Deep gives the larger assigned model more evidence and
+  asks for connected scenarios, while honestly warning that the full run usually
+  takes 5–8 minutes.
+- **Local response recovery is more resilient.** Ollama output uses native structured
+  decoding, preserves multi-source evidence, and can recover safe JSON from common
+  wrapper or truncation shapes before the same numeric/source verification runs.
+  Unsupported content still fails closed to deterministic analysis only.
+- **Header AI control polished.** The local-AI indicator is contained, aligned with
+  the other header actions, and reports the configured provider without decorative
+  overflow.
+
+### Fixed
+- External links in the packaged desktop app now open in the system browser,
+  including Releases, Documentation, Ollama help, update fallbacks, and cited
+  sources.
+- Fast analysis now labels its active model as **Basic** instead of showing the
+  Deep mode's **Advanced** label.
+- Long club names wrap within match cards instead of bleeding past the card edge.
+
 ## [0.9.0] - 2026-07-14
 
 Your score call now has its own honest game: pick before kickoff, prove the locked

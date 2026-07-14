@@ -7,7 +7,7 @@ description: How Golavo turns deterministic match evidence into an editorial Mat
 that already cleared the engine's sample, freshness, and source guards; it does not create new
 facts or become a second forecast model.
 
-## What ships in v0.9.0
+## What ships today
 
 - a cover story chosen only after the fixed-rule **Three things to know** have been removed;
 - each side's last-five pre-kickoff form timeline;
@@ -27,7 +27,7 @@ The UI includes a strict parser and mini-pitch renderer for conventional ten-out
 formation strings. It renders only from a future typed enrichment response and always labels the
 shape **typical, from recent lineups — not today's team sheet**.
 
-The network adapter is intentionally **not enabled in v0.9.0**. The planned source is API-Football
+The network adapter is intentionally **not enabled**. The planned source is API-Football
 with a per-user key, off by default, a visible daily quota, and a permanent local cache for finished
 lineups. Before that adapter ships, its free-season coverage and real quota headers must be verified
 with a user-owned key. The core game, models, pick records, sealed artifacts, and AI numeric

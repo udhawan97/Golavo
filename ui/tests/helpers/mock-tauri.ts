@@ -223,6 +223,9 @@ export async function installMockTauri(
               if (sc.fallback?.openError) return Promise.reject(sc.fallback.openError);
               return Promise.resolve(null as T);
 
+            case "plugin:opener|open_url":
+              return Promise.resolve(null as T);
+
             default:
               return Promise.reject(new Error(`mock-tauri: unknown command ${cmd}`));
           }
