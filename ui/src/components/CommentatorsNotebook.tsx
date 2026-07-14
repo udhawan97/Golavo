@@ -54,7 +54,7 @@ const factCategory = (f: NotebookFact): FactCategory => FACT_CATEGORY[f.id] ?? "
 /** A fact's identity within one notebook: template id + which team/pair it is
  *  about. Used to drop the facts already shown in "Three things to know" so the
  *  notebook is genuinely the deeper cut, not a repeat of the summary. */
-const factKey = (f: { id: string; subject: string }): string => `${f.id}::${f.subject}`;
+export const factKey = (f: { id: string; subject: string }): string => `${f.id}::${f.subject}`;
 
 const GROUP_ORDER: FactLabel[] = ["predictive", "context", "coincidence"];
 
@@ -111,11 +111,14 @@ function NotebookBody({
 export function NotebookFacts({
   notebook,
   snapshots = [],
+  omitKeys = new Set(),
 }: {
   notebook: NotebookData | null;
   snapshots?: Snapshot[];
+  omitKeys?: ReadonlySet<string>;
 }) {
-  if (!notebook || notebook.facts.length === 0) {
+  const visibleFacts = notebook?.facts.filter((fact) => !omitKeys.has(factKey(fact))) ?? [];
+  if (!notebook || visibleFacts.length === 0) {
     return (
       <EmptyState title="No notebook for this fixture">
         No deterministic facts have been computed for this fixture, or every candidate was
@@ -127,8 +130,9 @@ export function NotebookFacts({
   // Drop the facts already surfaced in "Three things to know" above, so the
   // notebook is the deeper cut rather than a repeat. Same pure selector, same
   // notebook — so the two panels partition the facts instead of overlapping.
-  const summaryKeys = new Set(topInsights(notebook).map(factKey));
-  const remaining = notebook.facts.filter((f) => !summaryKeys.has(factKey(f)));
+  const visibleNotebook = { ...notebook, facts: visibleFacts };
+  const summaryKeys = new Set(topInsights(visibleNotebook).map(factKey));
+  const remaining = visibleFacts.filter((f) => !summaryKeys.has(factKey(f)));
   const allInSummary = remaining.length === 0 && summaryKeys.size > 0;
 
   return (
@@ -325,7 +329,7 @@ function categorySummary(facts: NotebookFact[]): string {
 
 /** Source as a quiet ⓘ reveal rather than a row of mono pack-id chips — the same
  *  attribution, far less noise. Links out when the snapshot resolves to a URL. */
-function SourcePopover({ ids, snapshots }: { ids: string[]; snapshots: Snapshot[] }) {
+export function SourcePopover({ ids, snapshots }: { ids: string[]; snapshots: Snapshot[] }) {
   return (
     <InfoPopover label="Source">
       <span className="small">

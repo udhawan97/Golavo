@@ -937,6 +937,17 @@ export async function fetchMatchNotebook(matchId: string): Promise<MatchNotebook
           `matches/${matchId}/notebook (mock)`,
         );
     }
+    const env = await loadMockNotebook(matchId);
+    if (env.available && env.notebook)
+      return assertMatchNotebook(
+        {
+          available: true,
+          computed: "on_demand",
+          as_of_horizon: "T-24h",
+          notebook: env.notebook,
+        },
+        `matches/${matchId}/notebook (mock)`,
+      );
     return unavailable;
   }
   try {

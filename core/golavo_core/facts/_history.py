@@ -60,6 +60,8 @@ _PERSPECTIVE_COLUMNS = [
     "is_home",
     "gf",
     "ga",
+    "ht_gf",
+    "ht_ga",
     "result",
     "neutral",
     "tournament",
@@ -70,7 +72,8 @@ def team_perspective(matches: pd.DataFrame, team: str) -> pd.DataFrame:
     """Return ``team``'s completed matches from its own perspective, oldest first.
 
     Columns: date, kickoff_utc, opponent, is_home, gf (goals for), ga (goals
-    against), result (W/D/L), neutral, tournament.
+    against), ht_gf / ht_ga (nullable half-time scores), result (W/D/L),
+    neutral, tournament.
     """
     home_mask = matches["home_team"].eq(team)
     away_mask = matches["away_team"].eq(team)
@@ -82,6 +85,15 @@ def team_perspective(matches: pd.DataFrame, team: str) -> pd.DataFrame:
     ga = np.where(is_home, sel["away_score"], sel["home_score"]).astype(int)
     opponent = np.where(is_home, sel["away_team"], sel["home_team"])
     result = np.select([gf > ga, gf == ga], ["W", "D"], default="L")
+    if {"ht_home_score", "ht_away_score"} <= set(sel.columns):
+        home = sel["ht_home_score"].astype("Int16")
+        away = sel["ht_away_score"].astype("Int16")
+        orientation = pd.Series(is_home, index=sel.index)
+        ht_gf = home.where(orientation, away).reset_index(drop=True)
+        ht_ga = away.where(orientation, home).reset_index(drop=True)
+    else:
+        ht_gf = pd.Series(pd.NA, index=range(len(sel)), dtype="Int16")
+        ht_ga = pd.Series(pd.NA, index=range(len(sel)), dtype="Int16")
     out = pd.DataFrame(
         {
             "date": sel["date"].to_numpy(),
@@ -90,6 +102,8 @@ def team_perspective(matches: pd.DataFrame, team: str) -> pd.DataFrame:
             "is_home": is_home,
             "gf": gf,
             "ga": ga,
+            "ht_gf": ht_gf,
+            "ht_ga": ht_ga,
             "result": result,
             "neutral": sel["neutral"].astype("boolean").fillna(False).astype(bool).to_numpy(),
             "tournament": sel["tournament"].to_numpy(),

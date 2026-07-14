@@ -14,7 +14,7 @@ import re
 
 import pandas as pd
 
-from ._history import Candidate, TemplateContext, clamp_unit
+from ._history import Candidate, TemplateContext, clamp_unit, team_perspective
 from .render import NumberBag
 
 _MINUTE_RE = re.compile(r"^\s*(\d{1,3})")
@@ -45,6 +45,84 @@ def _team_goals(scorers: pd.DataFrame, team: str) -> pd.DataFrame:
     return scorers.loc[
         scorers["team"].eq(team) & (~scorers["own_goal"].astype("boolean").fillna(False))
     ]
+
+
+def ht_comeback_record(ctx: TemplateContext) -> list[Candidate]:
+    """Wins and draws after trailing at half-time, for rows with recorded HT."""
+    if "ht_home_score" not in ctx.matches.columns:
+        return []
+    out: list[Candidate] = []
+    for team in _sides(ctx):
+        history = team_perspective(ctx.matches, team).dropna(subset=["ht_gf", "ht_ga"])
+        deficits = history.loc[history["ht_gf"] < history["ht_ga"]]
+        n = int(len(deficits))
+        if n == 0:
+            continue
+        wins = int(deficits["result"].eq("W").sum())
+        draws = int(deficits["result"].eq("D").sum())
+        nb = NumberBag()
+        d = nb.count("ht_deficits", n)
+        w = nb.count("comeback_wins", wins)
+        dr = nb.count("comeback_draws", draws)
+        out.append(
+            Candidate(
+                subject=team,
+                text=(
+                    f"After trailing at half-time in {d} matches in this data, "
+                    f"{team} recovered to win {w} and draw {dr}."
+                ),
+                values={
+                    "ht_deficits": n,
+                    "comeback_wins": wins,
+                    "comeback_draws": draws,
+                },
+                numbers=nb.items(),
+                sample_n=n,
+                denominator=n,
+                base_rate=(wins + draws) / n,
+                first_date=pd.Timestamp(deficits["date"].min()),
+                last_date=pd.Timestamp(deficits["date"].max()),
+                specificity=clamp_unit((wins + draws) / n),
+            )
+        )
+    return out
+
+
+def ht_lead_conversion(ctx: TemplateContext) -> list[Candidate]:
+    """Wins and draws after leading at half-time, for rows with recorded HT."""
+    if "ht_home_score" not in ctx.matches.columns:
+        return []
+    out: list[Candidate] = []
+    for team in _sides(ctx):
+        history = team_perspective(ctx.matches, team).dropna(subset=["ht_gf", "ht_ga"])
+        leads = history.loc[history["ht_gf"] > history["ht_ga"]]
+        n = int(len(leads))
+        if n == 0:
+            continue
+        wins = int(leads["result"].eq("W").sum())
+        draws = int(leads["result"].eq("D").sum())
+        nb = NumberBag()
+        d = nb.count("ht_leads", n)
+        w = nb.count("leads_won", wins)
+        dr = nb.count("leads_drawn", draws)
+        out.append(
+            Candidate(
+                subject=team,
+                text=(
+                    f"After leading at half-time in {d} matches in this data, "
+                    f"{team} went on to win {w} and draw {dr}."
+                ),
+                values={"ht_leads": n, "leads_won": wins, "leads_drawn": draws},
+                numbers=nb.items(),
+                sample_n=n,
+                denominator=n,
+                base_rate=wins / n,
+                first_date=pd.Timestamp(leads["date"].min()),
+                last_date=pd.Timestamp(leads["date"].max()),
+                specificity=clamp_unit(wins / n),
+            )
+        )
+    return out
 
 
 def goal_timing_profile(ctx: TemplateContext) -> list[Candidate]:
@@ -191,7 +269,12 @@ def shootout_first_shooter_edge(ctx: TemplateContext) -> list[Candidate]:
     n = int(len(known))
     if n == 0:
         return []
-    first_won = int((known["winner"].astype("string") == known["first_shooter"].astype("string")).sum())
+    first_won = int(
+        (
+            known["winner"].astype("string")
+            == known["first_shooter"].astype("string")
+        ).sum()
+    )
     rate = first_won / n
     nb = NumberBag()
     n_d = nb.count("shootouts", n)

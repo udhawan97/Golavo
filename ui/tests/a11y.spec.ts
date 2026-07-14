@@ -9,6 +9,7 @@ const PAGES = [
   { name: "matchday", path: "/#/" },
   { name: "forecast", path: "/#/forecast/fa_5cb65a59b038d9586aea" },
   { name: "match-cockpit", path: "/#/match/m_synthetic_played_01" },
+  { name: "club-half-time", path: "/#/match/m_synthetic_played_05" },
   { name: "methods", path: "/#/lab/methods" },
   { name: "sealing-guide", path: "/#/guide/sealing" },
   // Table/form-dense routes: where a muted caption or header could slip contrast.

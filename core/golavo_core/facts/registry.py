@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from . import coincidence, context, events, predictive, signature
 from ._history import Candidate, TemplateContext
 
-REGISTRY_VERSION = "2026.07.14"
+REGISTRY_VERSION = "2026.07.14.1"
 
 _ID_RE = re.compile(r"[a-z][a-z0-9_]*\Z")
 _LABELS = ("predictive", "context", "coincidence")
@@ -83,6 +83,14 @@ REGISTRY: tuple[Template, ...] = (
         signature.clean_sheet_rate,
     ),
     Template("scoring_trend", "1.0.0", "context", "team", 2, 12, 400, signature.scoring_trend),
+    Template(
+        "ht_comeback_record", "1.0.0", "context", "team", 2, 10, 400,
+        events.ht_comeback_record,
+    ),
+    Template(
+        "ht_lead_conversion", "1.0.0", "context", "team", 2, 8, 400,
+        events.ht_lead_conversion,
+    ),
     Template(
         "head_to_head_goals", "1.0.0", "context", "head_to_head", 1, 4, 365 * 12,
         signature.head_to_head_goals,

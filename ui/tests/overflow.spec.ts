@@ -11,6 +11,7 @@ const ROUTES = [
   { name: "leagues", path: "/#/leagues" },
   { name: "league", path: "/#/league/premier-league" },
   { name: "match-cockpit", path: "/#/match/m_synthetic_played_01" },
+  { name: "club-half-time", path: "/#/match/m_synthetic_played_05" },
   { name: "forecast-outcome", path: "/#/forecast/fa_b44892255616a50d59bb" },
   { name: "forecast-goal", path: "/#/forecast/fa_5cb65a59b038d9586aea" },
   { name: "lab", path: "/#/lab" },

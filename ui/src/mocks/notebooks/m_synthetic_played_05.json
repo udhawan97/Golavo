@@ -1,0 +1,151 @@
+{
+  "as_of_utc": "2029-05-14T18:00:00Z",
+  "coincidence_cap": 3,
+  "facts": [
+    {
+      "base_rate": 0.5,
+      "date_range": ["2027-08-12", "2029-04-20"],
+      "denominator": 12,
+      "freshness": {"age_days": 24, "as_of_utc": "2029-05-14T18:00:00Z", "last_event_utc": "2029-04-20T00:00:00Z", "stale": false, "staleness_days": 400},
+      "id": "ht_comeback_record",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {"display": "12", "key": "ht_deficits", "unit": "count", "value": 12},
+        {"display": "4", "key": "comeback_wins", "unit": "count", "value": 4},
+        {"display": "2", "key": "comeback_draws", "unit": "count", "value": 2}
+      ],
+      "sample_n": 12,
+      "scope": "team",
+      "source_ids": ["sp_openfootball_mock"],
+      "specificity": 0.5,
+      "subject": "Example Played Home 5",
+      "text": "After trailing at half-time in 12 matches in this data, Example Played Home 5 recovered to win 4 and draw 2.",
+      "values": {"ht_deficits": 12, "comeback_wins": 4, "comeback_draws": 2},
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.8,
+      "date_range": ["2027-09-03", "2029-04-27"],
+      "denominator": 10,
+      "freshness": {"age_days": 17, "as_of_utc": "2029-05-14T18:00:00Z", "last_event_utc": "2029-04-27T00:00:00Z", "stale": false, "staleness_days": 400},
+      "id": "ht_lead_conversion",
+      "label": "context",
+      "min_sample": 8,
+      "numbers": [
+        {"display": "10", "key": "ht_leads", "unit": "count", "value": 10},
+        {"display": "8", "key": "leads_won", "unit": "count", "value": 8},
+        {"display": "1", "key": "leads_drawn", "unit": "count", "value": 1}
+      ],
+      "sample_n": 10,
+      "scope": "team",
+      "source_ids": ["sp_openfootball_mock"],
+      "specificity": 0.8,
+      "subject": "Example Played Home 5",
+      "text": "After leading at half-time in 10 matches in this data, Example Played Home 5 went on to win 8 and draw 1.",
+      "values": {"ht_leads": 10, "leads_won": 8, "leads_drawn": 1},
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.454545,
+      "date_range": ["2027-08-19", "2029-04-13"],
+      "denominator": 11,
+      "freshness": {"age_days": 31, "as_of_utc": "2029-05-14T18:00:00Z", "last_event_utc": "2029-04-13T00:00:00Z", "stale": false, "staleness_days": 400},
+      "id": "ht_comeback_record",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {"display": "11", "key": "ht_deficits", "unit": "count", "value": 11},
+        {"display": "2", "key": "comeback_wins", "unit": "count", "value": 2},
+        {"display": "3", "key": "comeback_draws", "unit": "count", "value": 3}
+      ],
+      "sample_n": 11,
+      "scope": "team",
+      "source_ids": ["sp_openfootball_mock"],
+      "specificity": 0.454545,
+      "subject": "Example Played Away 5",
+      "text": "After trailing at half-time in 11 matches in this data, Example Played Away 5 recovered to win 2 and draw 3.",
+      "values": {"ht_deficits": 11, "comeback_wins": 2, "comeback_draws": 3},
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.666667,
+      "date_range": ["2027-10-01", "2029-05-01"],
+      "denominator": 9,
+      "freshness": {"age_days": 13, "as_of_utc": "2029-05-14T18:00:00Z", "last_event_utc": "2029-05-01T00:00:00Z", "stale": false, "staleness_days": 400},
+      "id": "ht_lead_conversion",
+      "label": "context",
+      "min_sample": 8,
+      "numbers": [
+        {"display": "9", "key": "ht_leads", "unit": "count", "value": 9},
+        {"display": "6", "key": "leads_won", "unit": "count", "value": 6},
+        {"display": "2", "key": "leads_drawn", "unit": "count", "value": 2}
+      ],
+      "sample_n": 9,
+      "scope": "team",
+      "source_ids": ["sp_openfootball_mock"],
+      "specificity": 0.666667,
+      "subject": "Example Played Away 5",
+      "text": "After leading at half-time in 9 matches in this data, Example Played Away 5 went on to win 6 and draw 2.",
+      "values": {"ht_leads": 9, "leads_won": 6, "leads_drawn": 2},
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": ["2027-08-01", "2029-05-01"],
+      "denominator": 22,
+      "freshness": {"age_days": 13, "as_of_utc": "2029-05-14T18:00:00Z", "last_event_utc": "2029-05-01T00:00:00Z", "stale": false, "staleness_days": null},
+      "id": "biggest_win",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {"display": "4", "key": "goals_for", "unit": "count", "value": 4},
+        {"display": "0", "key": "goals_against", "unit": "count", "value": 0}
+      ],
+      "sample_n": 22,
+      "scope": "team",
+      "source_ids": ["sp_openfootball_mock"],
+      "specificity": 0.6,
+      "subject": "Example Played Home 5",
+      "text": "Example Played Home 5's biggest win in this data was 4–0.",
+      "values": {"goals_for": 4, "goals_against": 0},
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.590909,
+      "date_range": ["2027-08-01", "2029-05-01"],
+      "denominator": 22,
+      "freshness": {"age_days": 13, "as_of_utc": "2029-05-14T18:00:00Z", "last_event_utc": "2029-05-01T00:00:00Z", "stale": false, "staleness_days": 400},
+      "id": "both_teams_scored_rate",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {"display": "13", "key": "both_scored", "unit": "count", "value": 13},
+        {"display": "22", "key": "matches", "unit": "count", "value": 22},
+        {"display": "59.1%", "key": "rate", "unit": "percent", "value": 59.0909}
+      ],
+      "sample_n": 22,
+      "scope": "team",
+      "source_ids": ["sp_openfootball_mock"],
+      "specificity": 0.3,
+      "subject": "Example Played Away 5",
+      "text": "Both teams scored in 13 of Example Played Away 5's 22 recent matches in this data (59.1%).",
+      "values": {"both_scored": 13, "matches": 22},
+      "version": "1.0.0"
+    }
+  ],
+  "family_size": 48,
+  "generator": "golavo-core/0.8.0",
+  "match": {
+    "away_team": "Example Played Away 5",
+    "competition": "Example Club League",
+    "home_team": "Example Played Home 5",
+    "kickoff_utc": "2029-05-15T18:00:00Z",
+    "neutral_venue": false
+  },
+  "notebook_id": "nb_synthetic_ht_story",
+  "registry_version": "2026.07.14.1",
+  "schema_version": "0.1.0",
+  "source_ids": ["sp_openfootball_mock"],
+  "suppressed": []
+}

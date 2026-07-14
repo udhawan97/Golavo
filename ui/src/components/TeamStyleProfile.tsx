@@ -16,7 +16,7 @@ function frac(value: number, clipMin: number): number {
 }
 
 /** A mirrored row: home grows left of the spine, away grows right. */
-function MirrorRow({
+export function MirrorRow({
   label,
   hint,
   homeFrac,
@@ -24,6 +24,7 @@ function MirrorRow({
   homeText,
   awayText,
   expert,
+  ariaLabel,
 }: {
   label: string;
   hint?: string;
@@ -32,6 +33,7 @@ function MirrorRow({
   homeText: string;
   awayText: string;
   expert: boolean;
+  ariaLabel?: string;
 }) {
   return (
     <div className="style-row">
@@ -39,7 +41,7 @@ function MirrorRow({
         {label}
         {hint && <span className="style-row__hint small dim"> · {hint}</span>}
       </div>
-      <div className="style-row__bars">
+      <div className="style-row__bars" role="img" aria-label={ariaLabel ?? label}>
         <div className="style-row__side style-row__side--home">
           {expert && <span className="style-row__num num">{homeText}</span>}
           <span className="style-bar style-bar--home" style={{ width: `${homeFrac * 100}%` }} />

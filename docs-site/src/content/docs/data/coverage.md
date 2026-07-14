@@ -24,6 +24,7 @@ Golavo began, in Phase 0, with **men's senior full internationals only** — a p
 | Club fixtures/results (Bundesliga) | 15 clean seasons 2010-11 → 2024-25 (openfootball, CC0) | ✅ Phase 2 historical backtest (not live) |
 | Club fixtures/results (Serie A) | 11 clean seasons 2013-14 → 2023-24 (openfootball, CC0) | ✅ Phase 2 historical backtest (not live) |
 | Club fixtures/results (Ligue 1) | 10 clean seasons 2014-15 → 2024-25 (openfootball, CC0) | ✅ Phase 2 historical backtest (not live) |
+| Club half-time scores | recorded on many rows across EPL/Bundesliga 2010-11 → 2025-26, La Liga 2012-13 → 2025-26, Serie A 2013-14 → 2025-26, and Ligue 1 2014-15 → 2025-26 | ✅ descriptive comeback/lead facts only; missing HT rows are excluded |
 | Lineups / minutes | no accepted open source | 🚫 unavailable |
 | Injuries / suspensions | no accepted open source | 🚫 unavailable |
 | Corners / shots / cards | no accepted open source | 🚫 unavailable |
@@ -44,6 +45,11 @@ The men's top-5 European leagues are accepted for **completed seasons only**, fr
 | Ligue 1 | ACCEPT_HISTORICAL | 10 (2014-15 → 2024-25) | 2019-20 abandoned in the COVID-19 pandemic (101 fixtures unplayed); 2025-26 partial capture |
 
 Missing results are **excluded, never fabricated**. Ligue 1 contracted from 20 to 18 clubs in 2023-24; the audit derives each season's expected match count from its actual team count and also checks that count against the league's constitutional size.
+
+Half-time coverage is **row-level, not season-complete**. The openfootball files carry a recorded
+`score.ht` for many matches in every packed club season, but gaps remain — especially in older
+history, and also in partial recent captures. The Second-half story therefore counts only matches
+with two valid half-time scores. It never infers a half-time result from the final score.
 
 The same five candidate models are backtested on each league's three most recent clean seasons as strictly chronological folds (EPL, Bundesliga, Ligue 1: 2022-23 → 2024-25; La Liga, Serie A: 2021-22 → 2023-24). Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and no model is crowned a champion. Each league is modeled independently — there is no cross-league strength calibration.
 

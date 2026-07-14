@@ -8,7 +8,7 @@
  * full Commentator's Notebook below renders; the source is stable, so the two
  * always agree.
  */
-import type { Snapshot } from "../lib/contract";
+import type { CommentatorsNotebook, Snapshot } from "../lib/contract";
 import { FACT_LABEL_TEXT } from "../lib/contract";
 import { fetchMatchNotebook, fetchNotebook } from "../lib/api";
 import { sinceYear } from "../lib/format";
@@ -21,7 +21,13 @@ type InsightSource =
   | { kind: "forecast"; artifactId: string; snapshots: Snapshot[] }
   | { kind: "match"; matchId: string };
 
-export function InsightCards({ source }: { source: InsightSource }) {
+export function InsightCards({
+  source,
+  omitKeys = new Set(),
+}: {
+  source: InsightSource;
+  omitKeys?: ReadonlySet<string>;
+}) {
   const key = source.kind === "forecast" ? source.artifactId : source.matchId;
   const state = useAsync(
     () =>
@@ -33,9 +39,26 @@ export function InsightCards({ source }: { source: InsightSource }) {
   // Stay quiet until we have something real — no skeleton box for a section that
   // may legitimately be empty (small sample, all-stale, no notebook).
   if (state.status !== "ready" || !state.data) return null;
-  const facts = topInsights(state.data);
-  if (facts.length === 0) return null;
   const snapshots = source.kind === "forecast" ? source.snapshots : [];
+  return <ResolvedInsightCards notebook={state.data} snapshots={snapshots} omitKeys={omitKeys} />;
+}
+
+export function ResolvedInsightCards({
+  notebook,
+  snapshots = [],
+  omitKeys = new Set(),
+}: {
+  notebook: CommentatorsNotebook | null;
+  snapshots?: Snapshot[];
+  omitKeys?: ReadonlySet<string>;
+}) {
+  if (!notebook) return null;
+  const visible = {
+    ...notebook,
+    facts: notebook.facts.filter((fact) => !omitKeys.has(`${fact.id}::${fact.subject}`)),
+  };
+  const facts = topInsights(visible);
+  if (facts.length === 0) return null;
 
   return (
     <section className="panel" aria-labelledby="ins-h">

@@ -30,8 +30,10 @@ import { ModelCouncil } from "../components/ModelCouncil";
 import { FormStripsRow } from "../components/FormStrip";
 import { TeamStyleProfile } from "../components/TeamStyleProfile";
 import { ScoreOutlook } from "../components/ScoreOutlook";
+import { SecondHalfStory } from "../components/SecondHalfStory";
 import { NotebookFacts } from "../components/CommentatorsNotebook";
-import { InsightCards } from "../components/InsightCards";
+import { ResolvedInsightCards } from "../components/InsightCards";
+import { parseHalfTimeStory } from "../lib/factValues";
 import { TourOverlay } from "../components/TourOverlay";
 import { COCKPIT_TOUR, useTour } from "../lib/tour";
 import { useUpdater } from "../lib/updater-context";
@@ -89,6 +91,20 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
     analysisState.status === "ready" && analysisState.data.available
       ? analysisState.data.analysis
       : null;
+  const [notebookRetryTick, setNotebookRetryTick] = useState(0);
+  const notebookState = useAsync(
+    () => fetchMatchNotebook(id),
+    [id, notebookRetryTick],
+  );
+  const notebook =
+    notebookState.status === "ready" && notebookState.data.available
+      ? notebookState.data.notebook
+      : null;
+  const halfTimeStory =
+    match.source_kind === "club"
+      ? parseHalfTimeStory(notebook, match.home_team, match.away_team)
+      : null;
+  const consumedKeys = halfTimeStory?.consumedKeys ?? new Set<string>();
 
   // The cockpit micro-tour fires the first time a match is opened. It yields to
   // the update-consent card and, via useTour, only starts once its panels exist,
@@ -128,6 +144,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
 
       {analysis && <TeamStyleProfile analysis={analysis} expert={mode === "expert"} />}
       {analysis && <ScoreOutlook analysis={analysis} home={match.home_team} away={match.away_team} />}
+      <SecondHalfStory sourceKind={match.source_kind} story={halfTimeStory} />
 
       {hasForecast ? (
         <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
@@ -137,10 +154,14 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         <SealAction detail={detail} />
       )}
 
-      <InsightCards source={{ kind: "match", matchId: id }} />
+      <ResolvedInsightCards notebook={notebook} omitKeys={consumedKeys} />
 
       <div data-tour="cockpit-notebook">
-        <MatchNotebookBlock matchId={id} />
+        <MatchNotebookBlock
+          state={notebookState}
+          onRetry={() => setNotebookRetryTick((tick) => tick + 1)}
+          omitKeys={consumedKeys}
+        />
       </div>
 
       <div data-tour="cockpit-ai">
@@ -376,9 +397,15 @@ function SealUnknown({ match }: { match: MatchRow }) {
 /** The Commentator's Notebook — always shown for a found match. Fed by the
  *  per-match notebook endpoint and rendered through the shared NotebookFacts
  *  renderer. Subordinate to any seal: it is descriptive history, never a forecast. */
-function MatchNotebookBlock({ matchId }: { matchId: string }) {
-  const [retryTick, setRetryTick] = useState(0);
-  const state = useAsync(() => fetchMatchNotebook(matchId), [matchId, retryTick]);
+function MatchNotebookBlock({
+  state,
+  onRetry,
+  omitKeys,
+}: {
+  state: AsyncState<MatchNotebookResponse>;
+  onRetry: () => void;
+  omitKeys: ReadonlySet<string>;
+}) {
   return (
     <section className="panel md-nb" aria-labelledby="md-nb-h">
       <div className="panel__head">
@@ -392,7 +419,7 @@ function MatchNotebookBlock({ matchId }: { matchId: string }) {
           The hidden facts, streaks, and coincidences behind this fixture — computed from the
           vendored packs. Never a forecast, and no AI wrote any of them.
         </p>
-        <NotebookBlockBody state={state} onRetry={() => setRetryTick((t) => t + 1)} />
+        <NotebookBlockBody state={state} onRetry={onRetry} omitKeys={omitKeys} />
       </div>
     </section>
   );
@@ -401,9 +428,11 @@ function MatchNotebookBlock({ matchId }: { matchId: string }) {
 function NotebookBlockBody({
   state,
   onRetry,
+  omitKeys,
 }: {
   state: AsyncState<MatchNotebookResponse>;
   onRetry: () => void;
+  omitKeys: ReadonlySet<string>;
 }) {
   if (state.status === "loading") return <BlockSkeleton lines={4} />;
   if (state.status === "error") {
@@ -441,7 +470,7 @@ function NotebookBlockBody({
         </p>
       )}
       {facts.length > 0 && <FactLegend />}
-      <NotebookFacts notebook={resp.available ? resp.notebook : null} />
+      <NotebookFacts notebook={resp.available ? resp.notebook : null} omitKeys={omitKeys} />
     </>
   );
 }

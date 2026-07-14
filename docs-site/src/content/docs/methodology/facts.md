@@ -73,7 +73,7 @@ Search a big enough pile of data for *any* striking pattern and you will always 
 refuses that game structurally:
 
 - The template family is **fixed and pre-registered per release.** The notebook reports its
-  `family_size` — the number of hypotheses the family evaluates for one match (currently **33**).
+  `family_size` — the number of hypotheses the family evaluates for one match (currently **48**).
   This number is a constant of the code, **not a function of the data**: the engine cannot widen
   its search until something looks significant.
 - Coincidences are **ranked by specificity, never by a significance test.** There is no p-value to
@@ -110,6 +110,17 @@ The promoted-team base rate is a related honesty case. The CC0 single-league pac
 division tier, so a genuine promotion cannot be detected. Golavo reports instead a **debut-window**
 proxy — the first-year win rate of teams that first appear mid-dataset (teams present from the first
 season are excluded as left-censored) — and labels it as exactly that, never as "promoted."
+
+## Club-only half-time facts
+
+The openfootball club packs include a recorded half-time score for many, but not all, matches.
+Golavo uses those rows for two `context` templates: recovery after trailing at half-time, and
+conversion after leading at half-time. Both run once per team, have fixed sample floors, and become
+stale after 400 days at the fixture's information horizon.
+
+Rows without a well-formed two-integer `score.ht` are ignored. If a recorded half-time score
+exceeds the corresponding final score, ingest fails as corrupt instead of silently accepting it.
+The UI says plainly that older seasons contain gaps; no missing half-time result is inferred.
 
 ## The no-write invariant
 

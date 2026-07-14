@@ -613,6 +613,8 @@ export const FACT_CATEGORY: Record<string, FactCategory> = {
   scoring_trend: "signature",
   goal_timing_profile: "signature",
   penalty_goal_share: "signature",
+  ht_comeback_record: "signature",
+  ht_lead_conversion: "signature",
   tournament_record: "records",
   shootout_first_shooter_edge: "records",
   own_goal_quirk: "other",
@@ -708,6 +710,14 @@ export const FACT_DISPLAY: Record<string, FactDisplay> = {
   penalty_goal_share: {
     title: "Penalty share",
     explainer: "How much of this team’s scoring comes from penalties (scored only).",
+  },
+  ht_comeback_record: {
+    title: "Saved from behind",
+    explainer: "Wins and draws recovered after trailing at half-time.",
+  },
+  ht_lead_conversion: {
+    title: "Leads kept",
+    explainer: "How often a half-time lead became a win.",
   },
   tournament_record: {
     title: "Record in this competition",

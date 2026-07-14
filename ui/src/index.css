@@ -1681,6 +1681,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .style-bar--home { background: var(--seg-home); }
 .style-bar--away { background: var(--seg-away); }
 .style-row__side--home .style-bar { margin-left: auto; }
+.shs .style-row__num { color: var(--text); font-weight: 650; }
 
 /* Outcome-range band — the low→high spread across the voices per outcome. */
 .range-band { display: flex; flex-direction: column; gap: var(--space-2); }
