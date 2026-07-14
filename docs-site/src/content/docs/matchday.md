@@ -1,12 +1,12 @@
 ---
 title: Games & the Match Cockpit
-description: The screens you'll use — the Games home, the Match Cockpit, sealing before kickoff, Leagues, the Model Lab, and the Commentator's Notebook.
+description: The screens you'll use — Matchday, the Match Cockpit, your score call, My Season, Leagues, Match Notes, and Model Lab.
 ---
 
 Golavo opens on **games**, not on an audit form. The workbench is organized around four
-surfaces: a Games-first home, the **Match Cockpit** for any indexed match, the **Leagues**
-browse hub, and the **Model Lab** where the sealing, calibration, and evaluation machinery
-lives. Every match also carries a **Commentator's Notebook**. Below is what each does today.
+surfaces: a Matchday home, the **Match Cockpit** for any indexed match, **My Season** for your
+score-picking race, the **Leagues** browse hub, and **Model Lab** for expert audit machinery.
+Every match also carries source-backed **Match Notes**. Below is what each does today.
 
 ## Games (the home)
 
@@ -34,6 +34,9 @@ precomputed and nothing is stored: the cockpit is a live read, never a sealed ar
 
 Either way you get:
 
+- a gold **Your call** ticket on upcoming matches. Save a score, reveal the five deterministic
+  rivals, change it until kickoff, then let the final result decide the points;
+
 - **Two voices** — Elo (ratings) and Dixon–Coles (goals) — shown side by side, with whether
   they **agree or disagree**. The Poisson variants are disclosed but never counted as extra
   opinions, and a **climatology baseline** is shown for reference. Nothing is averaged into a
@@ -44,6 +47,13 @@ Either way you get:
 
 The cockpit is machine-checked leak-safe: the cutoff proof rejects any training row dated at or
 after `kickoff − 1s`.
+
+## My Season
+
+My Season is your private points race against five model rivals, scored only on matches you call.
+It keeps the pick history, standings, cumulative points, exact scores, correct outcomes, bonuses,
+and streaks together. See [Picks, points & My Season](/Golavo/picks-and-points/) for locking,
+fingerprints, and the 3 / 1 / +1 scoring rules.
 
 ## Seal before kickoff
 
@@ -83,20 +93,21 @@ The sealing, provenance, calibration, and evaluation machinery moved here, behin
 
 Old `#/ledger` and `#/eval` links redirect into the Lab, so existing bookmarks keep working.
 
-## Commentator's Notebook
+## Match Notes
 
-Every match page carries the Notebook: deterministic, source-backed facts computed at the same
+Every match page carries Match Notes: deterministic, source-backed facts computed at the same
 `kickoff − 1s` horizon, so it can never read the match's own result or anything later. Facts are
 labelled **predictive / context / coincidence**, each with its sample, base rate, source, and
 freshness. Coincidences are capped and quarantined ("for the pub, not the forecast") and are
 never shown to the AI. Nothing here changes a forecast — the fact package has a machine-checked
 rule that forbids it from importing any forecast, model, or calibration writer.
 
-Since v0.3.1 the Notebook also surfaces **signature form stats** most scoreboards never show —
+The magazine-style read also surfaces **signature form stats** most scoreboards never show —
 both-teams-scored rate, scoring momentum, clean-sheet rate, and the goal character of the
 head-to-head — and it is **de-duplicated** from the "three things to know" insight cards, so the
 Notebook is the deeper cut rather than a repeat. See the
-[Fact & Coincidence engine](/Golavo/methodology/facts/) page.
+[Fact & Coincidence engine](/Golavo/methodology/facts/) and
+[Match Notes & optional enrichment](/Golavo/match-enrichment/) pages.
 
 ## AI Analyst Read *(optional, off by default)*
 

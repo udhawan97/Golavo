@@ -69,6 +69,7 @@ export default defineConfig({
             { label: "Introduction", slug: "introduction" },
             { label: "Installation", slug: "installation" },
             { label: "Games & the Match Cockpit", slug: "matchday" },
+            { label: "Picks, points & My Season", slug: "picks-and-points" },
           ],
         },
         {
@@ -77,6 +78,7 @@ export default defineConfig({
             { label: "Casual vs Expert", slug: "casual-vs-expert" },
             { label: "Local Intelligence", slug: "local-intelligence" },
             { label: "Model Lab & Track record", slug: "prediction-ledger" },
+            { label: "Match Notes & enrichment", slug: "match-enrichment" },
           ],
         },
         {

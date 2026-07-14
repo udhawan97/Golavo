@@ -5,6 +5,13 @@ description: How Golavo seals a forecast before kickoff and scores it after full
 
 Golavo's accountability spine is the versioned `ForecastArtifact` contract. A forecast is **sealed** before kickoff and a later result produces a separate **scored** artifact; the sealed file is never mutated. As of Phase 3 this is a working forward loop for **men's senior full internationals only** — sealed real fixtures accumulate in `data/artifacts/`, and a read-only calibration record aggregates what happened after the whistle. A hash-chained multi-artifact ledger is still planned (ADR-0001).
 
+:::note[Seals are not picks]
+A **seal** freezes a model forecast for the expert trust record. A **pick** is your score call in
+the local My Season game. Picks use simple 3 / 1 / +1 points and live under the ledger's `picks/`
+directory, but never enter model calibration, log loss, Brier score, or the forecast artifact chain.
+See [Picks, points & My Season](/Golavo/picks-and-points/).
+:::
+
 ## What a seal records
 
 Each seal is an immutable JSON artifact (contract 0.2.0, additive over 0.1.0). The abbreviated shape is:

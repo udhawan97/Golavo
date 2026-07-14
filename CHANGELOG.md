@@ -6,6 +6,40 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-14
+
+Your score call now has its own honest game: pick before kickoff, prove the locked
+record stayed unchanged, and race five deterministic model rivals across My Season.
+The cockpit's evidence also moves into a calmer, editorial Match Notes read.
+
+### Added
+- **Your Call.** Upcoming matches have an editable 0–0 score ticket. Calls lock at
+  kickoff (or the start of a date-only match day), receive a canonical SHA-256
+  fingerprint, survive restarts in the local ledger, and score after full time.
+- **Transparent points race.** Exact score earns 3, the right outcome earns 1, and
+  strictly beating every available model earns a +1 bonus. Rival calls are derived
+  from stored model outputs, hidden until the user saves, and pinned at lock time.
+- **My Season.** A private dashboard tracks points, exact scores, outcomes, bonuses,
+  streaks, standings, cumulative progress, and pick history against five named rivals.
+- **Picks API and contract.** A versioned, additional-properties-closed pick schema;
+  durable draft/locked storage; typed GET/PUT/DELETE/list/summary endpoints; atomic
+  writes; one process lock; fixture-key fallback; integrity verification; and audit
+  events. Web preview uses clearly labelled, device-local practice records.
+- **Picks guide and onboarding.** A five-step worked example, simple 3 / 1 / +1
+  explanation, no-gambling FAQ, new tour anchors, and plain separation between the
+  user's game and expert forecast sealing.
+- **Match Notes.** Form timelines, fitted style, scorer and head-to-head features,
+  numbered signature facts, quarantined coincidences, and source/suppression folios
+  now share one magazine-style evidence surface. A strict formation parser and
+  display-only mini-pitch are ready for future typed enrichment.
+
+### Changed
+- Expert forecast sealing is a quiet cockpit row in Casual mode and retains its full
+  provenance treatment in Expert mode.
+- The optional API-Football/BYOK formation adapter is deferred to v0.9.1 until real
+  free-season coverage and quota headers can be verified with a user-owned key. Picks,
+  models, sealed artifacts, and AI evidence do not depend on it.
+
 ## [0.8.0] - 2026-07-14
 
 Half-time scores now tell the second-half story for club matches, while World Cup
