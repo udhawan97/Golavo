@@ -100,6 +100,7 @@ def apply_guardrails(
     suppressed: list[dict[str, Any]] = []
 
     for template, candidate in proposals:
+        candidate_sources = tuple(candidate.extra.get("source_ids", source_ids))
         if candidate.sample_n < template.min_sample:
             suppressed.append(
                 _suppress(
@@ -108,12 +109,12 @@ def apply_guardrails(
                 )
             )
             continue
-        if not source_ids:
+        if not candidate_sources:
             suppressed.append(
                 _suppress(template, candidate.subject, "no_source", "no snapshot ids")
             )
             continue
-        fact, stale = build_fact(candidate, template, source_ids, as_of)
+        fact, stale = build_fact(candidate, template, candidate_sources, as_of)
         if stale:
             suppressed.append(
                 _suppress(

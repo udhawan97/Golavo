@@ -73,7 +73,7 @@ Search a big enough pile of data for *any* striking pattern and you will always 
 refuses that game structurally:
 
 - The template family is **fixed and pre-registered per release.** The notebook reports its
-  `family_size` — the number of hypotheses the family evaluates for one match (currently **48**).
+  `family_size` — the number of hypotheses the family evaluates for one match (currently **52**).
   This number is a constant of the code, **not a function of the data**: the engine cannot widen
   its search until something looks significant.
 - Coincidences are **ranked by specificity, never by a significance test.** There is no p-value to
@@ -121,6 +121,19 @@ stale after 400 days at the fixture's information horizon.
 Rows without a well-formed two-integer `score.ht` are ignored. If a recorded half-time score
 exceeds the corresponding final score, ingest fails as corrupt instead of silently accepting it.
 The UI says plainly that older seasons contain gaps; no missing half-time result is inferred.
+
+## World Cup pedigree (isolated CC-BY-SA pack)
+
+For an exact `FIFA World Cup` fixture, two additional `context` templates read the isolated
+Fjelstul pack: `wc_pedigree` counts men's tournament appearances, titles, finals and the best
+finish among the team's five most recent appearances; `wc_awards` lists the recorded individual
+awards won by that team's players. The pack is CC-BY-SA-4.0 and credited in the source docs and
+third-party notices.
+
+Every tournament is filtered by its **end date** against the fixture's information horizon. A
+replay during the 2014 tournament can see history only through 2010 — not the unfinished 2014
+edition, and never 2018 or 2022. The pack remains outside `golavo_core.ingest`, the joined match
+index, model fitting, and forecast features; it supplies descriptive facts only.
 
 ## The no-write invariant
 

@@ -30,6 +30,7 @@ from .invariant import (
 )
 from .packs import load_side_tables
 from .registry import COINCIDENCE_CAP, REGISTRY, REGISTRY_VERSION, Template, family_size
+from .wc_history import WorldCupHistory, load_wc_history
 
 __all__ = [
     "COINCIDENCE_CAP",
@@ -38,11 +39,13 @@ __all__ = [
     "REGISTRY",
     "REGISTRY_VERSION",
     "Template",
+    "WorldCupHistory",
     "assert_facts_isolated",
     "assert_no_number_written",
     "build_notebook",
     "family_size",
     "load_side_tables",
+    "load_wc_history",
     "notebook_for_artifact",
     "notebook_to_evidence",
     "validate_notebook",

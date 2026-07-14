@@ -19,10 +19,10 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from . import coincidence, context, events, predictive, signature
+from . import coincidence, context, events, predictive, signature, worldcup
 from ._history import Candidate, TemplateContext
 
-REGISTRY_VERSION = "2026.07.14.1"
+REGISTRY_VERSION = "2026.07.14.2"
 
 _ID_RE = re.compile(r"[a-z][a-z0-9_]*\Z")
 _LABELS = ("predictive", "context", "coincidence")
@@ -31,7 +31,7 @@ _SCOPES = ("team", "head_to_head", "match", "competition")
 # a finer source id (``<pack>#<dataset>``) in the AI evidence bundle, so the
 # citation chips vary instead of all resolving to one "data pack". Never changes
 # the leak-safe computation.
-_DATASETS = ("results", "goalscorers", "shootouts")
+_DATASETS = ("results", "goalscorers", "shootouts", "standings", "awards")
 
 # The maximum coincidence-labelled facts the notebook will emit for one match.
 COINCIDENCE_CAP = 3
@@ -107,6 +107,15 @@ REGISTRY: tuple[Template, ...] = (
     Template(
         "shootout_record", "1.0.0", "context", "team", 2, 3, None, context.shootout_record,
         dataset="shootouts",
+    ),
+    # --- context: World Cup-only history from the isolated CC-BY-SA pack ---
+    Template(
+        "wc_pedigree", "1.0.0", "context", "team", 2, 1, None,
+        worldcup.wc_pedigree, dataset="standings",
+    ),
+    Template(
+        "wc_awards", "1.0.0", "context", "team", 2, 1, None,
+        worldcup.wc_awards, dataset="awards",
     ),
     # --- context: event-derived from the goalscorers/shootouts packs (new) ---
     Template(

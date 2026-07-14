@@ -24,6 +24,8 @@ _FOLDED_LABELS = ("context", "predictive")
 _DATASET_TITLES = {
     "goalscorers": "goalscorer records",
     "shootouts": "penalty shootouts",
+    "standings": "World Cup standings",
+    "awards": "World Cup awards",
 }
 
 
@@ -49,6 +51,7 @@ def _scope_sources(fact: dict[str, Any]) -> tuple[list[str], list[dict[str, Any]
                 "base_source_id": sid,
                 "dataset": dataset,
                 "title": f"Vendored data pack · {sid} · {_DATASET_TITLES[dataset]}",
+                "license": "CC-BY-SA-4.0" if sid == "fjelstul-worldcup" else "CC0-1.0",
             }
         )
     return scoped, extras

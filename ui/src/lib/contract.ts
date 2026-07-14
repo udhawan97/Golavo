@@ -615,6 +615,8 @@ export const FACT_CATEGORY: Record<string, FactCategory> = {
   penalty_goal_share: "signature",
   ht_comeback_record: "signature",
   ht_lead_conversion: "signature",
+  wc_pedigree: "records",
+  wc_awards: "records",
   tournament_record: "records",
   shootout_first_shooter_edge: "records",
   own_goal_quirk: "other",
@@ -718,6 +720,14 @@ export const FACT_DISPLAY: Record<string, FactDisplay> = {
   ht_lead_conversion: {
     title: "Leads kept",
     explainer: "How often a half-time lead became a win.",
+  },
+  wc_pedigree: {
+    title: "World Cup pedigree",
+    explainer: "Titles, finals, appearances and the best recent finish in this data.",
+  },
+  wc_awards: {
+    title: "World Cup awards",
+    explainer: "Individual tournament awards won by this team’s players.",
   },
   tournament_record: {
     title: "Record in this competition",

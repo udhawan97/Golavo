@@ -324,7 +324,7 @@ a:hover { text-decoration-color: currentColor; }
 .chip--horizon   { color: var(--text-muted); background: var(--surface-2); border-color: var(--border); font-family: var(--font-mono); }
 .chip--fact-predictive  { color: var(--green);  background: var(--green-soft); border-color: color-mix(in srgb, var(--green) 40%, transparent); }
 .chip--fact-context     { color: var(--wave);   background: var(--wave-soft);  border-color: color-mix(in srgb, var(--wave) 40%, transparent); }
-.chip--fact-coincidence { color: var(--orange); background: color-mix(in srgb, var(--orange) 12%, transparent); border-color: color-mix(in srgb, var(--orange) 45%, transparent); }
+.chip--fact-coincidence { color: #ed8b55; background: color-mix(in srgb, var(--orange) 12%, transparent); border-color: color-mix(in srgb, var(--orange) 45%, transparent); }
 
 /* Commentator's Notebook — compact scan first, exact evidence on demand. */
 .nb-group { border: 1px solid var(--border); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--surface-2) 40%, transparent); overflow: hidden; }
@@ -1682,6 +1682,50 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .style-bar--away { background: var(--seg-away); }
 .style-row__side--home .style-bar { margin-left: auto; }
 .shs .style-row__num { color: var(--text); font-weight: 650; }
+
+/* World Cup pedigree — facts-only trophy shelf from the isolated history pack. */
+.wcp { border-color: var(--gold-line); }
+.wcp .panel__head { border-color: var(--gold-line); }
+.wcp-era { margin-left: auto; color: var(--gold); }
+.wcp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-5); }
+.wcp-team { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.wcp-team--away { align-items: flex-end; text-align: right; border-left: 1px solid var(--gold-line); padding-left: var(--space-5); }
+.wcp-team h3 { font-size: var(--text-lg); }
+.wcp-stars { display: flex; align-items: center; gap: var(--space-2); min-height: 1.5rem; color: var(--gold); }
+.wcp-stars__row { display: flex; gap: 2px; }
+.wcp-stars__row svg { animation: wcp-star-settle .25s ease-out both; }
+.wcp-stars__row svg:nth-child(2) { animation-delay: .03s; }
+.wcp-stars__row svg:nth-child(3) { animation-delay: .06s; }
+.wcp-stars__row svg:nth-child(4) { animation-delay: .09s; }
+.wcp-stars__row svg:nth-child(5) { animation-delay: .12s; }
+.wcp-stars strong { font-size: var(--text-lg); color: var(--gold); }
+.wcp-years { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.wcp-years span { padding: 2px 7px; border: 1px solid var(--gold-line); border-radius: var(--radius-pill); background: var(--gold-soft); color: var(--gold); font-family: var(--font-mono); font-size: var(--text-xs); }
+.wcp-records { width: 100%; display: grid; gap: var(--space-2); }
+.wcp-records div { display: flex; justify-content: space-between; gap: var(--space-3); border-bottom: 1px solid var(--border); padding-bottom: var(--space-1); }
+.wcp-team--away .wcp-records div { flex-direction: row-reverse; }
+.wcp-records dt { color: var(--text-muted); }
+.wcp-records dd { font-weight: 650; font-variant-numeric: tabular-nums; }
+.wcp-awards { width: 100%; display: grid; gap: var(--space-2); }
+.wcp-awards h4 { font-size: var(--text-sm); color: var(--text-muted); }
+.wcp-awards ul { display: grid; gap: var(--space-1); }
+.wcp-awards li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-2); font-size: var(--text-xs); text-align: left; }
+.wcp-awards li svg { color: var(--gold); }
+.wcp-awards li b { font-weight: 600; }
+.wcp-awards summary { cursor: pointer; color: var(--gold); font-size: var(--text-xs); }
+.wcp-awards details[open] summary { margin-bottom: var(--space-2); }
+.wcp-source { margin-top: auto; }
+:root[data-theme="light"] .wcp-era,
+:root[data-theme="light"] .wcp-stars, :root[data-theme="light"] .wcp-stars strong,
+:root[data-theme="light"] .wcp-years span, :root[data-theme="light"] .wcp-awards summary { color: #785808; }
+@keyframes wcp-star-settle { from { opacity: 0; transform: translateY(-3px) scale(.9); } to { opacity: 1; transform: none; } }
+@media (max-width: 560px) {
+  .wcp-grid { grid-template-columns: 1fr; }
+  .wcp-team--away { align-items: flex-start; text-align: left; border-left: 0; border-top: 1px solid var(--gold-line); padding: var(--space-5) 0 0; }
+  .wcp-team--away .wcp-records div { flex-direction: row; }
+}
+@media (prefers-reduced-motion: reduce) { .wcp-stars__row svg { animation: none; } }
+@media (forced-colors: active) { .wcp, .wcp-team--away, .wcp-years span { border-color: CanvasText; } }
 
 /* Outcome-range band — the low→high spread across the voices per outcome. */
 .range-band { display: flex; flex-direction: column; gap: var(--space-2); }

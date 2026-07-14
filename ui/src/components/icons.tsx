@@ -158,6 +158,16 @@ export const SparkIcon = ({ size = 16, ...p }: IconProps) => (
   </svg>
 );
 
+export const StarIcon = ({
+  size = 24,
+  filled = false,
+  ...p
+}: IconProps & { filled?: boolean }) => (
+  <svg {...base(size, { ...p, fill: filled ? "currentColor" : "none" })}>
+    <path d="M12 3.2l2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9L6.6 20l1-6.1-4.4-4.3 6.1-.9z" />
+  </svg>
+);
+
 export const ShieldCheckIcon = ({ size = 16, ...p }: IconProps) => (
   <svg {...base(size, p)}>
     <path d="M12 3l7 2.5v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V5.5z" /><path d="M9 11.5l2 2 4-4" />

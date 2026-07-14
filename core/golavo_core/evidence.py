@@ -732,7 +732,7 @@ def _match_sources(
                 "kind": "snapshot",
                 "title": str(extra["title"]),
                 "url": REPO_URL,
-                "license": "CC0-1.0",
+                "license": str(extra.get("license") or "CC0-1.0"),
             }
         )
     return sources

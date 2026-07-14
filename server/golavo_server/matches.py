@@ -687,6 +687,16 @@ def _load_side_tables() -> tuple[Any, Any]:
     return _read(GOALSCORERS_PATH), _read(SHOOTOUTS_PATH)
 
 
+def _load_worldcup_history() -> Any:
+    """Best-effort isolated World Cup history; missing pack means templates skip."""
+    try:
+        from golavo_core.facts import load_wc_history
+
+        return load_wc_history()
+    except (OSError, ValueError):
+        return None
+
+
 def _compute_notebook_on_demand(row: Any, frame: Any) -> dict[str, Any]:
     """Build the notebook for one index row at ``kickoff - 1s`` (leak-safe cutoff)."""
     import pandas as pd
@@ -696,9 +706,11 @@ def _compute_notebook_on_demand(row: Any, frame: Any) -> dict[str, Any]:
     kickoff = kickoff.tz_localize("UTC") if kickoff.tzinfo is None else kickoff.tz_convert("UTC")
     as_of = kickoff - pd.Timedelta(seconds=1)
 
-    goalscorers = shootouts = None
+    goalscorers = shootouts = wc_history = None
     if _str_or_none(row["source_kind"]) == "international":
         goalscorers, shootouts = _load_side_tables()
+        if _str_or_none(row["competition"]) == "FIFA World Cup":
+            wc_history = _load_worldcup_history()
 
     source_id = _str_or_none(row["source_id"])
     source_ids = [source_id] if source_id else []
@@ -724,6 +736,7 @@ def _compute_notebook_on_demand(row: Any, frame: Any) -> dict[str, Any]:
         source_ids=source_ids,
         goalscorers=goalscorers,
         shootouts=shootouts,
+        wc_history=wc_history,
         validate=True,
     )
     return {

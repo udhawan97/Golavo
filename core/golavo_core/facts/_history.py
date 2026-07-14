@@ -34,6 +34,7 @@ class TemplateContext:
     source_ids: tuple[str, ...]
     goalscorers: pd.DataFrame | None = None
     shootouts: pd.DataFrame | None = None
+    wc_history: Any = None
 
 
 @dataclass

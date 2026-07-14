@@ -229,7 +229,7 @@ def test_real_notebook_never_exceeds_the_coincidence_cap() -> None:
 # --------------------------------------------------------------------------- #
 def test_family_size_is_a_fixed_registry_constant() -> None:
     expected = sum(tmpl.arity for tmpl in REGISTRY)
-    assert expected == 48
+    assert expected == 52
     assert family_size() == expected
     assert _intl_notebook()["family_size"] == expected
     # A fixed, pre-registered family — not a function of the data.

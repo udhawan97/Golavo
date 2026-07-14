@@ -31,9 +31,10 @@ import { FormStripsRow } from "../components/FormStrip";
 import { TeamStyleProfile } from "../components/TeamStyleProfile";
 import { ScoreOutlook } from "../components/ScoreOutlook";
 import { SecondHalfStory } from "../components/SecondHalfStory";
+import { WorldCupPedigree } from "../components/WorldCupPedigree";
 import { NotebookFacts } from "../components/CommentatorsNotebook";
 import { ResolvedInsightCards } from "../components/InsightCards";
-import { parseHalfTimeStory } from "../lib/factValues";
+import { parseHalfTimeStory, parseWorldCupPedigree } from "../lib/factValues";
 import { TourOverlay } from "../components/TourOverlay";
 import { COCKPIT_TOUR, useTour } from "../lib/tour";
 import { useUpdater } from "../lib/updater-context";
@@ -104,7 +105,14 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
     match.source_kind === "club"
       ? parseHalfTimeStory(notebook, match.home_team, match.away_team)
       : null;
-  const consumedKeys = halfTimeStory?.consumedKeys ?? new Set<string>();
+  const worldCupStory =
+    match.source_kind === "international" && match.competition === "FIFA World Cup"
+      ? parseWorldCupPedigree(notebook, match.home_team, match.away_team)
+      : null;
+  const consumedKeys = new Set([
+    ...(halfTimeStory?.consumedKeys ?? []),
+    ...(worldCupStory?.consumedKeys ?? []),
+  ]);
 
   // The cockpit micro-tour fires the first time a match is opened. It yields to
   // the update-consent card and, via useTour, only starts once its panels exist,
@@ -144,6 +152,11 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
 
       {analysis && <TeamStyleProfile analysis={analysis} expert={mode === "expert"} />}
       {analysis && <ScoreOutlook analysis={analysis} home={match.home_team} away={match.away_team} />}
+      <WorldCupPedigree
+        competition={match.competition}
+        sourceKind={match.source_kind}
+        story={worldCupStory}
+      />
       <SecondHalfStory sourceKind={match.source_kind} story={halfTimeStory} />
 
       {hasForecast ? (

@@ -65,6 +65,7 @@ def build_notebook(
     source_ids: list[str],
     goalscorers: pd.DataFrame | None = None,
     shootouts: pd.DataFrame | None = None,
+    wc_history: Any = None,
     validate: bool = True,
 ) -> dict[str, Any]:
     """Compute the notebook for one fixture. See module docstring for the contract."""
@@ -84,12 +85,18 @@ def build_notebook(
         source_ids=ids,
         goalscorers=_as_of_events(goalscorers, as_of),
         shootouts=_as_of_events(shootouts, as_of),
+        wc_history=wc_history,
     )
 
     proposals = [(tmpl, cand) for tmpl in REGISTRY for cand in tmpl.fn(ctx)]
     facts, suppressed = apply_guardrails(
         proposals, source_ids=ids, as_of=as_of, coincidence_cap=COINCIDENCE_CAP
     )
+    notebook_source_ids = list(ids)
+    for fact in facts:
+        for source_id in fact["source_ids"]:
+            if source_id not in notebook_source_ids:
+                notebook_source_ids.append(source_id)
 
     notebook: dict[str, Any] = {
         "schema_version": NOTEBOOK_SCHEMA_VERSION,
@@ -103,7 +110,7 @@ def build_notebook(
             "neutral_venue": bool(neutral),
             "kickoff_utc": as_utc_iso(kickoff),
         },
-        "source_ids": list(ids),
+        "source_ids": notebook_source_ids,
         "family_size": family_size(),
         "coincidence_cap": COINCIDENCE_CAP,
         "facts": facts,
@@ -127,6 +134,7 @@ def notebook_for_artifact(
     *,
     goalscorers: pd.DataFrame | None = None,
     shootouts: pd.DataFrame | None = None,
+    wc_history: Any = None,
     source_ids: list[str] | None = None,
     validate: bool = True,
 ) -> dict[str, Any]:
@@ -150,6 +158,7 @@ def notebook_for_artifact(
         source_ids=source_ids,
         goalscorers=goalscorers,
         shootouts=shootouts,
+        wc_history=wc_history,
         validate=validate,
     )
 

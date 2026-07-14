@@ -77,6 +77,17 @@ import json as _json  # noqa: E402
 
 _snap_path = os.path.join(ROOT, "packs", "snapshots.json")
 datas += [(_snap_path, "packs")]
+_isolated_path = os.path.join(ROOT, "packs", "isolated.json")
+datas += [(_isolated_path, "packs")]
+_fjelstul = next(
+    e for e in _json.load(open(_isolated_path))["snapshots"]
+    if str(e["source_id"]) == "fjelstul-worldcup"
+)["pack"]
+datas += [
+    (path, _fjelstul)
+    for path in glob.glob(os.path.join(ROOT, _fjelstul, "*"))
+    if os.path.isfile(path)
+]
 _intl = [
     e for e in _json.load(open(_snap_path))["snapshots"]
     if str(e["source_id"]) == "martj42-international-results"

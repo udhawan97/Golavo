@@ -203,6 +203,105 @@
     {
       "base_rate": null,
       "date_range": [
+        "1958-06-29",
+        "2022-12-18"
+      ],
+      "denominator": 12,
+      "freshness": {
+        "age_days": 1298,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2022-12-18T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "wc_awards",
+      "label": "context",
+      "min_sample": 1,
+      "numbers": [
+        {
+          "display": "12",
+          "key": "awards",
+          "unit": "count",
+          "value": 12
+        }
+      ],
+      "sample_n": 12,
+      "scope": "team",
+      "source_ids": [
+        "fjelstul-worldcup"
+      ],
+      "specificity": 0.8,
+      "subject": "France",
+      "text": "France's players have won 12 individual World Cup awards in this data.",
+      "values": {
+        "awards": [
+          {
+            "award": "Golden Boot",
+            "player": "Just Fontaine",
+            "year": 1958
+          },
+          {
+            "award": "Best Young Player",
+            "player": "Manuel Amoros",
+            "year": 1982
+          },
+          {
+            "award": "Bronze Ball",
+            "player": "Lilian Thuram",
+            "year": 1998
+          },
+          {
+            "award": "Golden Glove",
+            "player": "Fabien Barthez",
+            "year": 1998
+          },
+          {
+            "award": "Golden Ball",
+            "player": "Zinedine Zidane",
+            "year": 2006
+          },
+          {
+            "award": "Best Young Player",
+            "player": "Paul Pogba",
+            "year": 2014
+          },
+          {
+            "award": "Best Young Player",
+            "player": "Kylian Mbapp\u00e9",
+            "year": 2018
+          },
+          {
+            "award": "Bronze Ball",
+            "player": "Antoine Griezmann",
+            "year": 2018
+          },
+          {
+            "award": "Silver Boot",
+            "player": "Antoine Griezmann",
+            "year": 2018
+          },
+          {
+            "award": "Bronze Boot",
+            "player": "Olivier Giroud",
+            "year": 2022
+          },
+          {
+            "award": "Golden Boot",
+            "player": "Kylian Mbapp\u00e9",
+            "year": 2022
+          },
+          {
+            "award": "Silver Ball",
+            "player": "Kylian Mbapp\u00e9",
+            "year": 2022
+          }
+        ]
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
         "1988-02-05",
         "2022-12-14"
       ],
@@ -482,6 +581,57 @@
       "version": "1.0.0"
     },
     {
+      "base_rate": 0.6,
+      "date_range": [
+        "2025-12-11",
+        "2026-07-04"
+      ],
+      "denominator": 20,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "clean_sheet_rate",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {
+          "display": "12",
+          "key": "clean_sheets",
+          "unit": "count",
+          "value": 12
+        },
+        {
+          "display": "20",
+          "key": "matches",
+          "unit": "count",
+          "value": 20
+        },
+        {
+          "display": "60.0%",
+          "key": "rate",
+          "unit": "percent",
+          "value": 60.0
+        }
+      ],
+      "sample_n": 20,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.48,
+      "subject": "Morocco",
+      "text": "Morocco have kept a clean sheet in 12 of their last 20 matches (60.0%).",
+      "values": {
+        "clean_sheets": 12,
+        "matches": 20
+      },
+      "version": "1.0.0"
+    },
+    {
       "base_rate": null,
       "date_range": [
         "2026-06-08",
@@ -530,6 +680,166 @@
         "draws": 0,
         "run": 6,
         "wins": 6
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "1930-07-30",
+        "2022-12-18"
+      ],
+      "denominator": 16,
+      "freshness": {
+        "age_days": 1298,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2022-12-18T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "wc_pedigree",
+      "label": "context",
+      "min_sample": 1,
+      "numbers": [
+        {
+          "display": "16",
+          "key": "appearances",
+          "unit": "count",
+          "value": 16
+        },
+        {
+          "display": "2",
+          "key": "titles",
+          "unit": "count",
+          "value": 2
+        }
+      ],
+      "sample_n": 16,
+      "scope": "team",
+      "source_ids": [
+        "fjelstul-worldcup"
+      ],
+      "specificity": 0.375,
+      "subject": "France",
+      "text": "France have appeared at 16 World Cups in this data, winning the title 2 times.",
+      "values": {
+        "appearances": 16,
+        "best_recent": {
+          "position": 1,
+          "year": 2018
+        },
+        "finals": 4,
+        "title_years": [
+          1998,
+          2018
+        ],
+        "titles": 2
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.666667,
+      "date_range": [
+        "1988-02-05",
+        "2022-12-14"
+      ],
+      "denominator": 6,
+      "freshness": {
+        "age_days": 1302,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2022-12-14T00:00:00Z",
+        "stale": false,
+        "staleness_days": 4380
+      },
+      "id": "head_to_head_goals",
+      "label": "context",
+      "min_sample": 4,
+      "numbers": [
+        {
+          "display": "3.3",
+          "key": "avg_goals",
+          "unit": "goals",
+          "value": 3.333333
+        },
+        {
+          "display": "6",
+          "key": "meetings",
+          "unit": "count",
+          "value": 6
+        },
+        {
+          "display": "4",
+          "key": "both_scored",
+          "unit": "count",
+          "value": 4
+        }
+      ],
+      "sample_n": 6,
+      "scope": "head_to_head",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.366667,
+      "subject": "France v Morocco",
+      "text": "Meetings between France and Morocco have averaged 3.3 goals across 6 games \u2014 both teams scoring in 4 of them.",
+      "values": {
+        "avg_goals": 3.333,
+        "both_scored": 4,
+        "meetings": 6
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.564103,
+      "date_range": [
+        "1930-07-13",
+        "2026-07-04"
+      ],
+      "denominator": 78,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "tournament_record",
+      "label": "context",
+      "min_sample": 8,
+      "numbers": [
+        {
+          "display": "44",
+          "key": "wins",
+          "unit": "count",
+          "value": 44
+        },
+        {
+          "display": "78",
+          "key": "matches",
+          "unit": "count",
+          "value": 78
+        },
+        {
+          "display": "56.4%",
+          "key": "win_rate",
+          "unit": "percent",
+          "value": 56.410256
+        }
+      ],
+      "sample_n": 78,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.307692,
+      "subject": "France",
+      "text": "France have won 44 of their 78 matches in this competition in this data (56.4%).",
+      "values": {
+        "competition": "FIFA World Cup",
+        "draws": 14,
+        "losses": 20,
+        "matches": 78,
+        "wins": 44
       },
       "version": "1.0.0"
     },
@@ -595,6 +905,59 @@
         "losses": 32,
         "matches": 131,
         "wins": 71
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
+        "2024-09-09",
+        "2026-07-04"
+      ],
+      "denominator": 940,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "scoring_trend",
+      "label": "context",
+      "min_sample": 12,
+      "numbers": [
+        {
+          "display": "2.8",
+          "key": "recent_per_game",
+          "unit": "goals",
+          "value": 2.833333
+        },
+        {
+          "display": "6",
+          "key": "recent_matches",
+          "unit": "count",
+          "value": 6
+        },
+        {
+          "display": "2.3",
+          "key": "baseline_per_game",
+          "unit": "goals",
+          "value": 2.277778
+        }
+      ],
+      "sample_n": 940,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.277778,
+      "subject": "France",
+      "text": "France are scoring 2.8 goals a game over their last 6 matches \u2014 up from 2.3 in the run before.",
+      "values": {
+        "baseline_per_game": 2.278,
+        "recent_matches": 6,
+        "recent_per_game": 2.833,
+        "rising": true
       },
       "version": "1.0.0"
     },
@@ -666,6 +1029,264 @@
     {
       "base_rate": null,
       "date_range": [
+        "1970-06-21",
+        "2022-12-18"
+      ],
+      "denominator": 6,
+      "freshness": {
+        "age_days": 1298,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2022-12-18T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "wc_pedigree",
+      "label": "context",
+      "min_sample": 1,
+      "numbers": [
+        {
+          "display": "6",
+          "key": "appearances",
+          "unit": "count",
+          "value": 6
+        },
+        {
+          "display": "0",
+          "key": "titles",
+          "unit": "count",
+          "value": 0
+        }
+      ],
+      "sample_n": 6,
+      "scope": "team",
+      "source_ids": [
+        "fjelstul-worldcup"
+      ],
+      "specificity": 0.25,
+      "subject": "Morocco",
+      "text": "Morocco have appeared at 6 World Cups in this data, winning the title 0 times.",
+      "values": {
+        "appearances": 6,
+        "best_recent": {
+          "position": 4,
+          "year": 2022
+        },
+        "finals": 0,
+        "title_years": [],
+        "titles": 0
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.4,
+      "date_range": [
+        "2025-12-11",
+        "2026-07-04"
+      ],
+      "denominator": 20,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "both_teams_scored_rate",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {
+          "display": "8",
+          "key": "both_scored",
+          "unit": "count",
+          "value": 8
+        },
+        {
+          "display": "20",
+          "key": "matches",
+          "unit": "count",
+          "value": 20
+        },
+        {
+          "display": "40.0%",
+          "key": "rate",
+          "unit": "percent",
+          "value": 40.0
+        }
+      ],
+      "sample_n": 20,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.2,
+      "subject": "Morocco",
+      "text": "Both teams have scored in 8 of Morocco's last 20 matches (40.0%).",
+      "values": {
+        "both_scored": 8,
+        "matches": 20
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.4,
+      "date_range": [
+        "2024-11-17",
+        "2026-07-04"
+      ],
+      "denominator": 20,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "clean_sheet_rate",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {
+          "display": "8",
+          "key": "clean_sheets",
+          "unit": "count",
+          "value": 8
+        },
+        {
+          "display": "20",
+          "key": "matches",
+          "unit": "count",
+          "value": 20
+        },
+        {
+          "display": "40.0%",
+          "key": "rate",
+          "unit": "percent",
+          "value": 40.0
+        }
+      ],
+      "sample_n": 20,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.16,
+      "subject": "France",
+      "text": "France have kept a clean sheet in 8 of their last 20 matches (40.0%).",
+      "values": {
+        "clean_sheets": 8,
+        "matches": 20
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.285714,
+      "date_range": [
+        "1970-06-03",
+        "2026-07-04"
+      ],
+      "denominator": 28,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": null
+      },
+      "id": "tournament_record",
+      "label": "context",
+      "min_sample": 8,
+      "numbers": [
+        {
+          "display": "8",
+          "key": "wins",
+          "unit": "count",
+          "value": 8
+        },
+        {
+          "display": "28",
+          "key": "matches",
+          "unit": "count",
+          "value": 28
+        },
+        {
+          "display": "28.6%",
+          "key": "win_rate",
+          "unit": "percent",
+          "value": 28.571429
+        }
+      ],
+      "sample_n": 28,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.107143,
+      "subject": "Morocco",
+      "text": "Morocco have won 8 of their 28 matches in this competition in this data (28.6%).",
+      "values": {
+        "competition": "FIFA World Cup",
+        "draws": 9,
+        "losses": 11,
+        "matches": 28,
+        "wins": 8
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": 0.55,
+      "date_range": [
+        "2024-11-17",
+        "2026-07-04"
+      ],
+      "denominator": 20,
+      "freshness": {
+        "age_days": 4,
+        "as_of_utc": "2026-07-08T00:00:00Z",
+        "last_event_utc": "2026-07-04T00:00:00Z",
+        "stale": false,
+        "staleness_days": 400
+      },
+      "id": "both_teams_scored_rate",
+      "label": "context",
+      "min_sample": 10,
+      "numbers": [
+        {
+          "display": "11",
+          "key": "both_scored",
+          "unit": "count",
+          "value": 11
+        },
+        {
+          "display": "20",
+          "key": "matches",
+          "unit": "count",
+          "value": 20
+        },
+        {
+          "display": "55.0%",
+          "key": "rate",
+          "unit": "percent",
+          "value": 55.0
+        }
+      ],
+      "sample_n": 20,
+      "scope": "team",
+      "source_ids": [
+        "sp_273c731492df"
+      ],
+      "specificity": 0.1,
+      "subject": "France",
+      "text": "Both teams have scored in 11 of France's last 20 matches (55.0%).",
+      "values": {
+        "both_scored": 11,
+        "matches": 20
+      },
+      "version": "1.0.0"
+    },
+    {
+      "base_rate": null,
+      "date_range": [
         "1960-07-09",
         "2024-07-09"
       ],
@@ -711,8 +1332,8 @@
       "version": "1.0.0"
     }
   ],
-  "family_size": 26,
-  "generator": "golavo-core/0.1.0",
+  "family_size": 52,
+  "generator": "golavo-core/0.7.0",
   "match": {
     "away_team": "Morocco",
     "competition": "FIFA World Cup",
@@ -720,11 +1341,12 @@
     "kickoff_utc": "2026-07-09T00:00:00Z",
     "neutral_venue": true
   },
-  "notebook_id": "nb_6aafbe514aebe8104331",
-  "registry_version": "2026.07.11",
+  "notebook_id": "nb_e39634d1c0198ae3dbe7",
+  "registry_version": "2026.07.14.2",
   "schema_version": "0.1.0",
   "source_ids": [
-    "sp_273c731492df"
+    "sp_273c731492df",
+    "fjelstul-worldcup"
   ],
   "suppressed": [
     {

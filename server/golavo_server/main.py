@@ -644,7 +644,11 @@ async def match_narrative(
         nb = matches.match_notebook(match_id, forecasts_dir=ARTIFACT_DIR)
         if nb and nb.get("available") and nb.get("notebook"):
             nb_facts, nb_numbers, nb_extra = notebook_to_evidence(nb["notebook"])
-            pack_ids = tuple(nb["notebook"].get("source_ids") or ())
+            # The first notebook source is the match-index pack. Later ids can be
+            # facts-only isolated packs; they resolve through nb_extra and must
+            # never be attributed to the model council itself.
+            notebook_ids = tuple(nb["notebook"].get("source_ids") or ())
+            pack_ids = notebook_ids[:1]
         return build_match_evidence_bundle(
             envelope["analysis"],
             notebook_facts=nb_facts,

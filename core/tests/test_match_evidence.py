@@ -158,6 +158,11 @@ def test_scorer_facts_cite_a_dataset_scoped_source() -> None:
     assert base_scoped == ["test-source"]
     assert base_extras == []
 
+    wc_fact = {"id": "wc_pedigree", "source_ids": ["fjelstul-worldcup"], "label": "context"}
+    wc_scoped, wc_extras = _scope_sources(wc_fact)
+    assert wc_scoped == ["fjelstul-worldcup#standings"]
+    assert wc_extras[0]["license"] == "CC-BY-SA-4.0"
+
 
 def test_match_bundle_resolves_dataset_scoped_sources() -> None:
     from golavo_core.evidence import build_match_evidence_bundle, validate_evidence_bundle
@@ -192,3 +197,21 @@ def test_preview_kind_flows_through() -> None:
     analysis = build_match_analysis(matches=_history(), match_row=fixture)
     bundle = build_match_evidence_bundle(analysis, pack_source_ids=("test-source",))
     assert bundle["artifact_status"] == "preview"
+
+
+def test_match_bundle_preserves_isolated_source_license() -> None:
+    analysis = build_match_analysis(matches=_history(), match_row=_fixture())
+    bundle = build_match_evidence_bundle(
+        analysis,
+        extra_sources=[
+            {
+                "source_id": "fjelstul-worldcup#standings",
+                "title": "Vendored data pack · World Cup standings",
+                "license": "CC-BY-SA-4.0",
+            }
+        ],
+    )
+    source = next(
+        item for item in bundle["sources"] if item["source_id"] == "fjelstul-worldcup#standings"
+    )
+    assert source["license"] == "CC-BY-SA-4.0"
