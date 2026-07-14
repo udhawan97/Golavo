@@ -92,7 +92,7 @@ function LocalModelPicker({ provider }: { provider: AiProvider }) {
       </div>
       <p className="settings__hint">
         The <b>Fast</b> model runs the quick read (seconds); the <b>Deep</b> model runs the fuller
-        analysis (a bigger model, a few minutes). Pick them from the models you have installed —
+        analysis (a bigger model, usually 5–8 minutes). Pick them from the models you have installed —
         auto-set to smallest and largest.{" "}
         {loaded && models.length === 0 && "Start Ollama and pull a model to choose here."}
       </p>

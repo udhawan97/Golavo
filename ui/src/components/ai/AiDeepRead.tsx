@@ -300,8 +300,8 @@ function DepthControls({
       <p className="small dim" style={{ margin: 0 }}>
         {depth === "deep"
           ? biggerModel
-            ? "A bigger model sees more of the evidence and writes scenarios — a richer read that can take a few minutes."
-            : "A fuller prompt and richer synthesis — more claims and scenarios connecting the evidence. Can take a few minutes."
+            ? "A bigger model sees more of the evidence and writes scenarios. Deep analysis usually takes 5–8 minutes."
+            : "A fuller prompt connects more evidence and writes scenarios. Deep analysis usually takes 5–8 minutes."
           : "A quick read from a small model — grounded claims in seconds."}
       </p>
       {models.length > 0 && (

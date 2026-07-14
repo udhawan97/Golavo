@@ -182,6 +182,38 @@ def test_happy_path_runs_the_real_guards(client, monkeypatch):
     assert fresh["cached"] is False
 
 
+def test_async_job_returns_and_exposes_completed_result(client, monkeypatch):
+    """A slow WebView request is split into start + result collection.
+
+    TestClient waits for Starlette background tasks before returning, so the GET
+    is already terminal here; a real HTTP client receives the 202 first.
+    """
+    monkeypatch.setattr(ai_gateway, "make_transport", lambda config: _echo_transport)
+    monkeypatch.setattr(
+        ai_gateway, "list_local_models", lambda config: ["gemma4:12b-it-qat"]
+    )
+    job_id = "cl-gemma4result123"
+    response = client.post(
+        "/api/v1/matches/m_target/narrative",
+        json={
+            "provider": "ollama",
+            "model": "gemma4:12b-it-qat",
+            "depth": "deep",
+            "timeout_s": 480,
+            "job_id": job_id,
+            "async_job": True,
+        },
+    )
+    assert response.status_code == 202
+    assert response.json() == {"job_id": job_id, "state": "running"}
+
+    completed = client.get(f"/api/v1/ai/jobs/{job_id}").json()
+    assert completed["state"] == "done"
+    assert completed["result"]["status"] == "ok"
+    assert completed["result"]["model"] == "gemma4:12b-it-qat"
+    assert completed["result"]["narration"]["claims"]
+
+
 def test_ungrounded_output_falls_to_local_only(client, monkeypatch):
     def _liar(system: str, user: str) -> str:
         return json.dumps(

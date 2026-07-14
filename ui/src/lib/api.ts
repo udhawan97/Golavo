@@ -592,11 +592,57 @@ async function postNarrative(
       ...(opts.depth ? { depth: opts.depth } : {}),
       ...(opts.model ? { model: opts.model } : {}),
       ...(opts.timeoutS ? { timeout_s: opts.timeoutS } : {}),
-      ...(opts.jobId ? { job_id: opts.jobId } : {}),
+      // A tracked read runs as a server-side job. The start request returns
+      // immediately; short polls collect the final result after Gemma finishes,
+      // avoiding the WebView's much shorter long-request lifetime.
+      ...(opts.jobId ? { job_id: opts.jobId, async_job: true } : {}),
     }),
   });
+  if (res.status === 202) {
+    const accepted = (await res.json()) as { job_id?: string };
+    if (!accepted.job_id) throw new Error("AI job was accepted without an id");
+    return waitForNarrativeResult(accepted.job_id, base);
+  }
   if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);
   return { ...base, ...(await res.json()) } as NarrativeResponse;
+}
+
+/** Collect a slow local-model result through short requests. The model's own
+ *  deep budget is 8 minutes; the wider collection deadline leaves room for
+ *  evidence assembly/research and transient polling failures without creating
+ *  another 300-second cutoff in the UI. */
+async function waitForNarrativeResult(
+  jobId: string,
+  base: NarrativeResponse,
+): Promise<NarrativeResponse> {
+  const deadline = Date.now() + 12 * 60 * 1000;
+  const url = `${API_BASE}/api/v1/ai/jobs/${encodeURIComponent(jobId)}`;
+  while (Date.now() < deadline) {
+    try {
+      const res = await fetch(url, { headers: apiHeaders() });
+      if (res.status === 401) throw new Error("AI result could not be authorized");
+      if (res.ok) {
+        const job = (await res.json()) as {
+          state?: "running" | "done" | "failed" | "cancelled";
+          result?: Partial<NarrativeResponse>;
+        };
+        if (job.state === "done") {
+          if (!job.result) throw new Error("AI job finished without a result");
+          return { ...base, ...job.result } as NarrativeResponse;
+        }
+        if (job.state === "failed") throw new Error("AI generation failed");
+        if (job.state === "cancelled") throw new Error("AI generation was cancelled");
+      }
+      // A transient 404/5xx or network blip must not discard a Gemma result that
+      // is still being produced server-side. Keep polling until the wide deadline.
+    } catch (error) {
+      if (error instanceof Error && /authorized|finished without|generation (failed|was cancelled)/.test(error.message)) {
+        throw error;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+  }
+  throw new Error("Deep analysis did not finish within 12 minutes");
 }
 
 export async function fetchNarrative(

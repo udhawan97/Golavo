@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from golavo_server import jobs
 from golavo_server.jobs import JobConflict, JobStore
 
@@ -15,8 +14,11 @@ def test_lifecycle_running_to_done() -> None:
     store.update("cl-abcdef12", stage="writing", detail="writing", counts={"tokens": 5})
     got = store.get("cl-abcdef12")
     assert got.stage == "writing" and got.counts["tokens"] == 5
-    assert store.finish("cl-abcdef12") is True
-    assert store.get("cl-abcdef12").state == "done"
+    result = {"status": "ok", "model": "gemma4:12b-it-qat"}
+    assert store.finish("cl-abcdef12", result=result) is True
+    done = store.get("cl-abcdef12")
+    assert done.state == "done"
+    assert done.to_dict()["result"] == result
 
 
 def test_running_collision_conflicts() -> None:
@@ -37,6 +39,9 @@ def test_cancel_flags_and_update_is_noop_after() -> None:
     # Updates after cancellation are dropped (terminal state).
     store.update("cl-abcdef12", stage="writing")
     assert store.get("cl-abcdef12").stage != "writing"
+    # A worker returning after cancellation must not overwrite the terminal state.
+    assert store.finish("cl-abcdef12", result={"status": "ok"}) is False
+    assert store.get("cl-abcdef12").state == "cancelled"
 
 
 def test_id_regex() -> None:

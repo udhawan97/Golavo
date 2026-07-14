@@ -73,7 +73,7 @@ export function Pipeline({
       : null;
 
   const waitNote = isDeep
-    ? "Deep analysis — a bigger model is connecting the evidence. This can take a few minutes; nothing shows until every number is verified."
+    ? "Deep analysis usually takes 5–8 minutes. The model is connecting the evidence; the result appears after every number is verified."
     : elapsedS < 8
       ? refresh
         ? "Regenerating — skipping the cached read."

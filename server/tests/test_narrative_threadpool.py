@@ -18,6 +18,7 @@ from pathlib import Path
 
 import httpx
 import pytest
+from fastapi.testclient import TestClient
 from golavo_core.artifacts import seal_forecast
 from golavo_server import ai_gateway
 from golavo_server import main as server_main
@@ -89,3 +90,18 @@ def test_health_stays_responsive_while_a_narration_is_in_flight(
     body = response.json()
     assert body["status"] == "disabled"
     assert body["artifact_id"] == sealed
+
+
+def test_forecast_narrative_async_job_exposes_final_result(sealed: str) -> None:
+    client = TestClient(server_main.app)
+    job_id = "cl-forecastresult123"
+    response = client.post(
+        f"/api/v1/forecasts/{sealed}/narrative",
+        json={"provider": "off", "job_id": job_id, "async_job": True},
+    )
+    assert response.status_code == 202
+    assert response.json() == {"job_id": job_id, "state": "running"}
+    completed = client.get(f"/api/v1/ai/jobs/{job_id}").json()
+    assert completed["state"] == "done"
+    assert completed["result"]["status"] == "disabled"
+    assert completed["result"]["artifact_id"] == sealed

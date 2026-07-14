@@ -30,7 +30,7 @@ Every read opens with a one-line **verdict** — the engine's single most likely
 The read has two speeds, chosen with a toggle on the panel:
 
 - **Fast** — a small model (e.g. `llama3.2`) writes a few grounded claims in seconds.
-- **Deep analysis** — a bigger model (e.g. `gemma4:12b`) sees more of the evidence and writes a fuller synthesis — more claims, plus scenarios that connect facts to each other and surface tensions and corroborations. A 12B model on a rich match takes a few minutes (up to an 8-minute budget); it now reports **real staged progress** (assembling → researching → writing → verifying) with a live detail line and source counts, and you can cancel or drop back to Fast in one tap.
+- **Deep analysis** — a bigger model (e.g. `gemma4:12b`) sees more of the evidence and writes a fuller synthesis — more claims, plus scenarios that connect facts to each other and surface tensions and corroborations. A 12B model on a rich match usually takes **5–8 minutes**; it reports **real staged progress** (assembling → researching → writing → verifying) with a live detail line and source counts, and you can cancel or drop back to Fast in one tap.
 
 ### Web research (opt-in)
 

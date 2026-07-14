@@ -1,15 +1,16 @@
 """An in-memory, thread-safe job store for AI-read progress.
 
-The narrative POST stays fully blocking and backward compatible: the client
-optionally passes a ``job_id`` (an idempotency key it generates), and the sidecar
-records coarse stage progress against it so a separate ``GET /ai/jobs/{id}`` can
-drive a live progress UI while the POST is in flight. No ``job_id`` → no tracking,
-identical to before.
+The client optionally passes a ``job_id`` (an idempotency key it generates), and
+the sidecar records coarse stage progress against it so a separate
+``GET /ai/jobs/{id}`` can drive a live progress UI. New clients also pass
+``async_job=true``: the POST then returns 202 immediately and the same GET
+supplies the final validated result. No ``job_id`` → no tracking, identical to
+before.
 
 The store is a process-local singleton guarded by one lock; finished jobs are
 pruned after a short TTL, and there is a hard cap so a runaway client can't grow
-it without bound. On app close the POST connection drops but the worker finishes
-and its job TTL-prunes — nothing leaks.
+it without bound. On app close the worker finishes and its job TTL-prunes —
+nothing leaks.
 """
 
 from __future__ import annotations
@@ -43,9 +44,13 @@ class Job:
     created_at: float = 0.0
     updated_at: float = 0.0
     error: str | None = None
+    # The final, already-guarded API envelope. Keeping it with the short-lived
+    # job lets the UI collect a slow local-model result without holding one HTTP
+    # request open for 5–8 minutes (WebViews may abandon such requests earlier).
+    result: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "job_id": self.job_id,
             "state": self.state,
             "stage": self.stage,
@@ -53,6 +58,11 @@ class Job:
             "counts": self.counts,
             "elapsed_s": round(max(0.0, time.monotonic() - self.created_at), 3),
         }
+        if self.state == "done" and self.result is not None:
+            payload["result"] = self.result
+        if self.state == "failed" and self.error:
+            payload["error"] = self.error
+        return payload
 
 
 class JobStore:
@@ -104,19 +114,26 @@ class JobStore:
                 job.counts = counts
             job.updated_at = time.monotonic()
 
-    def _terminate(self, job_id: str, state: str, error: str | None = None) -> bool:
+    def _terminate(
+        self,
+        job_id: str,
+        state: str,
+        error: str | None = None,
+        result: dict[str, Any] | None = None,
+    ) -> bool:
         with self._lock:
             job = self._jobs.get(job_id)
-            if job is None:
+            if job is None or job.state != "running":
                 return False
             job.state = state
             job.stage = "done"
             job.error = error
+            job.result = result
             job.updated_at = time.monotonic()
             return True
 
-    def finish(self, job_id: str) -> bool:
-        return self._terminate(job_id, "done")
+    def finish(self, job_id: str, result: dict[str, Any] | None = None) -> bool:
+        return self._terminate(job_id, "done", result=result)
 
     def fail(self, job_id: str, error: str) -> bool:
         return self._terminate(job_id, "failed", error)

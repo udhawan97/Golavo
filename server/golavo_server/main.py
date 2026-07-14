@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
@@ -470,7 +470,9 @@ def calibration() -> dict[str, Any]:
 
 
 @app.post("/api/v1/forecasts/{artifact_id}/narrative")
-async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
+async def narrative(
+    artifact_id: str, request: Request, background_tasks: BackgroundTasks
+) -> Any:
     """Return an OPTIONAL, guard-validated AI narration for one artifact.
 
     Additive and off by default: with no body (or ``{"provider": "off"}``) this
@@ -481,7 +483,7 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
     """
     from golavo_core.evidence import build_evidence_bundle  # lazy: pulls the AI guards
 
-    from golavo_server import ai_gateway
+    from golavo_server import ai_gateway, jobs
 
     known_paths = {path.stem: path for path in _forecasts_dir().glob("fa_*.json")}
     path = known_paths.get(artifact_id)
@@ -519,32 +521,77 @@ async def narrative(artifact_id: str, request: Request) -> dict[str, Any]:
         )
 
     bundle = await run_in_threadpool(_build_bundle)
-    envelope = await run_in_threadpool(
-        lambda: ai_gateway.generate_narration(
-            bundle, config, refresh=bool(body.get("refresh", False))
+
+    # New clients ask for an asynchronous job so the WebView never has to hold a
+    # single request open for a 5-8 minute Gemma run. No job id / async flag keeps
+    # the historical blocking API intact for older or third-party clients.
+    job_id = body.get("job_id")
+    job = None
+    if body.get("async_job") is True and isinstance(job_id, str) and job_id:
+        if not jobs.JOB_ID_RE.match(job_id):
+            raise HTTPException(status_code=400, detail="malformed job_id")
+        try:
+            job = jobs.store().start(job_id)
+        except jobs.JobConflict as exc:
+            raise HTTPException(status_code=409, detail="job already running") from exc
+
+    def _progress(stage: str, detail: str, counts: dict[str, Any]) -> None:
+        if job is not None:
+            jobs.store().update(job.job_id, stage=stage, detail=detail, counts=counts)
+
+    def _cancelled() -> bool:
+        return job is not None and jobs.store().is_cancelled(job.job_id)
+
+    def _serialize(envelope: Any) -> dict[str, Any]:
+        # The UI resolves claim ids against these trusted bundle lookups.
+        return {
+            "artifact_id": artifact_id,
+            "bundle_hash": bundle["bundle_hash"],
+            "sources": [
+                {
+                    "source_id": s["source_id"],
+                    "kind": s["kind"],
+                    "title": s["title"],
+                    "url": s["url"],
+                }
+                for s in bundle["sources"]
+            ],
+            "numbers": [
+                {"id": n["id"], "display": n["display"], "label": n["label"], "unit": n["unit"]}
+                for n in bundle["allowed_numbers"]
+            ],
+            **envelope.to_dict(),
+        }
+
+    def _run() -> dict[str, Any]:
+        try:
+            result = _serialize(ai_gateway.generate_narration(
+                bundle,
+                config,
+                refresh=bool(body.get("refresh", False)),
+                progress=_progress,
+                is_cancelled=_cancelled,
+            ))
+            if job is not None:
+                jobs.store().finish(job.job_id, result=result)
+            return result
+        except Exception:
+            if job is not None:
+                jobs.store().fail(job.job_id, "narration failed")
+            raise
+
+    if job is not None:
+        background_tasks.add_task(_run)
+        return JSONResponse(
+            {"job_id": job.job_id, "state": "running"}, status_code=202
         )
-    )
-    # The UI resolves a claim's source_ids/number_refs against these trusted
-    # bundle lookups to render citation chips with the exact engine display value.
-    sources = [
-        {"source_id": s["source_id"], "kind": s["kind"], "title": s["title"], "url": s["url"]}
-        for s in bundle["sources"]
-    ]
-    numbers = [
-        {"id": n["id"], "display": n["display"], "label": n["label"], "unit": n["unit"]}
-        for n in bundle["allowed_numbers"]
-    ]
-    return {
-        "artifact_id": artifact_id,
-        "bundle_hash": bundle["bundle_hash"],
-        "sources": sources,
-        "numbers": numbers,
-        **envelope.to_dict(),
-    }
+    return await run_in_threadpool(_run)
 
 
 @app.post("/api/v1/matches/{match_id}/narrative")
-async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
+async def match_narrative(
+    match_id: str, request: Request, background_tasks: BackgroundTasks
+) -> Any:
     """An OPTIONAL, guard-validated AI deep read of one match's notes + council.
 
     The cockpit's "make the notes deeper" action: the on-demand MatchAnalysis
@@ -634,7 +681,25 @@ async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
 
         researcher = lambda: run_research(bundle, config.depth, progress=_progress)  # noqa: E731
 
-    def _run() -> Any:
+    def _serialize(envelope: Any) -> dict[str, Any]:
+        sources = [
+            {"source_id": s["source_id"], "kind": s["kind"], "title": s["title"], "url": s["url"]}
+            for s in bundle["sources"]
+        ]
+        sources.extend(envelope.web_sources)
+        return {
+            "match_id": match_id,
+            "bundle_hash": bundle["bundle_hash"],
+            "sources": sources,
+            "numbers": [
+                {"id": n["id"], "display": n["display"], "label": n["label"], "unit": n["unit"]}
+                for n in bundle["allowed_numbers"]
+            ],
+            "job_id": job.job_id if job is not None else None,
+            **envelope.to_dict(),
+        }
+
+    def _run() -> dict[str, Any]:
         try:
             env = ai_gateway.generate_narration(
                 bundle, config,
@@ -643,33 +708,21 @@ async def match_narrative(match_id: str, request: Request) -> dict[str, Any]:
                 progress=_progress,
                 is_cancelled=_cancelled,
             )
+            result = _serialize(env)
             if job is not None:
-                jobs.store().finish(job.job_id)
-            return env
+                jobs.store().finish(job.job_id, result=result)
+            return result
         except Exception:
             if job is not None:
                 jobs.store().fail(job.job_id, "narration failed")
             raise
 
-    envelope = await run_in_threadpool(_run)
-    # Bundle sources plus the web-research sources (which never enter the bundle).
-    sources = [
-        {"source_id": s["source_id"], "kind": s["kind"], "title": s["title"], "url": s["url"]}
-        for s in bundle["sources"]
-    ]
-    sources.extend(envelope.web_sources)
-    numbers = [
-        {"id": n["id"], "display": n["display"], "label": n["label"], "unit": n["unit"]}
-        for n in bundle["allowed_numbers"]
-    ]
-    return {
-        "match_id": match_id,
-        "bundle_hash": bundle["bundle_hash"],
-        "sources": sources,
-        "numbers": numbers,
-        "job_id": job.job_id if job is not None else None,
-        **envelope.to_dict(),
-    }
+    if job is not None and body.get("async_job") is True:
+        background_tasks.add_task(_run)
+        return JSONResponse(
+            {"job_id": job.job_id, "state": "running"}, status_code=202
+        )
+    return await run_in_threadpool(_run)
 
 
 @app.get("/api/v1/ai/jobs/{job_id}")
