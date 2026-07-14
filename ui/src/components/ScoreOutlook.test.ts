@@ -1,0 +1,80 @@
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
+import type { MatchAnalysis } from "../lib/contract";
+import { ScoreOutlook } from "./ScoreOutlook";
+
+const analysis: MatchAnalysis = {
+  schema_version: "0.4.1",
+  analysis_kind: "preview",
+  match: {
+    match_id: "m_design_test",
+    competition: "Design test",
+    kickoff_utc: "2030-01-01T12:00:00Z",
+    home_team: "France",
+    away_team: "Spain",
+    neutral_venue: true,
+    is_complete: false,
+  },
+  information_cutoff_utc: "2029-12-31T12:00:00Z",
+  abstained: false,
+  abstain_reason: null,
+  uncertainty: "medium",
+  team_history: { France: 20, Spain: 20 },
+  min_team_matches: 20,
+  council: {
+    voices: 1,
+    voices_agree: true,
+    leading_outcome: "draw",
+    max_delta_p: 0,
+    outcome_range: null,
+  },
+  models: [{
+    family: "poisson_independent",
+    role: "voice",
+    method: "goals",
+    abstained: false,
+    probs: { home: 0.34, draw: 0.36, away: 0.3 },
+    expected_goals: { home: 1.35, away: 1.2 },
+    score_matrix: {
+      grid: [
+        [0.08, 0.1, 0.06],
+        [0.11, 0.14, 0.09],
+        [0.08, 0.09, 0.05],
+      ],
+      max_goals: 2,
+      most_likely: { home: 1, away: 1, probability: 0.14 },
+      resolution: 20,
+      tail: { home: 0.04, draw: 0.01, away: 0.05, probability: 0.1 },
+      total_probability: 1,
+    },
+    params: null,
+  }],
+  score_matrix: null,
+  score_matrix_family: "poisson_independent",
+  derived_markets: {
+    family: "poisson_independent",
+    source: "full_resolution_matrix",
+    btts: { yes: 0.53, no: 0.47 },
+    clean_sheets: { home: 0.24, away: 0.3 },
+  },
+};
+
+describe("ScoreOutlook market dashboard", () => {
+  it("keeps a compact exact-data preview ahead of the analytical details", () => {
+    const html = renderToStaticMarkup(createElement(ScoreOutlook, {
+      analysis,
+      home: "France",
+      away: "Spain",
+    }));
+
+    expect(html).toContain("Most balanced line");
+    expect(html).toContain("Clean-sheet edge");
+    expect(html).toContain("Goal peak");
+    expect(html).toContain("Total-goal distribution");
+    expect(html).toContain('aria-label="Total-goal probability distribution"');
+    expect(html).toContain("Expected total");
+    expect(html).toContain("Exact-score matrix");
+    expect(html).toContain("Spain");
+  });
+});

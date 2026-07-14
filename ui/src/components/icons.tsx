@@ -175,6 +175,22 @@ export const ScaleIcon = ({ size = 16, ...p }: IconProps) => (
   </svg>
 );
 
+/** Compact distribution bars — used where a chart is the visual, not an action. */
+export const DistributionIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M4 20V12h3v8M10.5 20V5h3v15M17 20v-6h3v6" />
+    <path d="M3 20.5h18" />
+  </svg>
+);
+
+/** Matrix cells — the exact-score table disclosure. */
+export const MatrixIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <rect x="3.5" y="3.5" width="17" height="17" rx="2.5" />
+    <path d="M9 3.5v17M15 3.5v17M3.5 9h17M3.5 15h17" />
+  </svg>
+);
+
 export const SparkIcon = ({ size = 16, ...p }: IconProps) => (
   <svg {...base(size, p)}>
     <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
