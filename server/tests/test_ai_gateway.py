@@ -24,6 +24,7 @@ from golavo_server.ai_gateway import (
     build_openai_payload,
     extract_json_object,
     generate_narration,
+    normalize_narration_shape,
     resolve_provider,
 )
 
@@ -127,6 +128,26 @@ def test_response_with_fences_and_thinking_is_parsed(bundle: dict) -> None:
     assert env.status == "ok"
 
 
+def test_truncated_disabled_candidate_facts_preserves_complete_core(bundle: dict) -> None:
+    payload = _valid_response(bundle)
+    complete_core = json.dumps({
+        "verdict": None,
+        "claims": payload["claims"],
+        "scenarios": payload["scenarios"],
+    })
+    truncated = complete_core[:-1] + ', "candidate_facts": ["id_one", "id_two"'
+    parsed = extract_json_object(truncated)
+    assert parsed is not None
+    assert parsed["candidate_facts"] == []
+
+    env = generate_narration(
+        bundle, _cfg(), transport=_canned(truncated), cache=NarrationCache()
+    )
+    assert env.status == "ok"
+    assert env.narration is not None
+    assert len(env.narration["claims"]) == 1
+
+
 def test_harmless_extra_keys_are_pruned_not_rejected(bundle: dict) -> None:
     # Small local models routinely decorate items with extras (claim_id, kind,
     # confidence). The strict wire schema would reject them; pruning keeps the
@@ -139,6 +160,106 @@ def test_harmless_extra_keys_are_pruned_not_rejected(bundle: dict) -> None:
     assert env.status == "ok"
     served = env.narration["claims"][0]
     assert set(served) == {"text", "source_ids", "number_refs"}
+
+
+def test_gemma_wrapper_and_string_items_are_repaired_then_strictly_reviewed(
+    bundle: dict,
+) -> None:
+    engine = bundle["sources"][0]["source_id"]
+    number = next(n for n in bundle["allowed_numbers"] if n["id"] == "prob_home")
+    payload = {
+        "AiNarration": {
+            "claims": [
+                f"France leads the engine view at {number['display']} "
+                f"({number['id']}) [{engine}]."
+            ],
+            "scenarios": [
+                f"Scenario 1: The same {number['display']} forecast leaves room "
+                "for uncertainty."
+            ],
+        }
+    }
+    repaired = normalize_narration_shape(payload, bundle)
+    assert "AiNarration" not in repaired
+    assert repaired["claims"][0]["source_ids"] == [engine]
+    assert "Scenario 1" not in repaired["scenarios"][0]["text"]
+
+    calls = {"n": 0}
+
+    def transport(system: str, user: str) -> str:
+        calls["n"] += 1
+        return json.dumps(payload)
+
+    env = generate_narration(bundle, _cfg(), transport=transport, cache=NarrationCache())
+    assert env.status == "ok"
+    assert calls["n"] == 1
+    assert env.narration is not None
+    assert env.narration["claims"][0]["number_refs"] == ["prob_home"]
+
+
+def test_gemma_wrapper_cannot_rescue_an_unsupported_number(bundle: dict) -> None:
+    engine = bundle["sources"][0]["source_id"]
+    payload = {
+        "AiNarration": {
+            "claims": [f"France is certain to win at 91% [{engine}]."],
+            "scenarios": [],
+        }
+    }
+    env = generate_narration(
+        bundle, _cfg(), transport=_canned(payload), cache=NarrationCache()
+    )
+    assert env.status == "local_only"
+    assert env.narration is None
+
+
+def test_object_items_have_sloppy_metadata_rebuilt_from_sealed_evidence(
+    bundle: dict,
+) -> None:
+    number = next(n for n in bundle["allowed_numbers"] if n["id"] == "prob_home")
+    payload = {
+        "verdict": None,
+        "claims": [{
+            "text": f"France leads the engine view at {number['display']}.",
+            "source_ids": ["invented:source"],
+            "number_refs": ["invented_number"],
+        }],
+        "scenarios": [],
+        "candidate_facts": [],
+    }
+    env = generate_narration(
+        bundle, _cfg(), transport=_canned(payload), cache=NarrationCache()
+    )
+    assert env.status == "ok"
+    assert env.narration is not None
+    claim = env.narration["claims"][0]
+    assert claim["number_refs"] == ["prob_home"]
+    assert set(claim["source_ids"]) == set(number["source_ids"])
+
+
+def test_claims_accidentally_nested_under_verdict_are_lifted(bundle: dict) -> None:
+    engine = bundle["sources"][0]["source_id"]
+    number = next(n for n in bundle["allowed_numbers"] if n["id"] == "prob_home")
+    payload = {
+        "verdict": {
+            "claims": [{
+                "text": f"France leads the engine view at {number['display']}.",
+                "source_ids": [engine],
+                "number_refs": [number["id"]],
+            }],
+            "scenarios": [{
+                "text": f"The same {number['display']} leaves room for uncertainty.",
+                "source_ids": [engine],
+                "number_refs": [number["id"]],
+            }],
+        }
+    }
+    env = generate_narration(
+        bundle, _cfg(), transport=_canned(payload), cache=NarrationCache()
+    )
+    assert env.status == "ok"
+    assert env.narration is not None
+    assert len(env.narration["claims"]) == 1
+    assert len(env.narration["scenarios"]) == 1
 
 
 # --- Adversarial transports fail closed to local_only ------------------------

@@ -85,6 +85,7 @@ Transport = Callable[[str, str], str]
 
 _THINK_RE = re.compile(r"(?is)<think>.*?</think>")
 _FENCE_RE = re.compile(r"(?is)```(?:json)?\s*(.*?)\s*```")
+_SCENARIO_PREFIX_RE = re.compile(r"(?i)^\s*scenario\s+\d+\s*[:.\-)]+\s*")
 _LOCAL_MODEL_LOCK = threading.Lock()
 
 
@@ -680,7 +681,229 @@ def extract_json_object(text: str) -> dict[str, Any] | None:
                     return json.loads(cleaned[start : index + 1])
                 except json.JSONDecodeError:
                     return None
+
+    # Local models occasionally finish verdict/claims/scenarios, then waste the
+    # remaining output budget dumping ids into the disabled ``candidate_facts``
+    # field. If truncation occurs there, recover only the already-complete core
+    # prefix and force the optional field to []. This is deliberately narrow: it
+    # never tries to repair a cut-off claim, scenario, or arbitrary JSON suffix,
+    # and the recovered core still passes through the strict narration review.
+    candidate = re.search(
+        r'(?m)(?:^|,)\s*"candidate_facts"\s*:', cleaned[start:]
+    )
+    if candidate:
+        prefix = cleaned[start : start + candidate.start()].rstrip().rstrip(",")
+        repaired = prefix + ',\n"candidate_facts": []\n}'
+        try:
+            parsed = json.loads(repaired)
+        except json.JSONDecodeError:
+            return None
+        if isinstance(parsed, dict) and all(
+            key in parsed for key in ("verdict", "claims", "scenarios")
+        ):
+            return parsed
     return None
+
+
+def normalize_narration_shape(
+    raw: dict[str, Any], bundle: dict[str, Any]
+) -> dict[str, Any]:
+    """Conform common local-model JSON variants before the strict review.
+
+    Gemma sometimes returns useful, grounded prose as ``{"AiNarration":
+    {"claims": ["... [source_id]."]}}`` even when the prompt explicitly asks
+    for top-level Claim objects.  Discarding that whole response wastes minutes
+    and loses analysis that can be made auditable without trusting the model's
+    metadata.  This adapter only performs deterministic, evidence-bound repairs:
+
+    * unwrap one or more narration/result wrapper objects;
+    * turn string claims/scenarios into the canonical Claim shape;
+    * recover only exact bundle source ids and exact allowed-number displays;
+    * remove cosmetic inline ids and ``Scenario 1:`` labels.
+
+    The result still passes through ``review_narration``.  Unsupported numbers,
+    uncited qualitative claims, betting language, secrets, and every other guard
+    remain fail-closed.
+    """
+    known_top = {
+        "verdict", "claims", "scenarios", "candidate_facts",
+        "background", "research_notes",
+    }
+    current: Any = raw
+    # Only unwrap a single-object envelope when it contains no canonical key.
+    # This handles AiNarration/result/output without accepting arbitrary sibling
+    # metadata or searching unrelated nested objects for content.
+    for _ in range(3):
+        if not isinstance(current, dict) or known_top.intersection(current):
+            break
+        if len(current) != 1:
+            break
+        child = next(iter(current.values()))
+        if not isinstance(child, dict):
+            break
+        current = child
+    if not isinstance(current, dict):
+        return raw
+
+    # Gemma may interpret "first key: verdict" as "put the narration inside
+    # verdict" and return {"verdict": {"claims": [...], "scenarios": [...]}}.
+    # Lift only those two canonical arrays; do not search arbitrary nested data.
+    verdict_container = current.get("verdict")
+    if isinstance(verdict_container, dict) and (
+        isinstance(verdict_container.get("claims"), list)
+        or isinstance(verdict_container.get("scenarios"), list)
+    ):
+        current = {
+            **current,
+            "verdict": None,
+            "claims": current.get("claims", verdict_container.get("claims", [])),
+            "scenarios": current.get("scenarios", verdict_container.get("scenarios", [])),
+        }
+
+    sources = [str(source["source_id"]) for source in bundle["sources"]]
+    source_set = set(sources)
+    numbers = list(bundle["allowed_numbers"])
+    number_by_id = {str(number["id"]): number for number in numbers}
+
+    def _display_in_text(display: str, text: str) -> bool:
+        # Do not let a short display such as "1" match inside "10", "1.2", or
+        # an identifier. This mirrors the verifier's token boundary closely while
+        # retaining the exact trusted display string (including % or units).
+        return bool(re.search(
+            rf"(?<![\w.+-]){re.escape(display)}(?!\w)(?!\.\d)", text
+        ))
+
+    def _label_score(number: dict[str, Any], text: str) -> tuple[int, int]:
+        words = set(re.findall(r"[a-z]{4,}", text.casefold()))
+        label_words = set(re.findall(r"[a-z]{4,}", str(number.get("label", "")).casefold()))
+        # Stable tie-break: earlier evidence-bundle entries win.
+        return len(words.intersection(label_words)), -numbers.index(number)
+
+    def _string_item(
+        value: str,
+        *,
+        scenario: bool = False,
+        provided_sources: list[Any] | None = None,
+        provided_refs: list[Any] | None = None,
+    ) -> dict[str, Any] | None:
+        text = value.strip()
+        if not text:
+            return None
+        if scenario:
+            text = _SCENARIO_PREFIX_RE.sub("", text)
+
+        cited_sources = [
+            str(sid) for sid in (provided_sources or ()) if str(sid) in source_set
+        ]
+        cited_sources.extend(sid for sid in sources if sid in text)
+        cited_sources = list(dict.fromkeys(cited_sources))
+        # Gemma commonly appends ``[source_a, source_b].``. Remove that display
+        # noise only when every token is an exact source id from this bundle.
+        left = text.rfind("[")
+        right = text.rfind("]")
+        if left >= 0 and right > left and not text[right + 1 :].strip(" ."):
+            inline = [token.strip() for token in text[left + 1 : right].split(",")]
+            if inline and all(token in source_set for token in inline):
+                cited_sources = list(dict.fromkeys([*cited_sources, *inline]))
+                text = (text[:left].rstrip() + text[right + 1 :]).strip()
+
+        # Explicit ``(nb_...)`` references are metadata, not prose. Recover and
+        # remove them only when the id is genuinely in this bundle.
+        explicit_refs = [
+            str(ref) for ref in (provided_refs or ()) if str(ref) in number_by_id
+        ]
+        for ref in number_by_id:
+            marker = f"({ref})"
+            if marker in text:
+                if _display_in_text(str(number_by_id[ref]["display"]), text):
+                    explicit_refs.append(ref)
+                text = text.replace(marker, "").replace("  ", " ").strip()
+        text = text.replace(" .", ".")
+
+        # Choose one provenance ref per distinct display. Many bundle facts can
+        # share a value such as "10"; dumping every matching id creates dozens of
+        # misleading chips. Prefer an explicit inline id, then the label whose
+        # words best match the sentence, with bundle order as a stable tie-break.
+        refs: list[str] = []
+        displays = list(dict.fromkeys(
+            str(number["display"])
+            for number in numbers
+            if _display_in_text(str(number["display"]), text)
+        ))
+        for display in displays:
+            candidates = [
+                number for number in numbers
+                if str(number["display"]) == display
+                and (
+                    not cited_sources
+                    or set(number.get("source_ids", ())).intersection(cited_sources)
+                )
+            ]
+            explicit = [
+                number_by_id[ref]
+                for ref in explicit_refs
+                if number_by_id[ref] in candidates
+            ]
+            chosen = explicit[0] if explicit else max(
+                candidates, key=lambda n: _label_score(n, text), default=None
+            )
+            if chosen is not None:
+                refs.append(str(chosen["id"]))
+
+        if not cited_sources:
+            # A number's provenance is deterministic bundle data. It is safe to
+            # recover its sources; a numberless string with no inline citation is
+            # left uncited and will be dropped by the strict review.
+            for ref in refs:
+                cited_sources.extend(str(s) for s in number_by_id[ref].get("source_ids", ()))
+            cited_sources = list(dict.fromkeys(s for s in cited_sources if s in source_set))
+
+        return {
+            "text": text,
+            "source_ids": cited_sources,
+            "number_refs": refs,
+        }
+
+    def _items(key: str) -> list[Any]:
+        values = current.get(key)
+        if not isinstance(values, list):
+            return []
+        out: list[Any] = []
+        for value in values:
+            if isinstance(value, str):
+                repaired = _string_item(value, scenario=key == "scenarios")
+                if repaired is not None:
+                    out.append(repaired)
+            elif key in {"claims", "scenarios"} and isinstance(value, dict):
+                text = value.get("text")
+                repaired = _string_item(
+                    text,
+                    scenario=key == "scenarios",
+                    provided_sources=value.get("source_ids"),
+                    provided_refs=value.get("number_refs"),
+                ) if isinstance(text, str) else None
+                if repaired is not None:
+                    out.append(repaired)
+            else:
+                out.append(value)
+        return out
+
+    verdict = current.get("verdict")
+    if isinstance(verdict, str):
+        verdict = _string_item(verdict)
+    elif isinstance(verdict, dict) and isinstance(verdict.get("text"), str):
+        verdict = _string_item(
+            verdict["text"],
+            provided_sources=verdict.get("source_ids"),
+            provided_refs=verdict.get("number_refs"),
+        )
+    return {
+        **current,
+        "verdict": verdict,
+        "claims": _items("claims"),
+        "scenarios": _items("scenarios"),
+        "candidate_facts": _items("candidate_facts"),
+    }
 
 
 # --- Caching -----------------------------------------------------------------
@@ -696,7 +919,10 @@ class NarrationCache:
     """
 
     def __init__(self) -> None:
-        self._store: dict[tuple[str, str, str, str, str, bool, bool, bool, str], dict[str, Any]] = {}
+        self._store: dict[
+            tuple[str, str, str, str, str, bool, bool, bool, str],
+            dict[str, Any],
+        ] = {}
 
     @staticmethod
     def key(
@@ -960,6 +1186,7 @@ def generate_narration(
             reasons.append("model output was not valid JSON")
             attempt_user = user + JSON_RETRY_INSTRUCTION
             continue
+        raw = normalize_narration_shape(raw, bundle)
         _emit("verifying", "Verifying every number against the engine")
         review = review_narration(
             raw,

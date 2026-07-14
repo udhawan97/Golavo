@@ -18,7 +18,7 @@ import {
 } from "../../lib/ai";
 import type { AiDepth, AiProvider, NarrativeResponse } from "../../lib/ai";
 import { newJobId, usePolledProgress } from "../../lib/aiProgress";
-import { ClockIcon, FlaskIcon, InfoIcon, TelescopeIcon } from "../icons";
+import { ClockIcon, FlaskIcon, InfoIcon, SearchIcon } from "../icons";
 import { Pipeline } from "./AiPipeline";
 import { Result } from "./AiResult";
 import { FallbackCard, humanizeError, OffCard } from "./AiFallback";
@@ -294,7 +294,7 @@ function DepthControls({
           aria-pressed={depth === "deep"}
           onClick={() => onDepth("deep")}
         >
-          <TelescopeIcon size={14} /> Deep analysis
+          <SearchIcon size={14} /> Deep analysis
         </button>
       </div>
       <p className="small dim" style={{ margin: 0 }}>

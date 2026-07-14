@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-13.8"
+PROMPT_VERSION = "golavo-narration-2026-07-13.11"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -321,8 +321,14 @@ def build_user_prompt(
                 ]
             )
     parts.append(
-        "\nReturn ONLY the AiNarration JSON. Every number in the verdict, a claim, "
-        "or a scenario must be one of the allowed numbers above; every claim must "
-        "cite a source_id."
+        "\nReturn ONLY one JSON object with EXACTLY these four TOP-LEVEL keys: "
+        "`verdict`, `claims`, `scenarios`, `candidate_facts`. NEVER write "
+        "`AiNarration`, `result`, or `output` as a wrapper key. `verdict` is null "
+        "or one claim object; it must NEVER contain `claims` or `scenarios`. Every "
+        "claim and scenario must be an object with `text`, `source_ids`, and "
+        "`number_refs` arrays — never a bare string. `candidate_facts` MUST be the "
+        "empty array `[]`; do not copy facts or ids into it. Every number in the verdict, "
+        "a claim, or a scenario must be one of the allowed numbers above; every "
+        "claim must cite a source_id."
     )
     return "\n".join(parts)
