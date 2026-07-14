@@ -61,6 +61,43 @@ export interface WaitCard {
 }
 
 /**
+ * Short editorial notes for the full-screen launch experience. The larger
+ * warming card can carry the longer deck above; the splash deliberately uses
+ * one compact line so its hierarchy never collapses while the engine starts.
+ */
+export const LAUNCH_NOTES: readonly WaitCard[] = [
+  {
+    label: "Local-first",
+    text: "Your match library stays on this Mac — never in the cloud.",
+  },
+  {
+    label: "Football fact",
+    text: "Liverpool engineer John Brodie patented the goal net in 1891.",
+  },
+  {
+    label: "Built for trust",
+    text: "The engine owns every number; AI may explain, never edit.",
+  },
+  {
+    label: "Football fact",
+    text: "Brazil has played at every men's World Cup since 1930.",
+  },
+  {
+    label: "Private by design",
+    text: "Nothing phones home while Golavo prepares your workspace.",
+  },
+  {
+    label: "Football fact",
+    text: "Denmark entered Euro 1992 late — then won the tournament.",
+  },
+] as const;
+
+export function buildLaunchDeck(seed = 0): WaitCard[] {
+  const offset = ((seed % LAUNCH_NOTES.length) + LAUNCH_NOTES.length) % LAUNCH_NOTES.length;
+  return [...LAUNCH_NOTES.slice(offset), ...LAUNCH_NOTES.slice(0, offset)];
+}
+
+/**
  * A round-robin interleave of the three decks, so consecutive cards vary in kind
  * (why → gem → fact → why …). Each deck is offset by `seed` so two surfaces
  * (splash + home) don't march in lockstep. Deterministic for a given seed.

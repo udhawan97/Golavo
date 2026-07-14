@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { backendFailureAction, stageProgress } from "./startup";
-import { buildWaitDeck, APP_GEMS, FACTS, WAIT_WHY } from "./waitContent";
+import {
+  buildLaunchDeck,
+  buildWaitDeck,
+  APP_GEMS,
+  FACTS,
+  LAUNCH_NOTES,
+  WAIT_WHY,
+} from "./waitContent";
 
 describe("stageProgress", () => {
   it("eases upward within a stage, never backward", () => {
@@ -68,5 +75,23 @@ describe("buildWaitDeck", () => {
   it("is deterministic per seed and shifts with the seed", () => {
     expect(buildWaitDeck(0)).toEqual(buildWaitDeck(0));
     expect(buildWaitDeck(0)[0].text).not.toBe(buildWaitDeck(1)[0].text);
+  });
+});
+
+describe("buildLaunchDeck", () => {
+  it("keeps the splash deck compact while mixing football and product context", () => {
+    const deck = buildLaunchDeck(2);
+    expect(deck).toHaveLength(LAUNCH_NOTES.length);
+    expect(deck.some((card) => card.label === "Football fact")).toBe(true);
+    expect(deck.some((card) => card.label !== "Football fact")).toBe(true);
+    expect(deck.every((card) => card.text.length <= 100)).toBe(true);
+  });
+
+  it("rotates deterministically without dropping a note", () => {
+    expect(buildLaunchDeck(0)).toEqual(buildLaunchDeck(0));
+    expect(buildLaunchDeck(1)[0]).not.toEqual(buildLaunchDeck(0)[0]);
+    expect(new Set(buildLaunchDeck(9).map((card) => card.text))).toEqual(
+      new Set(LAUNCH_NOTES.map((card) => card.text)),
+    );
   });
 });

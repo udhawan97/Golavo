@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IS_DESKTOP_SHELL } from "../lib/updater";
-import { stageProgress } from "../lib/startup";
+import { stageProgress, startupCopyFor } from "../lib/startup";
 import type { SplashStage } from "../lib/startup";
-import { buildWaitDeck } from "../lib/waitContent";
+import { buildLaunchDeck } from "../lib/waitContent";
 
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined"
@@ -51,35 +51,6 @@ function SplashWaves() {
   );
 }
 
-/** Stage title + status line. Everything here is TRUE for the stage it names:
- *  stage 1 is a real self-extract, stage 2 is a real index load. */
-function copyFor(stage: SplashStage, desktop: boolean, rows: number | null): {
-  title: string;
-  status: string;
-  announce: string;
-} {
-  if (!desktop) {
-    return {
-      title: "Connecting to the local server…",
-      status: "Connecting to the local server…",
-      announce: "Starting Golavo — connecting to the local server.",
-    };
-  }
-  if (stage === "extracting") {
-    return {
-      title: "Unpacking the engine…",
-      status: "First launch takes the longest — the whole engine self-extracts.",
-      announce: "Starting Golavo — unpacking the engine. This can take up to a minute.",
-    };
-  }
-  const seated = rows ? rows.toLocaleString() : "75,000+";
-  return {
-    title: "Waking the match library…",
-    status: `Engine is up — seating ${seated} matches.`,
-    announce: "Engine running — waking the match library. Almost ready.",
-  };
-}
-
 export function StartupSplash({
   theme,
   stage = "extracting",
@@ -103,7 +74,7 @@ export function StartupSplash({
 }) {
   const [pct, setPct] = useState(0);
   const stageStart = useRef<number>(performance.now());
-  const deck = useMemo(() => buildWaitDeck(Math.floor(Math.random() * 12)), []);
+  const deck = useMemo(() => buildLaunchDeck(Math.floor(Math.random() * 12)), []);
   const [card, setCard] = useState(0);
   const retryRef = useRef<HTMLButtonElement>(null);
 
@@ -122,8 +93,8 @@ export function StartupSplash({
   }, [stage, failed]);
 
   useEffect(() => {
-    const period = prefersReducedMotion() ? 9000 : 6000;
-    const id = window.setInterval(() => setCard((c) => (c + 1) % deck.length), period);
+    if (prefersReducedMotion()) return;
+    const id = window.setInterval(() => setCard((c) => (c + 1) % deck.length), 9000);
     return () => window.clearInterval(id);
   }, [deck.length]);
 
@@ -136,15 +107,20 @@ export function StartupSplash({
   const lockup =
     theme === "dark" ? "/brand/golavo-lockup-dark.svg" : "/brand/golavo-lockup-light.svg";
   const rounded = Math.round(pct);
-  const { title, status, announce } = copyFor(stage, IS_DESKTOP_SHELL, rows);
+  const { detail, announce } = startupCopyFor(stage, IS_DESKTOP_SHELL, rows);
   const current = deck[card];
   const elapsedSec = Math.floor(elapsedMs / 1000);
+  const activeStage = stage === "index" ? 1 : 0;
+  const setupStages = ["Engine", "Match data", "Ready"];
 
   if (failed) {
     return (
       <div className="splash" aria-label="Golavo could not start the engine">
         <div className="splash__inner">
-          <img className="splash__logo" src={lockup} alt="Golavo" height={40} width={162} />
+          <div className="splash__brand">
+            <span className="splash__eyebrow">Local-first match intelligence</span>
+            <img className="splash__logo" src={lockup} alt="Golavo" height={48} width={194} />
+          </div>
           <p className="splash__title">The local engine didn’t start</p>
           {/* One announcement, with focus moved to the button below. */}
           <p className="splash__status splash__status--stalled" role="alert">
@@ -176,10 +152,21 @@ export function StartupSplash({
       </p>
 
       <div className="splash__inner">
-        <img className="splash__logo" src={lockup} alt="Golavo" height={40} width={162} />
-        <p className="splash__title splash__stage-swap" key={title}>{title}</p>
+        <div className="splash__brand">
+          <span className="splash__eyebrow">Local-first match intelligence</span>
+          <img className="splash__logo" src={lockup} alt="Golavo" height={48} width={194} />
+        </div>
+
+        <div className="splash__lead">
+          <p className="splash__title">Setting the pitch</p>
+          <p className="splash__detail splash__stage-swap" key={detail}>{detail}</p>
+        </div>
 
         <div className="splash__progress">
+          <div className="splash__progress-meta">
+            <span>{stage === "extracting" ? "One-time setup" : "Match library"}</span>
+            <span className="splash__pct">{rounded}%</span>
+          </div>
           <div
             className="splash__bar"
             role="progressbar"
@@ -190,10 +177,21 @@ export function StartupSplash({
           >
             <div className="splash__fill" style={{ width: `${Math.max(4, pct)}%` }} />
           </div>
-          <div className="splash__status">
-            <span>{status}</span>
-            <span className="splash__pct">{rounded}%</span>
-          </div>
+          <ol className="splash__stages" aria-label="Startup stages">
+            {setupStages.map((label, index) => {
+              const state = index < activeStage ? "complete" : index === activeStage ? "current" : "pending";
+              return (
+                <li
+                  className={`splash__stage splash__stage--${state}`}
+                  key={label}
+                  aria-current={state === "current" ? "step" : undefined}
+                >
+                  <span className="splash__stage-marker" aria-hidden="true" />
+                  <span>{label}</span>
+                </li>
+              );
+            })}
+          </ol>
         </div>
 
         {/* Reassurance: shown only past the patience threshold. The elapsed
