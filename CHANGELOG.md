@@ -6,6 +6,29 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-14
+
+Half-time scores now tell the second-half story for club matches, while World Cup
+fixtures gain a leak-safe pedigree shelf sourced from an isolated, credited history
+pack. Both additions remain deterministic facts; neither changes the forecast model.
+
+### Added
+- **Second-half story.** Played club matches with recorded half-time scores show each
+  side's saved-from-behind and leads-kept records, with honest sample counts and no
+  invented coverage for older seasons that lack half-time data.
+- **World Cup pedigree.** Exact `FIFA World Cup` match pages show titles, finals,
+  appearances, best recent finish, and individual awards. Historical replays are
+  filtered by tournament end date, so a 2014 view cannot surface 2018 evidence.
+- **Isolated World Cup history pack.** The pinned Fjelstul World Cup Database pack is
+  vendored under `CC-BY-SA-4.0`, validated by manifest hashes, kept out of the CC0
+  joined match index, and credited in the data docs and third-party notices.
+
+### Changed
+- Match-index schema `0.2.0 → 0.3.0`, adding nullable half-time home/away scores at
+  the end of the schema without changing any match identity.
+- Deterministic fact family `44 → 52`, adding four half-time and four World Cup fact
+  candidates with structured, source-scoped evidence for the optional AI read.
+
 ## [0.7.0] - 2026-07-14
 
 A smarter, more polished AI read: it now leads with a one-line **verdict**, connects

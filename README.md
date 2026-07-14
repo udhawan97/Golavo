@@ -117,6 +117,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 🧾 | **Score after full time** — write a linked scored or voided successor | Outcome, assigned probability, log loss, Brier, or a real void reason |
 | 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
 | 🗒️ | **Open the Commentator's Notebook** — signature form stats you don't usually see: both-teams-scored rate, scoring momentum, clean-sheet rate, and the goal character of the head-to-head | Facts that add something the scoreline and the model can't — de-duplicated from the headline picks, labelled predictive / contextual / coincidence, and never invented |
+| 🏆 | **Read the match's history** — club comeback/lead records from recorded half-time scores, plus a trophy-and-awards shelf on exact FIFA World Cup fixtures | Source-backed context with visible sample limits and as-of filtering, never a second forecast engine |
 | 🤖 | **Enable the AI Analyst Read** *(optional)* — local Ollama/llama.cpp or cloud BYOK, with a one-click header toggle once configured. Pick **Fast** (a small model, seconds) or **Deep analysis** (a bigger model, usually 5–8 minutes); optionally let it **research the web** | Opens with a one-line **verdict**, then a cited synthesis that *connects* the evidence (never authors a number), with real staged progress. Deep puts a bigger model on more of the evidence with scenarios; opt-in web research adds a separate, clearly-badged *not-engine-verified* section. A dropped claim's content is never shown |
 | 👓 | **Switch Casual / Expert** | Plain-language reading or full seal, provenance, uncertainty, and score-matrix detail — same numbers, different studs |
 | 🖥️ | **Run locally** — source web app or Tauri desktop shell | A private workbench with no account, ads, or hosted forecasting backend |
@@ -429,8 +430,11 @@ provenance explicitly. No source, no ship.
 ## License
 
 Golavo's code is available under the [Apache License 2.0](LICENSE). Data packs are
-licensed separately; the currently vendored international and openfootball packs are
-CC0-1.0. Attribution and field-level decisions live in [NOTICE](NOTICE).
+licensed separately: the vendored international and OpenFootball packs are
+`CC0-1.0`, while the isolated Fjelstul World Cup history pack is
+`CC-BY-SA-4.0`. All three source families are free/open data; attribution,
+isolation, and field-level decisions live in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md),
+[NOTICE](NOTICE), and the [data-source guide](https://udhawan97.github.io/Golavo/data/sources/).
 
 ---
 
