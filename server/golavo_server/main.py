@@ -758,17 +758,14 @@ async def match_narrative(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    # Optional client-generated progress-tracking id (idempotency key). Absent →
-    # no tracking, identical to before. A running collision is a 409.
+    # Optional client-generated progress-tracking id (idempotency key). Validate
+    # it now, but do not register the job until the evidence bundle is valid. A
+    # bundle failure happens before any model work and must not leave a ghost job
+    # stuck forever in the "assembling evidence" stage.
     job_id = body.get("job_id")
-    job = None
     if isinstance(job_id, str) and job_id:
         if not jobs.JOB_ID_RE.match(job_id):
             raise HTTPException(status_code=400, detail="malformed job_id")
-        try:
-            job = jobs.store().start(job_id)
-        except jobs.JobConflict as exc:
-            raise HTTPException(status_code=409, detail="job already running") from exc
 
     def _build_bundle() -> dict[str, Any] | None:
         envelope = analysis.match_analysis(match_id)
@@ -783,11 +780,24 @@ async def match_narrative(
         nb = matches.match_notebook(match_id, forecasts_dir=ARTIFACT_DIR)
         if nb and nb.get("available") and nb.get("notebook"):
             nb_facts, nb_numbers, nb_extra = notebook_to_evidence(nb["notebook"])
-            # The first notebook source is the match-index pack. Later ids can be
-            # facts-only isolated packs; they resolve through nb_extra and must
-            # never be attributed to the model council itself.
+            # The first notebook source is the match-index pack used by the model
+            # council. Later base ids can come from a sealed notebook's additional
+            # result snapshots. They must be present so folded facts resolve, but
+            # must not be attributed to council numbers that never consumed them.
             notebook_ids = tuple(nb["notebook"].get("source_ids") or ())
             pack_ids = notebook_ids[:1]
+            known_extra = {str(source["source_id"]) for source in nb_extra}
+            for source_id in notebook_ids[1:]:
+                if source_id in known_extra:
+                    continue
+                nb_extra.append(
+                    {
+                        "source_id": source_id,
+                        "title": f"Vendored data pack · {source_id} · match results",
+                        "license": "CC0-1.0",
+                    }
+                )
+                known_extra.add(source_id)
         return build_match_evidence_bundle(
             envelope["analysis"],
             notebook_facts=nb_facts,
@@ -807,6 +817,13 @@ async def match_narrative(
         ) from exc
     if bundle is None:
         raise HTTPException(status_code=404, detail="match not found")
+
+    job = None
+    if isinstance(job_id, str) and job_id:
+        try:
+            job = jobs.store().start(job_id)
+        except jobs.JobConflict as exc:
+            raise HTTPException(status_code=409, detail="job already running") from exc
 
     # Progress + cancel hooks (no-ops when there's no job). The web-research lane
     # runs only when the user opted in (allow_research in the body); the fetchers

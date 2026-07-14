@@ -146,6 +146,61 @@ def test_unknown_provider_is_400(client):
     assert r.status_code == 400
 
 
+def test_cached_notebook_additional_base_source_is_resolved(client, monkeypatch):
+    """A sealed notebook can cite more result snapshots than the live council.
+
+    Those sources must resolve folded facts without falsely attributing them to
+    the council numbers, which only consume the match-index pack.
+    """
+    monkeypatch.setattr(
+        matches,
+        "match_notebook",
+        lambda *args, **kwargs: {
+            "available": True,
+            "notebook": {
+                "source_ids": [_INTL, "sp_extra_results"],
+                "facts": [
+                    {
+                        "id": "unbeaten_run",
+                        "label": "context",
+                        "subject": "Alpha",
+                        "text": "Alpha are unbeaten in the available history.",
+                        "source_ids": ["sp_extra_results"],
+                        "numbers": [],
+                    }
+                ],
+            },
+        },
+    )
+
+    response = client.post("/api/v1/matches/m_target/narrative", json={})
+    assert response.status_code == 200, response.text
+    body = response.json()
+    sources = {source["source_id"] for source in body["sources"]}
+    assert "sp_extra_results" in sources
+
+
+def test_evidence_failure_does_not_leave_a_running_job(client, monkeypatch):
+    from golavo_server import jobs
+
+    job_id = "cl-invalid-evidence-123"
+    monkeypatch.setattr(
+        server_analysis,
+        "match_analysis",
+        lambda _match_id: {
+            "available": True,
+            "analysis": {"analysis_kind": "invalid"},
+        },
+    )
+
+    response = client.post(
+        "/api/v1/matches/m_target/narrative",
+        json={"provider": "ollama", "job_id": job_id, "async_job": True},
+    )
+    assert response.status_code == 422
+    assert jobs.store().get(job_id) is None
+
+
 def _echo_transport(system: str, user: str) -> str:
     """A canned model: cites the goal voice's home probability from the prompt.
 

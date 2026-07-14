@@ -662,7 +662,11 @@ async function postNarrative(
     let detail = "";
     try {
       const body = (await res.json()) as { detail?: unknown };
-      detail = typeof body.detail === "string" ? `: ${body.detail}` : "";
+      if (typeof body.detail === "string") detail = `: ${body.detail}`;
+      else if (body.detail && typeof body.detail === "object") {
+        const message = (body.detail as { message?: unknown }).message;
+        if (typeof message === "string") detail = `: ${message}`;
+      }
     } catch { /* ignore */ }
     throw new Error(`AI narrative → HTTP ${res.status}${detail}`);
   }

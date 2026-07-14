@@ -23,6 +23,12 @@ fi
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# Always freeze the checkout being built. Developer machines can have editable
+# installs pointing at an older worktree; without an explicit front-of-path
+# override PyInstaller's collect_submodules step can silently package that stale
+# golavo_core/golavo_server instead of this repository.
+export PYTHONPATH="$REPO_ROOT/server:$REPO_ROOT/core${PYTHONPATH:+:$PYTHONPATH}"
+
 # macOS Developer ID signing is optional and gated on APPLE_CERTIFICATE. In CI
 # the env is populated from secrets, so an ABSENT secret arrives as an EMPTY
 # string — and Tauri, seeing APPLE_CERTIFICATE "set", still runs `security

@@ -7,6 +7,8 @@ export function humanizeError(error: Error): string {
   const msg = error.message || "";
   if (/HTTP 503/.test(msg))
     return "The local engine is still warming up. Give it a moment, then try again.";
+  if (/HTTP 422/.test(msg))
+    return "Golavo couldn’t assemble enough verified evidence for this match, so the model was not called. Refresh the match, then try again.";
   if (/HTTP \d{3}/.test(msg))
     return "The AI request couldn’t be completed. The analysis above is unaffected — try again in a moment.";
   return msg || "The AI request failed. The analysis above is unaffected.";
