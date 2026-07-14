@@ -75,17 +75,18 @@ export default function App() {
   // loading. Stage 2 is escapable (skip button + cap) so the user is never held
   // hostage — the home continues the same messaging in a smaller card.
   const holdForIndex = backendReady && warmup.phase === "warming" && !skippedWarmup;
-  if (!backendReady || holdForIndex || failed) {
+  const showStartupFailure = failed && !backendReady;
+  if (!backendReady || holdForIndex) {
     return (
       <StartupSplash
         theme={splashTheme}
         stage={backendReady ? "index" : "extracting"}
         rows={warmup.rows}
         reassure={reassure}
-        failed={failed}
+        failed={showStartupFailure}
         elapsedMs={elapsedMs}
         onRetry={retry}
-        onSkip={backendReady && !failed ? () => setSkippedWarmup(true) : undefined}
+        onSkip={backendReady && !showStartupFailure ? () => setSkippedWarmup(true) : undefined}
       />
     );
   }

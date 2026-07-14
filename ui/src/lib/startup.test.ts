@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { stageProgress } from "./startup";
+import { backendFailureAction, stageProgress } from "./startup";
 import { buildWaitDeck, APP_GEMS, FACTS, WAIT_WHY } from "./waitContent";
 
 describe("stageProgress", () => {
@@ -27,6 +27,18 @@ describe("stageProgress", () => {
 
   it("clamps negative time to the stage floor", () => {
     expect(stageProgress("index", -5)).toBe(72);
+  });
+});
+
+describe("backendFailureAction", () => {
+  it("ignores stale failures after the backend is already ready", () => {
+    expect(backendFailureAction(true, false)).toBe("ignore");
+    expect(backendFailureAction(true, true)).toBe("ignore");
+  });
+
+  it("silently retries once before surfacing a real startup failure", () => {
+    expect(backendFailureAction(false, false)).toBe("silent-retry");
+    expect(backendFailureAction(false, true)).toBe("show");
   });
 });
 

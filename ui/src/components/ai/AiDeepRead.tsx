@@ -18,7 +18,7 @@ import {
 } from "../../lib/ai";
 import type { AiDepth, AiProvider, NarrativeResponse } from "../../lib/ai";
 import { newJobId, usePolledProgress } from "../../lib/aiProgress";
-import { FlaskIcon, InfoIcon, TelescopeIcon } from "../icons";
+import { ClockIcon, FlaskIcon, InfoIcon, TelescopeIcon } from "../icons";
 import { Pipeline } from "./AiPipeline";
 import { Result } from "./AiResult";
 import { FallbackCard, humanizeError, OffCard } from "./AiFallback";
@@ -286,7 +286,7 @@ function DepthControls({
           aria-pressed={depth === "fast"}
           onClick={() => onDepth("fast")}
         >
-          Fast
+          <ClockIcon size={14} /> Fast
         </button>
         <button
           type="button"

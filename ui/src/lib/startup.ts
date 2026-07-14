@@ -86,6 +86,15 @@ export interface BackendStatus {
   retry: () => void;
 }
 
+export type BackendFailureAction = "ignore" | "silent-retry" | "show";
+
+/** Once the app has already reached a healthy backend, stale shell/backstop
+ *  failures must not throw the user back to the startup screen. */
+export function backendFailureAction(ready: boolean, alreadyAutoRetried: boolean): BackendFailureAction {
+  if (ready) return "ignore";
+  return alreadyAutoRetried ? "show" : "silent-retry";
+}
+
 /** Readiness of the local engine, and the one owner of the launch verdict.
  *
  *  Two ready signals, either wins: the shell's `backend://ready` event and a
@@ -101,6 +110,11 @@ export function useBackendReady(): BackendStatus {
   const [elapsedMs, setElapsedMs] = useState(0);
   const [attempt, setAttempt] = useState(0);
   const autoRetried = useRef(false);
+  const readyRef = useRef(ready);
+
+  useEffect(() => {
+    readyRef.current = ready;
+  }, [ready]);
 
   useEffect(() => {
     if (!HAS_BACKEND) return;
@@ -111,17 +125,32 @@ export function useBackendReady(): BackendStatus {
     const startedAt = performance.now();
     const reassureAfter = isFirstLaunch() ? REASSURE_FIRST_MS : REASSURE_RETURNING_MS;
 
+    const stopTimers = () => {
+      if (poll !== undefined) {
+        window.clearTimeout(poll);
+        poll = undefined;
+      }
+      if (tick !== undefined) {
+        window.clearInterval(tick);
+        tick = undefined;
+      }
+    };
+
     const markReady = () => {
       if (!alive) return;
+      readyRef.current = true;
       recordLaunched();
       setReady(true);
       setReassure(false);
       setFailed(false);
+      stopTimers();
     };
 
     const onFailed = () => {
       if (!alive) return;
-      if (!autoRetried.current) {
+      const action = backendFailureAction(readyRef.current, autoRetried.current);
+      if (action === "ignore") return;
+      if (action === "silent-retry") {
         // Absorb the first failure with one silent restart — most first-launch
         // stumbles (an AV scan, a transient port clash) clear on a second try.
         autoRetried.current = true;
@@ -148,6 +177,7 @@ export function useBackendReady(): BackendStatus {
         markReady();
         return;
       }
+      if (readyRef.current) return;
       poll = window.setTimeout(runPoll, 1500);
     };
     void runPoll();
@@ -158,14 +188,13 @@ export function useBackendReady(): BackendStatus {
       setElapsedMs(ms);
       if (ms > reassureAfter) setReassure(true);
       // Backstop only — the shell should have emitted failed long before this.
-      if (ms > BACKSTOP_MS) setFailed(true);
+      if (ms > BACKSTOP_MS && !readyRef.current) setFailed(true);
     }, 1000);
 
     return () => {
       alive = false;
       unlisten.forEach((un) => un());
-      if (poll !== undefined) window.clearTimeout(poll);
-      if (tick !== undefined) window.clearInterval(tick);
+      stopTimers();
     };
   }, [attempt]);
 

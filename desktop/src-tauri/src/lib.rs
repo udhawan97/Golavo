@@ -198,13 +198,19 @@ fn supervise_launch(app: AppHandle, port: u16, token: String, first_launch: bool
             updater::finalize_update_if_pending(&app);
             let _ = app.emit("backend://ready", ());
         }
-        outcome => {
-            let why = match outcome {
-                health::HealthOutcome::Exited => "the local engine stopped before it was ready",
-                _ => "the local engine did not answer in time",
-            };
-            // Reap whatever is left so a later restart binds the port cleanly.
+        health::HealthOutcome::Exited => {
+            let why = "the local engine stopped before it was ready";
+            // Reap the dead generation so a later restart binds the port cleanly.
             kill_sidecar(&app);
+            let message = updater::repair_failed_launch(&app, why);
+            eprintln!("[golavo] launch not ready: {message}");
+            let _ = app.emit("backend://failed", FailedPayload { message });
+        }
+        health::HealthOutcome::TimedOut => {
+            let why = "the local engine did not answer in time";
+            // Do NOT kill a slow-but-alive sidecar here. A local model call can
+            // hold the server busy; killing it would discard the in-flight AI job.
+            // The retry command still stops the current generation before respawn.
             let message = updater::repair_failed_launch(&app, why);
             eprintln!("[golavo] launch not ready: {message}");
             let _ = app.emit("backend://failed", FailedPayload { message });

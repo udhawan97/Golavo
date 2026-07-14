@@ -750,15 +750,19 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
 }
 .ai-seg button {
   appearance: none; border: 0; background: transparent; color: var(--text-muted);
+  display: inline-flex; align-items: center; gap: .38rem;
   padding: .34rem .8rem; border-radius: calc(var(--radius-sm) - 2px); cursor: pointer;
   font-size: .86rem; font-weight: 550; transition: background .15s ease, color .15s ease;
 }
+.ai-seg button svg { flex: none; }
 .ai-seg button:hover { color: var(--text); }
 .ai-seg button.on { background: var(--surface-3); color: var(--text); box-shadow: inset 0 0 0 1px var(--gold-line); }
 .ai-depth__adv-toggle {
   appearance: none; border: 0; background: transparent; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .35rem;
   text-align: left; color: var(--text-muted); font: inherit;
 }
+.ai-depth__adv-toggle svg { flex: none; }
 .ai-depth__adv-toggle:hover { color: var(--text); }
 .ai-depth__adv { display: grid; gap: .3rem; }
 .ai-depth__adv select { padding: .4rem .5rem; border-radius: var(--radius-sm);
