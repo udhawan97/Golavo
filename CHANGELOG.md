@@ -6,6 +6,15 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.10.3] - 2026-07-14
+
+### Fixed
+- AI verdicts now show the actual home team, away team, or **Draw** instead of
+  leaking internal `home` / `away` outcome tokens into the reader-facing card.
+  Existing citations remain attached to the corrected label.
+- The narration prompt now explicitly requires real team names in the verdict,
+  and its version was advanced so cached local-model responses are regenerated.
+
 ## [0.10.2] - 2026-07-14
 
 The goal model's deeper score read is now a glanceable market dashboard instead
@@ -1064,7 +1073,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.10.2...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.10.3...HEAD
+[0.10.3]: https://github.com/udhawan97/Golavo/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/udhawan97/Golavo/compare/v0.10.0...v0.10.2
 [0.4.0]: https://github.com/udhawan97/Golavo/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/udhawan97/Golavo/compare/v0.3.2...v0.3.3

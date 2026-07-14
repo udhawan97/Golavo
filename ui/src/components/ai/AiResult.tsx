@@ -14,7 +14,7 @@ import type {
 import type { AiDepth } from "../../lib/ai";
 import { buildEvidenceIndex, hostnameOf, sourceKindLine } from "../../lib/aiEvidence";
 import type { EvidenceIndex } from "../../lib/aiEvidence";
-import { presentAiClaims } from "../../lib/aiPresentation";
+import { presentAiClaims, presentVerdictText } from "../../lib/aiPresentation";
 import type { Uncertainty } from "../../lib/contract";
 import {
   ChecklistIcon,
@@ -173,16 +173,18 @@ function claimNumbers(claim: NarrationClaim, numberById: Map<string, NumberRef>)
 
 function ClaimText({
   claim,
+  text,
   sourceById,
   evidence,
 }: {
   claim: NarrationClaim;
+  text?: string;
   sourceById: Map<string, SourceRef>;
   evidence: EvidenceIndex;
 }) {
   return (
     <p className="ai-claim__text measure">
-      {claim.text}
+      {text ?? claim.text}
       {claim.source_ids.map((sourceId) => {
         const index = evidence.indexOf(sourceId);
         const source = sourceById.get(sourceId);
@@ -261,7 +263,14 @@ function VerdictHero({
         </div>
       )}
       <div className="ai-verdict__statement">
-        <ClaimText claim={claim} sourceById={sourceById} evidence={evidence} />
+        <ClaimText
+          claim={claim}
+          text={context
+            ? presentVerdictText(claim.text, context.homeTeam, context.awayTeam)
+            : claim.text}
+          sourceById={sourceById}
+          evidence={evidence}
+        />
       </div>
       <MetricStrip numbers={claimNumbers(claim, numberById)} />
     </section>

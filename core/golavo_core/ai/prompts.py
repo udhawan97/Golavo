@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-14.3"
+PROMPT_VERSION = "golavo-narration-2026-07-14.4"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -74,7 +74,9 @@ Exact JSON shape:
 If the allowed numbers include engine probabilities, `verdict` MUST be a non-null
 object naming the engine's single most likely outcome, writing that allowed
 probability's DISPLAY value in `text`, putting that number id in `number_refs`,
-and citing one of that number's source ids in `source_ids`. An all-empty response
+and citing one of that number's source ids in `source_ids`. Name the actual team
+from the bundle; never use the internal outcome words `home` or `away` as the
+verdict text. Use `draw` only when the most likely outcome is a draw. An all-empty response
 (`verdict`: null, empty `claims`, empty `scenarios`) is valid ONLY when there are
 no usable allowed numbers or sources. Leave an individual array empty rather than
 padding it with unsupported content."""
