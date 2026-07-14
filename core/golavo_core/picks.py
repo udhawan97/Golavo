@@ -122,8 +122,10 @@ def derive_rival_picks(analysis: dict[str, Any]) -> dict[str, Any]:
             capability = "abstained"
         elif matrix is not None:
             likely = matrix["most_likely"]
-            home = int(likely["home_goals"])
-            away = int(likely["away_goals"])
+            # Stored ScoreMatrix uses ``home``/``away``. Accept the explicit
+            # ``*_goals`` spelling as well for contract fixtures and migrations.
+            home = int(likely.get("home", likely.get("home_goals")))
+            away = int(likely.get("away", likely.get("away_goals")))
             score = {"home_goals": home, "away_goals": away}
             outcome = outcome_of(home, away)
             capability = "score"

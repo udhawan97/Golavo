@@ -22,7 +22,7 @@ from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 
 
 def _analysis() -> dict:
-    goal_matrix = {"most_likely": {"home_goals": 2, "away_goals": 1}}
+    goal_matrix = {"most_likely": {"home": 2, "away": 1, "probability": 0.14}}
     return {
         "schema_version": "0.4.1",
         "index_fingerprint": "index-abc",

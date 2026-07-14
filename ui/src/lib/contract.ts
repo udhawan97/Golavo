@@ -17,6 +17,7 @@ export const SCHEMA_VERSION = "0.2.0" as const;
 // at 0.2.0, so the artifact/eval/calibration guards keep their existing set.
 export const ACCEPTED_SCHEMA_VERSIONS = ["0.1.0", "0.2.0"] as const;
 export const ANALYSIS_SCHEMA_VERSION = "0.4.1" as const;
+export const PICK_SCHEMA_VERSION = "0.1.0" as const;
 export type SchemaVersion = (typeof ACCEPTED_SCHEMA_VERSIONS)[number];
 
 export type ArtifactStatus = "sealed" | "scored" | "abstained" | "voided";
@@ -393,11 +394,116 @@ export interface SealResult {
   abstain_reason: string | null;
 }
 
+// ---- User picks (v0.1.0) ----------------------------------------------------
+
+export type PickStatus = "draft" | "locked" | "scored" | "void";
+export type RivalCapability = "score" | "outcome_only" | "abstained";
+
+export interface ScorePick {
+  home_goals: number;
+  away_goals: number;
+}
+
+export interface RivalPick {
+  family: ModelFamily;
+  capability: RivalCapability;
+  score_pick: ScorePick | null;
+  outcome_pick: Outcome | null;
+}
+
+export type RivalModel = RivalPick;
+
+export interface UserPick {
+  schema_version: typeof PICK_SCHEMA_VERSION;
+  pick_id: string | null;
+  status: "draft" | "locked";
+  match: {
+    match_id: string;
+    kickoff_utc: string;
+    kickoff_time_known: boolean;
+    home_team: string;
+    away_team: string;
+    home_norm: string;
+    away_norm: string;
+    competition: string | null;
+  };
+  user_pick: ScorePick & { outcome: Outcome };
+  rivals: RivalPick[];
+  analysis_fingerprint: {
+    index_fingerprint: string;
+    analysis_schema_version: string;
+    information_cutoff_utc: string;
+  };
+  created_at_utc: string;
+  updated_at_utc: string;
+  lock_at_utc: string;
+  locked_at_utc: string | null;
+  payload_sha256: string | null;
+}
+
+export type PickRecord = UserPick;
+
+export interface PickPoints {
+  exact: number;
+  outcome: number;
+  total: number;
+}
+
+export interface PickScoring {
+  user: PickPoints & { bonus: number };
+  rivals: Array<PickPoints & { family: ModelFamily }>;
+  beat_ai: boolean;
+  best_rival_total: number;
+}
+
+export interface PickView {
+  schema_version: typeof PICK_SCHEMA_VERSION;
+  status: PickStatus;
+  record: UserPick;
+  result: (ScorePick & { outcome: Outcome }) | null;
+  scoring: PickScoring | null;
+}
+
+export interface PickResponse {
+  schema_version: typeof PICK_SCHEMA_VERSION;
+  match_id: string;
+  pick: PickView | null;
+  editable: boolean;
+  lock_at_utc: string | null;
+  now_utc: string;
+}
+
+export interface PicksListResponse {
+  schema_version: typeof PICK_SCHEMA_VERSION;
+  items: PickView[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface PicksSummary {
+  schema_version: typeof PICK_SCHEMA_VERSION;
+  season: string | null;
+  counts: Record<PickStatus, number>;
+  user: { total: number; exact: number; outcome: number; bonus: number };
+  rivals: Array<{ family: ModelFamily; total: number; exact: number; outcome: number }>;
+  series: Array<{
+    kickoff_utc: string;
+    match_id: string;
+    user_total: number;
+    per_family_totals: Partial<Record<ModelFamily, number>>;
+  }>;
+  accuracy: { exact: number; winner: number };
+  streak: { current: number; best: number };
+  goal_diff_mae: number;
+}
+
 export interface MatchDetailResponse {
   schema_version: SchemaVersion;
   match: MatchRow;
   linked_by: "match_id" | "fixture" | null;
   seal_eligibility?: SealEligibility;
+  pick?: { id: string | null; status: PickStatus } | null;
 }
 
 /** An upcoming fixture present upstream but not yet in this build's index. */

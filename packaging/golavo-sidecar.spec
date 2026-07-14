@@ -33,6 +33,7 @@ _EVAL_SUMMARIES = (
 )
 datas = [
     (os.path.join(ROOT, "docs", "contracts", "forecast_artifact.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "user_pick.schema.json"), "docs/contracts"),
     # Phase 5 additive sibling contracts for the optional AI layer.
     (os.path.join(ROOT, "docs", "contracts", "evidence_bundle.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "docs", "contracts", "ai_narration.schema.json"), "docs/contracts"),

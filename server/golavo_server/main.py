@@ -13,6 +13,7 @@ from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from golavo_server import __version__, analysis, matches, runtime, seal
+from golavo_server import picks as pick_service
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
 # (ValueError), missing field (KeyError), unreadable file (OSError), or a broken
@@ -57,9 +58,9 @@ app.add_middleware(
         "https://tauri.localhost",
     ],
     allow_credentials=False,
-    # POST is only used by the optional, off-by-default AI narrative endpoint;
-    # the forecast/eval/calibration surface stays strictly read-only (GET).
-    allow_methods=["GET", "POST", "OPTIONS"],
+    # PUT/DELETE are the explicit pre-kickoff user-pick mutations. Without them
+    # the desktop webview's CORS preflight rejects writes before they reach us.
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -261,8 +262,11 @@ def forecast_facts(artifact_id: str) -> dict[str, Any]:
 
 @app.get("/api/v1/matches/search")
 def search_matches(
-    q: str, competition: str | None = None, status: str | None = None,
-    limit: int = 25, offset: int = 0,
+    q: str,
+    competition: str | None = None,
+    status: str | None = None,
+    limit: int = 25,
+    offset: int = 0,
 ) -> dict[str, Any]:
     """Search the frozen, read-only match index (75k fixtures) by team or competition.
 
@@ -275,7 +279,11 @@ def search_matches(
         raise HTTPException(status_code=422, detail="q must be at least 2 characters")
     try:
         return matches.search_matches(
-            q, competition=competition, status=status, limit=limit, offset=offset,
+            q,
+            competition=competition,
+            status=status,
+            limit=limit,
+            offset=offset,
             forecasts_dir=ARTIFACT_DIR,
         )
     except matches.MatchIndexUnavailable as exc:
@@ -345,7 +353,129 @@ def get_match(match_id: str) -> dict[str, Any]:
     if detail is None:
         raise HTTPException(status_code=404, detail="match not found")
     detail["seal_eligibility"] = seal.eligibility(detail["match"])
+    try:
+        pick = pick_service.get_pick(match_id, ledger=ARTIFACT_DIR)
+    except pick_service.PickError:
+        pick = None
+    detail["pick"] = (
+        {
+            "id": pick["record"].get("pick_id"),
+            "status": pick["status"],
+        }
+        if pick is not None
+        else None
+    )
     return detail
+
+
+def _pick_error(exc: pick_service.PickError) -> HTTPException:
+    return HTTPException(
+        status_code=exc.status_code,
+        detail={"reason_code": exc.reason_code, "message": exc.detail},
+    )
+
+
+def _pick_envelope(match_id: str, *, now_utc: Any, pick: dict[str, Any] | None) -> dict[str, Any]:
+    match = matches.get_match(match_id, forecasts_dir=ARTIFACT_DIR)
+    if match is None and pick is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    record = pick["record"] if pick is not None else None
+    kickoff = record["lock_at_utc"] if record else match["match"].get("kickoff_utc")
+    complete = bool(match and match["match"].get("is_complete"))
+    editable = bool(
+        not complete
+        and kickoff is not None
+        and now_utc < pick_service._parse(kickoff)
+        and (pick is None or pick["status"] == "draft")
+    )
+    return {
+        "schema_version": "0.1.0",
+        "match_id": match_id,
+        "pick": pick,
+        "editable": editable,
+        "lock_at_utc": kickoff,
+        "now_utc": pick_service._iso(now_utc),
+    }
+
+
+@app.get("/api/v1/picks/summary")
+async def get_picks_summary(season: str | None = None) -> dict[str, Any]:
+    now = pick_service._now(None)
+    try:
+        return await run_in_threadpool(
+            pick_service.picks_summary, ledger=ARTIFACT_DIR, season=season, now_utc=now
+        )
+    except pick_service.PickError as exc:
+        raise _pick_error(exc) from exc
+
+
+@app.get("/api/v1/picks")
+async def get_picks(
+    status: str | None = None,
+    season: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict[str, Any]:
+    now = pick_service._now(None)
+    try:
+        return await run_in_threadpool(
+            pick_service.list_picks,
+            ledger=ARTIFACT_DIR,
+            status=status,
+            season=season,
+            limit=limit,
+            offset=offset,
+            now_utc=now,
+        )
+    except pick_service.PickError as exc:
+        raise _pick_error(exc) from exc
+
+
+@app.get("/api/v1/matches/{match_id}/pick")
+async def get_match_pick(match_id: str) -> dict[str, Any]:
+    now = pick_service._now(None)
+    try:
+        pick = await run_in_threadpool(
+            pick_service.get_pick, match_id, ledger=ARTIFACT_DIR, now_utc=now
+        )
+    except pick_service.PickError as exc:
+        raise _pick_error(exc) from exc
+    return _pick_envelope(match_id, now_utc=now, pick=pick)
+
+
+@app.put("/api/v1/matches/{match_id}/pick")
+async def put_match_pick(match_id: str, request: Request) -> JSONResponse:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    now = pick_service._now(None)
+    try:
+        pick = await run_in_threadpool(
+            pick_service.save_pick,
+            match_id,
+            body.get("home_goals"),
+            body.get("away_goals"),
+            ledger=ARTIFACT_DIR,
+            now_utc=now,
+        )
+    except pick_service.PickError as exc:
+        raise _pick_error(exc) from exc
+    return JSONResponse(status_code=200, content=_pick_envelope(match_id, now_utc=now, pick=pick))
+
+
+@app.delete("/api/v1/matches/{match_id}/pick")
+async def remove_match_pick(match_id: str) -> dict[str, Any]:
+    now = pick_service._now(None)
+    try:
+        await run_in_threadpool(
+            pick_service.delete_pick, match_id, ledger=ARTIFACT_DIR, now_utc=now
+        )
+    except pick_service.PickError as exc:
+        raise _pick_error(exc) from exc
+    return _pick_envelope(match_id, now_utc=now, pick=None)
 
 
 @app.get("/api/v1/matches/{match_id}/notebook")
@@ -470,9 +600,7 @@ def calibration() -> dict[str, Any]:
 
 
 @app.post("/api/v1/forecasts/{artifact_id}/narrative")
-async def narrative(
-    artifact_id: str, request: Request, background_tasks: BackgroundTasks
-) -> Any:
+async def narrative(artifact_id: str, request: Request, background_tasks: BackgroundTasks) -> Any:
     """Return an OPTIONAL, guard-validated AI narration for one artifact.
 
     Additive and off by default: with no body (or ``{"provider": "off"}``) this
@@ -516,9 +644,7 @@ async def narrative(
     # rest of the API.
     def _build_bundle() -> dict[str, Any]:
         extra_facts, extra_numbers = _notebook_evidence(artifact_id)
-        return build_evidence_bundle(
-            artifact, extra_facts=extra_facts, extra_numbers=extra_numbers
-        )
+        return build_evidence_bundle(artifact, extra_facts=extra_facts, extra_numbers=extra_numbers)
 
     bundle = await run_in_threadpool(_build_bundle)
 
@@ -565,13 +691,15 @@ async def narrative(
 
     def _run() -> dict[str, Any]:
         try:
-            result = _serialize(ai_gateway.generate_narration(
-                bundle,
-                config,
-                refresh=bool(body.get("refresh", False)),
-                progress=_progress,
-                is_cancelled=_cancelled,
-            ))
+            result = _serialize(
+                ai_gateway.generate_narration(
+                    bundle,
+                    config,
+                    refresh=bool(body.get("refresh", False)),
+                    progress=_progress,
+                    is_cancelled=_cancelled,
+                )
+            )
             if job is not None:
                 jobs.store().finish(job.job_id, result=result)
             return result
@@ -582,9 +710,7 @@ async def narrative(
 
     if job is not None:
         background_tasks.add_task(_run)
-        return JSONResponse(
-            {"job_id": job.job_id, "state": "running"}, status_code=202
-        )
+        return JSONResponse({"job_id": job.job_id, "state": "running"}, status_code=202)
     return await run_in_threadpool(_run)
 
 
@@ -706,7 +832,8 @@ async def match_narrative(
     def _run() -> dict[str, Any]:
         try:
             env = ai_gateway.generate_narration(
-                bundle, config,
+                bundle,
+                config,
                 refresh=bool(body.get("refresh", False)),
                 researcher=researcher,
                 progress=_progress,
@@ -723,9 +850,7 @@ async def match_narrative(
 
     if job is not None and body.get("async_job") is True:
         background_tasks.add_task(_run)
-        return JSONResponse(
-            {"job_id": job.job_id, "state": "running"}, status_code=202
-        )
+        return JSONResponse({"job_id": job.job_id, "state": "running"}, status_code=202)
     return await run_in_threadpool(_run)
 
 
