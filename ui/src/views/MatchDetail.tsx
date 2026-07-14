@@ -186,6 +186,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
             homeTeam: match.home_team,
             awayTeam: match.away_team,
             uncertainty: analysis?.uncertainty,
+            leadingOutcome: analysis?.council.leading_outcome,
           }}
         />
       </div>

@@ -48,4 +48,28 @@ describe("AI verdict presentation", () => {
     expect(html).not.toContain(">away<");
     expect(html).toContain('aria-label="Evidence 1: Match analysis"');
   });
+
+  it("falls back to the deterministic winner when deep analysis omits its verdict", () => {
+    const withoutVerdict: NarrativeResponse = {
+      ...response,
+      narration: response.narration ? { ...response.narration, verdict: null } : null,
+    };
+    const html = renderToStaticMarkup(createElement(Result, {
+      data: withoutVerdict,
+      isMatch: true,
+      depth: "deep",
+      context: {
+        homeTeam: "England",
+        awayTeam: "Argentina",
+        uncertainty: "low",
+        leadingOutcome: "home",
+      },
+      onRefresh: () => undefined,
+      onRetry: () => undefined,
+    }));
+
+    expect(html).toContain("Engine verdict · deterministic");
+    expect(html).toContain("England");
+    expect(html).not.toContain(">home<");
+  });
 });

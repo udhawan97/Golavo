@@ -7,6 +7,7 @@ import { deriveMarkets } from "../lib/markets";
 import { num, pct, pctWhole, inWords, largestRemainder, utc, utcDate } from "../lib/format";
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { verdictSummary } from "../lib/summary";
+import { leadingOutcomeFromProbs } from "../lib/aiPresentation";
 import { AlertIcon, ChevronRight, InfoIcon, LinkIcon, ScaleIcon, ShieldCheckIcon, SparkIcon, VoidIcon } from "../components/icons";
 import { Hash, HorizonChip, ProbabilityBar, StatTile, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
 import { MatchHeader } from "../components/MatchHeader";
@@ -129,6 +130,7 @@ function Detail({
           homeTeam: match.home_team,
           awayTeam: match.away_team,
           uncertainty: forecast.uncertainty,
+          leadingOutcome: leadingOutcomeFromProbs(forecast.probs),
         }}
       />
     </div>

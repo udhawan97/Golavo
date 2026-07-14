@@ -14,8 +14,8 @@ import type {
 import type { AiDepth } from "../../lib/ai";
 import { buildEvidenceIndex, hostnameOf, sourceKindLine } from "../../lib/aiEvidence";
 import type { EvidenceIndex } from "../../lib/aiEvidence";
-import { presentAiClaims, presentVerdictText } from "../../lib/aiPresentation";
-import type { Uncertainty } from "../../lib/contract";
+import { presentAiClaims, presentOutcome, presentVerdictText } from "../../lib/aiPresentation";
+import type { Outcome, Uncertainty } from "../../lib/contract";
 import {
   ChecklistIcon,
   ExternalLinkIcon,
@@ -32,6 +32,8 @@ export interface AiDisplayContext {
   homeTeam: string;
   awayTeam: string;
   uncertainty?: Uncertainty | null;
+  /** Deterministic engine result used only when the local model omits verdict. */
+  leadingOutcome?: Outcome | null;
 }
 
 export function Result({
@@ -81,19 +83,21 @@ export function Result({
   const numberById = new Map<string, NumberRef>(data.numbers.map((number) => [number.id, number]));
   const { claims, scenarios } = data.narration;
   const verdict = data.narration.verdict ?? null;
+  const fallbackOutcome = verdict ? null : context?.leadingOutcome ?? null;
   const research = data.narration.research_notes ?? [];
   const background = data.narration.background ?? [];
   const evidence = buildEvidenceIndex(data.narration, data.sources);
   const presentation = presentAiClaims(claims);
   const nothing =
-    !verdict && claims.length === 0 && scenarios.length === 0 &&
+    !verdict && !fallbackOutcome && claims.length === 0 && scenarios.length === 0 &&
     research.length === 0 && background.length === 0;
 
   return (
     <div className="ai-result">
-      {verdict && (
+      {(verdict || fallbackOutcome) && (
         <VerdictHero
           claim={verdict}
+          fallbackOutcome={fallbackOutcome}
           context={context}
           sourceById={sourceById}
           numberById={numberById}
@@ -230,12 +234,14 @@ function WhyThis({ claim, sourceById }: { claim: NarrationClaim; sourceById: Map
 
 function VerdictHero({
   claim,
+  fallbackOutcome,
   context,
   sourceById,
   numberById,
   evidence,
 }: {
-  claim: NarrationClaim;
+  claim: NarrationClaim | null;
+  fallbackOutcome: Outcome | null;
   context?: AiDisplayContext;
   sourceById: Map<string, SourceRef>;
   numberById: Map<string, NumberRef>;
@@ -246,7 +252,9 @@ function VerdictHero({
       <div className="ai-verdict__topline">
         <span className="ai-verdict__icon" aria-hidden><ShieldCheckIcon size={20} /></span>
         <div>
-          <span className="ai-verdict__kicker">Analyst verdict · engine-verified</span>
+          <span className="ai-verdict__kicker">
+            {claim ? "Analyst verdict · engine-verified" : "Engine verdict · deterministic"}
+          </span>
           <h3 id="ai-verdict-h">At a glance</h3>
         </div>
         {context?.uncertainty && (
@@ -263,16 +271,22 @@ function VerdictHero({
         </div>
       )}
       <div className="ai-verdict__statement">
-        <ClaimText
-          claim={claim}
-          text={context
-            ? presentVerdictText(claim.text, context.homeTeam, context.awayTeam)
-            : claim.text}
-          sourceById={sourceById}
-          evidence={evidence}
-        />
+        {claim ? (
+          <ClaimText
+            claim={claim}
+            text={context
+              ? presentVerdictText(claim.text, context.homeTeam, context.awayTeam)
+              : claim.text}
+            sourceById={sourceById}
+            evidence={evidence}
+          />
+        ) : context && fallbackOutcome ? (
+          <p className="ai-claim__text measure">
+            {presentOutcome(fallbackOutcome, context.homeTeam, context.awayTeam)}
+          </p>
+        ) : null}
       </div>
-      <MetricStrip numbers={claimNumbers(claim, numberById)} />
+      {claim && <MetricStrip numbers={claimNumbers(claim, numberById)} />}
     </section>
   );
 }

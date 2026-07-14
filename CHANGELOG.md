@@ -12,6 +12,9 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - AI verdicts now show the actual home team, away team, or **Draw** instead of
   leaking internal `home` / `away` outcome tokens into the reader-facing card.
   Existing citations remain attached to the corrected label.
+- Deep analysis now keeps the **At a glance** winner card when a local model
+  omits its optional verdict, falling back to the deterministic engine's leading
+  outcome and clearly labelling that fallback as an engine result.
 - The narration prompt now explicitly requires real team names in the verdict,
   and its version was advanced so cached local-model responses are regenerated.
 

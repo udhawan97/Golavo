@@ -1,4 +1,5 @@
 import type { NarrationClaim } from "./ai";
+import type { Outcome, Probs } from "./contract";
 
 /**
  * A deterministic reading order for the AI response. The server owns every
@@ -24,6 +25,25 @@ export function presentVerdictText(text: string, homeTeam: string, awayTeam: str
   }
   if (outcome === "draw" || outcome === "a draw") return "Draw";
   return text;
+}
+
+/** Turn a deterministic engine outcome into reader-facing fixture copy. */
+export function presentOutcome(outcome: Outcome, homeTeam: string, awayTeam: string): string {
+  if (outcome === "home") return homeTeam;
+  if (outcome === "away") return awayTeam;
+  return "Draw";
+}
+
+/** Pick the largest sealed probability without introducing an AI judgement. */
+export function leadingOutcomeFromProbs(probs: Probs | null): Outcome | null {
+  if (!probs) return null;
+  const ranked: Array<[Outcome, number]> = [
+    ["home", probs.home],
+    ["draw", probs.draw],
+    ["away", probs.away],
+  ];
+  ranked.sort((left, right) => right[1] - left[1]);
+  return ranked[0][0];
 }
 
 export function presentAiClaims(claims: NarrationClaim[]): AiPresentation {
