@@ -9,7 +9,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 // Seigaiha ground: the logo's concentric-circle motif tiled in two offset rows,
 // drifting left one 128px unit for a seamless loop (matches the mark's kDrift).
 const unit = 128;
-const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
+const cols = Array.from({ length: 20 }, (_, i) => -unit + i * unit);
 ---
 
 <section class="gh" aria-labelledby="gh-title">
@@ -17,38 +17,20 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
     <div class="gh-sun" data-par="0.18"></div>
     <div class="gh-grain"></div>
 
-    <!-- Floating "ball orbit" glyphs (the mark's seigaiha unit, set adrift) -->
-    <svg class="gh-orbit gh-orbit--1" data-par="0.42" viewBox="0 0 120 120" fill="none">
-      <circle cx="60" cy="60" r="58" /><circle cx="60" cy="60" r="44" />
-      <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
-    </svg>
-    <svg class="gh-orbit gh-orbit--2" data-par="0.62" viewBox="0 0 120 120" fill="none">
-      <circle cx="60" cy="60" r="58" /><circle cx="60" cy="60" r="44" />
-      <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
-    </svg>
-    <svg class="gh-orbit gh-orbit--3" data-par="0.3" viewBox="0 0 120 120" fill="none">
-      <circle cx="60" cy="60" r="58" /><circle cx="60" cy="60" r="44" />
-      <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
-    </svg>
-
-    <!-- Seigaiha wave field along the base -->
-    <svg class="gh-waves" viewBox="0 0 2048 300" preserveAspectRatio="xMidYMax slice" fill="none">
+    <!-- The icon's seigaiha ground, opened into one clean landing-page horizon. -->
+    <svg class="gh-waves" viewBox="0 0 2048 220" preserveAspectRatio="xMidYMax slice" fill="none">
       <defs>
         <g id="gh-wv" stroke="var(--gh-wave)" stroke-width="2.4">
-          <circle cx="60" cy="60" r="58" /><circle cx="60" cy="60" r="44" />
+          <circle cx="60" cy="60" r="58" fill="var(--sl-color-bg)" />
+          <circle cx="60" cy="60" r="44" />
           <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
         </g>
       </defs>
-      <g class="gh-waveDrift gh-waveDrift--back">
-        {cols.map((x) => <use href="#gh-wv" x={x} y="150" />)}
-        {cols.map((x) => <use href="#gh-wv" x={x + unit / 2} y="188" />)}
-      </g>
-      <g class="gh-waveDrift gh-waveDrift--front">
-        {cols.map((x) => <use href="#gh-wv" x={x - 40} y="196" />)}
-        {cols.map((x) => <use href="#gh-wv" x={x + unit / 2 - 40} y="234" />)}
+      <g class="gh-waveDrift">
+        {cols.map((x) => <use href="#gh-wv" x={x} y="66" />)}
+        {cols.map((x) => <use href="#gh-wv" x={x + unit / 2} y="114" />)}
       </g>
     </svg>
-    <div class="gh-fade"></div>
   </div>
 
   <div class="gh-inner">
@@ -166,15 +148,15 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
     overflow: clip;
     isolation: isolate;
     /* theme-tuned atmosphere tokens (dark default) */
-    --gh-wave: rgba(96, 130, 184, 0.26);
-    --gh-orbit: rgba(96, 130, 184, 0.16);
+    --gh-wave: rgba(96, 130, 184, 0.32);
+    --gh-grain: rgba(96, 130, 184, 0.16);
     --gh-sun-a: rgba(201, 162, 39, 0.5);
     --gh-sun-b: rgba(217, 98, 43, 0.16);
     --gh-em: var(--golavo-gold, #c9a227);
   }
   :global([data-theme="light"]) .gh {
-    --gh-wave: rgba(34, 58, 94, 0.16);
-    --gh-orbit: rgba(34, 58, 94, 0.12);
+    --gh-wave: rgba(34, 58, 94, 0.22);
+    --gh-grain: rgba(34, 58, 94, 0.1);
     --gh-sun-a: rgba(188, 0, 45, 0.16);
     --gh-sun-b: rgba(217, 98, 43, 0.12);
     --gh-em: #b7411f;
@@ -199,28 +181,19 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
     position: absolute; inset: 0;
     background-image: radial-gradient(currentColor 0.6px, transparent 0.6px);
     background-size: 7px 7px;
-    color: var(--gh-orbit);
+    color: var(--gh-grain);
     opacity: 0.5;
     mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 40%, transparent 78%);
   }
 
-  .gh-orbit { position: absolute; width: 120px; color: var(--gh-orbit); }
-  .gh-orbit circle { stroke: currentColor; stroke-width: 2.4; }
-  .gh-orbit--1 { top: 14%; left: 8%;  width: 86px; animation: ghFloat 13s ease-in-out infinite; }
-  .gh-orbit--2 { top: 22%; right: 9%; width: 120px; animation: ghFloat 17s ease-in-out infinite reverse; }
-  .gh-orbit--3 { bottom: 26%; left: 15%; width: 64px; opacity: 0.7; animation: ghFloat 11s ease-in-out infinite; }
-
   .gh-waves {
     position: absolute; left: 50%; bottom: -2px; translate: -50% 0;
-    width: 100%; min-width: 1200px; height: clamp(150px, 26vh, 280px);
+    width: 100%; min-width: 1200px; height: clamp(128px, 18vh, 184px);
+    opacity: 0.9;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 86%, transparent 100%);
   }
-  .gh-waveDrift--back  { animation: ghDrift 26s linear infinite; opacity: 0.7; }
-  .gh-waveDrift--front { animation: ghDrift 18s linear infinite; }
-
-  .gh-fade {
-    position: absolute; inset-inline: 0; bottom: 0; height: 44%;
-    background: linear-gradient(to bottom, transparent, var(--sl-color-bg));
-  }
+  .gh-waveDrift { animation: ghDrift 20s linear infinite; }
 
   /* ---- Content ---- */
   .gh-inner {
@@ -337,20 +310,19 @@ const cols = Array.from({ length: 16 }, (_, i) => -unit + i * unit);
   @keyframes ghInk { to { stroke-dashoffset: 0; } }
   @keyframes ghBreathe { 0%,100% { opacity: 0.85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
   @keyframes ghDrift { to { transform: translateX(-128px); } }
-  @keyframes ghFloat { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-16px) rotate(6deg); } }
   @keyframes ghPulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--golavo-gold) 55%, transparent); } 70%,100% { box-shadow: 0 0 0 8px transparent; } }
   @keyframes ghNudge { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
   @media (prefers-reduced-motion: reduce) {
     .gh-rise { opacity: 1; transform: none; animation: none; }
-    .gh-sun, .gh-orbit, .gh-waveDrift--back, .gh-waveDrift--front,
+    .gh-sun, .gh-waveDrift,
     .gh-status-dot, .gh-scroll svg, .gh-underline { animation: none; }
     .gh-underline { stroke-dashoffset: 0; }
   }
 
   @media (max-width: 50rem) {
     .gh { min-height: auto; padding-top: 2.5rem; padding-bottom: 3rem; }
-    .gh-orbit--1, .gh-orbit--3 { display: none; }
+    .gh-waves { bottom: -16px; height: 124px; opacity: 0.72; }
     .gh-scroll { display: none; }
   }
 </style>

@@ -14,9 +14,9 @@ of a flat list, while every probability still comes from the deterministic engin
 ### Added
 - **Focused Score Outlook coverage.** Component tests protect the summary cards,
   total-goal distribution, expected-total marker, and exact-score disclosure.
-- **A branded first-launch horizon.** The startup and recovery screens now carry
-  the README icon's blue seigaiha waves, with theme-aware contrast, a calm drift,
-  and a static reduced-motion presentation.
+- **A shared branded horizon.** The startup, recovery, and website landing screens
+  now carry the README icon's blue seigaiha waves, with theme-aware contrast, a
+  calm drift, and a static reduced-motion presentation.
 
 ### Changed
 - **Score Outlook, redesigned.** More markets opens with a compact preview of the
