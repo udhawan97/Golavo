@@ -17,7 +17,6 @@ import { Provenance } from "../components/Provenance";
 import { ScoredPanel } from "../components/ScoredPanel";
 import { AiDeepRead } from "../components/ai/AiDeepRead";
 import { CommentatorsNotebook } from "../components/CommentatorsNotebook";
-import { InsightCards } from "../components/InsightCards";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
 export function ForecastDetail({ id }: { id: string }) {
@@ -117,21 +116,21 @@ function Detail({
         </div>
       </div>
 
-      {/* The casual payoff — 3 fixed-rule picks from the notebook below. */}
-      {!abstained && (
-        <InsightCards
-          source={{ kind: "forecast", artifactId: artifact.artifact_id, snapshots: artifact.inputs.snapshots }}
-        />
-      )}
-
-      {/* Deterministic, source-backed match facts — subordinate to the seal. */}
+      {/* Deterministic briefing + source-backed notebook — subordinate to the seal. */}
       <CommentatorsNotebook artifact={artifact} />
 
       {/* Expert depth — same sealed numbers, collapsed in Casual, opened in Expert. */}
       <ExpertDrawers artifact={artifact} mode={mode} />
 
       {/* Optional, off by default, and subordinate to the sealed numbers above. */}
-      <AiDeepRead source={{ kind: "forecast", artifactId: artifact.artifact_id }} />
+      <AiDeepRead
+        source={{ kind: "forecast", artifactId: artifact.artifact_id }}
+        context={{
+          homeTeam: match.home_team,
+          awayTeam: match.away_team,
+          uncertainty: forecast.uncertainty,
+        }}
+      />
     </div>
   );
 }

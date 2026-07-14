@@ -418,7 +418,14 @@ def test_deep_read_asks_for_more_and_uses_a_longer_output_cap() -> None:
     # ids. Strict id/number validation still happens after generation.
     claim = fast_body["format"]["properties"]["claims"]["items"]
     assert "enum" not in claim["properties"]["source_ids"]["items"]
+    assert fast_body["options"]["num_predict"] == 640
+    assert deep_body["options"]["num_predict"] == 1536
     assert fast_body["options"]["num_predict"] < deep_body["options"]["num_predict"]
+    assert fast_body["format"]["properties"]["claims"]["maxItems"] == 3
+    assert fast_body["format"]["properties"]["scenarios"]["maxItems"] == 0
+    assert deep_body["format"]["properties"]["claims"]["maxItems"] == 4
+    assert deep_body["format"]["properties"]["scenarios"]["maxItems"] == 2
+    assert fast_body["format"]["properties"]["candidate_facts"]["maxItems"] == 0
 
 
 def test_local_model_can_be_pinned_by_env(monkeypatch) -> None:

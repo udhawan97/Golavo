@@ -58,7 +58,7 @@ KNOWN_PROVIDERS = ("off", *LOCAL_PROVIDERS, *CLOUD_PROVIDERS)
 # bigger model's extra minutes buy a genuinely richer read.
 KNOWN_DEPTHS = ("fast", "deep")
 _DEPTH_TIMEOUTS = {"fast": 120.0, "deep": 480.0}  # seconds; deep = up to 8 minutes
-_DEPTH_MAX_OUTPUT = {"fast": 1536, "deep": 2304}  # model output token cap (num_predict)
+_DEPTH_MAX_OUTPUT = {"fast": 640, "deep": 1536}  # model output token cap (num_predict)
 _MAX_TIMEOUT = 480.0
 
 _DEFAULT_BASE_URLS = {
@@ -372,6 +372,18 @@ def _ollama_output_schema(config: ProviderConfig) -> dict[str, Any]:
         allow_research=bool(config.allow_research and config.allowed_research_urls),
     )
     schema["required"] = ["verdict", "claims", "scenarios", "candidate_facts"]
+    # Bound array cardinality in the grammar itself. Without these limits a
+    # small local model can keep producing valid-but-repetitive objects until it
+    # exhausts num_predict, which makes a non-streaming request look hung. Fast
+    # intentionally has no scenarios; Deep's larger limits are a real product
+    # distinction rather than a label on the same request.
+    schema["properties"]["claims"]["maxItems"] = 4 if config.is_deep else 3
+    schema["properties"]["scenarios"]["maxItems"] = 2 if config.is_deep else 0
+    schema["properties"]["candidate_facts"]["maxItems"] = 0
+    if "background" in schema["properties"]:
+        schema["properties"]["background"]["maxItems"] = 4
+    if "research_notes" in schema["properties"]:
+        schema["properties"]["research_notes"]["maxItems"] = 8
     return schema
 
 

@@ -163,6 +163,8 @@ class TestPrompt:
         assert fast.count("Fact number") == DEPTH_LIMITS["fast"]["facts"]
         assert deep.count("Fact number") > fast.count("Fact number")
         assert deep.count("`nb_x_") > fast.count("`nb_x_")
+        assert "leave `scenarios` empty" in fast
+        assert "exactly 2 scenarios" in deep
 
     def test_untrusted_context_is_delimited(self) -> None:
         bundle = {

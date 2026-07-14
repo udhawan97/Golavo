@@ -96,7 +96,8 @@ export function MatchNotes({
 }) {
   const visible = notebook?.facts.filter((fact) => !omitKeys.has(factKey(fact))) ?? [];
   const visibleNotebook = notebook ? { ...notebook, facts: visible } : null;
-  const headlineKeys = new Set(topInsights(visibleNotebook).map(factKey));
+  const headlines = topInsights(visibleNotebook);
+  const headlineKeys = new Set(headlines.map(factKey));
   const deep = visible.filter((fact) => !headlineKeys.has(factKey(fact)));
   const editorial = deep.filter((fact) => fact.label !== "coincidence");
   const hero = editorial[0] ?? null;
@@ -108,7 +109,7 @@ export function MatchNotes({
   const home = analysis?.match.home_team ?? notebook?.match.home_team ?? "Home";
   const away = analysis?.match.away_team ?? notebook?.match.away_team ?? "Away";
   const form = analysis?.team_form;
-  const hasBody = hero || cards.length || scorers.length || h2h || form || analysis?.team_style || formation;
+  const hasBody = headlines.length > 0 || hero || cards.length || scorers.length || h2h || form || analysis?.team_style || formation;
 
   return (
     <section className="mn" aria-labelledby="mn-title">
@@ -119,6 +120,20 @@ export function MatchNotes({
       <p className="mn-deck">The form, records and source-backed details behind this fixture. Descriptive history only — never a forecast, and no AI wrote it.</p>
 
       {!hasBody ? <EmptyState title="No match notes for this fixture">No deterministic facts cleared the sample and freshness guards. Nothing is invented to fill the page.</EmptyState> : null}
+
+      {headlines.length > 0 && (
+        <section className="mn-section mn-briefing" aria-labelledby="mn-briefing-title">
+          <div className="mn-section__head">
+            <span className="upper">00 · Quick briefing</span>
+            <h3 id="mn-briefing-title">Three things to know</h3>
+          </div>
+          <div className="mn-feature-grid">
+            {headlines.map((fact, index) => (
+              <FactCard fact={fact} index={index + 1} key={factKey(fact)} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {hero && (
         <article className="mn-cover">

@@ -32,6 +32,7 @@ import { useAsync } from "../lib/hooks";
 import { topInsights } from "../lib/insights";
 import {
   AlertIcon,
+  ChecklistIcon,
   ChevronDown,
   FingerprintIcon,
   PulseIcon,
@@ -69,17 +70,21 @@ export function CommentatorsNotebook({ artifact }: { artifact: ForecastArtifact 
   const snapshots = artifact.inputs.snapshots;
 
   return (
-    <section className="panel" aria-labelledby="nb-h">
-      <div className="panel__head">
-        <h2 id="nb-h">Commentator’s Notebook</h2>
+    <section className="panel nb-panel" aria-labelledby="nb-h">
+      <div className="panel__head nb-panel__head">
+        <span className="nb-panel__mark" aria-hidden><ChecklistIcon size={17} /></span>
+        <div>
+          <span className="nb-panel__kicker">Official match briefing</span>
+          <h2 id="nb-h">Commentator’s Notebook</h2>
+        </div>
         <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
           deterministic · source-backed
         </span>
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: "1rem" }}>
-        <p className="small muted" style={{ margin: 0 }}>
-          Facts computed from the vendored packs. They are background for reading the match —
-          they never change the sealed forecast above, and no AI wrote any of them.
+        <p className="small muted nb-panel__intro">
+          A fixed-rule briefing from vendored match history. Descriptive context only: it never
+          changes the forecast, and no AI wrote it.
         </p>
         <NotebookBody state={state} snapshots={snapshots} />
       </div>
@@ -127,63 +132,141 @@ export function NotebookFacts({
     );
   }
 
-  // Drop the facts already surfaced in "Three things to know" above, so the
-  // notebook is the deeper cut rather than a repeat. Same pure selector, same
-  // notebook — so the two panels partition the facts instead of overlapping.
+  // One fetch, one panel: lead with the fixed-rule briefing, then place every
+  // remaining fact in the deeper ledger. No duplicate panel or parallel ranking.
   const visibleNotebook = { ...notebook, facts: visibleFacts };
-  const summaryKeys = new Set(topInsights(visibleNotebook).map(factKey));
+  const briefing = topInsights(visibleNotebook);
+  const summaryKeys = new Set(briefing.map(factKey));
   const remaining = visibleFacts.filter((f) => !summaryKeys.has(factKey(f)));
   const allInSummary = remaining.length === 0 && summaryKeys.size > 0;
 
   return (
     <>
-      {summaryKeys.size > 0 && !allInSummary && (
-        <p className="small dim" style={{ margin: 0 }}>
-          The headline picks are in “Three things to know” above; here is the rest of the notebook.
-        </p>
+      {briefing.length > 0 && (
+        <BriefingShelf facts={briefing} notebook={notebook} snapshots={snapshots} />
       )}
       {allInSummary && (
-        <p className="small dim" style={{ margin: 0 }}>
-          Every fact that cleared the guards is in the highlights above — nothing is padded out to
-          look fuller.
+        <p className="small dim nb-all-briefed">
+          Every fact that cleared the guards is in the briefing — nothing is padded out.
         </p>
       )}
-      {!allInSummary && remaining.length > 0 && (
-        <div className="nb-reading-key small">
-          <span className="nb-reading-key__mark" aria-hidden>01</span>
-          <span>
-            <b>Quick read first.</b> Open a section for simple stat cards, then open any card for
-            the exact wording, date range and source.
-          </span>
+      {remaining.length > 0 && (
+        <div className="nb-ledger">
+          <div className="nb-ledger__head">
+            <span>Deep notebook</span>
+            <p>Open a category for the remaining source-backed facts.</p>
+          </div>
+          {GROUP_ORDER.map((label) => {
+            const facts = remaining.filter((f) => f.label === label);
+            if (facts.length === 0) return null;
+            return (
+              <FactGroup
+                key={label}
+                label={label}
+                facts={facts}
+                snapshots={snapshots}
+                coincidenceCap={notebook.coincidence_cap}
+              />
+            );
+          })}
         </div>
       )}
-      {GROUP_ORDER.map((label) => {
-        const facts = remaining.filter((f) => f.label === label);
-        if (facts.length === 0) return null;
-        return (
-          <FactGroup
-            key={label}
-            label={label}
-            facts={facts}
-            snapshots={snapshots}
-            coincidenceCap={notebook.coincidence_cap}
-          />
-        );
-      })}
-      <div className="nb-foot small dim">
-        <span>
-          {notebook.family_size} fixed fact-checks · rule set {notebook.registry_version}
-        </span>
-        {notebook.suppressed.length > 0 && (
-          <span>
-            {notebook.suppressed.length} candidate
-            {notebook.suppressed.length === 1 ? "" : "s"} suppressed by sample / staleness / cap
-            guards
-          </span>
-        )}
-        <span>as of {notebook.as_of_utc.slice(0, 10)}</span>
-      </div>
+      <NotebookProvenance notebook={notebook} snapshots={snapshots} />
     </>
+  );
+}
+
+function BriefingShelf({
+  facts,
+  notebook,
+  snapshots,
+}: {
+  facts: NotebookFact[];
+  notebook: NotebookData;
+  snapshots: Snapshot[];
+}) {
+  return (
+    <section className="nb-brief" aria-labelledby="nb-brief-h">
+      <div className="nb-brief__head">
+        <div>
+          <span className="nb-brief__eyebrow">Quick briefing · fixed rules, not AI</span>
+          <h3 id="nb-brief-h">Three things to know</h3>
+        </div>
+        <div className="nb-brief__fixture" aria-label={`${notebook.match.home_team} versus ${notebook.match.away_team}`}>
+          <span className="nb-brief__team nb-brief__team--home">{notebook.match.home_team}</span>
+          <span aria-hidden>v</span>
+          <span className="nb-brief__team nb-brief__team--away">{notebook.match.away_team}</span>
+        </div>
+      </div>
+      <ol className="nb-brief__grid">
+        {facts.map((fact, index) => {
+          const display = FACT_DISPLAY[fact.id] ?? {
+            title: FACT_CATEGORY_TEXT[factCategory(fact)],
+            explainer: "A source-backed match fact from the available history.",
+          };
+          const tone =
+            fact.subject === notebook.match.home_team
+              ? "home"
+              : fact.subject === notebook.match.away_team
+                ? "away"
+                : "neutral";
+          return (
+            <li key={factKey(fact)} className={`nb-brief-card nb-brief-card--${tone}`}>
+              <div className="nb-brief-card__top">
+                <span className="nb-brief-card__index num">{String(index + 1).padStart(2, "0")}</span>
+                <span className={`chip chip--fact-${fact.label}`}>
+                  <span className="chip__dot" aria-hidden />
+                  {FACT_LABEL_TEXT[fact.label]}
+                </span>
+              </div>
+              <span className="nb-brief-card__subject">{fact.subject}</span>
+              <div className="nb-brief-card__payoff">
+                <strong className="num">{glanceValue(fact)}</strong>
+                <div><h4>{display.title}</h4><p>{display.explainer}</p></div>
+              </div>
+              <details className="nb-brief-card__why">
+                <summary>Why this?</summary>
+                <div>
+                  <p>{fact.text}</p>
+                  <span>{fact.sample_n.toLocaleString()} matches · {yearSpan(fact.date_range) ?? "available history"}</span>
+                  <span>Source <SourcePopover ids={fact.source_ids} snapshots={snapshots} /></span>
+                </div>
+              </details>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+function NotebookProvenance({
+  notebook,
+  snapshots,
+}: {
+  notebook: NotebookData;
+  snapshots: Snapshot[];
+}) {
+  return (
+    <details className="nb-provenance">
+      <summary>
+        <span><ChecklistIcon size={15} aria-hidden /></span>
+        <span>
+          <b>Evidence, method &amp; provenance</b>
+          <small>{notebook.source_ids.length} source{notebook.source_ids.length === 1 ? "" : "s"} · as of {notebook.as_of_utc.slice(0, 10)}</small>
+        </span>
+      </summary>
+      <div className="nb-provenance__body small">
+        <p>
+          {notebook.family_size} fixed fact-checks · rule set {notebook.registry_version}. Facts are
+          selected and suppressed by deterministic sample, freshness, and coincidence-cap guards.
+        </p>
+        {notebook.suppressed.length > 0 && (
+          <p>{notebook.suppressed.length} candidate{notebook.suppressed.length === 1 ? " was" : "s were"} suppressed by those guards.</p>
+        )}
+        <p>Source <SourcePopover ids={notebook.source_ids} snapshots={snapshots} /></p>
+      </div>
+    </details>
   );
 }
 
@@ -200,7 +283,7 @@ function FactGroup({
 }) {
   const quarantine = label === "coincidence";
   return (
-    <div className={quarantine ? "nb-group nb-group--quarantine" : "nb-group"}>
+    <section className={quarantine ? "nb-group nb-group--quarantine" : "nb-group"}>
       <div className="nb-group__head">
         <span className={`chip chip--fact-${label}`}>
           <span className="chip__dot" aria-hidden />
@@ -249,13 +332,28 @@ function FactGroup({
           })}
         </div>
       ) : (
-        <ul className="nb-list nb-list--grid">
-          {facts.map((fact, i) => (
-            <FactRow key={`${fact.id}-${i}`} fact={fact} snapshots={snapshots} />
-          ))}
-        </ul>
+        <details className="nb-subgroup nb-subgroup--single">
+          <summary className="nb-subgroup__summary">
+            <span className="nb-subgroup__icon" aria-hidden>
+              {label === "predictive" ? <PulseIcon size={15} /> : <AlertIcon size={15} />}
+            </span>
+            <span className="nb-subgroup__copy">
+              <b>{facts.length} {facts.length === 1 ? "briefing stat" : "briefing stats"}</b>
+              <span>{categorySummary(facts)}</span>
+            </span>
+            <span className="nb-subgroup__glance" aria-hidden>
+              {facts.slice(0, 3).map((fact, i) => <span key={`${fact.id}-${i}`}>{glanceValue(fact)}</span>)}
+            </span>
+            <ChevronDown className="nb-subgroup__chevron" size={17} />
+          </summary>
+          <ul className="nb-list nb-list--grid">
+            {facts.map((fact, i) => (
+              <FactRow key={`${fact.id}-${i}`} fact={fact} snapshots={snapshots} />
+            ))}
+          </ul>
+        </details>
       )}
-    </div>
+    </section>
   );
 }
 

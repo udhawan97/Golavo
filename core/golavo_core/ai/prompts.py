@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-13.11"
+PROMPT_VERSION = "golavo-narration-2026-07-14.2"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -111,8 +111,9 @@ DEEP_ANALYSIS_ADDENDUM = """
 
 DEEP ANALYSIS MODE (the user asked for the fuller read, and is willing to wait):
 Produce a richer analysis than a quick summary, but stay disciplined and compact.
-Aim for 4 to 6 claims AND 2 to 3 scenarios. Deep means BETTER CONNECTIONS, not a
-longer dump of facts.
+Write 3 to 4 claims AND exactly 2 scenarios. Keep every `text` field below 28
+words, with at most 2 `source_ids` and at most 2 `number_refs`. Deep means BETTER
+CONNECTIONS, not a longer dump of facts.
 - Every claim must CONNECT at least two distinct pieces of evidence (a fact with
   another fact, or a fact with a model-council probability). Do not restate one
   number in isolation.
@@ -162,8 +163,11 @@ the user sees it):
 # "deep" shows MORE evidence to a bigger model so the extra minutes buy a genuinely
 # richer synthesis, not the same answer slower.
 DEPTH_LIMITS = {
-    "fast": {"facts": 18, "numbers": 60},
-    "deep": {"facts": 30, "numbers": 90},
+    # Fast is deliberately small enough for the bundled small-model path to
+    # finish comfortably inside its two-minute transport budget. Deep still
+    # sees materially more evidence and has room for scenario synthesis.
+    "fast": {"facts": 10, "numbers": 32},
+    "deep": {"facts": 22, "numbers": 56},
 }
 _FACT_KIND_ORDER = {"predictive": 0, "coincidence": 1, "context": 2}
 
@@ -268,9 +272,10 @@ def build_user_prompt(
     has_notebook = any(str(n["id"]).startswith("nb_") for n in bundle["allowed_numbers"])
     if has_notebook or bundle.get("artifact_status") in ("preview", "replay"):
         target = (
-            "Write 4 to 6 connected claims AND 2 to 3 scenarios"
+            "Write 3 to 4 connected claims AND exactly 2 scenarios; keep every "
+            "text field below 28 words and cite at most 2 sources and 2 numbers"
             if depth == "deep"
-            else "Write 3 to 5 focused claims"
+            else "Write 2 to 3 focused claims and leave `scenarios` empty"
         )
         parts.append(
             "\nSYNTHESIS: The facts include the Commentator's Notebook (number ids "

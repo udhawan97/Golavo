@@ -25,22 +25,35 @@ async function openRead(page: import("@playwright/test").Page, theme = "dark") {
   await page.locator(".ai-result").waitFor();
 }
 
-test("done state: verdict, one legend, no chip wall", async ({ page }) => {
+test("done state: verdict, story, signals, and labeled metrics", async ({ page }) => {
   await openRead(page);
 
   // Verdict hero present.
   await expect(page.locator(".ai-verdict")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The match story" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Key signals" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What could happen" })).toBeVisible();
+
+  // Values are never bare mystery chips: every displayed metric has its label.
+  const metric = page.locator(".ai-metric").first();
+  await expect(metric.locator("dt")).not.toHaveText("");
+  await expect(metric.locator("dd")).not.toHaveText("");
+  expect(await page.locator(".ai-num").count()).toBe(0);
 
   // The old repeated source chips are gone — claims carry footnote buttons, not
   // a chip per source per claim.
   expect(await page.locator(".ai-chip--src").count()).toBe(0);
   expect(await page.locator(".ai-fnote").count()).toBeGreaterThan(0);
 
-  // Exactly one deduplicated evidence legend, and its rows are unique sources.
+  // Exactly one deduplicated evidence drawer, collapsed until requested.
   await expect(page.locator(".ai-evidence")).toHaveCount(1);
+  await expect(page.locator(".ai-evidence")).not.toHaveAttribute("open", "");
   const legendRows = await page.locator(".ai-evidence__item").count();
   expect(legendRows).toBeGreaterThan(0);
   expect(legendRows).toBeLessThanOrEqual(6);
+  await expect(page.locator(".ai-evidence__item").first()).toBeHidden();
+  await page.locator(".ai-evidence__summary").click();
+  await expect(page.locator(".ai-evidence__item").first()).toBeVisible();
 
   // Research lane is clearly marked and its links open safely in a new tab.
   const research = page.locator(".ai-research");

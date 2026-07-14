@@ -1,6 +1,6 @@
 /**
  * The evidence system for the AI read — footnote markers + one deduplicated
- * "Evidence used" legend, replacing the old per-claim citation-chip wall.
+ * "Evidence & sources" disclosure, replacing the old per-claim citation-chip wall.
  *
  * A claim carries tiny superscript footnote buttons (¹ ²); the full source list
  * lives once, at the bottom, as a numbered legend. Verified numbers still render
@@ -63,8 +63,10 @@ export function FootnoteRef({ n, source }: { n: number; source: SourceRef }) {
   }, [open]);
   const jump = () => {
     setOpen(false);
+    const drawer = document.getElementById("ai-evidence") as HTMLDetailsElement | null;
+    if (drawer) drawer.open = true;
     const el = document.getElementById(`ai-src-${n}`);
-    if (el) el.focus();
+    if (el) requestAnimationFrame(() => el.focus());
   };
   return (
     <span className="ai-fnote-wrap" ref={wrap}>
@@ -104,39 +106,49 @@ export function FootnoteRef({ n, source }: { n: number; source: SourceRef }) {
 export function EvidenceLegend({ index }: { index: EvidenceIndex }) {
   if (index.ordered.length === 0) return null;
   return (
-    <section className="ai-evidence" aria-labelledby="ai-ev-h">
-      <h3 id="ai-ev-h" className="ai-subhead ai-evidence__head">
-        <ChecklistIcon size={14} aria-hidden /> Evidence used
-      </h3>
-      <ol className="ai-evidence__list">
-        {index.ordered.map(({ index: n, source, citedBy }) => {
-          const Icon = KIND_ICON[source.kind] ?? BookIcon;
-          return (
-            <li
-              key={source.source_id}
-              id={`ai-src-${n}`}
-              tabIndex={-1}
-              className={`ai-evidence__item ai-evidence__item--${source.kind}`}
-            >
-              <span className="ai-evidence__num num" aria-hidden>{n}</span>
-              <span className="ai-evidence__icon" aria-hidden><Icon size={15} /></span>
-              <span className="ai-evidence__body">
-                {source.url ? (
-                  <a href={source.url} target="_blank" rel="noreferrer">
-                    {source.title} <ExternalLinkIcon size={11} />
-                  </a>
-                ) : (
-                  <span className="ai-evidence__title">{source.title}</span>
-                )}
-                <span className="ai-evidence__kind">{sourceKindLine(source.kind)}</span>
-              </span>
-              <span className="ai-evidence__count dim num" aria-label={`cited by ${citedBy} claim${citedBy === 1 ? "" : "s"}`}>
-                ×{citedBy}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-    </section>
+    <details id="ai-evidence" className="ai-evidence">
+      <summary className="ai-evidence__summary">
+        <span className="ai-evidence__summary-icon" aria-hidden><ChecklistIcon size={15} /></span>
+        <span>
+          <b>Evidence &amp; sources</b>
+          <small>{index.ordered.length} verified source{index.ordered.length === 1 ? "" : "s"}</small>
+        </span>
+        <span className="ai-evidence__summary-action">View source ledger</span>
+      </summary>
+      <div className="ai-evidence__body-wrap">
+        <p className="small dim ai-evidence__intro">
+          Each source is listed once, with the number of claims it supports.
+        </p>
+        <ol className="ai-evidence__list">
+          {index.ordered.map(({ index: n, source, citedBy }) => {
+            const Icon = KIND_ICON[source.kind] ?? BookIcon;
+            return (
+              <li
+                key={source.source_id}
+                id={`ai-src-${n}`}
+                tabIndex={-1}
+                className={`ai-evidence__item ai-evidence__item--${source.kind}`}
+              >
+                <span className="ai-evidence__num num" aria-hidden>{n}</span>
+                <span className="ai-evidence__icon" aria-hidden><Icon size={15} /></span>
+                <span className="ai-evidence__body">
+                  {source.url ? (
+                    <a href={source.url} target="_blank" rel="noreferrer">
+                      {source.title} <ExternalLinkIcon size={11} />
+                    </a>
+                  ) : (
+                    <span className="ai-evidence__title">{source.title}</span>
+                  )}
+                  <span className="ai-evidence__kind">{sourceKindLine(source.kind)}</span>
+                </span>
+                <span className="ai-evidence__count dim num" aria-label={`cited by ${citedBy} claim${citedBy === 1 ? "" : "s"}`}>
+                  ×{citedBy}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </details>
   );
 }

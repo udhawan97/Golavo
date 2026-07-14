@@ -31,7 +31,6 @@ import { ModelCouncil } from "../components/ModelCouncil";
 import { ScoreOutlook } from "../components/ScoreOutlook";
 import { SecondHalfStory } from "../components/SecondHalfStory";
 import { WorldCupPedigree } from "../components/WorldCupPedigree";
-import { ResolvedInsightCards } from "../components/InsightCards";
 import { MatchNotes } from "../components/MatchNotes";
 import { parseHalfTimeStory, parseWorldCupPedigree } from "../lib/factValues";
 import { TourOverlay } from "../components/TourOverlay";
@@ -170,8 +169,6 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         <ExpertSealRow detail={detail} />
       )}
 
-      <ResolvedInsightCards notebook={notebook} omitKeys={consumedKeys} />
-
       <div data-tour="cockpit-notebook">
         <MatchNotebookBlock
           state={notebookState}
@@ -183,7 +180,14 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       </div>
 
       <div data-tour="cockpit-ai">
-        <AiDeepRead source={{ kind: "match", matchId: id }} />
+        <AiDeepRead
+          source={{ kind: "match", matchId: id }}
+          context={{
+            homeTeam: match.home_team,
+            awayTeam: match.away_team,
+            uncertainty: analysis?.uncertainty,
+          }}
+        />
       </div>
 
       <TourOverlay ctrl={cockpitTour} />
@@ -461,9 +465,9 @@ function SealUnknown({ match }: { match: MatchRow }) {
   );
 }
 
-/** The Commentator's Notebook — always shown for a found match. Fed by the
- *  per-match notebook endpoint and rendered through the shared NotebookFacts
- *  renderer. Subordinate to any seal: it is descriptive history, never a forecast. */
+/** The source-backed match notes — always shown for a found match. Fed by the
+ *  per-match notebook and analysis endpoints. Subordinate to any seal: it is
+ *  descriptive history, never a forecast. */
 function MatchNotebookBlock({
   state,
   onRetry,

@@ -21,6 +21,7 @@ import { newJobId, usePolledProgress } from "../../lib/aiProgress";
 import { ClockIcon, FlaskIcon, GlobeIcon, InfoIcon, SearchIcon } from "../icons";
 import { Pipeline } from "./AiPipeline";
 import { Result } from "./AiResult";
+import type { AiDisplayContext } from "./AiResult";
 import { FallbackCard, humanizeError, OffCard } from "./AiFallback";
 
 /** A short size label for a model, e.g. "12B" or "" when unknown. */
@@ -51,7 +52,13 @@ function ReadMark() {
   );
 }
 
-export function AiDeepRead({ source }: { source: DeepReadSource }) {
+export function AiDeepRead({
+  source,
+  context,
+}: {
+  source: DeepReadSource;
+  context?: AiDisplayContext;
+}) {
   const [provider, setProvider] = useAiProvider();
   const [allowBackground, setAllowBackground] = useAiBackground();
   const [allowResearch, setAllowResearch] = useAiResearch();
@@ -261,6 +268,7 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
             data={state.data}
             isMatch={isMatch}
             depth={depth}
+            context={context}
             onSwitchFast={depth === "deep" ? switchToFast : undefined}
             onRefresh={() => run(true)}
             onRetry={() => run(false)}
