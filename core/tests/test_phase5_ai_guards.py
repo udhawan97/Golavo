@@ -131,6 +131,9 @@ class TestPrompt:
         assert "DETERMINISTIC" in SYSTEM_PROMPT
         assert "number" in SYSTEM_PROMPT.lower()
         assert "betting" in SYSTEM_PROMPT.lower()
+        assert "`text`, `source_ids`, and" in SYSTEM_PROMPT
+        assert "`number_refs`" in SYSTEM_PROMPT
+        assert "An all-empty response" in SYSTEM_PROMPT
 
     def test_deep_prompt_shows_more_evidence_than_fast(self) -> None:
         from golavo_core.ai.prompts import DEPTH_LIMITS

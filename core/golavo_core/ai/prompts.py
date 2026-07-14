@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-13.6"
+PROMPT_VERSION = "golavo-narration-2026-07-13.7"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -61,14 +61,23 @@ remains genuinely unknown.
 OUTPUT: Return ONLY a single JSON object whose TOP-LEVEL keys are `verdict`,
 `claims`, `scenarios`, and `candidate_facts`. Do NOT wrap it in another object and
 do NOT nest it under a name such as "AiNarration" — the keys must be at the very
-top level. `verdict` is ONE sentence naming the engine's single most likely
-outcome, stating its probability by writing the DISPLAY value of an allowed
-number and putting that number's id in the verdict's `number_refs` (same rules as
-a claim; cite a source_id). Set `verdict` to null only if no allowed probability
-supports one. `claims` and `scenarios` are arrays. `candidate_facts` are OPTIONAL
-proposals for facts NOT in the bundle; each needs an exact `quote` and a
-`source_url`; they are never treated as established and never carry a number.
-Leave any array empty rather than padding it."""
+top level.
+
+Exact JSON shape:
+- `verdict` is either null OR an object with exactly `text`, `source_ids`, and
+  `number_refs`.
+- Every item in `claims` and `scenarios` is also an object with exactly `text`,
+  `source_ids`, and `number_refs`.
+- `candidate_facts` is usually []; if used, each item has `text`, `quote`, and
+  `source_url`.
+
+If the allowed numbers include engine probabilities, `verdict` MUST be a non-null
+object naming the engine's single most likely outcome, writing that allowed
+probability's DISPLAY value in `text`, putting that number id in `number_refs`,
+and citing one of that number's source ids in `source_ids`. An all-empty response
+(`verdict`: null, empty `claims`, empty `scenarios`) is valid ONLY when there are
+no usable allowed numbers or sources. Leave an individual array empty rather than
+padding it with unsupported content."""
 
 
 # Appended to the system prompt ONLY when the user has enabled the optional
