@@ -23,6 +23,7 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 getrandom = "0.2"
+url = "2"
 # Native message dialog for the pre-event-loop fatal-launch path. Used DIRECTLY
 # (not via tauri-plugin-dialog) so it runs its own modal loop on the calling
 # thread and cannot deadlock before Tauri's event loop starts. Already in the

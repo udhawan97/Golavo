@@ -29,6 +29,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use tauri::{AppHandle, Emitter, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
+use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
 
@@ -149,6 +150,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            open_external_url,
             restart_sidecar,
             updater::updater_status,
             updater::updater_check,
@@ -168,6 +170,49 @@ pub fn run() {
             RunEvent::ExitRequested { .. } | RunEvent::Exit => kill_sidecar(handle),
             _ => {}
         });
+}
+
+/// Open an ordinary web link in the operating system's default browser.
+///
+/// This lives behind an app command instead of exposing the opener plugin's
+/// broad frontend permission. The UI can open cited sources from many hosts,
+/// but it can never use this path for local files, custom protocols, or URLs
+/// containing embedded credentials.
+#[tauri::command]
+fn open_external_url(app: AppHandle, url: String) -> Result<(), String> {
+    let url = validated_external_url(&url)?;
+    app.opener()
+        .open_url(url.as_str(), None::<&str>)
+        .map_err(|error| format!("could not open external URL: {error}"))
+}
+
+fn validated_external_url(value: &str) -> Result<url::Url, String> {
+    let parsed = url::Url::parse(value).map_err(|_| "external URL is invalid".to_string())?;
+    if !matches!(parsed.scheme(), "https" | "http") || parsed.host_str().is_none() {
+        return Err("only HTTP and HTTPS links can be opened".to_string());
+    }
+    if !parsed.username().is_empty() || parsed.password().is_some() {
+        return Err("external links cannot contain credentials".to_string());
+    }
+    Ok(parsed)
+}
+
+#[cfg(test)]
+mod external_url_tests {
+    use super::validated_external_url;
+
+    #[test]
+    fn permits_normal_web_links() {
+        assert!(validated_external_url("https://github.com/udhawan97/Golavo/releases").is_ok());
+        assert!(validated_external_url("http://example.com/help?q=golavo").is_ok());
+    }
+
+    #[test]
+    fn rejects_files_custom_protocols_and_embedded_credentials() {
+        assert!(validated_external_url("file:///etc/passwd").is_err());
+        assert!(validated_external_url("javascript:alert(1)").is_err());
+        assert!(validated_external_url("https://user:secret@example.com/").is_err());
+    }
 }
 
 /// Wait for the current sidecar generation to become healthy and drive the UI.

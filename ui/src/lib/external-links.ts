@@ -27,7 +27,7 @@ export function useExternalLinks(): void {
       if (url.protocol !== "https:" && url.protocol !== "http:") return;
 
       event.preventDefault();
-      void window.__TAURI__!.core.invoke("plugin:opener|open_url", {
+      void window.__TAURI__!.core.invoke("open_external_url", {
         url: url.toString(),
       }).catch((error: unknown) => {
         console.error("Could not open external link", error);

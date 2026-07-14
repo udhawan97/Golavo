@@ -43,7 +43,7 @@ test("Settings external links open through the desktop system browser", async ({
   await page.getByRole("link", { name: "Documentation", exact: true }).click();
 
   const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);
-  expect(invoked.filter((command) => command === "plugin:opener|open_url")).toHaveLength(2);
+  expect(invoked.filter((command) => command === "open_external_url")).toHaveLength(2);
   await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
 });
 

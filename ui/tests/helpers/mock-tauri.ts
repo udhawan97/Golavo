@@ -223,7 +223,7 @@ export async function installMockTauri(
               if (sc.fallback?.openError) return Promise.reject(sc.fallback.openError);
               return Promise.resolve(null as T);
 
-            case "plugin:opener|open_url":
+            case "open_external_url":
               return Promise.resolve(null as T);
 
             default:
