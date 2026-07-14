@@ -272,7 +272,34 @@ def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
         )
         return 1
 
-    # The bundled match index must be reachable through the real API route.
+    # Health deliberately becomes ready before the scientific/index warm-up.
+    # Wait on the same status signal the UI uses instead of racing the first
+    # search into a second pandas/parquet load. This matters most in a one-file
+    # frozen build, where imports are much slower than in the source test suite.
+    status_url = f"http://{host}:{port}/api/v1/status"
+    index_ready = False
+    while time.monotonic() < deadline:
+        request = urllib.request.Request(status_url)  # noqa: S310 (loopback only)
+        request.add_header(runtime.TOKEN_HEADER, token)
+        try:
+            with urllib.request.urlopen(request, timeout=2.0) as response:  # noqa: S310
+                status_body = json.loads(response.read().decode("utf-8"))
+            if status_body.get("index_ready") is True:
+                index_ready = True
+                break
+            last_error = f"match index state: {status_body.get('index_state', 'unknown')}"
+        except Exception as exc:  # noqa: BLE001 (probe retries until the shared deadline)
+            last_error = str(exc)
+        time.sleep(0.25)
+
+    if not index_ready:
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED after {timeout:.0f}s ({last_error})",
+            file=sys.stderr,
+        )
+        return 1
+
+    # The warmed bundled match index must be reachable through the real API route.
     search_url = f"http://{host}:{port}/api/v1/matches/search?q=br"
     request = urllib.request.Request(search_url)  # noqa: S310 (loopback only)
     if token:
