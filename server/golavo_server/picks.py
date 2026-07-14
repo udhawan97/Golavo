@@ -7,12 +7,12 @@ import hashlib
 import json
 import os
 import re
+import tempfile
 import threading
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from golavo_core.artifacts import _atomic_write_bytes
 from golavo_core.picks import (
     PICK_SCHEMA_VERSION,
     canonical_pick_bytes,
@@ -29,6 +29,21 @@ from golavo_core.picks import (
 
 _PICKS_LOCK = threading.Lock()
 _SAFE_MATCH_ID = re.compile(r"^[A-Za-z0-9_.-]+$")
+
+
+def _atomic_write_bytes(path: Path, data: bytes) -> None:
+    """Replace ``path`` atomically without importing the forecasting stack."""
+    fd, tmp_name = tempfile.mkstemp(dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp")
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
 
 
 class PickError(Exception):
