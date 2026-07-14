@@ -88,7 +88,9 @@ def _parse(html: str) -> list[dict[str, str]]:
     return parser.results
 
 
-def search_snippets(query: str, *, limit: int = 4, fetch: Fetch | None = None) -> list[dict[str, str]]:
+def search_snippets(
+    query: str, *, limit: int = 4, fetch: Fetch | None = None
+) -> list[dict[str, str]]:
     """Return up to ``limit`` {title, url, snippet}. ``[]`` on ANY failure."""
     getter = _resolve(fetch)
     for endpoint in (_LITE, _HTML):

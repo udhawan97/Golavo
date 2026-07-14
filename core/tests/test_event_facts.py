@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import pandas as pd
 import pytest
-
 from golavo_core.facts import events
 from golavo_core.facts._history import TemplateContext
 from golavo_core.facts.guardrails import assert_number_discipline, build_fact

@@ -17,7 +17,7 @@ from typing import Any
 
 from golavo_core.ai.sanitize import sanitize_untrusted
 
-from . import wikipedia, websearch
+from . import websearch, wikipedia
 from .fetch import Fetch, research_disabled
 
 # Per-depth budget: how many pages to gather and how much of each the model sees.

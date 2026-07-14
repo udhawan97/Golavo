@@ -6,12 +6,10 @@ from __future__ import annotations
 import json
 
 import pytest
-
 from golavo_server.research import fetch as fetchmod
 from golavo_server.research import websearch, wikipedia
 from golavo_server.research.fetch import ResearchFetchError
 from golavo_server.research.orchestrator import plan_queries, run_research
-
 
 # ---- fetch policy ----------------------------------------------------------
 
@@ -39,9 +37,20 @@ def test_kill_switch_short_circuits(monkeypatch) -> None:
 def test_wikipedia_search_and_extract_parse_canned_json() -> None:
     def fake_fetch(url: str) -> bytes:
         if "list=search" in url:
-            return json.dumps({"query": {"search": [{"title": "Spain national football team"}]}}).encode()
+            return json.dumps(
+                {"query": {"search": [{"title": "Spain national football team"}]}}
+            ).encode()
         return json.dumps(
-            {"query": {"pages": {"1": {"title": "Spain national football team", "extract": "Spain are a national team."}}}}
+            {
+                "query": {
+                    "pages": {
+                        "1": {
+                            "title": "Spain national football team",
+                            "extract": "Spain are a national team.",
+                        }
+                    }
+                }
+            }
         ).encode()
 
     titles = wikipedia.search("spain", fetch=fake_fetch)
@@ -133,7 +142,11 @@ def test_run_research_partial_failure_notes_and_survives(monkeypatch) -> None:
         return ["Spain"]
 
     def wiki_extract(t, **k):
-        return {"title": "Spain", "url": "https://en.wikipedia.org/wiki/Spain", "text": "Spain text."}
+        return {
+            "title": "Spain",
+            "url": "https://en.wikipedia.org/wiki/Spain",
+            "text": "Spain text.",
+        }
 
     def web_search(q, **k):
         raise RuntimeError("ddg down")

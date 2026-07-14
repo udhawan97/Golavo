@@ -8,7 +8,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from golavo_core.artifacts import seal_forecast
 from golavo_core.evidence import build_evidence_bundle
 from golavo_server.ai_gateway import NarrationCache, ProviderConfig, generate_narration
