@@ -205,6 +205,22 @@ def test_retry_then_fallback_and_a_late_success_is_used(bundle: dict) -> None:
     assert attempts["n"] == 2  # first failed, retry succeeded
 
 
+def test_invalid_json_retry_uses_json_only_instruction(bundle: dict) -> None:
+    attempts: list[str] = []
+
+    def flaky(system: str, user: str) -> str:
+        attempts.append(user)
+        if len(attempts) == 1:
+            return "not json"
+        return json.dumps(_valid_response(bundle))
+
+    env = generate_narration(bundle, _cfg(), transport=flaky, cache=NarrationCache())
+    assert env.status == "ok"
+    assert len(attempts) == 2
+    assert "RETRY BECAUSE YOUR PREVIOUS RESPONSE WAS NOT VALID JSON" not in attempts[0]
+    assert "RETRY BECAUSE YOUR PREVIOUS RESPONSE WAS NOT VALID JSON" in attempts[1]
+
+
 def test_transport_error_becomes_local_only(bundle: dict) -> None:
     def boom(system: str, user: str) -> str:
         raise ConnectionError("connection refused")

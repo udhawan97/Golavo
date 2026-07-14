@@ -744,6 +744,16 @@ _CACHE = NarrationCache()
 
 MAX_ATTEMPTS = 2  # initial attempt + one retry, then local-only fallback.
 
+JSON_RETRY_INSTRUCTION = """
+
+RETRY BECAUSE YOUR PREVIOUS RESPONSE WAS NOT VALID JSON:
+Return ONLY the JSON object. Do not include Markdown, prose, a code fence,
+preface text, explanations, hidden reasoning, or `<think>` content.
+The top-level object must have exactly these keys:
+`verdict`, `claims`, `scenarios`, `candidate_facts`.
+Use empty arrays when needed. If no verdict is grounded, set `verdict` to null.
+"""
+
 
 def generate_narration(
     bundle: dict[str, Any],
@@ -893,11 +903,12 @@ def generate_narration(
     reasons: list[str] = []
     reached_provider = False  # did any attempt get a response back from the model?
     _emit("writing", "The model is reading and writing")
+    attempt_user = user
     for _ in range(MAX_ATTEMPTS):
         if _cancelled():
             return envelope("local_only", reason="cancelled", web_sources=web_sources)
         try:
-            raw_text = transport(system, user)
+            raw_text = transport(system, attempt_user)
         except TimeoutError:
             # A slow local model that timed out will just time out again on an
             # immediate retry — stop rather than doubling the user's wait.
@@ -922,6 +933,7 @@ def generate_narration(
         raw = extract_json_object(raw_text)
         if raw is None:
             reasons.append("model output was not valid JSON")
+            attempt_user = user + JSON_RETRY_INSTRUCTION
             continue
         _emit("verifying", "Verifying every number against the engine")
         review = review_narration(
