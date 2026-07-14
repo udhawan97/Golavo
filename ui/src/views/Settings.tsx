@@ -20,6 +20,7 @@ import { ERROR_HINTS, ERROR_TITLES, formatBytes, formatWhen } from "../lib/updat
 import type { UpdaterController } from "../lib/updater";
 import { ProgressBar, ReleaseNotes } from "../components/updates";
 import { DOCS_URL, RELEASES_URL } from "../lib/links";
+import { handleExternalLinkClick } from "../lib/external-links";
 import { replayTours, tourEnabled } from "../lib/tour";
 import {
   LOCAL_MODELS_CHANGED_EVENT,
@@ -149,9 +150,9 @@ export function Settings({
           <div className="settings__row">
             <span>Links</span>
             <span>
-              <a href={RELEASES_URL} target="_blank" rel="noreferrer">Releases</a>
+              <a href={RELEASES_URL} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Releases</a>
               {" · "}
-              <a href={DOCS_URL} target="_blank" rel="noreferrer">Documentation</a>
+              <a href={DOCS_URL} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Documentation</a>
             </span>
           </div>
         </div>
