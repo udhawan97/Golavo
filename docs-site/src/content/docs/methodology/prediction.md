@@ -1,6 +1,6 @@
 ---
 title: Prediction methodology
-description: Phase 0 candidate models, chronological evaluation, calibration metrics, and leakage controls.
+description: Candidate models, chronological evaluation, calibration metrics, and leakage controls.
 ---
 
 Golavo's probabilities come from a deterministic statistical engine, not from AI. This page is the honest, citable account of how they are produced.
@@ -13,7 +13,7 @@ Golavo's probabilities come from a deterministic statistical engine, not from AI
 
 ## Candidate models: time-decayed Dixon-Coles / bivariate Poisson
 
-Phase 0 evaluates **time-decayed Dixon-Coles** and **bivariate Poisson** as candidates alongside climatological, Elo ordinal-logit, and independent-Poisson baselines. No model is a champion by declaration. The decay rate is selected on pre-test validation data only; tournament test folds are never used for tuning.
+Golavo evaluates **time-decayed Dixon-Coles** and **bivariate Poisson** as candidates alongside climatological, Elo ordinal-logit, and independent-Poisson baselines. No model is a champion by declaration. The decay rate is selected on pre-test validation data only; tournament test folds are never used for tuning.
 
 ```text
 fit(matches, as_of):
@@ -28,7 +28,7 @@ predict(home, away, venue, features):
 
 Identifiability is fixed with `Σ attack = Σ defence = 0`. The decay rate `ξ`, dependence `ρ`, and home advantage `γ` are chosen by **forward** grid-search, never in-sample.
 
-## Exact-score distribution & coherence (Phase 8)
+## Exact-score distribution & coherence
 
 For the goal-based families (independent, Dixon-Coles, bivariate Poisson) the score matrix `M` above is not a throwaway intermediate — the sealed artifact carries it as an additive `forecast.score_matrix`. It is the exact-score distribution the 1X2 numbers **already implied**, surfaced honestly rather than recomputed.
 
@@ -45,7 +45,7 @@ For the goal-based families (independent, Dixon-Coles, bivariate Poisson) the sc
 
 ## Coherent downstream markets
 
-- **Goalscorers, corners, shots, and lineups** — still out. No accepted open source supplies the required full set of fields (club goalscorers, corners, and xG have **no** open feed at all; martj42 ships goalscorers for internationals only). The exact-score grid is the one coherent downstream market Phase 8 could derive from the sealed model without new data.
+- **Goalscorers, corners, shots, and lineups** — still out. No accepted open source supplies the required full set of fields (club goalscorers, corners, and xG have **no** open feed at all; martj42 ships goalscorers for internationals only). The exact-score grid is the one coherent downstream market Golavo can derive from the sealed model without new data.
 
 ## Typed features (candidate inputs, all behind a gate)
 
@@ -55,7 +55,7 @@ Rest, congestion, travel, altitude, weather, lineups/availability, and manager e
 
 ## Calibration
 
-Phase 0 reports expected calibration error plus reliability bins with Wilson intervals. Secondary calibration transforms are not enabled in Phase 0; they remain candidates for later forward validation.
+Golavo reports expected calibration error plus reliability bins with Wilson intervals. Secondary calibration transforms are not enabled; they remain candidates for later forward validation.
 
 ## Backtesting & leakage
 
@@ -65,11 +65,11 @@ Phase 0 reports expected calibration error plus reliability bins with Wilson int
 
 ## Metrics
 
-**Log loss is primary.** Multiclass Brier, ECE with reliability bins and Wilson intervals, and RPS are reported per tournament fold. Count-market metrics are out of Phase 0.
+**Log loss is primary.** Multiclass Brier, ECE with reliability bins and Wilson intervals, and RPS are reported per tournament fold. Count-market metrics are not reported.
 
 ## Minimum-data gates
 
-If either team has fewer than 10 matches in the configured decay window, Phase 0 emits an abstained artifact with an explicit reason. If the match or cutoff cannot be verified, sealing fails closed.
+If either team has fewer than 10 matches in the configured decay window, Golavo emits an abstained artifact with an explicit reason. If the match or cutoff cannot be verified, sealing fails closed.
 
 ## References
 

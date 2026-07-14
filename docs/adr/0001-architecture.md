@@ -23,9 +23,9 @@ rollback on macOS and Windows.
 
 ## Decision
 
-**Option A** — Tauri 2 shell with a FastAPI/Python sidecar — adopted, staged:
-Phases 0–2 run as a source-mode web app (FastAPI + Vite, no shell); the desktop
-shell lands in Phase 4.
+**Option A** — Tauri 2 shell with a FastAPI/Python sidecar — is the shipped
+desktop architecture. The FastAPI + Vite source-mode web app remains available
+for local browser use without the shell.
 
 Rationale: it keeps the Python scientific stack (fastest iteration on the models
 that are the whole point), gives the strongest security posture (capabilities,
@@ -49,4 +49,5 @@ CSP, signed updater), and supports a zero-server update path via GitHub Releases
   weeks → fall back to **Option B** (FolioOrb's updater is a proven fallback).
 - Python numerical core stabilizes under ~3k LoC by v2 → reconsider **Option D**
   and delete the sidecar.
-- Phase-2 web app fully satisfies the audience → pause desktop, consider **C**.
+- Source-mode web app fully satisfies the audience → pause desktop investment and
+  reconsider **C**.

@@ -2,7 +2,7 @@
 
 Paste everything below the line into Codex (or another reviewing agent). It is **self-contained**: the full data-source research and the current shipped state are inline, so you can critique them directly rather than re-gathering. Spot-checking is welcome; wholesale re-research is not the task.
 
-> Maintenance note (2026-07-11): this dossier previously described "Phase 0 — a scaffold + plan, no engine yet." That is stale. Golavo's original vision is now **built and released as v0.1.0** (deterministic engine, forward seal→score loop, calibration, exact-score matrix, Fact & Coincidence engine, optional local-first AI, Tauri desktop app). Sections A/B/D below have been rewritten to the shipped reality; Section C (verified data-source research) is unchanged in substance and still governs what is and is not lawfully in scope.
+> Maintenance note (2026-07-11): this dossier previously described Golavo as a scaffold with no engine. That is stale. Golavo's original vision is now **built and released as v0.1.0** (deterministic engine, forward seal→score loop, calibration, exact-score matrix, Fact & Coincidence engine, optional local-first AI, Tauri desktop app). Sections A/B/D below have been rewritten to the shipped reality; Section C (verified data-source research) is unchanged in substance and still governs what is and is not lawfully in scope.
 
 ---
 
@@ -18,7 +18,7 @@ You are a **principal engineer, football data scientist, open-data licensing law
   - **Optional AI layer (`core/golavo_core/ai`, `server/golavo_server/ai_gateway.py`).** Off by default. A deterministic **evidence bundle** enumerates every number the model may utter; a **numeric whitelist** hard-rejects any narration containing an unsupported number or betting term; keys live only in a request header (never the prompt); a **red-team suite** asserts fail-closed behavior. No live LLM in CI.
   - **Server (`server/golavo_server`).** Read-only FastAPI surface (`/health`, `/api/v1/forecasts`, `/eval/summary`, `/calibration`) plus the optional POST `/narrative`. Loopback bind + per-launch token.
   - **Desktop (`desktop/`, `packaging/`).** Tauri 2 shell + PyInstaller **onefile** sidecar; macOS + Windows bundles built by the release workflow on tag, **unsigned** (signing/notarization gated on absent secrets).
-  - **Docs & contracts.** `docs-site/` (Astro), `docs/contracts/` (`ForecastArtifact` + evidence/narration/facts JSON schemas), ADR-0001, per-phase handoffs.
+  - **Docs & contracts.** `docs-site/` (Astro), `docs/contracts/` (`ForecastArtifact` + evidence/narration/facts JSON schemas), ADR-0001, and historical implementation handoffs.
   - **Deliberately NOT built (blocked by data or roadmapped):** confirmed lineups, injuries, corners, shots, xG, club-level goalscorers, a club forward loop, cups, typed-feature→rerun, and any signed/notarized release. These have **no lawful open source** (see C) or are gated on secrets/roadmap.
 
 ## B. Decisions already made and executed (challenge them; don't merely restate)

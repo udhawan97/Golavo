@@ -398,7 +398,7 @@ desktop/    Tauri 2 shell — sidecar lifecycle, runtime bootstrap, gated update
 packaging/  PyInstaller + Tauri bundle scripts and checksums
 packs/      pinned data packs, manifests, licenses, retained snapshot registry
 data/       typed tables, real forward artifacts, and audit records
-docs/       contracts, ADRs, source audits, and phase handoffs
+docs/       contracts, ADRs, source audits, and implementation handoffs
 docs-site/  Astro + Starlight product documentation
 scripts/    provenance, artifact, release, and sourcepack validation
 ```
@@ -451,20 +451,22 @@ time and added to running calibration; historical folds never sneak into that co
 Golavo is useful today and nowhere near finished. A roadmap is a direction of travel,
 not a legally binding promise made to a spreadsheet.
 
-| Phase | What landed | Status |
-|---|---|---|
-| **0 — Feasibility** | real ingest, one reproducible seal→score path, chronological evaluation, cited provenance | ✅ shipped |
-| **1–2 — Engine + leagues** | expanded evaluation harness; top-5 European club leagues accepted where seasons are complete | ✅ shipped — historical only |
-| **3 — Forward loop** | real international seal-before-kickoff → score/void-after-result workflow and calibration record | ✅ shipped |
-| **4 — Desktop** | Tauri shell, frozen sidecar, DMG/MSI/EXE build paths, checksums, gated updater | ✅ unsigned build |
-| **5 — AI Deep Read** | optional evidence-bounded narration with fail-closed guards | ✅ shipped — off by default |
-| **7 — Facts** | deterministic Commentator's Notebook and quarantined coincidences | ✅ shipped |
-| **8 — Exact scores** | coherent score matrix plus Casual/Expert presentation | ✅ shipped |
-| **9 — Match Cockpit** | Games-first home, on-demand Replay/Preview model council for any match, Leagues browse, Model Lab relocation | ✅ shipped |
-| **10 — Your Call** | kickoff-locked score picks, five deterministic rivals, simple points, My Season, and editorial Match Notes | ✅ shipped |
-| **Next** | live club fixtures, league standings + season projections (League Outlook), verified optional lineup enrichment, club forward loop, hash-chained ledger, signed release | 🔭 planned |
+The shipped product already includes the deterministic engine, historical top-5 league
+backtests, the international forward seal→score loop, desktop apps with signed in-app
+updates, optional guarded AI, the Commentator's Notebook, exact-score grids, Match
+Cockpit, Model Lab, and My Season. Those are current capabilities, not future
+roadmap items.
 
-Kill switches, entry criteria, and the less photogenic details live in the
+| Remaining workstream | What remains | Gate |
+|---|---|---|
+| **Live club forecasting** | lawful live club fixtures, user-initiated refresh, and a club forward seal→score loop | verified source license, cadence, and cutoff semantics |
+| **League Outlook** | standings and season projections | complete live season state and forward validation |
+| **Observed match data** | optional verified lineups, injuries, xG, scorers, corners, and cups | lawful licensed source; typed provenance-safe adapters |
+| **Ledger longevity** | cross-artifact hash chaining and verification | migration and recovery design proven against existing ledgers |
+| **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | real platform signing credentials and release-matrix validation |
+| **Product reach** | dossiers, signed community packs, i18n, and opt-in license-isolated overlays | source-specific review and isolation tests |
+
+Entry criteria, kill switches, and the less photogenic details live in the
 [full roadmap](https://udhawan97.github.io/Golavo/roadmap/).
 
 ## Contributing

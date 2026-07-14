@@ -22,19 +22,19 @@ only** — see `docs/handoff/openfootball-audit.md` for each league's gate verdi
 
 | Directory | Coverage | License |
 |---|---|---|
-| `martj42-internationals/` | men's senior full internationals (Phase 0; ref `ddd7249…`) | CC0-1.0 |
-| `martj42-internationals-273c731492df/` | retained older internationals snapshot (Phase 3 forward-loop T0; `core` file set) | CC0-1.0 |
-| `openfootball-eng-pl/` | English Premier League seasons 2010-11 → 2025-26 (Phase 1) | CC0-1.0 |
-| `openfootball-esp-ll/` | La Liga seasons 2012-13 → 2025-26 (Phase 2) | CC0-1.0 |
-| `openfootball-deu-bl/` | Bundesliga seasons 2010-11 → 2025-26 (Phase 2) | CC0-1.0 |
-| `openfootball-ita-sa/` | Serie A seasons 2013-14 → 2025-26 (Phase 2) | CC0-1.0 |
-| `openfootball-fra-l1/` | Ligue 1 seasons 2014-15 → 2025-26 (Phase 2) | CC0-1.0 |
+| `martj42-internationals/` | men's senior full internationals (current primary snapshot; ref `ddd7249…`) | CC0-1.0 |
+| `martj42-internationals-273c731492df/` | retained older internationals snapshot (forward-loop T0; `core` file set) | CC0-1.0 |
+| `openfootball-eng-pl/` | English Premier League seasons 2010-11 → 2025-26 (historical only) | CC0-1.0 |
+| `openfootball-esp-ll/` | La Liga seasons 2012-13 → 2025-26 (historical only) | CC0-1.0 |
+| `openfootball-deu-bl/` | Bundesliga seasons 2010-11 → 2025-26 (historical only) | CC0-1.0 |
+| `openfootball-ita-sa/` | Serie A seasons 2013-14 → 2025-26 (historical only) | CC0-1.0 |
+| `openfootball-fra-l1/` | Ligue 1 seasons 2014-15 → 2025-26 (historical only) | CC0-1.0 |
 
 Vendored season files include flagged partial captures (e.g. every league's
 2025-26); the audit gate — not the pack contents — decides which seasons the
 engine may treat as clean.
 
-## Snapshot retention (Phase 3)
+## Snapshot retention
 
 Snapshots are **immutable and retained**. `scripts/build_sourcepack.py --ref
 <full-sha> [--files core|full]` vendors one pinned upstream ref into a new

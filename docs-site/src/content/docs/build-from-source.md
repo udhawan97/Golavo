@@ -7,7 +7,7 @@ description: Run Golavo locally in your browser from a source checkout.
 
 - **Python** 3.12+ (the core pins `scipy==1.18.0`, which requires 3.12)
 - **Node** 22+
-- (Phase 4 only) **Rust** stable + the Tauri prerequisites for your OS
+- **Rust** stable + the Tauri prerequisites for your OS (desktop builds only)
 
 ## Clone & run in your browser
 
@@ -48,7 +48,7 @@ path above.
 | `core/` | Python modeling library | Apache-2.0 |
 | `server/` | FastAPI app | Apache-2.0 |
 | `ui/` | React + TypeScript + Vite | Apache-2.0 |
-| `desktop/` | Tauri 2 shell (Phase 4) | Apache-2.0 |
+| `desktop/` | Tauri 2 shell | Apache-2.0 |
 | `docs-site/` | this documentation site | docs |
 
 :::note

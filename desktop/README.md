@@ -1,7 +1,7 @@
 # desktop
 
-The Golavo desktop shell (**Tauri 2**). **Apache-2.0.** Landed in **Phase 4** —
-see [ADR-0001](../docs/adr/0001-architecture.md).
+The Golavo desktop shell (**Tauri 2**). **Apache-2.0.** See
+[ADR-0001](../docs/adr/0001-architecture.md).
 
 The shell is a thin Rust supervisor; all forecasting stays in the Python sidecar.
 

@@ -41,7 +41,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: GeoNames.org
 - License: CC-BY-4.0 (https://download.geonames.org/export/dump/readme.txt)
 - Attribution: Geographic data from GeoNames (geonames.org), licensed CC BY 4.0.
-- Notes: Planned (Phase 2). Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution.
+- Notes: Planned enrichment source. Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution.
 
 ### Wikidata — available, not bundled
 
@@ -59,7 +59,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: Marcel Siegel, OpenLigaDB community
 - License: ODbL-1.0 (https://www.openligadb.de/lizenz)
 - Attribution: Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0.
-- Notes: Optional isolated ODbL pack (Phase 2). A redistributed derivative database must itself be ODbL and ship the license URI; must never merge into the CC0/CC-BY core or the CC-BY-SA pack. Single-operator hobby service — feature must tolerate its permanent absence.
+- Notes: Optional isolated ODbL pack. A redistributed derivative database must itself be ODbL and ship the license URI; must never merge into the CC0/CC-BY core or the CC-BY-SA pack. Single-operator hobby service — feature must tolerate its permanent absence.
 
 ## Optional isolated packs — CC BY-SA (share-alike)
 
@@ -90,7 +90,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - License: CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/)
 - Attribution: Event data: Pappalardo et al., Sci Data 6:236 (2019), CC BY 4.0 (collected by Wyscout).
 - Citation key: `pappalardo2019dataset` (see CITATIONS.bib)
-- Notes: Research pack (Phase 4). Historical only; never blended into live models. Labeled 'research event data (2017/18)', never 'observed xG'.
+- Notes: Optional research pack. Historical only; never blended into live models. Labeled 'research event data (2017/18)', never 'observed xG'.
 
 ### SkillCorner Open Data — optional download, isolated pack
 
@@ -98,7 +98,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: SkillCorner, PySport
 - License: MIT (https://github.com/SkillCorner/opendata/blob/master/LICENSE)
 - Attribution: Tracking data courtesy of SkillCorner and PySport (SkillCorner Open Data, MIT).
-- Notes: Research pack (Phase 4). Preserve documented limits (~97% ID accuracy; extrapolated frames flagged).
+- Notes: Optional research pack. Preserve documented limits (~97% ID accuracy; extrapolated frames flagged).
 
 ## Evaluated but blocked (not used)
 

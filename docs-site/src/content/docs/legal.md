@@ -9,7 +9,10 @@ description: Licensing, non-affiliation, and how Golavo celebrates great footbal
 
 ## Data licenses
 
-Phase 0 vendors one pinned CC0-1.0 pack from `martj42/international_results`. Phases 1–2 vendor five per-league CC0-1.0 packs from `openfootball/football.json` (English Premier League, La Liga, Bundesliga, Serie A, Ligue 1 — historical completed seasons only, one pinned upstream commit).
+Golavo vendors one pinned CC0-1.0 pack from `martj42/international_results` and five
+per-league CC0-1.0 packs from `openfootball/football.json` (English Premier League,
+La Liga, Bundesliga, Serie A, and Ligue 1 — historical completed seasons only,
+from one pinned upstream commit).
 
 The Fjelstul World Cup Database is vendored separately under CC-BY-SA-4.0. Its README and
 DESCRIPTION license evidence ship with the pack, attribution appears in the docs and third-party

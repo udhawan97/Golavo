@@ -1,6 +1,6 @@
 # packaging
 
-Build and release tooling. Active as of **Phase 4**.
+Build and release tooling for the desktop application.
 
 - `build.sh <target-triple>` — freeze the PyInstaller sidecar, build the UI, then
   the Tauri bundle for one platform. Invoked by `.github/workflows/release.yml`

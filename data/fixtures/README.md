@@ -1,4 +1,4 @@
-# Phase 0 fixtures
+# Test fixtures
 
 `martj42-results-subset.csv` is a small CC0-1.0 excerpt from the pinned
 `martj42/international_results` sourcepack. It covers completed, neutral,
@@ -10,5 +10,5 @@ set exercises sealed, scored, abstained, and voided states for schema, API, and
 UI integration tests.
 
 The authoritative vendored source snapshot and license are in
-`packs/martj42-internationals/`. Phase 0 accepts no club, BYOK, ODbL, or scraped
-data dependency.
+`packs/martj42-internationals/`. This fixture set intentionally has no club,
+BYOK, ODbL, or scraped-data dependency.

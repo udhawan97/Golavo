@@ -9,7 +9,7 @@ AI in Golavo is **optional** and **additive**. Layer 0 — the deterministic for
 The AI layer **explains and cites** the forecast. It **does not improve forecast accuracy** and **cannot change, produce, or override a probability**. The deterministic engine owns every number; the AI is structurally prevented from stating one the engine did not produce. Turning AI off changes nothing about the numbers.
 :::
 
-**Status: implemented in Phase 5, off by default.** The safety machinery below is real and tested in CI with canned and adversarial responses (no live model). See the [Phase 5 handoff](https://github.com/udhawan97/Golavo/blob/main/docs/handoff/codex-phase5.md) for exactly what is tested versus what needs a local model to exercise.
+**Status: implemented and off by default.** The safety machinery below is real and tested in CI with canned and adversarial responses (no live model). See the [implementation handoff](https://github.com/udhawan97/Golavo/blob/main/docs/handoff/codex-phase5.md) for exactly what is tested versus what needs a local model to exercise.
 
 ## The three layers
 
@@ -96,7 +96,7 @@ AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed f
 
 The intended design: if AI research confirms a fact (allowlisted sources only, with quote-match verification and **your** confirmation), it becomes a typed feature, the statistical model **reruns**, and the UI shows the delta. Silent adjustment is structurally impossible — and even here, the AI never writes a number; it proposes a fact you must confirm.
 
-As of Phase 5 the *guard* for this exists and is default-off: a model may emit `candidate_facts`, and any number they assert must be grounded verbatim in the cited quote or it is rejected. The full ingestion loop (confirm → typed feature → rerun → delta) is not yet built.
+The default-off *guard* already exists: a model may emit `candidate_facts`, and any number they assert must be grounded verbatim in the cited quote or it is rejected. The full ingestion loop (confirm → typed feature → rerun → delta) is not yet built.
 
 ## Caching & privacy
 
@@ -105,5 +105,5 @@ Narrative caching also includes candidate-fact mode and a hash of sanitized opti
 Spend caps (`AI_PER_MATCH_CAP`, `AI_MONTHLY_CAP`) are reserved in configuration but **not yet enforced** — treat BYOK usage as opt-in and small. A hard cost meter is future work.
 
 :::note[Status]
-Implemented in Phase 5 and **off by default**. The engine, ledger, and UI do not depend on it. See the [Phase 5 handoff](https://github.com/udhawan97/Golavo/blob/main/docs/handoff/codex-phase5.md) and the [Roadmap](/Golavo/roadmap/).
+Implemented and **off by default**. The engine, ledger, and UI do not depend on it. See the [implementation handoff](https://github.com/udhawan97/Golavo/blob/main/docs/handoff/codex-phase5.md) and the [Roadmap](/Golavo/roadmap/).
 :::

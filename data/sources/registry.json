@@ -66,7 +66,7 @@
       "fields": "city coordinates, country, timezone, altitude — bulk dumps (cities15000, countryInfo, timeZones)",
       "attribution": "Geographic data from GeoNames (geonames.org), licensed CC BY 4.0.",
       "verified": "2026-07-12",
-      "notes": "Planned (Phase 2). Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution."
+      "notes": "Planned enrichment source. Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution."
     },
     {
       "source_id": "wikidata",
@@ -95,7 +95,7 @@
       "attribution": "Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0.",
       "share_alike": true,
       "verified": "2026-07-12",
-      "notes": "Optional isolated ODbL pack (Phase 2). A redistributed derivative database must itself be ODbL and ship the license URI; must never merge into the CC0/CC-BY core or the CC-BY-SA pack. Single-operator hobby service — feature must tolerate its permanent absence."
+      "notes": "Optional isolated ODbL pack. A redistributed derivative database must itself be ODbL and ship the license URI; must never merge into the CC0/CC-BY core or the CC-BY-SA pack. Single-operator hobby service — feature must tolerate its permanent absence."
     },
     {
       "source_id": "fjelstul-worldcup",
@@ -127,7 +127,7 @@
       "fields": "1,941 historical matches (2017/18 big-five leagues + WC2018 + Euro2016): events, matches, players, teams, referees",
       "attribution": "Event data: Pappalardo et al., Sci Data 6:236 (2019), CC BY 4.0 (collected by Wyscout).",
       "verified": "2026-07-12",
-      "notes": "Research pack (Phase 4). Historical only; never blended into live models. Labeled 'research event data (2017/18)', never 'observed xG'."
+      "notes": "Optional research pack. Historical only; never blended into live models. Labeled 'research event data (2017/18)', never 'observed xG'."
     },
     {
       "source_id": "skillcorner-opendata",
@@ -141,7 +141,7 @@
       "fields": "10 A-League 2024/25 matches: broadcast tracking (10fps, extrapolated), dynamic events, phases of play, season aggregates",
       "attribution": "Tracking data courtesy of SkillCorner and PySport (SkillCorner Open Data, MIT).",
       "verified": "2026-07-12",
-      "notes": "Research pack (Phase 4). Preserve documented limits (~97% ID accuracy; extrapolated frames flagged)."
+      "notes": "Optional research pack. Preserve documented limits (~97% ID accuracy; extrapolated frames flagged)."
     },
     {
       "source_id": "idsse",

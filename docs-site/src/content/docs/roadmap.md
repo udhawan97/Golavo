@@ -1,40 +1,25 @@
 ---
 title: Roadmap
-description: The smallest trustworthy product first, with entry/exit criteria and kill switches — then the full aspirational Golavo.
+description: The capabilities that still remain, with entry criteria and kill switches stated before implementation.
 ---
 
-Golavo is built data-first. The first phase was a feasibility spike with a real kill criterion,
-not a foundation-pour. It is useful today and nowhere near finished; this is a direction of
-travel, not a legally binding promise made to a spreadsheet. The `README` roadmap is the source
-of truth for what has shipped — this page adds the entry/exit criteria and kill switches behind
-each step.
+Golavo is useful today and nowhere near finished. The deterministic engine, historical
+top-5 league backtests, international forward loop, desktop distribution, signed in-app
+updater, optional guarded AI, facts, exact scores, Match Cockpit, Model Lab, and My Season
+are already implemented. They are documented as current product behavior instead of being
+carried forward as future roadmap items.
 
-## Shipped
+## Remaining work
 
-| Phase | What landed | Status | Exit / kill criterion |
-|---|---|---|---|
-| **0 — Data-feasibility spike** | men's senior full-international ingest; deterministic candidate models; one reproducible seal → score path; chronological evaluation; cited provenance | ✅ shipped | Exit: provenance, schema, determinism, leakage, and chronological-evaluation gates pass. Kill: accepted open data or a calibration-first baseline proves unusable |
-| **1–2 — Engine + leagues** | expanded evaluation harness; the top-5 European club leagues accepted where seasons are complete; Match Search over the full ~75k-match index; per-match Commentator's Notebook computed at the pre-kickoff horizon | ✅ shipped — historical only | Exit: calibration within bands; abstention gates fire correctly; performance & a11y budgets met. Kill: calibration unfixable in the chosen scope |
-| **3 — Forward loop** | real international seal-before-kickoff → score/void-after-result workflow and the forward calibration record; **in-app sealing** via `POST /api/v1/matches/{id}/seal` (v0.2.4) | ✅ shipped | Exit: a genuine matchday sealed and scored, seal invariants enforced |
-| **4 — Desktop + release** | Tauri 2 shell + frozen PyInstaller sidecar; DMG / MSI / EXE + `SHA256SUMS`; docs site; consent-first signed in-app updater (v0.2.1+) | ✅ shipped, **OS-unsigned** | Exit: install/update/rollback matrix green on macOS + Windows. Code signing and notarization remain **gated on secrets not yet configured** |
-| **5 — AI Analyst Read** | optional evidence-bounded narration — local-first (Ollama / llama.cpp) then BYOK cloud — with the full AI contract (deterministic evidence bundle, numeric whitelist, no chain-of-thought, injection defenses, local-only fallback) and a CI red-team suite | ✅ shipped, **off by default** | AI explains and cites the engine's numbers; it never changes one and does not improve accuracy. See [AI providers](/Golavo/ai/providers/) |
-| **7 — Fact engine** | deterministic Commentator's Notebook; labelled predictive / context / coincidence; quarantined coincidences; signature form stats (v0.3.1) | ✅ shipped | Machine-checked no-write invariant holds |
-| **8 — Exact scores** | coherent exact-score matrix plus Casual / Expert presentation | ✅ shipped | Machine-checked coherence: the grid marginalizes back to the sealed W/D/L and expected goals |
-| **9 — Match Cockpit** | Games-first home (recent + upcoming rails, search, league chips); on-demand **Replay / Preview** model council for any indexed match at `kickoff − 1s`; Leagues browse hub; Model Lab (Track record, Backtests, Methodologies, Sealed forecasts) | ✅ shipped | Leak-safety machine-checked; nothing averaged into a consensus; nothing sealed by the cockpit itself |
+| Workstream | What remains | Entry / kill criterion |
+|---|---|---|
+| **Live club forecasting** | User-initiated live fixture refresh and a club seal→score loop | Enter only after a lawful source proves its license, cadence, fixture identity, and cutoff semantics. Kill if those cannot be verified without redistributing restricted data. |
+| **League Outlook** | Current standings and season projections in the browse hub | Requires complete, validated live season state and forward-tested projection quality. No complete state means no projection. |
+| **Observed match data** | Optional lineups, injuries, xG, scorers, corners, and cups as typed features | Every field needs a lawful licensed source, retrieval timestamp, provenance record, and evidence that it improves forward metrics. Otherwise defer it. |
+| **Ledger longevity** | Cross-artifact hash chaining, verification, and migration tooling | Must preserve and recover every existing local ledger before the format changes. |
+| **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | Requires real credentials plus a green install/update/rollback matrix on both platforms. |
+| **Product reach** | Team/player/manager dossiers, signed community packs, i18n, and opt-in license-isolated overlays | Each source and pack format needs its own license review, isolation boundary, and failure tests. |
 
-## Next (planned)
-
-- **Live club fixtures & a club forward loop** — a user-initiated data refresh, then forward
-  sealing for clubs once a lawful, licensed forward source is verified.
-- **League Outlook** — standings and season projections for the browse hub.
-- **Observed match data** — lawful, licensed xG / lineups / injuries as typed features, only if
-  the source terms permit; confirmed-lineup forecasts via BYOK depth.
-- **Scorers & corners** — an internationals scorer module first (CC0); club scorers/corners only
-  if a lawful data source is verified.
-- **Dossiers** — team / player / manager profiles from Wikidata + CC0.
-- **Longevity** — a hash-chained multi-artifact ledger, signed community packs, i18n, an ODbL
-  overlay opt-in, and a signed, notarized public release.
-
-Each planned phase carries its own entry/exit criteria, tests, defer list, and kill switch in the
-planning docs. No fabricated capabilities ship: live club fixtures, standings, season
-projections, and observed xG/lineups/injuries are **not** in the product today.
+Each remaining workstream needs explicit entry/exit criteria, tests, a defer list, and a
+kill switch before implementation. No fabricated capabilities ship: live club fixtures,
+standings, season projections, and observed xG/lineups/injuries are **not** in the product today.

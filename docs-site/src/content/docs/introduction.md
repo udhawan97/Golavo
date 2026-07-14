@@ -34,7 +34,7 @@ Golavo is a local-first, open-source football forecasting project. It implements
 |---|---|
 | **Local** | All computation runs on your machine over data already synced to disk. Staleness is always shown. |
 | **Offline** | Forecasting and API reads work from the vendored snapshot; rebuilding a sourcepack requires network access. |
-| **AI** | Implemented (Phase 5), **off by default**. Its contract permits cited narrative, never probability ownership; it cannot change or improve a number. |
+| **AI** | Implemented and **off by default**. Its contract permits cited narrative, never probability ownership; it cannot change or improve a number. |
 | **Open** | The code is Apache-2.0; data packs declare their own license. The vendored packs are CC0-1.0. |
 | **Free** | No payment to Golavo, ever. Optional third-party keys/AI are paid by you, to those providers. |
 | **Live** | Golavo is not live. It uses pinned snapshots and records their retrieval time. |

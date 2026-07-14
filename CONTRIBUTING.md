@@ -17,7 +17,7 @@ Thanks for helping build an honest football forecaster. This guide covers how th
 | `core/` | Python modeling library (ingest, warehouse, models, ledger, facts) | Apache-2.0 |
 | `server/` | FastAPI app (routes, jobs, evidence bundles, AI gateway) | Apache-2.0 |
 | `ui/` | React + TypeScript + Vite | Apache-2.0 |
-| `desktop/` | Tauri 2 shell (Phase 4) | Apache-2.0 |
+| `desktop/` | Tauri 2 shell | Apache-2.0 |
 | `packs/` | data-pack build definitions (`core-cc0`, `overlay-odbl`) | per-source |
 | `docs-site/` | Astro + Starlight product site | docs |
 | `docs/adr/` | architecture decision records | docs |

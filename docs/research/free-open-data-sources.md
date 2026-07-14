@@ -2,7 +2,7 @@
 
 **Verified:** 2026-07-10. **Method:** four-round discovery + adversarial verification — **46 sources** fetched and checked against their primary license/terms pages (40 in rounds 1–3, 6 more in round 4). Verdicts come from reading each source's actual license, not its marketing.
 
-This is a historical research sweep, corrected by the Phase 0 provenance decision. A license label on a downstream mirror does not establish that its upstream collection was lawful. Phase 0 therefore accepts only `martj42/international_results` and treats the remaining entries as future research or rejected dependencies.
+This is a historical research sweep, corrected by the accepted-core provenance decision. A license label on a downstream mirror does not establish that its upstream collection was lawful. The accepted international core therefore uses only `martj42/international_results`; other entries below remain research candidates or rejected dependencies unless a later audit explicitly accepts them.
 
 ## Three tiers
 
@@ -51,7 +51,7 @@ Free (often keyless) but granting **no redistribution right**. The user fetches 
 - **eatpizzanot/soccer-dataset** — self-declares CC-BY 4.0 but it is **license-laundering** over API-Football + football-data.co.uk (whose ToS bar redistribution); broad stats + a *coarse* provider xG estimate for 128k fixtures, but the stated license is invalid. Avoid — and a cautionary example of the provenance risk that also touches DataHub-PDDL and the Transfermarkt datasets.
 - **Transfermarkt-derived datasets (davidcariboo/player-scores)** — **REJECTED**. A downstream CC0 declaration does not cure Transfermarkt's upstream scraping/ToS and database-provenance risk. Shipping it would launder provenance through the mirror.
 - **DataHub football mirrors** — **REJECTED**. A downstream PDDL declaration does not cure the upstream football-data.co.uk terms or establish database rights. Shipping the mirror would launder provenance.
-- **European Soccer DB (hugomathien)** — **REJECTED** for Phase 0 because its mixed upstream provenance is not sufficiently documented for the accepted source pack.
+- **European Soccer DB (hugomathien)** — **REJECTED** because its mixed upstream provenance is not sufficiently documented for the accepted source pack.
 
 ## Gap check — open, redistributable, AND current
 
@@ -65,12 +65,12 @@ Free (often keyless) but granting **no redistribution right**. The user fetches 
 | Injuries / suspensions | ❌ no open source found (round 4 confirmed none) |
 | Women's football | ❌ no dedicated open match/event source (only SoccerMon fitness data, SoccerTrack amateur) |
 
-## Phase 0 recommendation — one accepted source pack
+## Accepted-core decision — one international source pack
 
-The Phase 0 decision supersedes the earlier three-tier recommendation:
+The accepted-core decision supersedes the earlier three-tier recommendation:
 
 1. **Accepted open core:** a pinned `martj42/international_results` snapshot for men's senior full internationals.
 2. **Rejected:** Transfermarkt-derived Kaggle data, DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL endpoints, European Soccer DB, and `eatpizzanot`.
-3. **Out of Phase 0:** all club adapters, BYOK sources, AI, lineups, corners, scorers, and xG.
+3. **Not accepted by this research decision:** club adapters, BYOK sources, AI, lineups, corners, scorers, and xG. Later implementations require their own provenance decision.
 
 The basic ODbL grep guard is only a lint for known strings; it is not legal-isolation enforcement. Any future data source requires a fresh provenance review before code or adapters are added.

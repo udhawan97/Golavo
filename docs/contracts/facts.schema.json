@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://udhawan97.github.io/Golavo/contracts/facts-0.1.0.schema.json",
   "title": "CommentatorsNotebook",
-  "description": "A deterministic, source-backed set of match facts computed by a fixed, pre-registered family of templates over the vendored CC0 packs. Every fact is labelled predictive / context / coincidence, carries its sample, denominator, base rate, source ids and freshness, and is sample-guarded. Coincidences are capped and quarantined. This is a read model derived from the match history; it NEVER carries or alters a forecast probability, calibration metric, or any engine number — see docs/handoff/codex-phase7.md for the machine-checked no-write invariant.",
+  "description": "A deterministic, source-backed set of match facts computed by a fixed, pre-registered family of templates over the vendored CC0 packs. Every fact is labelled predictive / context / coincidence, carries its sample, denominator, base rate, source ids and freshness, and is sample-guarded. Coincidences are capped and quarantined. This is a read model derived from the match history; it NEVER carries or alters a forecast probability, calibration metric, or any engine number — the validators and contract tests enforce this no-write invariant.",
   "type": "object",
   "additionalProperties": false,
   "required": [
