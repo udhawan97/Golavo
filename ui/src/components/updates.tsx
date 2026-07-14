@@ -6,7 +6,7 @@
  * Nothing here renders outside the desktop shell — every entry point guards on
  * the shared controller (see lib/updater.ts).
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useUpdater } from "../lib/updater-context";
 import {
@@ -43,6 +43,49 @@ export function UpdatePill() {
       <DownloadIcon size={14} />
       {label}
     </button>
+  );
+}
+
+// ---------------------------------------------------- available toast ------
+
+const AVAILABLE_TOAST_MS = 10_000;
+
+/** A newly discovered GitHub release gets a visible, accessible notification.
+ *  Dismissing it never hides the persistent header pill, so the update remains
+ *  easy to find without repeatedly interrupting the user. */
+export function UpdateAvailableToast() {
+  const u = useUpdater();
+  const offered = u.phase.kind === "available" && !u.phase.skipped ? u.phase.info : null;
+  const [dismissedVersion, setDismissedVersion] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!offered || dismissedVersion === offered.version) return;
+    const timer = window.setTimeout(
+      () => setDismissedVersion(offered.version),
+      AVAILABLE_TOAST_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [dismissedVersion, offered]);
+
+  if (!offered || u.sheetOpen || dismissedVersion === offered.version) return null;
+  return (
+    <div className="update-toast update-available-toast card" role="status" aria-live="polite">
+      <span>
+        <strong>Golavo {offered.version} is available.</strong>
+        {" "}Review the release and update without leaving the app.
+      </span>
+      <button type="button" className="btn btn--primary" onClick={u.openSheet}>
+        View update
+      </button>
+      <button
+        type="button"
+        className="icon-btn update-toast__close"
+        onClick={() => setDismissedVersion(offered.version)}
+        aria-label="Dismiss update notification"
+      >
+        ✕
+      </button>
+    </div>
   );
 }
 

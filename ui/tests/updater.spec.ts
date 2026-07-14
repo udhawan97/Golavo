@@ -47,7 +47,7 @@ test("Settings external links open through the desktop system browser", async ({
   await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
 });
 
-test("first boot: consent card, Enable checks runs a check, pill appears", async ({ page }) => {
+test("first boot: consent card, Enable checks finds GitHub release and notifies", async ({ page }) => {
   await installMockTauri(page, { check: AVAILABLE });
   await page.goto("/#/");
 
@@ -57,6 +57,10 @@ test("first boot: consent card, Enable checks runs a check, pill appears", async
 
   await expect(card).toBeHidden();
   await expect(page.getByRole("button", { name: /Update available/ })).toBeVisible();
+  const notice = page.getByRole("status").filter({ hasText: "Golavo 9.9.9 is available" });
+  await expect(notice).toContainText("update without leaving the app");
+  await notice.getByRole("button", { name: "View update" }).click();
+  await expect(sheet(page)).toContainText("Golavo 9.9.9 is available");
   const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);
   expect(invoked).toContain("updater_check");
 });

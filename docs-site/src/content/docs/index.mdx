@@ -6,6 +6,8 @@ hero:
   tagline: The numbers remember everything. The beautiful game still keeps the last word.
 ---
 
+import DownloadOptions from '../../components/DownloadOptions.astro';
+
 <div class="gv-home-story">
   <section class="gv-intro gv-snap" data-reveal aria-labelledby="gv-intro-title">
     <p class="gv-kicker">Football first. Receipts underneath.</p>
@@ -179,12 +181,14 @@ hero:
     </dl>
   </section>
 
+  <DownloadOptions />
+
   <section class="gv-closing gv-snap" data-reveal aria-labelledby="gv-closing-title">
     <p class="gv-kicker">No odds. No oracle. No moving the goalposts.</p>
     <h2 id="gv-closing-title" class="gv-display">Let the model speak once.<br/><em>Then keep the tape running.</em></h2>
     <p>Golavo is free, open source, local-first, and currently an unsigned v0.10.0 pre-alpha.</p>
     <div class="gv-closing-actions">
-      <a class="gv-action gv-action--primary" href="/Golavo/installation/">Install Golavo <span aria-hidden="true">→</span></a>
+      <a class="gv-action gv-action--primary" href="#gv-install-title">Choose how to run Golavo <span aria-hidden="true">→</span></a>
       <a class="gv-action" href="/Golavo/methodology/prediction/">Read the methodology</a>
       <a class="gv-action" href="https://github.com/udhawan97/Golavo">View source</a>
     </div>

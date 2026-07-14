@@ -1,0 +1,276 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const repo = "udhawan97/Golavo";
+const releases = `https://github.com/${repo}/releases`;
+const latestRelease = `${releases}/latest`;
+const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
+---
+
+<section
+  class="gv-install gv-snap"
+  data-reveal
+  data-release-api={releaseApi}
+  data-latest-release={latestRelease}
+  aria-labelledby="gv-install-title"
+>
+  <div class="gv-install-head">
+    <p class="gv-kicker">Download &amp; run</p>
+    <h2 id="gv-install-title" class="gv-chapter-title">Three ways in.<br/><em>Everything stays local.</em></h2>
+    <p>
+      Use the browser UI from source, or install the desktop app with no Python
+      or terminal required. The desktop buttons resolve directly to the newest
+      stable files published by Golavo's release workflow.
+    </p>
+  </div>
+
+  <div class="gv-install-grid">
+    <article class="gv-install-card" data-install-platform="web">
+      <span class="gv-install-icon" aria-hidden="true">⌁</span>
+      <p class="gv-install-platform">macOS · Windows · Linux</p>
+      <h3>Run in your browser</h3>
+      <p>Clone the source, run one command, and Golavo opens at <code>127.0.0.1:5173</code>.</p>
+      <a class="gv-install-button" href={`${base}/build-from-source/`}>
+        See browser setup <span aria-hidden="true">→</span>
+      </a>
+      <span class="gv-install-meta">Python 3.12+ · Node 22+</span>
+    </article>
+
+    <article class="gv-install-card" data-install-platform="mac">
+      <span class="gv-install-recommended" data-role="preferred-label" hidden>Best for this device</span>
+      <span class="gv-install-icon" aria-hidden="true">⌘</span>
+      <p class="gv-install-platform">Apple Silicon · macOS</p>
+      <h3>Download the Mac app</h3>
+      <p>Install from a DMG, drag Golavo to Applications, then open it locally.</p>
+      <a id="golavo-download-mac" class="gv-install-button" href={latestRelease}>
+        Download .dmg <span aria-hidden="true">↓</span>
+      </a>
+      <span class="gv-install-meta" data-role="mac-meta">Newest stable release</span>
+    </article>
+
+    <article class="gv-install-card" data-install-platform="win">
+      <span class="gv-install-recommended" data-role="preferred-label" hidden>Best for this device</span>
+      <span class="gv-install-icon" aria-hidden="true">⊞</span>
+      <p class="gv-install-platform">x64 · Windows 10/11</p>
+      <h3>Download the Windows app</h3>
+      <p>Use the per-user EXE installer; an MSI is also available on every release.</p>
+      <a id="golavo-download-win" class="gv-install-button" href={latestRelease}>
+        Download .exe <span aria-hidden="true">↓</span>
+      </a>
+      <span class="gv-install-meta" data-role="win-meta">Newest stable release</span>
+    </article>
+  </div>
+
+  <div class="gv-install-foot">
+    <p id="golavo-release-status" aria-live="polite">
+      Loading the latest stable installer links from GitHub Releases…
+    </p>
+    <p>
+      Desktop installers are not yet OS-signed. Gatekeeper or SmartScreen will
+      warn on first launch; verify the included <code>SHA256SUMS.txt</code> and follow the
+      <a href={`${base}/installation/`}>installation guide</a>.
+    </p>
+    <a href={releases}>All releases &amp; checksums <span aria-hidden="true">↗</span></a>
+  </div>
+</section>
+
+<script>
+  interface GitHubAsset {
+    name: string;
+    size: number;
+    browser_download_url: string;
+  }
+
+  interface GitHubRelease {
+    tag_name: string;
+    assets: GitHubAsset[];
+  }
+
+  const installSection = document.querySelector<HTMLElement>(".gv-install[data-release-api]");
+  const releaseApi = installSection?.dataset.releaseApi ?? "";
+  const latestRelease = installSection?.dataset.latestRelease ?? "";
+  const formatSize = (bytes: number) => `${Math.round(bytes / 1024 / 1024)} MB`;
+  const releaseStatus = document.getElementById("golavo-release-status");
+  const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+  const platform = (
+    nav.userAgentData?.platform || navigator.platform || navigator.userAgent || ""
+  ).toLowerCase();
+  const preferred = platform.includes("mac") ? "mac" : platform.includes("win") ? "win" : "web";
+
+  document.querySelectorAll("[data-install-platform]").forEach((card) => {
+    if (card.getAttribute("data-install-platform") !== preferred) return;
+    card.classList.add("is-preferred");
+    const label = card.querySelector<HTMLElement>('[data-role="preferred-label"]');
+    if (label) label.hidden = false;
+  });
+
+  const setDownload = (id: string, asset: GitHubAsset | undefined, metaRole: string, tag: string) => {
+    if (!asset) return;
+    const link = document.getElementById(id) as HTMLAnchorElement | null;
+    if (link) link.href = asset.browser_download_url;
+    const meta = document.querySelector(`[data-role="${metaRole}"]`);
+    if (meta) meta.textContent = `${tag} · ${formatSize(asset.size)}`;
+  };
+
+  (async () => {
+    try {
+      const response = await fetch(releaseApi, {
+        headers: { Accept: "application/vnd.github+json" },
+      });
+      if (!response.ok) throw new Error(`GitHub returned ${response.status}`);
+      const release = await response.json() as GitHubRelease;
+      const assets = Array.isArray(release.assets) ? release.assets : [];
+      const mac = assets.find((asset) => asset.name.toLowerCase().endsWith(".dmg"));
+      const win = assets.find((asset) => asset.name.toLowerCase().endsWith("-setup.exe"));
+      setDownload("golavo-download-mac", mac, "mac-meta", release.tag_name);
+      setDownload("golavo-download-win", win, "win-meta", release.tag_name);
+      if (releaseStatus) {
+        releaseStatus.textContent = mac && win
+          ? `${release.tag_name} stable · direct installer links ready`
+          : `${release.tag_name} stable · one or more installers are listed on the release page`;
+      }
+    } catch {
+      if (releaseStatus) {
+        releaseStatus.textContent = "Latest stable release · GitHub will show the available installers";
+      }
+      document.querySelectorAll<HTMLAnchorElement>("#golavo-download-mac, #golavo-download-win").forEach((link) => {
+        link.href = latestRelease;
+      });
+    }
+  })();
+</script>
+
+<style>
+  .gv-install {
+    position: relative;
+    padding: clamp(4.5rem, 10vw, 8.5rem) clamp(0rem, 3vw, 2.5rem);
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+  .gv-install-head { max-width: 52rem; }
+  .gv-install-head > p:last-child {
+    max-width: 46rem;
+    margin-top: 1.5rem;
+    color: var(--sl-color-gray-2);
+    font-size: clamp(1rem, 1.65vw, 1.18rem);
+    line-height: 1.7;
+  }
+  .gv-install-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: clamp(2.25rem, 5vw, 4rem);
+  }
+  .gv-install-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 25rem;
+    padding: clamp(1.35rem, 3vw, 2rem);
+    overflow: hidden;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 1.25rem;
+    background:
+      radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--golavo-blue) 20%, transparent), transparent 42%),
+      color-mix(in srgb, var(--sl-color-bg-sidebar) 88%, transparent);
+    transition: transform 0.3s var(--gv-ease), border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .gv-install-card:hover,
+  .gv-install-card.is-preferred {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--golavo-gold) 58%, var(--sl-color-hairline));
+    box-shadow: 0 22px 54px -36px color-mix(in srgb, var(--golavo-gold) 70%, transparent);
+  }
+  .gv-install-recommended {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.28rem 0.55rem;
+    border: 1px solid color-mix(in srgb, var(--golavo-gold) 55%, transparent);
+    border-radius: 999px;
+    color: var(--golavo-gold);
+    font-family: var(--gv-mono);
+    font-size: 0.61rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .gv-install-icon {
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.9rem;
+    color: var(--golavo-gold);
+    background: color-mix(in srgb, var(--sl-color-bg) 75%, transparent);
+    font-family: var(--gv-mono);
+    font-size: 1.3rem;
+  }
+  .gv-install-platform {
+    margin-top: 1.7rem !important;
+    color: var(--golavo-blue) !important;
+    font-family: var(--gv-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .gv-install-card h3 {
+    margin-top: 0.45rem;
+    color: var(--sl-color-white);
+    font-family: var(--gv-serif);
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  }
+  .gv-install-card > p:not(.gv-install-platform) {
+    margin-top: 0.9rem;
+    color: var(--sl-color-gray-2);
+    line-height: 1.62;
+  }
+  .gv-install-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 48px;
+    margin-top: auto;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--golavo-gold) 42%, var(--sl-color-hairline));
+    border-radius: 0.8rem;
+    color: var(--sl-color-white) !important;
+    background: color-mix(in srgb, var(--golavo-gold) 10%, var(--sl-color-bg));
+    font-weight: 700;
+  }
+  .gv-install-button:hover { border-color: var(--golavo-gold); background: color-mix(in srgb, var(--golavo-gold) 17%, var(--sl-color-bg)); }
+  .gv-install-meta {
+    min-height: 1.2rem;
+    margin-top: 0.7rem;
+    color: var(--sl-color-gray-3);
+    font-family: var(--gv-mono);
+    font-size: 0.68rem;
+  }
+  .gv-install-foot {
+    display: grid;
+    grid-template-columns: 0.8fr 1.6fr auto;
+    gap: 1.25rem;
+    align-items: center;
+    margin-top: 1.25rem;
+    padding: 1.1rem 1.25rem;
+    border-block: 1px solid var(--sl-color-hairline);
+    color: var(--sl-color-gray-3);
+    font-size: 0.78rem;
+    line-height: 1.55;
+  }
+  .gv-install-foot p { margin: 0; }
+  .gv-install-foot > p:first-child { color: var(--sl-color-gray-1); font-family: var(--gv-mono); }
+  .gv-install-foot > a { color: var(--golavo-gold); font-weight: 600; white-space: nowrap; }
+  @media (max-width: 64rem) {
+    .gv-install-grid { grid-template-columns: 1fr; }
+    .gv-install-card { min-height: 21rem; }
+    .gv-install-foot { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 46rem) {
+    .gv-install { padding: 4.5rem 0.5rem; }
+    .gv-install-card { min-height: 22rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gv-install-card { transition: none; }
+  }
+</style>

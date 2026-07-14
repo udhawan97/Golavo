@@ -6,10 +6,8 @@ setup:  ## Install core + server + ui + docs dev dependencies
 	cd ui && npm install
 	cd docs-site && npm install
 
-dev:  ## Run the source-mode app (server + ui)
-	@echo "Golavo — source mode. Run these in two terminals during Phase 0-1:"
-	@echo "  1) uvicorn golavo_server.main:app --host 127.0.0.1 --port 8000 --app-dir server"
-	@echo "  2) cd ui && npm run dev"
+dev:  ## Run the local API + browser UI (Ctrl+C stops both)
+	python scripts/dev.py
 
 test:  ## Run the Python test suite
 	pytest -q

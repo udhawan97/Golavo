@@ -3,6 +3,15 @@ title: Installation
 description: How to run Golavo — desktop installers with in-app updates, or source mode — with an honest note on the first-install OS warnings.
 ---
 
+Choose the path that fits your machine on [Download & run](/Golavo/download/):
+
+- **Browser UI** — source mode on macOS, Windows, or Linux.
+- **macOS app** — Apple Silicon DMG, with no Python or terminal required.
+- **Windows app** — x64 EXE or MSI, with no Python or terminal required.
+
+The [website](/Golavo/#gv-install-title) includes platform-aware buttons that link
+directly to the matching file in the newest stable GitHub release.
+
 :::caution[Unsigned installers — first install only]
 Desktop installers are **working but not OS-signed**: macOS Gatekeeper and
 Windows SmartScreen warn on first install because there is no paid code-signing
@@ -14,7 +23,7 @@ in-app, and don't re-trigger those warnings. Verify manual downloads against
 
 ## Desktop app (recommended)
 
-Download the installer for your platform from the
+Use the direct buttons on the [Golavo website](/Golavo/#gv-install-title), or open the
 [latest release](https://github.com/udhawan97/Golavo/releases/latest):
 
 - **macOS (Apple Silicon)** — the `.dmg`. Open it and **drag Golavo into the
@@ -55,6 +64,12 @@ lives in **Settings → Updates**), and installs happen only when you click.
 Every update is signature-verified before install and your ledger is backed up
 first — see [Updates & rollback](/Golavo/updates-rollback/).
 
+When an automatic or manual check finds a newer stable GitHub release, Golavo shows
+a visible in-app notification and keeps an **Update available** button in the header
+until you review, install, or skip that version. The macOS and Windows installers linked
+from the website are release builds with this updater compiled in; the stable release
+workflow refuses to publish them if updater signing is unavailable.
+
 **Coming from v0.1.0 or v0.2.0?** Those builds predate the updater — download and install
 the current version manually once; it's in-app from then on.
 
@@ -63,15 +78,21 @@ The uninstaller offers to *delete application data*. **Leave that unchecked**
 if you want to keep your prediction ledger — it lives in that data folder.
 :::
 
-## Source mode (developers, researchers)
+## Browser UI from source
+
+This is a local web app: the API listens only on `127.0.0.1`, the UI opens at
+`http://127.0.0.1:5173`, and nothing is hosted by Golavo.
 
 ```bash
 git clone https://github.com/udhawan97/Golavo.git
 cd Golavo
 cp .env.example .env     # optional; Golavo runs local with no keys
 make setup               # install core + server + ui dev deps
-make dev                 # run the FastAPI core + Vite UI on 127.0.0.1
+make dev                 # start both services and open the browser UI
 ```
+
+Press `Ctrl+C` in that terminal to stop both local services. To start without
+opening a new browser tab, use `python scripts/dev.py --no-open`.
 
 Source checkouts update with `git pull`; the in-app updater stays out of the
 way (Settings says so instead of showing dead controls). See

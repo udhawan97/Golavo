@@ -23,7 +23,12 @@ const PicksGuide = lazy(() => import("./views/PicksGuide").then((m) => ({ defaul
 const MySeason = lazy(() => import("./views/MySeason").then((m) => ({ default: m.MySeason })));
 import { UpdaterContext } from "./lib/updater-context";
 import { useUpdaterController } from "./lib/updater";
-import { UpdateConsentCard, UpdateSheet, UpdatedToast } from "./components/updates";
+import {
+  UpdateAvailableToast,
+  UpdateConsentCard,
+  UpdateSheet,
+  UpdatedToast,
+} from "./components/updates";
 import { useBackendReady, useForecastSource } from "./lib/startup";
 import { StartupSplash } from "./components/StartupSplash";
 import { startWarmupPolling, useWarmupStatus } from "./lib/warmup";
@@ -118,6 +123,7 @@ export default function App() {
       </Layout>
       <UpdateSheet />
       <UpdateConsentCard />
+      <UpdateAvailableToast />
       <UpdatedToast />
       <TourOverlay ctrl={homeTour} />
     </UpdaterContext.Provider>

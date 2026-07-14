@@ -67,6 +67,7 @@ export default defineConfig({
           label: "Start here",
           items: [
             { label: "Introduction", slug: "introduction" },
+            { label: "Download & run", slug: "download" },
             { label: "Installation", slug: "installation" },
             { label: "Games & the Match Cockpit", slug: "matchday" },
             { label: "Picks, points & My Season", slug: "picks-and-points" },

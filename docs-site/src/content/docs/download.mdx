@@ -1,0 +1,60 @@
+---
+title: Download & run
+description: Run Golavo locally in your browser, or download the latest stable desktop app for macOS or Windows.
+---
+
+import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Golavo runs on your computer in all three modes. There is no hosted forecasting
+service and no account requirement.
+
+<CardGrid>
+  <LinkCard title="Run in your browser" description="Source mode for macOS, Windows, or Linux" href="/Golavo/build-from-source/" />
+  <LinkCard title="Download for macOS" description="Apple Silicon DMG from the latest stable release" href="https://github.com/udhawan97/Golavo/releases/latest" />
+  <LinkCard title="Download for Windows" description="x64 EXE or MSI from the latest stable release" href="https://github.com/udhawan97/Golavo/releases/latest" />
+</CardGrid>
+
+The [website download section](/Golavo/#gv-install-title) detects macOS or Windows and
+turns the desktop buttons into direct links to the matching asset in the newest stable
+GitHub release. If GitHub's API is unavailable, the buttons safely fall back to the
+release page instead of guessing a filename.
+
+Both desktop downloads are produced by the same release workflow. A stable release is
+blocked unless its signed in-app updater is present, so the website does not point at a
+stranded installer. After you opt into automatic checks, Golavo checks GitHub once a day,
+shows an in-app notification when a newer stable release is found, and downloads only
+after you click **Update now**. You can always check manually in **Settings → Updates**.
+
+## Which option should I use?
+
+| Option | Requirements | Best for |
+|---|---|---|
+| **Browser UI** | Python 3.12+, Node 22+, source checkout | Developers, Linux, Intel Macs, and anyone who wants to inspect the code |
+| **macOS app** | Apple Silicon Mac | The simplest Mac install; no Python or Node required |
+| **Windows app** | 64-bit Windows 10 or 11 | The simplest Windows install; no Python or Node required |
+
+<Aside type="caution" title="Unsigned first install">
+The desktop installers are not yet OS-signed. macOS Gatekeeper and Windows SmartScreen
+will warn the first time you open Golavo. This is different from in-app updates, which
+are cryptographically signed and verified before installation. Follow the
+[installation guide](/Golavo/installation/) and verify your manual download.
+</Aside>
+
+## Verify a desktop download
+
+Download `SHA256SUMS.txt` from the same release as the installer.
+
+```bash
+# macOS — run in the folder containing the DMG and SHA256SUMS.txt
+shasum -a 256 -c SHA256SUMS.txt
+```
+
+```powershell
+# Windows PowerShell — compare the result with the matching SHA256SUMS.txt line
+Get-FileHash .\Golavo_*_x64-setup.exe -Algorithm SHA256
+```
+
+The versioned Windows filename changes each release; use the exact name you downloaded.
+A checksum match detects corruption or an incomplete download. The checksum file is not
+itself signed, so download both only from the official
+[Golavo releases](https://github.com/udhawan97/Golavo/releases).

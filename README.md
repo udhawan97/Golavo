@@ -36,7 +36,8 @@
 </p>
 
 <p align="center">
-  <a href="#try-it"><kbd>&nbsp;⚽&nbsp;Try&nbsp;it&nbsp;</kbd></a>&nbsp;
+  <a href="https://udhawan97.github.io/Golavo/#gv-install-title"><kbd>&nbsp;⬇️&nbsp;Download&nbsp;</kbd></a>&nbsp;
+  <a href="https://udhawan97.github.io/Golavo/build-from-source/"><kbd>&nbsp;🌐&nbsp;Run&nbsp;in&nbsp;browser&nbsp;</kbd></a>&nbsp;
   <a href="#what-it-does"><kbd>&nbsp;📋&nbsp;Features&nbsp;</kbd></a>&nbsp;
   <a href="#the-rule-of-the-room"><kbd>&nbsp;🧠&nbsp;Local&nbsp;vs&nbsp;AI&nbsp;</kbd></a>&nbsp;
   <a href="#under-the-hood"><kbd>&nbsp;⚙️&nbsp;Architecture&nbsp;</kbd></a>&nbsp;
@@ -269,12 +270,25 @@ lawful open data, and a filename is not a provenance strategy. Read the
 [data-source guide](https://udhawan97.github.io/Golavo/data/coverage/) for the
 season-by-season verdicts.
 
-## Try it
+## Download or run locally
 
-Golavo currently offers a source-mode workbench and unsigned desktop builds.
-Choose your preferred amount of compiler involvement.
+Choose one of three local-first paths. The
+[website download section](https://udhawan97.github.io/Golavo/#gv-install-title)
+detects macOS or Windows and links directly to the matching installer in the newest
+stable release.
 
-### Source mode
+| Run Golavo as… | Platforms | Start here |
+|---|---|---|
+| **Local browser UI** | macOS, Windows, Linux | [Browser setup](https://udhawan97.github.io/Golavo/build-from-source/) |
+| **macOS desktop app** | Apple Silicon | [Download the latest DMG](https://github.com/udhawan97/Golavo/releases/latest) |
+| **Windows desktop app** | x64 Windows 10/11 | [Download the latest EXE or MSI](https://github.com/udhawan97/Golavo/releases/latest) |
+
+The macOS and Windows downloads include Golavo's signed in-app updater. After you opt
+into automatic checks, the app asks GitHub once a day and shows an in-app notification
+when a newer stable release is available. Downloads and installation still require an
+explicit click; **Settings → Updates** also provides a manual check at any time.
+
+### Run locally in your browser
 
 Requires Python 3.12+ and Node 22+.
 
@@ -283,27 +297,23 @@ git clone https://github.com/udhawan97/Golavo.git
 cd Golavo
 cp .env.example .env      # optional; local forecasting needs no key
 make setup
-uvicorn golavo_server.main:app --host 127.0.0.1 --port 8000 --app-dir server
+make dev
 ```
 
-In a second terminal:
-
-```bash
-cd Golavo/ui
-VITE_GOLAVO_API=http://127.0.0.1:8000 npm run dev
-```
-
-Open `http://127.0.0.1:5173`. Leave `VITE_GOLAVO_API` unset if you only want the
-bundled synthetic sample artifacts — the fastest route to judging the interface
-without accidentally developing an opinion about Python environments.
+Golavo starts the local API and UI together, then opens `http://127.0.0.1:5173`.
+Press `Ctrl+C` to stop both. Use `python scripts/dev.py --no-open` to skip opening
+a new tab. On Windows without `make`, the
+[browser setup guide](https://udhawan97.github.io/Golavo/build-from-source/#windows-powershell-without-make)
+includes native PowerShell commands.
 
 > [!TIP]
 > No AI key is required. In fact, no AI is required. The numbers will cope.
 
-### Desktop build
+### Desktop app
 
-Grab an available unsigned bundle from
-[GitHub Releases](https://github.com/udhawan97/Golavo/releases), or build one locally:
+Use the platform-aware download buttons on the [Golavo website](https://udhawan97.github.io/Golavo/#gv-install-title),
+or browse [GitHub Releases](https://github.com/udhawan97/Golavo/releases). To build an
+installer yourself:
 
 ```bash
 packaging/build.sh aarch64-apple-darwin      # macOS → DMG + app

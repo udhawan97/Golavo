@@ -1282,7 +1282,16 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   display: flex; align-items: center; gap: .8rem;
   max-width: min(26rem, calc(100vw - 2rem)); font-size: .92rem;
 }
+.update-available-toast { max-width: min(34rem, calc(100vw - 2rem)); }
+.update-available-toast > span { flex: 1; line-height: 1.45; }
+.update-available-toast .btn { flex: none; white-space: nowrap; }
 .update-toast__close { flex: none; }
+
+@media (max-width: 36rem) {
+  .update-available-toast { align-items: flex-start; flex-wrap: wrap; }
+  .update-available-toast > span { flex-basis: calc(100% - 2.5rem); }
+  .update-available-toast .btn { margin-left: auto; }
+}
 
 .settings h1 { font-size: 1.35rem; margin-bottom: .15rem; }
 /* Space between fields within a section (the .stack owl gap). */
