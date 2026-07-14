@@ -829,6 +829,111 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
 .ai-web-toggle__copy b { color: var(--text); font-size: .84rem; font-weight: 650; }
 .ai-web-toggle__copy small { color: var(--text-muted); font-size: .76rem; }
 .ai-model-picker { display: grid; gap: .5rem; margin: .2rem 0 .1rem; }
+.ollama-guide {
+  display: grid; gap: .85rem; max-width: 58rem; padding: 1rem;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background:
+    radial-gradient(75% 120% at 100% 0%, color-mix(in srgb, var(--wave) 8%, transparent), transparent 68%),
+    color-mix(in srgb, var(--surface-1) 88%, transparent);
+}
+.ollama-guide__steps {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem;
+}
+.ollama-guide__steps li {
+  display: grid; grid-template-columns: 1.65rem minmax(0, 1fr); gap: .55rem;
+  align-items: start; padding: .7rem; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: color-mix(in srgb, var(--surface-2) 82%, transparent);
+}
+.ollama-guide__steps li > span {
+  display: grid; place-items: center; width: 1.65rem; height: 1.65rem;
+  border-radius: 999px; border: 1px solid var(--gold-line);
+  color: var(--gold); background: var(--gold-soft); font: 650 .72rem var(--font-mono);
+}
+.ollama-guide__steps div { display: grid; gap: .16rem; min-width: 0; }
+.ollama-guide__steps b { font-size: .82rem; }
+.ollama-guide__steps small { color: var(--text-muted); font-size: .72rem; line-height: 1.4; }
+.ollama-guide__status {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  color: var(--text-muted); font-size: .8rem;
+}
+.ollama-guide__status .ai-local-line__dot.is-ready {
+  background: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 18%, transparent);
+}
+.ollama-guide__status .link-btn { margin-left: auto; }
+.ollama-guide__install {
+  display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+  padding: .7rem; border: 1px solid var(--gold-line); border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--gold-soft) 48%, transparent); font-size: .8rem;
+}
+.ollama-guide__install > span:first-child { flex-basis: 100%; color: var(--text-muted); }
+.ollama-guide__install .btn, .ollama-model__actions .btn {
+  display: inline-flex; align-items: center; gap: .35rem; text-decoration: none;
+}
+.ollama-guide__install > a:last-child,
+.ollama-model__actions > a {
+  display: inline-flex; align-items: center; gap: .25rem;
+}
+.ollama-guide__models {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem;
+}
+.ollama-model {
+  display: grid; align-content: start; gap: .5rem; min-width: 0; padding: .8rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2);
+  transition: border-color .15s ease, transform .15s ease;
+}
+.ollama-model:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.ollama-model.is-installed { border-color: color-mix(in srgb, var(--green) 38%, var(--border)); }
+.ollama-model__head { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.ollama-model__role {
+  border-radius: 999px; padding: .1rem .5rem; border: 1px solid var(--border);
+  font-size: .68rem; font-weight: 700; letter-spacing: .035em; text-transform: uppercase;
+}
+.ollama-model__role--fast { color: var(--green); border-color: color-mix(in srgb, var(--green) 42%, var(--border)); background: color-mix(in srgb, var(--green) 9%, transparent); }
+.ollama-model__role--deep { color: var(--gold); border-color: var(--gold-line); background: var(--gold-soft); }
+.ollama-model__size { color: var(--text-dim); font: .7rem var(--font-mono); }
+.ollama-model > strong { overflow-wrap: anywhere; font-size: .88rem; }
+.ollama-model > p { margin: 0; color: var(--text-muted); font-size: .76rem; line-height: 1.42; }
+.ollama-model__actions { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; margin-top: .1rem; font-size: .75rem; }
+.ollama-model__actions .btn { padding: .36rem .6rem; font-size: .75rem; }
+.ollama-download {
+  display: grid; gap: .42rem; padding: .75rem; border: 1px solid var(--gold-line);
+  border-radius: var(--radius-sm); background: color-mix(in srgb, var(--gold-soft) 35%, var(--surface-2));
+}
+.ollama-download__label, .ollama-download__meta {
+  display: flex; justify-content: space-between; align-items: center; gap: .6rem;
+  color: var(--text-muted); font-size: .76rem;
+}
+.ollama-download progress {
+  appearance: none; width: 100%; height: .55rem; border: 0; border-radius: 999px;
+  overflow: hidden; background: var(--surface-3);
+}
+.ollama-download progress::-webkit-progress-bar { background: var(--surface-3); border-radius: 999px; }
+.ollama-download progress::-webkit-progress-value { background: var(--gold-brand); border-radius: 999px; transition: width .2s ease; }
+.ollama-download__meta .btn { padding: .28rem .55rem; font-size: .72rem; }
+.ollama-guide__message {
+  margin: 0; padding: .55rem .65rem; border-radius: var(--radius-sm);
+  background: var(--surface-2); color: var(--text); font-size: .78rem;
+}
+.ollama-guide__privacy { margin: 0; color: var(--text-dim); font-size: .7rem; line-height: 1.42; }
+.ollama-guide-disclosure { max-width: 42rem; }
+.ollama-guide-disclosure > summary {
+  display: inline-flex; align-items: center; gap: .4rem; cursor: pointer;
+  color: var(--link); font-size: .8rem; font-weight: 600; list-style: none;
+}
+.ollama-guide-disclosure > summary::-webkit-details-marker { display: none; }
+.ollama-guide-disclosure[open] > summary { margin-bottom: .65rem; }
+.ollama-guide--compact { max-width: 42rem; padding: .75rem; }
+.ollama-guide--compact .ollama-guide__models { gap: .55rem; }
+.ollama-guide--compact .ollama-model { padding: .65rem; }
+@media (max-width: 700px) {
+  .ollama-guide__steps, .ollama-guide__models { grid-template-columns: 1fr; }
+  .ollama-guide__status .link-btn { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ollama-model, .ollama-download progress::-webkit-progress-value { transition: none; }
+  .ollama-model:hover { transform: none; }
+}
 .ai-fallback__actions button { white-space: nowrap; }
 /* --- Staged pipeline (the "AI at work" experience) ------------------------- */
 .ai-stages { list-style: none; display: grid; gap: 0; margin: 0; }

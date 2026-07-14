@@ -21,6 +21,10 @@ import type { UpdaterController } from "../lib/updater";
 import { ProgressBar, ReleaseNotes } from "../components/updates";
 import { DOCS_URL, RELEASES_URL } from "../lib/links";
 import { replayTours, tourEnabled } from "../lib/tour";
+import {
+  LOCAL_MODELS_CHANGED_EVENT,
+  OllamaModelGuide,
+} from "../components/ai/OllamaModelGuide";
 
 function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
@@ -40,21 +44,28 @@ function LocalModelPicker({ provider }: { provider: AiProvider }) {
   useEffect(() => {
     if (!isLocal) return;
     let live = true;
-    setLoaded(false);
-    fetchLocalModels(provider).then((m) => {
-      if (!live) return;
-      setModels(m);
-      setLoaded(true);
-      // Auto-assign defaults when unset or when the stored choice is no longer
-      // installed, so the picker is never empty on a machine that has models.
-      const names = new Set(m.map((x) => x.name));
-      if (m.length > 0) {
-        const def = defaultModelAssignment(m);
-        if (!fastModel || !names.has(fastModel)) setFastModel(def.fast);
-        if (!deepModel || !names.has(deepModel)) setDeepModel(def.deep);
-      }
-    });
-    return () => { live = false; };
+    const load = () => {
+      setLoaded(false);
+      fetchLocalModels(provider).then((m) => {
+        if (!live) return;
+        setModels(m);
+        setLoaded(true);
+        // Auto-assign defaults when unset or when the stored choice is no longer
+        // installed, so the picker is never empty on a machine that has models.
+        const names = new Set(m.map((x) => x.name));
+        if (m.length > 0) {
+          const def = defaultModelAssignment(m);
+          if (!fastModel || !names.has(fastModel)) setFastModel(def.fast);
+          if (!deepModel || !names.has(deepModel)) setDeepModel(def.deep);
+        }
+      });
+    };
+    load();
+    window.addEventListener(LOCAL_MODELS_CHANGED_EVENT, load);
+    return () => {
+      live = false;
+      window.removeEventListener(LOCAL_MODELS_CHANGED_EVENT, load);
+    };
     // Re-run only when the provider changes; assignment setters are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provider, isLocal]);
@@ -209,7 +220,7 @@ export function Settings({
         </div>
       </section>
 
-      <section className="panel" aria-labelledby="settings-ai">
+      <section id="local-ai-setup" className="panel" aria-labelledby="settings-ai">
         <div className="panel__head"><h2 id="settings-ai">Local intelligence</h2></div>
         <div className="panel__body stack settings__rows">
           <div className="settings__field">
@@ -234,6 +245,13 @@ export function Settings({
               that provider with your own key. The AI runs through Golavo’s local engine, so in this
               sample build it will show as unavailable until a desktop engine is connected.
             </p>
+
+            {(aiProvider === "off" || aiProvider === "ollama") && (
+              <OllamaModelGuide
+                ollamaActive={aiProvider === "ollama"}
+                onActivateOllama={() => setAiProvider("ollama")}
+              />
+            )}
 
             <LocalModelPicker provider={aiProvider} />
 

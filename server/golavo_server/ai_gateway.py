@@ -87,6 +87,31 @@ _THINK_RE = re.compile(r"(?is)<think>.*?</think>")
 _FENCE_RE = re.compile(r"(?is)```(?:json)?\s*(.*?)\s*```")
 _SCENARIO_PREFIX_RE = re.compile(r"(?i)^\s*scenario\s+\d+\s*[:.\-)]+\s*")
 _LOCAL_MODEL_LOCK = threading.Lock()
+_OLLAMA_PULL_LOCK = threading.Lock()
+
+# A deliberately small, product-tested catalog. The download endpoint accepts
+# only these exact names, so a compromised WebView cannot make the sidecar pull
+# an arbitrary multi-gigabyte model. Sizes are approximate registry download
+# sizes shown before the user opts in; Ollama remains the source of truth while
+# streaming the real byte totals.
+RECOMMENDED_OLLAMA_MODELS: tuple[dict[str, Any], ...] = (
+    {
+        "name": "llama3.2:latest",
+        "role": "fast",
+        "label": "Fast read",
+        "description": "A lightweight local model for quick, grounded summaries.",
+        "download_size_bytes": 2_000_000_000,
+        "library_url": "https://ollama.com/library/llama3.2",
+    },
+    {
+        "name": "gemma4:12b-it-qat",
+        "role": "deep",
+        "label": "Deep analysis",
+        "description": "A larger model for connected evidence and match scenarios.",
+        "download_size_bytes": 7_200_000_000,
+        "library_url": "https://ollama.com/library/gemma4",
+    },
+)
 
 
 @dataclass(frozen=True)
@@ -749,6 +774,83 @@ def inspect_local_models(config: ProviderConfig) -> dict[str, Any]:
         "models": [],
         "reason": "The local llama.cpp server is not reachable. Start it, then check again.",
     }
+
+
+def recommended_ollama_models(installed: list[str]) -> list[dict[str, Any]]:
+    """Curated Golavo models annotated with their current install state."""
+    normalized = {
+        name[:-len(":latest")] if name.endswith(":latest") else name
+        for name in installed
+    }
+    return [
+        {
+            **model,
+            "installed": (
+                model["name"][:-len(":latest")]
+                if model["name"].endswith(":latest")
+                else model["name"]
+            ) in normalized,
+        }
+        for model in RECOMMENDED_OLLAMA_MODELS
+    ]
+
+
+def pull_ollama_model(
+    config: ProviderConfig,
+    model: str,
+    *,
+    progress: Callable[[str, int | None, int | None], None] | None = None,
+    is_cancelled: Callable[[], bool] | None = None,
+) -> bool:
+    """Pull one curated model through Ollama's streaming loopback API.
+
+    Returns ``False`` when the user cancelled. Only one pull is allowed at a
+    time; concurrent multi-gigabyte downloads make progress misleading and put
+    avoidable pressure on disk/network. The caller validates ``model`` against
+    ``RECOMMENDED_OLLAMA_MODELS`` before entering this function.
+    """
+    if config.provider != "ollama":
+        raise ValueError("model downloads require the Ollama provider")
+    if not _OLLAMA_PULL_LOCK.acquire(blocking=False):
+        raise RuntimeError("Another Ollama model download is already running.")
+    try:
+        root = (config.base_url or "").rstrip("/")
+        if root.endswith("/v1"):
+            root = root[: -len("/v1")]
+        request = urllib.request.Request(
+            f"{root}/api/pull",
+            data=json.dumps({"model": model, "stream": True}).encode("utf-8"),
+            headers={"Accept": "application/x-ndjson", "Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=60.0) as response:  # noqa: S310 (validated loopback)
+            for raw_line in response:
+                if is_cancelled and is_cancelled():
+                    return False
+                line = raw_line.decode("utf-8").strip()
+                if not line:
+                    continue
+                update = json.loads(line)
+                if not isinstance(update, dict):
+                    continue
+                if update.get("error"):
+                    raise OSError(str(update["error"])[:240])
+                status = str(update.get("status") or "Downloading model")[:120]
+                total = update.get("total") if isinstance(update.get("total"), int) else None
+                completed = (
+                    update.get("completed")
+                    if isinstance(update.get("completed"), int)
+                    else None
+                )
+                if progress:
+                    progress(status, completed, total)
+                if status == "success":
+                    return True
+        if is_cancelled and is_cancelled():
+            return False
+        raise OSError("Ollama ended the download before reporting success.")
+    finally:
+        _OLLAMA_PULL_LOCK.release()
 
 
 def _family_root(model: str) -> str:

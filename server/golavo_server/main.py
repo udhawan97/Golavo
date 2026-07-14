@@ -169,7 +169,106 @@ def ai_local_models(provider: str = "ollama") -> dict[str, Any]:
         config = ai_gateway.resolve_provider({"provider": provider})
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return ai_gateway.inspect_local_models(config)
+    result = ai_gateway.inspect_local_models(config)
+    if provider == "ollama":
+        result = {
+            **result,
+            "recommended": ai_gateway.recommended_ollama_models(
+                [str(model["name"]) for model in result.get("models", [])]
+            ),
+            "download_url": "https://ollama.com/download/mac",
+            "guide_url": "https://docs.ollama.com/macos",
+        }
+    return result
+
+
+@app.post("/api/v1/ai/ollama/downloads")
+async def start_ollama_download(
+    request: Request, background_tasks: BackgroundTasks
+) -> JSONResponse:
+    """Start a user-requested pull of one curated Golavo model.
+
+    The sidecar talks only to the validated loopback Ollama endpoint. Model names
+    are allow-listed, downloads never start implicitly, and progress/cancellation
+    reuse the short-lived local job store used by Deep analysis.
+    """
+    from golavo_server import ai_gateway, jobs
+
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    model = str(body.get("model") or "")
+    allowed = {str(item["name"]) for item in ai_gateway.RECOMMENDED_OLLAMA_MODELS}
+    if model not in allowed:
+        raise HTTPException(status_code=400, detail="model is not in Golavo's curated catalog")
+    job_id = str(body.get("job_id") or "")
+    if not jobs.JOB_ID_RE.match(job_id):
+        raise HTTPException(status_code=400, detail="malformed job_id")
+
+    config = ai_gateway.resolve_provider({"provider": "ollama"})
+    before = ai_gateway.inspect_local_models(config)
+    if before["status"] == "unreachable":
+        raise HTTPException(
+            status_code=409,
+            detail="Ollama is not reachable. Install and open Ollama, then check again.",
+        )
+    try:
+        job = jobs.store().start(job_id)
+    except jobs.JobConflict as exc:
+        raise HTTPException(status_code=409, detail="download already running") from exc
+
+    def _run() -> None:
+        try:
+            installed_before = [str(item["name"]) for item in before.get("models", [])]
+            if any(
+                item["name"] == model and item["installed"]
+                for item in ai_gateway.recommended_ollama_models(installed_before)
+            ):
+                jobs.store().finish(
+                    job.job_id, result={"model": model, "status": "installed"}
+                )
+                return
+
+            jobs.store().update(
+                job.job_id,
+                stage="downloading_model",
+                detail=f"Preparing {model}",
+                counts={"completed": 0, "total": None},
+            )
+
+            def _progress(status: str, completed: int | None, total: int | None) -> None:
+                jobs.store().update(
+                    job.job_id,
+                    stage="downloading_model",
+                    detail=status,
+                    counts={"completed": completed, "total": total},
+                )
+
+            completed = ai_gateway.pull_ollama_model(
+                config,
+                model,
+                progress=_progress,
+                is_cancelled=lambda: jobs.store().is_cancelled(job.job_id),
+            )
+            if not completed or jobs.store().is_cancelled(job.job_id):
+                return
+            after = ai_gateway.inspect_local_models(config)
+            installed_after = [str(item["name"]) for item in after.get("models", [])]
+            catalog = ai_gateway.recommended_ollama_models(installed_after)
+            if not any(item["name"] == model and item["installed"] for item in catalog):
+                raise OSError("Ollama finished, but the model is not available yet.")
+            jobs.store().finish(
+                job.job_id,
+                result={"model": model, "status": "installed", "models": after["models"]},
+            )
+        except Exception as exc:
+            jobs.store().fail(job.job_id, _ai_job_error(exc))
+
+    background_tasks.add_task(_run)
+    return JSONResponse({"job_id": job.job_id, "state": "running"}, status_code=202)
 
 
 def _ai_job_error(exc: Exception) -> str:

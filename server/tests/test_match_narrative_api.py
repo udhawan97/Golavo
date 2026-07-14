@@ -119,8 +119,18 @@ def test_local_models_endpoint_lists_installed_models(client, monkeypatch):
             "status": "ready",
             "reason": None,
             "models": [
-                {"name": "llama3.2:latest", "parameter_size": "3.2B", "params_b": 3.2, "size_bytes": 1},
-                {"name": "gemma:12b", "parameter_size": "12B", "params_b": 12.0, "size_bytes": 2},
+                {
+                    "name": "llama3.2:latest",
+                    "parameter_size": "3.2B",
+                    "params_b": 3.2,
+                    "size_bytes": 1,
+                },
+                {
+                    "name": "gemma:12b",
+                    "parameter_size": "12B",
+                    "params_b": 12.0,
+                    "size_bytes": 2,
+                },
             ],
         },
     )
@@ -129,6 +139,9 @@ def test_local_models_endpoint_lists_installed_models(client, monkeypatch):
     assert body["status"] == "ready"
     assert body["reason"] is None
     assert [m["name"] for m in body["models"]] == ["llama3.2:latest", "gemma:12b"]
+    assert [m["role"] for m in body["recommended"]] == ["fast", "deep"]
+    assert body["recommended"][0]["installed"] is True
+    assert body["download_url"] == "https://ollama.com/download/mac"
 
 
 def test_local_models_endpoint_empty_for_non_local_provider(client):
@@ -139,6 +152,57 @@ def test_local_models_endpoint_empty_for_non_local_provider(client):
         "models": [],
         "reason": "This provider does not expose local models.",
     }
+
+
+def test_curated_ollama_download_reports_progress_and_installs(client, monkeypatch):
+    installed = {"value": False}
+
+    def inspect(config):
+        models = (
+            [{
+                "name": "llama3.2:latest",
+                "parameter_size": "3.2B",
+                "params_b": 3.2,
+                "size_bytes": 2_000_000_000,
+            }]
+            if installed["value"] else []
+        )
+        return {
+            "provider": "ollama",
+            "status": "ready" if models else "no_models",
+            "models": models,
+            "reason": None if models else "Ollama is running, but no models are installed.",
+        }
+
+    def pull(config, model, *, progress, is_cancelled):
+        assert model == "llama3.2:latest"
+        assert is_cancelled() is False
+        progress("pulling manifest", 0, 2_000_000_000)
+        progress("downloading", 1_000_000_000, 2_000_000_000)
+        installed["value"] = True
+        progress("success", 2_000_000_000, 2_000_000_000)
+        return True
+
+    monkeypatch.setattr(ai_gateway, "inspect_local_models", inspect)
+    monkeypatch.setattr(ai_gateway, "pull_ollama_model", pull)
+    response = client.post(
+        "/api/v1/ai/ollama/downloads",
+        json={"model": "llama3.2:latest", "job_id": "dl-guide-fast-01"},
+    )
+    assert response.status_code == 202
+    job = client.get("/api/v1/ai/jobs/dl-guide-fast-01").json()
+    assert job["state"] == "done"
+    assert job["result"]["model"] == "llama3.2:latest"
+    assert job["result"]["status"] == "installed"
+
+
+def test_ollama_download_rejects_arbitrary_model(client):
+    response = client.post(
+        "/api/v1/ai/ollama/downloads",
+        json={"model": "unknown/huge-model", "job_id": "dl-guide-nope-01"},
+    )
+    assert response.status_code == 400
+    assert "curated" in response.json()["detail"]
 
 
 def test_unknown_provider_is_400(client):

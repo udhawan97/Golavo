@@ -23,6 +23,7 @@ import { Pipeline } from "./AiPipeline";
 import { Result } from "./AiResult";
 import type { AiDisplayContext } from "./AiResult";
 import { FallbackCard, humanizeError, OffCard } from "./AiFallback";
+import { OllamaModelGuide } from "./OllamaModelGuide";
 
 /** A short size label for a model, e.g. "12B" or "" when unknown. */
 function modelSize(m: LocalModelInfo): string {
@@ -263,6 +264,10 @@ export function AiDeepRead({
             checkingLocal={checkingLocal}
             onRefreshLocal={refreshLocalStatus}
           />
+        )}
+
+        {provider === "ollama" && (
+          <OllamaModelGuide compact onModelsChanged={refreshLocalStatus} />
         )}
 
         {provider !== "off" && (

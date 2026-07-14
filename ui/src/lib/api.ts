@@ -523,6 +523,16 @@ export interface LocalModelInfo {
   size_bytes: number | null;
 }
 
+export interface RecommendedOllamaModel {
+  name: string;
+  role: "fast" | "deep";
+  label: string;
+  description: string;
+  download_size_bytes: number;
+  library_url: string;
+  installed: boolean;
+}
+
 export type LocalModelStatus =
   | "unsupported"
   | "unreachable"
@@ -535,6 +545,9 @@ export interface LocalProviderStatus {
   status: LocalModelStatus;
   models: LocalModelInfo[];
   reason: string | null;
+  recommended?: RecommendedOllamaModel[];
+  download_url?: string;
+  guide_url?: string;
 }
 
 /** Default Fast/Deep assignment from installed models (server lists smallest
@@ -570,6 +583,9 @@ export async function fetchLocalModelStatus(provider: AiProvider): Promise<Local
       status,
       models,
       reason: typeof body.reason === "string" ? body.reason : null,
+      recommended: Array.isArray(body.recommended) ? body.recommended : undefined,
+      download_url: typeof body.download_url === "string" ? body.download_url : undefined,
+      guide_url: typeof body.guide_url === "string" ? body.guide_url : undefined,
     };
   } catch {
     return empty("unreachable", "The local model server could not be reached.");
@@ -580,6 +596,56 @@ export async function fetchLocalModelStatus(provider: AiProvider): Promise<Local
  *  picker. Empty in sample mode or when the local server is unreachable. */
 export async function fetchLocalModels(provider: AiProvider): Promise<LocalModelInfo[]> {
   return (await fetchLocalModelStatus(provider)).models;
+}
+
+export interface OllamaDownloadJob {
+  job_id: string;
+  state: "running" | "done" | "failed" | "cancelled";
+  stage: string;
+  detail: string | null;
+  counts: { completed?: number | null; total?: number | null };
+  elapsed_s: number;
+  result?: { model: string; status: "installed"; models?: LocalModelInfo[] };
+  error?: string;
+}
+
+/** Start an explicit, curated model download through the local sidecar. */
+export async function startOllamaModelDownload(model: string, jobId: string): Promise<string> {
+  if (!API_BASE) throw new Error("Model downloads require the Golavo desktop app.");
+  const res = await fetch(`${API_BASE}/api/v1/ai/ollama/downloads`, {
+    method: "POST",
+    headers: { ...apiHeaders(), "content-type": "application/json" },
+    body: JSON.stringify({ model, job_id: jobId }),
+  });
+  if (!res.ok) {
+    let detail = "The model download could not start.";
+    try {
+      const body = (await res.json()) as { detail?: unknown };
+      if (typeof body.detail === "string") detail = body.detail;
+    } catch { /* keep the safe fallback */ }
+    throw new Error(detail);
+  }
+  const body = (await res.json()) as { job_id?: string };
+  if (!body.job_id) throw new Error("The model download started without a progress id.");
+  return body.job_id;
+}
+
+export async function fetchOllamaDownloadJob(jobId: string): Promise<OllamaDownloadJob> {
+  if (!API_BASE) throw new Error("Model downloads require the Golavo desktop app.");
+  const res = await fetch(`${API_BASE}/api/v1/ai/jobs/${encodeURIComponent(jobId)}`, {
+    headers: apiHeaders(),
+  });
+  if (!res.ok) throw new Error("The model download progress could not be read.");
+  return (await res.json()) as OllamaDownloadJob;
+}
+
+export async function cancelOllamaModelDownload(jobId: string): Promise<void> {
+  if (!API_BASE) return;
+  const res = await fetch(`${API_BASE}/api/v1/ai/jobs/${encodeURIComponent(jobId)}/cancel`, {
+    method: "POST",
+    headers: apiHeaders(),
+  });
+  if (!res.ok) throw new Error("The model download could not be cancelled.");
 }
 
 function emptyNarrative(provider: AiProvider): NarrativeResponse {

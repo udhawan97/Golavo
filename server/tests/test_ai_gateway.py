@@ -664,6 +664,47 @@ def test_ollama_transport_falls_back_to_plain_json_when_schema_rejected(monkeypa
     assert seen == ["schema", "json"]
 
 
+def test_ollama_pull_streams_real_byte_progress(monkeypatch) -> None:
+    seen = {"request": None}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def __iter__(self):
+            return iter([
+                b'{"status":"pulling manifest"}\n',
+                b'{"status":"downloading","completed":25,"total":100}\n',
+                b'{"status":"success","completed":100,"total":100}\n',
+            ])
+
+    def urlopen(request, timeout):
+        seen["request"] = request
+        assert timeout == 60.0
+        return Response()
+
+    monkeypatch.setattr(ai_gateway.urllib.request, "urlopen", urlopen)
+    updates = []
+    completed = ai_gateway.pull_ollama_model(
+        ProviderConfig(
+            provider="ollama",
+            model="llama3.2:latest",
+            base_url="http://127.0.0.1:11434/v1",
+        ),
+        "llama3.2:latest",
+        progress=lambda status, done, total: updates.append((status, done, total)),
+    )
+    assert completed is True
+    request = seen["request"]
+    assert request is not None
+    assert request.full_url == "http://127.0.0.1:11434/api/pull"
+    assert json.loads(request.data) == {"model": "llama3.2:latest", "stream": True}
+    assert updates[-1] == ("success", 100, 100)
+
+
 def test_cache_separates_prompt_context_and_candidate_fact_mode(bundle: dict) -> None:
     cache = NarrationCache()
     calls = {"n": 0}
