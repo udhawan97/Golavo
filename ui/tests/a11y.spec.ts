@@ -13,6 +13,8 @@ const PAGES = [
   { name: "world-cup-pedigree", path: "/#/match/m_4c107c1bc7e11203" },
   { name: "methods", path: "/#/lab/methods" },
   { name: "sealing-guide", path: "/#/guide/sealing" },
+  { name: "picks-guide", path: "/#/guide/picks" },
+  { name: "my-season", path: "/#/season" },
   // Table/form-dense routes: where a muted caption or header could slip contrast.
   { name: "search", path: "/#/matches" },
   { name: "leagues", path: "/#/leagues" },

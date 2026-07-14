@@ -1,0 +1,7 @@
+[
+  {"family":"dixon_coles","capability":"score","score_pick":{"home_goals":2,"away_goals":1},"outcome_pick":"home"},
+  {"family":"poisson_independent","capability":"score","score_pick":{"home_goals":1,"away_goals":0},"outcome_pick":"home"},
+  {"family":"bivariate_poisson","capability":"score","score_pick":{"home_goals":1,"away_goals":1},"outcome_pick":"draw"},
+  {"family":"elo_ordlogit","capability":"outcome_only","score_pick":null,"outcome_pick":"home"},
+  {"family":"climatological","capability":"outcome_only","score_pick":null,"outcome_pick":"draw"}
+]

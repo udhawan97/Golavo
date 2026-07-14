@@ -39,6 +39,11 @@ export const HOME_TOUR: TourDef = {
       body: "Past or upcoming — every match opens a deep analytics read: a five-model council, team style, and source-backed facts. No averaging into false certainty.",
     },
     {
+      target: "nav-season",
+      title: "Your season vs the machines",
+      body: "Pick a score on any upcoming match — it locks at kickoff — and watch your points race five AI rivals here.",
+    },
+    {
       target: "nav-lab",
       title: "The honesty surface",
       body: "The Model Lab holds the track record and backtests — how the methods have actually done, kept in the open.",
@@ -54,6 +59,11 @@ export const HOME_TOUR: TourDef = {
 export const COCKPIT_TOUR: TourDef = {
   id: "cockpit",
   steps: [
+    {
+      target: "cockpit-pick",
+      title: "Make your call",
+      body: "Pick the score you believe. Change it any time before kickoff; at kickoff it locks, and the result decides your points.",
+    },
     {
       target: "cockpit-council",
       title: "The model council",

@@ -296,7 +296,7 @@ function FactRow({ fact, snapshots }: { fact: NotebookFact; snapshots: Snapshot[
   );
 }
 
-function RateDial({ value }: { value: number }) {
+export function RateDial({ value }: { value: number }) {
   const safe = Math.max(0, Math.min(1, value));
   const percent = Math.round(safe * 100);
   return (

@@ -27,13 +27,15 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("tour definitions", () => {
-  it("home and cockpit tours each have exactly three anchored steps", () => {
+  it("pins the deliberate home and cockpit step order", () => {
     expect(HOME_TOUR.steps.map((s) => s.target)).toEqual([
       "match-card",
+      "nav-season",
       "nav-lab",
       "nav-settings",
     ]);
     expect(COCKPIT_TOUR.steps.map((s) => s.target)).toEqual([
+      "cockpit-pick",
       "cockpit-council",
       "cockpit-notebook",
       "cockpit-ai",

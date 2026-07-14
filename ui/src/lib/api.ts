@@ -27,6 +27,9 @@ import type {
   MatchWindow,
   MatchesWindowResponse,
   NotebookResponse,
+  PickResponse,
+  PicksListResponse,
+  PicksSummary,
   RecentMatchesResponse,
   SealEligibility,
   SealResult,
@@ -42,6 +45,14 @@ import {
   loadMockNarrative,
   loadMockNotebook,
 } from "../mocks";
+import {
+  MockPickError,
+  mockDeletePick,
+  mockFetchPick,
+  mockFetchPicks,
+  mockFetchPicksSummary,
+  mockSavePick,
+} from "../mocks/picks";
 
 /**
  * Backend selection, in priority order:
@@ -194,6 +205,17 @@ export class SealApiError extends Error {
   constructor(message: string, status: number, reasonCode: string) {
     super(message);
     this.name = "SealApiError";
+    this.status = status;
+    this.reasonCode = reasonCode;
+  }
+}
+
+export class PickApiError extends Error {
+  readonly status: number;
+  readonly reasonCode: string;
+  constructor(message: string, status: number, reasonCode: string) {
+    super(message);
+    this.name = "PickApiError";
     this.status = status;
     this.reasonCode = reasonCode;
   }
@@ -1158,4 +1180,141 @@ export async function fetchMatchesWindow(
     throw new ContractError(`matches/window: echoed window ${body.window} != ${window}`);
   body.matches.forEach((m, i) => assertMatchRow(m, `matches/window.matches[${i}]`));
   return body;
+}
+
+// ---- User picks -------------------------------------------------------------
+
+function assertPickResponse(value: unknown, ctx: string): PickResponse {
+  const response = value as PickResponse;
+  if (!response || typeof response !== "object" || response.schema_version !== "0.1.0")
+    throw new ContractError(`${ctx}: invalid pick response`);
+  if (response.pick && response.pick.record.match.match_id !== response.match_id)
+    throw new ContractError(`${ctx}: pick match id mismatch`);
+  return response;
+}
+
+function pickHeaders(): Record<string, string> {
+  return { ...apiHeaders(), "content-type": "application/json" };
+}
+
+async function pickFailure(res: Response): Promise<PickApiError> {
+  let reason = "pick_rejected";
+  let message = `pick request failed (HTTP ${res.status})`;
+  try {
+    const body = (await res.json()) as { detail?: { reason_code?: string; message?: string } };
+    reason = body.detail?.reason_code ?? reason;
+    message = body.detail?.message ?? message;
+  } catch {
+    /* use the typed generic fallback */
+  }
+  return new PickApiError(message, res.status, reason);
+}
+
+function mockFailure(error: unknown): never {
+  if (error instanceof MockPickError)
+    throw new PickApiError(error.message, error.status, error.reasonCode);
+  throw error;
+}
+
+function picksChanged(): void {
+  clearApiCache();
+  window.dispatchEvent(new CustomEvent("golavo-picks-changed"));
+}
+
+export async function fetchPick(matchId: string): Promise<PickResponse | null> {
+  if (!API_BASE) return mockFetchPick(matchId);
+  const path = `/api/v1/matches/${encodeURIComponent(matchId)}/pick`;
+  try {
+    return assertPickResponse(await getJson(path), `pick/${matchId}`);
+  } catch (error) {
+    if (error instanceof Error && /HTTP 404/.test(error.message)) return null;
+    throw error;
+  }
+}
+
+export async function savePick(
+  matchId: string,
+  homeGoals: number,
+  awayGoals: number,
+): Promise<PickResponse> {
+  if (!API_BASE) {
+    try {
+      const response = await mockSavePick(matchId, homeGoals, awayGoals);
+      picksChanged();
+      return response;
+    } catch (error) {
+      return mockFailure(error);
+    }
+  }
+  const res = await fetch(`${API_BASE}/api/v1/matches/${encodeURIComponent(matchId)}/pick`, {
+    method: "PUT",
+    headers: pickHeaders(),
+    body: JSON.stringify({ home_goals: homeGoals, away_goals: awayGoals }),
+  });
+  if (!res.ok) throw await pickFailure(res);
+  const response = assertPickResponse(await res.json(), `pick/${matchId}`);
+  picksChanged();
+  return response;
+}
+
+export async function deletePick(matchId: string): Promise<PickResponse | null> {
+  if (!API_BASE) {
+    try {
+      const response = await mockDeletePick(matchId);
+      picksChanged();
+      return response;
+    } catch (error) {
+      return mockFailure(error);
+    }
+  }
+  const res = await fetch(`${API_BASE}/api/v1/matches/${encodeURIComponent(matchId)}/pick`, {
+    method: "DELETE",
+    headers: apiHeaders(),
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw await pickFailure(res);
+  const response = assertPickResponse(await res.json(), `pick/${matchId}`);
+  picksChanged();
+  return response;
+}
+
+export async function fetchPicks(options: {
+  status?: string;
+  season?: string;
+  limit?: number;
+  offset?: number;
+} = {}): Promise<PicksListResponse> {
+  const limit = options.limit ?? 500;
+  const offset = options.offset ?? 0;
+  if (!API_BASE) {
+    const all = await mockFetchPicks(500, 0);
+    const filtered = all.items.filter(
+      (view) =>
+        (!options.status || view.status === options.status) &&
+        (!options.season || footballSeason(view.record.match.kickoff_utc) === options.season),
+    );
+    return { ...all, items: filtered.slice(offset, offset + limit), total: filtered.length, limit, offset };
+  }
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  if (options.status) params.set("status", options.status);
+  if (options.season) params.set("season", options.season);
+  const response = (await getJson(`/api/v1/picks?${params}`)) as PicksListResponse;
+  if (response.schema_version !== "0.1.0" || !Array.isArray(response.items))
+    throw new ContractError("picks: invalid list response");
+  return response;
+}
+
+export async function fetchPicksSummary(season?: string): Promise<PicksSummary> {
+  if (!API_BASE) return mockFetchPicksSummary(season ?? null);
+  const params = season ? `?season=${encodeURIComponent(season)}` : "";
+  const response = (await getJson(`/api/v1/picks/summary${params}`)) as PicksSummary;
+  if (response.schema_version !== "0.1.0" || !response.counts || !response.user)
+    throw new ContractError("picks/summary: invalid response");
+  return response;
+}
+
+function footballSeason(kickoff: string): string {
+  const date = new Date(kickoff);
+  const start = date.getUTCMonth() >= 6 ? date.getUTCFullYear() : date.getUTCFullYear() - 1;
+  return `${start}-${String(start + 1).slice(-2)}`;
 }

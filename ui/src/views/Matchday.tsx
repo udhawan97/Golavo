@@ -12,7 +12,7 @@
  * page; the range and any staleness are labelled honestly.
  */
 import { useState } from "react";
-import type { MatchRow, MatchWindow, MatchesWindowResponse } from "../lib/contract";
+import type { MatchRow, MatchWindow, MatchesWindowResponse, PickView } from "../lib/contract";
 import { fetchMatchesWindow } from "../lib/api";
 import { groupMatchesByCompetition, leagueSlugFor, LEAGUES } from "../lib/leagues";
 import { utcDate } from "../lib/format";
@@ -22,6 +22,8 @@ import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
 import { ChevronRight, SearchIcon } from "../components/icons";
 import { useWarmupStatus } from "../lib/warmup";
 import { WarmupHero } from "../components/EngineWarmup";
+import { usePicks } from "../lib/picks";
+import { PickChip, pickChipLabel } from "../components/PickChip";
 
 const WELCOME_KEY = "golavo-welcome-dismissed";
 
@@ -54,7 +56,7 @@ function WelcomeCard() {
         <ul className="welcome__list">
           <li><b>Open any match</b> — past or upcoming — for a deep analytics read: a five-model council, team style, and source-backed facts.</li>
           <li><b>See where the methods agree</b>, and where they don’t — no averaging into false certainty.</li>
-          <li>Want to put a prediction on the record? <a href="#/guide/sealing">Sealing, explained ›</a></li>
+          <li><b>Make your own call</b> before kickoff, then race five transparent model rivals. <a href="#/guide/picks">How picks work ›</a></li>
         </ul>
       </div>
       <button type="button" className="welcome__dismiss" onClick={dismiss}>
@@ -105,9 +107,8 @@ export function MatchdayHome() {
       {warmup.phase === "warming" ? <WarmupHero rows={warmup.rows} /> : <MatchdayFeed />}
 
       <p className="small dim" style={{ margin: 0 }}>
-        Tracking predictions before kickoff? Your sealed forecasts and their scores live in{" "}
-        <a href="#/lab/track-record">Model Lab › Track record ›</a> —{" "}
-        <a href="#/guide/sealing">how sealing works ›</a>
+        Your score calls live in <a href="#/season">My Season ›</a>. Expert model forecasts and
+        their audit record live in <a href="#/lab/track-record">Model Lab › Track record ›</a>
       </p>
     </div>
   );
@@ -117,6 +118,7 @@ export function MatchdayHome() {
 function MatchdayFeed() {
   const [window, setWindow] = useState<MatchWindow>("week");
   const state = useAsync(() => fetchMatchesWindow(window), [window]);
+  const picks = usePicks();
   return (
     <section className="stack" style={{ ["--gap" as string]: ".9rem" }} aria-label="Matchday feed">
       <div className="mv-filter-chips" role="group" aria-label="Time window">
@@ -132,7 +134,7 @@ function MatchdayFeed() {
           </button>
         ))}
       </div>
-      <WindowBody window={window} state={state} />
+      <WindowBody window={window} state={state} picks={picks.byMatch} />
     </section>
   );
 }
@@ -165,9 +167,11 @@ function WindowMeta({ data }: { data: MatchesWindowResponse }) {
 function WindowBody({
   window,
   state,
+  picks,
 }: {
   window: MatchWindow;
   state: AsyncState<MatchesWindowResponse>;
+  picks: ReadonlyMap<string, PickView>;
 }) {
   if (state.status === "loading") return <BlockSkeleton lines={6} />;
   if (state.status === "error") return <ErrorState error={state.error} />;
@@ -201,6 +205,7 @@ function WindowBody({
           sourceKind={g.sourceKind}
           matches={g.matches}
           anchorFirst={i === 0}
+          picks={picks}
         />
       ))}
     </div>
@@ -214,11 +219,13 @@ function CompetitionSection({
   sourceKind,
   matches,
   anchorFirst = false,
+  picks,
 }: {
   competition: string;
   sourceKind: MatchRow["source_kind"];
   matches: MatchRow[];
   anchorFirst?: boolean;
+  picks: ReadonlyMap<string, PickView>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const slug = leagueSlugFor(competition, sourceKind);
@@ -232,7 +239,7 @@ function CompetitionSection({
       </div>
       <div className="game-grid">
         {shown.map((m, idx) => (
-          <GameCard key={m.match_id} match={m} anchor={anchorFirst && idx === 0} />
+          <GameCard key={m.match_id} match={m} anchor={anchorFirst && idx === 0} pick={picks.get(m.match_id)} />
         ))}
       </div>
       {overflow > 0 &&
@@ -280,7 +287,7 @@ export function Rail({
   );
 }
 
-export function GameCard({ match, anchor = false }: { match: MatchRow; anchor?: boolean }) {
+export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anchor?: boolean; pick?: PickView }) {
   const state = match.is_complete
     ? `played, final score ${match.home_score}–${match.away_score}`
     : "upcoming";
@@ -289,7 +296,7 @@ export function GameCard({ match, anchor = false }: { match: MatchRow; anchor?: 
       className="game-card"
       href={`#/match/${encodeURIComponent(match.match_id)}`}
       data-tour={anchor ? "match-card" : undefined}
-      aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}. Open analytics.`}
+      aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}.${pickChipLabel(match, pick) ? ` ${pickChipLabel(match, pick)}.` : ""} Open analytics.`}
     >
       <div className="game-card__comp small muted">{match.competition}</div>
       <div className="game-card__teams">
@@ -311,6 +318,7 @@ export function GameCard({ match, anchor = false }: { match: MatchRow; anchor?: 
           Analyze <ChevronRight size={13} />
         </span>
       </div>
+      <PickChip match={match} pick={pick} />
     </a>
   );
 }

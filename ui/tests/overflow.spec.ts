@@ -7,6 +7,8 @@ import { expect, test } from "@playwright/test";
 const ROUTES = [
   { name: "matchday", path: "/#/" },
   { name: "sealing-guide", path: "/#/guide/sealing" },
+  { name: "picks-guide", path: "/#/guide/picks" },
+  { name: "my-season", path: "/#/season" },
   { name: "search", path: "/#/matches" },
   { name: "leagues", path: "/#/leagues" },
   { name: "league", path: "/#/league/premier-league" },

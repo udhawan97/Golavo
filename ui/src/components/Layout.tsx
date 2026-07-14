@@ -10,8 +10,9 @@ import { ActivityCenter } from "./ActivityCenter";
 import { UpdatePill } from "./updates";
 import { DOCS_URL } from "../lib/links";
 
-function isActive(path: string, section: "games" | "leagues" | "lab"): boolean {
+function isActive(path: string, section: "games" | "leagues" | "season" | "lab"): boolean {
   if (section === "leagues") return path === "/leagues" || path.startsWith("/league/");
+  if (section === "season") return path.startsWith("/season");
   // Model Lab owns the relocated audit surface, sealed-forecast detail, and the
   // legacy /ledger and /eval addresses that redirect into it.
   if (section === "lab")
@@ -100,6 +101,7 @@ export function Layout({
           <nav className="nav" aria-label="Primary">
             <a href="#/" aria-current={isActive(path, "games") ? "page" : undefined}>Matchday</a>
             <a href="#/leagues" aria-current={isActive(path, "leagues") ? "page" : undefined}>Leagues</a>
+            <a href="#/season" data-tour="nav-season" aria-current={isActive(path, "season") ? "page" : undefined}>My Season</a>
             <a href="#/lab" data-tour="nav-lab" aria-current={isActive(path, "lab") ? "page" : undefined}>Model Lab</a>
           </nav>
           <div className="site-header__tools">
@@ -152,7 +154,7 @@ export function Layout({
         <div className="container">
           <span>
             Golavo · Local Football Intelligence —{" "}
-            <span className="dim">read-only, offline, no account. Predictions you seal before kickoff are scored after full time.</span>
+            <span className="dim">read-only, offline, no account. Your picks lock at kickoff and are scored after full time.</span>
             {" · "}
             <a href="#/settings">Settings</a>
           </span>

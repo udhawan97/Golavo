@@ -462,6 +462,8 @@ export interface PickView {
   record: UserPick;
   result: (ScorePick & { outcome: Outcome }) | null;
   scoring: PickScoring | null;
+  /** Web-preview practice record; never emitted by the real sidecar. */
+  preview?: boolean;
 }
 
 export interface PickResponse {

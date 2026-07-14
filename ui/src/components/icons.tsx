@@ -114,6 +114,29 @@ export const ClockIcon = ({ size = 15, ...p }: IconProps) => (
   <svg {...base(size, p)}><circle cx="12" cy="12" r="9" /><path d="M12 7.5V12l3 2" /></svg>
 );
 
+export const LockIcon = ({ size = 16, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <rect x="5" y="10" width="14" height="11" rx="2.5" />
+    <path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" />
+  </svg>
+);
+
+export const PlusIcon = ({ size = 18, ...p }: IconProps) => (
+  <svg {...base(size, p)}><path d="M12 5v14M5 12h14" /></svg>
+);
+
+export const MinusIcon = ({ size = 18, ...p }: IconProps) => (
+  <svg {...base(size, p)}><path d="M5 12h14" /></svg>
+);
+
+export const PitchIcon = ({ size = 18, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <rect x="3" y="4" width="18" height="16" rx="1.5" />
+    <path d="M12 4v16" /><circle cx="12" cy="12" r="2.5" />
+    <path d="M3 8h3v8H3M21 8h-3v8h3" />
+  </svg>
+);
+
 export const SearchIcon = ({ size = 18, ...p }: IconProps) => (
   <svg {...base(size, p)}><circle cx="11" cy="11" r="7" /><path d="M20 20l-4.3-4.3" /></svg>
 );

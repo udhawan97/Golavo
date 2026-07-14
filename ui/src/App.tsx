@@ -19,6 +19,8 @@ const EvaluationSummary = lazy(() => import("./views/EvaluationSummary").then((m
 const PredictionLedger = lazy(() => import("./views/PredictionLedger").then((m) => ({ default: m.PredictionLedger })));
 const Settings = lazy(() => import("./views/Settings").then((m) => ({ default: m.Settings })));
 const SealingGuide = lazy(() => import("./views/SealingGuide").then((m) => ({ default: m.SealingGuide })));
+const PicksGuide = lazy(() => import("./views/PicksGuide").then((m) => ({ default: m.PicksGuide })));
+const MySeason = lazy(() => import("./views/MySeason").then((m) => ({ default: m.MySeason })));
 import { UpdaterContext } from "./lib/updater-context";
 import { useUpdaterController } from "./lib/updater";
 import { UpdateConsentCard, UpdateSheet, UpdatedToast } from "./components/updates";
@@ -163,6 +165,7 @@ function Route({
   if (path === "/leagues") return <LeaguesHub />;
   const league = path.match(/^\/league\/(.+)$/);
   if (league) return <LeagueView slug={safeDecode(league[1])} />;
+  if (path === "/season") return <MySeason />;
 
   // Model Lab — the relocated audit surface.
   if (path === "/lab") return <ModelLabHub />;
@@ -178,6 +181,7 @@ function Route({
   if (path === "/settings") return <Settings prefs={prefs} onChangePrefs={onChangePrefs} />;
 
   if (path === "/guide/sealing") return <SealingGuide />;
+  if (path === "/guide/picks") return <PicksGuide />;
 
   return (
     <EmptyState title="Page not found" variant="notfound">

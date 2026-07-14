@@ -99,9 +99,9 @@ export function SealingGuide() {
       </nav>
 
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
-        <h1>Sealing, explained</h1>
+        <h1>Sealing — the trust machinery (expert)</h1>
         <p className="measure dim" style={{ margin: 0 }}>
-          A prediction only counts if it’s locked in <b>before</b> kickoff — everything else is
+          Looking for the score-picking game? <a href="#/guide/picks">How picks work ›</a> Sealing is the expert audit layer: a model prediction only counts if it’s locked in <b>before</b> kickoff — everything else is
           hindsight. Sealing is Golavo’s way of putting a forecast on the record, honestly and
           permanently. It’s optional: the deep analytics work on every match without it.
         </p>

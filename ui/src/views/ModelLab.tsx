@@ -11,6 +11,11 @@ import { ChevronRight } from "../components/icons";
 export function ModelLabHub() {
   const links = [
     {
+      href: "#/guide/picks",
+      title: "How picks work",
+      note: "Call a score, lock it at kickoff, and race five transparent model rivals across your season.",
+    },
+    {
       href: "#/lab/track-record",
       title: "Track record",
       note: "Your real forecasts, sealed before kickoff and scored after — running log loss, Brier, and reliability.",

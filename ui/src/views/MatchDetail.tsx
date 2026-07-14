@@ -11,6 +11,7 @@
 import { useRef, useState } from "react";
 import type {
   MatchDetailResponse,
+  MatchAnalysis,
   MatchForecastLink,
   MatchNotebookResponse,
   MatchRow,
@@ -27,18 +28,17 @@ import { HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
 import { AiDeepRead } from "../components/ai/AiDeepRead";
 import { MatchHeader } from "../components/MatchHeader";
 import { ModelCouncil } from "../components/ModelCouncil";
-import { FormStripsRow } from "../components/FormStrip";
-import { TeamStyleProfile } from "../components/TeamStyleProfile";
 import { ScoreOutlook } from "../components/ScoreOutlook";
 import { SecondHalfStory } from "../components/SecondHalfStory";
 import { WorldCupPedigree } from "../components/WorldCupPedigree";
-import { NotebookFacts } from "../components/CommentatorsNotebook";
 import { ResolvedInsightCards } from "../components/InsightCards";
+import { MatchNotes } from "../components/MatchNotes";
 import { parseHalfTimeStory, parseWorldCupPedigree } from "../lib/factValues";
 import { TourOverlay } from "../components/TourOverlay";
 import { COCKPIT_TOUR, useTour } from "../lib/tour";
 import { useUpdater } from "../lib/updater-context";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
+import { PickPanel } from "../components/PickPanel";
 
 export function MatchDetail({ id }: { id: string }) {
   const state = useAsync(() => fetchMatch(id), [id]);
@@ -139,7 +139,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         }
       />
 
-      {analysis && <FormStripsRow analysis={analysis} />}
+      <PickPanel match={match} analysis={analysis} />
 
       <div data-tour="cockpit-council">
         <ModelCouncil
@@ -150,7 +150,6 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         />
       </div>
 
-      {analysis && <TeamStyleProfile analysis={analysis} expert={mode === "expert"} />}
       {analysis && <ScoreOutlook analysis={analysis} home={match.home_team} away={match.away_team} />}
       <WorldCupPedigree
         competition={match.competition}
@@ -159,12 +158,16 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       />
       <SecondHalfStory sourceKind={match.source_kind} story={halfTimeStory} />
 
-      {hasForecast ? (
-        <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
-      ) : match.is_complete ? (
-        <PlayedNoForecast match={match} />
+      {mode === "expert" ? (
+        hasForecast ? (
+          <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
+        ) : match.is_complete ? (
+          <PlayedNoForecast match={match} />
+        ) : (
+          <SealAction detail={detail} />
+        )
       ) : (
-        <SealAction detail={detail} />
+        <ExpertSealRow detail={detail} />
       )}
 
       <ResolvedInsightCards notebook={notebook} omitKeys={consumedKeys} />
@@ -174,6 +177,8 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
           state={notebookState}
           onRetry={() => setNotebookRetryTick((tick) => tick + 1)}
           omitKeys={consumedKeys}
+          analysis={analysis}
+          expert={mode === "expert"}
         />
       </div>
 
@@ -184,6 +189,33 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       <TourOverlay ctrl={cockpitTour} />
     </div>
   );
+}
+
+/** Sealing stays available in the everyday cockpit without competing with the
+ * user's call. Expert mode expands this row into the full audit treatment. */
+function ExpertSealRow({ detail }: { detail: MatchDetailResponse }) {
+  const { match } = detail;
+  if (match.forecasts.length > 0) {
+    const first = match.forecasts[0];
+    return (
+      <div className="expert-seal-row" aria-label="Expert forecast seal">
+        <span className="upper">Expert</span>
+        <span>The model’s forecast is on the record.</span>
+        <a href={`#/forecast/${encodeURIComponent(first.artifact_id)}`}>View seal ›</a>
+        <a href="#/guide/sealing">What is sealing? ›</a>
+      </div>
+    );
+  }
+  if (match.is_complete) {
+    return (
+      <div className="expert-seal-row" aria-label="Expert forecast seal">
+        <span className="upper">Expert</span>
+        <span>No model forecast was sealed before kickoff.</span>
+        <a href="#/guide/sealing">What is sealing? ›</a>
+      </div>
+    );
+  }
+  return <SealAction detail={detail} quiet />;
 }
 
 /** Quick top-of-page status, classified by is_complete first (never by kickoff
@@ -285,7 +317,7 @@ function PlayedNoForecast({ match }: { match: MatchRow }) {
  *  typed eligibility verdict. An eligible fixture gets a real Generate button;
  *  everything else gets an honest, specific reason (never implying a club league
  *  is forecastable, or that a passed window can still be sealed). */
-function SealAction({ detail }: { detail: MatchDetailResponse }) {
+function SealAction({ detail, quiet = false }: { detail: MatchDetailResponse; quiet?: boolean }) {
   const { match } = detail;
   const eligibility = detail.seal_eligibility;
   const [state, setState] = useState<{ status: "idle" | "sealing" | "error"; error?: SealApiError }>(
@@ -294,8 +326,16 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
   const inFlight = useRef(false);
 
   // An older backend that doesn't report eligibility: keep an honest neutral note.
-  if (!eligibility) return <SealUnknown match={match} />;
-  if (!eligibility.eligible) return <SealIneligible eligibility={eligibility} />;
+  if (!eligibility) {
+    return quiet ? (
+      <div className="expert-seal-row"><span className="upper">Expert</span><span>Model sealing is unavailable in this build.</span><a href="#/guide/sealing">What is sealing? ›</a></div>
+    ) : <SealUnknown match={match} />;
+  }
+  if (!eligibility.eligible) {
+    return quiet ? (
+      <div className="expert-seal-row"><span className="upper">Expert</span><span>The model’s forecast can’t be sealed for this fixture.</span><a href="#/guide/sealing">Why? ›</a></div>
+    ) : <SealIneligible eligibility={eligibility} />;
+  }
 
   const onSeal = async () => {
     if (inFlight.current) return; // guard a double-click (primary + retry both call this)
@@ -315,6 +355,20 @@ function SealAction({ detail }: { detail: MatchDetailResponse }) {
       inFlight.current = false;
     }
   };
+
+  if (quiet) {
+    return (
+      <div className="expert-seal-row" aria-label="Expert forecast seal">
+        <span className="upper">Expert</span>
+        <span>Put the model’s forecast on the record.</span>
+        <button type="button" className="link-button" onClick={onSeal} disabled={state.status === "sealing"}>
+          {state.status === "sealing" ? "Sealing…" : "Seal it ›"}
+        </button>
+        <a href="#/guide/sealing">What is sealing? ›</a>
+        {state.status === "error" && state.error && <span className="pick-ticket__error" role="alert">{state.error.message}</span>}
+      </div>
+    );
+  }
 
   // Sealing is a small side feature now — a compact prompt, not the showcase.
   // The analytics above are the point; this is the optional "put it on the record".
@@ -414,38 +468,30 @@ function MatchNotebookBlock({
   state,
   onRetry,
   omitKeys,
+  analysis,
+  expert,
 }: {
   state: AsyncState<MatchNotebookResponse>;
   onRetry: () => void;
   omitKeys: ReadonlySet<string>;
+  analysis: MatchAnalysis | null;
+  expert: boolean;
 }) {
-  return (
-    <section className="panel md-nb" aria-labelledby="md-nb-h">
-      <div className="panel__head">
-        <h2 id="md-nb-h">Commentator’s Notebook</h2>
-        <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
-          deterministic · source-backed
-        </span>
-      </div>
-      <div className="panel__body stack" style={{ ["--gap" as string]: "1rem" }}>
-        <p className="small muted" style={{ margin: 0 }}>
-          The hidden facts, streaks, and coincidences behind this fixture — computed from the
-          vendored packs. Never a forecast, and no AI wrote any of them.
-        </p>
-        <NotebookBlockBody state={state} onRetry={onRetry} omitKeys={omitKeys} />
-      </div>
-    </section>
-  );
+  return <NotebookBlockBody state={state} onRetry={onRetry} omitKeys={omitKeys} analysis={analysis} expert={expert} />;
 }
 
 function NotebookBlockBody({
   state,
   onRetry,
   omitKeys,
+  analysis,
+  expert,
 }: {
   state: AsyncState<MatchNotebookResponse>;
   onRetry: () => void;
   omitKeys: ReadonlySet<string>;
+  analysis: MatchAnalysis | null;
+  expert: boolean;
 }) {
   if (state.status === "loading") return <BlockSkeleton lines={4} />;
   if (state.status === "error") {
@@ -462,12 +508,12 @@ function NotebookBlockBody({
             Try again
           </button>
         </div>
+        <MatchNotes notebook={null} analysis={analysis} omitKeys={omitKeys} expert={expert} />
       </div>
     );
   }
 
   const resp = state.data;
-  const facts = resp.notebook?.facts ?? [];
   const caption =
     resp.computed === "precomputed"
       ? "From the sealed forecast’s notebook."
@@ -482,33 +528,8 @@ function NotebookBlockBody({
           {caption}
         </p>
       )}
-      {facts.length > 0 && <FactLegend />}
-      <NotebookFacts notebook={resp.available ? resp.notebook : null} omitKeys={omitKeys} />
+      <MatchNotes notebook={resp.available ? resp.notebook : null} analysis={analysis} omitKeys={omitKeys} expert={expert} />
     </>
-  );
-}
-
-/** A one-line key for the fact labels — NotebookFacts groups by label but does
- *  not restate what each label means. */
-function FactLegend() {
-  return (
-    <div className="md-nb-legend small muted" aria-hidden>
-      <span className="chip chip--fact-predictive">
-        <span className="chip__dot" />
-        Predictive
-      </span>
-      <span className="md-nb-legend__note">labelled base rate, reported only</span>
-      <span className="chip chip--fact-context">
-        <span className="chip__dot" />
-        Context
-      </span>
-      <span className="md-nb-legend__note">background from results</span>
-      <span className="chip chip--fact-coincidence">
-        <span className="chip__dot" />
-        Coincidence
-      </span>
-      <span className="md-nb-legend__note">for the pub, not the forecast</span>
-    </div>
   );
 }
 
