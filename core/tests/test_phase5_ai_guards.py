@@ -166,7 +166,13 @@ class TestPrompt:
             "match": {"home_team": "A", "away_team": "B", "competition": "C", "kickoff_utc": "x"},
             "forecast_summary": {},
             "data_quality": {},
-            "allowed_numbers": [{"id": "prob_home", "display": "50.0%"}],
+            "allowed_numbers": [
+                {
+                    "id": "prob_home",
+                    "display": "50.0%",
+                    "source_ids": ["engine:x"],
+                }
+            ],
             "facts": [],
             "features": [],
             "sources": [{"source_id": "engine:x", "kind": "engine", "title": "t", "license": "l"}],
@@ -175,3 +181,4 @@ class TestPrompt:
         assert UNTRUSTED_OPEN in prompt
         assert UNTRUSTED_CLOSE in prompt
         assert "`prob_home` = 50.0%" in prompt
+        assert "cite `engine:x`" in prompt

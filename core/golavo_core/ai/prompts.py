@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-13.5"
+PROMPT_VERSION = "golavo-narration-2026-07-13.6"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -219,10 +219,19 @@ def build_user_prompt(
     view = _bundle_view(bundle, depth)
     source_ids = [s["source_id"] for s in bundle["sources"]]
     numbers = bundle["allowed_numbers"][: limits["numbers"]]
-    number_lines = "\n".join(
-        f"- `{n['id']}` = {n['display']}" + (f"  ({n['label']})" if n.get("label") else "")
-        for n in numbers
-    )
+    def number_line(n: dict[str, Any]) -> str:
+        sources = [str(s) for s in n.get("source_ids", []) if str(s)]
+        cite = (
+            "; cite " + ", ".join(f"`{s}`" for s in sources[:3])
+            if sources else ""
+        )
+        return (
+            f"- `{n['id']}` = {n['display']}"
+            + (f"  ({n['label']})" if n.get("label") else "")
+            + cite
+        )
+
+    number_lines = "\n".join(number_line(n) for n in numbers)
     parts = [
         "Here is the complete evidence bundle. It is the ONLY information you may "
         "use. Do not add outside knowledge.",
