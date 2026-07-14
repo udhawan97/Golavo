@@ -9,6 +9,7 @@ path globals and clears the cache.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from golavo_server import matches, runtime, seal
@@ -46,6 +47,11 @@ def test_repoint_swings_to_refreshed_then_back(monkeypatch, tmp_path: Path) -> N
         "aliases.json",
     ):
         (refreshed / name).write_text("x", encoding="utf-8")
+    from golavo_core.ingest import MATCH_INDEX_SCHEMA_VERSION
+
+    (refreshed / "matches_index.meta.json").write_text(
+        json.dumps({"schema_version": MATCH_INDEX_SCHEMA_VERSION}), encoding="utf-8"
+    )
 
     monkeypatch.setenv("GOLAVO_DATA_DIR", str(ledger))
     matches._CACHE = "stale"  # prove the cache is dropped on repoint
@@ -71,6 +77,24 @@ def test_repoint_ignores_a_refresh_dir_with_no_index(monkeypatch, tmp_path: Path
     ledger.mkdir(parents=True)
     (tmp_path / "app" / "refresh").mkdir()  # exists but empty — no matches_index.parquet
     monkeypatch.setenv("GOLAVO_DATA_DIR", str(ledger))
+    from golavo_core import resources
+
+    assert matches._resolve_index_paths()["index"] == Path(resources.match_index_path())
+
+
+def test_resolver_ignores_a_refreshed_index_with_stale_schema(
+    monkeypatch, tmp_path: Path
+) -> None:
+    ledger = tmp_path / "app" / "ledger"
+    ledger.mkdir(parents=True)
+    refreshed = tmp_path / "app" / "refresh"
+    refreshed.mkdir()
+    (refreshed / "matches_index.parquet").write_bytes(b"stale")
+    (refreshed / "matches_index.meta.json").write_text(
+        json.dumps({"schema_version": "0.2.0"}), encoding="utf-8"
+    )
+    monkeypatch.setenv("GOLAVO_DATA_DIR", str(ledger))
+
     from golavo_core import resources
 
     assert matches._resolve_index_paths()["index"] == Path(resources.match_index_path())

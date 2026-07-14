@@ -19,6 +19,7 @@ pandas/pyarrow are imported INSIDE functions to keep the frozen sidecar's boot
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -42,13 +43,22 @@ def _resolve_index_paths() -> dict[str, Path]:
 
     refreshed = runtime.refresh_dir()
     if refreshed is not None and (refreshed / "matches_index.parquet").exists():
-        return {
-            "index": refreshed / "matches_index.parquet",
-            "meta": refreshed / "matches_index.meta.json",
-            "goalscorers": refreshed / "goalscorers.parquet",
-            "shootouts": refreshed / "shootouts.parquet",
-            "aliases": refreshed / "aliases.json",
-        }
+        from golavo_core.ingest.match_index import MATCH_INDEX_SCHEMA_VERSION
+
+        try:
+            meta = json.loads(
+                (refreshed / "matches_index.meta.json").read_text(encoding="utf-8")
+            )
+        except (OSError, ValueError, TypeError):
+            meta = {}
+        if meta.get("schema_version") == MATCH_INDEX_SCHEMA_VERSION:
+            return {
+                "index": refreshed / "matches_index.parquet",
+                "meta": refreshed / "matches_index.meta.json",
+                "goalscorers": refreshed / "goalscorers.parquet",
+                "shootouts": refreshed / "shootouts.parquet",
+                "aliases": refreshed / "aliases.json",
+            }
     return {
         "index": Path(resources.match_index_path()),
         "meta": Path(resources.match_index_meta_path()),

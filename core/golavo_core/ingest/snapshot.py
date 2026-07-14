@@ -168,6 +168,8 @@ def load_match_table(pack_dir: Path) -> pd.DataFrame:
         for identity, occurrence in zip(identities, occurrences, strict=True)
     ]
     matches.insert(0, "match_id", match_ids)
+    matches["ht_home_score"] = pd.Series(pd.NA, index=matches.index, dtype="Int16")
+    matches["ht_away_score"] = pd.Series(pd.NA, index=matches.index, dtype="Int16")
     matches["kickoff_utc"] = pd.to_datetime(matches["date"], utc=True)
     matches["is_complete"] = matches[["home_score", "away_score"]].notna().all(axis=1)
     return matches

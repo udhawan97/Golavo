@@ -88,6 +88,9 @@ def test_build_index_columns_kinds_and_ids(tmp_path: Path) -> None:
     # Typed for a search/notebook consumer.
     assert pd.api.types.is_string_dtype(df["home_team"])
     assert pd.api.types.is_integer_dtype(df["home_score"])  # nullable Int16
+    assert str(df["ht_home_score"].dtype) == "Int16"
+    assert str(df["ht_away_score"].dtype) == "Int16"
+    assert df.loc[df["source_kind"] == "international", "ht_home_score"].isna().all()
     assert pd.api.types.is_bool_dtype(df["is_complete"])
 
     # source_kind is derived purely from the source_id prefix.

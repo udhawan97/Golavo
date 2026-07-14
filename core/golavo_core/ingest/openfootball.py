@@ -119,6 +119,16 @@ def _extract_ft(match: dict) -> tuple[int, int] | None:
     return None
 
 
+def _extract_ht(match: dict) -> tuple[int, int] | None:
+    """Return a recorded half-time score, never an inferred one."""
+    score = match.get("score")
+    if isinstance(score, dict):
+        ht = score.get("ht")
+        if isinstance(ht, list) and len(ht) == 2 and all(type(x) is int for x in ht):
+            return ht[0], ht[1]
+    return None
+
+
 def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
     """Load a validated openfootball pack into Golavo's deterministic match table."""
     manifest = validate_pack(pack_dir)
@@ -135,6 +145,11 @@ def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
         data = json.loads((pack_dir / name).read_text(encoding="utf-8"))
         for match in data.get("matches", []):
             ft = _extract_ft(match)
+            ht = _extract_ht(match)
+            if ht is not None and ft is not None and (ht[0] > ft[0] or ht[1] > ft[1]):
+                raise ValueError(
+                    f"{pack_dir / name}: half-time score exceeds full-time score"
+                )
             rows.append(
                 {
                     "date": match.get("date"),
@@ -143,6 +158,8 @@ def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
                     "away_team": canonical_team(match.get("team2"), code),
                     "home_score": ft[0] if ft is not None else pd.NA,
                     "away_score": ft[1] if ft is not None else pd.NA,
+                    "ht_home_score": ht[0] if ht is not None else pd.NA,
+                    "ht_away_score": ht[1] if ht is not None else pd.NA,
                     "tournament": competition,
                     "city": pd.NA,
                     "country": country,
@@ -153,6 +170,8 @@ def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
     frame["date"] = pd.to_datetime(frame["date"])
     frame["home_score"] = frame["home_score"].astype("Int16")
     frame["away_score"] = frame["away_score"].astype("Int16")
+    frame["ht_home_score"] = frame["ht_home_score"].astype("Int16")
+    frame["ht_away_score"] = frame["ht_away_score"].astype("Int16")
     for column in ("home_team", "away_team", "tournament", "city", "country"):
         frame[column] = frame[column].astype("string")
     frame["neutral"] = frame["neutral"].astype("boolean")

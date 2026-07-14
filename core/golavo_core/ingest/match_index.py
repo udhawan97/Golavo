@@ -24,7 +24,7 @@ import pandas as pd
 
 from .snapshot import snapshot_anchor_utc
 
-MATCH_INDEX_SCHEMA_VERSION = "0.2.0"
+MATCH_INDEX_SCHEMA_VERSION = "0.3.0"
 
 # The verbatim column order of matches_index.parquet. Fixed so the committed
 # bytes never depend on per-pack insertion order, and so downstream readers
@@ -47,6 +47,8 @@ INDEX_COLUMNS = [
     "neutral",
     "source_id",
     "source_kind",
+    "ht_home_score",
+    "ht_away_score",
 ]
 
 # Licenses cleared for redistribution inside the committed index.
