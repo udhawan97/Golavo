@@ -2045,47 +2045,56 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .ai-progress__meta { margin-top: .35rem; }
 
 .ai-toggle {
-  position: relative; gap: .32rem; overflow: hidden;
-  min-width: 2.65rem; color: var(--text-muted);
+  position: relative;
+  overflow: hidden;
+  color: var(--text-muted);
+  isolation: isolate;
 }
 .ai-toggle__mark {
-  position: relative; display: grid; place-items: center;
-  width: 1.48rem; height: 1.48rem; border-radius: 999px;
-  border: 1px solid color-mix(in srgb, currentColor 36%, transparent);
-  background: color-mix(in srgb, var(--surface-3) 68%, transparent);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.32rem;
+  height: 1.32rem;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, currentColor 42%, transparent);
+  background: color-mix(in srgb, var(--surface-3) 78%, transparent);
+  transition: border-color .16s ease, background-color .16s ease, color .16s ease;
 }
 .ai-toggle__core {
-  font-size: .56rem; line-height: 1; font-weight: 800; letter-spacing: .03em;
+  font-size: .54rem;
+  line-height: 1;
+  font-weight: 760;
+  letter-spacing: -.015em;
 }
-.ai-toggle__spark {
-  position: absolute; inset: 3px; border-radius: inherit;
-  background:
-    radial-gradient(circle at 50% 12%, currentColor 0 1.5px, transparent 2px),
-    conic-gradient(from 45deg, transparent 0 22%, currentColor 24% 29%, transparent 31% 100%);
-  opacity: .32;
+.ai-toggle__status {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  border: 1px solid var(--surface-2);
+  box-sizing: content-box;
+  transition: background-color .16s ease;
 }
-.ai-toggle__dot {
-  width: 7px; height: 7px; border-radius: 999px;
-  background: var(--text-dim); transition: background .15s ease;
+.ai-toggle:hover .ai-toggle__mark {
+  border-color: color-mix(in srgb, currentColor 68%, transparent);
+  background: color-mix(in srgb, var(--surface-3) 92%, transparent);
 }
-.ai-toggle__dot.on {
-  background: var(--green);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 16%, transparent);
+.ai-toggle--on {
+  color: var(--gold);
+  border-color: var(--gold-line);
+  background: color-mix(in srgb, var(--gold-soft) 38%, var(--surface-2));
 }
-.ai-toggle--on { color: var(--gold); border-color: var(--gold-line); }
 .ai-toggle--on .ai-toggle__mark {
-  background: color-mix(in srgb, var(--gold-soft) 58%, var(--surface-1));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold-line) 34%, transparent);
+  color: var(--gold);
+  border-color: color-mix(in srgb, var(--gold-line) 78%, transparent);
+  background: color-mix(in srgb, var(--gold-soft) 46%, var(--surface-1));
 }
-.ai-toggle--on .ai-toggle__spark {
-  opacity: .72;
-  animation: ai-toggle-orbit 2.8s linear infinite;
-}
-@keyframes ai-toggle-orbit {
-  to { transform: rotate(360deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ai-toggle--on .ai-toggle__spark { animation: none; }
+.ai-toggle--on .ai-toggle__status {
+  background: var(--green);
 }
 
 /* ---- header activity center ------------------------------------------------ */

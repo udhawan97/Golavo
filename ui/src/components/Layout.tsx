@@ -51,10 +51,9 @@ function AiQuickToggle() {
       onClick={() => setProvider(on ? "off" : (last as typeof provider))}
     >
       <span className="ai-toggle__mark" aria-hidden>
-        <span className="ai-toggle__spark" />
         <span className="ai-toggle__core">AI</span>
+        <span className="ai-toggle__status" />
       </span>
-      <span className={`ai-toggle__dot${on ? " on" : ""}`} aria-hidden />
     </button>
   );
 }
