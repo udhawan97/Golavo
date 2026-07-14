@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-13.7"
+PROMPT_VERSION = "golavo-narration-2026-07-13.8"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -110,8 +110,9 @@ the user sees it):
 DEEP_ANALYSIS_ADDENDUM = """
 
 DEEP ANALYSIS MODE (the user asked for the fuller read, and is willing to wait):
-Produce a SUBSTANTIALLY richer analysis than a quick summary — this must not read
-like a short list of single facts. Aim for 6 to 10 claims AND 2 to 4 scenarios.
+Produce a richer analysis than a quick summary, but stay disciplined and compact.
+Aim for 4 to 6 claims AND 2 to 3 scenarios. Deep means BETTER CONNECTIONS, not a
+longer dump of facts.
 - Every claim must CONNECT at least two distinct pieces of evidence (a fact with
   another fact, or a fact with a model-council probability). Do not restate one
   number in isolation.
@@ -119,6 +120,8 @@ like a short list of single facts. Aim for 6 to 10 claims AND 2 to 4 scenarios.
   CORROBORATIONS (evidence agreeing), and state plainly what remains uncertain.
 - Fill the `scenarios` array with grounded "what could happen" sketches, each tied
   to specific listed evidence.
+- Keep each `text` field to one sentence. Prefer fewer fully-grounded claims over
+  many claims that repeat the same evidence.
 Depth means LINKING the listed evidence — still never adding outside knowledge and
 never a number that is not on the allowed list; every claim still cites a source."""
 
@@ -160,7 +163,7 @@ the user sees it):
 # richer synthesis, not the same answer slower.
 DEPTH_LIMITS = {
     "fast": {"facts": 18, "numbers": 60},
-    "deep": {"facts": 42, "numbers": 140},
+    "deep": {"facts": 30, "numbers": 90},
 }
 _FACT_KIND_ORDER = {"predictive": 0, "coincidence": 1, "context": 2}
 
@@ -265,7 +268,7 @@ def build_user_prompt(
     has_notebook = any(str(n["id"]).startswith("nb_") for n in bundle["allowed_numbers"])
     if has_notebook or bundle.get("artifact_status") in ("preview", "replay"):
         target = (
-            "Write 6 to 10 claims AND 2 to 4 scenarios"
+            "Write 4 to 6 connected claims AND 2 to 3 scenarios"
             if depth == "deep"
             else "Write 3 to 5 focused claims"
         )

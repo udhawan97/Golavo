@@ -28,6 +28,7 @@ import math
 import os
 import re
 import subprocess
+import threading
 import urllib.error
 import urllib.request
 from collections.abc import Callable
@@ -57,7 +58,7 @@ KNOWN_PROVIDERS = ("off", *LOCAL_PROVIDERS, *CLOUD_PROVIDERS)
 # bigger model's extra minutes buy a genuinely richer read.
 KNOWN_DEPTHS = ("fast", "deep")
 _DEPTH_TIMEOUTS = {"fast": 120.0, "deep": 480.0}  # seconds; deep = up to 8 minutes
-_DEPTH_MAX_OUTPUT = {"fast": 1536, "deep": 4096}  # model output token cap (num_predict)
+_DEPTH_MAX_OUTPUT = {"fast": 1536, "deep": 2304}  # model output token cap (num_predict)
 _MAX_TIMEOUT = 480.0
 
 _DEFAULT_BASE_URLS = {
@@ -84,6 +85,7 @@ Transport = Callable[[str, str], str]
 
 _THINK_RE = re.compile(r"(?is)<think>.*?</think>")
 _FENCE_RE = re.compile(r"(?is)```(?:json)?\s*(.*?)\s*```")
+_LOCAL_MODEL_LOCK = threading.Lock()
 
 
 @dataclass(frozen=True)
@@ -813,6 +815,29 @@ def generate_narration(
     def _cancelled() -> bool:
         return bool(is_cancelled and is_cancelled())
 
+    def _transport_call(system_prompt: str, user_prompt: str) -> str | None:
+        """Run one provider call.
+
+        Local models share a single Ollama/llama.cpp worker on the user's machine.
+        Letting two app jobs hit it at once makes both slower and can turn a good
+        Deep read into a timeout. Queue local calls inside the sidecar instead;
+        cloud calls keep their normal parallel behaviour.
+        """
+        if run_config.provider not in LOCAL_PROVIDERS:
+            return transport(system_prompt, user_prompt)
+        announced_wait = False
+        while not _cancelled():
+            acquired = _LOCAL_MODEL_LOCK.acquire(timeout=1.0)
+            if acquired:
+                try:
+                    return transport(system_prompt, user_prompt)
+                finally:
+                    _LOCAL_MODEL_LOCK.release()
+            if not announced_wait:
+                _emit("writing", "Waiting for the local model to finish another read")
+                announced_wait = True
+        return None
+
     _emit("assembling_evidence", "Assembling the evidence")
 
     # Local providers: target a model the server actually has, and fail fast with
@@ -906,7 +931,9 @@ def generate_narration(
         if _cancelled():
             return envelope("local_only", reason="cancelled", web_sources=web_sources)
         try:
-            raw_text = transport(system, attempt_user)
+            raw_text = _transport_call(system, attempt_user)
+            if raw_text is None:
+                return envelope("local_only", reason="cancelled", web_sources=web_sources)
         except TimeoutError:
             # A slow local model that timed out will just time out again on an
             # immediate retry — stop rather than doubling the user's wait.
