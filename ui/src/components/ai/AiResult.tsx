@@ -270,6 +270,17 @@ function VerdictHero({
           <span className="ai-versus__team ai-versus__team--away">{context.awayTeam}</span>
         </div>
       )}
+      {context?.leadingOutcome && (
+        <div className="ai-verdict__pick" aria-label={`Engine pick: ${presentOutcome(
+          context.leadingOutcome,
+          context.homeTeam,
+          context.awayTeam,
+        )}`}>
+          <span className="ai-verdict__pick-label">Engine pick</span>
+          <strong>{presentOutcome(context.leadingOutcome, context.homeTeam, context.awayTeam)}</strong>
+          <span className="ai-verdict__pick-note">leading outcome</span>
+        </div>
+      )}
       <div className="ai-verdict__statement">
         {claim ? (
           <ClaimText

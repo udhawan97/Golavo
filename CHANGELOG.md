@@ -15,6 +15,8 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Deep analysis now keeps the **At a glance** winner card when a local model
   omits its optional verdict, falling back to the deterministic engine's leading
   outcome and clearly labelling that fallback as an engine result.
+- The verdict card now always names the deterministic **Engine pick** when one
+  exists, even if the local model uses its verdict field for supporting analysis.
 - The narration prompt now explicitly requires real team names in the verdict,
   and its version was advanced so cached local-model responses are regenerated.
 
