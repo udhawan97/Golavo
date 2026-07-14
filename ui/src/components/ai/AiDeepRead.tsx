@@ -18,7 +18,7 @@ import {
 } from "../../lib/ai";
 import type { AiDepth, AiProvider, NarrativeResponse } from "../../lib/ai";
 import { newJobId, usePolledProgress } from "../../lib/aiProgress";
-import { ClockIcon, FlaskIcon, InfoIcon, SearchIcon } from "../icons";
+import { ClockIcon, FlaskIcon, GlobeIcon, InfoIcon, SearchIcon } from "../icons";
 import { Pipeline } from "./AiPipeline";
 import { Result } from "./AiResult";
 import { FallbackCard, humanizeError, OffCard } from "./AiFallback";
@@ -54,7 +54,7 @@ function ReadMark() {
 export function AiDeepRead({ source }: { source: DeepReadSource }) {
   const [provider, setProvider] = useAiProvider();
   const [allowBackground, setAllowBackground] = useAiBackground();
-  const [allowResearch] = useAiResearch();
+  const [allowResearch, setAllowResearch] = useAiResearch();
   const { fastModel, deepModel, setFastModel, setDeepModel } = useAiModels();
   // Depth is per-panel (resets to Fast each session); the model assignments live
   // in Settings. `override` is the advanced "run this exact model" choice.
@@ -94,14 +94,14 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
     if (!isLocal) { setDepth("fast"); setOverride(""); }
   }, [isLocal]);
 
-  // Changing the provider, depth, model override, or subject resets any prior
+  // Changing the provider, depth, model override, research choice, or subject resets any prior
   // result so the panel never shows a narration attributed to the wrong run — but
   // a deliberate switch-and-run (below) opts out so its in-flight run survives.
   useEffect(() => {
     if (skipInvalidate.current) { skipInvalidate.current = false; return; }
     runId.current += 1;
     setState({ status: "idle" });
-  }, [provider, sourceKey, depth, override]);
+  }, [provider, sourceKey, depth, override, allowResearch]);
 
   const run = (refresh = false, depthArg: AiDepth = depth) => {
     const id = ++runId.current;
@@ -213,6 +213,24 @@ export function AiDeepRead({ source }: { source: DeepReadSource }) {
             deepModel={deepModel}
             fastModel={fastModel}
           />
+        )}
+
+        {provider !== "off" && (
+          <label className={`ai-web-toggle${allowResearch ? " is-on" : ""}`}>
+            <input
+              type="checkbox"
+              checked={allowResearch}
+              disabled={state.status === "loading"}
+              onChange={(e) => setAllowResearch(e.target.checked)}
+            />
+            <span className="ai-web-toggle__icon" aria-hidden><GlobeIcon size={16} /></span>
+            <span className="ai-web-toggle__copy">
+              <b>Search the web for this read</b>
+              <small>
+                Optional. Adds clearly labeled web findings; they never change the engine forecast.
+              </small>
+            </span>
+          </label>
         )}
 
         {provider === "off" && <OffCard />}

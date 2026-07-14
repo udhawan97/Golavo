@@ -353,19 +353,41 @@ def _grounded_output_schema(
     }
 
 
+def _ollama_output_schema(config: ProviderConfig) -> dict[str, Any]:
+    """Small JSON grammar for Ollama's native structured-output mode.
+
+    The full OpenAI schema enumerates every valid source and number id.  That is
+    useful for hosted constrained decoding, but a rich match can carry close to
+    one hundred number ids; feeding that entire enum grammar to a local Gemma
+    model makes generation slower and less reliable.  Ollama only needs to lock
+    the *shape* here.  ``review_narration`` remains the authority for every id,
+    number, citation and sentence after decoding.
+
+    Optional lanes are included but not required.  A failed/best-effort web
+    fetch therefore cannot force the model to invent a research note, and an
+    enabled background lane may still honestly return no background.
+    """
+    schema = _grounded_output_schema(
+        config.allow_background,
+        allow_research=bool(config.allow_research and config.allowed_research_urls),
+    )
+    schema["required"] = ["verdict", "claims", "scenarios", "candidate_facts"]
+    return schema
+
+
 def build_ollama_payload(
     config: ProviderConfig, system: str, user: str
 ) -> tuple[str, dict[str, str], dict[str, Any]]:
     """(url, headers, body) for Ollama's native JSON-mode chat endpoint.
 
-    Native ``/api/chat`` lets us disable thinking and request JSON output. In
-    practice, some Gemma builds ignore or struggle with a large JSON Schema in
-    ``format`` and free-write prose; plain ``format: "json"`` is less elegant but
-    more reliable for getting parseable output. The Python review guards still
-    enforce the real schema, citation ids, number ids, and grounding after parse.
-    The context window is sized to the (already trimmed) prompt so a rich bundle
-    is not truncated, and ``num_predict`` grows for a deep read. ``base_url`` is
-    the validated ``…/v1`` loopback; the native endpoint hangs off its root.
+    Native ``/api/chat`` lets us disable thinking and constrain the response to a
+    lightweight JSON shape.  We deliberately do not enumerate the bundle's many
+    citation/number ids in this local grammar: the strict Python review guards
+    still enforce those ids and all grounding after parse, while the smaller
+    grammar prevents intermittent malformed JSON on evidence-heavy matches. The
+    context window is sized to the (already trimmed) prompt so a rich bundle is
+    not truncated, and ``num_predict`` grows for a deep read. ``base_url`` is the
+    validated ``…/v1`` loopback; the native endpoint hangs off its root.
     """
     root = (config.base_url or "").rstrip("/")
     if root.endswith("/v1"):
@@ -387,7 +409,7 @@ def build_ollama_payload(
             "num_ctx": num_ctx,
             "num_predict": config.max_output_tokens,
         },
-        "format": "json",
+        "format": _ollama_output_schema(config),
     }
     return url, headers, body
 
@@ -479,7 +501,16 @@ def make_transport(config: ProviderConfig) -> Transport | None:
         # "thinking" and size the context window — see build_ollama_payload.
         def transport(system: str, user: str) -> str:
             url, headers, body = build_ollama_payload(config, system, user)
-            payload = _post_json(url, headers, body, config.timeout_s)
+            try:
+                payload = _post_json(url, headers, body, config.timeout_s)
+            except urllib.error.HTTPError as exc:
+                # Older Ollama builds support JSON mode but not a schema object.
+                # Preserve compatibility without weakening the downstream review.
+                if exc.code in (400, 404, 422):
+                    body["format"] = "json"
+                    payload = _post_json(url, headers, body, config.timeout_s)
+                else:
+                    raise
             return payload["message"]["content"]
     else:
         def transport(system: str, user: str) -> str:

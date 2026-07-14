@@ -410,7 +410,14 @@ def test_deep_read_asks_for_more_and_uses_a_longer_output_cap() -> None:
     _du, _dh, deep_body = ai_gateway.build_ollama_payload(deep, "sys", "u" * 4000)
     assert fast_url.endswith("/api/chat")          # native endpoint with Ollama JSON mode
     assert fast_body["think"] is False
-    assert fast_body["format"] == "json"
+    assert isinstance(fast_body["format"], dict)
+    assert set(fast_body["format"]["required"]) == {
+        "verdict", "claims", "scenarios", "candidate_facts",
+    }
+    # The local grammar constrains shape without embedding a huge enum of bundle
+    # ids. Strict id/number validation still happens after generation.
+    claim = fast_body["format"]["properties"]["claims"]["items"]
+    assert "enum" not in claim["properties"]["source_ids"]["items"]
     assert fast_body["options"]["num_predict"] < deep_body["options"]["num_predict"]
 
 
@@ -623,6 +630,25 @@ def test_openai_transport_falls_back_to_json_object_when_schema_rejected(monkeyp
     out = transport("sys", "user")
     assert "claims" in out
     assert seen == ["json_schema", "json_object"]  # tried schema, then fell back
+
+
+def test_ollama_transport_falls_back_to_plain_json_when_schema_rejected(monkeypatch) -> None:
+    import urllib.error
+
+    seen: list[str] = []
+
+    def fake_post(url, headers, body, timeout):
+        seen.append("schema" if isinstance(body["format"], dict) else body["format"])
+        if isinstance(body["format"], dict):
+            raise urllib.error.HTTPError(url, 400, "schema unsupported", {}, None)
+        return {"message": {"content": '{"verdict":null,"claims":[],"scenarios":[],"candidate_facts":[]}'}}
+
+    monkeypatch.setattr(ai_gateway, "_post_json", fake_post)
+    cfg = ProviderConfig(provider="ollama", model="m", base_url="http://127.0.0.1:11434/v1")
+    transport = ai_gateway.make_transport(cfg)
+    out = transport("sys", "user")
+    assert "claims" in out
+    assert seen == ["schema", "json"]
 
 
 def test_cache_separates_prompt_context_and_candidate_fact_mode(bundle: dict) -> None:
