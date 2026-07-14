@@ -353,15 +353,16 @@ def _grounded_output_schema(
 def build_ollama_payload(
     config: ProviderConfig, system: str, user: str
 ) -> tuple[str, dict[str, str], dict[str, Any]]:
-    """(url, headers, body) for Ollama's NATIVE structured-output chat endpoint.
+    """(url, headers, body) for Ollama's native JSON-mode chat endpoint.
 
-    Ollama's OpenAI-compatible ``response_format: json_schema`` is honored by some
-    models (llama3) but silently ignored by others (gemma free-writes prose). Its
-    native ``/api/chat`` ``format`` field reliably constrains EVERY model, and
-    ``think: false`` stops a reasoning model from burning minutes on hidden
-    thought. The context window is sized to the (already trimmed) prompt so a rich
-    bundle is not truncated, and ``num_predict`` grows for a deep read. ``base_url``
-    is the validated ``…/v1`` loopback; the native endpoint hangs off its root.
+    Native ``/api/chat`` lets us disable thinking and request JSON output. In
+    practice, some Gemma builds ignore or struggle with a large JSON Schema in
+    ``format`` and free-write prose; plain ``format: "json"`` is less elegant but
+    more reliable for getting parseable output. The Python review guards still
+    enforce the real schema, citation ids, number ids, and grounding after parse.
+    The context window is sized to the (already trimmed) prompt so a rich bundle
+    is not truncated, and ``num_predict`` grows for a deep read. ``base_url`` is
+    the validated ``…/v1`` loopback; the native endpoint hangs off its root.
     """
     root = (config.base_url or "").rstrip("/")
     if root.endswith("/v1"):
@@ -383,10 +384,7 @@ def build_ollama_payload(
             "num_ctx": num_ctx,
             "num_predict": config.max_output_tokens,
         },
-        "format": _grounded_output_schema(
-            config.allow_background, config.allowed_source_ids, config.allowed_number_ids,
-            allow_research=config.allow_research, research_urls=config.allowed_research_urls,
-        ),
+        "format": "json",
     }
     return url, headers, body
 

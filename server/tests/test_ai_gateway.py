@@ -287,8 +287,9 @@ def test_deep_read_asks_for_more_and_uses_a_longer_output_cap() -> None:
     assert deep.max_output_tokens > fast.max_output_tokens
     fast_url, _fh, fast_body = ai_gateway.build_ollama_payload(fast, "sys", "u" * 4000)
     _du, _dh, deep_body = ai_gateway.build_ollama_payload(deep, "sys", "u" * 4000)
-    assert fast_url.endswith("/api/chat")          # native, constrained-decoding endpoint
-    assert fast_body["think"] is False and "format" in fast_body
+    assert fast_url.endswith("/api/chat")          # native endpoint with Ollama JSON mode
+    assert fast_body["think"] is False
+    assert fast_body["format"] == "json"
     assert fast_body["options"]["num_predict"] < deep_body["options"]["num_predict"]
 
 
