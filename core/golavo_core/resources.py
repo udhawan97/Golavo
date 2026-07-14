@@ -50,6 +50,11 @@ def schema_path() -> Path:
     return resource("docs", "contracts", "forecast_artifact.schema.json")
 
 
+def user_pick_schema_path() -> Path:
+    """Absolute path to the user-pick ledger and API-view schema."""
+    return resource("docs", "contracts", "user_pick.schema.json")
+
+
 def evidence_bundle_schema_path() -> Path:
     """Absolute path to the MatchEvidenceBundle JSON schema (Phase 5, additive)."""
     return resource("docs", "contracts", "evidence_bundle.schema.json")
