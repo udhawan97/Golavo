@@ -41,8 +41,10 @@ Either way you get:
   they **agree or disagree**. The Poisson variants are disclosed but never counted as extra
   opinions, and a **climatology baseline** is shown for reference. Nothing is averaged into a
   fake consensus — honest disagreement is the point.
-- **Model-implied goals** (labelled *expected, not predicted*) and the goal model's coherent
-  **exact-score grid**.
+- A glanceable **Score Outlook** with the balanced over/under line, clean-sheet edge,
+  and goal peak. Open **More markets** for threshold bars, clean-sheet comparisons,
+  the total-goal distribution and expected total; the coherent **exact-score grid**
+  remains available behind its own disclosure.
 - An honest **abstain** state when either side has too little history to model.
 
 The cockpit is machine-checked leak-safe: the cutoff proof rejects any training row dated at or

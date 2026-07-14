@@ -6,6 +6,25 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-07-14
+
+The goal model's deeper score read is now a glanceable market dashboard instead
+of a flat list, while every probability still comes from the deterministic engine.
+
+### Added
+- **Focused Score Outlook coverage.** Component tests protect the summary cards,
+  total-goal distribution, expected-total marker, and exact-score disclosure.
+
+### Changed
+- **Score Outlook, redesigned.** More markets opens with a compact preview of the
+  most balanced O/U line, clean-sheet edge, and goal peak, then reveals polished
+  O/U bars, clean-sheet comparisons, and a total-goal distribution.
+- **Exact-score detail is calmer.** The full matrix remains available behind a
+  clear disclosure, keeping the first read compact without deleting model detail.
+- **Motion and small screens are deliberate.** The first-open animation uses one
+  animation loop, respects reduced-motion preferences, and the dashboard collapses
+  cleanly on narrow viewports.
+
 ## [0.10.0] - 2026-07-14
 
 Local AI is now something a casual user can set up and understand inside Golavo.

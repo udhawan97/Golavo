@@ -5,6 +5,9 @@ description: How to run Golavo — desktop installers with in-app updates, or so
 
 Choose the path that fits your machine on [Download & run](/Golavo/download/):
 
+The current stable release is **[v0.10.1](https://github.com/udhawan97/Golavo/releases/tag/v0.10.1)**.
+The website and the **latest release** link below always follow the newest stable build.
+
 - **Browser UI** — source mode on macOS, Windows, or Linux.
 - **macOS app** — Apple Silicon DMG, with no Python or terminal required.
 - **Windows app** — x64 EXE or MSI, with no Python or terminal required.

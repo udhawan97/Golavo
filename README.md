@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.10.0" src="https://img.shields.io/badge/version-v0.10.0-6082b8?style=flat-square">
+  <img alt="version v0.10.1" src="https://img.shields.io/badge/version-v0.10.1-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -45,7 +45,7 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.10.0 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.10.1 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, calibration record, optional guarded AI narration, and
@@ -131,13 +131,13 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 
 | | Do this | Get this |
 | :---: | --- | --- |
-| 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A leak-safe multi-model read: two voices (Elo ratings, the Dixon–Coles goal model) plus a climatology baseline, where they agree or disagree, and the exact-score grid — computed on demand, never averaged into a fake consensus |
+| 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A leak-safe multi-model read: two voices (Elo ratings, the Dixon–Coles goal model) plus a climatology baseline, where they agree or disagree, and a glanceable Score Outlook — computed on demand, never averaged into a fake consensus |
 | ⚽ | **Browse Games, Leagues, and search 75,000 matches** — recent results, any upcoming fixtures, the big-five leagues | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
 | 🎟️ | **Make your score call** — edit until kickoff, then race five named model rivals | A fingerprinted local pick, simple 3 / 1 / +1 scoring, and My Season standings over only the matches you play |
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
 | 🔏 | **Track a prediction — seal before kickoff** — freeze probabilities, model version, seed, parameters, cutoff, and inputs | An immutable claim the result cannot rewrite; the cockpit’s live preview, put on the record |
-| 🥅 | **Show the scorelines implied by the model** — exact-score grid plus an honest out-of-grid tail | The same goal distribution behind the 1X2 forecast, not a decorative second guess |
+| 🥅 | **Explore the Score Outlook** — balanced O/U line, clean-sheet edge, goal peak, total-goal distribution, and an expandable exact-score grid with an honest out-of-grid tail | The same goal distribution behind the 1X2 forecast, shaped for a quick read without becoming a decorative second guess |
 | 🧾 | **Score after full time** — write a linked scored or voided successor | Outcome, assigned probability, log loss, Brier, or a real void reason |
 | 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
 | 🗒️ | **Read Match Notes** — form timelines, fitted team style, scorer and head-to-head features, plus signature stats and records | Source-backed evidence in an editorial hierarchy, de-duplicated from the headline picks, with sample/freshness guards and coincidences quarantined |
