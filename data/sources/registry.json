@@ -109,10 +109,10 @@
       "pin": "f942c6b",
       "citation_key": "fjelstul2023worldcup",
       "fields": "men's (1930-2022) + women's (1991-2019) World Cup history: matches, players, managers, referees, stadiums, events, awards",
-      "attribution": "Fjelstul World Cup Database v1.2.0 (c) 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.",
+      "attribution": "Fjelstul World Cup Database v1.2.0 © 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.",
       "share_alike": true,
       "verified": "2026-07-12",
-      "notes": "Optional isolated CC-BY-SA pack (Phase 4, demoted). Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pin commit f942c6b and snapshot README+DESCRIPTION as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Women's coverage ends 2019."
+      "notes": "Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses only the men's 1930–2022 history."
     },
     {
       "source_id": "pappalardo-wyscout-events",

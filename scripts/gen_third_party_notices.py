@@ -18,6 +18,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = REPO_ROOT / "data/sources/registry.json"
 SNAPSHOTS_PATH = REPO_ROOT / "packs/snapshots.json"
+ISOLATED_PATH = REPO_ROOT / "packs/isolated.json"
 OUTPUT_PATH = REPO_ROOT / "THIRD_PARTY_NOTICES.md"
 
 _HEADING = {
@@ -46,9 +47,16 @@ def _bundled_source_ids() -> set[str]:
     return ids
 
 
+def _isolated_source_ids() -> set[str]:
+    if not ISOLATED_PATH.is_file():
+        return set()
+    return {str(snap["source_id"]) for snap in _load(ISOLATED_PATH)["snapshots"]}
+
+
 def render() -> str:
     registry = _load(REGISTRY_PATH)
     bundled = _bundled_source_ids()
+    isolated = _isolated_source_ids()
     by_class: dict[str, list[dict[str, Any]]] = {}
     for entry in registry["sources"]:
         by_class.setdefault(entry["classification"], []).append(entry)
@@ -79,7 +87,11 @@ def render() -> str:
                     else " — available, not bundled"
                 )
             elif cls in {"odbl-pack", "by-sa-pack", "research-pack"}:
-                status = " — optional download, isolated pack"
+                status = (
+                    " — **vendored, isolated pack**"
+                    if entry["source_id"] in isolated
+                    else " — optional download, isolated pack"
+                )
             lines.append(f"### {entry['name']}{status}")
             lines.append("")
             lines.append(f"- Source: {entry['url']}")

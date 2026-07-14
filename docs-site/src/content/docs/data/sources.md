@@ -12,6 +12,19 @@ Golavo's **code** is Apache-2.0. Data packs are licensed separately. Golavo acce
 
 The pack manifest records `source_id`, upstream URL and commit, retrieval time, every filename and SHA-256 digest, and the pack license. The repository vendors a copy of the CC0 text. Provenance validation hashes the bytes again in CI.
 
+## Isolated CC-BY-SA World Cup history
+
+[Fjelstul World Cup Database](https://github.com/jfjelstul/worldcup) is vendored at
+[commit `f942c6b`](https://github.com/jfjelstul/worldcup/tree/f942c6b) under SPDX
+`CC-BY-SA-4.0`, citation key `fjelstul2023worldcup`.
+
+> Fjelstul World Cup Database v1.2.0 © 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.
+
+Its upstream README and DESCRIPTION are retained in the pack because that is where the license
+grant is recorded. The pack is registered in `packs/isolated.json` and read only by the facts
+layer. It is never joined to the CC0 match index, training table, or forecast features. Golavo's
+use is limited to men's tournament history (1930–2022); women's data is outside this feature.
+
 ## Rejected dependencies
 
 Golavo does not add adapters for Transfermarkt-derived Kaggle datasets, DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL endpoints, European Soccer DB, or `eatpizzanot`. A downstream CC0/PDDL label does not cure an upstream source's scraping terms or database-right provenance; treating it as clean would be provenance laundering.

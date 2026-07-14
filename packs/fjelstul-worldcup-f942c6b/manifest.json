@@ -1,0 +1,45 @@
+{
+  "files": [
+    {
+      "name": "tournaments.csv",
+      "sha256": "906b122d80aae5302486bafa9dfd925378503a2a11de6f5db39d6c4879040ce0"
+    },
+    {
+      "name": "tournament_standings.csv",
+      "sha256": "a1649d448bb769ee1e808e567e5fdc2c3256267aaf14ff5902e26a5b2a7344ea"
+    },
+    {
+      "name": "team_appearances.csv",
+      "sha256": "10daa069291136fb42e2f93cffbb1f45bfca722f29cf3d24cce4648182b4e013"
+    },
+    {
+      "name": "awards.csv",
+      "sha256": "80ff600291b87c519eacf79aecfa7a16ca7222a693b67ba604843ce3b719ca21"
+    },
+    {
+      "name": "award_winners.csv",
+      "sha256": "84deded971dabc8bc30dab6dbcdabc7f08c646f6e5db22b85d2a71cdad437955"
+    },
+    {
+      "name": "host_countries.csv",
+      "sha256": "bac4e724d1e8352208ba59ed91dc314c27f98666ab80366bd954908b59f0a027"
+    },
+    {
+      "name": "teams.csv",
+      "sha256": "a2d5ef96fade3bee9ffd22a28cda6378c6b9fb67f8e99514aa58ec0854d26a66"
+    },
+    {
+      "name": "README.md",
+      "sha256": "db11dacb79863b8d1af1f9dbae798624383f26121e3c07f15234e5518ea086ed"
+    },
+    {
+      "name": "DESCRIPTION",
+      "sha256": "de6694357fbc7399af9634036c48a2be41c038d7a62265a8e3f235e2acd0c866"
+    }
+  ],
+  "license": "CC-BY-SA-4.0",
+  "retrieved_at": "2026-07-14T04:03:17Z",
+  "source_id": "fjelstul-worldcup",
+  "upstream_ref": "f942c6b",
+  "url": "https://github.com/jfjelstul/worldcup"
+}

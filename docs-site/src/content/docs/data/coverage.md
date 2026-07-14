@@ -25,6 +25,7 @@ Golavo began, in Phase 0, with **men's senior full internationals only** — a p
 | Club fixtures/results (Serie A) | 11 clean seasons 2013-14 → 2023-24 (openfootball, CC0) | ✅ Phase 2 historical backtest (not live) |
 | Club fixtures/results (Ligue 1) | 10 clean seasons 2014-15 → 2024-25 (openfootball, CC0) | ✅ Phase 2 historical backtest (not live) |
 | Club half-time scores | recorded on many rows across EPL/Bundesliga 2010-11 → 2025-26, La Liga 2012-13 → 2025-26, Serie A 2013-14 → 2025-26, and Ligue 1 2014-15 → 2025-26 | ✅ descriptive comeback/lead facts only; missing HT rows are excluded |
+| Men's World Cup history | tournaments, standings, team appearances, and individual awards, 1930–2022 (Fjelstul, CC-BY-SA-4.0) | ✅ isolated descriptive facts only; never joined to the forecast index |
 | Lineups / minutes | no accepted open source | 🚫 unavailable |
 | Injuries / suspensions | no accepted open source | 🚫 unavailable |
 | Corners / shots / cards | no accepted open source | 🚫 unavailable |

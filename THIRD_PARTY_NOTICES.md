@@ -63,14 +63,14 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 
 ## Optional isolated packs — CC BY-SA (share-alike)
 
-### Fjelstul World Cup Database — optional download, isolated pack
+### Fjelstul World Cup Database — **vendored, isolated pack**
 
 - Source: https://github.com/jfjelstul/worldcup
 - Contributors: Joshua C. Fjelstul
 - License: CC-BY-SA-4.0 (https://creativecommons.org/licenses/by-sa/4.0/legalcode)
-- Attribution: Fjelstul World Cup Database v1.2.0 (c) 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.
+- Attribution: Fjelstul World Cup Database v1.2.0 © 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.
 - Citation key: `fjelstul2023worldcup` (see CITATIONS.bib)
-- Notes: Optional isolated CC-BY-SA pack (Phase 4, demoted). Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pin commit f942c6b and snapshot README+DESCRIPTION as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Women's coverage ends 2019.
+- Notes: Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses only the men's 1930–2022 history.
 
 ## Optional research packs (historical event/tracking data)
 

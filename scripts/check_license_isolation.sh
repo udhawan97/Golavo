@@ -21,7 +21,14 @@ if [ -d core ]; then
   fi
 fi
 
-# 3) The bundled match index must carry ONLY CC0 sources into the sidecar.
+# 3) Fjelstul's CC-BY-SA pack is facts-only. It must never enter ingest or the
+# bundled match-index builder, even as an optional code path.
+if grep -rInE 'fjelstul' core/golavo_core/ingest --include='*.py' >/dev/null 2>&1; then
+  echo "::error::fjelstul reference found in core ingest — CC-BY-SA pack must stay facts-only."
+  fail=1
+fi
+
+# 4) The bundled match index must carry ONLY CC0 sources into the sidecar.
 # Its meta records every source's license under built_from[].license; a single
 # non-CC0 entry means an ODbL (or otherwise share-alike) pack would ship frozen
 # inside the redistributed binary. Assert every source is CC0-1.0.
@@ -40,6 +47,6 @@ PY
 fi
 
 if [ "$fail" -eq 0 ]; then
-  echo "license isolation: OK (no ODbL contamination of the CC0 core)."
+  echo "license isolation: OK (no ODbL/CC-BY-SA contamination of the CC0 core)."
 fi
 exit "$fail"

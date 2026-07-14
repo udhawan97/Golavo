@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1.0",
+  "snapshots": [
+    {
+      "manifest_sha256": "485e58287621a60da32134e68d2929145a1244afaefb704f709f8ed4ca864e06",
+      "pack": "packs/fjelstul-worldcup-f942c6b",
+      "retrieved_at_utc": "2026-07-14T04:03:17Z",
+      "source_id": "fjelstul-worldcup",
+      "upstream_committed_at_utc": "2023-07-20T01:14:23Z",
+      "upstream_ref": "f942c6b"
+    }
+  ]
+}

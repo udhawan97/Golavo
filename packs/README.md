@@ -11,6 +11,7 @@ lives inside the pack, the current check catches corruption, not a forged pack.
 |---|---|---|---|
 | `core-cc0` | openfootball, martj42, Wikidata | CC0 (public domain) | primary |
 | `overlay-odbl` | OpenLigaDB | ODbL 1.0 | **isolated** optional overlay |
+| `fjelstul-worldcup-f942c6b` | Fjelstul World Cup Database | CC-BY-SA-4.0 | **vendored, isolated facts-only pack** |
 
 ## Vendored sourcepacks (in this repository)
 

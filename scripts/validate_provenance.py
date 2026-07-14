@@ -19,6 +19,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = REPO_ROOT / "packs/snapshots.json"
+ISOLATED_REGISTRY_PATH = REPO_ROOT / "packs/isolated.json"
 ALLOWED_LICENSES = {"CC0-1.0"}
 
 
@@ -27,7 +28,19 @@ def _sha256(payload: bytes) -> str:
 
 
 def discover_packs() -> list[Path]:
-    return sorted(path.parent for path in (REPO_ROOT / "packs").glob("*/manifest.json"))
+    isolated = isolated_pack_paths()
+    return sorted(
+        path.parent
+        for path in (REPO_ROOT / "packs").glob("*/manifest.json")
+        if path.parent.relative_to(REPO_ROOT).as_posix() not in isolated
+    )
+
+
+def isolated_pack_paths() -> set[str]:
+    if not ISOLATED_REGISTRY_PATH.is_file():
+        return set()
+    registry = json.loads(ISOLATED_REGISTRY_PATH.read_text(encoding="utf-8"))
+    return {str(entry["pack"]) for entry in registry.get("snapshots", [])}
 
 
 def validate_pack(pack_dir: Path) -> dict[str, Any]:
