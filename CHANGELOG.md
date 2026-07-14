@@ -6,7 +6,7 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.10.1] - 2026-07-14
+## [0.10.2] - 2026-07-14
 
 The goal model's deeper score read is now a glanceable market dashboard instead
 of a flat list, while every probability still comes from the deterministic engine.
@@ -14,6 +14,9 @@ of a flat list, while every probability still comes from the deterministic engin
 ### Added
 - **Focused Score Outlook coverage.** Component tests protect the summary cards,
   total-goal distribution, expected-total marker, and exact-score disclosure.
+- **A branded first-launch horizon.** The startup and recovery screens now carry
+  the README icon's blue seigaiha waves, with theme-aware contrast, a calm drift,
+  and a static reduced-motion presentation.
 
 ### Changed
 - **Score Outlook, redesigned.** More markets opens with a compact preview of the
@@ -24,6 +27,10 @@ of a flat list, while every probability still comes from the deterministic engin
 - **Motion and small screens are deliberate.** The first-open animation uses one
   animation loop, respects reduced-motion preferences, and the dashboard collapses
   cleanly on narrow viewports.
+
+### Fixed
+- Equal clean-sheet probabilities are now labelled **level** instead of assigning
+  a false edge to the home team.
 
 ## [0.10.0] - 2026-07-14
 
@@ -1057,7 +1064,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.10.2...HEAD
+[0.10.2]: https://github.com/udhawan97/Golavo/compare/v0.10.0...v0.10.2
 [0.4.0]: https://github.com/udhawan97/Golavo/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/udhawan97/Golavo/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/udhawan97/Golavo/compare/v0.3.1...v0.3.2

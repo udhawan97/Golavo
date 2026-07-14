@@ -77,4 +77,24 @@ describe("ScoreOutlook market dashboard", () => {
     expect(html).toContain("Exact-score matrix");
     expect(html).toContain("Spain");
   });
+
+  it("calls equal clean-sheet probabilities level instead of inventing an edge", () => {
+    const tiedAnalysis: MatchAnalysis = {
+      ...analysis,
+      derived_markets: {
+        ...analysis.derived_markets!,
+        clean_sheets: { home: 0.25, away: 0.25 },
+      },
+    };
+    const html = renderToStaticMarkup(createElement(ScoreOutlook, {
+      analysis: tiedAnalysis,
+      home: "France",
+      away: "Spain",
+    }));
+
+    expect(html).toContain("Clean sheets level");
+    expect(html).toContain("Even");
+    expect(html).toContain("25.0% each");
+    expect(html).not.toContain("Clean-sheet edge");
+  });
 });

@@ -10,6 +10,47 @@ function prefersReducedMotion(): boolean {
     && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/** The seigaiha ground from the README icon, expanded into a quiet horizon.
+ * It is decorative: startup state remains entirely in the live text above. */
+function SplashWaves() {
+  return (
+    <div className="splash__waves" aria-hidden="true">
+      <svg width="100%" height="100%" focusable="false">
+        <defs>
+          <pattern
+            id="splash-seigaiha"
+            width="128"
+            height="180"
+            patternUnits="userSpaceOnUse"
+          >
+            <g fill="var(--ink)" stroke="currentColor" strokeWidth="2.4">
+              <circle cx="64" cy="126" r="58" />
+              <circle cx="64" cy="126" r="44" fill="none" />
+              <circle cx="64" cy="126" r="30" fill="none" />
+              <circle cx="64" cy="126" r="16" fill="none" />
+
+              <circle cx="0" cy="174" r="58" />
+              <circle cx="0" cy="174" r="44" fill="none" />
+              <circle cx="0" cy="174" r="30" fill="none" />
+              <circle cx="0" cy="174" r="16" fill="none" />
+              <circle cx="128" cy="174" r="58" />
+              <circle cx="128" cy="174" r="44" fill="none" />
+              <circle cx="128" cy="174" r="30" fill="none" />
+              <circle cx="128" cy="174" r="16" fill="none" />
+            </g>
+          </pattern>
+        </defs>
+        <rect
+          className="splash__waves-drift"
+          width="120%"
+          height="100%"
+          fill="url(#splash-seigaiha)"
+        />
+      </svg>
+    </div>
+  );
+}
+
 /** Stage title + status line. Everything here is TRUE for the stage it names:
  *  stage 1 is a real self-extract, stage 2 is a real index load. */
 function copyFor(stage: SplashStage, desktop: boolean, rows: number | null): {
@@ -121,6 +162,7 @@ export function StartupSplash({
             </button>
           )}
         </div>
+        <SplashWaves />
       </div>
     );
   }
@@ -179,6 +221,7 @@ export function StartupSplash({
           </button>
         )}
       </div>
+      <SplashWaves />
     </div>
   );
 }

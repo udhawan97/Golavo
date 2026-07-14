@@ -87,10 +87,17 @@ export function ScoreOutlook({
   const maxBand = Math.max(...bands.map((band) => band.probability), 0.001);
   const expectedTotal = goal.expected_goals.home + goal.expected_goals.away;
   const expectedMarker = Math.min(100, (expectedTotal / Math.max(1, bands.length - 1)) * 100);
-  const cleanSheetLeader = markets
-    ? markets.clean_sheets.home >= markets.clean_sheets.away
-      ? { team: home, probability: markets.clean_sheets.home }
-      : { team: away, probability: markets.clean_sheets.away }
+  const cleanSheetPreview = markets
+    ? Math.round(markets.clean_sheets.home * 1000) === Math.round(markets.clean_sheets.away * 1000)
+      ? {
+          label: "Clean sheets level",
+          team: "Even",
+          probability: markets.clean_sheets.home,
+          suffix: " each",
+        }
+      : markets.clean_sheets.home > markets.clean_sheets.away
+        ? { label: "Clean-sheet edge", team: home, probability: markets.clean_sheets.home, suffix: "" }
+        : { label: "Clean-sheet edge", team: away, probability: markets.clean_sheets.away, suffix: "" }
     : null;
 
   // One requestAnimationFrame loop drives every number in the first market
@@ -179,17 +186,17 @@ export function ScoreOutlook({
               </span>
               <ChevronDown className="market-disclosure__chevron" aria-hidden />
             </span>
-            <span className={`market-preview${cleanSheetLeader ? "" : " market-preview--two"}`}>
+            <span className={`market-preview${cleanSheetPreview ? "" : " market-preview--two"}`}>
               <span className="market-preview__item">
                 <span className="market-preview__icon" aria-hidden><ScaleIcon /></span>
                 <span><small>Most balanced line</small><strong>O/U {balancedLine.line}</strong></span>
                 <b className="num">{pct(balancedLine.over)} / {pct(balancedLine.under)}</b>
               </span>
-              {cleanSheetLeader && (
+              {cleanSheetPreview && (
                 <span className="market-preview__item">
                   <span className="market-preview__icon market-preview__icon--green" aria-hidden><ShieldCheckIcon /></span>
-                  <span><small>Clean-sheet edge</small><strong>{cleanSheetLeader.team}</strong></span>
-                  <b className="num">{pct(cleanSheetLeader.probability)}</b>
+                  <span><small>{cleanSheetPreview.label}</small><strong>{cleanSheetPreview.team}</strong></span>
+                  <b className="num">{pct(cleanSheetPreview.probability)}{cleanSheetPreview.suffix}</b>
                 </span>
               )}
               <span className="market-preview__item">

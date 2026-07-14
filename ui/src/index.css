@@ -1316,16 +1316,36 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .splash {
   position: fixed; inset: 0; z-index: 40;
   display: grid; place-items: center; padding: 2rem;
+  overflow: hidden;
   background:
     radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--gold) 8%, transparent), transparent 60%),
     var(--ink);
 }
 .splash__inner {
+  position: relative; z-index: 1;
   display: flex; flex-direction: column; align-items: center; text-align: center;
   gap: 1.15rem; width: min(26rem, 100%);
 }
 .splash__logo { opacity: .95; margin-bottom: .1rem; }
 .splash__title { font-size: 1.02rem; font-weight: 600; color: var(--text); }
+
+/* The icon's seigaiha ground, opened into a restrained bottom horizon. ------- */
+.splash__waves {
+  position: absolute; z-index: 0; inset: auto 0 0;
+  height: clamp(8rem, 17vh, 11.25rem);
+  color: color-mix(in srgb, #6082b8 42%, transparent);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 36%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 36%, #000 100%);
+}
+.splash__waves svg { display: block; overflow: visible; }
+.splash__waves-drift { animation: splash-wave-drift 14s linear infinite; }
+:root[data-theme="light"] .splash__waves {
+  color: color-mix(in srgb, #223a5e 28%, transparent);
+}
+@keyframes splash-wave-drift {
+  to { transform: translateX(-128px); }
+}
 
 /* progress bar + status line ------------------------------------------------ */
 .splash__progress { width: 100%; display: flex; flex-direction: column; gap: .5rem; }
@@ -1417,6 +1437,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   .splash__fact { animation: none; }
   .splash__stage-swap { animation: none; }
   .splash__skip { transition: none; }
+  .splash__waves-drift { animation: none; }
 }
 
 /* ---------------------------------------------------- spotlight tour ------ */

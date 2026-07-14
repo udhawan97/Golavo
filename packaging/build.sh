@@ -55,6 +55,10 @@ mkdir -p desktop/src-tauri/binaries
 cp "$SIDECAR_SRC" "$SIDECAR_DST"
 chmod +x "$SIDECAR_DST" || true
 echo "    sidecar -> ${SIDECAR_DST}"
+# The frozen executable is an internal app resource, not a standalone release
+# download. Keep only the target-named copy staged for Tauri so upload-artifact
+# cannot leak the raw 80+ MB sidecar into the public release.
+rm -f "$SIDECAR_SRC"
 
 echo "==> [2/4] Building UI"
 npm --prefix ui ci
