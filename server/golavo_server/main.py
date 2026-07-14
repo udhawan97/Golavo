@@ -159,12 +159,25 @@ def ai_local_models(provider: str = "ollama") -> dict[str, Any]:
     from golavo_server import ai_gateway
 
     if provider not in ai_gateway.LOCAL_PROVIDERS:
-        return {"provider": provider, "models": []}
+        return {
+            "provider": provider,
+            "status": "unsupported",
+            "models": [],
+            "reason": "This provider does not expose local models.",
+        }
     try:
         config = ai_gateway.resolve_provider({"provider": provider})
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return {"provider": provider, "models": ai_gateway.list_local_models_detailed(config)}
+    return ai_gateway.inspect_local_models(config)
+
+
+def _ai_job_error(exc: Exception) -> str:
+    """Short, user-safe text for an async AI job failure."""
+    text = str(exc).strip()
+    if not text:
+        return "AI generation failed before a safe fallback was produced."
+    return text[:240]
 
 
 @app.get("/api/v1/status")
@@ -703,9 +716,9 @@ async def narrative(artifact_id: str, request: Request, background_tasks: Backgr
             if job is not None:
                 jobs.store().finish(job.job_id, result=result)
             return result
-        except Exception:
+        except Exception as exc:
             if job is not None:
-                jobs.store().fail(job.job_id, "narration failed")
+                jobs.store().fail(job.job_id, _ai_job_error(exc))
             raise
 
     if job is not None:
@@ -843,9 +856,9 @@ async def match_narrative(
             if job is not None:
                 jobs.store().finish(job.job_id, result=result)
             return result
-        except Exception:
+        except Exception as exc:
             if job is not None:
-                jobs.store().fail(job.job_id, "narration failed")
+                jobs.store().fail(job.job_id, _ai_job_error(exc))
             raise
 
     if job is not None and body.get("async_job") is True:

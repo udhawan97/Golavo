@@ -523,6 +523,20 @@ export interface LocalModelInfo {
   size_bytes: number | null;
 }
 
+export type LocalModelStatus =
+  | "unsupported"
+  | "unreachable"
+  | "no_models"
+  | "no_chat_models"
+  | "ready";
+
+export interface LocalProviderStatus {
+  provider: AiProvider;
+  status: LocalModelStatus;
+  models: LocalModelInfo[];
+  reason: string | null;
+}
+
 /** Default Fast/Deep assignment from installed models (server lists smallest
  *  first): Fast = smallest, Deep = largest. With one model, both use it. */
 export function defaultModelAssignment(models: LocalModelInfo[]): { fast: string; deep: string } {
@@ -530,10 +544,16 @@ export function defaultModelAssignment(models: LocalModelInfo[]): { fast: string
   return { fast: models[0].name, deep: models[models.length - 1].name };
 }
 
-/** List the local models installed on a provider (with sizes), for the model
- *  picker. Empty in sample mode or when the local server is unreachable. */
-export async function fetchLocalModels(provider: AiProvider): Promise<LocalModelInfo[]> {
-  if (!API_BASE || (provider !== "ollama" && provider !== "llama_server")) return [];
+/** Reachability + installed local chat models, for local AI status UI. */
+export async function fetchLocalModelStatus(provider: AiProvider): Promise<LocalProviderStatus> {
+  const empty = (status: LocalModelStatus, reason: string | null): LocalProviderStatus => ({
+    provider,
+    status,
+    models: [],
+    reason,
+  });
+  if (!API_BASE || (provider !== "ollama" && provider !== "llama_server"))
+    return empty("unsupported", "Local model discovery is unavailable in this build.");
   const headers: Record<string, string> = { accept: "application/json" };
   if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
   try {
@@ -541,12 +561,25 @@ export async function fetchLocalModels(provider: AiProvider): Promise<LocalModel
       `${API_BASE}/api/v1/ai/local-models?provider=${encodeURIComponent(provider)}`,
       { headers },
     );
-    if (!res.ok) return [];
-    const body = (await res.json()) as { models?: LocalModelInfo[] };
-    return Array.isArray(body.models) ? body.models : [];
+    if (!res.ok) return empty("unreachable", "The local model server could not be checked.");
+    const body = (await res.json()) as Partial<LocalProviderStatus>;
+    const models = Array.isArray(body.models) ? body.models : [];
+    const status = body.status ?? (models.length > 0 ? "ready" : "unreachable");
+    return {
+      provider,
+      status,
+      models,
+      reason: typeof body.reason === "string" ? body.reason : null,
+    };
   } catch {
-    return [];
+    return empty("unreachable", "The local model server could not be reached.");
   }
+}
+
+/** List the local models installed on a provider (with sizes), for the model
+ *  picker. Empty in sample mode or when the local server is unreachable. */
+export async function fetchLocalModels(provider: AiProvider): Promise<LocalModelInfo[]> {
+  return (await fetchLocalModelStatus(provider)).models;
 }
 
 function emptyNarrative(provider: AiProvider): NarrativeResponse {
@@ -625,7 +658,14 @@ async function postNarrative(
     if (!accepted.job_id) throw new Error("AI job was accepted without an id");
     return waitForNarrativeResult(accepted.job_id, base);
   }
-  if (!res.ok) throw new Error(`AI narrative → HTTP ${res.status}`);
+  if (!res.ok) {
+    let detail = "";
+    try {
+      const body = (await res.json()) as { detail?: unknown };
+      detail = typeof body.detail === "string" ? `: ${body.detail}` : "";
+    } catch { /* ignore */ }
+    throw new Error(`AI narrative → HTTP ${res.status}${detail}`);
+  }
   return { ...base, ...(await res.json()) } as NarrativeResponse;
 }
 
@@ -647,19 +687,23 @@ async function waitForNarrativeResult(
         const job = (await res.json()) as {
           state?: "running" | "done" | "failed" | "cancelled";
           result?: Partial<NarrativeResponse>;
+          error?: string;
         };
         if (job.state === "done") {
           if (!job.result) throw new Error("AI job finished without a result");
           return { ...base, ...job.result } as NarrativeResponse;
         }
-        if (job.state === "failed") throw new Error("AI generation failed");
-        if (job.state === "cancelled") throw new Error("AI generation was cancelled");
+        if (job.state === "failed")
+          throw new Error(`AI_JOB_TERMINAL:${job.error || "AI generation failed before a safe result was produced"}`);
+        if (job.state === "cancelled") throw new Error("AI_JOB_TERMINAL:AI generation was cancelled");
       }
       // A transient 404/5xx or network blip must not discard a Gemma result that
       // is still being produced server-side. Keep polling until the wide deadline.
     } catch (error) {
-      if (error instanceof Error && /authorized|finished without|generation (failed|was cancelled)/.test(error.message)) {
-        throw error;
+      if (error instanceof Error) {
+        if (error.message.startsWith("AI_JOB_TERMINAL:"))
+          throw new Error(error.message.replace("AI_JOB_TERMINAL:", ""));
+        if (/authorized|finished without/.test(error.message)) throw error;
       }
     }
     await new Promise((resolve) => setTimeout(resolve, 1200));

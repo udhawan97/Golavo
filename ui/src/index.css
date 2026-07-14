@@ -742,6 +742,10 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
   background: var(--surface-1); color: var(--text); cursor: pointer; font-weight: 550;
 }
 .ai-run:hover { border-color: var(--gold-line); background: var(--surface-3); }
+.ai-run:disabled {
+  cursor: not-allowed; color: var(--text-dim); border-color: var(--border);
+  background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+}
 
 /* Fast / Deep depth controls */
 .ai-seg {
@@ -767,6 +771,43 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
 .ai-depth__adv { display: grid; gap: .3rem; }
 .ai-depth__adv select { padding: .4rem .5rem; border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong); background: var(--surface-1); color: var(--text); }
+.ai-local-line {
+  display: flex; align-items: center; gap: .45rem; flex-wrap: wrap;
+  width: fit-content; max-width: 48rem; font-size: .78rem; color: var(--text-muted);
+}
+.ai-local-line__dot {
+  width: 8px; height: 8px; border-radius: 999px; flex: none;
+  background: var(--text-dim);
+}
+.ai-local-line--ok .ai-local-line__dot {
+  background: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 18%, transparent);
+}
+.ai-local-line--warn .ai-local-line__dot {
+  background: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft);
+}
+.ai-local-line button,
+.ai-local-card button {
+  appearance: none; border: 0; background: transparent; color: var(--link);
+  padding: 0; font: inherit; text-decoration: underline; cursor: pointer;
+}
+.ai-local-line button:disabled,
+.ai-local-card button:disabled { opacity: .6; cursor: wait; }
+.ai-local-card {
+  display: flex; align-items: center; justify-content: space-between; gap: .85rem;
+  max-width: 42rem; padding: .65rem .75rem; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-muted);
+}
+.ai-local-card--warn {
+  border-color: color-mix(in srgb, var(--gold-line) 62%, var(--border));
+  background: color-mix(in srgb, var(--gold-soft) 34%, var(--surface-1));
+}
+.ai-local-card--ok {
+  border-color: color-mix(in srgb, var(--green) 38%, var(--border));
+  background: color-mix(in srgb, var(--green) 8%, var(--surface-1));
+}
+.ai-local-card div { display: grid; gap: .12rem; min-width: 0; }
+.ai-local-card b { color: var(--text); font-size: .86rem; }
+.ai-local-card span { font-size: .8rem; line-height: 1.35; }
 .ai-web-toggle {
   display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: start;
   gap: .05rem .55rem; width: fit-content; max-width: 42rem; padding: .55rem .7rem;
@@ -2003,14 +2044,49 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 .ai-progress__meta { margin-top: .35rem; }
 
-.ai-toggle { gap: .35rem; font-weight: 700; font-size: .78rem; letter-spacing: .04em; }
-.ai-toggle__text { line-height: 1; }
+.ai-toggle {
+  position: relative; gap: .32rem; overflow: hidden;
+  min-width: 2.65rem; color: var(--text-muted);
+}
+.ai-toggle__mark {
+  position: relative; display: grid; place-items: center;
+  width: 1.48rem; height: 1.48rem; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, currentColor 36%, transparent);
+  background: color-mix(in srgb, var(--surface-3) 68%, transparent);
+}
+.ai-toggle__core {
+  font-size: .56rem; line-height: 1; font-weight: 800; letter-spacing: .03em;
+}
+.ai-toggle__spark {
+  position: absolute; inset: 3px; border-radius: inherit;
+  background:
+    radial-gradient(circle at 50% 12%, currentColor 0 1.5px, transparent 2px),
+    conic-gradient(from 45deg, transparent 0 22%, currentColor 24% 29%, transparent 31% 100%);
+  opacity: .32;
+}
 .ai-toggle__dot {
   width: 7px; height: 7px; border-radius: 999px;
   background: var(--text-dim); transition: background .15s ease;
 }
-.ai-toggle__dot.on { background: var(--green); }
+.ai-toggle__dot.on {
+  background: var(--green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 16%, transparent);
+}
 .ai-toggle--on { color: var(--gold); border-color: var(--gold-line); }
+.ai-toggle--on .ai-toggle__mark {
+  background: color-mix(in srgb, var(--gold-soft) 58%, var(--surface-1));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold-line) 34%, transparent);
+}
+.ai-toggle--on .ai-toggle__spark {
+  opacity: .72;
+  animation: ai-toggle-orbit 2.8s linear infinite;
+}
+@keyframes ai-toggle-orbit {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-toggle--on .ai-toggle__spark { animation: none; }
+}
 
 /* ---- header activity center ------------------------------------------------ */
 .activity { position: relative; display: inline-flex; }

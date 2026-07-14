@@ -654,6 +654,103 @@ def list_local_models_detailed(config: ProviderConfig) -> list[dict[str, Any]]:
     return models
 
 
+def inspect_local_models(config: ProviderConfig) -> dict[str, Any]:
+    """Reachability + installed chat models for a local provider.
+
+    ``list_local_models_detailed`` intentionally returns ``[]`` for every
+    failure so old callers stay fail-safe. The UI needs more nuance: Ollama being
+    stopped, Ollama running with no models, and Ollama running with only
+    embedding models are different user actions. This probe keeps those states
+    separate while still returning only local, non-secret information.
+    """
+    if config.provider not in LOCAL_PROVIDERS:
+        return {
+            "provider": config.provider,
+            "status": "unsupported",
+            "models": [],
+            "reason": "This provider does not expose local models.",
+        }
+
+    root = (config.base_url or "").rstrip("/")
+    if config.provider == "ollama":
+        native_root = root[: -len("/v1")] if root.endswith("/v1") else root
+        request = urllib.request.Request(
+            f"{native_root}/api/tags",
+            headers={"Accept": "application/json"},
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=min(config.timeout_s, 5.0)) as response:  # noqa: S310
+                payload = json.loads(response.read().decode("utf-8"))
+            raw = payload.get("models") if isinstance(payload, dict) else None
+            if not isinstance(raw, list):
+                raise ValueError("unexpected /api/tags shape")
+        except (
+            urllib.error.URLError,
+            http.client.HTTPException,
+            TimeoutError,
+            OSError,
+            ValueError,
+            KeyError,
+            TypeError,
+        ):
+            return {
+                "provider": config.provider,
+                "status": "unreachable",
+                "models": [],
+                "reason": "Ollama is not reachable. Start Ollama, then check again.",
+            }
+
+        if not raw:
+            return {
+                "provider": config.provider,
+                "status": "no_models",
+                "models": [],
+                "reason": "Ollama is running, but no models are installed.",
+            }
+
+        models = []
+        skipped = 0
+        for m in raw:
+            if not isinstance(m, dict) or not m.get("name"):
+                continue
+            name = str(m["name"])
+            if any(h in name.lower() for h in _EMBEDDING_HINTS):
+                skipped += 1
+                continue
+            details = m.get("details") if isinstance(m.get("details"), dict) else {}
+            models.append(
+                {
+                    "name": name,
+                    "parameter_size": details.get("parameter_size"),
+                    "params_b": _parse_param_size(details.get("parameter_size")),
+                    "size_bytes": m.get("size") if isinstance(m.get("size"), int) else None,
+                }
+            )
+        models.sort(key=lambda m: (m["params_b"] is None, m["params_b"] or 0.0, m["name"]))
+        if not models:
+            return {
+                "provider": config.provider,
+                "status": "no_chat_models",
+                "models": [],
+                "reason": (
+                    "Ollama is running, but the installed model"
+                    f"{'s are' if skipped != 1 else ' is'} not usable for chat."
+                ),
+            }
+        return {"provider": config.provider, "status": "ready", "models": models, "reason": None}
+
+    models = list_local_models_detailed(config)
+    if models:
+        return {"provider": config.provider, "status": "ready", "models": models, "reason": None}
+    return {
+        "provider": config.provider,
+        "status": "unreachable",
+        "models": [],
+        "reason": "The local llama.cpp server is not reachable. Start it, then check again.",
+    }
+
+
 def _family_root(model: str) -> str:
     """The model family without a tag or minor version: ``llama3.1:q4`` -> ``llama3``."""
     base = model.split(":", 1)[0]

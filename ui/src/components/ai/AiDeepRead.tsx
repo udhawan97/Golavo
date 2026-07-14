@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DATA_SOURCE,
   defaultModelAssignment,
-  fetchLocalModels,
+  fetchLocalModelStatus,
   fetchMatchNarrative,
   fetchNarrative,
 } from "../../lib/api";
-import type { LocalModelInfo } from "../../lib/api";
+import type { LocalModelInfo, LocalProviderStatus } from "../../lib/api";
 import {
   AI_PROVIDERS,
   DEEP_TIMEOUT_S,
@@ -68,6 +68,8 @@ export function AiDeepRead({
   const [depth, setDepth] = useState<AiDepth>("fast");
   const [override, setOverride] = useState<string>("");
   const [models, setModels] = useState<LocalModelInfo[]>([]);
+  const [localStatus, setLocalStatus] = useState<LocalProviderStatus | null>(null);
+  const [checkingLocal, setCheckingLocal] = useState(false);
   const [state, setState] = useState<RunState>({ status: "idle" });
   const runId = useRef(0);
   const skipInvalidate = useRef(false);
@@ -77,18 +79,45 @@ export function AiDeepRead({
   // Load the installed local models, then SEED the Fast/Deep assignments if they
   // are unset or no longer installed — so Deep runs the bigger model even if the
   // user never opened Settings (Settings' picker does the same, idempotently).
+  const refreshLocalStatus = useCallback(async (): Promise<LocalProviderStatus | null> => {
+    if (!isLocal) {
+      setLocalStatus(null);
+      setModels([]);
+      return null;
+    }
+    setCheckingLocal(true);
+    try {
+      const status = await fetchLocalModelStatus(provider);
+      setLocalStatus(status);
+      setModels(status.models);
+      if (status.models.length > 0) {
+        const names = new Set(status.models.map((x) => x.name));
+        const def = defaultModelAssignment(status.models);
+        if (!fastModel || !names.has(fastModel)) setFastModel(def.fast);
+        if (!deepModel || !names.has(deepModel)) setDeepModel(def.deep);
+      }
+      return status;
+    } finally {
+      setCheckingLocal(false);
+    }
+  }, [deepModel, fastModel, isLocal, provider, setDeepModel, setFastModel]);
+
   useEffect(() => {
     let live = true;
     setOverride("");
-    if (!isLocal) { setModels([]); return; }
-    fetchLocalModels(provider).then((m) => {
+    if (!isLocal) { setModels([]); setLocalStatus(null); return; }
+    setCheckingLocal(true);
+    fetchLocalModelStatus(provider).then((status) => {
       if (!live) return;
-      setModels(m);
-      if (m.length === 0) return;
-      const names = new Set(m.map((x) => x.name));
-      const def = defaultModelAssignment(m);
+      setLocalStatus(status);
+      setModels(status.models);
+      if (status.models.length === 0) return;
+      const names = new Set(status.models.map((x) => x.name));
+      const def = defaultModelAssignment(status.models);
       if (!fastModel || !names.has(fastModel)) setFastModel(def.fast);
       if (!deepModel || !names.has(deepModel)) setDeepModel(def.deep);
+    }).finally(() => {
+      if (live) setCheckingLocal(false);
     });
     return () => { live = false; };
     // Re-seed only when the provider changes; the assignment setters are stable.
@@ -111,6 +140,17 @@ export function AiDeepRead({
   }, [provider, sourceKey, depth, override, allowResearch]);
 
   const run = (refresh = false, depthArg: AiDepth = depth) => {
+    void startRun(refresh, depthArg);
+  };
+
+  const startRun = async (refresh = false, depthArg: AiDepth = depth) => {
+    if (isLocal && DATA_SOURCE !== "mock") {
+      const status = await refreshLocalStatus();
+      if (status && status.status !== "ready") {
+        setState({ status: "idle" });
+        return;
+      }
+    }
     const id = ++runId.current;
     const jobId = newJobId();
     setState({ status: "loading", refresh, jobId });
@@ -219,6 +259,9 @@ export function AiDeepRead({
             onOverride={setOverride}
             deepModel={deepModel}
             fastModel={fastModel}
+            localStatus={localStatus}
+            checkingLocal={checkingLocal}
+            onRefreshLocal={refreshLocalStatus}
           />
         )}
 
@@ -249,6 +292,9 @@ export function AiDeepRead({
             onRun={() => run(false)}
             allowBackground={allowBackground}
             onToggleBackground={setAllowBackground}
+            localStatus={localStatus}
+            checkingLocal={checkingLocal}
+            onRefreshLocal={refreshLocalStatus}
           />
         )}
         {state.status === "loading" && (
@@ -287,6 +333,7 @@ function ErrorCard({ error, onRetry }: { error: Error; onRetry: () => void }) {
  *  Deep runs a bigger model for a richer read; the assignments live in Settings. */
 function DepthControls({
   depth, onDepth, models, override, onOverride, deepModel, fastModel,
+  localStatus, checkingLocal, onRefreshLocal,
 }: {
   depth: AiDepth;
   onDepth: (d: AiDepth) => void;
@@ -295,6 +342,9 @@ function DepthControls({
   onOverride: (m: string) => void;
   deepModel: string;
   fastModel: string;
+  localStatus: LocalProviderStatus | null;
+  checkingLocal: boolean;
+  onRefreshLocal: () => Promise<LocalProviderStatus | null>;
 }) {
   const [advanced, setAdvanced] = useState(false);
   const active = override || (depth === "deep" ? deepModel : fastModel);
@@ -330,6 +380,11 @@ function DepthControls({
             : "A fuller prompt connects more evidence and writes scenarios. Deep analysis usually takes 5–8 minutes."
           : "A quick read from a small model — grounded claims in seconds."}
       </p>
+      <LocalStatusLine
+        status={localStatus}
+        checking={checkingLocal}
+        onRefresh={onRefreshLocal}
+      />
       {models.length > 0 && (
         <>
           <button
@@ -363,6 +418,7 @@ function DepthControls({
 
 function IdleCard({
   provider, isMatch, depth, onRun, allowBackground, onToggleBackground,
+  localStatus, checkingLocal, onRefreshLocal,
 }: {
   provider: AiProvider;
   isMatch: boolean;
@@ -370,8 +426,13 @@ function IdleCard({
   onRun: () => void;
   allowBackground: boolean;
   onToggleBackground: (on: boolean) => void;
+  localStatus: LocalProviderStatus | null;
+  checkingLocal: boolean;
+  onRefreshLocal: () => Promise<LocalProviderStatus | null>;
 }) {
   const meta = AI_PROVIDERS.find((p) => p.value === provider);
+  const localBlocked =
+    DATA_SOURCE !== "mock" && meta?.kind === "local" && localStatus?.status !== "ready";
   return (
     <div className="stack" style={{ ["--gap" as string]: ".7rem" }}>
       <p className="ai-note">
@@ -379,6 +440,13 @@ function IdleCard({
           ? "Uses your own API key (kept in your OS keychain, never logged). A short request is sent to your chosen provider."
           : "Uses a local model on your machine — no key, no cloud. Start Ollama or llama.cpp first."}
       </p>
+      {meta?.kind === "local" && localBlocked && (
+        <LocalStatusCard
+          status={localStatus}
+          checking={checkingLocal}
+          onRefresh={onRefreshLocal}
+        />
+      )}
       <label className="ai-bg-toggle">
         <input
           type="checkbox"
@@ -391,10 +459,90 @@ function IdleCard({
         </span>
       </label>
       <div>
-        <button type="button" className="ai-run" onClick={onRun}>
-          {depth === "deep" ? "Run deep analysis" : isMatch ? "Write the read" : "Run AI Deep Read"}
+        <button type="button" className="ai-run" onClick={onRun} disabled={localBlocked || checkingLocal}>
+          {localBlocked
+            ? "Local AI not ready"
+            : depth === "deep"
+              ? "Run deep analysis"
+              : isMatch ? "Write the read" : "Run AI Deep Read"}
         </button>
       </div>
+    </div>
+  );
+}
+
+function localStatusCopy(status: LocalProviderStatus | null): { tone: "ok" | "warn"; title: string; body: string } {
+  if (!status) {
+    return {
+      tone: "warn",
+      title: "Checking local AI",
+      body: "Golavo is checking whether your local model server is available.",
+    };
+  }
+  if (status.status === "ready") {
+    return {
+      tone: "ok",
+      title: "Local AI ready",
+      body: `${status.models.length} usable model${status.models.length === 1 ? "" : "s"} available.`,
+    };
+  }
+  if (status.status === "no_models") {
+    return {
+      tone: "warn",
+      title: "Ollama is running, but no model is installed",
+      body: status.reason || "Pull a chat model, then check again.",
+    };
+  }
+  if (status.status === "no_chat_models") {
+    return {
+      tone: "warn",
+      title: "No chat model available",
+      body: status.reason || "Install a chat-capable model, then check again.",
+    };
+  }
+  return {
+    tone: "warn",
+    title: status.provider === "ollama" ? "Ollama is not reachable" : "Local model server is not reachable",
+    body: status.reason || "Start the local model server, then check again.",
+  };
+}
+
+function LocalStatusLine({
+  status, checking, onRefresh,
+}: {
+  status: LocalProviderStatus | null;
+  checking: boolean;
+  onRefresh: () => Promise<LocalProviderStatus | null>;
+}) {
+  const copy = localStatusCopy(status);
+  return (
+    <div className={`ai-local-line ai-local-line--${copy.tone}`}>
+      <span className="ai-local-line__dot" aria-hidden />
+      <span>{checking ? "Checking local AI…" : `${copy.title}. ${copy.body}`}</span>
+      {copy.tone !== "ok" && (
+        <button type="button" onClick={() => { void onRefresh(); }}>Check again</button>
+      )}
+    </div>
+  );
+}
+
+function LocalStatusCard({
+  status, checking, onRefresh,
+}: {
+  status: LocalProviderStatus | null;
+  checking: boolean;
+  onRefresh: () => Promise<LocalProviderStatus | null>;
+}) {
+  const copy = localStatusCopy(status);
+  return (
+    <div className={`ai-local-card ai-local-card--${copy.tone}`} role="status">
+      <div>
+        <b>{checking ? "Checking local AI…" : copy.title}</b>
+        <span>{checking ? "Looking for Ollama or llama.cpp now." : copy.body}</span>
+      </div>
+      <button type="button" onClick={() => { void onRefresh(); }} disabled={checking}>
+        {checking ? "Checking…" : "Check again"}
+      </button>
     </div>
   );
 }

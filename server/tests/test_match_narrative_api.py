@@ -113,20 +113,32 @@ def test_unknown_match_is_404(client):
 def test_local_models_endpoint_lists_installed_models(client, monkeypatch):
     monkeypatch.setattr(
         ai_gateway,
-        "list_local_models_detailed",
-        lambda config: [
-            {"name": "llama3.2:latest", "parameter_size": "3.2B", "params_b": 3.2, "size_bytes": 1},
-            {"name": "gemma:12b", "parameter_size": "12B", "params_b": 12.0, "size_bytes": 2},
-        ],
+        "inspect_local_models",
+        lambda config: {
+            "provider": "ollama",
+            "status": "ready",
+            "reason": None,
+            "models": [
+                {"name": "llama3.2:latest", "parameter_size": "3.2B", "params_b": 3.2, "size_bytes": 1},
+                {"name": "gemma:12b", "parameter_size": "12B", "params_b": 12.0, "size_bytes": 2},
+            ],
+        },
     )
     body = client.get("/api/v1/ai/local-models?provider=ollama").json()
     assert body["provider"] == "ollama"
+    assert body["status"] == "ready"
+    assert body["reason"] is None
     assert [m["name"] for m in body["models"]] == ["llama3.2:latest", "gemma:12b"]
 
 
 def test_local_models_endpoint_empty_for_non_local_provider(client):
     body = client.get("/api/v1/ai/local-models?provider=openai").json()
-    assert body == {"provider": "openai", "models": []}
+    assert body == {
+        "provider": "openai",
+        "status": "unsupported",
+        "models": [],
+        "reason": "This provider does not expose local models.",
+    }
 
 
 def test_unknown_provider_is_400(client):
