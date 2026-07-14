@@ -783,44 +783,81 @@ def pick_local_model(requested: str, installed: list[str]) -> str:
 # --- JSON extraction ---------------------------------------------------------
 
 def extract_json_object(text: str) -> dict[str, Any] | None:
-    """Best-effort extraction of the first balanced JSON object from model text.
+    """Best-effort extraction of a balanced JSON object from model text.
 
-    Strips <think> blocks and code fences, then scans for one brace-balanced
-    object. Returns None if nothing parses — the caller treats that as a failed
-    attempt (retry, then local-only fallback)."""
+    Local models sometimes emit a stray brace block before the real response or
+    leave a trailing comma before ``}``/``]``. Scan past invalid candidates and
+    repair only that harmless punctuation. Returns None if nothing parses — the
+    caller treats that as a failed attempt (compact retry, then fallback)."""
     if not isinstance(text, str):
         return None
     cleaned = _THINK_RE.sub(" ", text)
     fence = _FENCE_RE.search(cleaned)
-    if fence:
-        cleaned = fence.group(1)
-    start = cleaned.find("{")
-    if start == -1:
-        return None
-    depth = 0
-    in_string = False
-    escape = False
-    for index in range(start, len(cleaned)):
-        char = cleaned[index]
-        if in_string:
-            if escape:
-                escape = False
-            elif char == "\\":
-                escape = True
-            elif char == '"':
-                in_string = False
-            continue
-        if char == '"':
-            in_string = True
-        elif char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                try:
-                    return json.loads(cleaned[start : index + 1])
-                except json.JSONDecodeError:
-                    return None
+    search_spaces = [fence.group(1), cleaned] if fence else [cleaned]
+    fallback: dict[str, Any] | None = None
+
+    def _without_trailing_commas(candidate: str) -> str:
+        chars: list[str] = []
+        in_string = False
+        escape = False
+        for index, char in enumerate(candidate):
+            if in_string:
+                chars.append(char)
+                if escape:
+                    escape = False
+                elif char == "\\":
+                    escape = True
+                elif char == '"':
+                    in_string = False
+                continue
+            if char == '"':
+                in_string = True
+                chars.append(char)
+                continue
+            if char == ",":
+                lookahead = index + 1
+                while lookahead < len(candidate) and candidate[lookahead].isspace():
+                    lookahead += 1
+                if lookahead < len(candidate) and candidate[lookahead] in "}]":
+                    continue
+            chars.append(char)
+        return "".join(chars)
+
+    for space in search_spaces:
+        for start in (index for index, char in enumerate(space) if char == "{"):
+            depth = 0
+            in_string = False
+            escape = False
+            for index in range(start, len(space)):
+                char = space[index]
+                if in_string:
+                    if escape:
+                        escape = False
+                    elif char == "\\":
+                        escape = True
+                    elif char == '"':
+                        in_string = False
+                    continue
+                if char == '"':
+                    in_string = True
+                elif char == "{":
+                    depth += 1
+                elif char == "}":
+                    depth -= 1
+                    if depth == 0:
+                        candidate = space[start : index + 1]
+                        parsed: Any = None
+                        for variant in (candidate, _without_trailing_commas(candidate)):
+                            try:
+                                parsed = json.loads(variant)
+                                break
+                            except json.JSONDecodeError:
+                                continue
+                        if isinstance(parsed, dict):
+                            if {"verdict", "claims", "scenarios"}.intersection(parsed):
+                                return parsed
+                            fallback = fallback or parsed
+                        break
 
     # Local models occasionally finish verdict/claims/scenarios, then waste the
     # remaining output budget dumping ids into the disabled ``candidate_facts``
@@ -828,21 +865,25 @@ def extract_json_object(text: str) -> dict[str, Any] | None:
     # prefix and force the optional field to []. This is deliberately narrow: it
     # never tries to repair a cut-off claim, scenario, or arbitrary JSON suffix,
     # and the recovered core still passes through the strict narration review.
-    candidate = re.search(
-        r'(?m)(?:^|,)\s*"candidate_facts"\s*:', cleaned[start:]
-    )
-    if candidate:
-        prefix = cleaned[start : start + candidate.start()].rstrip().rstrip(",")
-        repaired = prefix + ',\n"candidate_facts": []\n}'
-        try:
-            parsed = json.loads(repaired)
-        except json.JSONDecodeError:
-            return None
-        if isinstance(parsed, dict) and all(
-            key in parsed for key in ("verdict", "claims", "scenarios")
-        ):
-            return parsed
-    return None
+    for space in search_spaces:
+        start = space.find("{")
+        if start == -1:
+            continue
+        candidate = re.search(
+            r'(?m)(?:^|,)\s*"candidate_facts"\s*:', space[start:]
+        )
+        if candidate:
+            prefix = space[start : start + candidate.start()].rstrip().rstrip(",")
+            repaired = prefix + ',\n"candidate_facts": []\n}'
+            try:
+                parsed = json.loads(_without_trailing_commas(repaired))
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, dict) and all(
+                key in parsed for key in ("verdict", "claims", "scenarios")
+            ):
+                return parsed
+    return fallback
 
 
 def normalize_narration_shape(
@@ -1324,7 +1365,17 @@ def generate_narration(
         raw = extract_json_object(raw_text)
         if raw is None:
             reasons.append("model output was not valid JSON")
-            attempt_user = user + JSON_RETRY_INSTRUCTION
+            # Do not ask a context-stressed local model to process the same large
+            # evidence/web payload twice. Keep deep-mode synthesis instructions,
+            # but retry with the compact evidence slice; the full bundle remains
+            # authoritative in the strict review below.
+            attempt_user = build_user_prompt(
+                bundle,
+                run_config.untrusted_context,
+                depth=run_config.depth,
+                research_sources=research_prompt_sources or None,
+                compact_retry=True,
+            ) + JSON_RETRY_INSTRUCTION
             continue
         raw = normalize_narration_shape(raw, bundle)
         _emit("verifying", "Verifying every number against the engine")

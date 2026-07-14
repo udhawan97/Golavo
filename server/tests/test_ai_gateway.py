@@ -716,6 +716,15 @@ def test_extract_json_object_handles_noise() -> None:
     assert extract_json_object('{"nested": {"x": 1}, "y": 2}') == {"nested": {"x": 1}, "y": 2}
 
 
+def test_extract_json_object_skips_bad_prefix_and_repairs_trailing_commas() -> None:
+    raw = 'scratch {not json} then {"verdict": null, "claims": [], "scenarios": [],}'
+    assert extract_json_object(raw) == {
+        "verdict": None,
+        "claims": [],
+        "scenarios": [],
+    }
+
+
 # --- Endpoint ----------------------------------------------------------------
 
 def test_endpoint_off_by_default(monkeypatch, tmp_path) -> None:

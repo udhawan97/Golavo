@@ -166,6 +166,13 @@ class TestPrompt:
         assert "leave `scenarios` empty" in fast
         assert "exactly 2 scenarios" in deep
 
+        compact_deep = build_user_prompt(bundle, depth="deep", compact_retry=True)
+        assert len(compact_deep) < len(deep)
+        assert compact_deep.count("Fact number") == 12
+        assert compact_deep.count("`nb_x_") == 36
+        # The retry stays analytically deep; only the evidence payload shrinks.
+        assert "exactly 2 scenarios" in compact_deep
+
     def test_untrusted_context_is_delimited(self) -> None:
         bundle = {
             "match": {"home_team": "A", "away_team": "B", "competition": "C", "kickoff_utc": "x"},

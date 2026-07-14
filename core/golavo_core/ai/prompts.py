@@ -16,7 +16,7 @@ from golavo_core.ai.sanitize import UNTRUSTED_CLOSE, UNTRUSTED_OPEN, sanitize_un
 # Bump on any change to the system prompt below or to the user-turn scaffolding
 # in build_user_prompt. Formatted as a date-anchored revision so it sorts and is
 # human-legible in cache keys and provenance.
-PROMPT_VERSION = "golavo-narration-2026-07-14.2"
+PROMPT_VERSION = "golavo-narration-2026-07-14.3"
 
 SYSTEM_PROMPT = """\
 You are Golavo's evidence reader. Golavo is a local-first football forecasting
@@ -169,6 +169,13 @@ DEPTH_LIMITS = {
     "fast": {"facts": 10, "numbers": 32},
     "deep": {"facts": 22, "numbers": 56},
 }
+# A malformed first response usually means the local model was overloaded by
+# context, not that it needs to see the same large prompt again. The retry keeps
+# enough evidence for a genuinely deep synthesis while shedding lower-priority
+# facts/numbers and long web-page bodies. The complete bundle still goes through
+# ``review_narration`` afterwards, so this changes no evidence or number guard.
+COMPACT_RETRY_LIMITS = {"facts": 12, "numbers": 36}
+COMPACT_RESEARCH_CHARS = 1200
 _FACT_KIND_ORDER = {"predictive": 0, "coincidence": 1, "context": 2}
 
 
@@ -190,7 +197,9 @@ def _prioritized_facts(facts: list[dict[str, Any]], limit: int) -> list[dict[str
     ]
 
 
-def _bundle_view(bundle: dict[str, Any], depth: str) -> dict[str, Any]:
+def _bundle_view(
+    bundle: dict[str, Any], depth: str, *, fact_limit: int | None = None
+) -> dict[str, Any]:
     """The exact, already-safe slice of the bundle handed to the model.
 
     ``allowed_numbers`` is intentionally NOT dumped here (it is the single biggest
@@ -201,7 +210,9 @@ def _bundle_view(bundle: dict[str, Any], depth: str) -> dict[str, Any]:
         "match": bundle["match"],
         "forecast_summary": bundle["forecast_summary"],
         "data_quality": bundle["data_quality"],
-        "facts": _prioritized_facts(bundle["facts"], _depth_limits(depth)["facts"]),
+        "facts": _prioritized_facts(
+            bundle["facts"], fact_limit or _depth_limits(depth)["facts"]
+        ),
         "features": bundle["features"],
         "sources": [
             {
@@ -221,6 +232,7 @@ def build_user_prompt(
     *,
     depth: str = "fast",
     research_sources: list[dict[str, Any]] | None = None,
+    compact_retry: bool = False,
 ) -> str:
     """Build the user-turn text: the evidence bundle plus any delimited research.
 
@@ -229,10 +241,13 @@ def build_user_prompt(
     sanitized and fenced; everything inside the fence is data, never instructions.
     ``research_sources`` (each ``{"source_id", "url", "title", "text"}``) are
     fetched web pages, appended as fenced UNTRUSTED WEB SOURCE blocks for the
-    optional ``research_notes`` lane — data, never instructions.
+    optional ``research_notes`` lane — data, never instructions. A compact retry
+    preserves the selected analysis depth but reduces lower-priority evidence
+    after a malformed response so a local model is not given the same oversized
+    context twice.
     """
-    limits = _depth_limits(depth)
-    view = _bundle_view(bundle, depth)
+    limits = COMPACT_RETRY_LIMITS if compact_retry else _depth_limits(depth)
+    view = _bundle_view(bundle, depth, fact_limit=limits["facts"])
     source_ids = [s["source_id"] for s in bundle["sources"]]
     numbers = bundle["allowed_numbers"][: limits["numbers"]]
     def number_line(n: dict[str, Any]) -> str:
@@ -315,6 +330,8 @@ def build_user_prompt(
             cleaned = sanitize_untrusted(str(source.get("text") or ""))
             if not cleaned:
                 continue
+            if compact_retry and len(cleaned) > COMPACT_RESEARCH_CHARS:
+                cleaned = cleaned[:COMPACT_RESEARCH_CHARS].rsplit(" ", 1)[0].rstrip() + "…"
             parts.extend(
                 [
                     "",
