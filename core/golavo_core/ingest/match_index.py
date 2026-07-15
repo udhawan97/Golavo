@@ -24,7 +24,7 @@ import pandas as pd
 
 from .snapshot import snapshot_anchor_utc
 
-MATCH_INDEX_SCHEMA_VERSION = "0.4.0"
+MATCH_INDEX_SCHEMA_VERSION = "0.5.0"
 
 # The verbatim column order of matches_index.parquet. Fixed so the committed
 # bytes never depend on per-pack insertion order, and so downstream readers
@@ -48,6 +48,13 @@ INDEX_COLUMNS = [
     "neutral",
     "source_id",
     "source_kind",
+    "identity_source_id",
+    "result_source_id",
+    "kickoff_source_id",
+    "venue_source_id",
+    "training_source_id",
+    "upstream_fixture_key",
+    "training_eligible",
     "ht_home_score",
     "ht_away_score",
 ]
@@ -67,6 +74,106 @@ def normalize(s: str) -> str:
     return without_marks.casefold().strip()
 
 
+def _provenance_key(frame: pd.DataFrame) -> pd.Series:
+    return (
+        pd.to_datetime(frame["date"]).dt.strftime("%Y-%m-%d")
+        + "|"
+        + frame["home_team"].map(normalize)
+        + "|"
+        + frame["away_team"].map(normalize)
+    )
+
+
+def _add_field_provenance(
+    frame: pd.DataFrame,
+    *,
+    pack_dir: Path,
+    manifest: dict,
+    source_id: str,
+) -> pd.DataFrame:
+    """Attach field-group provenance, with an optional per-fixture override.
+
+    Most single-source packs use the safe defaults. Runtime international packs
+    add ``field_provenance.csv`` for World Cup co-sourced identity, kickoff and
+    venue fields, so a row never implies that martj42 supplied data it did not.
+    """
+    result = frame.copy()
+    complete = result["is_complete"].astype("boolean").fillna(False)
+    has_venue = result["city"].notna() | result["country"].notna()
+    result["identity_source_id"] = pd.Series(source_id, index=result.index, dtype="string")
+    result["result_source_id"] = pd.Series(
+        [source_id if value else pd.NA for value in complete], dtype="string"
+    )
+    result["kickoff_source_id"] = pd.Series(source_id, index=result.index, dtype="string")
+    result["venue_source_id"] = pd.Series(
+        [source_id if value else pd.NA for value in has_venue], dtype="string"
+    )
+    result["training_source_id"] = pd.Series(
+        [source_id if value else pd.NA for value in complete], dtype="string"
+    )
+    result["upstream_fixture_key"] = pd.Series(
+        source_id + ":", index=result.index, dtype="string"
+    ) + result["match_id"].astype("string")
+    result["training_eligible"] = complete.astype(bool)
+
+    co_sources = manifest.get("co_sources", [])
+    kickoff_co_source = next(
+        (
+            str(entry.get("source_id"))
+            for entry in co_sources
+            if isinstance(entry, dict) and entry.get("source_id")
+        ),
+        None,
+    )
+    if kickoff_co_source is not None and "kickoff_precision" in result.columns:
+        exact = result["kickoff_precision"].astype("string").eq("exact")
+        result.loc[exact, "kickoff_source_id"] = kickoff_co_source
+
+    override_path = Path(pack_dir) / "field_provenance.csv"
+    if not override_path.is_file():
+        return result
+    override = pd.read_csv(override_path, dtype="string")
+    required = {"date", "home_team", "away_team"}
+    if not required.issubset(override.columns):
+        raise ValueError(
+            f"{override_path}: missing provenance identity columns "
+            f"{sorted(required - set(override.columns))}"
+        )
+    keys = _provenance_key(override)
+    if keys.duplicated().any():
+        raise ValueError(f"{override_path}: duplicate fixture provenance rows")
+    lookup = override.assign(_key=keys).set_index("_key")
+    row_keys = _provenance_key(result)
+    provenance_columns = (
+        "identity_source_id",
+        "result_source_id",
+        "kickoff_source_id",
+        "venue_source_id",
+        "training_source_id",
+        "upstream_fixture_key",
+    )
+    for column in provenance_columns:
+        if column not in lookup.columns:
+            continue
+        mapped = row_keys.map(lookup[column])
+        present = mapped.notna() & mapped.astype("string").str.len().gt(0)
+        result.loc[present, column] = mapped[present].astype("string")
+    if "training_eligible" in lookup.columns:
+        mapped = row_keys.map(lookup["training_eligible"])
+        present = mapped.notna()
+        parsed = (
+            mapped.astype("string")
+            .str.strip()
+            .str.lower()
+            .map({"true": True, "false": False, "1": True, "0": False})
+        )
+        if parsed[present].isna().any():
+            raise ValueError(f"{override_path}: invalid training_eligible value")
+        result.loc[present, "training_eligible"] = parsed[present].astype(bool)
+        result.loc[~result["training_eligible"], "training_source_id"] = pd.NA
+    return result
+
+
 def default_index_packs(repo_root: Path) -> list[Path]:
     """Select one pack per (source, competition): the greatest snapshot anchor.
 
@@ -77,9 +184,7 @@ def default_index_packs(repo_root: Path) -> list[Path]:
     in a stable, path-sorted build order.
     """
     repo_root = Path(repo_root)
-    registry = json.loads(
-        (repo_root / "packs" / "snapshots.json").read_text(encoding="utf-8")
-    )
+    registry = json.loads((repo_root / "packs" / "snapshots.json").read_text(encoding="utf-8"))
     best: dict[tuple[str, str], dict] = {}
     for entry in registry["snapshots"]:
         pack_dir = repo_root / entry["pack"]
@@ -170,9 +275,7 @@ def _write_aliases(pack_dir: Path, index: pd.DataFrame, out_dir: Path) -> None:
     if not fn_path.is_file():
         return
     former = pd.read_csv(fn_path, dtype={"current": "string", "former": "string"})
-    present = set(
-        pd.concat([index["home_team"], index["away_team"]]).dropna().astype(str).unique()
-    )
+    present = set(pd.concat([index["home_team"], index["away_team"]]).dropna().astype(str).unique())
     aliases: dict[str, set[str]] = {}
     for row in former.itertuples(index=False):
         current, former_name = str(row.current), str(row.former)
@@ -210,9 +313,7 @@ def build_match_index(pack_dirs: list[Path], output_path: Path) -> Path:
         manifest = json.loads((pack_dir / "manifest.json").read_text(encoding="utf-8"))
         lic = manifest.get("license")
         if lic not in _CLEARED_LICENSES:
-            raise ValueError(
-                f"{pack_dir}: license {lic!r} not cleared for the bundled match index"
-            )
+            raise ValueError(f"{pack_dir}: license {lic!r} not cleared for the bundled match index")
         source_id = str(manifest["source_id"])
         df = load_matches(pack_dir).copy()  # re-validates the pack's byte hashes
         if "kickoff_precision" not in df.columns:
@@ -223,12 +324,14 @@ def build_match_index(pack_dirs: list[Path], output_path: Path) -> Path:
         df["source_kind"] = pd.Series(kind, index=df.index, dtype="string")
         df["home_norm"] = df["home_team"].map(normalize).astype("string")
         df["away_norm"] = df["away_team"].map(normalize).astype("string")
+        df = _add_field_provenance(df, pack_dir=pack_dir, manifest=manifest, source_id=source_id)
         frames.append(df[INDEX_COLUMNS])
         provenance.append(
             {
                 "source_id": source_id,
                 "pack": pack_dir.name,
                 "license": str(lic),
+                "upstream_ref": str(manifest.get("upstream_ref", "")),
                 "manifest_sha256": hashlib.sha256(
                     (pack_dir / "manifest.json").read_bytes()
                 ).hexdigest(),
@@ -244,9 +347,7 @@ def build_match_index(pack_dirs: list[Path], output_path: Path) -> Path:
             "match_id collision across packs (packs must dedupe upstream): "
             f"{sorted(collisions.unique())[:10]}"
         )
-    index = index.sort_values(
-        ["kickoff_utc", "match_id"], kind="mergesort"
-    ).reset_index(drop=True)
+    index = index.sort_values(["kickoff_utc", "match_id"], kind="mergesort").reset_index(drop=True)
     index = index[INDEX_COLUMNS]
     index.to_parquet(output_path, index=False, engine="pyarrow", compression="zstd")
 

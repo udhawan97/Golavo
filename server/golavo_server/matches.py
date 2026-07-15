@@ -1,7 +1,8 @@
 """Read-only match search + on-demand Commentator's Notebook over the frozen index.
 
-Everything here reads the committed, immutable match index (``data/index``) and
-never writes. Three honesty properties hold end to end:
+Everything here reads either the verified immutable active generation or the
+committed bundle (``data/index``), and never writes. Three honesty properties
+hold end to end:
 
 * **Search is navigation, not verification.** Attaching a forecast to a match is
   a cheap ``json.loads`` scan of the ledger (no integrity check) — the forecast
@@ -29,6 +30,7 @@ from golavo_core import resources
 # The frozen UI contract (Workstream D) pins these envelopes at 0.2.0.
 SCHEMA_VERSION = "0.2.0"
 
+
 def _resolve_index_paths() -> dict[str, Path]:
     """The refreshed index + side tables when a runtime refresh has produced them,
     else the committed read-only bundle.
@@ -42,22 +44,31 @@ def _resolve_index_paths() -> dict[str, Path]:
     from golavo_server import runtime  # local: avoid an import cycle at load
 
     refreshed = runtime.refresh_dir()
-    if refreshed is not None and (refreshed / "matches_index.parquet").exists():
+    generation_index: Path | None = None
+    if refreshed is not None:
+        try:
+            from golavo_server import refresh_state
+
+            active, _using_previous = refresh_state.active_generation()
+            if active is not None:
+                generation_index = active / "index"
+        except (OSError, RuntimeError, ValueError):
+            generation_index = None
+    candidate = generation_index or refreshed
+    if candidate is not None and (candidate / "matches_index.parquet").exists():
         from golavo_core.ingest.match_index import MATCH_INDEX_SCHEMA_VERSION
 
         try:
-            meta = json.loads(
-                (refreshed / "matches_index.meta.json").read_text(encoding="utf-8")
-            )
+            meta = json.loads((candidate / "matches_index.meta.json").read_text(encoding="utf-8"))
         except (OSError, ValueError, TypeError):
             meta = {}
         if meta.get("schema_version") == MATCH_INDEX_SCHEMA_VERSION:
             return {
-                "index": refreshed / "matches_index.parquet",
-                "meta": refreshed / "matches_index.meta.json",
-                "goalscorers": refreshed / "goalscorers.parquet",
-                "shootouts": refreshed / "shootouts.parquet",
-                "aliases": refreshed / "aliases.json",
+                "index": candidate / "matches_index.parquet",
+                "meta": candidate / "matches_index.meta.json",
+                "goalscorers": candidate / "goalscorers.parquet",
+                "shootouts": candidate / "shootouts.parquet",
+                "aliases": candidate / "aliases.json",
             }
     return {
         "index": Path(resources.match_index_path()),
@@ -122,14 +133,16 @@ def reset_cache() -> None:
     _WARM["state"] = "cold"
     _WARM["since_utc"] = None
     _WARM["error"] = None
-    # Any analysis derived from the old frame must move with the index cache.
-    # Import lazily to avoid the matches <-> outlook import cycle at startup.
-    try:
-        from golavo_server import outlook
-    except ImportError:
-        pass
-    else:
-        outlook.reset_cache()
+    # Every in-process derivative must move with the index cache. The analysis
+    # disk cache remains safe because it is keyed by the index fingerprint.
+    for module_name in ("outlook", "conditions", "analysis"):
+        try:
+            module = __import__(f"golavo_server.{module_name}", fromlist=["reset_cache"])
+            reset = getattr(module, "reset_cache", None)
+            if callable(reset):
+                reset()
+        except ImportError:
+            pass
 
 
 def _load_index() -> Any:
@@ -364,13 +377,23 @@ def _row_to_dict(
 ) -> dict[str, Any]:
     """One index row -> the frozen MatchRow shape, JSON-clean (NA/NaT -> null)."""
     forecasts, _linked_by = _links_for_row(row, by_match_id, by_fixture)
+    provenance_columns = {
+        "identity": "identity_source_id",
+        "result": "result_source_id",
+        "kickoff": "kickoff_source_id",
+        "venue": "venue_source_id",
+        "training": "training_source_id",
+    }
+    provenance = {
+        label: _str_or_none(row[column])
+        for label, column in provenance_columns.items()
+        if column in row.index
+    }
     return {
         "match_id": str(row["match_id"]),
         "kickoff_utc": _iso_utc(row["kickoff_utc"]),
         "kickoff_precision": (
-            _str_or_none(row["kickoff_precision"])
-            if "kickoff_precision" in row.index
-            else "day"
+            _str_or_none(row["kickoff_precision"]) if "kickoff_precision" in row.index else "day"
         ),
         "home_team": _str_or_none(row["home_team"]),
         "away_team": _str_or_none(row["away_team"]),
@@ -383,6 +406,12 @@ def _row_to_dict(
         "is_complete": bool(row["is_complete"]),
         "source_kind": _str_or_none(row["source_kind"]),
         "source_id": _str_or_none(row["source_id"]),
+        "provenance": provenance,
+        "upstream_fixture_key": (
+            _str_or_none(row["upstream_fixture_key"])
+            if "upstream_fixture_key" in row.index
+            else None
+        ),
         "forecasts": forecasts,
     }
 

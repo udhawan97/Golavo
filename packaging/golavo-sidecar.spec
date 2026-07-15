@@ -46,6 +46,14 @@ datas = [
     (os.path.join(ROOT, "docs", "contracts", "conditions_snapshot.schema.json"), "docs/contracts"),
     # Historical team-only event research contract.
     (os.path.join(ROOT, "docs", "contracts", "research_team_analytics.schema.json"), "docs/contracts"),
+    # Consent-first approved-source refresh: the frozen sidecar validates the
+    # same receipts, generations and API envelopes as source mode.
+    (os.path.join(ROOT, "docs", "contracts", "source_snapshot.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "data_generation.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "data_refresh_state.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "data_refresh_api.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "data", "sources", "registry.json"), "data/sources"),
+    (os.path.join(ROOT, "data", "sources", "registry.schema.json"), "data/sources"),
 ]
 datas += [
     (os.path.join(ROOT, "docs", "handoff", name), "docs/handoff") for name in _EVAL_SUMMARIES

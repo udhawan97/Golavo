@@ -36,6 +36,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { TourOverlay } from "./components/TourOverlay";
 import { HOME_TOUR, seedExistingUser, useTour } from "./lib/tour";
 import { useExternalLinks } from "./lib/external-links";
+import { DataRefreshContext, useDataRefreshController } from "./lib/data-refresh-context";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
  *  home's own warming card. A wedged index can never strand the user: search and
@@ -52,8 +53,10 @@ export default function App() {
   const forecastSource = useForecastSource(backendReady);
   const warmup = useWarmupStatus();
   const [skippedWarmup, setSkippedWarmup] = useState(false);
+  const holdForIndex = backendReady && warmup.phase === "warming" && !skippedWarmup;
   // One controller for the whole app: header pill, sheet, settings, toast.
   const updater = useUpdaterController();
+  const dataRefresh = useDataRefreshController(backendReady && !holdForIndex);
 
   // First-launch orientation. Seed returning users as "done" once so an update
   // never replays the newcomer tour. The home tour yields to the update-consent
@@ -83,7 +86,6 @@ export default function App() {
   // self-extracting (no /health); stage 2 = /health up but the match index still
   // loading. Stage 2 is escapable (skip button + cap) so the user is never held
   // hostage — the home continues the same messaging in a smaller card.
-  const holdForIndex = backendReady && warmup.phase === "warming" && !skippedWarmup;
   const showStartupFailure = failed && !backendReady;
   if (!backendReady || holdForIndex) {
     return (
@@ -101,32 +103,34 @@ export default function App() {
   }
 
   return (
-    <UpdaterContext.Provider value={updater}>
-      <Layout
-        path={path}
-        prefs={prefs}
-        onChangePrefs={setPrefs}
-        forecastSource={forecastSource}
-      >
-        <ErrorBoundary resetKey={path}>
-          <Suspense
-            fallback={
-              <>
-                <Loading label="Loading view" />
-                <BlockSkeleton />
-              </>
-            }
-          >
-            <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
-          </Suspense>
-        </ErrorBoundary>
-      </Layout>
-      <UpdateSheet />
-      <UpdateConsentCard />
-      <UpdateAvailableToast />
-      <UpdatedToast />
-      <TourOverlay ctrl={homeTour} />
-    </UpdaterContext.Provider>
+    <DataRefreshContext.Provider value={dataRefresh}>
+      <UpdaterContext.Provider value={updater}>
+        <Layout
+          path={path}
+          prefs={prefs}
+          onChangePrefs={setPrefs}
+          forecastSource={forecastSource}
+        >
+          <ErrorBoundary resetKey={path}>
+            <Suspense
+              fallback={
+                <>
+                  <Loading label="Loading view" />
+                  <BlockSkeleton />
+                </>
+              }
+            >
+              <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
+            </Suspense>
+          </ErrorBoundary>
+        </Layout>
+        <UpdateSheet />
+        <UpdateConsentCard />
+        <UpdateAvailableToast />
+        <UpdatedToast />
+        <TourOverlay ctrl={homeTour} />
+      </UpdaterContext.Provider>
+    </DataRefreshContext.Provider>
   );
 }
 

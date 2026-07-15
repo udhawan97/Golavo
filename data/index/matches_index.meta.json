@@ -4,58 +4,67 @@
       "license": "CC0-1.0",
       "manifest_sha256": "7280572f4d3ae31c2f6f6cfa47ad84a99d6540c3b6fc6b54ee6ae724279dc4a7",
       "pack": "martj42-internationals-f73286079f8c",
-      "source_id": "martj42-international-results"
+      "source_id": "martj42-international-results",
+      "upstream_ref": "f73286079f8c6b48a59f8a16e895d757119dca71"
     },
     {
       "license": "CC0-1.0",
       "manifest_sha256": "64035787494d2e4b9b777f534dde41f45b47c28f744a4c4df1fe250608cf34ef",
       "pack": "openfootball-uefa-champions-league",
-      "source_id": "openfootball-champions-league"
+      "source_id": "openfootball-champions-league",
+      "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
     },
     {
       "license": "CC0-1.0",
       "manifest_sha256": "5bd91aafa5b6cdb58c43d6ee267ce7649c0d3b1f8e6851f55281913fac67c2b6",
       "pack": "openfootball-uefa-conference-league",
-      "source_id": "openfootball-champions-league"
+      "source_id": "openfootball-champions-league",
+      "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
     },
     {
       "license": "CC0-1.0",
       "manifest_sha256": "86f04f6bb6a4fef14fe2052025adddd23e6d0ddcb8ce44da68e144460df105e6",
       "pack": "openfootball-uefa-europa-league",
-      "source_id": "openfootball-champions-league"
+      "source_id": "openfootball-champions-league",
+      "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
     },
     {
       "license": "CC0-1.0",
       "manifest_sha256": "a8ed7e752c8c804eb1c488954bd5e5b0c8b84c0c6bc4ccc30402886d3684386d",
       "pack": "openfootball-deu-bl",
-      "source_id": "openfootball-football-json"
+      "source_id": "openfootball-football-json",
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
       "license": "CC0-1.0",
       "manifest_sha256": "ea2fb985a65b75c5fbd6159119353439bea4281b60f2453cea07a212a7fa51df",
       "pack": "openfootball-eng-pl",
-      "source_id": "openfootball-football-json"
+      "source_id": "openfootball-football-json",
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
       "license": "CC0-1.0",
       "manifest_sha256": "e4bc86471ed0d0e5b247422e08e60552e54b9a374bb9dac0a7739d8908c900a5",
       "pack": "openfootball-esp-ll",
-      "source_id": "openfootball-football-json"
+      "source_id": "openfootball-football-json",
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
       "license": "CC0-1.0",
       "manifest_sha256": "e9b64998f2f6cd3aba7a502b209ad68f03f4cb5ec544e6e55c2461323997ed1c",
       "pack": "openfootball-fra-l1",
-      "source_id": "openfootball-football-json"
+      "source_id": "openfootball-football-json",
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
       "license": "CC0-1.0",
       "manifest_sha256": "c339da0ad5feeb22972f3453761a11943f0f40ed0710197e72942e9dede92e83",
       "pack": "openfootball-ita-sa",
-      "source_id": "openfootball-football-json"
+      "source_id": "openfootball-football-json",
+      "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     }
   ],
-  "parquet_sha256": "00f24aa293116812910d0f4746c274c402f031c21ab0d1eb97c872bda306692b",
+  "parquet_sha256": "798f6b3b6c58803aed86074d75fdc6bce20464a01e5683eb6eb6fdef6918ef03",
   "row_count": 77350,
-  "schema_version": "0.4.0"
+  "schema_version": "0.5.0"
 }

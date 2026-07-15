@@ -26,6 +26,7 @@ import { usePicks } from "../lib/picks";
 import { PickChip, pickChipLabel } from "../components/PickChip";
 import { nationalFlag, teamMonogram, teamNameDensity } from "../lib/teamIdentity";
 import { TournamentOutlook } from "../components/TournamentOutlook";
+import { useDataGenerationRevision, useDataRefresh } from "../lib/data-refresh-context";
 
 const WELCOME_KEY = "golavo-welcome-dismissed";
 
@@ -76,6 +77,7 @@ const WINDOWS: { value: MatchWindow; label: string }[] = [
 
 export function MatchdayHome() {
   const warmup = useWarmupStatus();
+  const dataRefresh = useDataRefresh();
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.5rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
@@ -83,9 +85,20 @@ export function MatchdayHome() {
         <p className="measure dim" style={{ margin: 0 }}>
           Every game gets the full treatment — a five-model council, how each side attacks and
           defends, and the facts worth knowing. Open any match for its deep analytics read. No
-          account, no network, no invented certainty.
+          account, offline by default, no invented certainty.
         </p>
       </header>
+
+      {dataRefresh.status && (
+        <p className="small dim" role="status" style={{ margin: 0 }}>
+          {dataRefresh.status.active_generation
+            ? `Approved-source generation ${dataRefresh.status.active_generation.generation_id.slice(0, 10)} is active.`
+            : "Using the bundled offline data generation."}{" "}
+          {dataRefresh.status.sources.find((source) => source.source_id === "openfootball-football-json")?.capability === "absent" &&
+            "The approved club source has not published current-season files."}{" "}
+          <a href="#/settings">Data source health ›</a>
+        </p>
+      )}
 
       <WelcomeCard />
 
@@ -121,7 +134,8 @@ export function MatchdayHome() {
 /** Owns the window state + fetch — mounted only once the index is warm. */
 function MatchdayFeed() {
   const [window, setWindow] = useState<MatchWindow>("week");
-  const state = useAsync(() => fetchMatchesWindow(window), [window]);
+  const generationRevision = useDataGenerationRevision();
+  const state = useAsync(() => fetchMatchesWindow(window), [window, generationRevision]);
   const picks = usePicks();
   return (
     <section className="stack" style={{ ["--gap" as string]: ".9rem" }} aria-label="Matchday feed">
@@ -185,9 +199,10 @@ function WindowBody({
     if (window === "upcoming") {
       return (
         <EmptyState title="No forward fixtures in this snapshot">
-          The bundled snapshot holds no scheduled matches yet. Internationals refresh on demand —
-          turn on <a href="#/settings">Keep matches up to date</a> in Settings — and club fixtures appear
-          once the open feed publishes them. Switch to <b>Last week</b> for recent results.
+          This active generation contains no scheduled matches. You can check the approved sources
+          in <a href="#/settings">Settings</a>. Club fixtures are shown only when the approved source
+          actually publishes a current-season file; no publication is inferred. Switch to <b>Last week</b>
+          for recent results.
         </EmptyState>
       );
     }

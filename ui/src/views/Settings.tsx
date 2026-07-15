@@ -12,7 +12,8 @@ import { defaultModelAssignment, fetchLocalModels, sourceDescription } from "../
 import type { LocalModelInfo } from "../lib/api";
 import { AI_PROVIDERS, useAiBackground, useAiModels, useAiProvider, useAiResearch } from "../lib/ai";
 import type { AiProvider } from "../lib/ai";
-import { useKeepFixturesFresh } from "../lib/fixtures";
+import { useDataRefresh } from "../lib/data-refresh-context";
+import type { DataRefreshPolicy } from "../lib/fixtures";
 import type { ReadingPrefs } from "../lib/hooks";
 import { ReadingControls } from "../components/ReadingComfort";
 import { useUpdater } from "../lib/updater-context";
@@ -120,7 +121,7 @@ export function Settings({
   onChangePrefs?: (patch: Partial<ReadingPrefs>) => void;
 } = {}) {
   const u = useUpdater();
-  const [keepFresh, setKeepFresh] = useKeepFixturesFresh();
+  const dataRefresh = useDataRefresh();
   const [aiProvider, setAiProvider] = useAiProvider();
   const [aiBackground, setAiBackground] = useAiBackground();
   const [aiResearch, setAiResearch] = useAiResearch();
@@ -203,21 +204,81 @@ export function Settings({
         <div className="panel__body stack settings__rows">
           <div className="settings__field">
             <div className="settings__row">
-              <label htmlFor="fixtures-toggle">Keep matches up to date</label>
-              <input
-                id="fixtures-toggle"
-                type="checkbox"
-                checked={keepFresh}
-                onChange={(e) => setKeepFresh(e.target.checked)}
-              />
+              <label htmlFor="data-refresh-policy">Approved-source refresh</label>
+              <select
+                id="data-refresh-policy"
+                className="select"
+                value={dataRefresh.policy}
+                onChange={(event) => dataRefresh.setPolicy(event.target.value as DataRefreshPolicy)}
+              >
+                <option value="off">Off</option>
+                <option value="check_only">Check and tell me</option>
+                <option value="auto_refresh">Refresh while Golavo is open</option>
+              </select>
             </div>
             <p className="settings__hint">
-              When on, Golavo asks public CC0 sources for newly scheduled internationals and
-              published final scores when you visit the relevant page. Finished sealed forecasts
-              are settled automatically from pinned, hashed source snapshots. This is the only
-              time the app reaches the internet on its own — it’s off by default, reads only
-              public match data, and sends nothing.
+              Off by default. <b>Check and tell me</b> reads only source revisions. <b>Refresh</b>
+              downloads pinned CC0 snapshots, validates a complete new generation, and activates it
+              atomically. Automatic work runs only while this window is open; Golavo installs no
+              helper or background daemon. Existing sealed forecasts are never changed.
             </p>
+            <div className="settings__row" style={{ justifyContent: "flex-start", gap: ".6rem", flexWrap: "wrap" }}>
+              <button type="button" className="btn btn--ghost" onClick={() => void dataRefresh.checkNow()}>
+                Check now
+              </button>
+              <button type="button" className="btn btn--primary" onClick={() => void dataRefresh.refreshNow()}>
+                Refresh now
+              </button>
+              {(dataRefresh.job?.state === "queued" || dataRefresh.job?.state === "running") && (
+                <button type="button" className="btn btn--ghost" onClick={() => void dataRefresh.cancel()}>
+                  Cancel
+                </button>
+              )}
+              {dataRefresh.status?.active_generation?.rollback_available && (
+                <button type="button" className="btn btn--ghost" onClick={() => void dataRefresh.rollback()}>
+                  Use previous data
+                </button>
+              )}
+            </div>
+            {dataRefresh.job && (dataRefresh.job.state === "queued" || dataRefresh.job.state === "running") && (
+              <p className="settings__hint" role="status">
+                Refresh stage: <b>{dataRefresh.job.stage.replaceAll("_", " ")}</b>. The current data
+                stays active until validation and the final atomic swap finish.
+              </p>
+            )}
+            {dataRefresh.error && (
+              <p className="settings__hint" role="alert">Refresh could not complete: {dataRefresh.error.message}</p>
+            )}
+            {dataRefresh.status && (
+              <div className="stack" style={{ ["--gap" as string]: ".45rem" }}>
+                {dataRefresh.status.sources.map((source) => (
+                  <div className="settings__row" key={source.source_id}>
+                    <span>
+                      {source.source_id === "martj42-international-results" ? "International results" :
+                        source.source_id === "openfootball-worldcup-json" ? "World Cup fixtures" : "Top-five club seasons"}
+                    </span>
+                    <span className="small dim" style={{ textAlign: "right" }}>
+                      {source.capability === "absent"
+                        ? `${source.season ?? "Current season"} not published by source`
+                        : `${source.health} · ${source.capability}`}
+                      {source.last_checked_at_utc
+                        ? ` · checked ${formatWhen(Date.parse(source.last_checked_at_utc))}`
+                        : " · not checked yet"}
+                      {source.last_activated_at_utc
+                        ? ` · activated ${formatWhen(Date.parse(source.last_activated_at_utc))}`
+                        : ""}
+                      {source.active_ref ? ` · active ${source.active_ref.slice(0, 8)}` : ""}
+                      {source.observed_ref && source.observed_ref !== source.active_ref
+                        ? ` · observed ${source.observed_ref.slice(0, 8)}`
+                        : ""}
+                    </span>
+                  </div>
+                ))}
+                {dataRefresh.status.using_bundled_fallback && (
+                  <p className="settings__hint">Using the bundled, offline data generation.</p>
+                )}
+              </div>
+            )}
           </div>
           <div className="settings__row">
             <span>Map &amp; place data</span>

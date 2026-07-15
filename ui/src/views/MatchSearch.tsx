@@ -11,14 +11,13 @@
  * not "played").
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { MatchRow, NewFixture, SourceKind } from "../lib/contract";
-import { ApiError, checkNewFixtures, fetchCompetitions, searchMatches } from "../lib/api";
-import { useKeepFixturesFresh } from "../lib/fixtures";
-import { beginActivity, endActivity } from "../lib/activity";
+import type { MatchRow, SourceKind } from "../lib/contract";
+import { ApiError, fetchCompetitions, searchMatches } from "../lib/api";
 import { utcDate } from "../lib/format";
 import { useAsync, useDebouncedValue } from "../lib/hooks";
 import { InfoIcon, SearchIcon } from "../components/icons";
 import { EmptyState, ErrorState, ListSkeleton, Loading } from "../components/states";
+import { useDataGenerationRevision } from "../lib/data-refresh-context";
 
 type StatusFilter = "all" | "played" | "upcoming";
 const PAGE = 25;
@@ -68,6 +67,7 @@ export function MatchSearch() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState(false);
   const [retryTick, setRetryTick] = useState(0);
+  const generationRevision = useDataGenerationRevision();
 
   // Restore the query/filters after a round-trip into a match detail.
   useEffect(() => {
@@ -76,7 +76,7 @@ export function MatchSearch() {
     sessionStorage.setItem(SS_STATUS, status);
   }, [input, competition, status]);
 
-  const comps = useAsync(fetchCompetitions, []);
+  const comps = useAsync(fetchCompetitions, [generationRevision]);
 
   // Stable options object so the fresh-search effect re-runs only on real
   // filter changes, not on every render.
@@ -123,7 +123,7 @@ export function MatchSearch() {
     return () => {
       alive = false;
     };
-  }, [query, opts, retryTick]);
+  }, [query, opts, retryTick, generationRevision]);
 
   // Re-run the current search (used by the "Try again" affordances).
   const retry = () => setRetryTick((t) => t + 1);
@@ -162,7 +162,6 @@ export function MatchSearch() {
         </p>
       </header>
 
-      <NewFixturesNotice />
 
       <div className="ms-searchbox">
         <SearchIcon size={18} className="ms-searchbox__icon" aria-hidden />
@@ -305,54 +304,6 @@ export function MatchSearch() {
           </div>
         )
       )}
-    </div>
-  );
-}
-
-/** Opt-in awareness: when "keep fixtures up to date" is on, ask the CC0 source
- *  once (on mount) whether a new upcoming fixture has appeared and flag it.
- *  Best-effort and silent on any failure — it never blocks search, and it makes
- *  no network call at all unless the user enabled the setting. */
-function NewFixturesNotice() {
-  const [enabled] = useKeepFixturesFresh();
-  const [fresh, setFresh] = useState<NewFixture[]>([]);
-  useEffect(() => {
-    if (!enabled) return;
-    let alive = true;
-    beginActivity("fixtures", "Checking upstream fixtures…");
-    checkNewFixtures()
-      .then((res) => {
-        if (alive && res) setFresh(res.new_fixtures);
-      })
-      .finally(() => endActivity("fixtures"));
-    return () => {
-      alive = false;
-      endActivity("fixtures");
-    };
-  }, [enabled]);
-  if (!enabled || fresh.length === 0) return null;
-  return (
-    <div className="callout callout--info" role="status">
-      <InfoIcon size={18} />
-      <div>
-        <div className="callout__title">
-          {fresh.length === 1
-            ? "A new fixture is on the way"
-            : `${fresh.length} new fixtures are on the way`}
-        </div>
-        <ul className="small" style={{ margin: ".3rem 0 0", paddingLeft: "1.1rem" }}>
-          {fresh.slice(0, 4).map((f) => (
-            <li key={`${f.date}-${f.home_team}-${f.away_team}`}>
-              {f.home_team} v {f.away_team} · {f.competition} ·{" "}
-              <span className="num">{f.date}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="small dim" style={{ margin: ".45rem 0 0" }}>
-          Just scheduled at the data source — they become searchable and forecastable in the
-          next Golavo update.
-        </p>
-      </div>
     </div>
   );
 }

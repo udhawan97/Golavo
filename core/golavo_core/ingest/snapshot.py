@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -21,16 +22,77 @@ REQUIRED_RESULT_COLUMNS = {
     "neutral",
 }
 
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_REQUIRED_MANIFEST_FIELDS = {
+    "source_id",
+    "upstream_ref",
+    "files",
+    "license",
+}
+
+
+def _safe_declared_path(pack_dir: Path, name: object) -> Path:
+    """Resolve one manifest file without permitting path escape or symlinks."""
+    if not isinstance(name, str) or not name or "\\" in name:
+        raise ValueError(f"{pack_dir}: invalid manifest file name {name!r}")
+    relative = Path(name)
+    if relative.is_absolute() or ".." in relative.parts:
+        raise ValueError(f"{pack_dir}: unsafe manifest file path {name!r}")
+    path = pack_dir / relative
+    if path.is_symlink():
+        raise ValueError(f"{pack_dir}: manifest file must not be a symlink: {name}")
+    return path
+
 
 def validate_pack(pack_dir: Path) -> dict[str, Any]:
-    """Validate declared pack bytes and return the parsed manifest."""
+    """Validate a complete, path-safe sourcepack and return its manifest.
+
+    The manifest is the provenance boundary for both bundled and runtime packs.
+    Unknown auxiliary files are rejected: an undeclared overlay or parser input
+    must never influence an index without its bytes being hashed.
+    """
+    pack_dir = Path(pack_dir)
     manifest_path = pack_dir / "manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    for entry in manifest.get("files", []):
-        path = pack_dir / entry["name"]
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError) as exc:
+        raise ValueError(f"{pack_dir}: missing or invalid manifest.json") from exc
+    if not isinstance(manifest, dict):
+        raise ValueError(f"{pack_dir}: manifest must be an object")
+    missing = _REQUIRED_MANIFEST_FIELDS - set(manifest)
+    if missing:
+        raise ValueError(f"{pack_dir}: manifest missing fields: {sorted(missing)}")
+    if not isinstance(manifest["files"], list) or not manifest["files"]:
+        raise ValueError(f"{pack_dir}: manifest files must be a non-empty array")
+
+    declared: set[str] = set()
+    for entry in manifest["files"]:
+        if not isinstance(entry, dict):
+            raise ValueError(f"{pack_dir}: manifest file entry must be an object")
+        name = entry.get("name")
+        path = _safe_declared_path(pack_dir, name)
+        if str(name) in declared:
+            raise ValueError(f"{pack_dir}: duplicate manifest file {name!r}")
+        declared.add(str(name))
+        expected = entry.get("sha256")
+        if not isinstance(expected, str) or _SHA256_RE.fullmatch(expected) is None:
+            raise ValueError(f"{pack_dir}: invalid sha256 for {name!r}")
+        if not path.is_file():
+            raise ValueError(f"{pack_dir}: declared file is missing: {name}")
         actual = hashlib.sha256(path.read_bytes()).hexdigest()
-        if actual != entry["sha256"]:
+        if actual != expected:
             raise ValueError(f"provenance hash mismatch for {path}")
+
+    present = {
+        path.relative_to(pack_dir).as_posix()
+        for path in pack_dir.rglob("*")
+        if path.is_file() and path.name != "manifest.json"
+    }
+    undeclared = present - declared
+    if undeclared:
+        raise ValueError(
+            f"{pack_dir}: files present but not declared in the manifest: {sorted(undeclared)}"
+        )
     return manifest
 
 
@@ -62,7 +124,7 @@ def co_source_descriptors(pack_dir: Path) -> list[dict[str, str]]:
     descriptors are appended to a seal's ``inputs.snapshots`` so the artifact honestly
     names every source it drew on — the training source AND the fixture source.
     """
-    manifest = json.loads((pack_dir / "manifest.json").read_text(encoding="utf-8"))
+    manifest = validate_pack(pack_dir)
     descriptors: list[dict[str, str]] = []
     for entry in manifest.get("co_sources", []):
         ref = str(entry["upstream_ref"])
@@ -150,9 +212,13 @@ def load_match_table(pack_dir: Path) -> pd.DataFrame:
     required_non_score = REQUIRED_RESULT_COLUMNS - {"home_score", "away_score"}
     if matches[list(required_non_score)].isna().any().any():
         raise ValueError("results.csv contains nulls in required identity fields")
-    if matches[["home_score", "away_score"]].isna().any(axis=1).ne(
-        matches[["home_score", "away_score"]].isna().all(axis=1)
-    ).any():
+    if (
+        matches[["home_score", "away_score"]]
+        .isna()
+        .any(axis=1)
+        .ne(matches[["home_score", "away_score"]].isna().all(axis=1))
+        .any()
+    ):
         raise ValueError("a fixture must have both scores or neither score")
     if (matches[["home_score", "away_score"]].dropna() < 0).any().any():
         raise ValueError("results.csv contains a negative score")
@@ -196,7 +262,12 @@ def training_rows(matches: pd.DataFrame, cutoff_utc: str | pd.Timestamp) -> pd.D
     cutoff = pd.Timestamp(cutoff_utc)
     cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
     dates = pd.to_datetime(matches["date"], utc=True)
-    selected = matches.loc[(dates <= cutoff) & matches["is_complete"]].copy()
+    eligible = (
+        matches["training_eligible"].astype("boolean").fillna(False)
+        if "training_eligible" in matches.columns
+        else matches["is_complete"].astype("boolean").fillna(False)
+    )
+    selected = matches.loc[(dates <= cutoff) & matches["is_complete"] & eligible].copy()
     assert_no_future_rows(selected, cutoff)
     return selected
 

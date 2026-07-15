@@ -18,7 +18,7 @@ import { DATA_SOURCE, fetchCalibration, settleForecasts } from "../lib/api";
 import { num, pct, utc, utcDate } from "../lib/format";
 import { METRIC_GLOSS } from "../lib/glossary";
 import { useAsync } from "../lib/hooks";
-import { useKeepFixturesFresh } from "../lib/fixtures";
+import { useDataRefreshPolicy } from "../lib/fixtures";
 import { beginActivity, endActivity } from "../lib/activity";
 import { ReliabilityDiagram } from "../components/ReliabilityDiagram";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
@@ -31,7 +31,7 @@ type SettlementState =
 
 export function PredictionLedger() {
   const [revision, setRevision] = useState(0);
-  const [keepFresh] = useKeepFixturesFresh();
+  const [refreshPolicy] = useDataRefreshPolicy();
   const [settlement, setSettlement] = useState<SettlementState>({ status: "idle" });
   const state = useAsync(fetchCalibration, [revision]);
   const checkResults = useCallback(async () => {
@@ -55,8 +55,8 @@ export function PredictionLedger() {
   // Existing privacy preference: no automatic internet access unless the user
   // enabled keep-data-fresh. A manual result check remains available regardless.
   useEffect(() => {
-    if (keepFresh) void checkResults();
-  }, [checkResults, keepFresh]);
+    if (refreshPolicy === "auto_refresh") void checkResults();
+  }, [checkResults, refreshPolicy]);
 
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.6rem" }}>

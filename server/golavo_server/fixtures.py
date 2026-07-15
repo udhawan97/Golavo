@@ -1,12 +1,12 @@
-"""Opt-in fixture freshness: check the CC0 upstream for a genuinely-new fixture.
+"""Deprecated read-only fixture awareness for pre-refresh UI clients.
 
-Golavo is local-first and makes **no** automatic network calls; this module is the
-one exception, and it runs only when the user turns on "keep fixtures up to date"
-and the UI calls the check endpoint. It fetches martj42's ``results.csv`` (the same
+Golavo is local-first and this compatibility module runs only when an older UI
+calls the check endpoint. It fetches martj42's ``results.csv`` (the same
 CC0 source the packs are pinned from), finds scheduled fixtures whose kickoff is
 still ahead, and reports those NOT already in the committed index — i.e. genuinely
 new upcoming games the user could forecast once the data is refreshed. It never
-writes, seals, or rebuilds anything: it is a read-only awareness check.
+writes, seals, or rebuilds anything. New clients use ``refresh_sources`` and the
+versioned /api/v1/data routes; remove this shim after the compatibility release.
 """
 
 from __future__ import annotations
@@ -16,7 +16,8 @@ import io
 import json
 from datetime import UTC, datetime
 from typing import Any
-from urllib.request import urlopen
+
+from .refresh_sources import Fetcher, RefreshSourceError
 
 SCHEMA_VERSION = "0.2.0"
 _COMMIT_API = "https://api.github.com/repos/martj42/international_results/commits/master"
@@ -55,9 +56,8 @@ def future_fixtures_from_csv(csv_text: str, now: datetime) -> list[dict[str, str
 
 def _fetch(url: str) -> bytes:
     try:
-        with urlopen(url, timeout=20) as response:  # noqa: S310 (pinned https URLs)
-            return response.read()
-    except Exception as exc:  # noqa: BLE001 (any transport failure => an honest 503)
+        return Fetcher().get(url, max_bytes=32 * 1024 * 1024).body
+    except RefreshSourceError as exc:
         raise FixtureCheckError(f"could not reach the fixture source: {exc}") from exc
 
 

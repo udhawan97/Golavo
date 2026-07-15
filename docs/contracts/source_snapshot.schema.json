@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/source_snapshot.schema.json",
+  "title": "Approved source snapshot receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_id", "repository", "branch", "upstream_ref", "upstream_committed_at_utc", "retrieved_at_utc", "license", "files"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "source_id": {"enum": ["martj42-international-results", "openfootball-worldcup-json", "openfootball-football-json"]},
+    "repository": {"type": "string"},
+    "branch": {"type": "string"},
+    "upstream_ref": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "upstream_committed_at_utc": {"type": "string", "format": "date-time"},
+    "retrieved_at_utc": {"type": "string", "format": "date-time"},
+    "etag": {"type": ["string", "null"]},
+    "license": {"const": "CC0-1.0"},
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "pinned_url", "sha256", "bytes", "content_type"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "pinned_url": {"type": "string", "format": "uri"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 0},
+          "content_type": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

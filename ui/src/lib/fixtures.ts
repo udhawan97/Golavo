@@ -1,32 +1,65 @@
-/**
- * The "keep matches up to date" preference (off by default).
- *
- * Golavo makes no automatic network calls; turning this on is the user's explicit
- * consent for the app to ask CC0 sources whether a new upcoming fixture has
- * appeared and whether a completed sealed forecast has a published final result.
- * Persisted like the other local preferences (theme, AI provider).
- */
-import { useCallback, useState } from "react";
+/** Versioned consent policy for approved-source network access. */
+import { useCallback, useEffect, useState } from "react";
 
-const KEY = "golavo-fixtures-autorefresh";
+export type DataRefreshPolicy = "off" | "check_only" | "auto_refresh";
 
-export function keepFixturesFreshEnabled(): boolean {
+const KEY = "golavo-data-refresh-policy-v2";
+const LEGACY_KEY = "golavo-fixtures-autorefresh";
+export const DATA_REFRESH_POLICY_EVENT = "golavo-data-refresh-policy-changed";
+
+function valid(value: string | null): value is DataRefreshPolicy {
+  return value === "off" || value === "check_only" || value === "auto_refresh";
+}
+
+export function dataRefreshPolicy(): DataRefreshPolicy {
   try {
-    return localStorage.getItem(KEY) === "on";
+    const current = localStorage.getItem(KEY);
+    if (valid(current)) return current;
+    // The old toggle consented to awareness/result checks, not automatic pack
+    // downloads and activation. Preserve it as the narrower check-only state.
+    const migrated: DataRefreshPolicy =
+      localStorage.getItem(LEGACY_KEY) === "on" ? "check_only" : "off";
+    localStorage.setItem(KEY, migrated);
+    localStorage.removeItem(LEGACY_KEY);
+    return migrated;
   } catch {
-    return false;
+    return "off";
   }
 }
 
-export function useKeepFixturesFresh(): [boolean, (on: boolean) => void] {
-  const [enabled, setEnabledState] = useState<boolean>(keepFixturesFreshEnabled);
-  const setEnabled = useCallback((next: boolean) => {
-    setEnabledState(next);
-    try {
-      localStorage.setItem(KEY, next ? "on" : "off");
-    } catch {
-      /* ignore — a private-mode storage failure just means the setting won't persist */
-    }
+export function setDataRefreshPolicy(policy: DataRefreshPolicy): void {
+  try {
+    localStorage.setItem(KEY, policy);
+  } catch {
+    /* private-mode storage failure leaves the safe default on the next launch */
+  }
+  window.dispatchEvent(new CustomEvent(DATA_REFRESH_POLICY_EVENT, { detail: policy }));
+}
+
+export function useDataRefreshPolicy(): [DataRefreshPolicy, (policy: DataRefreshPolicy) => void] {
+  const [policy, setPolicyState] = useState<DataRefreshPolicy>(dataRefreshPolicy);
+  useEffect(() => {
+    const update = () => setPolicyState(dataRefreshPolicy());
+    window.addEventListener(DATA_REFRESH_POLICY_EVENT, update);
+    window.addEventListener("storage", update);
+    return () => {
+      window.removeEventListener(DATA_REFRESH_POLICY_EVENT, update);
+      window.removeEventListener("storage", update);
+    };
   }, []);
-  return [enabled, setEnabled];
+  const setPolicy = useCallback((next: DataRefreshPolicy) => {
+    setDataRefreshPolicy(next);
+    setPolicyState(next);
+  }, []);
+  return [policy, setPolicy];
+}
+
+// Compatibility for code outside the refresh controller during the migration.
+export function keepFixturesFreshEnabled(): boolean {
+  return dataRefreshPolicy() !== "off";
+}
+
+export function useKeepFixturesFresh(): [boolean, (on: boolean) => void] {
+  const [policy, setPolicy] = useDataRefreshPolicy();
+  return [policy !== "off", (on) => setPolicy(on ? "check_only" : "off")];
 }

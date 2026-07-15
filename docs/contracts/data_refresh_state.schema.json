@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/data_refresh_state.schema.json",
+  "title": "Golavo local refresh state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "sources", "job", "last_error"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "sources": {"type": "object", "additionalProperties": {"type": "object"}},
+    "job": {"type": ["object", "null"]},
+    "last_error": {"type": ["object", "null"]}
+  }
+}

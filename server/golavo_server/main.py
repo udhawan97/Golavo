@@ -20,6 +20,7 @@ from golavo_server import (
     conditions,
     matches,
     outlook,
+    refresh_jobs,
     research_pack,
     runtime,
     seal,
@@ -153,9 +154,13 @@ def meta() -> dict[str, Any]:
     """UI hints the frontend can't infer on its own — chiefly whether the
     forecast surface is showing bundled synthetic samples (fresh install) so the
     UI can label them honestly instead of as live data."""
+    data_status = refresh_jobs.status()
+    active = data_status.get("active_generation") or {}
     return {
         "version": __version__,
         "forecast_source": "sample" if showing_samples() else "ledger",
+        "refresh_supported": data_status["refresh_supported"],
+        "data_generation_id": active.get("generation_id"),
     }
 
 
@@ -764,12 +769,10 @@ async def create_seal(match_id: str, request: Request) -> JSONResponse:
 
 @app.get("/api/v1/fixtures/check")
 def fixtures_check() -> dict[str, Any]:
-    """Opt-in fixture freshness: report genuinely-new upcoming fixtures upstream.
+    """Deprecated compatibility check for pre-refresh UI builds.
 
-    The ONLY route that reaches the network, and it does so only when the UI —
-    with the user's "keep fixtures up to date" setting on — calls it. Read-only:
-    it diffs the CC0 source against the committed index and returns upcoming games
-    not yet present; it never writes, seals, or rebuilds anything.
+    New clients use /api/v1/data/* for approved-source revision checks, immutable
+    snapshots and atomic activation. This route stays read-only for one release.
     """
     from golavo_server import fixtures
 
@@ -783,6 +786,71 @@ def fixtures_check() -> dict[str, Any]:
         raise HTTPException(
             status_code=503,
             detail={"reason_code": "fixture_source_unreachable", "message": str(exc)},
+        ) from exc
+
+
+@app.get("/api/v1/data/status")
+def data_refresh_status() -> dict[str, Any]:
+    """Source-specific check, activation, capability and rollback state."""
+    return refresh_jobs.status()
+
+
+@app.post("/api/v1/data/refresh")
+async def start_data_refresh(request: Request) -> JSONResponse:
+    """Start one approved-source check or check-and-refresh job.
+
+    The sidecar never invokes this route itself. Automatic launch/periodic calls
+    originate in the visible UI after the persisted consent policy is read.
+    """
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        body = {}
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="request body must be an object")
+    mode = body.get("mode", "check")
+    trigger = body.get("trigger", "manual")
+    source_ids = body.get("source_ids")
+    if source_ids is not None and not (
+        isinstance(source_ids, list) and all(isinstance(item, str) for item in source_ids)
+    ):
+        raise HTTPException(status_code=422, detail="source_ids must be an array of strings")
+    try:
+        job, deduplicated = refresh_jobs.coordinator().start(
+            mode=str(mode), source_ids=source_ids, trigger=str(trigger)
+        )
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(
+            status_code=422 if isinstance(exc, ValueError) else 503,
+            detail={"reason_code": "refresh_unavailable", "message": str(exc)},
+        ) from exc
+    return JSONResponse(status_code=202, content={**job, "deduplicated": deduplicated})
+
+
+@app.get("/api/v1/data/refresh/{job_id}")
+def get_data_refresh_job(job_id: str) -> dict[str, Any]:
+    job = refresh_jobs.coordinator().get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="refresh job not found")
+    return job
+
+
+@app.post("/api/v1/data/refresh/{job_id}/cancel")
+def cancel_data_refresh_job(job_id: str) -> dict[str, Any]:
+    job = refresh_jobs.coordinator().cancel(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="refresh job not found")
+    return job
+
+
+@app.post("/api/v1/data/rollback")
+def rollback_data_refresh() -> dict[str, Any]:
+    try:
+        return refresh_jobs.rollback()
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "rollback_unavailable", "message": str(exc)},
         ) from exc
 
 

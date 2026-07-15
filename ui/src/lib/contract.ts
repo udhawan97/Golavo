@@ -653,6 +653,14 @@ export interface MatchRow {
   is_complete: boolean;
   source_kind: SourceKind;
   source_id: string;
+  provenance?: {
+    identity?: string | null;
+    result?: string | null;
+    kickoff?: string | null;
+    venue?: string | null;
+    training?: string | null;
+  };
+  upstream_fixture_key?: string | null;
   forecasts: MatchForecastLink[];
 }
 
@@ -907,6 +915,88 @@ export interface FixturesCheckResponse {
   source_ref: string;
   checked_at_utc: string;
   new_fixtures: NewFixture[];
+}
+
+export type RefreshHealth =
+  | "current"
+  | "unchanged"
+  | "stale"
+  | "offline"
+  | "backoff"
+  | "invalid"
+  | "conflict"
+  | "unavailable";
+
+export type RefreshCapability =
+  | "available"
+  | "partial"
+  | "complete"
+  | "absent"
+  | "invalid"
+  | "unavailable";
+
+export interface RefreshErrorDetail {
+  code: string;
+  message: string;
+  retryable: boolean;
+}
+
+export interface RefreshSourceStatus {
+  source_id: string;
+  health: RefreshHealth;
+  capability: RefreshCapability;
+  active_ref: string | null;
+  observed_ref: string | null;
+  etag: string | null;
+  last_checked_at_utc: string | null;
+  last_changed_at_utc: string | null;
+  last_activated_at_utc: string | null;
+  data_through_utc: string | null;
+  next_check_after_utc: string | null;
+  season: string | null;
+  current_paths: string[];
+  competitions: Array<{
+    competition?: string;
+    league_code?: string;
+    season?: string;
+    capability: RefreshCapability;
+    certificate?: Record<string, unknown>;
+  }>;
+  error: RefreshErrorDetail | null;
+}
+
+export interface DataRefreshJob {
+  schema_version: "0.1.0";
+  job_id: string;
+  state: "queued" | "running" | "done" | "failed" | "cancelled";
+  stage: "queued" | "checking" | "downloading" | "validating" | "building" | "activating" | "done";
+  mode: "check" | "refresh";
+  trigger: "manual" | "launch" | "periodic";
+  source_ids: string[];
+  created_at_utc: string;
+  updated_at_utc: string;
+  cancel_requested: boolean;
+  progress: Record<string, unknown>;
+  result: Record<string, unknown> | null;
+  error: RefreshErrorDetail | null;
+  deduplicated?: boolean;
+}
+
+export interface DataRefreshStatus {
+  schema_version: "0.1.0";
+  refresh_supported: boolean;
+  active_generation: {
+    generation_id: string;
+    activated_at_utc: string | null;
+    index_sha256: string;
+    rollback_available: boolean;
+    using_previous_generation: boolean;
+    using_bundled_fallback: false;
+  } | null;
+  using_bundled_fallback: boolean;
+  sources: RefreshSourceStatus[];
+  job: DataRefreshJob | null;
+  last_error: RefreshErrorDetail | null;
 }
 
 export interface CompetitionSummary {

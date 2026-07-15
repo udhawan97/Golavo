@@ -50,7 +50,7 @@ def data_dir() -> Path:
 
 
 def refresh_dir() -> Path | None:
-    """Writable directory holding a runtime-refreshed index + pinned pack, or None.
+    """Writable root for immutable refresh generations, or None.
 
     An opt-in refresh pulls a fresh internationals snapshot into a per-user
     location so a newly published fixture becomes searchable and sealable without
@@ -66,14 +66,25 @@ def refresh_dir() -> Path | None:
 
 
 def refreshed_pack_dir() -> Path | None:
-    """The pinned internationals CC0 pack a runtime refresh writes, or None.
+    """The active generation's pinned international pack, or a legacy fallback.
 
-    A single, stable location inside the refresh dir so search (index rebuild),
-    sealing (pack resolution) and the refresh orchestrator all agree on where the
-    fresh snapshot lives. None whenever there is no writable refresh root.
+    Generation resolution validates every declared artifact before returning a
+    path. The legacy ``refresh/pack`` check keeps older test/runtime state safe
+    during the one-version migration and can be removed after v0.14.
     """
     root = refresh_dir()
-    return (root / "pack") if root is not None else None
+    if root is None:
+        return None
+    try:
+        from golavo_server import refresh_state
+
+        active = refresh_state.active_pack_dir()
+    except (OSError, RuntimeError, ValueError):
+        active = None
+    if active is not None:
+        return active
+    legacy = root / "pack"
+    return legacy if (legacy / "manifest.json").is_file() else legacy
 
 
 def analysis_cache_dir() -> Path | None:

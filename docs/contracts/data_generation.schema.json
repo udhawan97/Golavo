@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/data_generation.schema.json",
+  "title": "Golavo activated data generation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generation_id", "created_at_utc", "source_snapshots", "capabilities", "change_summary", "artifacts"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "generation_id": {"type": "string", "pattern": "^g_[0-9a-f]{64}$"},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "source_snapshots": {"type": "array", "minItems": 2, "items": {"$ref": "source_snapshot.schema.json"}},
+    "capabilities": {"type": "array", "items": {"type": "object"}},
+    "change_summary": {
+      "type": "object",
+      "required": ["added_matches", "removed_incomplete_matches", "new_results"],
+      "properties": {
+        "added_matches": {"type": "integer"},
+        "removed_incomplete_matches": {"type": "integer"},
+        "new_results": {"type": "integer"}
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "bytes"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}

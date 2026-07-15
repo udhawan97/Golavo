@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "_comment": "Machine-readable registry of every data source and redistributable dataset Golavo carries, plans, or has rejected. It is the single source of truth for attribution, license classification, and CI provenance gates. scripts/validate_sources.py cross-checks it against packs/snapshots.json and every pack manifest; scripts/gen_third_party_notices.py renders THIRD_PARTY_NOTICES.md from it. Contributor names are derived ONLY from an upstream LICENSE/CITATION/repository owner or a cited paper's author list, never invented. Verified dates record a live primary-source check; recheck_by marks blocked/rejected entries to revisit.",
   "license_classes": {
     "core": "CC0-1.0 / public-domain data folded into the bundled index; joins freely within the class.",
@@ -21,6 +21,16 @@
       "license_url": "https://github.com/martj42/international_results/blob/master/LICENSE",
       "classification": "core",
       "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "martj42-international-results",
+        "repository": "martj42/international_results",
+        "branch": "master",
+        "allowed_paths": ["results.csv", "goalscorers.csv", "shootouts.csv", "former_names.csv", "LICENSE"],
+        "default_interval_seconds": 21600,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
       "fields": "men's senior international results 1872-present, date-only (00:00 UTC kickoff proxy), goalscorers, shootouts, former-name aliases",
       "attribution": "International football results from martj42/international_results (Mart Jürisoo), CC0-1.0.",
       "verified": "2026-07-12",
@@ -35,7 +45,17 @@
       "license_url": "https://github.com/openfootball/football.json/blob/master/LICENSE.md",
       "classification": "core",
       "pin_strategy": "commit",
-      "fields": "top-five European league results, completed historical seasons through 2025-26 (no 2026-27 published as of verified date)",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-football-json",
+        "repository": "openfootball/football.json",
+        "branch": "master",
+        "allowed_paths": ["<current-season>/en.1.json", "<current-season>/es.1.json", "<current-season>/de.1.json", "<current-season>/it.1.json", "<current-season>/fr.1.json", "LICENSE.md"],
+        "default_interval_seconds": 86400,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
+      "fields": "top-five European league files published through 2025-26; season completeness is certified per league and 2025-26 is incomplete in the audited snapshot (no 2026-27 files published as of verified date)",
       "attribution": "Club football results from openfootball/football.json (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-12",
       "notes": "Bundled, search/backtest only (five leagues share one source_id, so not seal-eligible). Naive local kickoff time; club rows carry kickoff_precision=day."
@@ -49,6 +69,16 @@
       "license_url": "https://github.com/openfootball/worldcup.json/blob/master/LICENSE.md",
       "classification": "core",
       "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-worldcup-json",
+        "repository": "openfootball/worldcup.json",
+        "branch": "master",
+        "allowed_paths": ["2026/worldcup.json", "2026/worldcup.stadiums.json", "LICENSE.md"],
+        "default_interval_seconds": 21600,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
       "fields": "World Cup fixtures/results with exact kickoff time + UTC offset, round, venue city, stadium timezone/coords (separate stadiums file); knockout placeholders W###/L### before teams resolve",
       "attribution": "World Cup fixtures and kickoff times from openfootball/worldcup.json (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-12",

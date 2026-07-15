@@ -165,7 +165,7 @@ export function Layout({
               className={`chip chip--${isSample ? "voided" : sourceKnown ? "scored" : "neutral"}`}
               style={{ marginRight: ".5rem" }}
             >
-              {isSample ? "Sample data" : sourceKnown ? "Live" : "Connecting…"}
+              {isSample ? "Sample data" : sourceKnown ? "Local engine" : "Connecting…"}
             </span>
             {sourceKnown
               ? sourceDescription(forecastSource ?? undefined)

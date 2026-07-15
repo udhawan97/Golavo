@@ -19,6 +19,8 @@ import type {
   ConditionsSnapshot,
   CompetitionAnalytics,
   CompetitionsResponse,
+  DataRefreshJob,
+  DataRefreshStatus,
   EvalSummary,
   FixturesCheckResponse,
   ForecastArtifact,
@@ -1076,14 +1078,10 @@ export async function fetchMatchNarrative(
   return postNarrative(`/api/v1/matches/${encodeURIComponent(matchId)}/narrative`, provider, opts, matchId);
 }
 
-/**
- * Opt-in fixture freshness (see the "keep fixtures up to date" setting).
+/** Deprecated compatibility call for pre-refresh clients.
  *
- * Hits the ONE network-reaching route, `/fixtures/check`, which reports upcoming
- * games present upstream but not yet in this build's index. Best-effort: any
- * failure (offline, 503, no backend) yields `null`, so this convenience never
- * disrupts the app. Callers should invoke it ONLY when the user enabled the
- * setting — the app must not reach the network otherwise.
+ * The current app uses the versioned `/data/*` job API below. This read-only
+ * awareness call remains best-effort for one compatibility release.
  */
 export async function checkNewFixtures(): Promise<FixturesCheckResponse | null> {
   if (!API_BASE) return null;
@@ -1094,6 +1092,64 @@ export async function checkNewFixtures(): Promise<FixturesCheckResponse | null> 
   } catch {
     return null;
   }
+}
+
+export async function fetchDataRefreshStatus(): Promise<DataRefreshStatus | null> {
+  if (!API_BASE) return null;
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/data/status`, { headers: apiHeaders() });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new ApiError("Data refresh status failed", res.status);
+    return (await res.json()) as DataRefreshStatus;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    return null;
+  }
+}
+
+export async function startDataRefresh(
+  mode: "check" | "refresh",
+  trigger: "manual" | "launch" | "periodic",
+): Promise<DataRefreshJob> {
+  if (!API_BASE) throw new Error("Data refresh needs the local Golavo engine");
+  const headers = { ...apiHeaders(), "content-type": "application/json" };
+  const res = await fetch(`${API_BASE}/api/v1/data/refresh`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ schema_version: "0.1.0", mode, trigger }),
+  });
+  if (!res.ok) throw new ApiError("Could not start data refresh", res.status);
+  return (await res.json()) as DataRefreshJob;
+}
+
+export async function fetchDataRefreshJob(jobId: string): Promise<DataRefreshJob> {
+  if (!API_BASE) throw new Error("Data refresh needs the local Golavo engine");
+  const res = await fetch(
+    `${API_BASE}/api/v1/data/refresh/${encodeURIComponent(jobId)}`,
+    { headers: apiHeaders() },
+  );
+  if (!res.ok) throw new ApiError("Could not read data refresh job", res.status);
+  return (await res.json()) as DataRefreshJob;
+}
+
+export async function cancelDataRefresh(jobId: string): Promise<DataRefreshJob> {
+  if (!API_BASE) throw new Error("Data refresh needs the local Golavo engine");
+  const res = await fetch(
+    `${API_BASE}/api/v1/data/refresh/${encodeURIComponent(jobId)}/cancel`,
+    { method: "POST", headers: apiHeaders() },
+  );
+  if (!res.ok) throw new ApiError("Could not cancel data refresh", res.status);
+  return (await res.json()) as DataRefreshJob;
+}
+
+export async function rollbackDataRefresh(): Promise<void> {
+  if (!API_BASE) throw new Error("Data refresh needs the local Golavo engine");
+  const res = await fetch(`${API_BASE}/api/v1/data/rollback`, {
+    method: "POST",
+    headers: apiHeaders(),
+  });
+  if (!res.ok) throw new ApiError("Could not roll back data", res.status);
+  clearApiCache();
 }
 
 // ---- Match directory --------------------------------------------------------

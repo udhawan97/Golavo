@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/data_refresh_api.schema.json",
+  "title": "Golavo approved-source refresh status API",
+  "$defs": {
+    "nullableTimestamp": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "error": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message", "retryable"],
+          "properties": {
+            "code": {"type": "string"},
+            "message": {"type": "string"},
+            "retryable": {"type": "boolean"}
+          }
+        }
+      ]
+    },
+    "capability": {
+      "enum": ["available", "partial", "complete", "absent", "invalid", "unavailable"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "health",
+        "capability",
+        "active_ref",
+        "observed_ref",
+        "etag",
+        "last_checked_at_utc",
+        "last_changed_at_utc",
+        "last_activated_at_utc",
+        "data_through_utc",
+        "next_check_after_utc",
+        "season",
+        "current_paths",
+        "competitions",
+        "error"
+      ],
+      "properties": {
+        "source_id": {
+          "enum": [
+            "martj42-international-results",
+            "openfootball-worldcup-json",
+            "openfootball-football-json"
+          ]
+        },
+        "health": {
+          "enum": [
+            "current",
+            "unchanged",
+            "stale",
+            "offline",
+            "backoff",
+            "invalid",
+            "conflict",
+            "unavailable"
+          ]
+        },
+        "capability": {"$ref": "#/$defs/capability"},
+        "active_ref": {"type": ["string", "null"], "pattern": "^[0-9a-f]{40}$"},
+        "observed_ref": {"type": ["string", "null"], "pattern": "^[0-9a-f]{40}$"},
+        "etag": {"type": ["string", "null"]},
+        "last_checked_at_utc": {"$ref": "#/$defs/nullableTimestamp"},
+        "last_changed_at_utc": {"$ref": "#/$defs/nullableTimestamp"},
+        "last_activated_at_utc": {"$ref": "#/$defs/nullableTimestamp"},
+        "data_through_utc": {"$ref": "#/$defs/nullableTimestamp"},
+        "next_check_after_utc": {"$ref": "#/$defs/nullableTimestamp"},
+        "season": {"type": ["string", "null"]},
+        "current_paths": {"type": "array", "items": {"type": "string"}},
+        "competitions": {"type": "array", "items": {"type": "object"}},
+        "error": {"$ref": "#/$defs/error"}
+      }
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "job_id",
+        "state",
+        "stage",
+        "mode",
+        "trigger",
+        "source_ids",
+        "created_at_utc",
+        "updated_at_utc",
+        "cancel_requested",
+        "progress",
+        "result",
+        "error"
+      ],
+      "properties": {
+        "schema_version": {"const": "0.1.0"},
+        "job_id": {"type": "string", "pattern": "^rj_[0-9a-f]{32}$"},
+        "state": {"enum": ["queued", "running", "done", "failed", "cancelled"]},
+        "stage": {
+          "enum": [
+            "queued",
+            "checking",
+            "downloading",
+            "validating",
+            "building",
+            "activating",
+            "done"
+          ]
+        },
+        "mode": {"enum": ["check", "refresh"]},
+        "trigger": {"enum": ["manual", "launch", "periodic"]},
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string"}
+        },
+        "created_at_utc": {"type": "string", "format": "date-time"},
+        "updated_at_utc": {"type": "string", "format": "date-time"},
+        "cancel_requested": {"type": "boolean"},
+        "progress": {"type": "object"},
+        "result": {"type": ["object", "null"]},
+        "error": {"$ref": "#/$defs/error"},
+        "deduplicated": {"type": "boolean"}
+      }
+    },
+    "activeGeneration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generation_id",
+        "activated_at_utc",
+        "index_sha256",
+        "rollback_available",
+        "using_previous_generation",
+        "using_bundled_fallback"
+      ],
+      "properties": {
+        "generation_id": {"type": "string", "pattern": "^g_[0-9a-f]{64}$"},
+        "activated_at_utc": {"$ref": "#/$defs/nullableTimestamp"},
+        "index_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "rollback_available": {"type": "boolean"},
+        "using_previous_generation": {"type": "boolean"},
+        "using_bundled_fallback": {"const": false}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "refresh_supported",
+    "active_generation",
+    "using_bundled_fallback",
+    "sources",
+    "job",
+    "last_error"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "refresh_supported": {"type": "boolean"},
+    "active_generation": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/activeGeneration"}
+      ]
+    },
+    "using_bundled_fallback": {"type": "boolean"},
+    "sources": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/source"}
+    },
+    "job": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/job"}
+      ]
+    },
+    "last_error": {"$ref": "#/$defs/error"}
+  }
+}
