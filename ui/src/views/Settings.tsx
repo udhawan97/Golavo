@@ -27,6 +27,7 @@ import {
   LOCAL_MODELS_CHANGED_EVENT,
   OllamaModelGuide,
 } from "../components/ai/OllamaModelGuide";
+import { OpenLigaDBSettings } from "../components/OpenLigaDBSettings";
 
 function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
@@ -287,6 +288,8 @@ export function Settings({
               {" · "}Made with <a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Natural Earth</a>
             </span>
           </div>
+          <hr style={{ width: "100%", border: 0, borderTop: "1px solid var(--line)" }} />
+          <OpenLigaDBSettings />
         </div>
       </section>
 

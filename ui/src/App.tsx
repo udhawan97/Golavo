@@ -37,6 +37,7 @@ import { TourOverlay } from "./components/TourOverlay";
 import { HOME_TOUR, seedExistingUser, useTour } from "./lib/tour";
 import { useExternalLinks } from "./lib/external-links";
 import { DataRefreshContext, useDataRefreshController } from "./lib/data-refresh-context";
+import { OpenLigaDBContext, useOpenLigaDBController } from "./lib/openligadb-context";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
  *  home's own warming card. A wedged index can never strand the user: search and
@@ -57,6 +58,7 @@ export default function App() {
   // One controller for the whole app: header pill, sheet, settings, toast.
   const updater = useUpdaterController();
   const dataRefresh = useDataRefreshController(backendReady && !holdForIndex);
+  const openLigaDB = useOpenLigaDBController(backendReady && !holdForIndex);
 
   // First-launch orientation. Seed returning users as "done" once so an update
   // never replays the newcomer tour. The home tour yields to the update-consent
@@ -104,7 +106,8 @@ export default function App() {
 
   return (
     <DataRefreshContext.Provider value={dataRefresh}>
-      <UpdaterContext.Provider value={updater}>
+      <OpenLigaDBContext.Provider value={openLigaDB}>
+       <UpdaterContext.Provider value={updater}>
         <Layout
           path={path}
           prefs={prefs}
@@ -129,7 +132,8 @@ export default function App() {
         <UpdateAvailableToast />
         <UpdatedToast />
         <TourOverlay ctrl={homeTour} />
-      </UpdaterContext.Provider>
+       </UpdaterContext.Provider>
+      </OpenLigaDBContext.Provider>
     </DataRefreshContext.Provider>
   );
 }
