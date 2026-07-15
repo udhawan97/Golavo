@@ -55,7 +55,7 @@
       "source_id": "openfootball-football-json"
     }
   ],
-  "parquet_sha256": "1238d72ee1fb3a54b0f3b11f40b2c34bf2b524744de3b73549ad59b417e84850",
+  "parquet_sha256": "00f24aa293116812910d0f4746c274c402f031c21ab0d1eb97c872bda306692b",
   "row_count": 77350,
-  "schema_version": "0.3.0"
+  "schema_version": "0.4.0"
 }

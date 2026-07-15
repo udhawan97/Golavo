@@ -2,7 +2,8 @@
 """Validate every vendored sourcepack byte and the retained-snapshot registry.
 
 With no arguments this discovers every pack under packs/ that carries a
-manifest, validates each declared byte, and cross-checks packs/snapshots.json:
+manifest, validates each declared byte, and cross-checks the match/enrichment
+registries:
 every discovered pack must be registered, every registry entry must point at an
 existing pack whose manifest still hashes to the recorded value. Retention is
 append-only, so any mismatch means a retained snapshot was rewritten — that is
@@ -20,7 +21,8 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = REPO_ROOT / "packs/snapshots.json"
 ISOLATED_REGISTRY_PATH = REPO_ROOT / "packs/isolated.json"
-ALLOWED_LICENSES = {"CC0-1.0"}
+ENRICHMENT_REGISTRY_PATH = REPO_ROOT / "packs/enrichment.json"
+ALLOWED_LICENSES = {"CC0-1.0", "CC-BY-4.0", "PUBLIC-DOMAIN"}
 
 
 def _sha256(payload: bytes) -> str:
@@ -28,11 +30,11 @@ def _sha256(payload: bytes) -> str:
 
 
 def discover_packs() -> list[Path]:
-    isolated = isolated_pack_paths()
+    excluded = isolated_pack_paths() | enrichment_pack_paths()
     return sorted(
         path.parent
         for path in (REPO_ROOT / "packs").glob("*/manifest.json")
-        if path.parent.relative_to(REPO_ROOT).as_posix() not in isolated
+        if path.parent.relative_to(REPO_ROOT).as_posix() not in excluded
     )
 
 
@@ -40,6 +42,13 @@ def isolated_pack_paths() -> set[str]:
     if not ISOLATED_REGISTRY_PATH.is_file():
         return set()
     registry = json.loads(ISOLATED_REGISTRY_PATH.read_text(encoding="utf-8"))
+    return {str(entry["pack"]) for entry in registry.get("snapshots", [])}
+
+
+def enrichment_pack_paths() -> set[str]:
+    if not ENRICHMENT_REGISTRY_PATH.is_file():
+        return set()
+    registry = json.loads(ENRICHMENT_REGISTRY_PATH.read_text(encoding="utf-8"))
     return {str(entry["pack"]) for entry in registry.get("snapshots", [])}
 
 
@@ -103,6 +112,31 @@ def validate_registry(packs: list[Path]) -> None:
         raise ValueError(f"packs missing from {REGISTRY_PATH}: {unregistered}")
 
 
+def validate_enrichment_registry() -> int:
+    """Validate attributed side-table packs without folding them into the index."""
+    if not ENRICHMENT_REGISTRY_PATH.is_file():
+        return 0
+    registry = json.loads(ENRICHMENT_REGISTRY_PATH.read_text(encoding="utf-8"))
+    entries = registry.get("snapshots")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError(f"{ENRICHMENT_REGISTRY_PATH}: snapshots must be non-empty")
+    seen: set[str] = set()
+    for entry in entries:
+        pack = str(entry["pack"])
+        if pack in seen:
+            raise ValueError(f"{ENRICHMENT_REGISTRY_PATH}: duplicate pack {pack}")
+        seen.add(pack)
+        pack_dir = REPO_ROOT / pack
+        manifest = validate_pack(pack_dir)
+        actual = _sha256((pack_dir / "manifest.json").read_bytes())
+        if actual != str(entry["manifest_sha256"]):
+            raise ValueError(f"{pack}: manifest hash disagrees with enrichment.json")
+        for field in ("source_id", "upstream_ref", "retrieved_at_utc"):
+            if str(manifest.get(field)) != str(entry.get(field)):
+                raise ValueError(f"{pack}: enrichment registry {field} disagrees")
+    return len(entries)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -123,6 +157,8 @@ def main() -> None:
         print(f"provenance: OK ({pack_dir.relative_to(REPO_ROOT).as_posix()})")
     validate_registry(packs)
     print(f"registry: OK ({len(packs)} retained snapshots)")
+    count = validate_enrichment_registry()
+    print(f"enrichment registry: OK ({count} retained snapshots)")
 
 
 if __name__ == "__main__":

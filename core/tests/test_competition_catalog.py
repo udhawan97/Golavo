@@ -62,6 +62,11 @@ def test_capabilities_never_claim_blocked_features_are_available() -> None:
         assert item["capabilities"]["simulation"]["status"] == "blocked"
         assert item["capabilities"]["weather_context"]["status"] == "blocked"
         assert item["capabilities"]["weather_context"]["source_ids"] == []
+        assert item["capabilities"]["conditions"]["status"] == "partial"
+        assert item["capabilities"]["conditions"]["source_ids"] == [
+            "geonames",
+            "natural-earth",
+        ]
     assert catalog["refresh_policy"]["byok_api"] == "blocked"
 
 

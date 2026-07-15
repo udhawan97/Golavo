@@ -43,6 +43,7 @@ import { ModeToggle } from "../components/ModeToggle";
 import { chapterPullNumber } from "../lib/insights";
 import { ProgrammePullNumber } from "../components/ProgrammePullNumber";
 import { factKey } from "../components/CommentatorsNotebook";
+import { ConditionsSnapshot } from "../components/ConditionsSnapshot";
 
 export function MatchDetail({ id }: { id: string }) {
   const state = useAsync(() => fetchMatch(id), [id]);
@@ -182,6 +183,8 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       </div>
 
       <ProgrammeContents />
+
+      <ConditionsSnapshot matchId={id} />
 
       <ProgrammeChapter
         number="01"

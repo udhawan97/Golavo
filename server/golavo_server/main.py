@@ -12,7 +12,16 @@ from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from golavo_server import __version__, analysis, analytics, capabilities, matches, runtime, seal
+from golavo_server import (
+    __version__,
+    analysis,
+    analytics,
+    capabilities,
+    conditions,
+    matches,
+    runtime,
+    seal,
+)
 from golavo_server import picks as pick_service
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
@@ -473,6 +482,27 @@ def matches_window(window: str, limit: int = 200) -> dict[str, Any]:
         return matches.matches_window(window, limit=limit, forecasts_dir=ARTIFACT_DIR)
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
+
+
+@app.get("/api/v1/maps/world")
+def get_world_map() -> dict[str, Any]:
+    """Committed Natural Earth 1:110m basemap; offline and public domain."""
+    try:
+        return conditions.world_map()
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail="offline basemap unavailable") from exc
+
+
+@app.get("/api/v1/matches/{match_id}/conditions")
+def get_match_conditions(match_id: str) -> dict[str, Any]:
+    """Display-only location, rest and travel context known before this match."""
+    try:
+        result = conditions.conditions_snapshot(match_id, matches._load_index())
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    return result
 
 
 @app.get("/api/v1/matches/{match_id}")

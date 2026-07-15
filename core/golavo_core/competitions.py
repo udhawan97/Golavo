@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.15.3"
+CATALOG_VERSION = "2026.07.15.4"
 
 
 def _capability(
@@ -58,7 +58,11 @@ def _base_capabilities() -> dict[str, dict[str, Any]]:
             "blocked", "A complete remaining-fixture list is required."
         ),
         "conditions": _capability(
-            "planned", "Phase 3 requires pinned venue and GeoNames enrichment."
+            "partial",
+            "Rest is available when a prior indexed match exists; city, local-time, and "
+            "travel context require an exact city-country resolution. Stadium remains unknown.",
+            "geonames",
+            "natural-earth",
         ),
         "simulation": _capability(
             "blocked", "Verified rules and complete remaining fixtures are required."

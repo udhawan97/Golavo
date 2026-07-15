@@ -92,6 +92,7 @@ def test_build_index_columns_kinds_and_ids(tmp_path: Path) -> None:
     assert str(df["ht_away_score"].dtype) == "Int16"
     assert df.loc[df["source_kind"] == "international", "ht_home_score"].isna().all()
     assert pd.api.types.is_bool_dtype(df["is_complete"])
+    assert df["kickoff_precision"].eq("day").all()
 
     # source_kind is derived purely from the source_id prefix.
     kinds = dict(zip(df["source_id"], df["source_kind"], strict=True))

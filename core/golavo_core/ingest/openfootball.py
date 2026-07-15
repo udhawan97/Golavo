@@ -213,11 +213,10 @@ def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
         ],
     )
 
-    def _kickoff(row: pd.Series) -> pd.Timestamp:
-        # openfootball 'time' is venue-local; used as-is for this historical pack.
-        clock = row["time"] if isinstance(row["time"], str) and row["time"] else "00:00"
-        return pd.Timestamp(f"{row['date'].date().isoformat()}T{clock}:00", tz="UTC")
-
-    frame["kickoff_utc"] = frame.apply(_kickoff, axis=1)
+    # Upstream clocks are venue-local but the pack has no venue timezone. Treat
+    # them as date evidence only: labeling a naive local clock as UTC would be a
+    # false instant and could silently move a pre-kickoff cutoff by hours.
+    frame["kickoff_utc"] = pd.to_datetime(frame["date"], utc=True)
+    frame["kickoff_precision"] = pd.Series("day", index=frame.index, dtype="string")
     frame["is_complete"] = frame[["home_score", "away_score"]].notna().all(axis=1)
     return frame.drop(columns=["time"])

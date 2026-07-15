@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/conditions_snapshot.schema.json",
+  "title": "Golavo Conditions Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "label", "match", "teams", "travel_map", "sources"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "label": {"const": "Context, not a model input."},
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match_id", "kickoff_utc", "kickoff_precision", "local_kickoff", "venue", "location"],
+      "properties": {
+        "match_id": {"type": "string", "minLength": 1},
+        "kickoff_utc": {"type": "string", "format": "date-time"},
+        "kickoff_precision": {"enum": ["exact", "day"]},
+        "local_kickoff": {"$ref": "#/$defs/localKickoff"},
+        "venue": {"$ref": "#/$defs/venue"},
+        "location": {"$ref": "#/$defs/location"}
+      }
+    },
+    "teams": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"$ref": "#/$defs/teamContext"}
+    },
+    "travel_map": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "source_id", "attribution", "routes"],
+      "properties": {
+        "status": {"enum": ["available", "partial", "unknown"]},
+        "source_id": {"const": "natural-earth"},
+        "attribution": {"const": "Made with Natural Earth."},
+        "routes": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/route"}}
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "attribution"],
+        "properties": {
+          "source_id": {"enum": ["geonames", "natural-earth"]},
+          "attribution": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "status": {"enum": ["available", "unknown"]},
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "city", "country", "latitude", "longitude", "elevation_m", "timezone", "source_id"],
+      "properties": {
+        "status": {"$ref": "#/$defs/status"},
+        "reason": {"type": ["string", "null"]},
+        "city": {"type": ["string", "null"]},
+        "country": {"type": ["string", "null"]},
+        "latitude": {"type": ["number", "null"], "minimum": -90, "maximum": 90},
+        "longitude": {"type": ["number", "null"], "minimum": -180, "maximum": 180},
+        "elevation_m": {"type": ["integer", "null"]},
+        "timezone": {"type": ["string", "null"]},
+        "source_id": {"type": ["string", "null"], "enum": ["geonames", null]}
+      }
+    },
+    "localKickoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "value", "timezone"],
+      "properties": {
+        "status": {"$ref": "#/$defs/status"},
+        "reason": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"], "format": "date-time"},
+        "timezone": {"type": ["string", "null"]}
+      }
+    },
+    "venue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "name", "reason"],
+      "properties": {
+        "status": {"const": "unknown"},
+        "name": {"type": "null"},
+        "reason": {"const": "no-stadium-level-source"}
+      }
+    },
+    "rest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "days", "previous_match_id", "previous_kickoff_utc"],
+      "properties": {
+        "status": {"$ref": "#/$defs/status"},
+        "reason": {"type": ["string", "null"]},
+        "days": {"type": ["integer", "null"], "minimum": 0},
+        "previous_match_id": {"type": ["string", "null"]},
+        "previous_kickoff_utc": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "travel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "distance_km", "origin", "destination"],
+      "properties": {
+        "status": {"$ref": "#/$defs/status"},
+        "reason": {"type": ["string", "null"]},
+        "distance_km": {"type": ["number", "null"], "minimum": 0},
+        "origin": {"anyOf": [{"$ref": "#/$defs/location"}, {"type": "null"}]},
+        "destination": {"$ref": "#/$defs/location"}
+      }
+    },
+    "teamContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["side", "team", "rest", "travel"],
+      "properties": {
+        "side": {"enum": ["home", "away"]},
+        "team": {"type": "string", "minLength": 1},
+        "rest": {"$ref": "#/$defs/rest"},
+        "travel": {"$ref": "#/$defs/travel"}
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["side", "team", "distance_km", "origin", "destination"],
+      "properties": {
+        "side": {"enum": ["home", "away"]},
+        "team": {"type": "string"},
+        "distance_km": {"type": "number", "minimum": 0},
+        "origin": {"$ref": "#/$defs/location"},
+        "destination": {"$ref": "#/$defs/location"}
+      }
+    }
+  }
+}

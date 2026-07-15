@@ -42,9 +42,18 @@ datas = [
     (os.path.join(ROOT, "docs", "contracts", "facts.schema.json"), "docs/contracts"),
     # Phase 0 competition identities and honest feature availability states.
     (os.path.join(ROOT, "docs", "contracts", "competition_catalog.schema.json"), "docs/contracts"),
+    # Phase 3 display-only location/rest/travel contract.
+    (os.path.join(ROOT, "docs", "contracts", "conditions_snapshot.schema.json"), "docs/contracts"),
 ]
 datas += [
     (os.path.join(ROOT, "docs", "handoff", name), "docs/handoff") for name in _EVAL_SUMMARIES
+]
+# Pinned, compact GeoNames lookup and Natural Earth 1:110m basemap. Raw source
+# packs stay in the repository for audit; the frozen app needs only these
+# deterministic derived resources (~1.6 MB) and never reaches a map/geocoder API.
+datas += [
+    (os.path.join(ROOT, "data", "enrichment", name), "data/enrichment")
+    for name in ("places.json", "places.meta.json", "world_110m.geojson", "manifest.json")
 ]
 # Synthetic sample forecasts: a fresh desktop install has an empty ledger, so
 # the API serves these until the user has real seals (see runtime.sample_
@@ -53,7 +62,7 @@ datas += [
     (path, "data/fixtures/sample_artifacts")
     for path in glob.glob(os.path.join(ROOT, "data", "fixtures", "sample_artifacts", "*.json"))
 ]
-# CC0 match search index: the frozen 75k-row Parquet plus its meta digest and
+# CC0 match search index: the frozen 77k-row Parquet plus its meta digest and
 # side tables. All sources are CC0-1.0 (guarded by check_license_isolation.sh);
 # no ODbL data ships here. Kept at the repo-relative layout so
 # golavo_core.resources resolves them under sys._MEIPASS when frozen (~2.4MB).

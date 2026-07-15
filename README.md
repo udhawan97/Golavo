@@ -150,6 +150,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | :---: | --- | --- |
 | 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A six-chapter, leak-safe programme: form, fitted style, history, two separate model voices, Score Outlook, verdict and pick, plus the optional evidence-bound analyst column |
 | ⚽ | **Browse Games, Leagues, and search 77,000 matches** — recent results, any upcoming fixtures, the big-five leagues, and UEFA club competitions | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
+| 🗺️ | **Open the Conditions Snapshot** — pinned GeoNames city context, local kickoff when exact, rest since each side's previous indexed match, and an offline Natural Earth travel map | Display-only context with visible attribution and explicit unknowns; none of it enters a model |
 | 🎟️ | **Make your score call** — edit until kickoff, then race five named model rivals | A fingerprinted local pick, simple 3 / 1 / +1 scoring, and My Season standings over only the matches you play |
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
@@ -177,6 +178,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Exact scores** | Goal-based seals include the coherent score grid they already imply, including an explicit high-score tail |
 | **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** or **Preview** arranged as six programme chapters. Casual keeps the essential story; Expert exposes fitted model internals, complete market rows, source proof, and the coherent score grid — machine-checked leak-safe, never averaged |
 | **Navigation** | Games-first home (recent + upcoming rails, offline), Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
+| **Conditions Snapshot** | Read-only rest and travel context from the local index plus pinned GeoNames and Natural Earth side tables. City resolution is exact-name and country scoped; stadium remains unknown without a stadium-level source. Labeled “Context, not a model input.” |
 | **Your Call / My Season** | Kickoff-locked score picks with SHA-256 integrity, durable local storage, five deterministic rivals, 3 / 1 / +1 scoring, standings, history, filters, cumulative points, and streaks |
 | **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, provenance, scored/voided/superseded states, Casual and Expert presentation, "three things to know" insight cards, re-seal "what moved" deltas, and reading-comfort themes (incl. a warm low-blue mode) |
 | **Facts** | Pre-registered deterministic templates; sample/freshness/base-rate guardrails; coincidences capped and quarantined |
@@ -259,8 +261,10 @@ More detail: [Local Intelligence](https://udhawan97.github.io/Golavo/local-intel
 7. **Update forward calibration.** Genuine seals only; historical backtests stay in
    their own dressing room.
 
-The international source publishes dates but not verified kickoff times, so Golavo
-uses 00:00 UTC on match day as a conservative proxy. Forwardness is proven by public
+Most source rows publish dates without a verified UTC instant, so Golavo marks them
+`kickoff_precision=day` and uses 00:00 UTC on match day as a conservative proxy. A pinned
+World Cup overlay sharpens only exact matches to `kickoff_precision=exact`; OpenFootball's
+naive venue-local club clocks are never relabeled as UTC. Forwardness is proven by public
 git history: the seal must be published before that proxy. The artifact bytes prove
 integrity; publication history proves timing. Different receipts, different jobs.
 
@@ -273,6 +277,11 @@ club forecasting. Each competition is modeled independently; there is no cross-c
 strength calibration.
 Lineups, injuries, corners, xG, and proprietary feeds are not quietly inferred from
 vibes.
+
+Display context is separate from match rows and models: GeoNames CC BY 4.0 provides a
+pinned city-country lookup (1,828 of 2,215 indexed pairs resolved at this snapshot), and
+Natural Earth v5.1.1 provides the public-domain offline basemap. Missing places, travel
+origins, local times, and stadiums render as unknown rather than being guessed.
 
 | Scope | Accepted results coverage | Deeper event data | Product use |
 |---|---|---|---|

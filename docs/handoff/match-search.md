@@ -7,7 +7,7 @@ sealed forecast surface, the calibration record, and the AI layer are untouched.
 
 The headline is the on-demand notebook. Golavo already computed a source-backed notebook
 for a sealed forecast (Phase 7). This makes the same deterministic engine reachable for
-any of ~75k historical matches, computed at a leak-safe pre-kickoff horizon, without
+any of ~77k historical matches, computed at a leak-safe pre-kickoff horizon, without
 sealing a forecast and without inventing a number.
 
 ## What shipped
@@ -35,9 +35,9 @@ sealing a forecast and without inventing a number.
 ## The index: provenance, dedupe, license gate
 
 `data/index/matches_index.parquet` is a **committed, deterministic** Parquet of
-**75,079 matches** — **49,505 internationals** (martj42) + **25,574 club** (the five
-openfootball leagues: EPL, La Liga, Bundesliga, Serie A, Ligue 1). Verified against the
-committed meta (`row_count: 75079`) and by `source_kind` value counts. Side tables
+**77,350 matches** — **49,507 internationals** (martj42) + **27,843 club** (the five
+OpenFootball domestic leagues plus 2,269 UEFA Champions/Europa/Conference League rows).
+Verified against the committed meta (`row_count: 77350`) and by `source_kind` value counts. Side tables
 (`goalscorers.parquet`, `shootouts.parquet`) and `aliases.json` are **internationals only**
 — martj42 is the only source that ships scorer/shootout/former-name data.
 
@@ -73,6 +73,8 @@ search pays the ~25 s import; the sidecar warms it in the background).
 | `GET /api/v1/matches/search?q=&competition=&status=&limit=&offset=` | Substring + alias search over the pre-folded `home_norm`/`away_norm`/`competition` columns. `q` < 2 chars → **422**. Index missing/unreadable → **503** (`MatchIndexUnavailable`, fails closed). Ranking: team-name **prefix** hits first, then kickoff desc, then `match_id` — fully deterministic. `limit` clamped to `[1,100]`. |
 | `GET /api/v1/matches/competitions` | Distinct `(competition, source_kind)` with match counts, deterministically ordered. Declared **before** `/{match_id}` so `"competitions"` is never swallowed as an id. |
 | `GET /api/v1/matches/{match_id}` | One `MatchRow` + `linked_by: "match_id" \| "fixture" \| null`. Unknown id → **404**. |
+| `GET /api/v1/matches/{match_id}/conditions` | Display-only pinned GeoNames location, exact local kickoff when known, prior-match rest, and great-circle travel. Future rows are excluded by construction. |
+| `GET /api/v1/maps/world` | Pinned Natural Earth v5.1.1 1:110m offline basemap used by the travel map. |
 | `GET /api/v1/matches/{match_id}/notebook` | The Commentator's Notebook (see below). Unknown id → **404**; a build failure fails closed to an honest empty envelope, **never a 500**. |
 
 **`status` is derived from `is_complete`, never `kickoff < now`.** martj42's kickoff is a
@@ -105,7 +107,7 @@ Otherwise it computes one **on demand** (`computed: "on_demand"`) via `build_not
 `seal_forecast` uses. So the notebook never sees the fixture's own result or any later
 match: it is computed as if standing one second before kickoff, exactly where an honest
 pre-match seal stands. There is a test for the horizon, and it was confirmed on the real
-75k-row index. The internationals scorer/shootout templates only run when the side tables
+77k-row index. The internationals scorer/shootout templates only run when the side tables
 load (`source_kind == "international"`); a missing side table means those templates simply
 don't fire — no data is invented.
 

@@ -19,6 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = REPO_ROOT / "data/sources/registry.json"
 SNAPSHOTS_PATH = REPO_ROOT / "packs/snapshots.json"
 ISOLATED_PATH = REPO_ROOT / "packs/isolated.json"
+ENRICHMENT_PATH = REPO_ROOT / "packs/enrichment.json"
 OUTPUT_PATH = REPO_ROOT / "THIRD_PARTY_NOTICES.md"
 
 _HEADING = {
@@ -44,6 +45,8 @@ def _bundled_source_ids() -> set[str]:
         manifest = _load(REPO_ROOT / str(snap["pack"]) / "manifest.json")
         for co in manifest.get("co_sources", []):
             ids.add(str(co["source_id"]))
+    if ENRICHMENT_PATH.is_file():
+        ids.update(str(snap["source_id"]) for snap in _load(ENRICHMENT_PATH)["snapshots"])
     return ids
 
 

@@ -85,6 +85,7 @@ def test_pinned_uefa_packs_are_complete_unique_and_day_precise() -> None:
         assert frame["date"].min() == pd.Timestamp(first), pack
         assert frame["date"].max() == pd.Timestamp(last), pack
         assert frame["kickoff_utc"].dt.hour.eq(0).all(), pack
+        assert frame["kickoff_precision"].eq("day").all(), pack
         catalog = competition_by_id(manifest["competition_id"])
         assert catalog is not None
         declared_eras = {era["format_era_id"] for era in catalog["format_eras"]}

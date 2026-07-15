@@ -38,6 +38,11 @@ deliberation**, **verdict and your pick**, then the optional **analyst's column*
 
 Either way you get:
 
+- a **Conditions Snapshot** before the programme chapters: city coordinates and elevation,
+  venue-local kickoff only when the source has an exact instant, pre-match rest days, and
+  great-circle travel from each side's previous indexed match. Routes use a bundled Natural
+  Earth map; GeoNames and map credits stay visible. It is labeled **Context, not a model
+  input**, and every missing stadium/place remains **Unknown**;
 - a gold **Your call** ticket on upcoming matches. Save a score, reveal the five deterministic
   rivals, change it until kickoff, then let the final result decide the points;
 - venue-aware last-five form, opponents on focus or hover, deterministic streaks, and a compact

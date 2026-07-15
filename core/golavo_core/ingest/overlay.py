@@ -41,9 +41,12 @@ def apply_exact_kickoffs(
     A no-op (returns the frame unchanged) when the pack ships no kickoffs.csv. Raises
     when a kickoffs.csv exists but is absent from the manifest's declared files.
     """
+    result = frame.copy()
+    if "kickoff_precision" not in result.columns:
+        result["kickoff_precision"] = pd.Series("day", index=result.index, dtype="string")
     path = Path(pack_dir) / "kickoffs.csv"
     if not path.is_file():
-        return frame
+        return result
     declared = {str(entry.get("name")) for entry in manifest.get("files", [])}
     if "kickoffs.csv" not in declared:
         raise ValueError(
@@ -56,17 +59,22 @@ def apply_exact_kickoffs(
         parse_dates=["date"],
     )
     if overlay.empty:
-        return frame
+        return result
     mapping = dict(
         zip(_keys(overlay), pd.to_datetime(overlay["kickoff_utc"], utc=True), strict=True)
     )
     if not mapping:
-        return frame
-    current = pd.to_datetime(frame["kickoff_utc"], utc=True)
+        return result
+    keys = _keys(result)
+    current = pd.to_datetime(result["kickoff_utc"], utc=True)
     replaced = [
         mapping.get(key, existing)
-        for key, existing in zip(_keys(frame), current, strict=True)
+        for key, existing in zip(keys, current, strict=True)
     ]
-    result = frame.copy()
-    result["kickoff_utc"] = pd.to_datetime(pd.Series(replaced, index=frame.index), utc=True)
+    result["kickoff_utc"] = pd.to_datetime(pd.Series(replaced, index=result.index), utc=True)
+    result["kickoff_precision"] = pd.Series(
+        ["exact" if key in mapping else "day" for key in keys],
+        index=result.index,
+        dtype="string",
+    )
     return result

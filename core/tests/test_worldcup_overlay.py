@@ -131,6 +131,7 @@ def test_apply_exact_kickoffs_overrides_only_matched_rows(tmp_path: Path) -> Non
         & (pd.to_datetime(overlaid["date"]).dt.strftime("%Y-%m-%d") == "2026-07-11")
     ].iloc[0]
     assert ne["kickoff_utc"] == pd.Timestamp("2026-07-11T19:00:00Z")
+    assert ne["kickoff_precision"] == "exact"
     # is_complete is untouched, so an upcoming fixture still never enters training.
     assert not bool(ne["is_complete"])
     # Every other row keeps its original kickoff, and the row counts match.
@@ -138,6 +139,7 @@ def test_apply_exact_kickoffs_overrides_only_matched_rows(tmp_path: Path) -> Non
     unmatched = overlaid["match_id"] != ne["match_id"]
     merged = overlaid[unmatched].merge(baseline, on="match_id", suffixes=("_o", "_b"))
     assert (merged["kickoff_utc_o"] == merged["kickoff_utc_b"]).all()
+    assert merged["kickoff_precision_o"].eq("day").all()
 
 
 def test_overlay_present_but_undeclared_fails_closed(tmp_path: Path) -> None:
