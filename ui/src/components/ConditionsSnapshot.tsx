@@ -99,7 +99,7 @@ function TravelMap({ routes }: { routes: TravelRoute[] }) {
   );
 }
 
-function SnapshotBody({ snapshot }: { snapshot: Snapshot }) {
+export function SnapshotBody({ snapshot }: { snapshot: Snapshot }) {
   const location = snapshot.match.location;
   return (
     <>
@@ -134,6 +134,13 @@ function SnapshotBody({ snapshot }: { snapshot: Snapshot }) {
       ) : (
         <p className="conditions-map-empty small muted">Travel map unavailable until both the current and previous match cities resolve in the pinned GeoNames dump.</p>
       )}
+
+      <div className="callout callout--info conditions-weather" role="note">
+        <div>
+          <div className="callout__title">Weather context unavailable</div>
+          <p>{snapshot.weather_context.reason}</p>
+        </div>
+      </div>
 
       <footer className="conditions-snapshot__sources">
         <span>{snapshot.sources.find((source) => source.source_id === "geonames")?.attribution}</span>

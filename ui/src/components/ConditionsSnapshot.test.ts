@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import type { ConditionsSnapshot, WorldMapFeature } from "../lib/contract";
-import { conditionsLocalKickoffLabel, worldFeaturePath } from "./ConditionsSnapshot";
+import { SnapshotBody, conditionsLocalKickoffLabel, worldFeaturePath } from "./ConditionsSnapshot";
 
 function snapshot(precision: "exact" | "day"): ConditionsSnapshot {
   return {
-    schema_version: "0.1.0",
+    schema_version: "0.2.0",
     label: "Context, not a model input.",
     match: {
       match_id: "m_test",
@@ -19,6 +21,13 @@ function snapshot(precision: "exact" | "day"): ConditionsSnapshot {
     },
     teams: [],
     travel_map: { status: "unknown", source_id: "natural-earth", attribution: "Made with Natural Earth.", routes: [] },
+    weather_context: {
+      status: "blocked",
+      reason_code: "no_leakage_safe_historical_forecast_source",
+      reason: "Observed weather is not substituted.",
+      model_input: false,
+      source_id: null,
+    },
     sources: [],
   };
 }
@@ -38,5 +47,12 @@ describe("Conditions Snapshot honesty", () => {
     const path = worldFeaturePath(feature);
     expect(path).toContain("M360.0,180.0");
     expect(path.trim().endsWith("Z")).toBe(true);
+  });
+
+  it("shows weather as blocked context and never as a value", () => {
+    const html = renderToStaticMarkup(createElement(SnapshotBody, { snapshot: snapshot("exact") }));
+    expect(html).toContain("Weather context unavailable");
+    expect(html).toContain("Observed weather is not substituted");
+    expect(html).not.toContain("Temperature");
   });
 });

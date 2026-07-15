@@ -845,7 +845,7 @@ export interface TravelRoute {
 }
 
 export interface ConditionsSnapshot {
-  schema_version: "0.1.0";
+  schema_version: "0.2.0";
   label: "Context, not a model input.";
   match: {
     match_id: string;
@@ -866,6 +866,13 @@ export interface ConditionsSnapshot {
     source_id: "natural-earth";
     attribution: string;
     routes: TravelRoute[];
+  };
+  weather_context: {
+    status: "blocked";
+    reason_code: "no_leakage_safe_historical_forecast_source";
+    reason: string;
+    model_input: false;
+    source_id: null;
   };
   sources: Array<{ source_id: "geonames" | "natural-earth"; attribution: string }>;
 }
