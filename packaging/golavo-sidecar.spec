@@ -68,6 +68,13 @@ datas += [
     (os.path.join(ROOT, "data", "enrichment", name), "data/enrichment")
     for name in ("places.json", "places.meta.json", "world_110m.geojson", "manifest.json")
 ]
+# Reviewed venue registry, exact scoped assignments, and the manifest that
+# hashes them together with the enrichment files above. Manual-review queues
+# and raw upstream snapshots remain repository audit material, not runtime data.
+datas += [
+    (os.path.join(ROOT, "data", "context", name), "data/context")
+    for name in ("manifest.json", "venue_entities.json", "venue_assignments.json")
+]
 # Synthetic sample forecasts: a fresh desktop install has an empty ledger, so
 # the API serves these until the user has real seals (see runtime.sample_
 # artifacts_dir). Kept at their repo-relative layout so the resolver finds them.

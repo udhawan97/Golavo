@@ -32,6 +32,8 @@ jobs:
         run: ruff check .
       - name: Validate pinned source provenance
         run: python scripts/validate_provenance.py
+      - name: Validate display-context hashes, identities, and model isolation
+        run: python scripts/validate_context_pack.py
       - name: Validate the source registry and its license gates
         # Ties data/sources/registry.json to the bundled packs: a source that is
         # not registered, is misclassified (e.g. an ODbL/CC-BY-SA/rejected class

@@ -11,8 +11,14 @@ from typing import Any
 from golavo_core import resources
 
 MANIFEST_PATH = Path(resources.context_manifest_path())
-VENUES_PATH = Path(resources.context_venue_entities_path())
-ASSIGNMENTS_PATH = Path(resources.context_venue_assignments_path())
+
+REQUIRED_RUNTIME_FILES = {
+    "data/enrichment/places.json",
+    "data/enrichment/places.meta.json",
+    "data/enrichment/world_110m.geojson",
+    "data/context/venue_entities.json",
+    "data/context/venue_assignments.json",
+}
 
 _CACHE: dict[str, Any] | None = None
 
@@ -28,11 +34,14 @@ def _load() -> dict[str, Any]:
         return _CACHE
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
     expected = {str(item["path"]): item for item in manifest["files"]}
-    for path in (VENUES_PATH, ASSIGNMENTS_PATH):
-        relative = path.relative_to(resources.resource_root()).as_posix()
-        entry = expected.get(relative)
-        if entry is None:
-            raise OSError(f"context manifest omits {relative}")
+    if set(expected) != REQUIRED_RUNTIME_FILES:
+        raise OSError("context manifest runtime file allowlist differs")
+    root = resources.resource_root()
+    for relative, entry in expected.items():
+        relative_path = Path(relative)
+        if relative_path.is_absolute() or ".." in relative_path.parts:
+            raise OSError(f"unsafe context manifest path: {relative}")
+        path = root / relative_path
         payload = path.read_bytes()
         if len(payload) != int(entry["bytes"]):
             raise OSError(f"context byte count mismatch for {relative}")
@@ -41,8 +50,12 @@ def _load() -> dict[str, Any]:
         lowered = payload.lower()
         if b"openligadb" in lowered or b"overlays/openligadb" in lowered:
             raise OSError(f"forbidden ODbL identity in {relative}")
-    venues_payload = json.loads(VENUES_PATH.read_text(encoding="utf-8"))
-    assignments_payload = json.loads(ASSIGNMENTS_PATH.read_text(encoding="utf-8"))
+    venues_payload = json.loads(
+        (root / "data/context/venue_entities.json").read_text(encoding="utf-8")
+    )
+    assignments_payload = json.loads(
+        (root / "data/context/venue_assignments.json").read_text(encoding="utf-8")
+    )
     venues = {str(item["entity_id"]): item for item in venues_payload["entities"]}
     if len(venues) != len(venues_payload["entities"]):
         raise OSError("duplicate venue entity id")
@@ -177,6 +190,18 @@ def source_catalog() -> list[dict[str, Any]]:
         return list(_load()["manifest"]["sources"])
     except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
         return []
+
+
+def resource_metadata(relative: str) -> dict[str, Any]:
+    """Return verified manifest metadata for one allowlisted runtime resource."""
+    payload = _load()
+    for entry in payload["manifest"]["files"]:
+        if entry["path"] == relative:
+            return {
+                **entry,
+                "context_pack_version": payload["manifest"]["context_pack_version"],
+            }
+    raise OSError(f"context manifest omits {relative}")
 
 
 def capabilities(index_fingerprint: str) -> dict[str, Any]:
