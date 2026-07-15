@@ -51,21 +51,21 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 
 ## Bundled enrichment data (CC BY)
 
-### GeoNames — available, not bundled
+### GeoNames — **bundled**
 
 - Source: https://www.geonames.org/export/
 - Contributors: GeoNames.org
 - License: CC-BY-4.0 (https://download.geonames.org/export/dump/readme.txt)
-- Attribution: Geographic data from GeoNames (geonames.org), licensed CC BY 4.0.
-- Notes: Planned enrichment source. Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution.
+- Attribution: Data from GeoNames (geonames.org), CC BY 4.0.
+- Notes: Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact runtime table resolves 1,828 of 2,215 indexed city-country pairs using exact normalized names; unresolved or ambiguous data stays unknown. Bulk files only, no runtime web-service dependency or identity merging.
 
-### Natural Earth — available, not bundled
+### Natural Earth — **bundled**
 
 - Source: https://www.naturalearthdata.com/
 - Contributors: Tom Patterson, Nathaniel Vaughn Kelso, Natural Earth contributors
 - License: PUBLIC-DOMAIN (https://www.naturalearthdata.com/about/terms-of-use/)
 - Attribution: Made with Natural Earth.
-- Notes: Registered for Phase 3, not bundled yet. Golavo will pin one simplified release and hash; no online tile service or third-party basemap is required.
+- Notes: Bundled as a separately registered public-domain enrichment pack pinned to Admin-0 Countries v5.1.1 at commit 9380cca and exact file hashes. The compact 1:110m GeoJSON basemap is offline; no tile service is required.
 
 ### Wikidata — available, not bundled
 

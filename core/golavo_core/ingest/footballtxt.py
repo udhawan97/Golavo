@@ -206,6 +206,7 @@ def load_footballtxt_table(pack_dir: Path) -> pd.DataFrame:
     frame["neutral"] = frame["neutral"].astype("boolean")
     frame["is_complete"] = frame[["home_score", "away_score"]].notna().all(axis=1)
     frame["kickoff_utc"] = pd.to_datetime(frame["date"], utc=True)
+    frame["kickoff_precision"] = pd.Series("day", index=frame.index, dtype="string")
     frame = frame.sort_values(
         ["date", "home_team", "away_team"], kind="mergesort"
     ).reset_index(drop=True)

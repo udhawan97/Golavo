@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "name": "cities15000.zip",
+      "sha256": "14755b0a430501a5549c29c74d60c70834186be1cc13f4e46a74bee1b00aba38",
+      "url": "https://download.geonames.org/export/dump/cities15000.zip"
+    },
+    {
+      "name": "countryInfo.txt",
+      "sha256": "93bafc525813f22e4711ff9ed6d626343094ce48c26388dc7c49189b3d7d5512",
+      "url": "https://download.geonames.org/export/dump/countryInfo.txt"
+    },
+    {
+      "name": "timeZones.txt",
+      "sha256": "ea6f8bdcc259c21c562e8f7e7e0b0457cb89403bed60c76aac49ccee9a9ed18c",
+      "url": "https://download.geonames.org/export/dump/timeZones.txt"
+    },
+    {
+      "name": "readme.txt",
+      "sha256": "b1957379b6c1242c700c98ac9a8aa0a09f56c3c0a50ee72175527005f48ef2c5",
+      "url": "https://download.geonames.org/export/dump/readme.txt"
+    }
+  ],
+  "license": "CC-BY-4.0",
+  "retrieved_at_utc": "2026-07-15T07:57:00Z",
+  "source_id": "geonames",
+  "upstream_ref": "2026-07-15",
+  "url": "https://download.geonames.org/export/dump/"
+}

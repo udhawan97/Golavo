@@ -92,9 +92,9 @@
       "classification": "enrichment",
       "pin_strategy": "dump-date",
       "fields": "city coordinates, country, timezone, altitude — bulk dumps (cities15000, countryInfo, timeZones)",
-      "attribution": "Geographic data from GeoNames (geonames.org), licensed CC BY 4.0.",
+      "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
       "verified": "2026-07-12",
-      "notes": "Planned enrichment source. Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution."
+      "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact runtime table resolves 1,828 of 2,215 indexed city-country pairs using exact normalized names; unresolved or ambiguous data stays unknown. Bulk files only, no runtime web-service dependency or identity merging."
     },
     {
       "source_id": "natural-earth",
@@ -108,7 +108,7 @@
       "fields": "simplified public-domain vector coastlines and country boundaries for offline travel maps",
       "attribution": "Made with Natural Earth.",
       "verified": "2026-07-15",
-      "notes": "Registered for Phase 3, not bundled yet. Golavo will pin one simplified release and hash; no online tile service or third-party basemap is required."
+      "notes": "Bundled as a separately registered public-domain enrichment pack pinned to Admin-0 Countries v5.1.1 at commit 9380cca and exact file hashes. The compact 1:110m GeoJSON basemap is offline; no tile service is required."
     },
     {
       "source_id": "wikidata",

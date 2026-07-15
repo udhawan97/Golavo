@@ -474,6 +474,7 @@ export interface MatchForecastLink {
 export interface MatchRow {
   match_id: string;
   kickoff_utc: string; // ISO 8601
+  kickoff_precision?: "exact" | "day";
   home_team: string;
   away_team: string;
   home_score: number | null;
@@ -632,6 +633,92 @@ export interface MatchDetailResponse {
   linked_by: "match_id" | "fixture" | null;
   seal_eligibility?: SealEligibility;
   pick?: { id: string | null; status: PickStatus } | null;
+}
+
+// ---- Conditions Snapshot (display-only contract 0.1.0) --------------------
+
+export type ContextStatus = "available" | "unknown";
+
+export interface ConditionsLocation {
+  status: ContextStatus;
+  reason: string | null;
+  city: string | null;
+  country: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  elevation_m: number | null;
+  timezone: string | null;
+  source_id: "geonames" | null;
+}
+
+export interface ConditionsTeam {
+  side: "home" | "away";
+  team: string;
+  rest: {
+    status: ContextStatus;
+    reason: string | null;
+    days: number | null;
+    previous_match_id: string | null;
+    previous_kickoff_utc: string | null;
+  };
+  travel: {
+    status: ContextStatus;
+    reason: string | null;
+    distance_km: number | null;
+    origin: ConditionsLocation | null;
+    destination: ConditionsLocation;
+  };
+}
+
+export interface TravelRoute {
+  side: "home" | "away";
+  team: string;
+  distance_km: number;
+  origin: ConditionsLocation;
+  destination: ConditionsLocation;
+}
+
+export interface ConditionsSnapshot {
+  schema_version: "0.1.0";
+  label: "Context, not a model input.";
+  match: {
+    match_id: string;
+    kickoff_utc: string;
+    kickoff_precision: "exact" | "day";
+    local_kickoff: {
+      status: ContextStatus;
+      reason: string | null;
+      value: string | null;
+      timezone: string | null;
+    };
+    venue: { status: "unknown"; name: null; reason: "no-stadium-level-source" };
+    location: ConditionsLocation;
+  };
+  teams: ConditionsTeam[];
+  travel_map: {
+    status: "available" | "partial" | "unknown";
+    source_id: "natural-earth";
+    attribution: string;
+    routes: TravelRoute[];
+  };
+  sources: Array<{ source_id: "geonames" | "natural-earth"; attribution: string }>;
+}
+
+export interface WorldMapFeature {
+  type: "Feature";
+  properties: { name: string | null; iso_a2: string | null };
+  geometry: {
+    type: "Polygon" | "MultiPolygon";
+    coordinates: number[][][] | number[][][][];
+  };
+}
+
+export interface WorldMap {
+  type: "FeatureCollection";
+  source_id: "natural-earth";
+  version: string;
+  attribution: string;
+  features: WorldMapFeature[];
 }
 
 /** An upcoming fixture present upstream but not yet in this build's index. */

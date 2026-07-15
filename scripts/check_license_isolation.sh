@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Guard: ODbL (OpenLigaDB) data and code must never be merged into the CC0 core.
+# Guard: share-alike and attributed enrichment data must never be merged into
+# the CC0 match index. Enrichment joins only at read-only display time.
 # ODbL's share-alike would otherwise attach to the entire combined database.
 # Keep the packs and their code paths physically apart. Run in CI.
 set -euo pipefail
@@ -46,7 +47,18 @@ PY
   fi
 fi
 
+# 5) The attributed side tables must keep their mandatory runtime credits. A
+# derived file without these strings could ship usable data without attribution.
+if [ -f data/enrichment/places.meta.json ] && ! grep -Fq 'Data from GeoNames (geonames.org), CC BY 4.0.' data/enrichment/places.meta.json; then
+  echo "::error::GeoNames derived data is missing its required attribution"
+  fail=1
+fi
+if [ -f data/enrichment/world_110m.geojson ] && ! grep -Fq 'Made with Natural Earth.' data/enrichment/world_110m.geojson; then
+  echo "::error::Natural Earth basemap is missing its credit"
+  fail=1
+fi
+
 if [ "$fail" -eq 0 ]; then
-  echo "license isolation: OK (no ODbL/CC-BY-SA contamination of the CC0 core)."
+  echo "license isolation: OK (CC0 index isolated; enrichment attribution present)."
 fi
 exit "$fail"

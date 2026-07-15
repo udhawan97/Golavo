@@ -219,6 +219,13 @@ export function Settings({
               public match data, and sends nothing.
             </p>
           </div>
+          <div className="settings__row">
+            <span>Map &amp; place data</span>
+            <span className="dim">
+              Data from <a href="https://www.geonames.org/" target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>GeoNames</a>, CC BY 4.0
+              {" · "}Made with <a href="https://www.naturalearthdata.com/" target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Natural Earth</a>
+            </span>
+          </div>
         </div>
       </section>
 

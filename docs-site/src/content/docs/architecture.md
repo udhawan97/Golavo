@@ -69,10 +69,12 @@ backend.
 | `GET /api/v1/forecasts` | immutable artifacts, newest first | no |
 | `GET /api/v1/forecasts/{artifact_id}` | one canonical artifact | no |
 | `GET /api/v1/forecasts/{artifact_id}/facts` | precomputed Commentator's Notebook, or an honest unavailable envelope | no |
-| `GET /api/v1/matches/search` | search the deterministic ~75k-match index by team/competition | no |
+| `GET /api/v1/matches/search` | search the deterministic ~77k-match index by team/competition | no |
 | `GET /api/v1/matches/competitions` | the competitions present in the index | no |
 | `GET /api/v1/matches/recent` | recent results for the Games home | no |
 | `GET /api/v1/matches/{match_id}` | one indexed match + its `seal_eligibility` verdict | no |
+| `GET /api/v1/matches/{match_id}/conditions` | display-only city, exact local kickoff, pre-match rest, and travel context | no |
+| `GET /api/v1/maps/world` | pinned offline Natural Earth 1:110m basemap | no |
 | `GET /api/v1/matches/{match_id}/notebook` | on-demand Commentator's Notebook at `kickoff − 1s` | no |
 | `GET /api/v1/matches/{match_id}/analysis` | on-demand Match Cockpit (Replay/Preview) model council | no |
 | `POST /api/v1/matches/{match_id}/seal` | run the deterministic engine and write an immutable seal for an eligible fixture | **appends** a new artifact; never rewrites one |

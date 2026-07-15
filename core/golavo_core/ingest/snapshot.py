@@ -171,6 +171,7 @@ def load_match_table(pack_dir: Path) -> pd.DataFrame:
     matches["ht_home_score"] = pd.Series(pd.NA, index=matches.index, dtype="Int16")
     matches["ht_away_score"] = pd.Series(pd.NA, index=matches.index, dtype="Int16")
     matches["kickoff_utc"] = pd.to_datetime(matches["date"], utc=True)
+    matches["kickoff_precision"] = pd.Series("day", index=matches.index, dtype="string")
     matches["is_complete"] = matches[["home_score", "away_score"]].notna().all(axis=1)
     return matches
 

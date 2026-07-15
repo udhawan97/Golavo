@@ -16,6 +16,7 @@
 import { ACCEPTED_SCHEMA_VERSIONS } from "./contract";
 import type {
   CalibrationSummary,
+  ConditionsSnapshot,
   CompetitionAnalytics,
   CompetitionsResponse,
   EvalSummary,
@@ -38,6 +39,7 @@ import type {
   SealResult,
   SettlementReport,
   SourceKind,
+  WorldMap,
 } from "./contract";
 import type { AiDepth, AiProvider, NarrativeResponse } from "./ai";
 import {
@@ -340,6 +342,8 @@ function assertMatchRow(x: unknown, ctx: string): MatchRow {
     throw new ContractError(
       `${ctx}: source_kind ${String(m.source_kind)} not in [${SOURCE_KINDS.join(", ")}]`,
     );
+  if (m.kickoff_precision !== undefined && m.kickoff_precision !== "exact" && m.kickoff_precision !== "day")
+    throw new ContractError(`${ctx}: kickoff_precision must be exact or day`);
   const bothScores = m.home_score !== null && m.away_score !== null;
   if (m.is_complete !== bothScores)
     throw new ContractError(
@@ -1069,6 +1073,55 @@ export async function fetchMatch(matchId: string): Promise<MatchDetailResponse |
     if (err instanceof Error && /HTTP 404/.test(err.message)) return null;
     throw err;
   }
+}
+
+function assertConditionsSnapshot(x: unknown, ctx: string): ConditionsSnapshot {
+  const value = x as ConditionsSnapshot;
+  if (!value || typeof value !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (value.schema_version !== "0.1.0")
+    throw new ContractError(`${ctx}: unsupported conditions schema`);
+  if (value.label !== "Context, not a model input.")
+    throw new ContractError(`${ctx}: missing context-only label`);
+  if (!value.match || (value.match.kickoff_precision !== "exact" && value.match.kickoff_precision !== "day"))
+    throw new ContractError(`${ctx}: invalid match precision`);
+  if (!Array.isArray(value.teams) || value.teams.length !== 2)
+    throw new ContractError(`${ctx}: teams must contain home and away`);
+  if (!Array.isArray(value.travel_map?.routes) || value.travel_map.routes.length > 2)
+    throw new ContractError(`${ctx}: invalid travel routes`);
+  for (const team of value.teams) {
+    if (team.rest.days !== null) assertNonNegNumber(team.rest.days, ctx, `${team.side}.rest.days`);
+    if (team.travel.distance_km !== null)
+      assertNonNegNumber(team.travel.distance_km, ctx, `${team.side}.travel.distance_km`);
+  }
+  return value;
+}
+
+/** Display-only location/rest/travel context. Mock mode returns null rather than
+ * inventing geography that is absent from the bundled match fixtures. */
+export async function fetchMatchConditions(matchId: string): Promise<ConditionsSnapshot | null> {
+  if (!API_BASE) return null;
+  try {
+    return assertConditionsSnapshot(
+      await getJson(`/api/v1/matches/${encodeURIComponent(matchId)}/conditions`),
+      `matches/${matchId}/conditions`,
+    );
+  } catch (error) {
+    if (error instanceof Error && /HTTP 404/.test(error.message)) return null;
+    throw error;
+  }
+}
+
+function assertWorldMap(x: unknown): WorldMap {
+  const value = x as WorldMap;
+  if (!value || value.type !== "FeatureCollection" || value.source_id !== "natural-earth")
+    throw new ContractError("maps/world: invalid Natural Earth collection");
+  if (!Array.isArray(value.features)) throw new ContractError("maps/world: features missing");
+  return value;
+}
+
+export async function fetchWorldMap(): Promise<WorldMap | null> {
+  if (!API_BASE) return null;
+  return assertWorldMap(await getJson("/api/v1/maps/world"));
 }
 
 /**

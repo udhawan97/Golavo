@@ -1,0 +1,1563 @@
+{
+  "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
+  "matching": "exact normalized city inside exact or audited historical country; highest population then lowest geoname_id",
+  "multi_candidate_pairs": 82,
+  "places_sha256": "df2b14c10107cbac0746586ae276ebcb54430f337132439c9b3e8688bb8c6351",
+  "requested_pairs": 2215,
+  "resolved_pairs": 1828,
+  "schema_version": "0.1.0",
+  "source_dump_date": "2026-07-15",
+  "source_id": "geonames",
+  "source_pack": "packs/geonames-2026-07-15",
+  "unresolved": [
+    {
+      "city": "Alderney",
+      "country": "Alderney"
+    },
+    {
+      "city": "Saint Anne",
+      "country": "Alderney"
+    },
+    {
+      "city": "Encamp",
+      "country": "Andorra"
+    },
+    {
+      "city": "Sant Julià de Lòria",
+      "country": "Andorra"
+    },
+    {
+      "city": "North Sound",
+      "country": "Antigua and Barbuda"
+    },
+    {
+      "city": "Osbourn",
+      "country": "Antigua and Barbuda"
+    },
+    {
+      "city": "Piggotts",
+      "country": "Antigua and Barbuda"
+    },
+    {
+      "city": "Cutral Có",
+      "country": "Argentina"
+    },
+    {
+      "city": "Gosford",
+      "country": "Australia"
+    },
+    {
+      "city": "Penrith",
+      "country": "Australia"
+    },
+    {
+      "city": "South Geelong",
+      "country": "Australia"
+    },
+    {
+      "city": "Speers Point",
+      "country": "Australia"
+    },
+    {
+      "city": "Altach",
+      "country": "Austria"
+    },
+    {
+      "city": "Anif",
+      "country": "Austria"
+    },
+    {
+      "city": "Bad Erlach",
+      "country": "Austria"
+    },
+    {
+      "city": "Bad Waltersdorf",
+      "country": "Austria"
+    },
+    {
+      "city": "Bischofshofen",
+      "country": "Austria"
+    },
+    {
+      "city": "Grassau",
+      "country": "Austria"
+    },
+    {
+      "city": "Grödig",
+      "country": "Austria"
+    },
+    {
+      "city": "Hartberg",
+      "country": "Austria"
+    },
+    {
+      "city": "Kapfenberg",
+      "country": "Austria"
+    },
+    {
+      "city": "Kematen",
+      "country": "Austria"
+    },
+    {
+      "city": "Kufstein",
+      "country": "Austria"
+    },
+    {
+      "city": "Maria Enzersdorf",
+      "country": "Austria"
+    },
+    {
+      "city": "Matrei in Osttirol",
+      "country": "Austria"
+    },
+    {
+      "city": "Mauer",
+      "country": "Austria"
+    },
+    {
+      "city": "Pasching",
+      "country": "Austria"
+    },
+    {
+      "city": "Ried im Innkreis",
+      "country": "Austria"
+    },
+    {
+      "city": "Ritzing",
+      "country": "Austria"
+    },
+    {
+      "city": "Rohrbach an der Lafnitz",
+      "country": "Austria"
+    },
+    {
+      "city": "Sankt Veit an der Glan",
+      "country": "Austria"
+    },
+    {
+      "city": "Schwaz",
+      "country": "Austria"
+    },
+    {
+      "city": "Schwechat",
+      "country": "Austria"
+    },
+    {
+      "city": "Seekirchen am Wallersee",
+      "country": "Austria"
+    },
+    {
+      "city": "Wattens",
+      "country": "Austria"
+    },
+    {
+      "city": "Zell am See",
+      "country": "Austria"
+    },
+    {
+      "city": "Askeran",
+      "country": "Azerbaijan"
+    },
+    {
+      "city": "Gabala",
+      "country": "Azerbaijan"
+    },
+    {
+      "city": "Martakert",
+      "country": "Azerbaijan"
+    },
+    {
+      "city": "Martuni",
+      "country": "Azerbaijan"
+    },
+    {
+      "city": "Masazir",
+      "country": "Azerbaijan"
+    },
+    {
+      "city": "Stepanakert",
+      "country": "Azerbaijan"
+    },
+    {
+      "city": "Arad",
+      "country": "Bahrain"
+    },
+    {
+      "city": "East Riffa",
+      "country": "Bahrain"
+    },
+    {
+      "city": "Nilphamari Sadar",
+      "country": "Bangladesh"
+    },
+    {
+      "city": "Black Rock",
+      "country": "Barbados"
+    },
+    {
+      "city": "Wildey",
+      "country": "Barbados"
+    },
+    {
+      "city": "Brazzaville",
+      "country": "Belgian Congo"
+    },
+    {
+      "city": "Molenbeek",
+      "country": "Belgium"
+    },
+    {
+      "city": "Devonshire Parish",
+      "country": "Bermuda"
+    },
+    {
+      "city": "El Alto",
+      "country": "Bolivia"
+    },
+    {
+      "city": "Villa Tunari",
+      "country": "Bolivia"
+    },
+    {
+      "city": "Rincon",
+      "country": "Bonaire"
+    },
+    {
+      "city": "Orapa",
+      "country": "Botswana"
+    },
+    {
+      "city": "Spanish Town",
+      "country": "British Virgin Islands"
+    },
+    {
+      "city": "Tortola",
+      "country": "British Virgin Islands"
+    },
+    {
+      "city": "Balchik",
+      "country": "Bulgaria"
+    },
+    {
+      "city": "Majadahonda",
+      "country": "Cameroon"
+    },
+    {
+      "city": "Fos-sur-Mer",
+      "country": "Cape Verde"
+    },
+    {
+      "city": "Independencia",
+      "country": "Chile"
+    },
+    {
+      "city": "Iconi",
+      "country": "Comoros"
+    },
+    {
+      "city": "Mitsamiouli",
+      "country": "Comoros"
+    },
+    {
+      "city": "San Carlos",
+      "country": "Costa Rica"
+    },
+    {
+      "city": "Agía Nápa",
+      "country": "Cyprus"
+    },
+    {
+      "city": "Akdoğan",
+      "country": "Cyprus"
+    },
+    {
+      "city": "Dasaki Achnas",
+      "country": "Cyprus"
+    },
+    {
+      "city": "Dherynia",
+      "country": "Cyprus"
+    },
+    {
+      "city": "Paralímni",
+      "country": "Cyprus"
+    },
+    {
+      "city": "Pégeia",
+      "country": "Cyprus"
+    },
+    {
+      "city": "Púla",
+      "country": "Cyprus"
+    },
+    {
+      "city": "Drnovice",
+      "country": "Czech Republic"
+    },
+    {
+      "city": "Grand Bay",
+      "country": "Dominica"
+    },
+    {
+      "city": "Berrechid",
+      "country": "Egypt"
+    },
+    {
+      "city": "Caen",
+      "country": "Egypt"
+    },
+    {
+      "city": "Gijon",
+      "country": "Egypt"
+    },
+    {
+      "city": "Xianghe",
+      "country": "Egypt"
+    },
+    {
+      "city": "el-Gouna",
+      "country": "Egypt"
+    },
+    {
+      "city": "Athersley",
+      "country": "England"
+    },
+    {
+      "city": "Aveley",
+      "country": "England"
+    },
+    {
+      "city": "Bedfont",
+      "country": "England"
+    },
+    {
+      "city": "Brading",
+      "country": "England"
+    },
+    {
+      "city": "Brentford",
+      "country": "England"
+    },
+    {
+      "city": "Bromley",
+      "country": "England"
+    },
+    {
+      "city": "Burton on Trent",
+      "country": "England"
+    },
+    {
+      "city": "Cornwall",
+      "country": "England"
+    },
+    {
+      "city": "East Cowes",
+      "country": "England"
+    },
+    {
+      "city": "Fitzwilliam",
+      "country": "England"
+    },
+    {
+      "city": "Freshwater",
+      "country": "England"
+    },
+    {
+      "city": "Haringey",
+      "country": "England"
+    },
+    {
+      "city": "Isle of Wight",
+      "country": "England"
+    },
+    {
+      "city": "Oakfield",
+      "country": "England"
+    },
+    {
+      "city": "Rookley",
+      "country": "England"
+    },
+    {
+      "city": "Rotherhithe",
+      "country": "England"
+    },
+    {
+      "city": "Shanklin",
+      "country": "England"
+    },
+    {
+      "city": "Mongomo",
+      "country": "Equatorial Guinea"
+    },
+    {
+      "city": "Karksi-Nuia",
+      "country": "Estonia"
+    },
+    {
+      "city": "Kuressaare",
+      "country": "Estonia"
+    },
+    {
+      "city": "Rakvere",
+      "country": "Estonia"
+    },
+    {
+      "city": "Valga",
+      "country": "Estonia"
+    },
+    {
+      "city": "Võru",
+      "country": "Estonia"
+    },
+    {
+      "city": "Asmara",
+      "country": "Ethiopia"
+    },
+    {
+      "city": "Fuglafjørður",
+      "country": "Faroe Islands"
+    },
+    {
+      "city": "Gøta",
+      "country": "Faroe Islands"
+    },
+    {
+      "city": "Klaksvík",
+      "country": "Faroe Islands"
+    },
+    {
+      "city": "Sandavágur",
+      "country": "Faroe Islands"
+    },
+    {
+      "city": "Sandur",
+      "country": "Faroe Islands"
+    },
+    {
+      "city": "Toftir",
+      "country": "Faroe Islands"
+    },
+    {
+      "city": "Vágur",
+      "country": "Faroe Islands"
+    },
+    {
+      "city": "Ba",
+      "country": "Fiji"
+    },
+    {
+      "city": "Nausori",
+      "country": "Fiji"
+    },
+    {
+      "city": "Navua",
+      "country": "Fiji"
+    },
+    {
+      "city": "Eckerö",
+      "country": "Finland"
+    },
+    {
+      "city": "Finström",
+      "country": "Finland"
+    },
+    {
+      "city": "Hammarland",
+      "country": "Finland"
+    },
+    {
+      "city": "Jomala",
+      "country": "Finland"
+    },
+    {
+      "city": "Kuusankoski",
+      "country": "Finland"
+    },
+    {
+      "city": "Mariehamn",
+      "country": "Finland"
+    },
+    {
+      "city": "Saltvik",
+      "country": "Finland"
+    },
+    {
+      "city": "Sund",
+      "country": "Finland"
+    },
+    {
+      "city": "Åland",
+      "country": "Finland"
+    },
+    {
+      "city": "Amanvillers",
+      "country": "France"
+    },
+    {
+      "city": "Beausoleil",
+      "country": "France"
+    },
+    {
+      "city": "Bois-Guillaume",
+      "country": "France"
+    },
+    {
+      "city": "Bondoufle",
+      "country": "France"
+    },
+    {
+      "city": "Cap-d'Ail",
+      "country": "France"
+    },
+    {
+      "city": "Chambly",
+      "country": "France"
+    },
+    {
+      "city": "Chantilly",
+      "country": "France"
+    },
+    {
+      "city": "Clairefontaine-en-Yvelines",
+      "country": "France"
+    },
+    {
+      "city": "Costebelle",
+      "country": "France"
+    },
+    {
+      "city": "Dinard",
+      "country": "France"
+    },
+    {
+      "city": "Essonne",
+      "country": "France"
+    },
+    {
+      "city": "Fontès",
+      "country": "France"
+    },
+    {
+      "city": "Guingamp",
+      "country": "France"
+    },
+    {
+      "city": "Hauts de Seine",
+      "country": "France"
+    },
+    {
+      "city": "La Chaux",
+      "country": "France"
+    },
+    {
+      "city": "Le Touquet",
+      "country": "France"
+    },
+    {
+      "city": "Mallemort",
+      "country": "France"
+    },
+    {
+      "city": "Occitania",
+      "country": "France"
+    },
+    {
+      "city": "Olargues",
+      "country": "France"
+    },
+    {
+      "city": "Saint-Dalmas-De-Tende",
+      "country": "France"
+    },
+    {
+      "city": "Saint-Zacharie",
+      "country": "France"
+    },
+    {
+      "city": "Val-d'Oise",
+      "country": "France"
+    },
+    {
+      "city": "Val-de-Marne",
+      "country": "France"
+    },
+    {
+      "city": "Vittel",
+      "country": "France"
+    },
+    {
+      "city": "Évian-les-Bains",
+      "country": "France"
+    },
+    {
+      "city": "Gagra",
+      "country": "Georgia"
+    },
+    {
+      "city": "Gurjaani",
+      "country": "Georgia"
+    },
+    {
+      "city": "Altenkirchen",
+      "country": "Germany"
+    },
+    {
+      "city": "Beuthen",
+      "country": "Germany"
+    },
+    {
+      "city": "Breslau",
+      "country": "Germany"
+    },
+    {
+      "city": "Kelsterbach",
+      "country": "Germany"
+    },
+    {
+      "city": "Königsberg",
+      "country": "Germany"
+    },
+    {
+      "city": "Stettin",
+      "country": "Germany"
+    },
+    {
+      "city": "Vienna",
+      "country": "Germany"
+    },
+    {
+      "city": "Europa Point",
+      "country": "Gibraltar"
+    },
+    {
+      "city": "Perivólia",
+      "country": "Greece"
+    },
+    {
+      "city": "Carriacou",
+      "country": "Grenada"
+    },
+    {
+      "city": "Gouyave",
+      "country": "Grenada"
+    },
+    {
+      "city": "Grenada",
+      "country": "Grenada"
+    },
+    {
+      "city": "Grenville",
+      "country": "Grenada"
+    },
+    {
+      "city": "Sauteurs",
+      "country": "Grenada"
+    },
+    {
+      "city": "Morne-à-l'Eau",
+      "country": "Guadeloupe"
+    },
+    {
+      "city": "Vieux-Habitants",
+      "country": "Guadeloupe"
+    },
+    {
+      "city": "Dededo",
+      "country": "Guam"
+    },
+    {
+      "city": "Yona",
+      "country": "Guam"
+    },
+    {
+      "city": "Alderney",
+      "country": "Guernsey"
+    },
+    {
+      "city": "Guernsey",
+      "country": "Guernsey"
+    },
+    {
+      "city": "Saint Martin",
+      "country": "Guernsey"
+    },
+    {
+      "city": "Saint Sampson",
+      "country": "Guernsey"
+    },
+    {
+      "city": "Blairmont",
+      "country": "Guyana"
+    },
+    {
+      "city": "Leonora",
+      "country": "Guyana"
+    },
+    {
+      "city": "Providence",
+      "country": "Guyana"
+    },
+    {
+      "city": "Uitvlugt",
+      "country": "Guyana"
+    },
+    {
+      "city": "So Kon Po",
+      "country": "Hong Kong"
+    },
+    {
+      "city": "Felcsút",
+      "country": "Hungary"
+    },
+    {
+      "city": "Miercurea Ciuc",
+      "country": "Hungary"
+    },
+    {
+      "city": "Akranes",
+      "country": "Iceland"
+    },
+    {
+      "city": "Höfn",
+      "country": "Iceland"
+    },
+    {
+      "city": "Húsavík",
+      "country": "Iceland"
+    },
+    {
+      "city": "Neskaupstaður",
+      "country": "Iceland"
+    },
+    {
+      "city": "Njarðvík",
+      "country": "Iceland"
+    },
+    {
+      "city": "Sauðárkrókur",
+      "country": "Iceland"
+    },
+    {
+      "city": "Gianyar",
+      "country": "Indonesia"
+    },
+    {
+      "city": "Arad",
+      "country": "Iran"
+    },
+    {
+      "city": "Fuladshahr",
+      "country": "Iran"
+    },
+    {
+      "city": "Al-Ain",
+      "country": "Iraq"
+    },
+    {
+      "city": "Habbaniyah",
+      "country": "Iraq"
+    },
+    {
+      "city": "Salahaddin",
+      "country": "Iraq"
+    },
+    {
+      "city": "Belfast",
+      "country": "Ireland"
+    },
+    {
+      "city": "Braddan",
+      "country": "Isle of Man"
+    },
+    {
+      "city": "Castletown",
+      "country": "Isle of Man"
+    },
+    {
+      "city": "Peel",
+      "country": "Isle of Man"
+    },
+    {
+      "city": "Port Erin",
+      "country": "Isle of Man"
+    },
+    {
+      "city": "Ramsey",
+      "country": "Isle of Man"
+    },
+    {
+      "city": "St John's",
+      "country": "Isle of Man"
+    },
+    {
+      "city": "Umm al-Fahm",
+      "country": "Israel"
+    },
+    {
+      "city": "Capoliveri",
+      "country": "Italy"
+    },
+    {
+      "city": "Caraglio",
+      "country": "Italy"
+    },
+    {
+      "city": "Celle Ligure",
+      "country": "Italy"
+    },
+    {
+      "city": "Ospedaletti",
+      "country": "Italy"
+    },
+    {
+      "city": "Rodengo Saiano",
+      "country": "Italy"
+    },
+    {
+      "city": "Ebimpé",
+      "country": "Ivory Coast"
+    },
+    {
+      "city": "Falmouth",
+      "country": "Jamaica"
+    },
+    {
+      "city": "San José",
+      "country": "Jamaica"
+    },
+    {
+      "city": "Miyagi",
+      "country": "Japan"
+    },
+    {
+      "city": "Grouville",
+      "country": "Jersey"
+    },
+    {
+      "city": "Jersey",
+      "country": "Jersey"
+    },
+    {
+      "city": "St. Brelade",
+      "country": "Jersey"
+    },
+    {
+      "city": "St. Clement",
+      "country": "Jersey"
+    },
+    {
+      "city": "St. John",
+      "country": "Jersey"
+    },
+    {
+      "city": "St. Lawrence",
+      "country": "Jersey"
+    },
+    {
+      "city": "St. Ouen",
+      "country": "Jersey"
+    },
+    {
+      "city": "St. Peter",
+      "country": "Jersey"
+    },
+    {
+      "city": "Bondoufle",
+      "country": "Kenya"
+    },
+    {
+      "city": "Kasarani",
+      "country": "Kenya"
+    },
+    {
+      "city": "Al-Jahra",
+      "country": "Kuwait"
+    },
+    {
+      "city": "Sulaibikhat",
+      "country": "Kuwait"
+    },
+    {
+      "city": "Ozolnieki",
+      "country": "Latvia"
+    },
+    {
+      "city": "Bourj Hammoud",
+      "country": "Lebanon"
+    },
+    {
+      "city": "Paynesville",
+      "country": "Liberia"
+    },
+    {
+      "city": "Agilat",
+      "country": "Libya"
+    },
+    {
+      "city": "Benina",
+      "country": "Libya"
+    },
+    {
+      "city": "Bin Ghashir",
+      "country": "Libya"
+    },
+    {
+      "city": "Balzers",
+      "country": "Liechtenstein"
+    },
+    {
+      "city": "Eschen",
+      "country": "Liechtenstein"
+    },
+    {
+      "city": "Differdange",
+      "country": "Luxembourg"
+    },
+    {
+      "city": "Ettelbruck",
+      "country": "Luxembourg"
+    },
+    {
+      "city": "Hesperange",
+      "country": "Luxembourg"
+    },
+    {
+      "city": "Mondercange",
+      "country": "Luxembourg"
+    },
+    {
+      "city": "Zhuhai",
+      "country": "Macau"
+    },
+    {
+      "city": "Madagascar",
+      "country": "Madagascar"
+    },
+    {
+      "city": "Nchalo",
+      "country": "Malawi"
+    },
+    {
+      "city": "Sucoma",
+      "country": "Malawi"
+    },
+    {
+      "city": "Malacca City",
+      "country": "Malaysia"
+    },
+    {
+      "city": "Paroi",
+      "country": "Malaysia"
+    },
+    {
+      "city": "Paya Rumput",
+      "country": "Malaysia"
+    },
+    {
+      "city": "Terengganu",
+      "country": "Malaysia"
+    },
+    {
+      "city": "Addu City",
+      "country": "Maldives"
+    },
+    {
+      "city": "Laamu",
+      "country": "Maldives"
+    },
+    {
+      "city": "Attard",
+      "country": "Malta"
+    },
+    {
+      "city": "Gżira",
+      "country": "Malta"
+    },
+    {
+      "city": "Marsa",
+      "country": "Malta"
+    },
+    {
+      "city": "Paola",
+      "country": "Malta"
+    },
+    {
+      "city": "Sannat",
+      "country": "Malta"
+    },
+    {
+      "city": "Ta' Qali",
+      "country": "Malta"
+    },
+    {
+      "city": "Xewkija",
+      "country": "Malta"
+    },
+    {
+      "city": "Xinjing",
+      "country": "Manchuria"
+    },
+    {
+      "city": "Tel Aviv",
+      "country": "Mandatory Palestine"
+    },
+    {
+      "city": "Rivière-Pilote",
+      "country": "Martinique"
+    },
+    {
+      "city": "Saint-Pierre",
+      "country": "Martinique"
+    },
+    {
+      "city": "Belle Vue Harel",
+      "country": "Mauritius"
+    },
+    {
+      "city": "Belle Vue Maurel",
+      "country": "Mauritius"
+    },
+    {
+      "city": "Mapou",
+      "country": "Mauritius"
+    },
+    {
+      "city": "Mauritius",
+      "country": "Mauritius"
+    },
+    {
+      "city": "Rose Hill",
+      "country": "Mauritius"
+    },
+    {
+      "city": "Colonia",
+      "country": "Micronesia"
+    },
+    {
+      "city": "Lookout",
+      "country": "Montserrat"
+    },
+    {
+      "city": "Pernis",
+      "country": "Netherlands"
+    },
+    {
+      "city": "Boulari",
+      "country": "New Caledonia"
+    },
+    {
+      "city": "Koné",
+      "country": "New Caledonia"
+    },
+    {
+      "city": "La Foa",
+      "country": "New Caledonia"
+    },
+    {
+      "city": "Lifou",
+      "country": "New Caledonia"
+    },
+    {
+      "city": "New Caledonia",
+      "country": "New Caledonia"
+    },
+    {
+      "city": "Mount Maunganui",
+      "country": "New Zealand"
+    },
+    {
+      "city": "Koblerville",
+      "country": "Northern Mariana Islands"
+    },
+    {
+      "city": "Oleai",
+      "country": "Northern Mariana Islands"
+    },
+    {
+      "city": "Susupe",
+      "country": "Northern Mariana Islands"
+    },
+    {
+      "city": "Dhaka",
+      "country": "Pakistan"
+    },
+    {
+      "city": "Koror",
+      "country": "Palau"
+    },
+    {
+      "city": "Al-Khader",
+      "country": "Palestine"
+    },
+    {
+      "city": "Al-Ram",
+      "country": "Palestine"
+    },
+    {
+      "city": "Hebron",
+      "country": "Palestine"
+    },
+    {
+      "city": "Jenin",
+      "country": "Palestine"
+    },
+    {
+      "city": "Jericho",
+      "country": "Palestine"
+    },
+    {
+      "city": "Nablus",
+      "country": "Palestine"
+    },
+    {
+      "city": "Luque",
+      "country": "Paraguay"
+    },
+    {
+      "city": "Barotac Nuevo",
+      "country": "Philippines"
+    },
+    {
+      "city": "Brzeszcze",
+      "country": "Poland"
+    },
+    {
+      "city": "Byton",
+      "country": "Poland"
+    },
+    {
+      "city": "Grodzisk Wielkopolski",
+      "country": "Poland"
+    },
+    {
+      "city": "Lwów",
+      "country": "Poland"
+    },
+    {
+      "city": "Wronki",
+      "country": "Poland"
+    },
+    {
+      "city": "Alcochete",
+      "country": "Portugal"
+    },
+    {
+      "city": "Alverca do Ribatejo",
+      "country": "Portugal"
+    },
+    {
+      "city": "Faro-Loulé",
+      "country": "Portugal"
+    },
+    {
+      "city": "Parchal",
+      "country": "Portugal"
+    },
+    {
+      "city": "Penafiel",
+      "country": "Portugal"
+    },
+    {
+      "city": "Rio Maior",
+      "country": "Portugal"
+    },
+    {
+      "city": "São João da Venda",
+      "country": "Portugal"
+    },
+    {
+      "city": "Vila Real de Santo António",
+      "country": "Portugal"
+    },
+    {
+      "city": "Águeda",
+      "country": "Portugal"
+    },
+    {
+      "city": "Óbidos",
+      "country": "Portugal"
+    },
+    {
+      "city": "Añasco",
+      "country": "Puerto Rico"
+    },
+    {
+      "city": "Cernăuţi",
+      "country": "Romania"
+    },
+    {
+      "city": "Les Avirons",
+      "country": "Réunion"
+    },
+    {
+      "city": "Réunion",
+      "country": "Réunion"
+    },
+    {
+      "city": "Saint-Jean",
+      "country": "Saint Barthélemy"
+    },
+    {
+      "city": "Old Road Town",
+      "country": "Saint Kitts and Nevis"
+    },
+    {
+      "city": "Vieux Fort",
+      "country": "Saint Lucia"
+    },
+    {
+      "city": "Quartier-d'Orleans",
+      "country": "Saint Martin"
+    },
+    {
+      "city": "Arnos Vale",
+      "country": "Saint Vincent and the Grenadines"
+    },
+    {
+      "city": "Georgetown",
+      "country": "Saint Vincent and the Grenadines"
+    },
+    {
+      "city": "Saint George's",
+      "country": "Saint Vincent and the Grenadines"
+    },
+    {
+      "city": "Serravalle",
+      "country": "San Marino"
+    },
+    {
+      "city": "Dounby",
+      "country": "Scotland"
+    },
+    {
+      "city": "Finstown",
+      "country": "Scotland"
+    },
+    {
+      "city": "Holm",
+      "country": "Scotland"
+    },
+    {
+      "city": "Kirkwall",
+      "country": "Scotland"
+    },
+    {
+      "city": "Rendall",
+      "country": "Scotland"
+    },
+    {
+      "city": "Shetland",
+      "country": "Scotland"
+    },
+    {
+      "city": "Stromness",
+      "country": "Scotland"
+    },
+    {
+      "city": "Praslin",
+      "country": "Seychelles"
+    },
+    {
+      "city": "Roche Caiman",
+      "country": "Seychelles"
+    },
+    {
+      "city": "Jalan Besar",
+      "country": "Singapore"
+    },
+    {
+      "city": "Jurong Stadium",
+      "country": "Singapore"
+    },
+    {
+      "city": "Zlaté Moravce",
+      "country": "Slovakia"
+    },
+    {
+      "city": "Domžale",
+      "country": "Slovenia"
+    },
+    {
+      "city": "Murska Sobota",
+      "country": "Slovenia"
+    },
+    {
+      "city": "Nova Gorica",
+      "country": "Slovenia"
+    },
+    {
+      "city": "Atteridgeville",
+      "country": "South Africa"
+    },
+    {
+      "city": "Bushbuckridge",
+      "country": "South Africa"
+    },
+    {
+      "city": "Clermont",
+      "country": "South Africa"
+    },
+    {
+      "city": "KwaMashu",
+      "country": "South Africa"
+    },
+    {
+      "city": "Phokeng",
+      "country": "South Africa"
+    },
+    {
+      "city": "Saulspoort",
+      "country": "South Africa"
+    },
+    {
+      "city": "Umlazi",
+      "country": "South Africa"
+    },
+    {
+      "city": "Paju",
+      "country": "South Korea"
+    },
+    {
+      "city": "Yongin",
+      "country": "South Korea"
+    },
+    {
+      "city": "Llagostera",
+      "country": "Spain"
+    },
+    {
+      "city": "Mallorca",
+      "country": "Spain"
+    },
+    {
+      "city": "Peralada",
+      "country": "Spain"
+    },
+    {
+      "city": "Villarreal",
+      "country": "Spain"
+    },
+    {
+      "city": "Big Bend",
+      "country": "Swaziland"
+    },
+    {
+      "city": "Mhlume",
+      "country": "Swaziland"
+    },
+    {
+      "city": "Dalhem",
+      "country": "Sweden"
+    },
+    {
+      "city": "Fardhem",
+      "country": "Sweden"
+    },
+    {
+      "city": "Fårösund",
+      "country": "Sweden"
+    },
+    {
+      "city": "Gutavallen",
+      "country": "Sweden"
+    },
+    {
+      "city": "Gällivare",
+      "country": "Sweden"
+    },
+    {
+      "city": "Hemse",
+      "country": "Sweden"
+    },
+    {
+      "city": "Malmberget",
+      "country": "Sweden"
+    },
+    {
+      "city": "Norrbacka",
+      "country": "Sweden"
+    },
+    {
+      "city": "Stenkyrka",
+      "country": "Sweden"
+    },
+    {
+      "city": "Säve",
+      "country": "Sweden"
+    },
+    {
+      "city": "Väskinde",
+      "country": "Sweden"
+    },
+    {
+      "city": "Domat/Ems",
+      "country": "Switzerland"
+    },
+    {
+      "city": "Tenero-Contra",
+      "country": "Switzerland"
+    },
+    {
+      "city": "Trübbach",
+      "country": "Switzerland"
+    },
+    {
+      "city": "Pirae",
+      "country": "Tahiti"
+    },
+    {
+      "city": "Chamazi",
+      "country": "Tanzania"
+    },
+    {
+      "city": "Phang Nga",
+      "country": "Thailand"
+    },
+    {
+      "city": "Thailand",
+      "country": "Thailand"
+    },
+    {
+      "city": "Thanyaburi",
+      "country": "Thailand"
+    },
+    {
+      "city": "Woumé",
+      "country": "Togo"
+    },
+    {
+      "city": "Ha'ateiho",
+      "country": "Tonga"
+    },
+    {
+      "city": "‘Atele",
+      "country": "Tonga"
+    },
+    {
+      "city": "Bacolet",
+      "country": "Trinidad and Tobago"
+    },
+    {
+      "city": "Couva",
+      "country": "Trinidad and Tobago"
+    },
+    {
+      "city": "Macoya",
+      "country": "Trinidad and Tobago"
+    },
+    {
+      "city": "Palo Seco",
+      "country": "Trinidad and Tobago"
+    },
+    {
+      "city": "Pointe-à-Pierre",
+      "country": "Trinidad and Tobago"
+    },
+    {
+      "city": "Aïn Draham",
+      "country": "Tunisia"
+    },
+    {
+      "city": "Hammam Lif",
+      "country": "Tunisia"
+    },
+    {
+      "city": "Houmet Souk",
+      "country": "Tunisia"
+    },
+    {
+      "city": "Port el-Kantaoui",
+      "country": "Tunisia"
+    },
+    {
+      "city": "Kartepe",
+      "country": "Turkey"
+    },
+    {
+      "city": "Zaporizhia",
+      "country": "Ukraine"
+    },
+    {
+      "city": "Al Hamriyah",
+      "country": "United Arab Emirates"
+    },
+    {
+      "city": "Alexandria",
+      "country": "United Arab Republic"
+    },
+    {
+      "city": "Cairo",
+      "country": "United Arab Republic"
+    },
+    {
+      "city": "Cocoa Beach",
+      "country": "United States"
+    },
+    {
+      "city": "Dallas (Arlington)",
+      "country": "United States"
+    },
+    {
+      "city": "Davidson",
+      "country": "United States"
+    },
+    {
+      "city": "East Rutherford",
+      "country": "United States"
+    },
+    {
+      "city": "Foxborough",
+      "country": "United States"
+    },
+    {
+      "city": "Hershey",
+      "country": "United States"
+    },
+    {
+      "city": "Summerfield",
+      "country": "United States"
+    },
+    {
+      "city": "Washington, D.C.",
+      "country": "United States"
+    },
+    {
+      "city": "Frederiksted",
+      "country": "United States Virgin Islands"
+    },
+    {
+      "city": "Upper Bethlehem",
+      "country": "United States Virgin Islands"
+    },
+    {
+      "city": "Luganville",
+      "country": "Vanuatu"
+    },
+    {
+      "city": "Puerto Ordaz",
+      "country": "Venezuela"
+    },
+    {
+      "city": "Táchira",
+      "country": "Venezuela"
+    },
+    {
+      "city": "Anglesey",
+      "country": "Wales"
+    },
+    {
+      "city": "Borovo",
+      "country": "Yugoslavia"
+    },
+    {
+      "city": "Titova Mitrovica",
+      "country": "Yugoslavia"
+    },
+    {
+      "city": "Gombani",
+      "country": "Zanzibar"
+    }
+  ],
+  "unresolved_pairs": 387
+}
