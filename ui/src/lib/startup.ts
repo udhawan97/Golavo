@@ -61,6 +61,31 @@ async function invokeRestart(): Promise<void> {
  *  - index:      /health answers, but the heavy match index is still loading. */
 export type SplashStage = "extracting" | "index" | "done";
 
+/** Visible stage detail stays deliberately short: it shares the splash's
+ * editorial hierarchy with progress and must remain a single line on desktop. */
+export function startupCopyFor(stage: SplashStage, desktop: boolean, rows: number | null): {
+  detail: string;
+  announce: string;
+} {
+  if (!desktop) {
+    return {
+      detail: "Connecting to the local server",
+      announce: "Starting Golavo — connecting to the local server.",
+    };
+  }
+  if (stage === "extracting") {
+    return {
+      detail: "Unpacking the local engine",
+      announce: "Starting Golavo — unpacking the engine. This can take up to a minute.",
+    };
+  }
+  const seated = rows ? rows.toLocaleString() : "75,000+";
+  return {
+    detail: `Seating ${seated} matches in the library`,
+    announce: "Engine running — waking the match library. Almost ready.",
+  };
+}
+
 /** Per-stage eased progress. Each stage eases toward a ceiling and never claims
  *  completion until the real signal arrives, so the bar is honest within a stage
  *  and honest at the boundary. */
