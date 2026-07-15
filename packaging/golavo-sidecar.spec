@@ -40,6 +40,8 @@ datas = [
     # Phase 7 CommentatorsNotebook contract: build_notebook(validate=True) reads it
     # at runtime, so a frozen build without it fails every on-demand notebook closed.
     (os.path.join(ROOT, "docs", "contracts", "facts.schema.json"), "docs/contracts"),
+    # Phase 0 competition identities and honest feature availability states.
+    (os.path.join(ROOT, "docs", "contracts", "competition_catalog.schema.json"), "docs/contracts"),
 ]
 datas += [
     (os.path.join(ROOT, "docs", "handoff", name), "docs/handoff") for name in _EVAL_SUMMARIES
