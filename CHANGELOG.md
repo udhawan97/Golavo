@@ -21,7 +21,7 @@ available in the same order.
   Dixon–Coles parameters with plain-language definitions, while the form book adds
   venue markers, opponents, deterministic streaks, and last-five goal-difference
   trends.
-- **A fuller Score Outlook.** Double chance, team-goal thresholds, and the
+- **A fuller Score Outlook.** Double chance, match-total thresholds, and the
   home/draw/away split beyond the displayed score grid join the existing goal-line,
   clean-sheet, distribution, and exact-score views.
 - **Timing and discipline context.** Guarded goal-timing profiles render as compact
