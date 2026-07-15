@@ -76,7 +76,13 @@ def test_phase_one_capabilities_match_the_shipped_analytics() -> None:
     euro = catalog["uefa-euro"]["capabilities"]
     assert euro["report_cards"]["status"] == "available"
     assert euro["strength_trends"]["status"] == "available"
-    assert catalog["uefa-champions-league"]["capabilities"]["report_cards"]["status"] == "planned"
+    ucl = catalog["uefa-champions-league"]["capabilities"]
+    assert ucl["results"]["status"] == "available"
+    assert ucl["fixtures"]["status"] == "partial"
+    assert ucl["report_cards"]["status"] == "planned"
+    assert ucl["strength_trends"]["status"] == "available"
+    assert ucl["rest_congestion"]["status"] == "available"
+    assert ucl["schedule_difficulty"]["status"] == "blocked"
 
 
 def test_source_alias_resolution_is_exact_and_does_not_guess_region() -> None:

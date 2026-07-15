@@ -10,8 +10,8 @@ byte-identical to a ``golavo seal``. Three safety properties hold:
   the indexed row's source, the as-of from the server clock. A caller can neither
   backdate a seal nor point the engine at an untrusted file or pack path.
 * **Forward seals are scoped to men's senior internationals.** That is the only
-  source whose rows map unambiguously to one pinned CC0 pack (the five
-  openfootball leagues share a single source_id) and whose scheduled rows carry a
+  source whose rows map unambiguously to one pinned CC0 pack (OpenFootball club
+  source ids are reused across competitions) and whose scheduled rows carry a
   usable date-proxy kickoff. Everything else returns a typed, honest abstention.
 * **One active seal per (fixture, family).** A repeat request returns the existing
   immutable artifact instead of minting a near-duplicate that differs only by the
@@ -113,8 +113,8 @@ def resolve_pack_dir(source_id: str | None, source_kind: str | None) -> Path | N
     """The pinned CC0 pack a fixture's forward seal must train from, or None.
 
     Only sources that map to exactly one pack resolve: men's internationals today.
-    A club row (all five openfootball leagues share one source_id) cannot be tied
-    to a single pack and is intentionally unsupported here.
+    A club row whose OpenFootball source id is shared across competitions cannot
+    be tied to a single pack and is intentionally unsupported here.
 
     Resolution order, all keeping search and sealing on one source of truth:
     a runtime-refreshed pack (an in-app "pull it in" refresh) first; then the

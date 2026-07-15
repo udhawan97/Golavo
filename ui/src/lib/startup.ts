@@ -79,7 +79,7 @@ export function startupCopyFor(stage: SplashStage, desktop: boolean, rows: numbe
       announce: "Starting Golavo — unpacking the engine. This can take up to a minute.",
     };
   }
-  const seated = rows ? rows.toLocaleString() : "75,000+";
+  const seated = rows ? rows.toLocaleString() : "77,000+";
   return {
     detail: `Seating ${seated} matches in the library`,
     announce: "Engine running — waking the match library. Almost ready.",

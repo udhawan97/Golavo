@@ -64,6 +64,30 @@
       "source_id": "martj42-international-results",
       "upstream_committed_at_utc": "2026-07-11T08:33:26Z",
       "upstream_ref": "f73286079f8c6b48a59f8a16e895d757119dca71"
+    },
+    {
+      "manifest_sha256": "64035787494d2e4b9b777f534dde41f45b47c28f744a4c4df1fe250608cf34ef",
+      "pack": "packs/openfootball-uefa-champions-league",
+      "retrieved_at_utc": "2026-07-15T07:39:03Z",
+      "source_id": "openfootball-champions-league",
+      "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
+      "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
+    },
+    {
+      "manifest_sha256": "86f04f6bb6a4fef14fe2052025adddd23e6d0ddcb8ce44da68e144460df105e6",
+      "pack": "packs/openfootball-uefa-europa-league",
+      "retrieved_at_utc": "2026-07-15T07:39:03Z",
+      "source_id": "openfootball-champions-league",
+      "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
+      "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
+    },
+    {
+      "manifest_sha256": "5bd91aafa5b6cdb58c43d6ee267ce7649c0d3b1f8e6851f55281913fac67c2b6",
+      "pack": "packs/openfootball-uefa-conference-league",
+      "retrieved_at_utc": "2026-07-15T07:39:04Z",
+      "source_id": "openfootball-champions-league",
+      "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
+      "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
     }
   ]
 }

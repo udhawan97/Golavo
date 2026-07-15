@@ -8,6 +8,24 @@
     },
     {
       "license": "CC0-1.0",
+      "manifest_sha256": "64035787494d2e4b9b777f534dde41f45b47c28f744a4c4df1fe250608cf34ef",
+      "pack": "openfootball-uefa-champions-league",
+      "source_id": "openfootball-champions-league"
+    },
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "5bd91aafa5b6cdb58c43d6ee267ce7649c0d3b1f8e6851f55281913fac67c2b6",
+      "pack": "openfootball-uefa-conference-league",
+      "source_id": "openfootball-champions-league"
+    },
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "86f04f6bb6a4fef14fe2052025adddd23e6d0ddcb8ce44da68e144460df105e6",
+      "pack": "openfootball-uefa-europa-league",
+      "source_id": "openfootball-champions-league"
+    },
+    {
+      "license": "CC0-1.0",
       "manifest_sha256": "a8ed7e752c8c804eb1c488954bd5e5b0c8b84c0c6bc4ccc30402886d3684386d",
       "pack": "openfootball-deu-bl",
       "source_id": "openfootball-football-json"
@@ -37,7 +55,7 @@
       "source_id": "openfootball-football-json"
     }
   ],
-  "parquet_sha256": "98a59021aae8b2c4dfdaf0a9751d6c8a32503800cf7b178299a3ca1ae907943d",
-  "row_count": 75081,
+  "parquet_sha256": "1238d72ee1fb3a54b0f3b11f40b2c34bf2b524744de3b73549ad59b417e84850",
+  "row_count": 77350,
   "schema_version": "0.3.0"
 }

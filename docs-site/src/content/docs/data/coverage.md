@@ -1,6 +1,6 @@
 ---
 title: Coverage
-description: Golavo's exact data coverage across internationals and the top-5 European leagues, with gaps stated explicitly.
+description: Golavo's exact data coverage across internationals, the top-5 leagues, and UEFA club competitions, with gaps stated explicitly.
 ---
 
 Golavo's only **forward** forecasting surface is **men's senior full internationals**,
@@ -13,6 +13,13 @@ The **English Premier League, La Liga, Bundesliga, Serie A, and Ligue 1** form a
 Only completed seasons that pass the per-league coverage audit are accepted. Every league
 is modeled independently, so there is **no cross-league strength calibration** and strengths
 are not comparable across leagues.
+
+The **UEFA Champions League, Europa League, and Conference League** are also
+historical-only. Their main-competition editions come from a separately pinned
+`openfootball/champions-league` commit (CC0-1.0). Qualifiers are excluded, and each
+competition has its own explicit coverage ceiling. These matches power browsing plus
+competition-local strength and rest/congestion analytics, not report cards or season
+simulations.
 
 The OpenFootball club packs are season-lagged captures with no verified live cadence, so
 a **club forward loop is not shipped**. The international source publishes dates without
@@ -33,6 +40,9 @@ immutable, retained, and registered in `packs/snapshots.json`. See
 | Club fixtures/results (Bundesliga) | 15 clean seasons 2010-11 → 2024-25 (openfootball, CC0) | ✅ historical backtest (not live) |
 | Club fixtures/results (Serie A) | 11 clean seasons 2013-14 → 2023-24 (openfootball, CC0) | ✅ historical backtest (not live) |
 | Club fixtures/results (Ligue 1) | 10 clean seasons 2014-15 → 2024-25 (openfootball, CC0) | ✅ historical backtest (not live) |
+| UEFA Champions League results | 6 complete main-competition editions 2020-21 → 2025-26 (openfootball, CC0) | ✅ browse + competition-local strength/rest analytics |
+| UEFA Europa League results | 5 complete main-competition editions 2020-21 → 2024-25 (openfootball, CC0) | ✅ browse + competition-local strength/rest analytics |
+| UEFA Conference League results | 4 complete main-competition editions 2021-22 → 2024-25 (openfootball, CC0) | ✅ browse + competition-local strength/rest analytics |
 | Club half-time scores | recorded on many rows across EPL/Bundesliga 2010-11 → 2025-26, La Liga 2012-13 → 2025-26, Serie A 2013-14 → 2025-26, and Ligue 1 2014-15 → 2025-26 | ✅ descriptive comeback/lead facts only; missing HT rows are excluded |
 | Men's World Cup history | tournaments, standings, team appearances, and individual awards, 1930–2022 (Fjelstul, CC-BY-SA-4.0) | ✅ isolated descriptive facts only; never joined to the forecast index |
 | Lineups / minutes | no accepted open source | 🚫 unavailable |
@@ -55,6 +65,26 @@ The men's top-5 European leagues are accepted for **completed seasons only**, fr
 | Ligue 1 | ACCEPT_HISTORICAL | 10 (2014-15 → 2024-25) | 2019-20 abandoned in the COVID-19 pandemic (101 fixtures unplayed); 2025-26 partial capture |
 
 Missing results are **excluded, never fabricated**. Ligue 1 contracted from 20 to 18 clubs in 2023-24; the audit derives each season's expected match count from its actual team count and also checks that count against the league's constitutional size.
+
+## Historical UEFA club coverage
+
+Golavo retains 2,271 declared main-competition rows from the pinned European source.
+The parser reconciles every row against the count embedded in its season file and fails
+closed on unrecognized match syntax. Two cancelled 2021-22 Europa League ties remain in
+the hashed source bytes for auditability but are excluded from the match index, leaving
+2,269 complete results.
+
+| Competition | Included editions | Indexed results | Not included |
+|---|---:|---:|---|
+| UEFA Champions League | 2020-21 → 2025-26 | 878 | qualifiers; future schedules beyond the pin |
+| UEFA Europa League | 2020-21 → 2024-25 | 815 | 2 cancelled ties; qualifiers; 2025-26 main competition |
+| UEFA Conference League | 2021-22 → 2024-25 | 576 | qualifiers; 2025-26 main competition |
+
+Upstream supplies venue-local clock labels without timezones. Golavo therefore indexes
+these rows at a day-only 00:00 UTC proxy and does not present the local clock as an exact
+kickoff. Complete historical editions do **not** certify a future fixture feed, schedule
+difficulty, report card, or tournament simulation. Those capabilities remain partial,
+planned, or blocked in the competition catalog.
 
 Half-time coverage is **row-level, not season-complete**. The openfootball files carry a recorded
 `score.ht` for many matches in every packed club season, but gaps remain — especially in older

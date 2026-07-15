@@ -3,7 +3,8 @@
  *
  * The bundled index has no league-priority column (only per-competition match
  * counts, which measure volume, not importance — 18k friendlies would lead).
- * So "the big five + major internationals first" is a CURATED list, kept here as
+ * So "the big five + UEFA club competitions + major internationals first" is a
+ * CURATED list, kept here as
  * the single source of truth for both the Leagues hub and the Matchday home.
  *
  * The competition strings are the exact values in the frozen index (verified),
@@ -14,7 +15,7 @@ import type { MatchRow, SourceKind } from "./contract";
 export interface League {
   slug: string;
   name: string;
-  /** The index `competition` string (club leagues), or omitted for internationals. */
+  /** The index `competition` string (club competitions), or omitted for internationals. */
   competition?: string;
   /** Stable backend identity for capability and analytics routes. */
   competitionId?: string;
@@ -22,7 +23,7 @@ export interface League {
   note: string;
 }
 
-/** The five bundled club leagues + internationals — used by the Leagues hub and
+/** Bundled club competitions + internationals — used by the Leagues hub and
  *  the Matchday home's quick-browse chips. */
 export const LEAGUES: League[] = [
   { slug: "internationals", name: "Internationals", sourceKind: "international",
@@ -40,11 +41,21 @@ export const LEAGUES: League[] = [
   { slug: "ligue-1", name: "Ligue 1", competition: "Ligue 1",
     competitionId: "france-ligue-1",
     note: "France · bundled 2014–15 onward (historical)." },
+  { slug: "champions-league", name: "Champions League", competition: "UEFA Champions League",
+    competitionId: "uefa-champions-league",
+    note: "UEFA · main-competition results from 2020–21 through 2025–26." },
+  { slug: "europa-league", name: "Europa League", competition: "UEFA Europa League",
+    competitionId: "uefa-europa-league",
+    note: "UEFA · main-competition results from 2020–21 through 2024–25." },
+  { slug: "conference-league", name: "Conference League", competition: "UEFA Conference League",
+    competitionId: "uefa-conference-league",
+    note: "UEFA · main-competition results from 2021–22 through 2024–25." },
 ];
 
-/** The big-five club competitions, in curated order (index strings). */
+/** The bundled club competitions, in curated order (index strings). */
 export const TOP_CLUB_COMPETITIONS: readonly string[] = [
   "English Premier League", "La Liga", "Bundesliga", "Serie A", "Ligue 1",
+  "UEFA Champions League", "UEFA Europa League", "UEFA Conference League",
 ];
 
 /** Major international competitions, in curated order (exact index strings).
@@ -78,7 +89,7 @@ const TIER_OTHER = 2000;
 const TIER_FRIENDLY = 9000; // 18k friendlies must never lead a results feed
 
 /**
- * A sort key for a competition — lower ranks first. Top-5 club leagues, then
+ * A sort key for a competition — lower ranks first. Bundled club competitions, then
  * major internationals (both in curated order), then everything else, with
  * "Friendly" pinned dead last. Ties within the "other" tier are broken
  * alphabetically by the caller.

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from .footballtxt import load_footballtxt_table, parse_footballtxt
 from .match_index import (
     MATCH_INDEX_SCHEMA_VERSION,
     build_match_index,
@@ -33,8 +34,11 @@ def load_matches(pack_dir: Path) -> pd.DataFrame:
     artifact identically.
     """
     manifest = validate_pack(pack_dir)
-    if str(manifest.get("source_id", "")).startswith("openfootball"):
+    source_id = str(manifest.get("source_id", ""))
+    if source_id == "openfootball-football-json":
         frame = load_openfootball_table(pack_dir)
+    elif source_id == "openfootball-champions-league":
+        frame = load_footballtxt_table(pack_dir)
     else:
         frame = load_match_table(pack_dir)
     return apply_exact_kickoffs(frame, pack_dir, manifest)
@@ -48,9 +52,11 @@ __all__ = [
     "co_source_descriptors",
     "canonical_team",
     "default_index_packs",
+    "load_footballtxt_table",
     "load_match_table",
     "load_matches",
     "load_openfootball_table",
+    "parse_footballtxt",
     "snapshot_anchor_utc",
     "snapshot_descriptor",
     "training_rows",

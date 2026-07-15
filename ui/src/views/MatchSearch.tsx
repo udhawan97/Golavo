@@ -27,7 +27,7 @@ type Phase = "idle" | "loading" | "ready" | "error" | "warming";
 
 const GROUPS: Array<{ kind: SourceKind; title: string }> = [
   { kind: "international", title: "Internationals" },
-  { kind: "club", title: "Club leagues" },
+  { kind: "club", title: "Club competitions" },
 ];
 
 // Persist the search across navigation (open a match → Back) via sessionStorage,
@@ -38,7 +38,15 @@ const SS_COMP = "golavo-search-comp";
 const SS_STATUS = "golavo-search-status";
 
 // A starting point so the directory is browseable without typing first.
-const POPULAR = ["FIFA World Cup", "Copa América", "UEFA Euro", "Brazil", "England", "Argentina"];
+const POPULAR = [
+  "FIFA World Cup",
+  "UEFA Champions League",
+  "Copa América",
+  "UEFA Euro",
+  "Brazil",
+  "England",
+  "Argentina",
+];
 
 export function MatchSearch() {
   const [input, setInput] = useState(() => sessionStorage.getItem(SS_Q) ?? "");
@@ -189,7 +197,7 @@ export function MatchSearch() {
               </optgroup>
             )}
             {clubComps.length > 0 && (
-              <optgroup label="Club leagues">
+              <optgroup label="Club competitions">
                 {clubComps.map((c) => (
                   <option key={`c-${c.competition}`} value={c.competition}>
                     {c.competition} ({c.n_matches})
@@ -204,7 +212,8 @@ export function MatchSearch() {
       {phase === "idle" && (
         <div className="stack" style={{ ["--gap" as string]: ".9rem" }}>
           <EmptyState title="Search the match directory">
-            Search 75,000+ matches — internationals and the big-five club leagues. Or jump in:
+            Search 77,000+ matches — internationals, the big-five leagues, and UEFA club
+            competitions. Or jump in:
           </EmptyState>
           <div
             className="ms-popular"

@@ -61,7 +61,7 @@ Lab**, plus Search, an **Aa** reading-comfort popover, and a Settings gear.
 | `#/matches` | `MatchSearch` | debounced search over the ~75k-match index; grouped internationals/club; honest badge states |
 | `#/match/{id}` | `MatchDetail` | **Match Cockpit**: on-demand Replay (played) / Preview (scheduled) council, model-implied goals, score grid, Notebook, and the **Seal before kickoff** action for an eligible fixture |
 | `#/forecast/{id}` | `ForecastDetail` | a sealed forecast — verdict bar, seal stamp, provenance, score matrix, scored/voided/superseded states, "what moved" re-seal deltas, insight cards |
-| `#/leagues` | `LeaguesHub` | browse hub for the five club leagues + internationals |
+| `#/leagues` | `LeaguesHub` | browse hub for domestic leagues, UEFA clubs + internationals |
 | `#/league/{slug}` | `LeagueView` | one league's matches (historical backtest surface) |
 | `#/lab` | `ModelLabHub` | the relocated audit surface hub |
 | `#/lab/track-record` | `PredictionLedger` | the real forward calibration record |

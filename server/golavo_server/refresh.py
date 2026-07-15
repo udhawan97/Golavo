@@ -2,12 +2,13 @@
 published fixture becomes searchable AND sealable in-app — without losing the
 bundled club history.
 
-Golavo ships a complete, read-only match index (martj42 internationals + five
-openfootball club leagues) and, for forward seals, only ONE refreshable source:
+Golavo ships a complete, read-only match index (martj42 internationals + bundled
+OpenFootball domestic and UEFA club competitions) and, for forward seals, only
+ONE refreshable source:
 the martj42 internationals pack. It is the single source that (a) maps to one
 pinned CC0 pack and (b) gains genuinely new *fixtures* upstream. A refresh
 therefore rebuilds only the internationals side of the index from a fresh pack
-and carries the club rows over from the bundled index verbatim — so the
+and carries all club rows over from the bundled index verbatim — so the
 refreshed index stays whole even though the frozen app bundles no club packs.
 
 This module produces the refreshed *bytes* deterministically (same inputs ->

@@ -63,10 +63,10 @@
       "license_url": "https://github.com/openfootball/champions-league/blob/master/LICENSE.md",
       "classification": "core",
       "pin_strategy": "commit",
-      "fields": "UEFA Champions League (including qualifiers), Europa League, and Conference League fixtures/results in Football.TXT format",
+      "fields": "UEFA Champions League, Europa League, and Conference League main-competition results in Football.TXT format; qualifiers excluded from the bundled packs",
       "attribution": "European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-15",
-      "notes": "Registered for Phase 2, not bundled yet. Every imported competition-season must pass fixture/result completeness and format-era checks before Golavo marks it available."
+      "notes": "Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone."
     },
     {
       "source_id": "openfootball-euro",
@@ -80,7 +80,7 @@
       "fields": "UEFA European Championship fixtures/results in Football.TXT format",
       "attribution": "European Championship data from openfootball/euro (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-15",
-      "notes": "Registered for Phase 2, not bundled yet. Used only after edition completeness and rule-version validation; martj42 remains the historical international results source."
+      "notes": "Registered but not bundled: the available finals editions duplicate UEFA Euro results already carried by martj42. Golavo avoids adding duplicate match rows; martj42 remains the historical international results source."
     },
     {
       "source_id": "geonames",

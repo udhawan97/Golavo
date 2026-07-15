@@ -17,13 +17,13 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Attribution: International football results from martj42/international_results (Mart Jürisoo), CC0-1.0.
 - Notes: Bundled and seal-eligible. Sole forward-seal training source. Date-only; exact kickoff requires the worldcup-json overlay.
 
-### openfootball/champions-league — available, not bundled
+### openfootball/champions-league — **bundled**
 
 - Source: https://github.com/openfootball/champions-league
 - Contributors: Gerald Bauer, openfootball contributors
 - License: CC0-1.0 (https://github.com/openfootball/champions-league/blob/master/LICENSE.md)
 - Attribution: European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.
-- Notes: Registered for Phase 2, not bundled yet. Every imported competition-season must pass fixture/result completeness and format-era checks before Golavo marks it available.
+- Notes: Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone.
 
 ### openfootball/euro — available, not bundled
 
@@ -31,7 +31,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: Gerald Bauer, openfootball contributors
 - License: CC0-1.0 (https://github.com/openfootball/euro/blob/master/LICENSE.md)
 - Attribution: European Championship data from openfootball/euro (Gerald Bauer and contributors), CC0-1.0.
-- Notes: Registered for Phase 2, not bundled yet. Used only after edition completeness and rule-version validation; martj42 remains the historical international results source.
+- Notes: Registered but not bundled: the available finals editions duplicate UEFA Euro results already carried by martj42. Golavo avoids adding duplicate match rows; martj42 remains the historical international results source.
 
 ### openfootball/football.json — **bundled**
 

@@ -3,7 +3,7 @@
  *
  * Analytics-first, results-first: it opens on real matches from the local index
  * (finished results in the last week by default), grouped by competition with the
- * big-five leagues and major internationals surfaced first. Every card links to
+ * bundled club competitions and major internationals surfaced first. Every card links to
  * its Match Cockpit — the analytics showcase. Sealing is a small side feature now,
  * explained in its own guide, not the front door.
  *
@@ -90,11 +90,11 @@ export function MatchdayHome() {
 
       <a className="search-cta" href="#/matches">
         <SearchIcon />
-        <span>Search 75,000+ matches — internationals and the big-five leagues</span>
+        <span>Search 77,000+ matches — internationals, big-five leagues, and UEFA clubs</span>
         <ChevronRight size={16} />
       </a>
 
-      <nav className="league-chips" aria-label="Browse leagues">
+      <nav className="league-chips" aria-label="Browse competitions">
         {LEAGUES.map((l) => (
           <a key={l.slug} className="league-chip" href={`#/league/${l.slug}`}>
             {l.name}

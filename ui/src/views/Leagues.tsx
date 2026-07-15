@@ -1,5 +1,5 @@
 /**
- * Leagues — a browse hub over the five bundled club leagues + internationals.
+ * Leagues — a browse hub over bundled domestic and UEFA club competitions + internationals.
  *
  * MVP scope: honest browsing (recent results + any upcoming) per competition,
  * from the local index. Standings and a season Outlook are deliberately NOT here
@@ -19,25 +19,58 @@ import { Rail } from "./Matchday";
 export { LEAGUES } from "../lib/leagues";
 
 export function LeaguesHub() {
+  const groups = [
+    {
+      id: "international-competitions",
+      title: "Internationals",
+      leagues: LEAGUES.filter((league) => league.sourceKind === "international"),
+    },
+    {
+      id: "domestic-leagues",
+      title: "Domestic leagues",
+      leagues: LEAGUES.filter(
+        (league) => league.competition && !league.competition.startsWith("UEFA "),
+      ),
+    },
+    {
+      id: "uefa-club-competitions",
+      title: "UEFA club competitions",
+      leagues: LEAGUES.filter((league) => league.competition?.startsWith("UEFA ")),
+    },
+  ];
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
-        <h1>Leagues</h1>
+        <h1>Leagues &amp; Europe</h1>
         <p className="measure dim" style={{ margin: 0 }}>
           Browse each competition’s recent matches and open any one for the model council. Standings
           and season projections aren’t here yet — Golavo won’t show a table it can’t honestly
           compute.
         </p>
       </header>
-      <div className="league-grid">
-        {LEAGUES.map((l) => (
-          <a key={l.slug} className="league-card" href={`#/league/${l.slug}`}>
-            <div className="league-card__name">{l.name}</div>
-            <div className="league-card__note small muted">{l.note}</div>
-            <ChevronRight size={16} />
-          </a>
-        ))}
-      </div>
+      {groups.map((group) => (
+        <section
+          key={group.id}
+          className="stack"
+          style={{ ["--gap" as string]: ".65rem" }}
+          aria-labelledby={group.id}
+        >
+          <h2 id={group.id} className="upper muted" style={{ margin: 0 }}>{group.title}</h2>
+          <div className="league-grid">
+            {group.leagues.map((league) => (
+              <a
+                key={league.slug}
+                className="league-card"
+                href={`#/league/${league.slug}`}
+              >
+                <div className="league-card__name">{league.name}</div>
+                <div className="league-card__note small muted">{league.note}</div>
+                <ChevronRight size={16} />
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
@@ -64,15 +97,15 @@ export function LeagueView({ slug }: { slug: string }) {
 
   if (!league)
     return (
-      <EmptyState title="League not found">
-        No league matches this address. <a href="#/leagues">All leagues ›</a>
+      <EmptyState title="Competition not found">
+        No competition matches this address. <a href="#/leagues">All competitions ›</a>
       </EmptyState>
     );
 
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <nav className="breadcrumb" aria-label="Breadcrumb">
-        <a href="#/leagues">Leagues</a>
+        <a href="#/leagues">Leagues &amp; Europe</a>
         <ChevronRight size={14} />
         <span aria-current="page">{league.name}</span>
       </nav>

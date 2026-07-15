@@ -5,14 +5,16 @@ from golavo_server import main as server_main
 from golavo_server import runtime
 
 
-def test_capabilities_exposes_honest_phase_zero_contract() -> None:
+def test_capabilities_exposes_honest_european_competition_contract() -> None:
     response = TestClient(server_main.app).get("/api/v1/capabilities")
     assert response.status_code == 200
     body = response.json()
     assert body["schema_version"] == "0.1.0"
     by_id = {item["competition_id"]: item for item in body["competitions"]}
     ucl = by_id["uefa-champions-league"]
-    assert ucl["capabilities"]["results"]["status"] == "planned"
+    assert ucl["capabilities"]["results"]["status"] == "available"
+    assert ucl["capabilities"]["fixtures"]["status"] == "partial"
+    assert ucl["capabilities"]["strength_trends"]["status"] == "available"
     assert ucl["capabilities"]["simulation"]["status"] == "blocked"
     assert body["refresh_policy"]["byok_api"] == "blocked"
     assert "football-data.org" in body["refresh_policy"]["byok_reason"]

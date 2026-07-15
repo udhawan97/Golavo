@@ -149,7 +149,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | | Do this | Get this |
 | :---: | --- | --- |
 | 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A six-chapter, leak-safe programme: form, fitted style, history, two separate model voices, Score Outlook, verdict and pick, plus the optional evidence-bound analyst column |
-| ⚽ | **Browse Games, Leagues, and search 75,000 matches** — recent results, any upcoming fixtures, the big-five leagues | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
+| ⚽ | **Browse Games, Leagues, and search 77,000 matches** — recent results, any upcoming fixtures, the big-five leagues, and UEFA club competitions | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
 | 🎟️ | **Make your score call** — edit until kickoff, then race five named model rivals | A fingerprinted local pick, simple 3 / 1 / +1 scoring, and My Season standings over only the matches you play |
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
@@ -267,8 +267,10 @@ integrity; publication history proves timing. Different receipts, different jobs
 ## Coverage — no dramatic hand-waving
 
 Golavo's **forward** surface is men's senior full internationals. The top-5 European
-leagues are a **historical backtesting** surface, not live club forecasting. Each
-league is modeled independently; there is no cross-league strength calibration.
+leagues are a **historical backtesting** surface, while the three UEFA club competitions
+are a **historical browsing and competition-local analytics** surface. They are not live
+club forecasting. Each competition is modeled independently; there is no cross-competition
+strength calibration.
 Lineups, injuries, corners, xG, and proprietary feeds are not quietly inferred from
 vibes.
 
@@ -280,8 +282,12 @@ vibes.
 | **Bundesliga** | 15 clean seasons, 2010-11→2024-25 | Not in accepted pack | Historical evaluation only |
 | **Serie A** | 11 clean seasons, 2013-14→2023-24 | Not in accepted pack | Historical evaluation only; incomplete 2024-25 excluded |
 | **Ligue 1** | 10 clean seasons, 2014-15→2024-25 | Not in accepted pack | Historical evaluation only; abandoned 2019-20 excluded |
+| **UEFA Champions League** | 6 complete main-competition editions, 2020-21→2025-26 | Not in accepted pack | Historical browsing + competition-local strength/rest analytics |
+| **UEFA Europa League** | 5 complete main-competition editions, 2020-21→2024-25 | Not in accepted pack | Historical browsing + competition-local strength/rest analytics |
+| **UEFA Conference League** | 4 complete main-competition editions, 2021-22→2024-25 | Not in accepted pack | Historical browsing + competition-local strength/rest analytics |
 
-Every partial 2025-26 club capture is excluded. Free access is not the same as
+Every partial 2025-26 domestic-league capture is excluded. UEFA qualifiers are not bundled,
+and historical results do not imply a complete future schedule. Free access is not the same as
 lawful open data, and a filename is not a provenance strategy. Read the
 [coverage audit](docs/handoff/openfootball-audit.md) or the
 [data-source guide](https://udhawan97.github.io/Golavo/data/coverage/) for the
