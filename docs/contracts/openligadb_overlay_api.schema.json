@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/openligadb_overlay_api.schema.json",
+  "title": "Golavo OpenLigaDB isolated overlay status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_id",
+    "overlay_supported",
+    "enabled",
+    "refresh_policy",
+    "selected_competitions",
+    "health",
+    "display_only",
+    "license",
+    "usage",
+    "active_generation",
+    "capabilities",
+    "last_checked_at_utc",
+    "last_activated_at_utc",
+    "next_check_after_utc",
+    "last_error",
+    "job",
+    "storage_bytes"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "source_id": {"const": "openligadb"},
+    "overlay_supported": {"type": "boolean"},
+    "enabled": {"type": "boolean"},
+    "refresh_policy": {"enum": ["manual", "while_open"]},
+    "selected_competitions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["bl1", "bl2", "bl3", "dfb"]}
+    },
+    "health": {
+      "enum": ["disabled", "unavailable", "stale", "refreshing", "ready", "backoff", "conflict"]
+    },
+    "display_only": {"const": true},
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "url", "attribution", "accepted_at_utc"],
+      "properties": {
+        "id": {"const": "ODbL-1.0"},
+        "url": {"type": "string", "format": "uri"},
+        "attribution": {"type": "string", "minLength": 1},
+        "accepted_at_utc": {"type": ["string", "null"]}
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "display",
+        "model_training",
+        "forecast_sealing",
+        "forecast_settlement",
+        "calibration",
+        "exports"
+      ],
+      "properties": {
+        "display": {"const": true},
+        "model_training": {"const": false},
+        "forecast_sealing": {"const": false},
+        "forecast_settlement": {"const": false},
+        "calibration": {"const": false},
+        "exports": {"const": false}
+      }
+    },
+    "active_generation": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "generation_id",
+            "created_at_utc",
+            "activated_at_utc",
+            "season",
+            "content_revision",
+            "database_sha256",
+            "rollback_available",
+            "using_previous_generation"
+          ],
+          "properties": {
+            "generation_id": {"type": "string", "pattern": "^g_[0-9a-f]{64}$"},
+            "created_at_utc": {"type": "string"},
+            "activated_at_utc": {"type": ["string", "null"]},
+            "season": {"type": "string", "pattern": "^[0-9]{4}$"},
+            "content_revision": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "database_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "rollback_available": {"type": "boolean"},
+            "using_previous_generation": {"type": "boolean"}
+          }
+        }
+      ]
+    },
+    "capabilities": {"type": "array", "items": {"$ref": "#/$defs/capability"}},
+    "last_checked_at_utc": {"type": ["string", "null"]},
+    "last_activated_at_utc": {"type": ["string", "null"]},
+    "next_check_after_utc": {"type": ["string", "null"]},
+    "last_error": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/error"}]},
+    "job": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/job"}]},
+    "storage_bytes": {"type": "integer", "minimum": 0}
+  },
+  "$defs": {
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "retryable"],
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"},
+        "retryable": {"type": "boolean"}
+      }
+    },
+    "capability": {
+      "type": "object",
+      "required": ["shortcut", "season", "state", "reason"],
+      "properties": {
+        "shortcut": {"enum": ["bl1", "bl2", "bl3", "dfb"]},
+        "season": {"type": "string", "pattern": "^[0-9]{4}$"},
+        "state": {"enum": ["available", "absent", "conflict"]},
+        "reason": {"type": ["string", "null"]},
+        "league_id": {"type": "integer"},
+        "league_name": {"type": "string"},
+        "group_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "job": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "job_id",
+        "state",
+        "stage",
+        "trigger",
+        "created_at_utc",
+        "updated_at_utc",
+        "cancel_requested",
+        "progress",
+        "result",
+        "error"
+      ],
+      "properties": {
+        "schema_version": {"const": "0.1.0"},
+        "job_id": {"type": "string", "pattern": "^olj_[0-9a-f]{32}$"},
+        "state": {"enum": ["queued", "running", "done", "failed", "cancelled"]},
+        "stage": {"enum": ["queued", "downloading", "validating", "building", "activating", "done"]},
+        "trigger": {"enum": ["manual", "launch", "periodic"]},
+        "created_at_utc": {"type": "string"},
+        "updated_at_utc": {"type": "string"},
+        "cancel_requested": {"type": "boolean"},
+        "progress": {"type": "object"},
+        "result": {"type": ["object", "null"]},
+        "error": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/error"}]},
+        "deduplicated": {"type": "boolean"}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "license", "raw_sha256", "endpoint", "captured_at_utc"],
+      "properties": {
+        "source_id": {"const": "openligadb"},
+        "license": {"const": "ODbL-1.0"},
+        "raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "endpoint": {"type": "string"},
+        "captured_at_utc": {"type": "string"}
+      }
+    },
+    "match": {
+      "type": "object",
+      "required": [
+        "source_match_id",
+        "shortcut",
+        "season",
+        "group_name",
+        "kickoff_utc",
+        "home_source_team_id",
+        "away_source_team_id",
+        "home_team_name",
+        "away_team_name",
+        "is_finished",
+        "final_home_goals",
+        "final_away_goals",
+        "source_last_updated",
+        "state",
+        "core_relation",
+        "provenance"
+      ],
+      "properties": {
+        "source_match_id": {"type": "integer"},
+        "shortcut": {"enum": ["bl1", "bl2", "bl3", "dfb"]},
+        "season": {"type": "string"},
+        "group_name": {"type": "string"},
+        "kickoff_utc": {"type": "string"},
+        "home_source_team_id": {"type": "integer"},
+        "away_source_team_id": {"type": "integer"},
+        "home_team_name": {"type": "string"},
+        "away_team_name": {"type": "string"},
+        "is_finished": {"type": "boolean"},
+        "final_home_goals": {"type": ["integer", "null"]},
+        "final_away_goals": {"type": ["integer", "null"]},
+        "source_last_updated": {"type": ["string", "null"]},
+        "state": {"const": "community_unverified"},
+        "core_relation": {"const": "not_compared"},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    }
+  }
+}

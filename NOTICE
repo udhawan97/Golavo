@@ -47,6 +47,21 @@ filenames, and SHA-256 digests are recorded under `co_sources` in the pack's
 manifest.json. A copy of the CC0 1.0 legal text is vendored beside the data.
 
 --------------------------------------------------------------------------
+OPTIONAL OPENLIGADB COMMUNITY OVERLAY (NOT BUNDLED)
+--------------------------------------------------------------------------
+
+OpenLigaDB API data — Open Database License (ODbL) 1.0.
+Source: https://www.openligadb.de/
+License: https://www.openligadb.de/lizenz
+
+Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL)
+v1.0. Golavo ships only an opt-in adapter and disclosure. No OpenLigaDB API
+response or derived database is bundled in Golavo. If enabled by a user, raw
+responses and the display-only adapted SQLite database remain in a separate
+per-user Application Support overlay and can be deleted independently. They do
+not enter the CC0 index, forecasts, training, calibration, settlement or exports.
+
+--------------------------------------------------------------------------
 HISTORICAL TEAM RESEARCH PACK
 --------------------------------------------------------------------------
 
@@ -70,9 +85,9 @@ DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL
 endpoints, European Soccer DB, or eatpizzanot. Downstream CC0/PDDL labels do not
 cure upstream ToS or database-provenance problems.
 
-Wikidata, weather sources, ODbL overlays, Football-Data.org, and API-Football
-are not current dependencies. Future use requires a fresh license and
-provenance review.
+Wikidata, weather sources, Football-Data.org, and API-Football are not current
+dependencies. OpenLigaDB is optional, keyless, ODbL-isolated and off by default;
+its response data is never a bundled dependency.
 
 Golavo is not affiliated with, endorsed by, or sponsored by FIFA, UEFA, any
 league, club, or competition organizer. Competition names are used factually

@@ -59,6 +59,7 @@ if [ -f data/enrichment/world_110m.geojson ] && ! grep -Fq 'Made with Natural Ea
 fi
 
 if [ "$fail" -eq 0 ]; then
+  python3 scripts/validate_license_isolation.py
   echo "license isolation: OK (CC0 index isolated; enrichment attribution present)."
 fi
 exit "$fail"

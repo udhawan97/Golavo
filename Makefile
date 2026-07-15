@@ -23,6 +23,8 @@ evaluate:  ## Regenerate frozen chronological evaluation artifacts
 
 validate:  ## Validate provenance and every canonical sample artifact
 	python scripts/validate_provenance.py
+	python scripts/validate_sources.py
+	python scripts/validate_license_isolation.py
 	python scripts/validate_artifacts.py
 
 lint:  ## Lint python + ui

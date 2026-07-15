@@ -19,6 +19,9 @@ from golavo_server import (
     capabilities,
     conditions,
     matches,
+    openligadb_jobs,
+    openligadb_overlay,
+    openligadb_state,
     outlook,
     refresh_jobs,
     research_pack,
@@ -852,6 +855,186 @@ def rollback_data_refresh() -> dict[str, Any]:
             status_code=409,
             detail={"reason_code": "rollback_unavailable", "message": str(exc)},
         ) from exc
+
+
+@app.get("/api/v1/overlays/openligadb/status")
+def openligadb_status() -> dict[str, Any]:
+    """Consent, health, license and isolated-generation state for OpenLigaDB."""
+    return openligadb_jobs.status()
+
+
+@app.get("/api/v1/overlays/openligadb/settings")
+def openligadb_settings() -> dict[str, Any]:
+    status = openligadb_jobs.status()
+    return {
+        "schema_version": "0.1.0",
+        "enabled": status["enabled"],
+        "refresh_policy": status["refresh_policy"],
+        "selected_competitions": status["selected_competitions"],
+        "license": status["license"],
+        "display_only": True,
+    }
+
+
+@app.put("/api/v1/overlays/openligadb/settings")
+async def update_openligadb_settings(request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail="request body must be valid JSON") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="request body must be an object")
+    try:
+        openligadb_jobs.configure(body)
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "odbl_consent_required", "message": str(exc)},
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"reason_code": "openligadb_settings_rejected", "message": str(exc)},
+        ) from exc
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "openligadb_settings_rejected", "message": str(exc)},
+        ) from exc
+    except OSError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={"reason_code": "openligadb_settings_unavailable", "message": str(exc)},
+        ) from exc
+    return openligadb_jobs.status()
+
+
+@app.post("/api/v1/overlays/openligadb/refresh")
+async def start_openligadb_refresh(request: Request) -> JSONResponse:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        body = {}
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="request body must be an object")
+    unknown = sorted(set(body) - {"trigger"})
+    if unknown:
+        raise HTTPException(status_code=422, detail=f"unknown request fields: {unknown}")
+    try:
+        job, deduplicated = openligadb_jobs.coordinator().start(
+            trigger=str(body.get("trigger") or "manual")
+        )
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "openligadb_not_consented", "message": str(exc)},
+        ) from exc
+    except (RuntimeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=422 if isinstance(exc, ValueError) else 503,
+            detail={"reason_code": "openligadb_refresh_unavailable", "message": str(exc)},
+        ) from exc
+    return JSONResponse(status_code=202, content={**job, "deduplicated": deduplicated})
+
+
+@app.get("/api/v1/overlays/openligadb/refresh/{job_id}")
+def get_openligadb_refresh(job_id: str) -> dict[str, Any]:
+    job = openligadb_jobs.coordinator().get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="OpenLigaDB refresh job not found")
+    return job
+
+
+@app.post("/api/v1/overlays/openligadb/refresh/{job_id}/cancel")
+def cancel_openligadb_refresh(job_id: str) -> dict[str, Any]:
+    job = openligadb_jobs.coordinator().cancel(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="OpenLigaDB refresh job not found")
+    return job
+
+
+@app.post("/api/v1/overlays/openligadb/rollback")
+def rollback_openligadb() -> dict[str, Any]:
+    try:
+        return openligadb_jobs.rollback()
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "openligadb_rollback_unavailable", "message": str(exc)},
+        ) from exc
+
+
+@app.delete("/api/v1/overlays/openligadb")
+def delete_openligadb() -> dict[str, Any]:
+    try:
+        return openligadb_jobs.delete_all()
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "openligadb_delete_rejected", "message": str(exc)},
+        ) from exc
+
+
+def _require_openligadb_enabled() -> None:
+    if not openligadb_state.load_settings()["enabled"]:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "reason_code": "openligadb_disabled",
+                "message": (
+                    "OpenLigaDB is disabled; enable it in Settings before reading overlay data"
+                ),
+            },
+        )
+
+
+@app.get("/api/v1/overlays/openligadb/competitions")
+def get_openligadb_competitions() -> dict[str, Any]:
+    _require_openligadb_enabled()
+    try:
+        return openligadb_overlay.list_competitions()
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (OSError, RuntimeError) as exc:
+        raise HTTPException(
+            status_code=503, detail="OpenLigaDB overlay data is unavailable"
+        ) from exc
+
+
+@app.get("/api/v1/overlays/openligadb/matches")
+def get_openligadb_matches(
+    shortcut: str | None = None,
+    from_utc: str | None = None,
+    to_utc: str | None = None,
+    limit: int = 100,
+) -> dict[str, Any]:
+    _require_openligadb_enabled()
+    try:
+        return openligadb_overlay.list_matches(
+            shortcut=shortcut, from_utc=from_utc, to_utc=to_utc, limit=limit
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (OSError, RuntimeError) as exc:
+        raise HTTPException(
+            status_code=503, detail="OpenLigaDB overlay data is unavailable"
+        ) from exc
+
+
+@app.get("/api/v1/overlays/openligadb/matches/{source_match_id}")
+def get_openligadb_match(source_match_id: int) -> dict[str, Any]:
+    _require_openligadb_enabled()
+    try:
+        result = openligadb_overlay.get_match(source_match_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (OSError, RuntimeError) as exc:
+        raise HTTPException(
+            status_code=503, detail="OpenLigaDB overlay data is unavailable"
+        ) from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="OpenLigaDB match not found")
+    return result
 
 
 @app.get("/api/v1/calibration")

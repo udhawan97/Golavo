@@ -83,7 +83,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: Marcel Siegel, OpenLigaDB community
 - License: ODbL-1.0 (https://www.openligadb.de/lizenz)
 - Attribution: Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0.
-- Notes: Optional isolated ODbL pack. A redistributed derivative database must itself be ODbL and ship the license URI; must never merge into the CC0/CC-BY core or the CC-BY-SA pack. Single-operator hobby service — feature must tolerate its permanent absence.
+- Notes: Optional isolated, per-user ODbL overlay. No response bytes ship with Golavo. The v1 adapter is display-only and allowlists the current-season bl1, bl2, bl3 and dfb identities; it cannot train models, seal or settle forecasts, enter exports, or join the CC0/CC-BY core. A redistributed adapted database must itself honor ODbL and carry attribution/license information. Single-operator hobby service — feature must tolerate its permanent absence.
 
 ## Optional isolated packs — CC BY-SA (share-alike)
 

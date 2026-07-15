@@ -163,11 +163,29 @@
       "license_url": "https://www.openligadb.de/lizenz",
       "classification": "odbl-pack",
       "pin_strategy": "snapshot-date",
-      "fields": "Bundesliga 1/2/3 + DFB-Pokal + World Cup fixtures/results with true matchDateTimeUTC; community-entered",
+      "overlay": {
+        "adapter": "openligadb-v1",
+        "bundled_data": false,
+        "fetch_per_user": true,
+        "display_only": true,
+        "host": "api.openligadb.de",
+        "methods": ["GET"],
+        "path_templates": [
+          "/getavailableleagues/{season}",
+          "/getavailablegroups/{leagueShortcut}/{season}",
+          "/getlastchangedate/{leagueShortcut}/{season}/{groupOrderId}",
+          "/getmatchdata/{leagueShortcut}/{season}/{groupOrderId}"
+        ],
+        "competition_shortcuts": ["bl1", "bl2", "bl3", "dfb"],
+        "default_interval_seconds": 43200,
+        "max_response_bytes": 8388608,
+        "storage_boundary": "overlays/openligadb"
+      },
+      "fields": "Current-season Bundesliga 1/2/3 and DFB-Pokal fixture/result context with matchDateTimeUTC; community-entered",
       "attribution": "Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0.",
       "share_alike": true,
-      "verified": "2026-07-12",
-      "notes": "Optional isolated ODbL pack. A redistributed derivative database must itself be ODbL and ship the license URI; must never merge into the CC0/CC-BY core or the CC-BY-SA pack. Single-operator hobby service — feature must tolerate its permanent absence."
+      "verified": "2026-07-15",
+      "notes": "Optional isolated, per-user ODbL overlay. No response bytes ship with Golavo. The v1 adapter is display-only and allowlists the current-season bl1, bl2, bl3 and dfb identities; it cannot train models, seal or settle forecasts, enter exports, or join the CC0/CC-BY core. A redistributed adapted database must itself honor ODbL and carry attribution/license information. Single-operator hobby service — feature must tolerate its permanent absence."
     },
     {
       "source_id": "fjelstul-worldcup",

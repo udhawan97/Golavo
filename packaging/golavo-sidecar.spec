@@ -52,6 +52,9 @@ datas = [
     (os.path.join(ROOT, "docs", "contracts", "data_generation.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "docs", "contracts", "data_refresh_state.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "docs", "contracts", "data_refresh_api.schema.json"), "docs/contracts"),
+    # Optional ODbL overlay contract only. No OpenLigaDB response/database bytes
+    # or overlay pack directory are ever included in the frozen sidecar.
+    (os.path.join(ROOT, "docs", "contracts", "openligadb_overlay_api.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "data", "sources", "registry.json"), "data/sources"),
     (os.path.join(ROOT, "data", "sources", "registry.schema.json"), "data/sources"),
 ]

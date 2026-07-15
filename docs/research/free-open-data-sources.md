@@ -4,6 +4,14 @@
 
 This is a historical research sweep, corrected by the accepted-core provenance decision. A license label on a downstream mirror does not establish that its upstream collection was lawful. The accepted international core therefore uses only `martj42/international_results`; other entries below remain research candidates or rejected dependencies unless a later audit explicitly accepts them.
 
+**Implementation update (2026-07-15):** OpenLigaDB passed a fresh primary-source
+license/API check and is now implemented as an optional, per-user ODbL overlay
+for current-season `bl1`, `bl2`, `bl3`, and `dfb` display context. It remains off
+by default, ships no response bytes, stores raw/derived data outside the CC0
+warehouse, performs no fuzzy identity merge, and cannot feed training, sealing,
+settlement, calibration, artifacts, or exports. See ADR-0005 and
+`packs/overlay-odbl/policy.json`.
+
 ## Three tiers
 
 ### Tier A — OPEN (free + an open license that permits redistribution) — safe for the open core
@@ -73,4 +81,8 @@ The accepted-core decision supersedes the earlier three-tier recommendation:
 2. **Rejected:** Transfermarkt-derived Kaggle data, DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL endpoints, European Soccer DB, and `eatpizzanot`.
 3. **Not accepted by this research decision:** club adapters, BYOK sources, AI, lineups, corners, scorers, and xG. Later implementations require their own provenance decision.
 
-The basic ODbL grep guard is only a lint for known strings; it is not legal-isolation enforcement. Any future data source requires a fresh provenance review before code or adapters are added.
+The original ODbL grep remains a cheap lint, but it is now backed by
+`scripts/validate_license_isolation.py`: machine-readable policy checks, AST
+import boundaries, registry/index/package audits, and contamination canaries.
+Any future data source still requires a fresh provenance review before code or
+adapters are added.

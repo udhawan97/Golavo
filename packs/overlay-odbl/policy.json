@@ -1,0 +1,36 @@
+{
+  "schema_version": "0.1.0",
+  "source_id": "openligadb",
+  "license": "ODbL-1.0",
+  "classification": "odbl-pack",
+  "distribution": {
+    "bundled_response_bytes": false,
+    "fetch_per_user": true,
+    "redistributable_export": false
+  },
+  "runtime": {
+    "storage_boundary": "overlays/openligadb",
+    "database_name": "overlay.sqlite3",
+    "host": "api.openligadb.de",
+    "methods": ["GET"],
+    "path_templates": [
+      "/getavailableleagues/{season}",
+      "/getavailablegroups/{leagueShortcut}/{season}",
+      "/getlastchangedate/{leagueShortcut}/{season}/{groupOrderId}",
+      "/getmatchdata/{leagueShortcut}/{season}/{groupOrderId}"
+    ],
+    "competition_shortcuts": ["bl1", "bl2", "bl3", "dfb"]
+  },
+  "allowed_uses": ["isolated-display", "source-health", "manual-corroboration-view"],
+  "forbidden_sinks": [
+    "data/index",
+    "data/artifacts",
+    "packs/core-cc0",
+    "packs/snapshots.json",
+    "model-training",
+    "calibration",
+    "forecast-sealing",
+    "forecast-settlement",
+    "redistributable-export"
+  ]
+}

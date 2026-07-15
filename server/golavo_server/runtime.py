@@ -65,6 +65,21 @@ def refresh_dir() -> Path | None:
     return Path(override).expanduser().parent / "refresh"
 
 
+def openligadb_dir() -> Path | None:
+    """Writable root for the optional ODbL overlay, or ``None``.
+
+    OpenLigaDB is deliberately outside both the CC0 refresh generations and the
+    forecast ledger.  The desktop shell points ``GOLAVO_DATA_DIR`` at
+    ``.../ledger``; the overlay therefore lives at the sibling path
+    ``.../overlays/openligadb`` in Application Support.  Source/CI mode has no
+    writable application root unless a test explicitly supplies one.
+    """
+    override = os.environ.get("GOLAVO_DATA_DIR")
+    if not override:
+        return None
+    return Path(override).expanduser().parent / "overlays" / "openligadb"
+
+
 def refreshed_pack_dir() -> Path | None:
     """The active generation's pinned international pack, or a legacy fallback.
 
