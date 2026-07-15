@@ -296,6 +296,135 @@ export interface CompetitionAnalytics {
   };
 }
 
+// ---- Tournament outlook ----------------------------------------------------
+
+export interface TournamentOutlookTeam {
+  team: string;
+  reach_final: number;
+  reach_third_place_match: number;
+  champion: number;
+  third: number;
+}
+
+export interface TournamentOutlookVoice {
+  voice_id: "elo_ordlogit" | "dixon_coles" | "equal-chance-baseline";
+  label: string;
+  role: "voice" | "baseline";
+  draw_resolution: string;
+  teams: TournamentOutlookTeam[];
+  totals: {
+    reach_final: number;
+    reach_third_place_match: number;
+    champion: number;
+    third: number;
+  };
+}
+
+export interface TournamentOutlook {
+  schema_version: "0.1.0";
+  status: "available" | "unavailable";
+  label: string;
+  tournament_id: "worldcup-2026";
+  tournament_name: string;
+  as_of_utc: string;
+  reason?: string;
+  data_through_utc?: string;
+  outlook_rule?: "ko-2026.07.1";
+  method?: "exact-four-team-bracket-enumeration";
+  ledger_status?: "never_persisted_or_scored_as_a_seal";
+  snapshot_status?: "current_for_index" | "result_refresh_needed";
+  snapshot_note?: string;
+  semifinals: Array<{
+    match_id: string;
+    kickoff_utc: string;
+    home_team: string;
+    away_team: string;
+    status: "complete" | "unresolved";
+  }>;
+  voices: TournamentOutlookVoice[];
+  provenance: {
+    index_sha256: string;
+    training_source_ids?: string[];
+    fixture_source_id?: string;
+  };
+}
+
+// ---- Domestic season outlook ----------------------------------------------
+
+export interface SeasonStandingRow {
+  position: number;
+  team: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goals_for: number;
+  goals_against: number;
+  goal_difference: number;
+  points_adjustment: number;
+  points: number;
+}
+
+export interface SeasonOutlookTeam {
+  team: string;
+  title: number;
+  top_four: number;
+  relegation: number;
+  display_percent: {
+    title: number;
+    top_four: number;
+    relegation: number;
+  };
+}
+
+export interface SeasonOutlookVoice {
+  voice_id: "elo_ordlogit" | "dixon_coles" | "equal-chance-baseline";
+  label: string;
+  role: "voice" | "baseline";
+  scoreline_method: string;
+  teams: SeasonOutlookTeam[];
+  totals: { title: number; top_four: number; relegation: number };
+}
+
+export interface SeasonOutlook {
+  schema_version: "0.1.0";
+  status: "blocked" | "complete" | "available";
+  label: string;
+  competition_id: string;
+  competition_name: string;
+  season: string;
+  as_of_utc: string;
+  simulation_rule: "season-mc-2026.07.1";
+  ledger_status: "never_persisted_or_scored_as_a_seal";
+  reason_code: string | null;
+  reason: string | null;
+  standings_rule_id: string;
+  fixture_certificate: {
+    expected_teams: number;
+    observed_teams: number;
+    teams: string[];
+    expected_matches: number;
+    observed_matches: number;
+    unique_ordered_pairs: number;
+    duplicate_ordered_pairs: number;
+    self_fixtures: number;
+    incomplete_fixtures: number;
+    past_result_gaps: number;
+    future_completed_results: number;
+    complete_fixture_list: boolean;
+  };
+  current_table: SeasonStandingRow[];
+  iterations: number;
+  seed: number | null;
+  voices: SeasonOutlookVoice[];
+  provenance: {
+    source_ids: string[];
+    training_source_ids?: string[];
+    training_data_through_utc?: string;
+    index_sha256: string;
+  };
+}
+
 // ---- Calibration record (v0.2.0) --------------------------------------------
 // The REAL prediction ledger: sealed→scored/voided chains aggregated from
 // immutable artifacts. Entirely distinct from the backtest eval folds above.

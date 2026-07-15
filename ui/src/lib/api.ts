@@ -37,8 +37,10 @@ import type {
   RecentMatchesResponse,
   SealEligibility,
   SealResult,
+  SeasonOutlook,
   SettlementReport,
   SourceKind,
+  TournamentOutlook,
   WorldMap,
 } from "./contract";
 import type { AiDepth, AiProvider, NarrativeResponse } from "./ai";
@@ -543,6 +545,134 @@ export async function fetchCompetitionAnalytics(
   return assertCompetitionAnalytics(
     await getJson(`/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}${query}`),
     `analytics/competitions/${competitionId}`,
+  );
+}
+
+function assertTournamentOutlook(x: unknown, ctx: string): TournamentOutlook {
+  const data = x as TournamentOutlook;
+  if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (data.schema_version !== "0.1.0" || data.tournament_id !== "worldcup-2026")
+    throw new ContractError(`${ctx}: unsupported tournament outlook contract`);
+  if (data.status !== "available" && data.status !== "unavailable")
+    throw new ContractError(`${ctx}: invalid status`);
+  if (!Array.isArray(data.voices) || !Array.isArray(data.semifinals))
+    throw new ContractError(`${ctx}: voices and semifinals must be arrays`);
+  if (data.status === "available") {
+    if (data.voices.length !== 3 || data.semifinals.length !== 2)
+      throw new ContractError(`${ctx}: available outlook requires three voices and two semifinals`);
+    for (const voice of data.voices) {
+      if (!Array.isArray(voice.teams) || voice.teams.length !== 4)
+        throw new ContractError(`${ctx}: each voice requires four teams`);
+      const championTotal = voice.teams.reduce((sum, team) => sum + team.champion, 0);
+      if (Math.abs(championTotal - 1) > 0.000001)
+        throw new ContractError(`${ctx}: ${voice.voice_id} champion probabilities do not sum to 1`);
+    }
+  } else if (!data.reason) {
+    throw new ContractError(`${ctx}: unavailable outlook requires a reason`);
+  }
+  return data;
+}
+
+/** Exact, read-only World Cup bracket enumeration. In mock mode this is an
+ * explicit unavailable state; the web preview never fabricates probabilities. */
+export async function fetchWorldCupOutlook(): Promise<TournamentOutlook> {
+  if (!API_BASE) {
+    return {
+      schema_version: "0.1.0",
+      status: "unavailable",
+      label: "Tournament outlook — a simulation from current model fits. Not a sealed forecast.",
+      tournament_id: "worldcup-2026",
+      tournament_name: "2026 FIFA World Cup",
+      as_of_utc: new Date().toISOString(),
+      reason: "Connect the Golavo engine to fit the tournament outlook from the local index.",
+      voices: [],
+      semifinals: [],
+      provenance: { index_sha256: "0".repeat(64) },
+    };
+  }
+  return assertTournamentOutlook(
+    await getJson("/api/v1/tournaments/worldcup-2026/outlook"),
+    "tournaments/worldcup-2026/outlook",
+  );
+}
+
+function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {
+  const data = x as SeasonOutlook;
+  if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (data.schema_version !== "0.1.0" || data.simulation_rule !== "season-mc-2026.07.1")
+    throw new ContractError(`${ctx}: unsupported season outlook contract`);
+  if (!["blocked", "complete", "available"].includes(data.status))
+    throw new ContractError(`${ctx}: invalid status`);
+  if (!data.fixture_certificate || !Array.isArray(data.current_table) || !Array.isArray(data.voices))
+    throw new ContractError(`${ctx}: fixture certificate, table, and voices are required`);
+  if (data.status === "available") {
+    if (data.iterations !== 10_000 || data.voices.length !== 3)
+      throw new ContractError(`${ctx}: available outlook requires 10,000 runs and three voices`);
+    for (const voice of data.voices) {
+      if (!Array.isArray(voice.teams) || Math.abs(voice.totals.title - 1) > 0.000001)
+        throw new ContractError(`${ctx}: ${voice.voice_id} title mass is invalid`);
+      for (const team of voice.teams) {
+        if ([team.title, team.top_four, team.relegation].some((value) => value < 0 || value > 1))
+          throw new ContractError(`${ctx}: ${voice.voice_id} contains an invalid probability`);
+      }
+    }
+  } else if (!data.reason || data.voices.length !== 0) {
+    throw new ContractError(`${ctx}: non-simulated outlook requires a reason and no voices`);
+  }
+  return data;
+}
+
+function currentFootballSeason(now = new Date()): string {
+  const start = now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+  return `${start}-${String(start + 1).slice(-2)}`;
+}
+
+/** Domestic standings/simulation state. Mock mode is explicitly blocked and
+ * carries no probability rows; it never invents a local model run. */
+export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonOutlook> {
+  if (!API_BASE) {
+    const expectedTeams = ["germany-bundesliga", "france-ligue-1"].includes(competitionId)
+      ? 18
+      : 20;
+    return {
+      schema_version: "0.1.0",
+      status: "blocked",
+      label: "Season outlook — a seeded simulation from current model fits. Not a sealed forecast.",
+      competition_id: competitionId,
+      competition_name: competitionId,
+      season: currentFootballSeason(),
+      as_of_utc: new Date().toISOString(),
+      simulation_rule: "season-mc-2026.07.1",
+      ledger_status: "never_persisted_or_scored_as_a_seal",
+      reason_code: "engine_not_connected",
+      reason: "Connect the Golavo engine to certify the local fixture list and standings.",
+      standings_rule_id: `${competitionId}-unverified-preview`,
+      fixture_certificate: {
+        expected_teams: expectedTeams,
+        observed_teams: 0,
+        teams: [],
+        expected_matches: expectedTeams * (expectedTeams - 1),
+        observed_matches: 0,
+        unique_ordered_pairs: 0,
+        duplicate_ordered_pairs: 0,
+        self_fixtures: 0,
+        incomplete_fixtures: 0,
+        past_result_gaps: 0,
+        future_completed_results: 0,
+        complete_fixture_list: false,
+      },
+      current_table: [],
+      iterations: 0,
+      seed: null,
+      voices: [],
+      provenance: { source_ids: [], index_sha256: "0".repeat(64) },
+    };
+  }
+  return assertSeasonOutlook(
+    await getJson(
+      `/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}/season-outlook`,
+    ),
+    `analytics/competitions/${competitionId}/season-outlook`,
   );
 }
 

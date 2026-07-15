@@ -20,7 +20,20 @@ export interface League {
   /** Stable backend identity for capability and analytics routes. */
   competitionId?: string;
   sourceKind?: SourceKind;
+  /** Domestic double-round-robin rule is verified for this competition. */
+  seasonOutlook?: boolean;
   note: string;
+}
+
+export type LeagueHubCategory = "international" | "domestic" | "uefa-club";
+
+/** Mutually exclusive browse-hub classification. International source identity
+ * wins over the competition label, so a World Cup can never fall through into
+ * the domestic bucket merely because it has a named competition. */
+export function leagueHubCategory(league: League): LeagueHubCategory {
+  if (league.sourceKind === "international") return "international";
+  if (league.competition?.startsWith("UEFA ")) return "uefa-club";
+  return "domestic";
 }
 
 /** Bundled club competitions + internationals — used by the Leagues hub and
@@ -28,18 +41,23 @@ export interface League {
 export const LEAGUES: League[] = [
   { slug: "internationals", name: "Internationals", sourceKind: "international",
     note: "Men’s senior internationals — the one surface that refreshes on demand." },
+  { slug: "world-cup-2026", name: "World Cup 2026", competition: "FIFA World Cup",
+    competitionId: "fifa-world-cup", sourceKind: "international",
+    note: "Men’s World Cup · exact semifinal bracket and model outlook." },
   { slug: "premier-league", name: "Premier League", competition: "English Premier League",
-    competitionId: "england-premier-league",
+    competitionId: "england-premier-league", seasonOutlook: true,
     note: "England · bundled 2010–11 onward (historical)." },
   { slug: "la-liga", name: "La Liga", competition: "La Liga", competitionId: "spain-la-liga",
+    seasonOutlook: true,
     note: "Spain · bundled 2012–13 onward (historical)." },
   { slug: "bundesliga", name: "Bundesliga", competition: "Bundesliga",
-    competitionId: "germany-bundesliga",
+    competitionId: "germany-bundesliga", seasonOutlook: true,
     note: "Germany · bundled 2010–11 onward (historical)." },
   { slug: "serie-a", name: "Serie A", competition: "Serie A", competitionId: "italy-serie-a",
+    seasonOutlook: true,
     note: "Italy · bundled 2013–14 onward (historical)." },
   { slug: "ligue-1", name: "Ligue 1", competition: "Ligue 1",
-    competitionId: "france-ligue-1",
+    competitionId: "france-ligue-1", seasonOutlook: true,
     note: "France · bundled 2014–15 onward (historical)." },
   { slug: "champions-league", name: "Champions League", competition: "UEFA Champions League",
     competitionId: "uefa-champions-league",
@@ -78,8 +96,9 @@ export const MAJOR_INTERNATIONAL_COMPETITIONS: readonly string[] = [
 
 /** Slug for a curated league by its competition string, for "All {name} ›" links. */
 export function leagueSlugFor(competition: string, sourceKind: SourceKind): string | null {
-  if (sourceKind === "international") return "internationals";
-  return LEAGUES.find((l) => l.competition === competition)?.slug ?? null;
+  const exact = LEAGUES.find((league) => league.competition === competition);
+  if (exact) return exact.slug;
+  return sourceKind === "international" ? "internationals" : null;
 }
 
 // Tier bands leave room between them so future insertions don't reorder.

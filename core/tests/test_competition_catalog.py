@@ -49,6 +49,7 @@ def test_target_scope_covers_domestic_and_mens_uefa_competitions() -> None:
         "uefa-champions-league",
         "uefa-europa-league",
         "uefa-conference-league",
+        "fifa-world-cup",
         "uefa-euro",
         "uefa-euro-qualification",
         "uefa-nations-league",
@@ -59,7 +60,10 @@ def test_target_scope_covers_domestic_and_mens_uefa_competitions() -> None:
 def test_capabilities_never_claim_blocked_features_are_available() -> None:
     catalog = competition_catalog()
     for item in catalog["competitions"]:
-        assert item["capabilities"]["simulation"]["status"] == "blocked"
+        expected_simulation = (
+            "available" if item["competition_id"] == "fifa-world-cup" else "blocked"
+        )
+        assert item["capabilities"]["simulation"]["status"] == expected_simulation
         assert item["capabilities"]["weather_context"]["status"] == "blocked"
         assert item["capabilities"]["weather_context"]["source_ids"] == []
         assert item["capabilities"]["conditions"]["status"] == "partial"
@@ -88,11 +92,18 @@ def test_phase_one_capabilities_match_the_shipped_analytics() -> None:
     assert ucl["strength_trends"]["status"] == "available"
     assert ucl["rest_congestion"]["status"] == "available"
     assert ucl["schedule_difficulty"]["status"] == "blocked"
+    world_cup = catalog["fifa-world-cup"]["capabilities"]
+    assert world_cup["simulation"]["status"] == "available"
+    assert world_cup["simulation"]["source_ids"] == [
+        "martj42-international-results",
+        "openfootball-worldcup-json",
+    ]
 
 
 def test_source_alias_resolution_is_exact_and_does_not_guess_region() -> None:
     assert competition_id_for_source_name("English Premier League") == "england-premier-league"
     assert competition_id_for_source_name("UEFA Nations League") == "uefa-nations-league"
+    assert competition_id_for_source_name("FIFA World Cup") == "fifa-world-cup"
     assert competition_id_for_source_name("FIFA World Cup qualification") is None
     assert competition_id_for_source_name("premier league") is None
     assert competition_by_id("missing") is None

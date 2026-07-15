@@ -1,20 +1,20 @@
 /**
  * Leagues — a browse hub over bundled domestic and UEFA club competitions + internationals.
  *
- * MVP scope: honest browsing (recent results + any upcoming) per competition,
- * from the local index. Standings and a season Outlook are deliberately NOT here
- * yet — they require a fixtures feed and a simulator (later phases), and the app
- * must never imply a projection it can't compute.
+ * Domestic leagues also expose their verified standings/simulation gate. The
+ * outlook remains blocked until the local source proves a complete fixture list.
  */
 import { useState } from "react";
 import type { CompetitionAnalytics, StrengthPoint } from "../lib/contract";
 import { fetchCompetitionAnalytics, fetchRecentMatches } from "../lib/api";
 import { num, utcDate } from "../lib/format";
-import { LEAGUES } from "../lib/leagues";
+import { LEAGUES, leagueHubCategory } from "../lib/leagues";
 import { useAsync } from "../lib/hooks";
 import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
 import { ChevronRight } from "../components/icons";
 import { Rail } from "./Matchday";
+import { TournamentOutlook } from "../components/TournamentOutlook";
+import { SeasonOutlook } from "../components/SeasonOutlook";
 
 export { LEAGUES } from "../lib/leagues";
 
@@ -22,20 +22,18 @@ export function LeaguesHub() {
   const groups = [
     {
       id: "international-competitions",
-      title: "Internationals",
-      leagues: LEAGUES.filter((league) => league.sourceKind === "international"),
+      title: "International tournaments",
+      leagues: LEAGUES.filter((league) => leagueHubCategory(league) === "international"),
     },
     {
       id: "domestic-leagues",
       title: "Domestic leagues",
-      leagues: LEAGUES.filter(
-        (league) => league.competition && !league.competition.startsWith("UEFA "),
-      ),
+      leagues: LEAGUES.filter((league) => leagueHubCategory(league) === "domestic"),
     },
     {
       id: "uefa-club-competitions",
       title: "UEFA club competitions",
-      leagues: LEAGUES.filter((league) => league.competition?.startsWith("UEFA ")),
+      leagues: LEAGUES.filter((league) => leagueHubCategory(league) === "uefa-club"),
     },
   ];
   return (
@@ -43,9 +41,8 @@ export function LeaguesHub() {
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
         <h1>Leagues &amp; Europe</h1>
         <p className="measure dim" style={{ margin: 0 }}>
-          Browse each competition’s recent matches and open any one for the model council. Standings
-          and season projections aren’t here yet — Golavo won’t show a table it can’t honestly
-          compute.
+          Browse recent matches and open any one for the model council. Domestic standings rules are
+          verified; season projections stay visibly blocked until every fixture is certified.
         </p>
       </header>
       {groups.map((group) => (
@@ -113,6 +110,10 @@ export function LeagueView({ slug }: { slug: string }) {
         <h1>{league.name}</h1>
         <p className="small dim" style={{ margin: 0 }}>{league.note}</p>
       </header>
+      {league.slug === "world-cup-2026" && <TournamentOutlook />}
+      {league.seasonOutlook && league.competitionId && (
+        <SeasonOutlook competitionId={league.competitionId} />
+      )}
       {league.competitionId &&
         (analyticsState.status === "loading" ? (
           <BlockSkeleton lines={5} />

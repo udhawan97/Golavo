@@ -122,6 +122,14 @@ def reset_cache() -> None:
     _WARM["state"] = "cold"
     _WARM["since_utc"] = None
     _WARM["error"] = None
+    # Any analysis derived from the old frame must move with the index cache.
+    # Import lazily to avoid the matches <-> outlook import cycle at startup.
+    try:
+        from golavo_server import outlook
+    except ImportError:
+        pass
+    else:
+        outlook.reset_cache()
 
 
 def _load_index() -> Any:

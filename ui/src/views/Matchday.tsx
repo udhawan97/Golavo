@@ -25,6 +25,7 @@ import { WarmupHero } from "../components/EngineWarmup";
 import { usePicks } from "../lib/picks";
 import { PickChip, pickChipLabel } from "../components/PickChip";
 import { nationalFlag, teamMonogram, teamNameDensity } from "../lib/teamIdentity";
+import { TournamentOutlook } from "../components/TournamentOutlook";
 
 const WELCOME_KEY = "golavo-welcome-dismissed";
 
@@ -101,6 +102,8 @@ export function MatchdayHome() {
           </a>
         ))}
       </nav>
+
+      <TournamentOutlook />
 
       {/* Hold the window query until the index is warm — firing it early blocks
           ~25s inside pandas' import lock. The store flips to ready the moment the
