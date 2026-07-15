@@ -1233,7 +1233,7 @@ export async function fetchMatch(matchId: string): Promise<MatchDetailResponse |
 function assertConditionsSnapshot(x: unknown, ctx: string): ConditionsSnapshot {
   const value = x as ConditionsSnapshot;
   if (!value || typeof value !== "object") throw new ContractError(`${ctx}: not an object`);
-  if (value.schema_version !== "0.1.0")
+  if (value.schema_version !== "0.2.0")
     throw new ContractError(`${ctx}: unsupported conditions schema`);
   if (value.label !== "Context, not a model input.")
     throw new ContractError(`${ctx}: missing context-only label`);
@@ -1243,6 +1243,12 @@ function assertConditionsSnapshot(x: unknown, ctx: string): ConditionsSnapshot {
     throw new ContractError(`${ctx}: teams must contain home and away`);
   if (!Array.isArray(value.travel_map?.routes) || value.travel_map.routes.length > 2)
     throw new ContractError(`${ctx}: invalid travel routes`);
+  if (
+    value.weather_context?.status !== "blocked"
+    || value.weather_context.reason_code !== "no_leakage_safe_historical_forecast_source"
+    || value.weather_context.model_input !== false
+    || value.weather_context.source_id !== null
+  ) throw new ContractError(`${ctx}: weather context must fail closed`);
   for (const team of value.teams) {
     if (team.rest.days !== null) assertNonNegNumber(team.rest.days, ctx, `${team.side}.rest.days`);
     if (team.travel.distance_km !== null)

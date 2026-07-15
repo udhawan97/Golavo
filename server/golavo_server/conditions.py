@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from golavo_core import resources
 
-SCHEMA_VERSION = "0.1.0"
+SCHEMA_VERSION = "0.2.0"
 LABEL = "Context, not a model input."
 GEONAMES_ATTRIBUTION = "Data from GeoNames (geonames.org), CC BY 4.0."
 NATURAL_EARTH_ATTRIBUTION = "Made with Natural Earth."
@@ -268,6 +268,16 @@ def conditions_snapshot(match_id: str, frame: Any) -> dict[str, Any] | None:
             "source_id": "natural-earth",
             "attribution": NATURAL_EARTH_ATTRIBUTION,
             "routes": routes,
+        },
+        "weather_context": {
+            "status": "blocked",
+            "reason_code": "no_leakage_safe_historical_forecast_source",
+            "reason": (
+                "Weather is context-only and unavailable until a licensed source preserves "
+                "the forecast issued before kickoff. Observed weather is not substituted."
+            ),
+            "model_input": False,
+            "source_id": None,
         },
         "sources": [
             {"source_id": "geonames", "attribution": GEONAMES_ATTRIBUTION},

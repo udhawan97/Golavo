@@ -218,6 +218,12 @@ Width/depth/compactness (team bounding stats per phase), space control (Voronoi 
 
 ### 4.7 Conditions Snapshot (owner-picked artifact; Phase 2)
 
+**Implementation evidence (2026-07-15):** Conditions Snapshot contract 0.2.0
+now carries a first-class weather-context block. It is deliberately `blocked`,
+has no source id, states `model_input: false`, and explains that observed
+weather will not be substituted for a forecast issued before kickoff. No
+network call or weather value is produced.
+
 Fields: venue (stadiums file), city coords + altitude (GeoNames), kickoff local time + timezone (worldcup pack offset or GeoNames tz), **rest days** (days since each team's previous indexed match — computable today), **travel distance** (haversine between consecutive match cities for each team — internationals/tournaments where city data exists). No weather until Meteostat licensing clears; then context-only. Leakage: rest/travel are knowable pre-match (safe as displayed context); they do NOT enter models without the standard experiment gate. Missing any field → the row renders "unknown". Label: "Context, not a model input." AI: may cite.
 
 ### 4.8 "Not on mainstream apps" differentiators (owner write-in)

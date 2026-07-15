@@ -163,6 +163,20 @@ def test_conditions_contract_rest_travel_and_local_time(client: TestClient) -> N
     assert all(team["travel"]["distance_km"] > 0 for team in body["teams"])
     assert body["travel_map"]["status"] == "available"
     assert len(body["travel_map"]["routes"]) == 2
+    assert body["weather_context"] == {
+        "status": "blocked",
+        "reason_code": "no_leakage_safe_historical_forecast_source",
+        "reason": (
+            "Weather is context-only and unavailable until a licensed source preserves "
+            "the forecast issued before kickoff. Observed weather is not substituted."
+        ),
+        "model_input": False,
+        "source_id": None,
+    }
+    assert {source["source_id"] for source in body["sources"]} == {
+        "geonames",
+        "natural-earth",
+    }
 
 
 def test_conditions_ignore_future_rows(client: TestClient) -> None:

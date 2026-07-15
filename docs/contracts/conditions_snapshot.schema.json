@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://golavo.dev/schemas/conditions_snapshot.schema.json",
+  "$id": "https://golavo.dev/schemas/conditions_snapshot-0.2.0.schema.json",
   "title": "Golavo Conditions Snapshot",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "label", "match", "teams", "travel_map", "sources"],
+  "required": ["schema_version", "label", "match", "teams", "travel_map", "weather_context", "sources"],
   "properties": {
-    "schema_version": {"const": "0.1.0"},
+    "schema_version": {"const": "0.2.0"},
     "label": {"const": "Context, not a model input."},
     "match": {
       "type": "object",
@@ -36,6 +36,18 @@
         "source_id": {"const": "natural-earth"},
         "attribution": {"const": "Made with Natural Earth."},
         "routes": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/route"}}
+      }
+    },
+    "weather_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason_code", "reason", "model_input", "source_id"],
+      "properties": {
+        "status": {"const": "blocked"},
+        "reason_code": {"const": "no_leakage_safe_historical_forecast_source"},
+        "reason": {"type": "string", "minLength": 1},
+        "model_input": {"const": false},
+        "source_id": {"type": "null"}
       }
     },
     "sources": {
