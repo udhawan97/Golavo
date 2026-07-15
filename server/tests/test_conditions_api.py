@@ -48,8 +48,24 @@ def _row(
 
 
 ROWS = [
-    _row("m_bra_prev", "2024-05-20T00:00:00Z", "Brazil", "Chile", "London", "England"),
-    _row("m_arg_prev", "2024-05-25T00:00:00Z", "Spain", "Argentina", "Madrid", "Spain"),
+    _row(
+        "m_bra_prev",
+        "2024-05-20T00:00:00Z",
+        "Brazil",
+        "Chile",
+        "London",
+        "England",
+        precision="exact",
+    ),
+    _row(
+        "m_arg_prev",
+        "2024-05-25T00:00:00Z",
+        "Spain",
+        "Argentina",
+        "Madrid",
+        "Spain",
+        precision="exact",
+    ),
     _row(
         "m_target",
         "2024-06-01T18:00:00Z",
@@ -59,14 +75,33 @@ ROWS = [
         "France",
         precision="exact",
     ),
+    {
+        **_row(
+            "m_wc_venue",
+            "2026-06-12T19:00:00Z",
+            "Example One",
+            "Example Two",
+            "Inglewood",
+            "United States",
+            precision="exact",
+            complete=False,
+        ),
+        "tournament": "FIFA World Cup",
+        "competition": "FIFA World Cup",
+    },
 ]
 
 
 def _place(city: str, country: str, lat: float, lon: float, timezone: str) -> dict:
+    entity_id = f"place_{city.casefold().encode().hex()[:16]:0<16}"
     return {
         "city": city,
         "country": country,
         "source_id": "geonames",
+        "entity_id": entity_id,
+        "resolution_status": "resolved",
+        "source_revision": "2026-01-01",
+        "snapshot_sha256": "0" * 64,
         "geoname_id": 1,
         "name": city,
         "latitude": lat,
@@ -152,14 +187,17 @@ def test_conditions_contract_rest_travel_and_local_time(client: TestClient) -> N
     )
     Draft202012Validator(schema, format_checker=FormatChecker()).validate(body)
     assert body["label"] == "Context, not a model input."
-    assert body["match"]["local_kickoff"] == {
-        "status": "available",
-        "reason": None,
-        "value": "2024-06-01T20:00:00+02:00",
-        "timezone": "Europe/Paris",
-    }
+    local = body["match"]["local_kickoff"]
+    assert local["status"] == "available"
+    assert local["reason"] is None
+    assert local["value"] == "2024-06-01T20:00:00+02:00"
+    assert local["timezone"] == "Europe/Paris"
+    assert local["utc_offset_minutes"] == 120
+    assert local["tzdb_fingerprint"].startswith(("tzif-sha256:", "tzdata-package:"))
+    assert local["derivation"]["algorithm_id"] == "iana-local-kickoff"
     assert body["match"]["venue"]["status"] == "unknown"
     assert [team["rest"]["days"] for team in body["teams"]] == [12, 7]
+    assert [team["kickoff_gap"]["precision"] for team in body["teams"]] == ["exact", "exact"]
     assert all(team["travel"]["distance_km"] > 0 for team in body["teams"])
     assert body["travel_map"]["status"] == "available"
     assert len(body["travel_map"]["routes"]) == 2
@@ -176,6 +214,8 @@ def test_conditions_contract_rest_travel_and_local_time(client: TestClient) -> N
     assert {source["source_id"] for source in body["sources"]} == {
         "geonames",
         "natural-earth",
+        "openfootball-worldcup-json",
+        "wikidata",
     }
 
 
@@ -198,14 +238,26 @@ def test_conditions_ignore_future_rows(client: TestClient) -> None:
     future["date"] = pd.to_datetime(future["date"])
     future["kickoff_utc"] = pd.to_datetime(future["kickoff_utc"], utc=True)
     combined = pd.concat([frame, future], ignore_index=True)
-    assert conditions.conditions_snapshot("m_target", combined) == baseline
+    assert (
+        conditions.conditions_snapshot(
+            "m_target", combined, index_fingerprint=matches.index_fingerprint()
+        )
+        == baseline
+    )
 
 
 def test_day_precision_and_missing_location_stay_unknown(client: TestClient) -> None:
-    body = client.get("/api/v1/matches/m_bra_prev/conditions").json()
+    frame = matches._load_index().copy()
+    frame.loc[frame["match_id"] == "m_target", "kickoff_precision"] = "day"
+    body = conditions.conditions_snapshot(
+        "m_target", frame, index_fingerprint=matches.index_fingerprint()
+    )
+    assert body is not None
     assert body["match"]["local_kickoff"]["status"] == "unknown"
     assert body["match"]["local_kickoff"]["reason"] == "kickoff-is-day-only"
     assert body["teams"][0]["rest"]["status"] == "unknown"
+    assert body["teams"][0]["kickoff_gap"]["precision"] == "calendar-day"
+    assert body["teams"][0]["kickoff_gap"]["calendar_gap_days"] == 12
 
 
 def test_conditions_and_world_fail_honestly(client: TestClient) -> None:
@@ -213,3 +265,38 @@ def test_conditions_and_world_fail_honestly(client: TestClient) -> None:
     world = client.get("/api/v1/maps/world")
     assert world.status_code == 200
     assert world.json()["attribution"] == "Made with Natural Earth."
+
+
+def test_reviewed_world_cup_venue_and_conflicting_qid_fail_closed(
+    client: TestClient,
+) -> None:
+    body = client.get("/api/v1/matches/m_wc_venue/conditions").json()
+    venue = body["match"]["venue"]
+    assert venue["status"] == "available"
+    assert venue["name"] == "SoFi Stadium"
+    assert venue["identity_link_status"] == "conflicting"
+    assert "250 metres" in venue["identity_conflict_reason"]
+    assert venue["provenance"]["canonical_label"]["source_refs"][0]["source_id"] == (
+        "openfootball-worldcup-json"
+    )
+    assert all(
+        ref["source_id"] != "wikidata"
+        for item in venue["provenance"].values()
+        for ref in item["source_refs"]
+    )
+
+
+def test_context_capability_and_derived_provenance(client: TestClient) -> None:
+    capability = client.get("/api/v1/context/capabilities")
+    assert capability.status_code == 200
+    assert capability.json()["display_only"] is True
+    assert capability.json()["model_input"] is False
+    body = client.get("/api/v1/matches/m_target/conditions").json()
+    location = body["match"]["location"]
+    assert {"latitude", "longitude", "elevation_m", "timezone"}.issubset(
+        location["provenance"]
+    )
+    for team in body["teams"]:
+        assert team["kickoff_gap"]["derivation"]["input_claim_ids"]
+        assert team["travel"]["derivation"]["algorithm_id"] == "great-circle-haversine"
+        assert team["travel"]["derivation"]["input_claim_ids"]
