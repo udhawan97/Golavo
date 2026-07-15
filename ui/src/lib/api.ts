@@ -1289,12 +1289,19 @@ export async function fetchMatch(matchId: string): Promise<MatchDetailResponse |
 function assertConditionsSnapshot(x: unknown, ctx: string): ConditionsSnapshot {
   const value = x as ConditionsSnapshot;
   if (!value || typeof value !== "object") throw new ContractError(`${ctx}: not an object`);
-  if (value.schema_version !== "0.2.0")
+  if (value.schema_version !== "0.3.0")
     throw new ContractError(`${ctx}: unsupported conditions schema`);
   if (value.label !== "Context, not a model input.")
     throw new ContractError(`${ctx}: missing context-only label`);
+  if (
+    !value.capability
+    || value.capability.display_only !== true
+    || value.capability.model_input !== false
+  ) throw new ContractError(`${ctx}: context capability must remain display-only`);
   if (!value.match || (value.match.kickoff_precision !== "exact" && value.match.kickoff_precision !== "day"))
     throw new ContractError(`${ctx}: invalid match precision`);
+  if (!Array.isArray(value.match.source_refs) || value.match.source_refs.length === 0)
+    throw new ContractError(`${ctx}: match source references missing`);
   if (!Array.isArray(value.teams) || value.teams.length !== 2)
     throw new ContractError(`${ctx}: teams must contain home and away`);
   if (!Array.isArray(value.travel_map?.routes) || value.travel_map.routes.length > 2)
@@ -1305,10 +1312,26 @@ function assertConditionsSnapshot(x: unknown, ctx: string): ConditionsSnapshot {
     || value.weather_context.model_input !== false
     || value.weather_context.source_id !== null
   ) throw new ContractError(`${ctx}: weather context must fail closed`);
+  if (!Array.isArray(value.sources) || value.sources.length < 2)
+    throw new ContractError(`${ctx}: source catalog missing`);
+  if (
+    value.match.location.status === "available"
+    && (!value.match.location.entity_id || !value.match.location.provenance.latitude || !value.match.location.provenance.longitude)
+  ) throw new ContractError(`${ctx}: resolved location provenance missing`);
+  if (
+    value.match.venue.status === "available"
+    && (!value.match.venue.entity_id || !value.match.venue.name || !value.match.venue.provenance.canonical_label)
+  ) throw new ContractError(`${ctx}: available venue provenance missing`);
   for (const team of value.teams) {
     if (team.rest.days !== null) assertNonNegNumber(team.rest.days, ctx, `${team.side}.rest.days`);
+    if (team.kickoff_gap.precision === "calendar-day" && team.rest.days !== null)
+      throw new ContractError(`${ctx}: calendar-day gap cannot claim rest days`);
+    if (team.kickoff_gap.calendar_gap_days !== null)
+      assertNonNegNumber(team.kickoff_gap.calendar_gap_days, ctx, `${team.side}.calendar_gap_days`);
     if (team.travel.distance_km !== null)
       assertNonNegNumber(team.travel.distance_km, ctx, `${team.side}.travel.distance_km`);
+    if (team.travel.status === "available" && !team.travel.derivation)
+      throw new ContractError(`${ctx}: available travel derivation missing`);
   }
   return value;
 }

@@ -809,25 +809,89 @@ export interface MatchDetailResponse {
   pick?: { id: string | null; status: PickStatus } | null;
 }
 
-// ---- Conditions Snapshot (display-only contract 0.1.0) --------------------
+// ---- Conditions Snapshot (display-only contract 0.3.0) --------------------
 
 export type ContextStatus = "available" | "unknown";
+
+export interface ContextSourceRef {
+  source_id: string;
+  source_record_id: string;
+  source_revision: string;
+  snapshot_sha256: string;
+  retrieved_at_utc: string | null;
+  field: string;
+}
+
+export interface ContextClaim {
+  claim_id: string;
+  source_refs: ContextSourceRef[];
+}
+
+export interface ContextDerivation {
+  generator: "golavo-derived-context";
+  algorithm_id: string;
+  algorithm_version: string;
+  formula: string;
+  input_claim_ids: string[];
+}
+
+export interface ContextCapability {
+  schema_version: "0.1.0";
+  status: "available" | "partial" | "unavailable";
+  display_only: true;
+  model_input: false;
+  context_pack_version: string | null;
+  context_pack_sha256: string | null;
+  index_fingerprint: string;
+  features: Record<string, "available" | "partial" | "unknown" | "blocked">;
+  reason_codes: string[];
+}
 
 export interface ConditionsLocation {
   status: ContextStatus;
   reason: string | null;
+  entity_id: string | null;
+  resolution_status: "resolved" | "unresolved";
   city: string | null;
   country: string | null;
   latitude: number | null;
   longitude: number | null;
   elevation_m: number | null;
+  elevation_source: "survey" | "dem" | null;
   timezone: string | null;
   source_id: "geonames" | null;
+  provenance: Record<string, ContextClaim>;
+}
+
+export interface ConditionsVenue {
+  status: "available" | "unknown" | "conflict";
+  reason: string | null;
+  entity_id: string | null;
+  name: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  capacity: number | null;
+  identity_link_status: "accepted" | "conflicting" | "unknown";
+  identity_conflict_reason: string | null;
+  provenance: Record<string, ContextClaim>;
 }
 
 export interface ConditionsTeam {
   side: "home" | "away";
   team: string;
+  team_entity_id: string;
+  kickoff_gap: {
+    status: ContextStatus;
+    reason: string | null;
+    precision: "exact" | "calendar-day" | "unknown";
+    elapsed_hours: number | null;
+    complete_days: number | null;
+    calendar_gap_days: number | null;
+    previous_match_id: string | null;
+    previous_kickoff_utc: string | null;
+    coverage_label: string;
+    derivation: ContextDerivation | null;
+  };
   rest: {
     status: ContextStatus;
     reason: string | null;
@@ -841,6 +905,8 @@ export interface ConditionsTeam {
     distance_km: number | null;
     origin: ConditionsLocation | null;
     destination: ConditionsLocation;
+    measurement: "great-circle-between-indexed-match-locations";
+    derivation: ContextDerivation | null;
   };
 }
 
@@ -850,22 +916,28 @@ export interface TravelRoute {
   distance_km: number;
   origin: ConditionsLocation;
   destination: ConditionsLocation;
+  derivation: ContextDerivation;
 }
 
 export interface ConditionsSnapshot {
-  schema_version: "0.2.0";
+  schema_version: "0.3.0";
   label: "Context, not a model input.";
+  capability: ContextCapability;
   match: {
     match_id: string;
     kickoff_utc: string;
     kickoff_precision: "exact" | "day";
+    source_refs: ContextSourceRef[];
     local_kickoff: {
       status: ContextStatus;
       reason: string | null;
       value: string | null;
       timezone: string | null;
+      utc_offset_minutes: number | null;
+      tzdb_fingerprint: string | null;
+      derivation: ContextDerivation | null;
     };
-    venue: { status: "unknown"; name: null; reason: "no-stadium-level-source" };
+    venue: ConditionsVenue;
     location: ConditionsLocation;
   };
   teams: ConditionsTeam[];
@@ -882,7 +954,14 @@ export interface ConditionsSnapshot {
     model_input: false;
     source_id: null;
   };
-  sources: Array<{ source_id: "geonames" | "natural-earth"; attribution: string }>;
+  sources: Array<{
+    source_id: "geonames" | "natural-earth" | "openfootball-worldcup-json" | "wikidata";
+    attribution: string;
+    license: string;
+    upstream_ref: string;
+    retrieved_at_utc: string;
+    manifest_sha256: string;
+  }>;
 }
 
 export interface WorldMapFeature {
@@ -899,6 +978,8 @@ export interface WorldMap {
   source_id: "natural-earth";
   version: string;
   attribution: string;
+  context_pack_version?: string;
+  sha256?: string;
   features: WorldMapFeature[];
 }
 

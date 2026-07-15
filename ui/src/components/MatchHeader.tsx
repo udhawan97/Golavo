@@ -3,7 +3,7 @@
  *
  * One calm hierarchy: a chip row (status + optional right-aligned control), the
  * teams as the page hero, then a single aligned meta line (competition · date ·
- * venue). The raw match_id is deliberately NOT here — it lives in the provenance
+ * location). The raw match_id is deliberately NOT here — it lives in the provenance
  * drawer, where an auditor looks for it, instead of bleeding into the headline.
  */
 import type { ReactNode } from "react";
@@ -16,7 +16,7 @@ export function MatchHeader({
   away,
   competition,
   kickoffUtc,
-  venue,
+  location,
   chips,
   right,
   eyebrow,
@@ -27,7 +27,7 @@ export function MatchHeader({
   away: string;
   competition: string;
   kickoffUtc: string;
-  venue: string;
+  location: string;
   chips?: ReactNode;
   right?: ReactNode;
   eyebrow?: ReactNode;
@@ -52,7 +52,7 @@ export function MatchHeader({
             <> <span className="dim">· {kickoffRelative(kickoffUtc)}</span></>
           )}
         </MetaItem>
-        <MetaItem icon={<PinIcon />}>{venue}</MetaItem>
+        <MetaItem icon={<PinIcon />}><span aria-label="Match location">{location}</span></MetaItem>
       </MetaLine>
       {footer}
     </header>
