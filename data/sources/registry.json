@@ -168,8 +168,8 @@
       "citation_key": "pappalardo2019dataset",
       "fields": "1,941 historical matches, 3,251,294 events, and 4,299 players (2017/18 big-five leagues + WC2018 + Euro2016): events, matches, players, teams, referees",
       "attribution": "Event data: Pappalardo et al., Sci Data 6:236 (2019), CC BY 4.0 (collected by Wyscout).",
-      "verified": "2026-07-12",
-      "notes": "Optional research pack. Historical team-level research only; never blended into live models or simulations. Labeled by exact competition and era, never 'observed xG'. Raw events are optional; compact derived artifacts may be bundled with attribution and modification notices."
+      "verified": "2026-07-15",
+      "notes": "Vendored isolated derived pack: seven competition-and-era team summaries covering 1,941 matches and 3,251,294 events. Never blended into live models or simulations and never labeled 'observed xG'. Raw events and player identities are not redistributed; attribution and modification notices ship inside the pack."
     },
     {
       "source_id": "skillcorner-opendata",

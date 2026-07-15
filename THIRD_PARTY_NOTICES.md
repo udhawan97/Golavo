@@ -107,14 +107,14 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Citation key: `bassek2025idsse` (see CITATIONS.bib)
 - Notes: Research-only (pipeline validation). 2.63 GB for 7 matches — not a user-facing pack. Attribution must name DFL and cite the paper.
 
-### Pappalardo/Wyscout public soccer event dataset — optional download, isolated pack
+### Pappalardo/Wyscout public soccer event dataset — **vendored, isolated pack**
 
 - Source: https://figshare.com/collections/Soccer_match_event_dataset/4415000
 - Contributors: Luca Pappalardo, Paolo Cintia, Alessio Rossi, Emanuele Massucco, Paolo Ferragina, Dino Pedreschi, Fosca Giannotti
 - License: CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/)
 - Attribution: Event data: Pappalardo et al., Sci Data 6:236 (2019), CC BY 4.0 (collected by Wyscout).
 - Citation key: `pappalardo2019dataset` (see CITATIONS.bib)
-- Notes: Optional research pack. Historical team-level research only; never blended into live models or simulations. Labeled by exact competition and era, never 'observed xG'. Raw events are optional; compact derived artifacts may be bundled with attribution and modification notices.
+- Notes: Vendored isolated derived pack: seven competition-and-era team summaries covering 1,941 matches and 3,251,294 events. Never blended into live models or simulations and never labeled 'observed xG'. Raw events and player identities are not redistributed; attribution and modification notices ship inside the pack.
 
 ### SkillCorner Open Data — optional download, isolated pack
 
