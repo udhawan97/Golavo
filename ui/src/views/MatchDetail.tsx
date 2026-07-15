@@ -84,7 +84,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
   const { match, linked_by } = detail;
   const hasForecast = match.forecasts.length > 0;
   const future = new Date(match.kickoff_utc).getTime() > Date.now();
-  const venue = match.city
+  const location = match.city
     ? `${match.city}${match.country ? `, ${match.country}` : ""}`
     : match.country ?? "—";
   const [mode, setMode] = useForecastMode();
@@ -157,7 +157,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
           away={match.away_team}
           competition={match.competition}
           kickoffUtc={match.kickoff_utc}
-          venue={venue}
+          location={location}
           className="programme-teaser"
           eyebrow="Matchday programme"
           chips={

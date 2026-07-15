@@ -52,7 +52,7 @@ function Detail({
   const { match, forecast, status } = artifact;
   const [mode, setMode] = useForecastMode();
   const abstained = status === "abstained";
-  const venue = match.city ? `${match.city}, ${match.country}` : match.country ?? "—";
+  const location = match.city ? `${match.city}, ${match.country}` : match.country ?? "—";
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <Breadcrumb label={`${match.home_team} v ${match.away_team}`} />
@@ -62,7 +62,7 @@ function Detail({
         away={match.away_team}
         competition={`${match.competition}${match.stage ? ` · ${match.stage}` : ""}`}
         kickoffUtc={match.kickoff_utc}
-        venue={venue}
+        location={location}
         chips={
           <>
             <StatusChip status={status} />
