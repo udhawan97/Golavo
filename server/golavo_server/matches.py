@@ -122,6 +122,14 @@ def reset_cache() -> None:
     _WARM["state"] = "cold"
     _WARM["since_utc"] = None
     _WARM["error"] = None
+    # Any analysis derived from the old frame must move with the index cache.
+    # Import lazily to avoid the matches <-> outlook import cycle at startup.
+    try:
+        from golavo_server import outlook
+    except ImportError:
+        pass
+    else:
+        outlook.reset_cache()
 
 
 def _load_index() -> Any:
@@ -359,6 +367,11 @@ def _row_to_dict(
     return {
         "match_id": str(row["match_id"]),
         "kickoff_utc": _iso_utc(row["kickoff_utc"]),
+        "kickoff_precision": (
+            _str_or_none(row["kickoff_precision"])
+            if "kickoff_precision" in row.index
+            else "day"
+        ),
         "home_team": _str_or_none(row["home_team"]),
         "away_team": _str_or_none(row["away_team"]),
         "home_score": _int_or_none(row["home_score"]),

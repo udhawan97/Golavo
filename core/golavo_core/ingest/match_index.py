@@ -1,7 +1,7 @@
 """Build the committed, deterministic match search index and its side tables.
 
 The index is a single frozen Parquet over every bundled CC0 pack (martj42
-internationals + the five openfootball club leagues). It exists so the desktop
+internationals + the OpenFootball domestic and UEFA club competitions). It exists so the desktop
 sidecar can search matches and precompute Commentator's Notebooks on demand
 without re-reading raw packs. Three invariants make the committed bytes
 trustworthy:
@@ -24,7 +24,7 @@ import pandas as pd
 
 from .snapshot import snapshot_anchor_utc
 
-MATCH_INDEX_SCHEMA_VERSION = "0.3.0"
+MATCH_INDEX_SCHEMA_VERSION = "0.4.0"
 
 # The verbatim column order of matches_index.parquet. Fixed so the committed
 # bytes never depend on per-pack insertion order, and so downstream readers
@@ -33,6 +33,7 @@ INDEX_COLUMNS = [
     "match_id",
     "date",
     "kickoff_utc",
+    "kickoff_precision",
     "home_team",
     "away_team",
     "home_norm",
@@ -214,6 +215,8 @@ def build_match_index(pack_dirs: list[Path], output_path: Path) -> Path:
             )
         source_id = str(manifest["source_id"])
         df = load_matches(pack_dir).copy()  # re-validates the pack's byte hashes
+        if "kickoff_precision" not in df.columns:
+            df["kickoff_precision"] = pd.Series("day", index=df.index, dtype="string")
         df["competition"] = df["tournament"].astype("string")
         df["source_id"] = pd.Series(source_id, index=df.index, dtype="string")
         kind = "international" if source_id.startswith("martj42") else "club"

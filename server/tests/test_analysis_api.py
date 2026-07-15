@@ -128,6 +128,40 @@ def test_unknown_match_is_404(client):
     assert client.get("/api/v1/matches/m_nope/analysis").status_code == 404
 
 
+def test_club_analysis_never_mixes_competitions_with_a_shared_source(
+    tmp_path, monkeypatch
+):
+    rows = _rows()
+    for row in rows:
+        row["source_id"] = "openfootball-shared"
+        row["source_kind"] = "club"
+        row["competition"] = "League A"
+        row["tournament"] = "League A"
+    contaminant = _row("m_other", "2024-12-01", "Other A", "Other B", 4, 0, True)
+    contaminant.update(
+        source_id="openfootball-shared",
+        source_kind="club",
+        competition="League B",
+        tournament="League B",
+    )
+    rows.append(contaminant)
+    index_path = tmp_path / "matches_index.parquet"
+    _build_index(index_path, rows)
+    monkeypatch.setattr(matches, "INDEX_PATH", index_path)
+
+    captured: dict[str, pd.DataFrame] = {}
+    import golavo_core.analysis as core_analysis
+
+    def _capture(*, matches, match_row):
+        captured["matches"] = matches
+        return {"schema_version": "0.4.1", "match": match_row}
+
+    monkeypatch.setattr(core_analysis, "build_match_analysis", _capture)
+    body = server_analysis.match_analysis("m_target")
+    assert body is not None and body["available"] is True
+    assert set(captured["matches"]["competition"].astype(str)) == {"League A"}
+
+
 def test_recent_rails_have_results_and_honest_upcoming(client):
     body = client.get("/api/v1/matches/recent").json()
     assert body["schema_version"] == "0.2.0"

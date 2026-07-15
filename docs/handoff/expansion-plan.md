@@ -187,7 +187,28 @@ Rolling attack/defence/Elo trajectories: re-fit at month-end cutoffs using only 
 
 Standings engine first (points/GD/tiebreaks per competition — competition-specific tiebreak rules are data, must be encoded per league and tested against a completed season [V]-able from packs). Then: seeded Monte Carlo (fixed seed in artifact; 10k iterations; largest-remainder rounding for display) over remaining fixtures using council voices → P(title/top-4/relegation) per voice. Gates: standings reproduce 2024-25 final tables byte-exact for all 5 leagues before any simulation ships; sim is labeled like the tournament outlook. Missing fixtures upstream → the league renders "2026-27 fixtures not yet published by our lawful source" (first-class Unknown).
 
+**Implementation evidence (2026-07-15):** the pinned La Liga and Serie A 2024-25
+captures each contain only 370 completed matches, so the originally written
+five-league 2024-25 gate cannot be satisfied without inventing ten results per
+competition. The implemented gate therefore uses 2023-24, the latest season that
+is structurally complete across all five, and explicitly encodes disciplinary
+points adjustments. The API retains the incomplete 2024-25 captures as typed
+`past_result_gaps` states. The 10,000-run engine, rule-specific tie-breaks,
+largest-remainder display rounding, and three separate voices are implemented;
+the live 2026-27 surface remains blocked until its double-round-robin fixture
+certificate passes.
+
 ### 4.5 Event analytics (Phase 4; research pack #1, per-match precomputed artifacts)
+
+**Implementation evidence (2026-07-15):** Golavo now bundles a compact,
+isolated CC-BY research pack covering all 1,941 matches and 3,251,294 events as
+seven team-only competition-era summaries. The shipped surface deliberately
+does not carry player identities, raw events, or pass networks. It exposes
+progressive passing, shot rates, a disclosed same-team event-run proxy, and an
+own 12×8 research-xT calculation behind collapsed league-page disclosure. Every
+panel names its historical era and states that it never enters forecasts or
+simulations. The larger per-match/player research design below remains future
+work, not a claim about v0.13.0.
 
 For each covered match (1,941): **pass networks** (nodes = starters, edges = completed passes ≥3, positions = median touch location), **shot maps** (Wyscout tags; no xG claim — shot locations/outcomes only, optional "research shot-value" if we ship our own grid-xT), **possession chains** (chain = uninterrupted team possession; progression = Δ distance-to-goal), **xT** (own reimplementation of the standard 12×8 grid transition model, trained on the pack itself, versioned; socceraction as reference only). Sample floors: pass network needs full-match event coverage (drop else); xT model trained once on 2017/18 corpus, frozen, documented. Chronological availability: historical only — **never blended into live match models**. Missing: any live match renders "No lawful event feed for this match." Labels: era badge "2017/18 Wyscout research data (CC BY 4.0, Pappalardo et al.)". AI: may summarize with whitelisted numbers.
 
@@ -196,6 +217,12 @@ For each covered match (1,941): **pass networks** (nodes = starters, edges = com
 Width/depth/compactness (team bounding stats per phase), space control (Voronoi share at sampled frames), off-ball runs + speeds (SkillCorner's own aggregates re-surfaced), pressure proxies (SkillCorner dynamic events). Honor documented accuracy limits in-artifact ("~97% ID accuracy; extrapolated frames flagged"). 10 matches only → artifacts exist per covered match; nothing generalizes. AI: summarize only.
 
 ### 4.7 Conditions Snapshot (owner-picked artifact; Phase 2)
+
+**Implementation evidence (2026-07-15):** Conditions Snapshot contract 0.2.0
+now carries a first-class weather-context block. It is deliberately `blocked`,
+has no source id, states `model_input: false`, and explains that observed
+weather will not be substituted for a forecast issued before kickoff. No
+network call or weather value is produced.
 
 Fields: venue (stadiums file), city coords + altitude (GeoNames), kickoff local time + timezone (worldcup pack offset or GeoNames tz), **rest days** (days since each team's previous indexed match — computable today), **travel distance** (haversine between consecutive match cities for each team — internationals/tournaments where city data exists). No weather until Meteostat licensing clears; then context-only. Leakage: rest/travel are knowable pre-match (safe as displayed context); they do NOT enter models without the standard experiment gate. Missing any field → the row renders "unknown". Label: "Context, not a model input." AI: may cite.
 
@@ -298,7 +325,7 @@ Scope: §6 items 1–9 + Hypothesis first targets (whitelist scanner fuzz, canon
 ### Phase 2 — Club-season readiness (L; late July–August)
 - Venue/timezone truth: stadium tables (worldcup.stadiums.json now; openfootball `clubs` stadium names flagged historical; GeoNames coords/tz) → **fix `openfootball.py:186-191`**: convert venue-local time + venue tz → true UTC; `kickoff_precision` honest per row; backfill index.
 - 2026-27 fixtures: **decision gate Aug 1** — if yorobot hasn't regenerated football.json 2026-27, implement a minimal Football.TXT *fixtures* parser against `openfootball/europe` (scope: fixtures only, top-5, golden-file tests); else just re-pin football.json.
-- Standings engine + per-league tiebreak rules, validated byte-exact against completed 2024-25/2025-26 tables.
+- Standings engine + per-league tiebreak rules, validated against 2023-24, the latest season complete across all five pinned league captures; later seasons remain explicit gap states.
 - Optional **OpenLigaDB ODbL pack** (opt-in download; §7 isolation; cross-check surface: "our source vs OpenLigaDB" comparison chip, no row merging). RapidFuzz "did you mean" in search (navigation only).
 - Conditions Snapshot v1 (rest days, travel distance, venue/altitude/local kickoff).
 - Gates: canonical-team fragmentation checks extended; standings gate above; ODbL store proven un-joinable by test; installed-app QA.

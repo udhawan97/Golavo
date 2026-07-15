@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.12.0" src="https://img.shields.io/badge/version-v0.12.0-6082b8?style=flat-square">
+  <img alt="version v0.13.0" src="https://img.shields.io/badge/version-v0.13.0-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -45,12 +45,14 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.12.0 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.13.0 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, calibration record, optional guarded AI narration, and
-> desktop packaging are implemented. Signing, notarization, live club fixtures, standings
-> and season projections, observed xG/lineups/injuries, and a club forward loop are not.
+> desktop packaging are implemented. The World Cup outlook and domestic standings/season
+> engine are also implemented, but the latter correctly remains blocked until a complete
+> 2026–27 fixture list exists. Signing, notarization, live club fixtures, observed
+> xG/lineups/injuries, and a club forward loop are not.
 > This is a football analysis workbench, **not a betting product**.
 
 ## Golavo at a glance
@@ -61,6 +63,7 @@
 | **Play the season** | Make a score call on any upcoming match | A kickoff-locked pick, simple points, and a private race against five deterministic rivals |
 | **Put a model prediction on the record** | Seal an eligible upcoming international | An immutable expert claim that is scored or voided later without rewriting the original |
 | **Audit the system** | Model Lab | Track record, chronological backtests, methodologies, calibration, artifact hashes, and provenance |
+| **Explore a competition** | Leagues & Europe | Competition-local strengths and workload, honest season gates, World Cup outlooks, and clearly era-badged historical team research |
 | **Build or review the code** | [Architecture](https://udhawan97.github.io/Golavo/architecture/) → [Build from source](https://udhawan97.github.io/Golavo/build-from-source/) | The Tauri → React → FastAPI → deterministic Python boundary, typed contracts, and local verification commands |
 
 <p align="center">
@@ -149,7 +152,11 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | | Do this | Get this |
 | :---: | --- | --- |
 | 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A six-chapter, leak-safe programme: form, fitted style, history, two separate model voices, Score Outlook, verdict and pick, plus the optional evidence-bound analyst column |
-| ⚽ | **Browse Games, Leagues, and search 75,000 matches** — recent results, any upcoming fixtures, the big-five leagues | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
+| ⚽ | **Browse Games, Leagues, and search 77,000 matches** — recent results, any upcoming fixtures, the big-five leagues, and UEFA club competitions | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
+| 🗺️ | **Open the Conditions Snapshot** — pinned GeoNames city context, local kickoff when exact, rest since each side's previous indexed match, and an offline Natural Earth travel map | Display-only context with visible attribution and explicit unknowns; weather stays blocked until issued-before-kickoff history is lawful; none of it enters a model |
+| 🏟️ | **Open a domestic league's Season outlook** — inspect the verified input gate before any run | A typed “waiting for fixtures” state today; only a complete, gap-free schedule can unlock separate 10,000-run model voices |
+| 🏆 | **Open the World Cup 2026 outlook** — switch between Ratings, Goals, and the baseline | Exact four-team bracket enumeration with a disclosed extra-time rule, never blended or written as a sealed forecast |
+| 🔬 | **Open historical team research** — choose a club inside its exact competition-and-era disclosure | Team-only progressive passing, shot, event-run, and research-xT summaries from the 1,941-match Pappalardo/Wyscout corpus; never current-player data or a model input |
 | 🎟️ | **Make your score call** — edit until kickoff, then race five named model rivals | A fingerprinted local pick, simple 3 / 1 / +1 scoring, and My Season standings over only the matches you play |
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
@@ -177,13 +184,16 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Exact scores** | Goal-based seals include the coherent score grid they already imply, including an explicit high-score tail |
 | **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** or **Preview** arranged as six programme chapters. Casual keeps the essential story; Expert exposes fitted model internals, complete market rows, source proof, and the coherent score grid — machine-checked leak-safe, never averaged |
 | **Navigation** | Games-first home (recent + upcoming rails, offline), Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
+| **Conditions Snapshot** | Read-only rest and travel context from the local index plus pinned GeoNames and Natural Earth side tables. City resolution is exact-name and country scoped; stadium remains unknown without a stadium-level source. Weather is explicitly blocked rather than reconstructed from observed conditions. Labeled “Context, not a model input.” |
+| **Tournament / Season outlooks** | The World Cup four-team bracket is exactly enumerated per voice. Five domestic standings rule sets reproduce the latest commonly complete season; the 10,000-run season engine stays blocked until a complete, gap-free current fixture list exists. Neither outlook enters the seal ledger. |
+| **Historical team research** | Seven isolated CC-BY-4.0 competition-era artifacts cover 1,941 Pappalardo/Wyscout matches and 3,251,294 events. Only team aggregates ship; raw events and player identities do not. |
 | **Your Call / My Season** | Kickoff-locked score picks with SHA-256 integrity, durable local storage, five deterministic rivals, 3 / 1 / +1 scoring, standings, history, filters, cumulative points, and streaks |
 | **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, provenance, scored/voided/superseded states, Casual and Expert presentation, "three things to know" insight cards, re-seal "what moved" deltas, and reading-comfort themes (incl. a warm low-blue mode) |
 | **Facts** | Pre-registered deterministic templates; sample/freshness/base-rate guardrails; coincidences capped and quarantined |
 | **AI Deep Read** | Implemented, off by default, and additive; Settings and the match panel include an Ollama setup/download guide with real readiness, progress and cancellation. Local Ollama/llama.cpp and BYOK reads all pass schema, citation, numeric-whitelist, grounding, and betting-language guards that fail closed to local-only |
 | **Desktop** | Tauri 2 shell supervising a PyInstaller/FastAPI sidecar on an ephemeral loopback port with a fresh per-launch token |
 | **Distribution** | macOS DMG and Windows MSI/EXE builds plus checksums; **signed in-app updates** (consent-first, verified, ledger backed up first) from v0.2.1; OS signing/notarization still gated on real credentials |
-| **Not yet shipped** | Confirmed-lineup/BYOK data adapters, scorers, corners, cups, club forward forecasting, hash-chained multi-artifact ledger, signed public release |
+| **Not yet shipped** | Confirmed-lineup/BYOK data adapters, live event feeds, cups, club forward forecasting, leakage-safe historical weather forecasts, hash-chained multi-artifact ledger, OS-signed/notarized installers |
 
 </details>
 
@@ -259,18 +269,27 @@ More detail: [Local Intelligence](https://udhawan97.github.io/Golavo/local-intel
 7. **Update forward calibration.** Genuine seals only; historical backtests stay in
    their own dressing room.
 
-The international source publishes dates but not verified kickoff times, so Golavo
-uses 00:00 UTC on match day as a conservative proxy. Forwardness is proven by public
+Most source rows publish dates without a verified UTC instant, so Golavo marks them
+`kickoff_precision=day` and uses 00:00 UTC on match day as a conservative proxy. A pinned
+World Cup overlay sharpens only exact matches to `kickoff_precision=exact`; OpenFootball's
+naive venue-local club clocks are never relabeled as UTC. Forwardness is proven by public
 git history: the seal must be published before that proxy. The artifact bytes prove
 integrity; publication history proves timing. Different receipts, different jobs.
 
 ## Coverage — no dramatic hand-waving
 
 Golavo's **forward** surface is men's senior full internationals. The top-5 European
-leagues are a **historical backtesting** surface, not live club forecasting. Each
-league is modeled independently; there is no cross-league strength calibration.
+leagues are a **historical backtesting** surface, while the three UEFA club competitions
+are a **historical browsing and competition-local analytics** surface. They are not live
+club forecasting. Each competition is modeled independently; there is no cross-competition
+strength calibration.
 Lineups, injuries, corners, xG, and proprietary feeds are not quietly inferred from
 vibes.
+
+Display context is separate from match rows and models: GeoNames CC BY 4.0 provides a
+pinned city-country lookup (1,828 of 2,215 indexed pairs resolved at this snapshot), and
+Natural Earth v5.1.1 provides the public-domain offline basemap. Missing places, travel
+origins, local times, and stadiums render as unknown rather than being guessed.
 
 | Scope | Accepted results coverage | Deeper event data | Product use |
 |---|---|---|---|
@@ -280,8 +299,12 @@ vibes.
 | **Bundesliga** | 15 clean seasons, 2010-11→2024-25 | Not in accepted pack | Historical evaluation only |
 | **Serie A** | 11 clean seasons, 2013-14→2023-24 | Not in accepted pack | Historical evaluation only; incomplete 2024-25 excluded |
 | **Ligue 1** | 10 clean seasons, 2014-15→2024-25 | Not in accepted pack | Historical evaluation only; abandoned 2019-20 excluded |
+| **UEFA Champions League** | 6 complete main-competition editions, 2020-21→2025-26 | Not in accepted pack | Historical browsing + competition-local strength/rest analytics |
+| **UEFA Europa League** | 5 complete main-competition editions, 2020-21→2024-25 | Not in accepted pack | Historical browsing + competition-local strength/rest analytics |
+| **UEFA Conference League** | 4 complete main-competition editions, 2021-22→2024-25 | Not in accepted pack | Historical browsing + competition-local strength/rest analytics |
 
-Every partial 2025-26 club capture is excluded. Free access is not the same as
+Every partial 2025-26 domestic-league capture is excluded. UEFA qualifiers are not bundled,
+and historical results do not imply a complete future schedule. Free access is not the same as
 lawful open data, and a filename is not a provenance strategy. Read the
 [coverage audit](docs/handoff/openfootball-audit.md) or the
 [data-source guide](https://udhawan97.github.io/Golavo/data/coverage/) for the
@@ -477,7 +500,7 @@ roadmap items.
 | Remaining workstream | What remains | Gate |
 |---|---|---|
 | **Live club forecasting** | lawful live club fixtures, user-initiated refresh, and a club forward seal→score loop | verified source license, cadence, and cutoff semantics |
-| **League Outlook** | standings and season projections | complete live season state and forward validation |
+| **League Outlook inputs** | obtain the complete 2026–27 schedule and then forward-validate the shipped standings/simulation engine | lawful complete live season state |
 | **Observed match data** | optional verified lineups, injuries, xG, scorers, corners, and cups | lawful licensed source; typed provenance-safe adapters |
 | **Ledger longevity** | cross-artifact hash chaining and verification | migration and recovery design proven against existing ledgers |
 | **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | real platform signing credentials and release-matrix validation |

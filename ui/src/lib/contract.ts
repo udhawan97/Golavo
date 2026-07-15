@@ -199,6 +199,267 @@ export interface EvalSummary {
   primary_metric?: string;
   sources?: (Snapshot | null)[];
   folds: Fold[];
+  report_cards?: ReportCard[];
+}
+
+export interface ReportCardModel {
+  family: ModelFamily;
+  n_matches: number;
+  n_folds: number;
+  log_loss: number;
+  brier: number;
+  ece: number;
+  rps: number;
+  skill_score: number;
+  skill_ci_95: [number, number] | null;
+  sample_status: "available" | "insufficient_sample";
+  mean_rank: number;
+  best_rank: number;
+  worst_rank: number;
+  first_place_folds: number;
+}
+
+export interface ReportCard {
+  competition: string;
+  baseline_family: "climatological";
+  primary_metric: "log_loss";
+  minimum_matches: number;
+  bootstrap: {
+    method: "fold-stratified-match-bootstrap";
+    replicates: number;
+    seed: number;
+  };
+  window_start: string;
+  window_end: string;
+  models: ReportCardModel[];
+}
+
+// ---- Existing-data competition analytics ----------------------------------
+
+export type AnalyticsStatus = "available" | "insufficient_sample" | "unavailable" | "blocked";
+
+export interface StrengthPoint {
+  cutoff_utc: string;
+  sample_matches: number;
+  attack_index: number;
+  defence_index: number;
+  overall_index: number;
+}
+
+export interface TeamStrengthTrend {
+  team: string;
+  current: StrengthPoint;
+  trend: StrengthPoint[];
+}
+
+export interface TeamWorkload {
+  team: string;
+  last_indexed_match_utc: string;
+  rest_days: number;
+  matches_last_7_days: number;
+  matches_last_14_days: number;
+  matches_last_28_days: number;
+  congestion: "normal" | "elevated" | "high";
+}
+
+export interface CompetitionAnalytics {
+  schema_version: string;
+  competition_id: string;
+  competition_name: string;
+  as_of_utc: string;
+  scope: {
+    team_category: "club" | "international";
+    strength_comparison: "this_competition_only";
+    model_input: false;
+  };
+  provenance: { source_ids: string[]; index_sha256?: string };
+  strength_trends: {
+    status: AnalyticsStatus;
+    reason: string | null;
+    method: string;
+    minimum_matches: number;
+    data_through_utc?: string;
+    comparison_scope?: "this_competition_only";
+    teams: TeamStrengthTrend[];
+  };
+  rest_congestion: {
+    status: AnalyticsStatus;
+    reason: string | null;
+    method: string;
+    coverage_note: string;
+    teams: TeamWorkload[];
+  };
+  schedule_difficulty: {
+    status: "blocked" | "unavailable";
+    reason: string;
+    required_capability: string;
+  };
+}
+
+// ---- Historical team research ---------------------------------------------
+
+export interface ResearchTeamRow {
+  team_id: number;
+  team: string;
+  matches: number;
+  passes_attempted: number;
+  passes_completed: number;
+  pass_completion_pct: number;
+  progressive_passes_per_match: number;
+  shots_per_match: number;
+  goals_per_match: number;
+  chain_proxy_events: number;
+  chain_proxy_count: number;
+  progressive_chains_per_match: number;
+  research_xt_created_per_match: number;
+}
+
+export interface ResearchTeamAnalytics {
+  schema_version: "0.1.0";
+  status: "available";
+  label: string;
+  competition_id: string;
+  competition_name: string;
+  era: string;
+  team_scope: "team_aggregate_only";
+  coverage: { matches: number; events: number; teams: number };
+  methods: { progressive_pass: string; chain_proxy: string; research_xt: string };
+  teams: ResearchTeamRow[];
+  provenance: {
+    source_id: "pappalardo-wyscout-events";
+    license: "CC-BY-4.0";
+    attribution: string;
+    modifications: string;
+  };
+}
+
+// ---- Tournament outlook ----------------------------------------------------
+
+export interface TournamentOutlookTeam {
+  team: string;
+  reach_final: number;
+  reach_third_place_match: number;
+  champion: number;
+  third: number;
+}
+
+export interface TournamentOutlookVoice {
+  voice_id: "elo_ordlogit" | "dixon_coles" | "equal-chance-baseline";
+  label: string;
+  role: "voice" | "baseline";
+  draw_resolution: string;
+  teams: TournamentOutlookTeam[];
+  totals: {
+    reach_final: number;
+    reach_third_place_match: number;
+    champion: number;
+    third: number;
+  };
+}
+
+export interface TournamentOutlook {
+  schema_version: "0.1.0";
+  status: "available" | "unavailable";
+  label: string;
+  tournament_id: "worldcup-2026";
+  tournament_name: string;
+  as_of_utc: string;
+  reason?: string;
+  data_through_utc?: string;
+  outlook_rule?: "ko-2026.07.1";
+  method?: "exact-four-team-bracket-enumeration";
+  ledger_status?: "never_persisted_or_scored_as_a_seal";
+  snapshot_status?: "current_for_index" | "result_refresh_needed";
+  snapshot_note?: string;
+  semifinals: Array<{
+    match_id: string;
+    kickoff_utc: string;
+    home_team: string;
+    away_team: string;
+    status: "complete" | "unresolved";
+  }>;
+  voices: TournamentOutlookVoice[];
+  provenance: {
+    index_sha256: string;
+    training_source_ids?: string[];
+    fixture_source_id?: string;
+  };
+}
+
+// ---- Domestic season outlook ----------------------------------------------
+
+export interface SeasonStandingRow {
+  position: number;
+  team: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goals_for: number;
+  goals_against: number;
+  goal_difference: number;
+  points_adjustment: number;
+  points: number;
+}
+
+export interface SeasonOutlookTeam {
+  team: string;
+  title: number;
+  top_four: number;
+  relegation: number;
+  display_percent: {
+    title: number;
+    top_four: number;
+    relegation: number;
+  };
+}
+
+export interface SeasonOutlookVoice {
+  voice_id: "elo_ordlogit" | "dixon_coles" | "equal-chance-baseline";
+  label: string;
+  role: "voice" | "baseline";
+  scoreline_method: string;
+  teams: SeasonOutlookTeam[];
+  totals: { title: number; top_four: number; relegation: number };
+}
+
+export interface SeasonOutlook {
+  schema_version: "0.1.0";
+  status: "blocked" | "complete" | "available";
+  label: string;
+  competition_id: string;
+  competition_name: string;
+  season: string;
+  as_of_utc: string;
+  simulation_rule: "season-mc-2026.07.1";
+  ledger_status: "never_persisted_or_scored_as_a_seal";
+  reason_code: string | null;
+  reason: string | null;
+  standings_rule_id: string;
+  fixture_certificate: {
+    expected_teams: number;
+    observed_teams: number;
+    teams: string[];
+    expected_matches: number;
+    observed_matches: number;
+    unique_ordered_pairs: number;
+    duplicate_ordered_pairs: number;
+    self_fixtures: number;
+    incomplete_fixtures: number;
+    past_result_gaps: number;
+    future_completed_results: number;
+    complete_fixture_list: boolean;
+  };
+  current_table: SeasonStandingRow[];
+  iterations: number;
+  seed: number | null;
+  voices: SeasonOutlookVoice[];
+  provenance: {
+    source_ids: string[];
+    training_source_ids?: string[];
+    training_data_through_utc?: string;
+    index_sha256: string;
+  };
 }
 
 // ---- Calibration record (v0.2.0) --------------------------------------------
@@ -379,6 +640,7 @@ export interface MatchForecastLink {
 export interface MatchRow {
   match_id: string;
   kickoff_utc: string; // ISO 8601
+  kickoff_precision?: "exact" | "day";
   home_team: string;
   away_team: string;
   home_score: number | null;
@@ -537,6 +799,99 @@ export interface MatchDetailResponse {
   linked_by: "match_id" | "fixture" | null;
   seal_eligibility?: SealEligibility;
   pick?: { id: string | null; status: PickStatus } | null;
+}
+
+// ---- Conditions Snapshot (display-only contract 0.1.0) --------------------
+
+export type ContextStatus = "available" | "unknown";
+
+export interface ConditionsLocation {
+  status: ContextStatus;
+  reason: string | null;
+  city: string | null;
+  country: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  elevation_m: number | null;
+  timezone: string | null;
+  source_id: "geonames" | null;
+}
+
+export interface ConditionsTeam {
+  side: "home" | "away";
+  team: string;
+  rest: {
+    status: ContextStatus;
+    reason: string | null;
+    days: number | null;
+    previous_match_id: string | null;
+    previous_kickoff_utc: string | null;
+  };
+  travel: {
+    status: ContextStatus;
+    reason: string | null;
+    distance_km: number | null;
+    origin: ConditionsLocation | null;
+    destination: ConditionsLocation;
+  };
+}
+
+export interface TravelRoute {
+  side: "home" | "away";
+  team: string;
+  distance_km: number;
+  origin: ConditionsLocation;
+  destination: ConditionsLocation;
+}
+
+export interface ConditionsSnapshot {
+  schema_version: "0.2.0";
+  label: "Context, not a model input.";
+  match: {
+    match_id: string;
+    kickoff_utc: string;
+    kickoff_precision: "exact" | "day";
+    local_kickoff: {
+      status: ContextStatus;
+      reason: string | null;
+      value: string | null;
+      timezone: string | null;
+    };
+    venue: { status: "unknown"; name: null; reason: "no-stadium-level-source" };
+    location: ConditionsLocation;
+  };
+  teams: ConditionsTeam[];
+  travel_map: {
+    status: "available" | "partial" | "unknown";
+    source_id: "natural-earth";
+    attribution: string;
+    routes: TravelRoute[];
+  };
+  weather_context: {
+    status: "blocked";
+    reason_code: "no_leakage_safe_historical_forecast_source";
+    reason: string;
+    model_input: false;
+    source_id: null;
+  };
+  sources: Array<{ source_id: "geonames" | "natural-earth"; attribution: string }>;
+}
+
+export interface WorldMapFeature {
+  type: "Feature";
+  properties: { name: string | null; iso_a2: string | null };
+  geometry: {
+    type: "Polygon" | "MultiPolygon";
+    coordinates: number[][][] | number[][][][];
+  };
+}
+
+export interface WorldMap {
+  type: "FeatureCollection";
+  source_id: "natural-earth";
+  version: string;
+  attribution: string;
+  features: WorldMapFeature[];
 }
 
 /** An upcoming fixture present upstream but not yet in this build's index. */

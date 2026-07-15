@@ -2,19 +2,22 @@
  * Data access layer.
  *
  * Honesty rule: the UI never fabricates a backend. If VITE_GOLAVO_API is set at
- * build time, we GET the three documented read-only endpoints. Otherwise we load
+ * build time, we use the documented local read/write API. Otherwise we load
  * the bundled mock fixtures and label the source as "mock" everywhere it matters.
  *
- * Documented endpoints (the ONLY ones assumed to exist):
+ * Core documented endpoints include:
  *   GET {base}/api/v1/forecasts          -> ForecastArtifact[]  (or {forecasts:[]})
  *   GET {base}/api/v1/forecasts/{id}      -> ForecastArtifact
  *   GET {base}/api/v1/eval/summary        -> EvalSummary
  *   GET {base}/api/v1/calibration         -> CalibrationSummary
+ *   GET {base}/api/v1/analytics/competitions/{id} -> CompetitionAnalytics
  *   POST {base}/api/v1/forecasts/settle   -> SettlementReport
  */
 import { ACCEPTED_SCHEMA_VERSIONS } from "./contract";
 import type {
   CalibrationSummary,
+  ConditionsSnapshot,
+  CompetitionAnalytics,
   CompetitionsResponse,
   EvalSummary,
   FixturesCheckResponse,
@@ -32,10 +35,14 @@ import type {
   PicksListResponse,
   PicksSummary,
   RecentMatchesResponse,
+  ResearchTeamAnalytics,
   SealEligibility,
   SealResult,
+  SeasonOutlook,
   SettlementReport,
   SourceKind,
+  TournamentOutlook,
+  WorldMap,
 } from "./contract";
 import type { AiDepth, AiProvider, NarrativeResponse } from "./ai";
 import {
@@ -286,6 +293,20 @@ function assertEval(x: unknown, ctx: string): EvalSummary {
   return e;
 }
 
+function assertCompetitionAnalytics(x: unknown, ctx: string): CompetitionAnalytics {
+  const data = x as CompetitionAnalytics;
+  if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (typeof data.competition_id !== "string")
+    throw new ContractError(`${ctx}: missing competition_id`);
+  if (!Array.isArray(data.strength_trends?.teams))
+    throw new ContractError(`${ctx}: strength_trends.teams is not an array`);
+  if (!Array.isArray(data.rest_congestion?.teams))
+    throw new ContractError(`${ctx}: rest_congestion.teams is not an array`);
+  if (!data.schedule_difficulty?.status)
+    throw new ContractError(`${ctx}: missing schedule_difficulty state`);
+  return data;
+}
+
 function assertCalibration(x: unknown, ctx: string): CalibrationSummary {
   const c = x as CalibrationSummary;
   if (!c || typeof c !== "object") throw new ContractError(`${ctx}: not an object`);
@@ -324,6 +345,8 @@ function assertMatchRow(x: unknown, ctx: string): MatchRow {
     throw new ContractError(
       `${ctx}: source_kind ${String(m.source_kind)} not in [${SOURCE_KINDS.join(", ")}]`,
     );
+  if (m.kickoff_precision !== undefined && m.kickoff_precision !== "exact" && m.kickoff_precision !== "day")
+    throw new ContractError(`${ctx}: kickoff_precision must be exact or day`);
   const bothScores = m.home_score !== null && m.away_score !== null;
   if (m.is_complete !== bothScores)
     throw new ContractError(
@@ -480,6 +503,202 @@ export async function fetchNotebook(id: string): Promise<NotebookResponse> {
 export async function fetchEvalSummary(): Promise<EvalSummary> {
   if (!API_BASE) return assertEval(await loadMockEval(), "eval/summary (mock)");
   return assertEval(await getJson("/api/v1/eval/summary"), "eval/summary");
+}
+
+export async function fetchCompetitionAnalytics(
+  competitionId: string,
+  asOfUtc?: string,
+): Promise<CompetitionAnalytics> {
+  if (!API_BASE) {
+    return {
+      schema_version: "0.1.0",
+      competition_id: competitionId,
+      competition_name: competitionId,
+      as_of_utc: asOfUtc ?? new Date().toISOString(),
+      scope: {
+        team_category: "club",
+        strength_comparison: "this_competition_only",
+        model_input: false,
+      },
+      provenance: { source_ids: [] },
+      strength_trends: {
+        status: "unavailable",
+        reason: "Connect the Golavo engine to calculate strengths from the local index.",
+        method: "time-decayed-poisson-rates-v1",
+        minimum_matches: 8,
+        teams: [],
+      },
+      rest_congestion: {
+        status: "unavailable",
+        reason: "Connect the Golavo engine to calculate workload from the local index.",
+        method: "indexed-match-counts-v1",
+        coverage_note: "Counts include only competitions present in Golavo's local index.",
+        teams: [],
+      },
+      schedule_difficulty: {
+        status: "blocked",
+        reason: "A complete remaining-fixture list is required.",
+        required_capability: "complete_remaining_fixtures",
+      },
+    };
+  }
+  const query = asOfUtc ? `?as_of_utc=${encodeURIComponent(asOfUtc)}` : "";
+  return assertCompetitionAnalytics(
+    await getJson(`/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}${query}`),
+    `analytics/competitions/${competitionId}`,
+  );
+}
+
+function assertResearchTeamAnalytics(x: unknown, ctx: string): ResearchTeamAnalytics {
+  const data = x as ResearchTeamAnalytics;
+  if (!data || typeof data !== "object" || data.schema_version !== "0.1.0")
+    throw new ContractError(`${ctx}: unsupported research artifact contract`);
+  if (data.status !== "available" || data.team_scope !== "team_aggregate_only")
+    throw new ContractError(`${ctx}: research data must be available and team-only`);
+  if (!data.era || !Array.isArray(data.teams) || data.teams.length < 2)
+    throw new ContractError(`${ctx}: competition era and team rows are required`);
+  if (data.coverage?.teams !== data.teams.length)
+    throw new ContractError(`${ctx}: coverage team count does not match rows`);
+  return data;
+}
+
+/** Historical CC-BY research is optional and never mocked into the web preview. */
+export async function fetchResearchTeamAnalytics(
+  competitionId: string,
+): Promise<ResearchTeamAnalytics | null> {
+  if (!API_BASE) return null;
+  return assertResearchTeamAnalytics(
+    await getJson(`/api/v1/research/competitions/${encodeURIComponent(competitionId)}`),
+    `research/competitions/${competitionId}`,
+  );
+}
+
+function assertTournamentOutlook(x: unknown, ctx: string): TournamentOutlook {
+  const data = x as TournamentOutlook;
+  if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (data.schema_version !== "0.1.0" || data.tournament_id !== "worldcup-2026")
+    throw new ContractError(`${ctx}: unsupported tournament outlook contract`);
+  if (data.status !== "available" && data.status !== "unavailable")
+    throw new ContractError(`${ctx}: invalid status`);
+  if (!Array.isArray(data.voices) || !Array.isArray(data.semifinals))
+    throw new ContractError(`${ctx}: voices and semifinals must be arrays`);
+  if (data.status === "available") {
+    if (data.voices.length !== 3 || data.semifinals.length !== 2)
+      throw new ContractError(`${ctx}: available outlook requires three voices and two semifinals`);
+    for (const voice of data.voices) {
+      if (!Array.isArray(voice.teams) || voice.teams.length !== 4)
+        throw new ContractError(`${ctx}: each voice requires four teams`);
+      const championTotal = voice.teams.reduce((sum, team) => sum + team.champion, 0);
+      if (Math.abs(championTotal - 1) > 0.000001)
+        throw new ContractError(`${ctx}: ${voice.voice_id} champion probabilities do not sum to 1`);
+    }
+  } else if (!data.reason) {
+    throw new ContractError(`${ctx}: unavailable outlook requires a reason`);
+  }
+  return data;
+}
+
+/** Exact, read-only World Cup bracket enumeration. In mock mode this is an
+ * explicit unavailable state; the web preview never fabricates probabilities. */
+export async function fetchWorldCupOutlook(): Promise<TournamentOutlook> {
+  if (!API_BASE) {
+    return {
+      schema_version: "0.1.0",
+      status: "unavailable",
+      label: "Tournament outlook — a simulation from current model fits. Not a sealed forecast.",
+      tournament_id: "worldcup-2026",
+      tournament_name: "2026 FIFA World Cup",
+      as_of_utc: new Date().toISOString(),
+      reason: "Connect the Golavo engine to fit the tournament outlook from the local index.",
+      voices: [],
+      semifinals: [],
+      provenance: { index_sha256: "0".repeat(64) },
+    };
+  }
+  return assertTournamentOutlook(
+    await getJson("/api/v1/tournaments/worldcup-2026/outlook"),
+    "tournaments/worldcup-2026/outlook",
+  );
+}
+
+function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {
+  const data = x as SeasonOutlook;
+  if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (data.schema_version !== "0.1.0" || data.simulation_rule !== "season-mc-2026.07.1")
+    throw new ContractError(`${ctx}: unsupported season outlook contract`);
+  if (!["blocked", "complete", "available"].includes(data.status))
+    throw new ContractError(`${ctx}: invalid status`);
+  if (!data.fixture_certificate || !Array.isArray(data.current_table) || !Array.isArray(data.voices))
+    throw new ContractError(`${ctx}: fixture certificate, table, and voices are required`);
+  if (data.status === "available") {
+    if (data.iterations !== 10_000 || data.voices.length !== 3)
+      throw new ContractError(`${ctx}: available outlook requires 10,000 runs and three voices`);
+    for (const voice of data.voices) {
+      if (!Array.isArray(voice.teams) || Math.abs(voice.totals.title - 1) > 0.000001)
+        throw new ContractError(`${ctx}: ${voice.voice_id} title mass is invalid`);
+      for (const team of voice.teams) {
+        if ([team.title, team.top_four, team.relegation].some((value) => value < 0 || value > 1))
+          throw new ContractError(`${ctx}: ${voice.voice_id} contains an invalid probability`);
+      }
+    }
+  } else if (!data.reason || data.voices.length !== 0) {
+    throw new ContractError(`${ctx}: non-simulated outlook requires a reason and no voices`);
+  }
+  return data;
+}
+
+function currentFootballSeason(now = new Date()): string {
+  const start = now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+  return `${start}-${String(start + 1).slice(-2)}`;
+}
+
+/** Domestic standings/simulation state. Mock mode is explicitly blocked and
+ * carries no probability rows; it never invents a local model run. */
+export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonOutlook> {
+  if (!API_BASE) {
+    const expectedTeams = ["germany-bundesliga", "france-ligue-1"].includes(competitionId)
+      ? 18
+      : 20;
+    return {
+      schema_version: "0.1.0",
+      status: "blocked",
+      label: "Season outlook — a seeded simulation from current model fits. Not a sealed forecast.",
+      competition_id: competitionId,
+      competition_name: competitionId,
+      season: currentFootballSeason(),
+      as_of_utc: new Date().toISOString(),
+      simulation_rule: "season-mc-2026.07.1",
+      ledger_status: "never_persisted_or_scored_as_a_seal",
+      reason_code: "engine_not_connected",
+      reason: "Connect the Golavo engine to certify the local fixture list and standings.",
+      standings_rule_id: `${competitionId}-unverified-preview`,
+      fixture_certificate: {
+        expected_teams: expectedTeams,
+        observed_teams: 0,
+        teams: [],
+        expected_matches: expectedTeams * (expectedTeams - 1),
+        observed_matches: 0,
+        unique_ordered_pairs: 0,
+        duplicate_ordered_pairs: 0,
+        self_fixtures: 0,
+        incomplete_fixtures: 0,
+        past_result_gaps: 0,
+        future_completed_results: 0,
+        complete_fixture_list: false,
+      },
+      current_table: [],
+      iterations: 0,
+      seed: null,
+      voices: [],
+      provenance: { source_ids: [], index_sha256: "0".repeat(64) },
+    };
+  }
+  return assertSeasonOutlook(
+    await getJson(
+      `/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}/season-outlook`,
+    ),
+    `analytics/competitions/${competitionId}/season-outlook`,
+  );
 }
 
 export async function fetchCalibration(): Promise<CalibrationSummary> {
@@ -1009,6 +1228,61 @@ export async function fetchMatch(matchId: string): Promise<MatchDetailResponse |
     if (err instanceof Error && /HTTP 404/.test(err.message)) return null;
     throw err;
   }
+}
+
+function assertConditionsSnapshot(x: unknown, ctx: string): ConditionsSnapshot {
+  const value = x as ConditionsSnapshot;
+  if (!value || typeof value !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (value.schema_version !== "0.2.0")
+    throw new ContractError(`${ctx}: unsupported conditions schema`);
+  if (value.label !== "Context, not a model input.")
+    throw new ContractError(`${ctx}: missing context-only label`);
+  if (!value.match || (value.match.kickoff_precision !== "exact" && value.match.kickoff_precision !== "day"))
+    throw new ContractError(`${ctx}: invalid match precision`);
+  if (!Array.isArray(value.teams) || value.teams.length !== 2)
+    throw new ContractError(`${ctx}: teams must contain home and away`);
+  if (!Array.isArray(value.travel_map?.routes) || value.travel_map.routes.length > 2)
+    throw new ContractError(`${ctx}: invalid travel routes`);
+  if (
+    value.weather_context?.status !== "blocked"
+    || value.weather_context.reason_code !== "no_leakage_safe_historical_forecast_source"
+    || value.weather_context.model_input !== false
+    || value.weather_context.source_id !== null
+  ) throw new ContractError(`${ctx}: weather context must fail closed`);
+  for (const team of value.teams) {
+    if (team.rest.days !== null) assertNonNegNumber(team.rest.days, ctx, `${team.side}.rest.days`);
+    if (team.travel.distance_km !== null)
+      assertNonNegNumber(team.travel.distance_km, ctx, `${team.side}.travel.distance_km`);
+  }
+  return value;
+}
+
+/** Display-only location/rest/travel context. Mock mode returns null rather than
+ * inventing geography that is absent from the bundled match fixtures. */
+export async function fetchMatchConditions(matchId: string): Promise<ConditionsSnapshot | null> {
+  if (!API_BASE) return null;
+  try {
+    return assertConditionsSnapshot(
+      await getJson(`/api/v1/matches/${encodeURIComponent(matchId)}/conditions`),
+      `matches/${matchId}/conditions`,
+    );
+  } catch (error) {
+    if (error instanceof Error && /HTTP 404/.test(error.message)) return null;
+    throw error;
+  }
+}
+
+function assertWorldMap(x: unknown): WorldMap {
+  const value = x as WorldMap;
+  if (!value || value.type !== "FeatureCollection" || value.source_id !== "natural-earth")
+    throw new ContractError("maps/world: invalid Natural Earth collection");
+  if (!Array.isArray(value.features)) throw new ContractError("maps/world: features missing");
+  return value;
+}
+
+export async function fetchWorldMap(): Promise<WorldMap | null> {
+  if (!API_BASE) return null;
+  return assertWorldMap(await getJson("/api/v1/maps/world"));
 }
 
 /**

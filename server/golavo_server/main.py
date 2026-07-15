@@ -12,7 +12,18 @@ from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from golavo_server import __version__, analysis, matches, runtime, seal
+from golavo_server import (
+    __version__,
+    analysis,
+    analytics,
+    capabilities,
+    conditions,
+    matches,
+    outlook,
+    research_pack,
+    runtime,
+    seal,
+)
 from golavo_server import picks as pick_service
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
@@ -148,6 +159,64 @@ def meta() -> dict[str, Any]:
     }
 
 
+@app.get("/api/v1/capabilities")
+def get_capabilities() -> dict[str, Any]:
+    """Stable competition identities and honest per-feature availability states."""
+    return capabilities.get_capabilities()
+
+
+@app.get("/api/v1/analytics/competitions/{competition_id}")
+def get_competition_analytics(competition_id: str, as_of_utc: str | None = None) -> dict[str, Any]:
+    """Cutoff-safe strength and workload context from the active local index."""
+    try:
+        return analytics.get_competition_analytics(competition_id, as_of_utc=as_of_utc)
+    except ValueError as exc:
+        message = str(exc)
+        status = 404 if message.startswith("unknown competition_id") else 400
+        raise HTTPException(status_code=status, detail=message) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/tournaments/worldcup-2026/outlook")
+def get_world_cup_2026_outlook(as_of_utc: str | None = None) -> dict[str, Any]:
+    """Exact four-team bracket enumeration from Golavo's two model voices."""
+    try:
+        return outlook.world_cup_2026(as_of_utc=as_of_utc)
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/analytics/competitions/{competition_id}/season-outlook")
+def get_season_outlook(
+    competition_id: str,
+    as_of_utc: str | None = None,
+    season: str | None = None,
+) -> dict[str, Any]:
+    """Standings plus a seeded outlook only after the fixture certificate passes."""
+    try:
+        return outlook.season(competition_id, as_of_utc=as_of_utc, season_id=season)
+    except ValueError as exc:
+        message = str(exc)
+        status = 404 if message.startswith("no verified standings rule") else 400
+        raise HTTPException(status_code=status, detail=message) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/research/competitions/{competition_id}")
+def get_research_team_analytics(competition_id: str) -> dict[str, Any]:
+    """Historical, competition-and-era-scoped team aggregates from an isolated pack."""
+    try:
+        return research_pack.team_analytics(competition_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except (OSError, json.JSONDecodeError, ValidationError) as exc:
+        raise HTTPException(status_code=503, detail="research pack unavailable") from exc
+
+
 @app.get("/api/v1/ai/local-models")
 def ai_local_models(provider: str = "ollama") -> dict[str, Any]:
     """Installed local models (with sizes) for the Fast/Deep model picker.
@@ -227,9 +296,7 @@ async def start_ollama_download(
                 item["name"] == model and item["installed"]
                 for item in ai_gateway.recommended_ollama_models(installed_before)
             ):
-                jobs.store().finish(
-                    job.job_id, result={"model": model, "status": "installed"}
-                )
+                jobs.store().finish(job.job_id, result={"model": model, "status": "installed"})
                 return
 
             jobs.store().update(
@@ -452,6 +519,27 @@ def matches_window(window: str, limit: int = 200) -> dict[str, Any]:
         return matches.matches_window(window, limit=limit, forecasts_dir=ARTIFACT_DIR)
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
+
+
+@app.get("/api/v1/maps/world")
+def get_world_map() -> dict[str, Any]:
+    """Committed Natural Earth 1:110m basemap; offline and public domain."""
+    try:
+        return conditions.world_map()
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail="offline basemap unavailable") from exc
+
+
+@app.get("/api/v1/matches/{match_id}/conditions")
+def get_match_conditions(match_id: str) -> dict[str, Any]:
+    """Display-only location, rest and travel context known before this match."""
+    try:
+        result = conditions.conditions_snapshot(match_id, matches._load_index())
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if result is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    return result
 
 
 @app.get("/api/v1/matches/{match_id}")
@@ -1041,11 +1129,14 @@ def eval_summary() -> dict[str, Any]:
     if not summaries:
         raise HTTPException(status_code=404, detail="evaluation summary not found")
     folds: list[dict[str, Any]] = []
+    report_cards: list[dict[str, Any]] = []
     for summary in summaries:
         folds.extend(summary.get("folds", []))
+        report_cards.extend(summary.get("report_cards", []))
     return {
         "schema_version": summaries[0].get("schema_version", "0.1.0"),
         "primary_metric": "log_loss",
         "sources": [summary.get("source_snapshot") for summary in summaries],
         "folds": folds,
+        "report_cards": report_cards,
     }

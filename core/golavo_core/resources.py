@@ -70,6 +70,26 @@ def facts_schema_path() -> Path:
     return resource("docs", "contracts", "facts.schema.json")
 
 
+def competition_catalog_schema_path() -> Path:
+    """Absolute path to the competition identity/capability contract."""
+    return resource("docs", "contracts", "competition_catalog.schema.json")
+
+
+def conditions_snapshot_schema_path() -> Path:
+    """Absolute path to the display-only Conditions Snapshot contract."""
+    return resource("docs", "contracts", "conditions_snapshot.schema.json")
+
+
+def research_team_analytics_schema_path() -> Path:
+    """Absolute path to the historical team-only research artifact contract."""
+    return resource("docs", "contracts", "research_team_analytics.schema.json")
+
+
+def wyscout_research_pack_path() -> Path:
+    """Compact CC-BY research pack; raw source events are never bundled."""
+    return resource("packs", "pappalardo-wyscout-research-2019")
+
+
 def match_index_path() -> Path:
     """Absolute path to the committed, frozen match search index (Parquet)."""
     return resource("data", "index", "matches_index.parquet")
@@ -93,3 +113,13 @@ def match_index_shootouts_path() -> Path:
 def match_index_aliases_path() -> Path:
     """Absolute path to the former-name search alias map (JSON)."""
     return resource("data", "index", "aliases.json")
+
+
+def geonames_places_path() -> Path:
+    """Compact, pinned city-country lookup derived from the GeoNames pack."""
+    return resource("data", "enrichment", "places.json")
+
+
+def natural_earth_world_path() -> Path:
+    """Pinned Natural Earth 1:110m country basemap for offline route maps."""
+    return resource("data", "enrichment", "world_110m.geojson")

@@ -30,9 +30,11 @@ REGISTRY_PATH = REPO_ROOT / "data/sources/registry.json"
 SCHEMA_PATH = REPO_ROOT / "data/sources/registry.schema.json"
 SNAPSHOTS_PATH = REPO_ROOT / "packs/snapshots.json"
 ISOLATED_PATH = REPO_ROOT / "packs/isolated.json"
+ENRICHMENT_PATH = REPO_ROOT / "packs/enrichment.json"
 
-# Classes that may be folded into the bundled, redistributed index.
-BUNDLEABLE = frozenset({"core", "enrichment"})
+# Only core sources may be folded into the match index. Enrichment is bundled
+# through its own registry and may join read-only at display time only.
+BUNDLEABLE = frozenset({"core"})
 # Classes that carry a redistribution/attribution duty.
 REDISTRIBUTABLE = frozenset({"core", "enrichment", "odbl-pack", "by-sa-pack", "research-pack"})
 ISOLATED_CLASSES = frozenset({"by-sa-pack", "odbl-pack", "research-pack"})
@@ -148,10 +150,52 @@ def validate_isolated_packs(
                 raise ValueError(f"{pack}/{item['name']}: sha256 mismatch")
 
 
+def validate_enrichment_packs(
+    by_id: dict[str, dict[str, Any]],
+    *,
+    enrichment_path: Path = ENRICHMENT_PATH,
+    snapshots_path: Path = SNAPSHOTS_PATH,
+    isolated_path: Path = ISOLATED_PATH,
+    repo_root: Path = REPO_ROOT,
+) -> None:
+    """Validate attributed enrichment packs as side tables, never match packs."""
+    if not enrichment_path.is_file():
+        return
+    snapshots = _load(enrichment_path).get("snapshots", [])
+    match_paths = {str(item["pack"]) for item in _load(snapshots_path)["snapshots"]}
+    isolated_paths = (
+        {str(item["pack"]) for item in _load(isolated_path)["snapshots"]}
+        if isolated_path.is_file()
+        else set()
+    )
+    for snap in snapshots:
+        pack = str(snap["pack"])
+        if pack in match_paths or pack in isolated_paths:
+            raise ValueError(f"{pack}: enrichment pack crosses a registry boundary")
+        source_id = str(snap["source_id"])
+        entry = by_id.get(source_id)
+        if entry is None or entry.get("classification") != "enrichment":
+            raise ValueError(f"{pack}: source {source_id!r} is not registered enrichment")
+        manifest_path = repo_root / pack / "manifest.json"
+        manifest_bytes = manifest_path.read_bytes()
+        if hashlib.sha256(manifest_bytes).hexdigest() != str(snap["manifest_sha256"]):
+            raise ValueError(f"{pack}: manifest hash disagrees with enrichment.json")
+        manifest = json.loads(manifest_bytes)
+        if str(manifest.get("license")) != str(entry.get("license")):
+            raise ValueError(f"{pack}: enrichment manifest license disagrees with registry")
+        if str(manifest.get("source_id")) != source_id:
+            raise ValueError(f"{pack}: manifest source_id disagrees with enrichment.json")
+        for item in manifest.get("files", []):
+            file_path = repo_root / pack / str(item["name"])
+            if hashlib.sha256(file_path.read_bytes()).hexdigest() != str(item["sha256"]):
+                raise ValueError(f"{pack}/{item['name']}: sha256 mismatch")
+
+
 def main() -> None:
     by_id = validate_registry()
     validate_bundled_packs(by_id)
     validate_isolated_packs(by_id)
+    validate_enrichment_packs(by_id)
     classes = sorted({e["classification"] for e in by_id.values()})
     print(f"source registry: OK ({len(by_id)} sources; classes: {', '.join(classes)})")
 

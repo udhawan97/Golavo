@@ -3,7 +3,8 @@
  *
  * The bundled index has no league-priority column (only per-competition match
  * counts, which measure volume, not importance — 18k friendlies would lead).
- * So "the big five + major internationals first" is a CURATED list, kept here as
+ * So "the big five + UEFA club competitions + major internationals first" is a
+ * CURATED list, kept here as
  * the single source of truth for both the Leagues hub and the Matchday home.
  *
  * The competition strings are the exact values in the frozen index (verified),
@@ -14,32 +15,67 @@ import type { MatchRow, SourceKind } from "./contract";
 export interface League {
   slug: string;
   name: string;
-  /** The index `competition` string (club leagues), or omitted for internationals. */
+  /** The index `competition` string (club competitions), or omitted for internationals. */
   competition?: string;
+  /** Stable backend identity for capability and analytics routes. */
+  competitionId?: string;
   sourceKind?: SourceKind;
+  /** Domestic double-round-robin rule is verified for this competition. */
+  seasonOutlook?: boolean;
+  /** A bundled historical event-research aggregate exists for one named era. */
+  researchAnalytics?: boolean;
   note: string;
 }
 
-/** The five bundled club leagues + internationals — used by the Leagues hub and
+export type LeagueHubCategory = "international" | "domestic" | "uefa-club";
+
+/** Mutually exclusive browse-hub classification. International source identity
+ * wins over the competition label, so a World Cup can never fall through into
+ * the domestic bucket merely because it has a named competition. */
+export function leagueHubCategory(league: League): LeagueHubCategory {
+  if (league.sourceKind === "international") return "international";
+  if (league.competition?.startsWith("UEFA ")) return "uefa-club";
+  return "domestic";
+}
+
+/** Bundled club competitions + internationals — used by the Leagues hub and
  *  the Matchday home's quick-browse chips. */
 export const LEAGUES: League[] = [
   { slug: "internationals", name: "Internationals", sourceKind: "international",
     note: "Men’s senior internationals — the one surface that refreshes on demand." },
+  { slug: "world-cup-2026", name: "World Cup 2026", competition: "FIFA World Cup",
+    competitionId: "fifa-world-cup", sourceKind: "international", researchAnalytics: true,
+    note: "Men’s World Cup · exact semifinal bracket and model outlook." },
   { slug: "premier-league", name: "Premier League", competition: "English Premier League",
+    competitionId: "england-premier-league", seasonOutlook: true, researchAnalytics: true,
     note: "England · bundled 2010–11 onward (historical)." },
-  { slug: "la-liga", name: "La Liga", competition: "La Liga",
+  { slug: "la-liga", name: "La Liga", competition: "La Liga", competitionId: "spain-la-liga",
+    seasonOutlook: true, researchAnalytics: true,
     note: "Spain · bundled 2012–13 onward (historical)." },
   { slug: "bundesliga", name: "Bundesliga", competition: "Bundesliga",
+    competitionId: "germany-bundesliga", seasonOutlook: true, researchAnalytics: true,
     note: "Germany · bundled 2010–11 onward (historical)." },
-  { slug: "serie-a", name: "Serie A", competition: "Serie A",
+  { slug: "serie-a", name: "Serie A", competition: "Serie A", competitionId: "italy-serie-a",
+    seasonOutlook: true, researchAnalytics: true,
     note: "Italy · bundled 2013–14 onward (historical)." },
   { slug: "ligue-1", name: "Ligue 1", competition: "Ligue 1",
+    competitionId: "france-ligue-1", seasonOutlook: true, researchAnalytics: true,
     note: "France · bundled 2014–15 onward (historical)." },
+  { slug: "champions-league", name: "Champions League", competition: "UEFA Champions League",
+    competitionId: "uefa-champions-league",
+    note: "UEFA · main-competition results from 2020–21 through 2025–26." },
+  { slug: "europa-league", name: "Europa League", competition: "UEFA Europa League",
+    competitionId: "uefa-europa-league",
+    note: "UEFA · main-competition results from 2020–21 through 2024–25." },
+  { slug: "conference-league", name: "Conference League", competition: "UEFA Conference League",
+    competitionId: "uefa-conference-league",
+    note: "UEFA · main-competition results from 2021–22 through 2024–25." },
 ];
 
-/** The big-five club competitions, in curated order (index strings). */
+/** The bundled club competitions, in curated order (index strings). */
 export const TOP_CLUB_COMPETITIONS: readonly string[] = [
   "English Premier League", "La Liga", "Bundesliga", "Serie A", "Ligue 1",
+  "UEFA Champions League", "UEFA Europa League", "UEFA Conference League",
 ];
 
 /** Major international competitions, in curated order (exact index strings).
@@ -62,8 +98,9 @@ export const MAJOR_INTERNATIONAL_COMPETITIONS: readonly string[] = [
 
 /** Slug for a curated league by its competition string, for "All {name} ›" links. */
 export function leagueSlugFor(competition: string, sourceKind: SourceKind): string | null {
-  if (sourceKind === "international") return "internationals";
-  return LEAGUES.find((l) => l.competition === competition)?.slug ?? null;
+  const exact = LEAGUES.find((league) => league.competition === competition);
+  if (exact) return exact.slug;
+  return sourceKind === "international" ? "internationals" : null;
 }
 
 // Tier bands leave room between them so future insertions don't reorder.
@@ -73,7 +110,7 @@ const TIER_OTHER = 2000;
 const TIER_FRIENDLY = 9000; // 18k friendlies must never lead a results feed
 
 /**
- * A sort key for a competition — lower ranks first. Top-5 club leagues, then
+ * A sort key for a competition — lower ranks first. Bundled club competitions, then
  * major internationals (both in curated order), then everything else, with
  * "Friendly" pinned dead last. Ties within the "other" tier are broken
  * alphabetically by the caller.

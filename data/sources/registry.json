@@ -55,6 +55,34 @@
       "notes": "Bundled as a fixture/kickoff co-source inside the refreshed internationals pack: supplies the World Cup fixtures martj42 has not published yet plus exact kickoff times. Excluded from model training (martj42 remains the sole training source). A user-authorized post-match check may also use its pinned, hashed final score to settle a World Cup seal when martj42 still reports NA/NA; if both sources publish and disagree, settlement fails closed. W###/L### placeholder fixtures are rejected until the bracket resolves."
     },
     {
+      "source_id": "openfootball-champions-league",
+      "name": "openfootball/champions-league",
+      "contributors": ["Gerald Bauer", "openfootball contributors"],
+      "url": "https://github.com/openfootball/champions-league",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/champions-league/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "UEFA Champions League, Europa League, and Conference League main-competition results in Football.TXT format; qualifiers excluded from the bundled packs",
+      "attribution": "European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-15",
+      "notes": "Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone."
+    },
+    {
+      "source_id": "openfootball-euro",
+      "name": "openfootball/euro",
+      "contributors": ["Gerald Bauer", "openfootball contributors"],
+      "url": "https://github.com/openfootball/euro",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/euro/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "UEFA European Championship fixtures/results in Football.TXT format",
+      "attribution": "European Championship data from openfootball/euro (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-15",
+      "notes": "Registered but not bundled: the available finals editions duplicate UEFA Euro results already carried by martj42. Golavo avoids adding duplicate match rows; martj42 remains the historical international results source."
+    },
+    {
       "source_id": "geonames",
       "name": "GeoNames",
       "contributors": ["GeoNames.org"],
@@ -64,9 +92,23 @@
       "classification": "enrichment",
       "pin_strategy": "dump-date",
       "fields": "city coordinates, country, timezone, altitude — bulk dumps (cities15000, countryInfo, timeZones)",
-      "attribution": "Geographic data from GeoNames (geonames.org), licensed CC BY 4.0.",
+      "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
       "verified": "2026-07-12",
-      "notes": "Planned enrichment source. Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution."
+      "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact runtime table resolves 1,828 of 2,215 indexed city-country pairs using exact normalized names; unresolved or ambiguous data stays unknown. Bulk files only, no runtime web-service dependency or identity merging."
+    },
+    {
+      "source_id": "natural-earth",
+      "name": "Natural Earth",
+      "contributors": ["Tom Patterson", "Nathaniel Vaughn Kelso", "Natural Earth contributors"],
+      "url": "https://www.naturalearthdata.com/",
+      "license": "PUBLIC-DOMAIN",
+      "license_url": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "classification": "enrichment",
+      "pin_strategy": "release-and-sha256",
+      "fields": "simplified public-domain vector coastlines and country boundaries for offline travel maps",
+      "attribution": "Made with Natural Earth.",
+      "verified": "2026-07-15",
+      "notes": "Bundled as a separately registered public-domain enrichment pack pinned to Admin-0 Countries v5.1.1 at commit 9380cca and exact file hashes. The compact 1:110m GeoJSON basemap is offline; no tile service is required."
     },
     {
       "source_id": "wikidata",
@@ -124,10 +166,10 @@
       "classification": "research-pack",
       "pin_strategy": "figshare-doi",
       "citation_key": "pappalardo2019dataset",
-      "fields": "1,941 historical matches (2017/18 big-five leagues + WC2018 + Euro2016): events, matches, players, teams, referees",
+      "fields": "1,941 historical matches, 3,251,294 events, and 4,299 players (2017/18 big-five leagues + WC2018 + Euro2016): events, matches, players, teams, referees",
       "attribution": "Event data: Pappalardo et al., Sci Data 6:236 (2019), CC BY 4.0 (collected by Wyscout).",
-      "verified": "2026-07-12",
-      "notes": "Optional research pack. Historical only; never blended into live models. Labeled 'research event data (2017/18)', never 'observed xG'."
+      "verified": "2026-07-15",
+      "notes": "Vendored isolated derived pack: seven competition-and-era team summaries covering 1,941 matches and 3,251,294 events. Never blended into live models or simulations and never labeled 'observed xG'. Raw events and player identities are not redistributed; attribution and modification notices ship inside the pack."
     },
     {
       "source_id": "skillcorner-opendata",

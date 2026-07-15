@@ -250,6 +250,48 @@ class PoissonModel:
         expected = (home_rate, away_rate)
         return Prediction(_normalise(probs), expected, params, matrix=matrix)
 
+    def predict_duration(
+        self,
+        home_team: str,
+        away_team: str,
+        neutral: bool,
+        *,
+        fraction: float,
+    ) -> Prediction:
+        """Predict a declared fraction of a regulation match with the same fit.
+
+        Tournament outlooks use this only for the pre-registered 30-minute
+        extra-time branch (``fraction=1/3``).  The fitted attack, defence and
+        dependence parameters are unchanged; only both scoring intensities are
+        scaled by the declared duration.  Keeping the operation on the model
+        prevents a simulation from inventing a second goal process beside the
+        one Golavo already exposes.
+        """
+        if not 0.0 < fraction <= 1.0:
+            raise ValueError("fraction must be in (0, 1]")
+        home_rate, away_rate = self._rates(home_team, away_team, neutral)
+        home_rate *= fraction
+        away_rate *= fraction
+        matrix = self._matrix(home_rate, away_rate)
+        probs = np.array(
+            [np.tril(matrix, -1).sum(), np.trace(matrix), np.triu(matrix, 1).sum()]
+        )
+        params: dict[str, Any] = {
+            "xi": self.xi,
+            "prior_matches": 8,
+            "duration_fraction": fraction,
+        }
+        if self.family == "dixon_coles":
+            params["rho"] = self.rho
+        if self.family == "bivariate_poisson":
+            params["shared_lambda"] = self.shared
+        return Prediction(
+            _normalise(probs),
+            (home_rate, away_rate),
+            params,
+            matrix=matrix,
+        )
+
 
 def fit_model(
     family: str, matches: pd.DataFrame, cutoff_utc: str, *, xi: float = 0.001

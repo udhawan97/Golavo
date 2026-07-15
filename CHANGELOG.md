@@ -6,6 +6,55 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-07-15
+
+Golavo 0.13.0 expands the local match library into a competition intelligence
+workspace while keeping forecasts, simulations, historical research, and
+display-only context in separate, typed lanes.
+
+### Added
+- **Competition analytics.** Domestic leagues and UEFA club competitions now
+  expose competition-local strength trends and rest/congestion context. Model
+  report cards use chronological held-out folds with bootstrap intervals;
+  schedule difficulty stays blocked without a complete fixture list.
+- **World Cup and domestic season outlooks.** The resolved four-team World Cup
+  bracket is exactly enumerated for Ratings, Goals, and a baseline under a
+  disclosed knockout rule. Five domestic rule sets reproduce the latest common
+  complete season, while the 10,000-run current-season outlook fails closed
+  until every fixture and past result is certified.
+- **Offline Conditions Snapshot.** Pinned GeoNames and Natural Earth resources
+  provide local kickoff, elevation, rest, great-circle travel, and route maps
+  where exact city evidence exists. Weather is a first-class blocked context
+  until a licensed, issued-before-kickoff historical forecast source exists.
+- **Historical team research.** Seven isolated Pappalardo/Wyscout CC-BY-4.0
+  artifacts summarize all 1,941 matches and 3,251,294 events by competition and
+  era. Progressive passing, shot rates, an event-run proxy, and research xT are
+  team-only, collapsed by default, and never enter a forecast or simulation.
+- **European competition coverage.** Champions League, Europa League, and
+  Conference League historical main-competition results now have stable
+  identities, browse pages, strength trends, and workload context.
+
+### Changed
+- The Leagues hub now uses mutually exclusive **International tournaments**,
+  **Domestic leagues**, and **UEFA club competitions** sections.
+- Analytics use explicit competition identities, format eras, capability states,
+  license classes, and versioned JSON contracts throughout the core, API, UI,
+  frozen sidecar, docs, and source registries.
+
+### Fixed
+- World Cup 2026 no longer appears under Domestic leagues or in two hub groups.
+- Outlook caches now invalidate with the active match index and cannot reuse a
+  result fitted against another in-memory frame.
+- Incomplete La Liga and Serie A captures render typed past-result gaps instead
+  of a fabricated final table or zero-filled season projection.
+
+### Verification
+- User flows were exercised in the connected local app for league grouping,
+  outlook voice switching, blocked fixture states, mobile table containment,
+  research disclosure/team selection, and weather fail-closed behavior.
+- Full core/server/script, UI, docs-site, source-governance, version, packaging,
+  and release gates are required before the v0.13.0 tag is published.
+
 ## [0.12.0] - 2026-07-14
 
 The Match Cockpit now reads like a six-chapter matchday programme: the same
@@ -1150,7 +1199,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/udhawan97/Golavo/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/udhawan97/Golavo/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/udhawan97/Golavo/compare/v0.10.3...v0.11.1
 [0.10.3]: https://github.com/udhawan97/Golavo/compare/v0.10.2...v0.10.3

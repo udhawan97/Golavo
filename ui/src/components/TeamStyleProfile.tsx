@@ -130,7 +130,7 @@ export function TeamStyleProfile({
 
         <p className="small dim" style={{ margin: 0 }}>
           These are the goal model’s multipliers fitted from past scorelines (time-decayed,
-          prior-shrunk), against a {style.baseline.toFixed(1)} league baseline. Golavo has no shots,
+          prior-shrunk), against a {style.baseline.toFixed(1)} fitted-data baseline. Golavo has no shots,
           xG, lineups or event data — this is how the teams’ <b>results</b> look to the model, not a
           tactical scouting report.
         </p>

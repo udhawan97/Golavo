@@ -3,7 +3,7 @@ title: Introduction
 description: What Golavo is, what it is not, and the principles that keep it trustworthy.
 ---
 
-Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals (a forward seal→score loop with a real calibration record), backtests the top-5 European leagues (historical), ships an optional off-by-default AI narration layer, and builds an unsigned desktop app. A **hash-chained** multi-artifact ledger and confirmed-lineup / BYOK data adapters remain planned (ADR-0001).
+Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals (a forward seal→score loop with a real calibration record), backtests the top-5 European leagues, exposes competition-local analytics and honest outlook gates, ships an optional off-by-default AI narration layer, and builds an unsigned desktop app. A **hash-chained** multi-artifact ledger and confirmed-lineup / BYOK data adapters remain planned (ADR-0001).
 
 ## What Golavo is
 
@@ -16,7 +16,7 @@ Golavo is a local-first, open-source football forecasting project. It implements
 - Not a **livescore** app — open-core results are delayed.
 - Not a **betting** tool — no odds, picks, "locks," bankroll advice, or affiliate links.
 - Not an **AI predictor** — the statistical engine owns every probability.
-- Not a **data redistributor** — vendored packs are CC0; proprietary-feed adapters are planned as bring-your-own-key and would never be re-shared.
+- Not a **restricted-feed redistributor** — every bundled pack has a verified open-data license and isolated attribution boundary; proprietary-feed adapters would remain bring-your-own-key and never be re-shared.
 
 ## Product principles
 
@@ -35,6 +35,6 @@ Golavo is a local-first, open-source football forecasting project. It implements
 | **Local** | All computation runs on your machine over data already synced to disk. Staleness is always shown. |
 | **Offline** | Forecasting and API reads work from the vendored snapshot; rebuilding a sourcepack requires network access. |
 | **AI** | Implemented and **off by default**. Its contract permits cited narrative, never probability ownership; it cannot change or improve a number. |
-| **Open** | The code is Apache-2.0; data packs declare their own license. The vendored packs are CC0-1.0. |
+| **Open** | The code is Apache-2.0; data packs declare their own license. Match-result packs are CC0-1.0, enrichment/research packs retain CC-BY attribution, and CC-BY-SA facts stay isolated. |
 | **Free** | No payment to Golavo, ever. Optional third-party keys/AI are paid by you, to those providers. |
 | **Live** | Golavo is not live. It uses pinned snapshots and records their retrieval time. |

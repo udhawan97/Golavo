@@ -5,7 +5,7 @@ description: How to run Golavo — desktop installers with in-app updates, or so
 
 Choose the path that fits your machine on [Download & run](/Golavo/download/):
 
-The current stable release is **[v0.12.0](https://github.com/udhawan97/Golavo/releases/tag/v0.12.0)**.
+The current stable release is **[v0.13.0](https://github.com/udhawan97/Golavo/releases/tag/v0.13.0)**.
 The website and the **latest release** link below always follow the newest stable build.
 
 - **Browser UI** — source mode on macOS, Windows, or Linux.

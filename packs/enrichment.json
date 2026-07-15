@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1.0",
+  "snapshots": [
+    {
+      "manifest_sha256": "427631878a06be94b2f2989f94fc0fc2fdaceabafcdee546a04ec01ff10a4f46",
+      "pack": "packs/geonames-2026-07-15",
+      "retrieved_at_utc": "2026-07-15T07:57:00Z",
+      "source_id": "geonames",
+      "upstream_ref": "2026-07-15"
+    },
+    {
+      "manifest_sha256": "7fd8f6bf43ad5de3573e7be61397c13def93a64813f0e1ffd05136c1cb95a84f",
+      "pack": "packs/natural-earth-5.1.1",
+      "retrieved_at_utc": "2026-07-15T07:57:00Z",
+      "source_id": "natural-earth",
+      "upstream_ref": "v5.1.1@9380cca83db5f9aef52d5e762765100745f84b27"
+    }
+  ]
+}

@@ -140,9 +140,13 @@ def match_analysis(match_id: str) -> dict[str, Any] | None:
     row = sel.iloc[0]
 
     source_id = matches._str_or_none(row["source_id"])
+    source_kind = matches._str_or_none(row["source_kind"])
+    competition = matches._str_or_none(row["competition"])
     scoped = frame
     if source_id is not None:
         scoped = frame.loc[frame["source_id"].astype("string") == source_id]
+    if source_kind == "club" and competition is not None:
+        scoped = scoped.loc[scoped["competition"].astype("string") == competition]
 
     match_row = {
         "match_id": str(row["match_id"]),
@@ -153,7 +157,7 @@ def match_analysis(match_id: str) -> dict[str, Any] | None:
         "away_score": matches._int_or_none(row["away_score"]),
         "is_complete": bool(row["is_complete"]),
         "neutral": bool(matches._bool_or_none(row["neutral"])),
-        "competition": matches._str_or_none(row["competition"]),
+        "competition": competition,
     }
 
     try:

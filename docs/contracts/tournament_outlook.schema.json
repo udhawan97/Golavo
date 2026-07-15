@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.local/schemas/tournament_outlook.schema.json",
+  "title": "Golavo Tournament Outlook",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "label",
+    "tournament_id",
+    "tournament_name",
+    "as_of_utc",
+    "voices",
+    "semifinals",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.1.0" },
+    "status": { "enum": ["available", "unavailable"] },
+    "label": { "type": "string", "minLength": 1 },
+    "tournament_id": { "const": "worldcup-2026" },
+    "tournament_name": { "type": "string", "minLength": 1 },
+    "as_of_utc": { "type": "string", "format": "date-time" },
+    "reason": { "type": "string", "minLength": 1 },
+    "data_through_utc": { "type": "string", "format": "date-time" },
+    "outlook_rule": { "const": "ko-2026.07.1" },
+    "method": { "const": "exact-four-team-bracket-enumeration" },
+    "ledger_status": { "const": "never_persisted_or_scored_as_a_seal" },
+    "snapshot_status": { "enum": ["current_for_index", "result_refresh_needed"] },
+    "snapshot_note": { "type": "string", "minLength": 1 },
+    "semifinals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/semifinal" }
+    },
+    "voices": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/voice" }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index_sha256"],
+      "properties": {
+        "index_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "training_source_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "fixture_source_id": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "available" } } },
+      "then": {
+        "required": [
+          "data_through_utc",
+          "outlook_rule",
+          "method",
+          "ledger_status",
+          "snapshot_status",
+          "snapshot_note"
+        ],
+        "properties": {
+          "semifinals": { "minItems": 2, "maxItems": 2 },
+          "voices": { "minItems": 3, "maxItems": 3 }
+        }
+      },
+      "else": { "required": ["reason"] }
+    }
+  ],
+  "$defs": {
+    "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "semifinal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match_id", "kickoff_utc", "home_team", "away_team", "status"],
+      "properties": {
+        "match_id": { "type": "string", "pattern": "^m_" },
+        "kickoff_utc": { "type": "string", "format": "date-time" },
+        "home_team": { "type": "string", "minLength": 1 },
+        "away_team": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["complete", "unresolved"] }
+      }
+    },
+    "team": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["team", "reach_final", "reach_third_place_match", "champion", "third"],
+      "properties": {
+        "team": { "type": "string", "minLength": 1 },
+        "reach_final": { "$ref": "#/$defs/probability" },
+        "reach_third_place_match": { "$ref": "#/$defs/probability" },
+        "champion": { "$ref": "#/$defs/probability" },
+        "third": { "$ref": "#/$defs/probability" }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reach_final", "reach_third_place_match", "champion", "third"],
+      "properties": {
+        "reach_final": { "type": "number", "minimum": 1.999999, "maximum": 2.000001 },
+        "reach_third_place_match": {
+          "type": "number",
+          "minimum": 1.999999,
+          "maximum": 2.000001
+        },
+        "champion": { "type": "number", "minimum": 0.999999, "maximum": 1.000001 },
+        "third": { "type": "number", "minimum": 0.999999, "maximum": 1.000001 }
+      }
+    },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voice_id", "label", "role", "draw_resolution", "teams", "totals"],
+      "properties": {
+        "voice_id": {
+          "enum": ["elo_ordlogit", "dixon_coles", "equal-chance-baseline"]
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "role": { "enum": ["voice", "baseline"] },
+        "draw_resolution": { "type": "string", "minLength": 1 },
+        "teams": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/team" }
+        },
+        "totals": { "$ref": "#/$defs/totals" }
+      }
+    }
+  }
+}

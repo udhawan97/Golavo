@@ -213,7 +213,7 @@
         },
         {
           "brier": 0.600835,
-          "ece": 0.047285,
+          "ece": 0.047287,
           "family": "poisson_independent",
           "log_loss": 1.006514,
           "params": {
@@ -270,7 +270,7 @@
               "accuracy": 0.621359,
               "count": 103,
               "lower": 0.5,
-              "mean_confidence": 0.540529,
+              "mean_confidence": 0.540531,
               "upper": 0.6,
               "wilson_high": 0.709073,
               "wilson_low": 0.524919
@@ -279,7 +279,7 @@
               "accuracy": 0.588235,
               "count": 68,
               "lower": 0.6,
-              "mean_confidence": 0.641992,
+              "mean_confidence": 0.641998,
               "upper": 0.7,
               "wilson_high": 0.69742,
               "wilson_low": 0.469615
@@ -288,7 +288,7 @@
               "accuracy": 0.714286,
               "count": 21,
               "lower": 0.7,
-              "mean_confidence": 0.720693,
+              "mean_confidence": 0.720705,
               "upper": 0.8,
               "wilson_high": 0.861861,
               "wilson_low": 0.500436
@@ -365,7 +365,7 @@
               "accuracy": 0.474453,
               "count": 137,
               "lower": 0.4,
-              "mean_confidence": 0.443665,
+              "mean_confidence": 0.443666,
               "upper": 0.5,
               "wilson_high": 0.55762,
               "wilson_low": 0.392678
@@ -374,7 +374,7 @@
               "accuracy": 0.608247,
               "count": 97,
               "lower": 0.5,
-              "mean_confidence": 0.541411,
+              "mean_confidence": 0.541413,
               "upper": 0.6,
               "wilson_high": 0.699487,
               "wilson_low": 0.508761
@@ -383,7 +383,7 @@
               "accuracy": 0.61194,
               "count": 67,
               "lower": 0.6,
-              "mean_confidence": 0.644076,
+              "mean_confidence": 0.644082,
               "upper": 0.7,
               "wilson_high": 0.71951,
               "wilson_low": 0.492231
@@ -392,7 +392,7 @@
               "accuracy": 0.733333,
               "count": 15,
               "lower": 0.7,
-              "mean_confidence": 0.72098,
+              "mean_confidence": 0.720993,
               "upper": 0.8,
               "wilson_high": 0.891025,
               "wilson_low": 0.480496
@@ -420,7 +420,7 @@
         },
         {
           "brier": 0.600835,
-          "ece": 0.047285,
+          "ece": 0.047287,
           "family": "bivariate_poisson",
           "log_loss": 1.006514,
           "params": {
@@ -478,7 +478,7 @@
               "accuracy": 0.621359,
               "count": 103,
               "lower": 0.5,
-              "mean_confidence": 0.540529,
+              "mean_confidence": 0.540531,
               "upper": 0.6,
               "wilson_high": 0.709073,
               "wilson_low": 0.524919
@@ -487,7 +487,7 @@
               "accuracy": 0.588235,
               "count": 68,
               "lower": 0.6,
-              "mean_confidence": 0.641992,
+              "mean_confidence": 0.641998,
               "upper": 0.7,
               "wilson_high": 0.69742,
               "wilson_low": 0.469615
@@ -496,7 +496,7 @@
               "accuracy": 0.714286,
               "count": 21,
               "lower": 0.7,
-              "mean_confidence": 0.720693,
+              "mean_confidence": 0.720705,
               "upper": 0.8,
               "wilson_high": 0.861861,
               "wilson_low": 0.500436
@@ -741,9 +741,9 @@
         },
         {
           "brier": 0.604271,
-          "ece": 0.052914,
+          "ece": 0.052915,
           "family": "poisson_independent",
-          "log_loss": 1.011995,
+          "log_loss": 1.011996,
           "params": {
             "prior_matches": 8,
             "xi": 0.001
@@ -789,7 +789,7 @@
               "accuracy": 0.375,
               "count": 136,
               "lower": 0.4,
-              "mean_confidence": 0.449054,
+              "mean_confidence": 0.449055,
               "upper": 0.5,
               "wilson_high": 0.458746,
               "wilson_low": 0.298121
@@ -798,7 +798,7 @@
               "accuracy": 0.546296,
               "count": 108,
               "lower": 0.5,
-              "mean_confidence": 0.549864,
+              "mean_confidence": 0.549867,
               "upper": 0.6,
               "wilson_high": 0.636987,
               "wilson_low": 0.452425
@@ -807,7 +807,7 @@
               "accuracy": 0.695652,
               "count": 69,
               "lower": 0.6,
-              "mean_confidence": 0.647378,
+              "mean_confidence": 0.647385,
               "upper": 0.7,
               "wilson_high": 0.791504,
               "wilson_low": 0.579164
@@ -816,7 +816,7 @@
               "accuracy": 0.666667,
               "count": 24,
               "lower": 0.7,
-              "mean_confidence": 0.743647,
+              "mean_confidence": 0.743667,
               "upper": 0.8,
               "wilson_high": 0.820278,
               "wilson_low": 0.467063
@@ -825,7 +825,7 @@
               "accuracy": 0.5,
               "count": 2,
               "lower": 0.8,
-              "mean_confidence": 0.821604,
+              "mean_confidence": 0.821634,
               "upper": 0.9,
               "wilson_high": 0.905469,
               "wilson_low": 0.094531
@@ -843,10 +843,10 @@
           "rps": 0.205197
         },
         {
-          "brier": 0.602704,
+          "brier": 0.602705,
           "ece": 0.066013,
           "family": "dixon_coles",
-          "log_loss": 1.009123,
+          "log_loss": 1.009124,
           "params": {
             "prior_matches": 8,
             "rho": -0.08,
@@ -893,7 +893,7 @@
               "accuracy": 0.374046,
               "count": 131,
               "lower": 0.4,
-              "mean_confidence": 0.448555,
+              "mean_confidence": 0.448556,
               "upper": 0.5,
               "wilson_high": 0.459384,
               "wilson_low": 0.295884
@@ -902,7 +902,7 @@
               "accuracy": 0.575472,
               "count": 106,
               "lower": 0.5,
-              "mean_confidence": 0.549136,
+              "mean_confidence": 0.549139,
               "upper": 0.6,
               "wilson_high": 0.665304,
               "wilson_low": 0.480361
@@ -911,7 +911,7 @@
               "accuracy": 0.71875,
               "count": 64,
               "lower": 0.6,
-              "mean_confidence": 0.646663,
+              "mean_confidence": 0.64667,
               "upper": 0.7,
               "wilson_high": 0.814066,
               "wilson_low": 0.598661
@@ -920,7 +920,7 @@
               "accuracy": 0.636364,
               "count": 22,
               "lower": 0.7,
-              "mean_confidence": 0.741489,
+              "mean_confidence": 0.741511,
               "upper": 0.8,
               "wilson_high": 0.802668,
               "wilson_low": 0.429517
@@ -929,7 +929,7 @@
               "accuracy": 0.5,
               "count": 2,
               "lower": 0.8,
-              "mean_confidence": 0.817045,
+              "mean_confidence": 0.817076,
               "upper": 0.9,
               "wilson_high": 0.905469,
               "wilson_low": 0.094531
@@ -948,9 +948,9 @@
         },
         {
           "brier": 0.604271,
-          "ece": 0.052914,
+          "ece": 0.052915,
           "family": "bivariate_poisson",
-          "log_loss": 1.011995,
+          "log_loss": 1.011996,
           "params": {
             "prior_matches": 8,
             "shared_lambda": 0.0,
@@ -997,7 +997,7 @@
               "accuracy": 0.375,
               "count": 136,
               "lower": 0.4,
-              "mean_confidence": 0.449054,
+              "mean_confidence": 0.449055,
               "upper": 0.5,
               "wilson_high": 0.458746,
               "wilson_low": 0.298121
@@ -1006,7 +1006,7 @@
               "accuracy": 0.546296,
               "count": 108,
               "lower": 0.5,
-              "mean_confidence": 0.549864,
+              "mean_confidence": 0.549867,
               "upper": 0.6,
               "wilson_high": 0.636987,
               "wilson_low": 0.452425
@@ -1015,7 +1015,7 @@
               "accuracy": 0.695652,
               "count": 69,
               "lower": 0.6,
-              "mean_confidence": 0.647378,
+              "mean_confidence": 0.647385,
               "upper": 0.7,
               "wilson_high": 0.791504,
               "wilson_low": 0.579164
@@ -1024,7 +1024,7 @@
               "accuracy": 0.666667,
               "count": 24,
               "lower": 0.7,
-              "mean_confidence": 0.743647,
+              "mean_confidence": 0.743667,
               "upper": 0.8,
               "wilson_high": 0.820278,
               "wilson_low": 0.467063
@@ -1033,7 +1033,7 @@
               "accuracy": 0.5,
               "count": 2,
               "lower": 0.8,
-              "mean_confidence": 0.821604,
+              "mean_confidence": 0.821634,
               "upper": 0.9,
               "wilson_high": 0.905469,
               "wilson_low": 0.094531
@@ -1269,7 +1269,7 @@
         },
         {
           "brier": 0.600315,
-          "ece": 0.027856,
+          "ece": 0.027857,
           "family": "poisson_independent",
           "log_loss": 1.002934,
           "params": {
@@ -1326,7 +1326,7 @@
               "accuracy": 0.557895,
               "count": 95,
               "lower": 0.5,
-              "mean_confidence": 0.549138,
+              "mean_confidence": 0.54914,
               "upper": 0.6,
               "wilson_high": 0.653578,
               "wilson_low": 0.457711
@@ -1335,7 +1335,7 @@
               "accuracy": 0.642857,
               "count": 70,
               "lower": 0.6,
-              "mean_confidence": 0.646061,
+              "mean_confidence": 0.646065,
               "upper": 0.7,
               "wilson_high": 0.744967,
               "wilson_low": 0.525884
@@ -1344,7 +1344,7 @@
               "accuracy": 0.666667,
               "count": 21,
               "lower": 0.7,
-              "mean_confidence": 0.732492,
+              "mean_confidence": 0.732503,
               "upper": 0.8,
               "wilson_high": 0.828052,
               "wilson_low": 0.453735
@@ -1372,7 +1372,7 @@
         },
         {
           "brier": 0.598882,
-          "ece": 0.034236,
+          "ece": 0.034237,
           "family": "dixon_coles",
           "log_loss": 0.998515,
           "params": {
@@ -1430,7 +1430,7 @@
               "accuracy": 0.494737,
               "count": 95,
               "lower": 0.5,
-              "mean_confidence": 0.545133,
+              "mean_confidence": 0.545135,
               "upper": 0.6,
               "wilson_high": 0.593507,
               "wilson_low": 0.396376
@@ -1439,7 +1439,7 @@
               "accuracy": 0.661765,
               "count": 68,
               "lower": 0.6,
-              "mean_confidence": 0.64251,
+              "mean_confidence": 0.642514,
               "upper": 0.7,
               "wilson_high": 0.762857,
               "wilson_low": 0.543372
@@ -1448,7 +1448,7 @@
               "accuracy": 0.7,
               "count": 30,
               "lower": 0.7,
-              "mean_confidence": 0.733199,
+              "mean_confidence": 0.73321,
               "upper": 0.8,
               "wilson_high": 0.833353,
               "wilson_low": 0.521242
@@ -1457,7 +1457,7 @@
               "accuracy": 0.0,
               "count": 1,
               "lower": 0.8,
-              "mean_confidence": 0.81207,
+              "mean_confidence": 0.812095,
               "upper": 0.9,
               "wilson_high": 0.793451,
               "wilson_low": 0.0
@@ -1476,7 +1476,7 @@
         },
         {
           "brier": 0.600315,
-          "ece": 0.027856,
+          "ece": 0.027857,
           "family": "bivariate_poisson",
           "log_loss": 1.002934,
           "params": {
@@ -1534,7 +1534,7 @@
               "accuracy": 0.557895,
               "count": 95,
               "lower": 0.5,
-              "mean_confidence": 0.549138,
+              "mean_confidence": 0.54914,
               "upper": 0.6,
               "wilson_high": 0.653578,
               "wilson_low": 0.457711
@@ -1543,7 +1543,7 @@
               "accuracy": 0.642857,
               "count": 70,
               "lower": 0.6,
-              "mean_confidence": 0.646061,
+              "mean_confidence": 0.646065,
               "upper": 0.7,
               "wilson_high": 0.744967,
               "wilson_low": 0.525884
@@ -1552,7 +1552,7 @@
               "accuracy": 0.666667,
               "count": 21,
               "lower": 0.7,
-              "mean_confidence": 0.732492,
+              "mean_confidence": 0.732503,
               "upper": 0.8,
               "wilson_high": 0.828052,
               "wilson_low": 0.453735
@@ -1587,6 +1587,118 @@
   ],
   "generated_at_utc": "2026-07-11T03:26:46Z",
   "primary_metric": "log_loss",
+  "report_cards": [
+    {
+      "baseline_family": "climatological",
+      "bootstrap": {
+        "method": "fold-stratified-match-bootstrap",
+        "replicates": 2000,
+        "seed": 20260715
+      },
+      "competition": "Serie A",
+      "minimum_matches": 50,
+      "models": [
+        {
+          "best_rank": 5,
+          "brier": 0.657954,
+          "ece": 0.024812,
+          "family": "climatological",
+          "first_place_folds": 0,
+          "log_loss": 1.085745,
+          "mean_rank": 5.0,
+          "n_folds": 3,
+          "n_matches": 1140,
+          "rps": 0.229763,
+          "sample_status": "available",
+          "skill_ci_95": [
+            0.0,
+            0.0
+          ],
+          "skill_score": 0.0,
+          "worst_rank": 5
+        },
+        {
+          "best_rank": 1,
+          "brier": 0.603428,
+          "ece": 0.042488,
+          "family": "elo_ordlogit",
+          "first_place_folds": 1,
+          "log_loss": 1.00915,
+          "mean_rank": 2.333,
+          "n_folds": 3,
+          "n_matches": 1140,
+          "rps": 0.203179,
+          "sample_status": "available",
+          "skill_ci_95": [
+            0.056616,
+            0.085948
+          ],
+          "skill_score": 0.070546,
+          "worst_rank": 4
+        },
+        {
+          "best_rank": 2,
+          "brier": 0.601807,
+          "ece": 0.042686,
+          "family": "poisson_independent",
+          "first_place_folds": 0,
+          "log_loss": 1.007148,
+          "mean_rank": 2.667,
+          "n_folds": 3,
+          "n_matches": 1140,
+          "rps": 0.202092,
+          "sample_status": "available",
+          "skill_ci_95": [
+            0.053087,
+            0.092238
+          ],
+          "skill_score": 0.07239,
+          "worst_rank": 3
+        },
+        {
+          "best_rank": 1,
+          "brier": 0.600458,
+          "ece": 0.045336,
+          "family": "dixon_coles",
+          "first_place_folds": 2,
+          "log_loss": 1.004036,
+          "mean_rank": 1.333,
+          "n_folds": 3,
+          "n_matches": 1140,
+          "rps": 0.201919,
+          "sample_status": "available",
+          "skill_ci_95": [
+            0.056383,
+            0.094306
+          ],
+          "skill_score": 0.075256,
+          "worst_rank": 2
+        },
+        {
+          "best_rank": 3,
+          "brier": 0.601807,
+          "ece": 0.042686,
+          "family": "bivariate_poisson",
+          "first_place_folds": 0,
+          "log_loss": 1.007148,
+          "mean_rank": 3.667,
+          "n_folds": 3,
+          "n_matches": 1140,
+          "rps": 0.202092,
+          "sample_status": "available",
+          "skill_ci_95": [
+            0.052491,
+            0.092085
+          ],
+          "skill_score": 0.07239,
+          "worst_rank": 4
+        }
+      ],
+      "primary_metric": "log_loss",
+      "window_end": "2024-06-30",
+      "window_start": "2021-08-01"
+    }
+  ],
   "schema_version": "0.1.0",
   "source_snapshot": {
     "license": "CC0-1.0",

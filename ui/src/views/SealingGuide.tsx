@@ -39,7 +39,7 @@ const STEPS: Step[] = [
     body: (
       <>
         Open an upcoming men’s senior international from <a href="#/">Matchday → Upcoming</a> or the{" "}
-        <a href="#/league/internationals">Internationals</a> page. Club leagues can’t be sealed —
+        <a href="#/league/internationals">Internationals</a> page. Club competitions can’t be sealed —
         they’re bundled as historical data for backtesting, not forward forecasts.
       </>
     ),
@@ -158,7 +158,7 @@ export function SealingGuide() {
 
       <section className="stack" style={{ ["--gap" as string]: ".5rem" }} aria-label="Common questions">
         <h2 className="rail__title">Common questions</h2>
-        <Drawer title="Why can’t I seal club-league matches?">
+        <Drawer title="Why can’t I seal club competition matches?">
           <p className="small">
             The open club datasets are bundled as history for backtesting, with no forward feed.
             Men’s senior internationals are the one surface that refreshes on demand, so they’re the

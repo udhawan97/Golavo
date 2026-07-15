@@ -17,6 +17,22 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Attribution: International football results from martj42/international_results (Mart Jürisoo), CC0-1.0.
 - Notes: Bundled and seal-eligible. Sole forward-seal training source. Date-only; exact kickoff requires the worldcup-json overlay.
 
+### openfootball/champions-league — **bundled**
+
+- Source: https://github.com/openfootball/champions-league
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/champions-league/blob/master/LICENSE.md)
+- Attribution: European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone.
+
+### openfootball/euro — available, not bundled
+
+- Source: https://github.com/openfootball/euro
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/euro/blob/master/LICENSE.md)
+- Attribution: European Championship data from openfootball/euro (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Registered but not bundled: the available finals editions duplicate UEFA Euro results already carried by martj42. Golavo avoids adding duplicate match rows; martj42 remains the historical international results source.
+
 ### openfootball/football.json — **bundled**
 
 - Source: https://github.com/openfootball/football.json
@@ -35,13 +51,21 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 
 ## Bundled enrichment data (CC BY)
 
-### GeoNames — available, not bundled
+### GeoNames — **bundled**
 
 - Source: https://www.geonames.org/export/
 - Contributors: GeoNames.org
 - License: CC-BY-4.0 (https://download.geonames.org/export/dump/readme.txt)
-- Attribution: Geographic data from GeoNames (geonames.org), licensed CC BY 4.0.
-- Notes: Planned enrichment source. Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution.
+- Attribution: Data from GeoNames (geonames.org), CC BY 4.0.
+- Notes: Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact runtime table resolves 1,828 of 2,215 indexed city-country pairs using exact normalized names; unresolved or ambiguous data stays unknown. Bulk files only, no runtime web-service dependency or identity merging.
+
+### Natural Earth — **bundled**
+
+- Source: https://www.naturalearthdata.com/
+- Contributors: Tom Patterson, Nathaniel Vaughn Kelso, Natural Earth contributors
+- License: PUBLIC-DOMAIN (https://www.naturalearthdata.com/about/terms-of-use/)
+- Attribution: Made with Natural Earth.
+- Notes: Bundled as a separately registered public-domain enrichment pack pinned to Admin-0 Countries v5.1.1 at commit 9380cca and exact file hashes. The compact 1:110m GeoJSON basemap is offline; no tile service is required.
 
 ### Wikidata — available, not bundled
 
@@ -83,14 +107,14 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Citation key: `bassek2025idsse` (see CITATIONS.bib)
 - Notes: Research-only (pipeline validation). 2.63 GB for 7 matches — not a user-facing pack. Attribution must name DFL and cite the paper.
 
-### Pappalardo/Wyscout public soccer event dataset — optional download, isolated pack
+### Pappalardo/Wyscout public soccer event dataset — **vendored, isolated pack**
 
 - Source: https://figshare.com/collections/Soccer_match_event_dataset/4415000
 - Contributors: Luca Pappalardo, Paolo Cintia, Alessio Rossi, Emanuele Massucco, Paolo Ferragina, Dino Pedreschi, Fosca Giannotti
 - License: CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/)
 - Attribution: Event data: Pappalardo et al., Sci Data 6:236 (2019), CC BY 4.0 (collected by Wyscout).
 - Citation key: `pappalardo2019dataset` (see CITATIONS.bib)
-- Notes: Optional research pack. Historical only; never blended into live models. Labeled 'research event data (2017/18)', never 'observed xG'.
+- Notes: Vendored isolated derived pack: seven competition-and-era team summaries covering 1,941 matches and 3,251,294 events. Never blended into live models or simulations and never labeled 'observed xG'. Raw events and player identities are not redistributed; attribution and modification notices ship inside the pack.
 
 ### SkillCorner Open Data — optional download, isolated pack
 

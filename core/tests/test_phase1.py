@@ -16,7 +16,7 @@ SCHEMA = REPO_ROOT / "docs/contracts/forecast_artifact.schema.json"
 CANONICAL_COLUMNS = {
     "match_id", "date", "home_team", "away_team", "home_score", "away_score",
     "tournament", "city", "country", "neutral", "kickoff_utc", "is_complete",
-    "ht_home_score", "ht_away_score",
+    "kickoff_precision", "ht_home_score", "ht_away_score",
 }
 
 
@@ -40,6 +40,8 @@ def test_openfootball_loader_schema_and_counts() -> None:
     # incomplete rows carry NA scores; the [0, 0] anomaly is never fabricated as a result.
     assert frame.loc[~frame["is_complete"], "home_score"].isna().all()
     assert str(frame["ht_home_score"].dtype) == "Int16"
+    assert frame["kickoff_precision"].eq("day").all()
+    assert frame["kickoff_utc"].dt.hour.eq(0).all()
 
 
 def test_load_matches_dispatch() -> None:
