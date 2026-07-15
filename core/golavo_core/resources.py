@@ -123,3 +123,18 @@ def geonames_places_path() -> Path:
 def natural_earth_world_path() -> Path:
     """Pinned Natural Earth 1:110m country basemap for offline route maps."""
     return resource("data", "enrichment", "world_110m.geojson")
+
+
+def context_manifest_path() -> Path:
+    """Manifest for the compact display-only context bundle."""
+    return resource("data", "context", "manifest.json")
+
+
+def context_venue_entities_path() -> Path:
+    """Reviewed source-backed venue entities."""
+    return resource("data", "context", "venue_entities.json")
+
+
+def context_venue_assignments_path() -> Path:
+    """Exact competition/date/city-scoped venue assignments."""
+    return resource("data", "context", "venue_assignments.json")

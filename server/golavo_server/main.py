@@ -18,6 +18,7 @@ from golavo_server import (
     analytics,
     capabilities,
     conditions,
+    context_registry,
     matches,
     openligadb_jobs,
     openligadb_overlay,
@@ -538,11 +539,21 @@ def get_world_map() -> dict[str, Any]:
         raise HTTPException(status_code=503, detail="offline basemap unavailable") from exc
 
 
+@app.get("/api/v1/context/capabilities")
+def get_context_capabilities() -> dict[str, Any]:
+    """Health and scope of the immutable display-only context pack."""
+    return context_registry.capabilities(matches.index_fingerprint())
+
+
 @app.get("/api/v1/matches/{match_id}/conditions")
 def get_match_conditions(match_id: str) -> dict[str, Any]:
     """Display-only location, rest and travel context known before this match."""
     try:
-        result = conditions.conditions_snapshot(match_id, matches._load_index())
+        result = conditions.conditions_snapshot(
+            match_id,
+            matches._load_index(),
+            index_fingerprint=matches.index_fingerprint(),
+        )
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
     if result is None:
