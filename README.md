@@ -49,8 +49,10 @@
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, calibration record, optional guarded AI narration, and
-> desktop packaging are implemented. Signing, notarization, live club fixtures, standings
-> and season projections, observed xG/lineups/injuries, and a club forward loop are not.
+> desktop packaging are implemented. The World Cup outlook and domestic standings/season
+> engine are also implemented, but the latter correctly remains blocked until a complete
+> 2026–27 fixture list exists. Signing, notarization, live club fixtures, observed
+> xG/lineups/injuries, and a club forward loop are not.
 > This is a football analysis workbench, **not a betting product**.
 
 ## Golavo at a glance
@@ -151,6 +153,8 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A six-chapter, leak-safe programme: form, fitted style, history, two separate model voices, Score Outlook, verdict and pick, plus the optional evidence-bound analyst column |
 | ⚽ | **Browse Games, Leagues, and search 77,000 matches** — recent results, any upcoming fixtures, the big-five leagues, and UEFA club competitions | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
 | 🗺️ | **Open the Conditions Snapshot** — pinned GeoNames city context, local kickoff when exact, rest since each side's previous indexed match, and an offline Natural Earth travel map | Display-only context with visible attribution and explicit unknowns; none of it enters a model |
+| 🏟️ | **Open a domestic league's Season outlook** — inspect the verified input gate before any run | A typed “waiting for fixtures” state today; only a complete, gap-free schedule can unlock separate 10,000-run model voices |
+| 🏆 | **Open the World Cup 2026 outlook** — switch between Ratings, Goals, and the baseline | Exact four-team bracket enumeration with a disclosed extra-time rule, never blended or written as a sealed forecast |
 | 🎟️ | **Make your score call** — edit until kickoff, then race five named model rivals | A fingerprinted local pick, simple 3 / 1 / +1 scoring, and My Season standings over only the matches you play |
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
@@ -179,6 +183,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** or **Preview** arranged as six programme chapters. Casual keeps the essential story; Expert exposes fitted model internals, complete market rows, source proof, and the coherent score grid — machine-checked leak-safe, never averaged |
 | **Navigation** | Games-first home (recent + upcoming rails, offline), Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
 | **Conditions Snapshot** | Read-only rest and travel context from the local index plus pinned GeoNames and Natural Earth side tables. City resolution is exact-name and country scoped; stadium remains unknown without a stadium-level source. Labeled “Context, not a model input.” |
+| **Tournament / Season outlooks** | The World Cup four-team bracket is exactly enumerated per voice. Five domestic standings rule sets reproduce the latest commonly complete season; the 10,000-run season engine stays blocked until a complete, gap-free current fixture list exists. Neither outlook enters the seal ledger. |
 | **Your Call / My Season** | Kickoff-locked score picks with SHA-256 integrity, durable local storage, five deterministic rivals, 3 / 1 / +1 scoring, standings, history, filters, cumulative points, and streaks |
 | **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, provenance, scored/voided/superseded states, Casual and Expert presentation, "three things to know" insight cards, re-seal "what moved" deltas, and reading-comfort themes (incl. a warm low-blue mode) |
 | **Facts** | Pre-registered deterministic templates; sample/freshness/base-rate guardrails; coincidences capped and quarantined |
@@ -492,7 +497,7 @@ roadmap items.
 | Remaining workstream | What remains | Gate |
 |---|---|---|
 | **Live club forecasting** | lawful live club fixtures, user-initiated refresh, and a club forward seal→score loop | verified source license, cadence, and cutoff semantics |
-| **League Outlook** | standings and season projections | complete live season state and forward validation |
+| **League Outlook inputs** | obtain the complete 2026–27 schedule and then forward-validate the shipped standings/simulation engine | lawful complete live season state |
 | **Observed match data** | optional verified lineups, injuries, xG, scorers, corners, and cups | lawful licensed source; typed provenance-safe adapters |
 | **Ledger longevity** | cross-artifact hash chaining and verification | migration and recovery design proven against existing ledgers |
 | **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | real platform signing credentials and release-matrix validation |

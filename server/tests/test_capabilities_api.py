@@ -16,6 +16,7 @@ def test_capabilities_exposes_honest_european_competition_contract() -> None:
     assert ucl["capabilities"]["fixtures"]["status"] == "partial"
     assert ucl["capabilities"]["strength_trends"]["status"] == "available"
     assert ucl["capabilities"]["simulation"]["status"] == "blocked"
+    assert by_id["fifa-world-cup"]["capabilities"]["simulation"]["status"] == "available"
     assert body["refresh_policy"]["byok_api"] == "blocked"
     assert "football-data.org" in body["refresh_policy"]["byok_reason"]
 

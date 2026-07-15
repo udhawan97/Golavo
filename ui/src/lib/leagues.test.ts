@@ -1,13 +1,29 @@
 import { describe, expect, it } from "vitest";
 import type { MatchRow } from "./contract";
-import { LEAGUES, competitionRank, groupMatchesByCompetition, leagueSlugFor } from "./leagues";
+import {
+  LEAGUES,
+  competitionRank,
+  groupMatchesByCompetition,
+  leagueHubCategory,
+  leagueSlugFor,
+} from "./leagues";
 
 describe("league analytics identities", () => {
   it("gives every bundled club competition a stable backend competition id", () => {
     const clubs = LEAGUES.filter((league) => league.competition);
-    expect(clubs).toHaveLength(8);
+    expect(clubs).toHaveLength(9);
     expect(clubs.every((league) => league.competitionId?.includes("-"))).toBe(true);
-    expect(new Set(clubs.map((league) => league.competitionId)).size).toBe(8);
+    expect(new Set(clubs.map((league) => league.competitionId)).size).toBe(9);
+  });
+
+  it("keeps every hub card in one category and World Cup outside domestic leagues", () => {
+    const categories = LEAGUES.map(leagueHubCategory);
+    expect(categories).toHaveLength(LEAGUES.length);
+    expect(
+      leagueHubCategory(LEAGUES.find((league) => league.slug === "world-cup-2026")!),
+    ).toBe("international");
+    expect(LEAGUES.filter((league) => leagueHubCategory(league) === "domestic"))
+      .toHaveLength(5);
   });
 });
 
@@ -46,8 +62,9 @@ describe("leagueSlugFor", () => {
     expect(leagueSlugFor("Bundesliga", "club")).toBe("bundesliga");
     expect(leagueSlugFor("UEFA Champions League", "club")).toBe("champions-league");
   });
-  it("maps any international to the internationals hub", () => {
-    expect(leagueSlugFor("FIFA World Cup", "international")).toBe("internationals");
+  it("maps the curated World Cup separately and other internationals to the hub", () => {
+    expect(leagueSlugFor("FIFA World Cup", "international")).toBe("world-cup-2026");
+    expect(leagueSlugFor("Copa América", "international")).toBe("internationals");
   });
   it("returns null for an unknown club competition", () => {
     expect(leagueSlugFor("Championship", "club")).toBeNull();

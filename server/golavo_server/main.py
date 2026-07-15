@@ -19,6 +19,7 @@ from golavo_server import (
     capabilities,
     conditions,
     matches,
+    outlook,
     runtime,
     seal,
 )
@@ -164,15 +165,41 @@ def get_capabilities() -> dict[str, Any]:
 
 
 @app.get("/api/v1/analytics/competitions/{competition_id}")
-def get_competition_analytics(
-    competition_id: str, as_of_utc: str | None = None
-) -> dict[str, Any]:
+def get_competition_analytics(competition_id: str, as_of_utc: str | None = None) -> dict[str, Any]:
     """Cutoff-safe strength and workload context from the active local index."""
     try:
         return analytics.get_competition_analytics(competition_id, as_of_utc=as_of_utc)
     except ValueError as exc:
         message = str(exc)
         status = 404 if message.startswith("unknown competition_id") else 400
+        raise HTTPException(status_code=status, detail=message) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/tournaments/worldcup-2026/outlook")
+def get_world_cup_2026_outlook(as_of_utc: str | None = None) -> dict[str, Any]:
+    """Exact four-team bracket enumeration from Golavo's two model voices."""
+    try:
+        return outlook.world_cup_2026(as_of_utc=as_of_utc)
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/analytics/competitions/{competition_id}/season-outlook")
+def get_season_outlook(
+    competition_id: str,
+    as_of_utc: str | None = None,
+    season: str | None = None,
+) -> dict[str, Any]:
+    """Standings plus a seeded outlook only after the fixture certificate passes."""
+    try:
+        return outlook.season(competition_id, as_of_utc=as_of_utc, season_id=season)
+    except ValueError as exc:
+        message = str(exc)
+        status = 404 if message.startswith("no verified standings rule") else 400
         raise HTTPException(status_code=status, detail=message) from exc
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
@@ -257,9 +284,7 @@ async def start_ollama_download(
                 item["name"] == model and item["installed"]
                 for item in ai_gateway.recommended_ollama_models(installed_before)
             ):
-                jobs.store().finish(
-                    job.job_id, result={"model": model, "status": "installed"}
-                )
+                jobs.store().finish(job.job_id, result={"model": model, "status": "installed"})
                 return
 
             jobs.store().update(

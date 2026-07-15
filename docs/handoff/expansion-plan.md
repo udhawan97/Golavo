@@ -187,6 +187,17 @@ Rolling attack/defence/Elo trajectories: re-fit at month-end cutoffs using only 
 
 Standings engine first (points/GD/tiebreaks per competition — competition-specific tiebreak rules are data, must be encoded per league and tested against a completed season [V]-able from packs). Then: seeded Monte Carlo (fixed seed in artifact; 10k iterations; largest-remainder rounding for display) over remaining fixtures using council voices → P(title/top-4/relegation) per voice. Gates: standings reproduce 2024-25 final tables byte-exact for all 5 leagues before any simulation ships; sim is labeled like the tournament outlook. Missing fixtures upstream → the league renders "2026-27 fixtures not yet published by our lawful source" (first-class Unknown).
 
+**Implementation evidence (2026-07-15):** the pinned La Liga and Serie A 2024-25
+captures each contain only 370 completed matches, so the originally written
+five-league 2024-25 gate cannot be satisfied without inventing ten results per
+competition. The implemented gate therefore uses 2023-24, the latest season that
+is structurally complete across all five, and explicitly encodes disciplinary
+points adjustments. The API retains the incomplete 2024-25 captures as typed
+`past_result_gaps` states. The 10,000-run engine, rule-specific tie-breaks,
+largest-remainder display rounding, and three separate voices are implemented;
+the live 2026-27 surface remains blocked until its double-round-robin fixture
+certificate passes.
+
 ### 4.5 Event analytics (Phase 4; research pack #1, per-match precomputed artifacts)
 
 For each covered match (1,941): **pass networks** (nodes = starters, edges = completed passes ≥3, positions = median touch location), **shot maps** (Wyscout tags; no xG claim — shot locations/outcomes only, optional "research shot-value" if we ship our own grid-xT), **possession chains** (chain = uninterrupted team possession; progression = Δ distance-to-goal), **xT** (own reimplementation of the standard 12×8 grid transition model, trained on the pack itself, versioned; socceraction as reference only). Sample floors: pass network needs full-match event coverage (drop else); xT model trained once on 2017/18 corpus, frozen, documented. Chronological availability: historical only — **never blended into live match models**. Missing: any live match renders "No lawful event feed for this match." Labels: era badge "2017/18 Wyscout research data (CC BY 4.0, Pappalardo et al.)". AI: may summarize with whitelisted numbers.
@@ -298,7 +309,7 @@ Scope: §6 items 1–9 + Hypothesis first targets (whitelist scanner fuzz, canon
 ### Phase 2 — Club-season readiness (L; late July–August)
 - Venue/timezone truth: stadium tables (worldcup.stadiums.json now; openfootball `clubs` stadium names flagged historical; GeoNames coords/tz) → **fix `openfootball.py:186-191`**: convert venue-local time + venue tz → true UTC; `kickoff_precision` honest per row; backfill index.
 - 2026-27 fixtures: **decision gate Aug 1** — if yorobot hasn't regenerated football.json 2026-27, implement a minimal Football.TXT *fixtures* parser against `openfootball/europe` (scope: fixtures only, top-5, golden-file tests); else just re-pin football.json.
-- Standings engine + per-league tiebreak rules, validated byte-exact against completed 2024-25/2025-26 tables.
+- Standings engine + per-league tiebreak rules, validated against 2023-24, the latest season complete across all five pinned league captures; later seasons remain explicit gap states.
 - Optional **OpenLigaDB ODbL pack** (opt-in download; §7 isolation; cross-check surface: "our source vs OpenLigaDB" comparison chip, no row merging). RapidFuzz "did you mean" in search (navigation only).
 - Conditions Snapshot v1 (rest days, travel distance, venue/altitude/local kickoff).
 - Gates: canonical-team fragmentation checks extended; standings gate above; ODbL store proven un-joinable by test; installed-app QA.

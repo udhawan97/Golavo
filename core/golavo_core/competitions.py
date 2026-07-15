@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.15.4"
+CATALOG_VERSION = "2026.07.15.6"
 
 
 def _capability(
@@ -109,6 +109,12 @@ def _domestic(
         "Rest and fixture load are derived from matches present in the local index.",
         "openfootball-football-json",
     )
+    capabilities["simulation"] = _capability(
+        "blocked",
+        "Standings rules are verified; a complete, gap-free 2026-27 fixture list is required "
+        "before the seeded outlook can run.",
+        "openfootball-football-json",
+    )
     capabilities["research"] = _capability(
         "partial",
         "Pappalardo/Wyscout event research is limited to the 2017/18 season.",
@@ -192,6 +198,8 @@ def _international(
     *,
     research: bool = False,
     report_card: bool = False,
+    simulation: bool = False,
+    jurisdiction: str = "uefa-international",
 ) -> dict[str, Any]:
     capabilities = _base_capabilities()
     capabilities["results"] = _capability(
@@ -222,6 +230,14 @@ def _international(
             "skill intervals.",
             "martj42-international-results",
         )
+    if simulation:
+        capabilities["simulation"] = _capability(
+            "available",
+            "The resolved four-team 2026 bracket is exactly enumerated from separate Golavo "
+            "model voices; it is not a seal.",
+            "martj42-international-results",
+            "openfootball-worldcup-json",
+        )
     if research:
         capabilities["research"] = _capability(
             "partial",
@@ -233,7 +249,7 @@ def _international(
         "slug": slug,
         "display_name": display_name,
         "team_scope": "international",
-        "jurisdiction": "uefa-international",
+        "jurisdiction": jurisdiction,
         "source_competition_names": source_names,
         "format_eras": format_eras,
         "capabilities": capabilities,
@@ -267,6 +283,16 @@ _COMPETITIONS: tuple[dict[str, Any], ...] = (
         "conference-league",
         "UEFA Conference League",
         coverage="2021/22 through 2024/25",
+    ),
+    _international(
+        "fifa-world-cup",
+        "world-cup-2026",
+        "FIFA World Cup",
+        ["FIFA World Cup"],
+        [_format("fifa-world-cup-2026", "48-team finals era", "2026", None)],
+        report_card=True,
+        simulation=True,
+        jurisdiction="fifa-international",
     ),
     _international(
         "uefa-euro",

@@ -2190,6 +2190,39 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
 }
 .strength-chart__point { fill: var(--surface-1); stroke: var(--gold); stroke-width: 2; }
+
+/* Tournament/season outlooks — separate voices, never a consensus or seal. */
+.tournament-outlook,
+.season-outlook {
+  padding: clamp(1rem, 2.3vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--gold-soft) 42%, var(--surface-1)), var(--surface-1) 55%);
+  box-shadow: var(--shadow-sm);
+}
+.tournament-outlook h2,
+.season-outlook h2 { margin: .16rem 0; }
+.tournament-outlook .hgroup,
+.season-outlook .hgroup { align-items: flex-start; }
+.outlook-voices { display: inline-flex; width: fit-content; padding: 3px; gap: 3px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); }
+.outlook-voices button { min-height: 34px; padding: 0 .85rem; border: 0; border-radius: 999px; background: transparent; color: var(--text-dim); font: inherit; cursor: pointer; }
+.outlook-voices button.is-active { color: var(--text); background: var(--surface-1); box-shadow: var(--shadow-sm); }
+.outlook-table { min-width: 610px; }
+.outlook-table__champion { min-width: 160px; }
+.outlook-table__champion > span:first-child { display: inline-block; min-width: 4.3rem; }
+.outlook-probability { display: inline-block; width: 70px; height: 5px; margin-left: .45rem; overflow: hidden; vertical-align: middle; border-radius: 99px; background: var(--surface-3); }
+.outlook-probability > span { display: block; height: 100%; border-radius: inherit; background: var(--gold); }
+.outlook-method { padding-top: .1rem; }
+.outlook-method summary { color: var(--text-dim); cursor: pointer; font-size: var(--text-sm); }
+.outlook-method p { max-width: 72ch; }
+.season-table { min-width: 440px; }
+.season-probability-table { min-width: 590px; }
+@media (max-width: 640px) {
+  .tournament-outlook .hgroup,
+  .season-outlook .hgroup { align-items: flex-start; }
+  .outlook-voices { display: flex; width: 100%; }
+  .outlook-voices button { flex: 1; padding-inline: .45rem; }
+}
 .analytics-table th[scope="row"] { white-space: nowrap; }
 .load-chip {
   display: inline-flex; align-items: center; padding: .15rem .45rem;

@@ -67,7 +67,9 @@
         "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
         "display_name": {"type": "string", "minLength": 1},
         "team_scope": {"enum": ["club", "international"]},
-        "jurisdiction": {"enum": ["domestic", "uefa-club", "uefa-international"]},
+        "jurisdiction": {
+          "enum": ["domestic", "uefa-club", "uefa-international", "fifa-international"]
+        },
         "source_competition_names": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
         "format_eras": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/FormatEra"}},
         "capabilities": {
