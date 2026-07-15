@@ -1,0 +1,89 @@
+{
+  "files": [
+    {
+      "name": "raw/Q1052370.json",
+      "sha256": "15b4ae2a00d60fed6bd498d66bb4fe10e74c77e321b62b4ce1e906046abe0322",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q1052370.json?revision=2515066465"
+    },
+    {
+      "name": "raw/Q1058864.json",
+      "sha256": "8c217587b20fecc4a0a737b01a80544022c0799c7e597642b3a87d5c5fbcc4d9",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q1058864.json?revision=2515304678"
+    },
+    {
+      "name": "raw/Q10862290.json",
+      "sha256": "cabc19129de66773f50227696c64d6a376cca42bb866ea377793e0c1ceab4274",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q10862290.json?revision=2515863352"
+    },
+    {
+      "name": "raw/Q19520501.json",
+      "sha256": "d5ecc4940d44698289649c33caa10dd91f07b5ad060da1c478937a7a184d1c2a",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q19520501.json?revision=2516922460"
+    },
+    {
+      "name": "raw/Q3058827.json",
+      "sha256": "f8daec13a1299c3ba1d0bb05c0cc33de62afefb5f957e68d05cfe70c1f9e7c18",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q3058827.json?revision=2513751309"
+    },
+    {
+      "name": "raw/Q320454.json",
+      "sha256": "ae8cb09710548af668406d8bbed8e5ad34af623ce9da08cb9d30137ff78c4870",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q320454.json?revision=2516985780"
+    },
+    {
+      "name": "raw/Q373355.json",
+      "sha256": "3fdd9027336a8b00b589b3284dfc109831de73117fbfd4b4b7c1e7571161a40e",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q373355.json?revision=2517659034"
+    },
+    {
+      "name": "raw/Q544553.json",
+      "sha256": "8a3bab589047dbfbc29397c97029b4d6f977b74dedb81ce766d0e699cbe5f588",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q544553.json?revision=2514316333"
+    },
+    {
+      "name": "raw/Q612227.json",
+      "sha256": "cb493da57de511a34cfabf9149127a4021c67de7e31cf3a5ab397fb81fadf5ab",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q612227.json?revision=2514101516"
+    },
+    {
+      "name": "raw/Q612736.json",
+      "sha256": "42a8e436e1a0325b0e0f518d428342f0c241fb3fea871120024a525ee847a89e",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q612736.json?revision=2516920588"
+    },
+    {
+      "name": "raw/Q666183.json",
+      "sha256": "2bb9f250f5ca5bfb1090c937030b688b0e124b24ec7d9e08c20c8a9581f3c0bf",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q666183.json?revision=2513745145"
+    },
+    {
+      "name": "raw/Q7007552.json",
+      "sha256": "2329fa2a41c4ff832cce4af5d85a162864f75f356f72be6c131ce9db41aac012",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q7007552.json?revision=2513747771"
+    },
+    {
+      "name": "raw/Q7419343.json",
+      "sha256": "3f2b1f3131e549e85e431a8af306cf8e876bdb23a9d1a9fcfc5d34c944e53726",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q7419343.json?revision=2513844892"
+    },
+    {
+      "name": "raw/Q796351.json",
+      "sha256": "5ad292b92a5c4550a9d780b72081118cddee79fef5b8738d7f05273809906db5",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q796351.json?revision=2513754951"
+    },
+    {
+      "name": "raw/Q838284.json",
+      "sha256": "db5ec342beb004cc67eb61a0129c2c04869d5d05b9f955cd97122c70db38d9ea",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q838284.json?revision=2513854956"
+    },
+    {
+      "name": "raw/Q864339.json",
+      "sha256": "d23757b0532957c38efe7999a7d382f9d884b6268d1adb2aa0865f43070c8fa1",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q864339.json?revision=2516441996"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-15T18:00:00Z",
+  "source_id": "wikidata",
+  "upstream_ref": "entity-revisions:Q612227@2514101516,Q612736@2516920588,Q7419343@2513844892,Q19520501@2516922460,Q666183@2513745145,Q320454@2516985780,Q3058827@2513751309,Q1058864@2515304678,Q838284@2513854956,Q544553@2514316333,Q7007552@2513747771,Q864339@2516441996,Q796351@2513754951,Q373355@2517659034,Q1052370@2515066465,Q10862290@2515863352",
+  "url": "https://www.wikidata.org/wiki/Special:EntityData"
+}

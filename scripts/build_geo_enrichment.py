@@ -151,6 +151,10 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _stable_id(kind: str, source_key: str) -> str:
+    return f"{kind}_{hashlib.sha256(source_key.encode('utf-8')).hexdigest()[:16]}"
+
+
 def _norm(value: str) -> str:
     decomposed = unicodedata.normalize("NFKD", str(value))
     plain = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
@@ -229,7 +233,13 @@ def _city_candidates(zip_path: Path) -> dict[tuple[str, str], list[dict[str, Any
         lines = archive.read("cities15000.txt").decode("utf-8").splitlines()
     for line in lines:
         parts = line.split("\t")
-        names = {parts[1], parts[2], *(n for n in parts[3].split(",") if n)}
+        names: dict[str, set[str]] = {}
+        for name, kind in ((parts[1], "primary"), (parts[2], "ascii")):
+            if name:
+                names.setdefault(_norm(name), set()).add(kind)
+        for name in parts[3].split(","):
+            if name:
+                names.setdefault(_norm(name), set()).add("alternate")
         record = {
             "geoname_id": int(parts[0]),
             "name": parts[1],
@@ -242,9 +252,26 @@ def _city_candidates(zip_path: Path) -> dict[tuple[str, str], list[dict[str, Any
             "timezone": parts[17] or None,
             "modified": parts[18],
         }
-        for name in {_norm(item) for item in names if item}:
-            by_key.setdefault((record["country_code"], name), []).append(record)
+        for name, match_kinds in names.items():
+            by_key.setdefault((record["country_code"], name), []).append(
+                {**record, "match_kinds": sorted(match_kinds)}
+            )
     return by_key
+
+
+def _review_lookup(path: Path) -> dict[str, dict[str, Any]]:
+    if not path.is_file():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    result: dict[str, dict[str, Any]] = {}
+    for review in payload.get("resolutions", []):
+        if review.get("decision") != "accepted":
+            continue
+        key = str(review.get("source_record_id", ""))
+        if key in result:
+            raise ValueError(f"{path}: duplicate accepted resolution for {key}")
+        result[key] = review
+    return result
 
 
 def _derive_places(geonames_dir: Path, output_dir: Path) -> dict[str, Any]:
@@ -258,29 +285,98 @@ def _derive_places(geonames_dir: Path, output_dir: Path) -> dict[str, Any]:
     codes = _country_codes(geonames_dir / "countryInfo.txt")
     candidates = _city_candidates(geonames_dir / "cities15000.zip")
     places: dict[str, Any] = {}
-    unresolved: list[dict[str, str]] = []
-    multi_candidate = 0
+    resolutions: list[dict[str, Any]] = []
+    unresolved: list[dict[str, Any]] = []
+    ambiguous_pairs = 0
+    alias_pending_pairs = 0
+    reviews = _review_lookup(ROOT / "data/context/place_alias_reviews.json")
+    raw_sha = GEONAMES_FILES["cities15000.zip"][1]
     for row in pairs.itertuples(index=False):
         city, country = str(row.city), str(row.country)
         options: dict[int, dict[str, Any]] = {}
         for code in codes.get(_norm(country), ()):
             for candidate in candidates.get((code, _norm(city)), []):
                 options[candidate["geoname_id"]] = candidate
-        if not options:
-            unresolved.append({"city": city, "country": country})
-            continue
-        if len(options) > 1:
-            multi_candidate += 1
-        # Exact country+name matches can still collide. Highest population, then
-        # lowest stable GeoNames id is deterministic and disclosed in metadata.
-        selected = sorted(
-            options.values(), key=lambda item: (-item["population"], item["geoname_id"])
-        )[0]
         key = f"{_norm(country)}|{_norm(city)}"
+        lookup_id = f"lookup:{key}"
+        candidate_ids = sorted(
+            _stable_id("place", f"geonames:{item['geoname_id']}") for item in options.values()
+        )
+        review = reviews.get(lookup_id)
+        selected: dict[str, Any] | None = None
+        decision = "unresolved"
+        rationale = "No exact GeoNames candidate in the audited country scope."
+        if len(options) > 1:
+            ambiguous_pairs += 1
+            decision = "ambiguous"
+            rationale = "Multiple exact GeoNames candidates require a checked-in review."
+        elif len(options) == 1:
+            candidate = next(iter(options.values()))
+            candidate_id = _stable_id("place", f"geonames:{candidate['geoname_id']}")
+            if "primary" in candidate["match_kinds"]:
+                selected = candidate
+                rationale = "Unique exact match to the GeoNames primary name."
+            elif review is not None and review.get("resolved_entity_id") == candidate_id:
+                selected = candidate
+                decision = "accepted"
+                rationale = str(review["rationale"])
+            else:
+                alias_pending_pairs += 1
+                rationale = "Exact GeoNames alias/ascii match awaits a checked-in manual review."
+        if review is not None and len(options) > 1:
+            resolved_id = str(review.get("resolved_entity_id"))
+            selected = next(
+                (
+                    item
+                    for item in options.values()
+                    if _stable_id("place", f"geonames:{item['geoname_id']}") == resolved_id
+                ),
+                None,
+            )
+            if selected is None:
+                raise ValueError(f"review {lookup_id} selects an entity outside its candidates")
+            decision = "accepted"
+            rationale = str(review["rationale"])
+        if selected is None:
+            unresolved.append(
+                {
+                    "city": city,
+                    "country": country,
+                    "reason": decision,
+                    "candidate_entity_ids": candidate_ids,
+                }
+            )
+            resolutions.append(
+                {
+                    "resolution_id": _stable_id("ctxr", lookup_id).replace("ctxr_", "ctxr_"),
+                    "source_id": "geonames",
+                    "source_record_id": lookup_id,
+                    "entity_kind": "place",
+                    "observed_label": city,
+                    "scope": {
+                        "country": country,
+                        "competition_id": None,
+                        "valid_from": None,
+                        "valid_to": None,
+                    },
+                    "candidate_entity_ids": candidate_ids,
+                    "decision": decision,
+                    "resolved_entity_id": None,
+                    "reviewed_by": None,
+                    "reviewed_at_utc": None,
+                    "rationale": rationale,
+                }
+            )
+            continue
+        entity_id = _stable_id("place", f"geonames:{selected['geoname_id']}")
         places[key] = {
             "city": city,
             "country": country,
+            "entity_id": entity_id,
+            "resolution_status": "resolved",
             "source_id": "geonames",
+            "source_revision": GEONAMES_DATE,
+            "snapshot_sha256": raw_sha,
             **{
                 field: selected[field]
                 for field in (
@@ -297,20 +393,29 @@ def _derive_places(geonames_dir: Path, output_dir: Path) -> dict[str, Any]:
             },
         }
     _write_json(output_dir / "places.json", places)
+    context_dir = ROOT / "data/context"
+    # Place identities and their field provenance live in the compact lookup
+    # itself. Do not duplicate all claims into a second multi-megabyte runtime
+    # registry; venue entities need richer cross-source records and remain
+    # separate under data/context.
+    (context_dir / "geo_entities.json").unlink(missing_ok=True)
+    _write_json(
+        context_dir / "place_resolutions.json",
+        {"schema_version": "0.1.0", "resolutions": resolutions},
+    )
     meta = {
         "schema_version": "0.1.0",
         "source_id": "geonames",
         "source_pack": geonames_dir.relative_to(ROOT).as_posix(),
         "source_dump_date": GEONAMES_DATE,
         "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
-        "matching": (
-            "exact normalized city inside exact or audited historical country; "
-            "highest population then lowest geoname_id"
-        ),
+        "matching": "unique exact GeoNames primary name, or an explicit checked-in resolution",
         "requested_pairs": int(len(pairs)),
         "resolved_pairs": len(places),
         "unresolved_pairs": len(unresolved),
-        "multi_candidate_pairs": multi_candidate,
+        "ambiguous_pairs": ambiguous_pairs,
+        "alias_pending_pairs": alias_pending_pairs,
+        "manual_review_count": len(reviews),
         "unresolved": unresolved,
         "places_sha256": _sha((output_dir / "places.json").read_bytes()),
     }
@@ -349,30 +454,49 @@ def main() -> None:
     parser.add_argument(
         "--cache-dir", type=Path, help="optional directory containing pinned downloads"
     )
+    parser.add_argument(
+        "--derive-only",
+        action="store_true",
+        help="reuse the immutable on-disk source packs and rebuild only compact side tables",
+    )
     args = parser.parse_args()
     geonames_dir = ROOT / "packs" / f"geonames-{GEONAMES_DATE}"
     ne_dir = ROOT / "packs" / f"natural-earth-{NATURAL_EARTH_VERSION}"
-    geonames = _build_pack(
-        directory=geonames_dir,
-        files=GEONAMES_FILES,
-        source_id="geonames",
-        license_id="CC-BY-4.0",
-        upstream_ref=GEONAMES_DATE,
-        url="https://download.geonames.org/export/dump/",
-        cache_dir=args.cache_dir,
-    )
-    natural_earth = _build_pack(
-        directory=ne_dir,
-        files=NATURAL_EARTH_FILES,
-        source_id="natural-earth",
-        license_id="PUBLIC-DOMAIN",
-        upstream_ref=f"v{NATURAL_EARTH_VERSION}@{NATURAL_EARTH_COMMIT}",
-        url="https://github.com/nvkelso/natural-earth-vector",
-        cache_dir=args.cache_dir,
-    )
+    if args.derive_only:
+        geonames = json.loads((geonames_dir / "manifest.json").read_text(encoding="utf-8"))
+        natural_earth = json.loads((ne_dir / "manifest.json").read_text(encoding="utf-8"))
+    else:
+        geonames = _build_pack(
+            directory=geonames_dir,
+            files=GEONAMES_FILES,
+            source_id="geonames",
+            license_id="CC-BY-4.0",
+            upstream_ref=GEONAMES_DATE,
+            url="https://download.geonames.org/export/dump/",
+            cache_dir=args.cache_dir,
+        )
+        natural_earth = _build_pack(
+            directory=ne_dir,
+            files=NATURAL_EARTH_FILES,
+            source_id="natural-earth",
+            license_id="PUBLIC-DOMAIN",
+            upstream_ref=f"v{NATURAL_EARTH_VERSION}@{NATURAL_EARTH_COMMIT}",
+            url="https://github.com/nvkelso/natural-earth-vector",
+            cache_dir=args.cache_dir,
+        )
+    registry_path = ROOT / "packs/enrichment.json"
+    preserved = []
+    if registry_path.is_file():
+        current = json.loads(registry_path.read_text(encoding="utf-8"))
+        preserved = [
+            item
+            for item in current.get("snapshots", [])
+            if item.get("source_id") not in {"geonames", "natural-earth"}
+        ]
     registry = {
         "schema_version": "0.1.0",
-        "snapshots": [
+        "snapshots": sorted(
+            [
             {
                 "pack": geonames_dir.relative_to(ROOT).as_posix(),
                 "source_id": geonames["source_id"],
@@ -387,9 +511,12 @@ def main() -> None:
                 "retrieved_at_utc": RETRIEVED_AT,
                 "manifest_sha256": _sha((ne_dir / "manifest.json").read_bytes()),
             },
-        ],
+            *preserved,
+            ],
+            key=lambda item: str(item["pack"]),
+        ),
     }
-    _write_json(ROOT / "packs/enrichment.json", registry)
+    _write_json(registry_path, registry)
     output_dir = ROOT / "data/enrichment"
     places_meta = _derive_places(geonames_dir, output_dir)
     world_meta = _derive_world(ne_dir, output_dir)

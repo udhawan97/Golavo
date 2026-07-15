@@ -1,0 +1,2543 @@
+{
+  "context_pack_version": "2026.07.15.1",
+  "entities": [
+    {
+      "canonical_label": "AT&T Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_a1bdd150f524f5c9",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Dallas (Arlington)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "AT&T Stadium"
+        },
+        {
+          "claim_id": "ctxc_a2616f27c67a3605",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Dallas (Arlington)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Dallas (Arlington)"
+        },
+        {
+          "claim_id": "ctxc_caa0092dc5549b9b",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Dallas (Arlington)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 32.74777777777778
+        },
+        {
+          "claim_id": "ctxc_a7ccc76cad323601",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Dallas (Arlington)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -97.09277777777777
+        },
+        {
+          "claim_id": "ctxc_cffc3a0c8fa4f5fd",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Dallas (Arlington)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 94000
+        },
+        {
+          "claim_id": "ctxc_b9c23bfe71b91575",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Dallas (Arlington)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-5"
+        },
+        {
+          "claim_id": "ctxc_3263a0bffc91bca8",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "db5ec342beb004cc67eb61a0129c2c04869d5d05b9f955cd97122c70db38d9ea",
+              "source_id": "wikidata",
+              "source_record_id": "Q838284",
+              "source_revision": "2513854956"
+            }
+          ],
+          "value": [
+            "AT&T Stadium",
+            "Cowboys Stadium",
+            "Dallas Stadium",
+            "Jerry World"
+          ]
+        },
+        {
+          "claim_id": "ctxc_a95cbe2615a7abb0",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "db5ec342beb004cc67eb61a0129c2c04869d5d05b9f955cd97122c70db38d9ea",
+              "source_id": "wikidata",
+              "source_record_id": "Q838284",
+              "source_revision": "2513854956"
+            }
+          ],
+          "value": 0.014
+        }
+      ],
+      "entity_id": "venue_18166a41abc328e7",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Dallas (Arlington)",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q838284",
+          "source_revision": "2513854956"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Levi's Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_ae1948e0128e3d24",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:San Francisco Bay Area (Santa Clara)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Levi's Stadium"
+        },
+        {
+          "claim_id": "ctxc_4451b8de10229d8d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:San Francisco Bay Area (Santa Clara)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "San Francisco Bay Area (Santa Clara)"
+        },
+        {
+          "claim_id": "ctxc_923172840b393ce9",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:San Francisco Bay Area (Santa Clara)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 37.403
+        },
+        {
+          "claim_id": "ctxc_7ce1e5b9ea40c42e",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:San Francisco Bay Area (Santa Clara)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -121.97
+        },
+        {
+          "claim_id": "ctxc_05845481ebad9730",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:San Francisco Bay Area (Santa Clara)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 71000
+        },
+        {
+          "claim_id": "ctxc_927f12ebe8901d94",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:San Francisco Bay Area (Santa Clara)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-7"
+        },
+        {
+          "claim_id": "ctxc_5dfd97db98f6f341",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "3f2b1f3131e549e85e431a8af306cf8e876bdb23a9d1a9fcfc5d34c944e53726",
+              "source_id": "wikidata",
+              "source_record_id": "Q7419343",
+              "source_revision": "2513844892"
+            }
+          ],
+          "value": [
+            "49ers Stadium",
+            "Levi's Stadium",
+            "Levis Stadium",
+            "San Francisco 49ers Stadium",
+            "San Francisco Bay Area Stadium",
+            "Santa Clara Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_c8d1e99e0f36710d",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "3f2b1f3131e549e85e431a8af306cf8e876bdb23a9d1a9fcfc5d34c944e53726",
+              "source_id": "wikidata",
+              "source_record_id": "Q7419343",
+              "source_revision": "2513844892"
+            }
+          ],
+          "value": 0.044
+        }
+      ],
+      "entity_id": "venue_1acc274b2a5e9869",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:San Francisco Bay Area (Santa Clara)",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q7419343",
+          "source_revision": "2513844892"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Mercedes-Benz Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_e15ec99b06132d66",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Atlanta",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Mercedes-Benz Stadium"
+        },
+        {
+          "claim_id": "ctxc_11397c024a41763c",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Atlanta",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Atlanta"
+        },
+        {
+          "claim_id": "ctxc_2758617886471008",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Atlanta",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 33.75555555555555
+        },
+        {
+          "claim_id": "ctxc_3e1026fa058f3f0c",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Atlanta",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -84.4
+        },
+        {
+          "claim_id": "ctxc_7b353fc5ee8a3718",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Atlanta",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 75000
+        },
+        {
+          "claim_id": "ctxc_af3735344e4e76dd",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Atlanta",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-4"
+        },
+        {
+          "claim_id": "ctxc_cb0469b8750939bd",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "2329fa2a41c4ff832cce4af5d85a162864f75f356f72be6c131ce9db41aac012",
+              "source_id": "wikidata",
+              "source_record_id": "Q7007552",
+              "source_revision": "2513747771"
+            }
+          ],
+          "value": [
+            "Mercedes-Benz Stadium",
+            "New Atlanta Stadium",
+            "New Falcons Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_d291c60248a4d9f7",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "2329fa2a41c4ff832cce4af5d85a162864f75f356f72be6c131ce9db41aac012",
+              "source_id": "wikidata",
+              "source_record_id": "Q7007552",
+              "source_revision": "2513747771"
+            }
+          ],
+          "value": 0.083
+        }
+      ],
+      "entity_id": "venue_208761208c99385d",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Atlanta",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q7007552",
+          "source_revision": "2513747771"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Estadio BBVA",
+      "claims": [
+        {
+          "claim_id": "ctxc_38b99c6db0ed4801",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Monterrey (Guadalupe)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Estadio BBVA"
+        },
+        {
+          "claim_id": "ctxc_5edfeb7917d09699",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Monterrey (Guadalupe)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Monterrey (Guadalupe)"
+        },
+        {
+          "claim_id": "ctxc_0a4b4ca14052b470",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Monterrey (Guadalupe)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 25.66916666666667
+        },
+        {
+          "claim_id": "ctxc_27811e91add352fe",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Monterrey (Guadalupe)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -100.24444444444444
+        },
+        {
+          "claim_id": "ctxc_bd5c011f8a08b819",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Monterrey (Guadalupe)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 53500
+        },
+        {
+          "claim_id": "ctxc_a786ee24b917a642",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Monterrey (Guadalupe)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-6"
+        },
+        {
+          "claim_id": "ctxc_abecbfdf64f594e8",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "f8daec13a1299c3ba1d0bb05c0cc33de62afefb5f957e68d05cfe70c1f9e7c18",
+              "source_id": "wikidata",
+              "source_record_id": "Q3058827",
+              "source_revision": "2513751309"
+            }
+          ],
+          "value": [
+            "\"The Steel Giant el coloso deW la pastora\"",
+            "Estadio BBVA Bancomer",
+            "Estadio Monterrey",
+            "Estadio de Futbol Monterrey",
+            "Estadio de Fútbol Monterrey",
+            "Leonel Gonzales Stadium",
+            "Monterrey Football Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_1b8e80a0c9b457cf",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "f8daec13a1299c3ba1d0bb05c0cc33de62afefb5f957e68d05cfe70c1f9e7c18",
+              "source_id": "wikidata",
+              "source_record_id": "Q3058827",
+              "source_revision": "2513751309"
+            }
+          ],
+          "value": 0.134
+        }
+      ],
+      "entity_id": "venue_425b0bfa57d94283",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Monterrey (Guadalupe)",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q3058827",
+          "source_revision": "2513751309"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Lumen Field",
+      "claims": [
+        {
+          "claim_id": "ctxc_d109031f9901c66d",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Seattle",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Lumen Field"
+        },
+        {
+          "claim_id": "ctxc_85d4afcaad162fd5",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Seattle",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Seattle"
+        },
+        {
+          "claim_id": "ctxc_36f994640fdcafd7",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Seattle",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 47.59527777777778
+        },
+        {
+          "claim_id": "ctxc_9dfaa951ac152470",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Seattle",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -122.33166666666666
+        },
+        {
+          "claim_id": "ctxc_add03338c4ad6fb2",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Seattle",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 69000
+        },
+        {
+          "claim_id": "ctxc_a6740d5cac4a7cd8",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Seattle",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-7"
+        },
+        {
+          "claim_id": "ctxc_a0a20eb53a3c7cc5",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "42a8e436e1a0325b0e0f518d428342f0c241fb3fea871120024a525ee847a89e",
+              "source_id": "wikidata",
+              "source_record_id": "Q612736",
+              "source_revision": "2516920588"
+            }
+          ],
+          "value": [
+            "Lumen Field",
+            "The Hawk"
+          ]
+        },
+        {
+          "claim_id": "ctxc_0c3bba44f93abfda",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "42a8e436e1a0325b0e0f518d428342f0c241fb3fea871120024a525ee847a89e",
+              "source_id": "wikidata",
+              "source_record_id": "Q612736",
+              "source_revision": "2516920588"
+            }
+          ],
+          "value": 0.0
+        }
+      ],
+      "entity_id": "venue_45eb59f062e8ca4e",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Seattle",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q612736",
+          "source_revision": "2516920588"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Estadio Akron",
+      "claims": [
+        {
+          "claim_id": "ctxc_8a48823c2df7f0f4",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Guadalajara (Zapopan)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Estadio Akron"
+        },
+        {
+          "claim_id": "ctxc_0cf3e7ebf9b4fde2",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Guadalajara (Zapopan)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Guadalajara (Zapopan)"
+        },
+        {
+          "claim_id": "ctxc_497ab6eb5a4b435b",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Guadalajara (Zapopan)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 20.68166666666667
+        },
+        {
+          "claim_id": "ctxc_d10657d8d21b20bc",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Guadalajara (Zapopan)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -103.46277777777777
+        },
+        {
+          "claim_id": "ctxc_864d14f91e3b7307",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Guadalajara (Zapopan)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 48000
+        },
+        {
+          "claim_id": "ctxc_fb37f591420bc6b1",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Guadalajara (Zapopan)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-6"
+        },
+        {
+          "claim_id": "ctxc_45afb08c6fb7d3cc",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "2bb9f250f5ca5bfb1090c937030b688b0e124b24ec7d9e08c20c8a9581f3c0bf",
+              "source_id": "wikidata",
+              "source_record_id": "Q666183",
+              "source_revision": "2513745145"
+            }
+          ],
+          "value": [
+            "Chivas Stadium",
+            "Estadio Akron",
+            "Estadio Chiva",
+            "Estadio Chivas",
+            "Estadio Omnilife",
+            "Omnilife Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_231e3f64861e5928",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "2bb9f250f5ca5bfb1090c937030b688b0e124b24ec7d9e08c20c8a9581f3c0bf",
+              "source_id": "wikidata",
+              "source_record_id": "Q666183",
+              "source_revision": "2513745145"
+            }
+          ],
+          "value": 0.0
+        }
+      ],
+      "entity_id": "venue_66de2539bc8d484d",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Guadalajara (Zapopan)",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q666183",
+          "source_revision": "2513745145"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "MetLife Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_e5a615a53f68120a",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:New York/New Jersey (East Rutherford)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "MetLife Stadium"
+        },
+        {
+          "claim_id": "ctxc_9d92aa3940efafb8",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:New York/New Jersey (East Rutherford)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "New York/New Jersey (East Rutherford)"
+        },
+        {
+          "claim_id": "ctxc_214ced7eef6173ff",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:New York/New Jersey (East Rutherford)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 40.81352777777777
+        },
+        {
+          "claim_id": "ctxc_390696c81eca87b8",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:New York/New Jersey (East Rutherford)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -74.0743611111111
+        },
+        {
+          "claim_id": "ctxc_c53631dd0a1b252f",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:New York/New Jersey (East Rutherford)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 82500
+        },
+        {
+          "claim_id": "ctxc_5db5749a6713be69",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:New York/New Jersey (East Rutherford)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-4"
+        },
+        {
+          "claim_id": "ctxc_d4c3083554d92a3b",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "cabc19129de66773f50227696c64d6a376cca42bb866ea377793e0c1ceab4274",
+              "source_id": "wikidata",
+              "source_record_id": "Q10862290",
+              "source_revision": "2515863352"
+            }
+          ],
+          "value": [
+            "MetLife Stadium",
+            "New York Giants Stadium",
+            "New York Jets Stadium",
+            "New York New Jersey Stadium",
+            "New York/New Jersey Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_2214afb6c9cd3d23",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "cabc19129de66773f50227696c64d6a376cca42bb866ea377793e0c1ceab4274",
+              "source_id": "wikidata",
+              "source_record_id": "Q10862290",
+              "source_revision": "2515863352"
+            }
+          ],
+          "value": 0.012
+        }
+      ],
+      "entity_id": "venue_74d3ae912683ada8",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:New York/New Jersey (East Rutherford)",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q10862290",
+          "source_revision": "2515863352"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Hard Rock Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_c39d9f5dac85a776",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Miami (Miami Gardens)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Hard Rock Stadium"
+        },
+        {
+          "claim_id": "ctxc_b0daadb890eea4ef",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Miami (Miami Gardens)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Miami (Miami Gardens)"
+        },
+        {
+          "claim_id": "ctxc_b06fe4a125556c08",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Miami (Miami Gardens)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 25.958055555555553
+        },
+        {
+          "claim_id": "ctxc_6acdf957b7687560",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Miami (Miami Gardens)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -80.2388888888889
+        },
+        {
+          "claim_id": "ctxc_c7b41ba55aea6aab",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Miami (Miami Gardens)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 65000
+        },
+        {
+          "claim_id": "ctxc_f3c75bed74751439",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Miami (Miami Gardens)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-4"
+        },
+        {
+          "claim_id": "ctxc_1384a14ed9860943",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "d23757b0532957c38efe7999a7d382f9d884b6268d1adb2aa0865f43070c8fa1",
+              "source_id": "wikidata",
+              "source_record_id": "Q864339",
+              "source_revision": "2516441996"
+            }
+          ],
+          "value": [
+            "Hard Rock Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_8f95f7d2bcfd87a7",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "d23757b0532957c38efe7999a7d382f9d884b6268d1adb2aa0865f43070c8fa1",
+              "source_id": "wikidata",
+              "source_record_id": "Q864339",
+              "source_revision": "2516441996"
+            }
+          ],
+          "value": 0.0
+        }
+      ],
+      "entity_id": "venue_76c802a043602c93",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Miami (Miami Gardens)",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q864339",
+          "source_revision": "2516441996"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "BC Place",
+      "claims": [
+        {
+          "claim_id": "ctxc_cfc686b0567161ba",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Vancouver",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "BC Place"
+        },
+        {
+          "claim_id": "ctxc_e5c014ef1f425e9f",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Vancouver",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Vancouver"
+        },
+        {
+          "claim_id": "ctxc_26aa2bbcb3cb7890",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Vancouver",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 49.276666666666664
+        },
+        {
+          "claim_id": "ctxc_f582db20c76b1f17",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Vancouver",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -123.11194444444443
+        },
+        {
+          "claim_id": "ctxc_32115dd67d152d47",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Vancouver",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 54000
+        },
+        {
+          "claim_id": "ctxc_190f571585e10848",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Vancouver",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-7"
+        },
+        {
+          "claim_id": "ctxc_21659d7047941e2b",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "cb493da57de511a34cfabf9149127a4021c67de7e31cf3a5ab397fb81fadf5ab",
+              "source_id": "wikidata",
+              "source_record_id": "Q612227",
+              "source_revision": "2514101516"
+            }
+          ],
+          "value": [
+            "BC Place"
+          ]
+        },
+        {
+          "claim_id": "ctxc_697cc92751f4b07e",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "cb493da57de511a34cfabf9149127a4021c67de7e31cf3a5ab397fb81fadf5ab",
+              "source_id": "wikidata",
+              "source_record_id": "Q612227",
+              "source_revision": "2514101516"
+            }
+          ],
+          "value": 0.0
+        }
+      ],
+      "entity_id": "venue_7771ac9283efc25c",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Vancouver",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q612227",
+          "source_revision": "2514101516"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "SoFi Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_4eab541b2541f533",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "SoFi Stadium"
+        },
+        {
+          "claim_id": "ctxc_81cf827166210bf3",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Los Angeles (Inglewood)"
+        },
+        {
+          "claim_id": "ctxc_d5ecd577cbe21187",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 33.953
+        },
+        {
+          "claim_id": "ctxc_de802ff678c3c6d8",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -118.339
+        },
+        {
+          "claim_id": "ctxc_3c8c0869e5571cc1",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 70000
+        },
+        {
+          "claim_id": "ctxc_2a5782502a2fe528",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-7"
+        }
+      ],
+      "entity_id": "venue_8ad33205fd8493bc",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Estadio Azteca",
+      "claims": [
+        {
+          "claim_id": "ctxc_d7e215a59c03e3dd",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Mexico City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Estadio Azteca"
+        },
+        {
+          "claim_id": "ctxc_2455142136d69ada",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Mexico City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Mexico City"
+        },
+        {
+          "claim_id": "ctxc_3dc19d8c638ab935",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Mexico City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 19.303055555555556
+        },
+        {
+          "claim_id": "ctxc_16a5f8db2aeb52d7",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Mexico City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -99.15055555555556
+        },
+        {
+          "claim_id": "ctxc_35cd134029f76658",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Mexico City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 83000
+        },
+        {
+          "claim_id": "ctxc_7f1ea2d4bbb59b6f",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Mexico City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-6"
+        },
+        {
+          "claim_id": "ctxc_58df3d351fde80ec",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "ae8cb09710548af668406d8bbed8e5ad34af623ce9da08cb9d30137ff78c4870",
+              "source_id": "wikidata",
+              "source_record_id": "Q320454",
+              "source_revision": "2516985780"
+            }
+          ],
+          "value": [
+            "Coloso de Santa Úrsula",
+            "El Coloso de Santa Úrsula",
+            "Estadio Azteca",
+            "Estadio Banorte"
+          ]
+        },
+        {
+          "claim_id": "ctxc_34a52c66d4b22c0a",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "ae8cb09710548af668406d8bbed8e5ad34af623ce9da08cb9d30137ff78c4870",
+              "source_id": "wikidata",
+              "source_record_id": "Q320454",
+              "source_revision": "2516985780"
+            }
+          ],
+          "value": 0.0
+        }
+      ],
+      "entity_id": "venue_91edc412659a2940",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Mexico City",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q320454",
+          "source_revision": "2516985780"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Lincoln Financial Field",
+      "claims": [
+        {
+          "claim_id": "ctxc_d270aa71a634e847",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Philadelphia",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Lincoln Financial Field"
+        },
+        {
+          "claim_id": "ctxc_730d084c0a20b773",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Philadelphia",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Philadelphia"
+        },
+        {
+          "claim_id": "ctxc_161160d484b6898e",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Philadelphia",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 39.90083333333333
+        },
+        {
+          "claim_id": "ctxc_6b95bb89f08e217b",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Philadelphia",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -75.1675
+        },
+        {
+          "claim_id": "ctxc_800a927823e554a8",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Philadelphia",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 69000
+        },
+        {
+          "claim_id": "ctxc_ac367ea795592ba8",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Philadelphia",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-4"
+        },
+        {
+          "claim_id": "ctxc_c8837eaae7305029",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "15b4ae2a00d60fed6bd498d66bb4fe10e74c77e321b62b4ce1e906046abe0322",
+              "source_id": "wikidata",
+              "source_record_id": "Q1052370",
+              "source_revision": "2515066465"
+            }
+          ],
+          "value": [
+            "Lincoln Financial Field",
+            "The Linc"
+          ]
+        },
+        {
+          "claim_id": "ctxc_3380697d3eebfd10",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "15b4ae2a00d60fed6bd498d66bb4fe10e74c77e321b62b4ce1e906046abe0322",
+              "source_id": "wikidata",
+              "source_record_id": "Q1052370",
+              "source_revision": "2515066465"
+            }
+          ],
+          "value": 0.023
+        }
+      ],
+      "entity_id": "venue_93e2b76d71eadc8f",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Philadelphia",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q1052370",
+          "source_revision": "2515066465"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "NRG Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_f2ddf3cc629a3c4c",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Houston",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "NRG Stadium"
+        },
+        {
+          "claim_id": "ctxc_115987dc36d61c0e",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Houston",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Houston"
+        },
+        {
+          "claim_id": "ctxc_750adbe26d7689b1",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Houston",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 29.684722222222224
+        },
+        {
+          "claim_id": "ctxc_23ff0ffb25ad4dc5",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Houston",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -95.41083333333334
+        },
+        {
+          "claim_id": "ctxc_9045e60ffeedec10",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Houston",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 72000
+        },
+        {
+          "claim_id": "ctxc_bf8873213dd212b3",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Houston",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-5"
+        },
+        {
+          "claim_id": "ctxc_84ccf351da6cc62a",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "8c217587b20fecc4a0a737b01a80544022c0799c7e597642b3a87d5c5fbcc4d9",
+              "source_id": "wikidata",
+              "source_record_id": "Q1058864",
+              "source_revision": "2515304678"
+            }
+          ],
+          "value": [
+            "NRG Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_4b5835f081e6a4bf",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "8c217587b20fecc4a0a737b01a80544022c0799c7e597642b3a87d5c5fbcc4d9",
+              "source_id": "wikidata",
+              "source_record_id": "Q1058864",
+              "source_revision": "2515304678"
+            }
+          ],
+          "value": 0.0
+        }
+      ],
+      "entity_id": "venue_a2ba10a36deb3f03",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Houston",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q1058864",
+          "source_revision": "2515304678"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Arrowhead Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_c8e45b742545e9af",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Kansas City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Arrowhead Stadium"
+        },
+        {
+          "claim_id": "ctxc_e67fe80e782882ab",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Kansas City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Kansas City"
+        },
+        {
+          "claim_id": "ctxc_f08364be2bc6f91a",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Kansas City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 39.04888888888889
+        },
+        {
+          "claim_id": "ctxc_38bf0c9bdb7d39e6",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Kansas City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -94.48388888888888
+        },
+        {
+          "claim_id": "ctxc_4062e0104d8484e7",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Kansas City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 73000
+        },
+        {
+          "claim_id": "ctxc_1f8cfc11d0efa08e",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Kansas City",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-5"
+        },
+        {
+          "claim_id": "ctxc_a89f2a6741702465",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "8a3bab589047dbfbc29397c97029b4d6f977b74dedb81ce766d0e699cbe5f588",
+              "source_id": "wikidata",
+              "source_record_id": "Q544553",
+              "source_revision": "2514316333"
+            }
+          ],
+          "value": [
+            "Arrowhead Stadium",
+            "GEHA Field at Arrowhead Stadium",
+            "Kansas City Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_ba4529dc1a3d4840",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "8a3bab589047dbfbc29397c97029b4d6f977b74dedb81ce766d0e699cbe5f588",
+              "source_id": "wikidata",
+              "source_record_id": "Q544553",
+              "source_revision": "2514316333"
+            }
+          ],
+          "value": 0.0
+        }
+      ],
+      "entity_id": "venue_b8a1d12f40fab68a",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Kansas City",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q544553",
+          "source_revision": "2514316333"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Gillette Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_158887bac31f384a",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Boston (Foxborough)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Gillette Stadium"
+        },
+        {
+          "claim_id": "ctxc_a33302c9ba7db21e",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Boston (Foxborough)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Boston (Foxborough)"
+        },
+        {
+          "claim_id": "ctxc_a014eed7b8b389b7",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Boston (Foxborough)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 42.091
+        },
+        {
+          "claim_id": "ctxc_6687e9610a59bf8d",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Boston (Foxborough)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -71.264
+        },
+        {
+          "claim_id": "ctxc_7e2fc67890e5a0db",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Boston (Foxborough)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 65000
+        },
+        {
+          "claim_id": "ctxc_85e072fd0d81a1ee",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Boston (Foxborough)",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-4"
+        },
+        {
+          "claim_id": "ctxc_cd1215e69ad5490b",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "3fdd9027336a8b00b589b3284dfc109831de73117fbfd4b4b7c1e7571161a40e",
+              "source_id": "wikidata",
+              "source_record_id": "Q373355",
+              "source_revision": "2517659034"
+            }
+          ],
+          "value": [
+            "Boston Stadium",
+            "Gillette Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_218319bcc801fe70",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "3fdd9027336a8b00b589b3284dfc109831de73117fbfd4b4b7c1e7571161a40e",
+              "source_id": "wikidata",
+              "source_record_id": "Q373355",
+              "source_revision": "2517659034"
+            }
+          ],
+          "value": 0.029
+        }
+      ],
+      "entity_id": "venue_c6edc4e5566eaa5e",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Boston (Foxborough)",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q373355",
+          "source_revision": "2517659034"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "BMO Field",
+      "claims": [
+        {
+          "claim_id": "ctxc_7c4aa9dd346e27aa",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "name",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Toronto",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "BMO Field"
+        },
+        {
+          "claim_id": "ctxc_bf5c61898a34dddd",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Toronto",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "Toronto"
+        },
+        {
+          "claim_id": "ctxc_f0521a4cf1d57af6",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Toronto",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 43.63333333333333
+        },
+        {
+          "claim_id": "ctxc_4f81b377f8484aa7",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "coords",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Toronto",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": -79.41861111111112
+        },
+        {
+          "claim_id": "ctxc_656e5b9e7efa3dff",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "capacity",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Toronto",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": 45000
+        },
+        {
+          "claim_id": "ctxc_be40f91a309acccd",
+          "field": "source_timezone_offset",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "timezone",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+              "source_id": "openfootball-worldcup-json",
+              "source_record_id": "2026/stadium:Toronto",
+              "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+            }
+          ],
+          "value": "UTC-4"
+        },
+        {
+          "claim_id": "ctxc_84b05a167e596388",
+          "field": "aliases",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "labels-and-aliases",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "5ad292b92a5c4550a9d780b72081118cddee79fef5b8738d7f05273809906db5",
+              "source_id": "wikidata",
+              "source_record_id": "Q796351",
+              "source_revision": "2513754951"
+            }
+          ],
+          "value": [
+            "BMO Field",
+            "Toronto Stadium"
+          ]
+        },
+        {
+          "claim_id": "ctxc_daaadbbcad899ecc",
+          "field": "wikidata_coordinate_discrepancy_km",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-15T18:00:00Z",
+              "snapshot_sha256": "5ad292b92a5c4550a9d780b72081118cddee79fef5b8738d7f05273809906db5",
+              "source_id": "wikidata",
+              "source_record_id": "Q796351",
+              "source_revision": "2513754951"
+            }
+          ],
+          "value": 0.062
+        }
+      ],
+      "entity_id": "venue_cc51b9af2f627df8",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-worldcup-json",
+          "source_record_id": "2026/stadium:Toronto",
+          "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q796351",
+          "source_revision": "2513754951"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    }
+  ],
+  "schema_version": "0.1.0"
+}

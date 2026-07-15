@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "name": "worldcup.stadiums.json",
+      "sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+      "url": "https://raw.githubusercontent.com/openfootball/worldcup.json/056c53ec82feb3fb68da63d1ce74ec59fc23e95d/2026/worldcup.stadiums.json"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-15T18:00:00Z",
+  "source_id": "openfootball-worldcup-json",
+  "upstream_ref": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+  "url": "https://github.com/openfootball/worldcup.json"
+}

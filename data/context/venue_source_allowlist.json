@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1.0",
+  "worldcup_commit": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+  "worldcup_stadiums_sha256": "9b38fbe926d22a5198ec58446670f370d281cc72ecd200a942b734357918c3b5",
+  "reviewed_by": "OpenAI Codex implementation review",
+  "reviewed_at_utc": "2026-07-15T18:00:00Z",
+  "venues": [
+    {"source_city": "Vancouver", "source_name": "BC Place", "match_city_aliases": ["Vancouver"], "match_country": "Canada", "country_qid": "Q16", "wikidata_qid": "Q612227", "wikidata_revision": 2514101516},
+    {"source_city": "Seattle", "source_name": "Lumen Field", "match_city_aliases": ["Seattle"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q612736", "wikidata_revision": 2516920588},
+    {"source_city": "San Francisco Bay Area (Santa Clara)", "source_name": "Levi's Stadium", "match_city_aliases": ["Santa Clara"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q7419343", "wikidata_revision": 2513844892},
+    {"source_city": "Los Angeles (Inglewood)", "source_name": "SoFi Stadium", "match_city_aliases": ["Inglewood"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q19520501", "wikidata_revision": 2516922460, "wikidata_link_status": "conflicting", "conflict_reason": "Pinned coordinates differ by more than 250 metres; retain the source venue without merging the Wikidata identity."},
+    {"source_city": "Guadalajara (Zapopan)", "source_name": "Estadio Akron", "match_city_aliases": ["Zapopan"], "match_country": "Mexico", "country_qid": "Q96", "wikidata_qid": "Q666183", "wikidata_revision": 2513745145},
+    {"source_city": "Mexico City", "source_name": "Estadio Azteca", "match_city_aliases": ["Mexico City"], "match_country": "Mexico", "country_qid": "Q96", "wikidata_qid": "Q320454", "wikidata_revision": 2516985780},
+    {"source_city": "Monterrey (Guadalupe)", "source_name": "Estadio BBVA", "match_city_aliases": ["Guadalupe"], "match_country": "Mexico", "country_qid": "Q96", "wikidata_qid": "Q3058827", "wikidata_revision": 2513751309, "wikidata_expected_label": "Estadio Monterrey"},
+    {"source_city": "Houston", "source_name": "NRG Stadium", "match_city_aliases": ["Houston"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q1058864", "wikidata_revision": 2515304678},
+    {"source_city": "Dallas (Arlington)", "source_name": "AT&T Stadium", "match_city_aliases": ["Arlington", "Dallas", "Dallas (Arlington)"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q838284", "wikidata_revision": 2513854956},
+    {"source_city": "Kansas City", "source_name": "Arrowhead Stadium", "match_city_aliases": ["Kansas City"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q544553", "wikidata_revision": 2514316333},
+    {"source_city": "Atlanta", "source_name": "Mercedes-Benz Stadium", "match_city_aliases": ["Atlanta"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q7007552", "wikidata_revision": 2513747771},
+    {"source_city": "Miami (Miami Gardens)", "source_name": "Hard Rock Stadium", "match_city_aliases": ["Miami Gardens"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q864339", "wikidata_revision": 2516441996},
+    {"source_city": "Toronto", "source_name": "BMO Field", "match_city_aliases": ["Toronto"], "match_country": "Canada", "country_qid": "Q16", "wikidata_qid": "Q796351", "wikidata_revision": 2513754951},
+    {"source_city": "Boston (Foxborough)", "source_name": "Gillette Stadium", "match_city_aliases": ["Foxborough"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q373355", "wikidata_revision": 2517659034},
+    {"source_city": "Philadelphia", "source_name": "Lincoln Financial Field", "match_city_aliases": ["Philadelphia"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q1052370", "wikidata_revision": 2515066465},
+    {"source_city": "New York/New Jersey (East Rutherford)", "source_name": "MetLife Stadium", "match_city_aliases": ["East Rutherford"], "match_country": "United States", "country_qid": "Q30", "wikidata_qid": "Q10862290", "wikidata_revision": 2515863352}
+  ]
+}

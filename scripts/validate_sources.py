@@ -174,8 +174,10 @@ def validate_enrichment_packs(
             raise ValueError(f"{pack}: enrichment pack crosses a registry boundary")
         source_id = str(snap["source_id"])
         entry = by_id.get(source_id)
-        if entry is None or entry.get("classification") != "enrichment":
-            raise ValueError(f"{pack}: source {source_id!r} is not registered enrichment")
+        if entry is None or entry.get("classification") not in {"core", "enrichment"}:
+            raise ValueError(
+                f"{pack}: source {source_id!r} is not registered as core/enrichment"
+            )
         manifest_path = repo_root / pack / "manifest.json"
         manifest_bytes = manifest_path.read_bytes()
         if hashlib.sha256(manifest_bytes).hexdigest() != str(snap["manifest_sha256"]):

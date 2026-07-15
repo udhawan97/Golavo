@@ -1,0 +1,73 @@
+{
+  "context_pack_version": "2026.07.15.1",
+  "created_at_utc": "2026-07-15T18:00:00Z",
+  "display_only": true,
+  "files": [
+    {
+      "bytes": 888329,
+      "path": "data/enrichment/places.json",
+      "sha256": "c5c3bf86283680a908c1c83448a6d38bcdb148e8a16a3d87876f0d35895f416e"
+    },
+    {
+      "bytes": 100428,
+      "path": "data/enrichment/places.meta.json",
+      "sha256": "5bd86783d43a59f1d69cce33f518358916cc60937fc43335287e345394ff2099"
+    },
+    {
+      "bytes": 915042,
+      "path": "data/enrichment/world_110m.geojson",
+      "sha256": "c9200afc5cad0b3d0c07ce88ba5719cee473c8b16969feaa7d98ed6d2382ed91"
+    },
+    {
+      "bytes": 91763,
+      "path": "data/context/venue_entities.json",
+      "sha256": "5b6c48c3a2d80b250a785b2d9a7604543542943b75efe3df0d4d1bd7db4929ee"
+    },
+    {
+      "bytes": 12971,
+      "path": "data/context/venue_assignments.json",
+      "sha256": "1d729e4045d827667f1c80396a01da3d8d9f012b599431da16cfb14a35133aa4"
+    }
+  ],
+  "limits": {
+    "entity_count": 1513,
+    "runtime_bytes": 2008533,
+    "wikidata_entity_count": 15
+  },
+  "model_input": false,
+  "schema_version": "0.1.0",
+  "sources": [
+    {
+      "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
+      "license": "CC-BY-4.0",
+      "manifest_sha256": "427631878a06be94b2f2989f94fc0fc2fdaceabafcdee546a04ec01ff10a4f46",
+      "retrieved_at_utc": "2026-07-15T07:57:00Z",
+      "source_id": "geonames",
+      "upstream_ref": "2026-07-15"
+    },
+    {
+      "attribution": "Made with Natural Earth.",
+      "license": "PUBLIC-DOMAIN",
+      "manifest_sha256": "7fd8f6bf43ad5de3573e7be61397c13def93a64813f0e1ffd05136c1cb95a84f",
+      "retrieved_at_utc": "2026-07-15T07:57:00Z",
+      "source_id": "natural-earth",
+      "upstream_ref": "v5.1.1@9380cca83db5f9aef52d5e762765100745f84b27"
+    },
+    {
+      "attribution": "World Cup fixtures and kickoff times from openfootball/worldcup.json (Gerald Bauer and contributors), CC0-1.0.",
+      "license": "CC0-1.0",
+      "manifest_sha256": "a17592ab6bf699cb9ae46f9231004a921b84baefee3c8ac1abf70974d63f2d00",
+      "retrieved_at_utc": "2026-07-15T18:00:00Z",
+      "source_id": "openfootball-worldcup-json",
+      "upstream_ref": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+    },
+    {
+      "attribution": "Structured data from Wikidata (CC0); we credit it voluntarily as 'Data from Wikidata'.",
+      "license": "CC0-1.0",
+      "manifest_sha256": "80ca4405d0e3e9dd82352141d8ef896bc7def1bcd3d0ad3041800c189b23708a",
+      "retrieved_at_utc": "2026-07-15T18:00:00Z",
+      "source_id": "wikidata",
+      "upstream_ref": "entity-revisions:Q612227@2514101516,Q612736@2516920588,Q7419343@2513844892,Q19520501@2516922460,Q666183@2513745145,Q320454@2516985780,Q3058827@2513751309,Q1058864@2515304678,Q838284@2513854956,Q544553@2514316333,Q7007552@2513747771,Q864339@2516441996,Q796351@2513754951,Q373355@2517659034,Q1052370@2515066465,Q10862290@2515863352"
+    }
+  ]
+}
