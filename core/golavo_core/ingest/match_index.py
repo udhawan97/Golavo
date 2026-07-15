@@ -1,7 +1,7 @@
 """Build the committed, deterministic match search index and its side tables.
 
 The index is a single frozen Parquet over every bundled CC0 pack (martj42
-internationals + the five openfootball club leagues). It exists so the desktop
+internationals + the OpenFootball domestic and UEFA club competitions). It exists so the desktop
 sidecar can search matches and precompute Commentator's Notebooks on demand
 without re-reading raw packs. Three invariants make the committed bytes
 trustworthy:

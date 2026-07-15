@@ -1,0 +1,96 @@
+{
+  "competition": "UEFA Champions League",
+  "competition_code": "cl",
+  "competition_id": "uefa-champions-league",
+  "coverage": {
+    "data_from": "2020-10-20",
+    "data_through": "2026-05-30",
+    "kickoff_precision": "day",
+    "qualifiers_included": false,
+    "status": "complete-historical-main-competition-results-at-pin"
+  },
+  "files": [
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2020-10-20",
+      "data_through": "2021-05-29",
+      "format_era_id": "uefa-champions-league-group-2021",
+      "indexed_match_count": 125,
+      "name": "2020-21.cl.txt",
+      "season": "2020-21",
+      "sha256": "9d94e40aa2fe2e98cbe5eedcffb7b9223daaaf3acf682411f4965f92a65d666e",
+      "source_match_count": 125,
+      "source_path": "2020-21/cl.txt"
+    },
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2021-09-14",
+      "data_through": "2022-05-28",
+      "format_era_id": "uefa-champions-league-group-2021",
+      "indexed_match_count": 125,
+      "name": "2021-22.cl.txt",
+      "season": "2021-22",
+      "sha256": "36241f4479aa9efda62c62318366bbf36f84cc8719f6387c5747cb5dea7ec519",
+      "source_match_count": 125,
+      "source_path": "2021-22/cl.txt"
+    },
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2022-09-06",
+      "data_through": "2023-06-10",
+      "format_era_id": "uefa-champions-league-group-2021",
+      "indexed_match_count": 125,
+      "name": "2022-23.cl.txt",
+      "season": "2022-23",
+      "sha256": "bf9cd05939b055f12ee9b095bec1c20a0922277bef8940172218548de2e7b93a",
+      "source_match_count": 125,
+      "source_path": "2022-23/cl.txt"
+    },
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2023-09-19",
+      "data_through": "2024-06-01",
+      "format_era_id": "uefa-champions-league-group-2021",
+      "indexed_match_count": 125,
+      "name": "2023-24.cl.txt",
+      "season": "2023-24",
+      "sha256": "5872bee720b32410f28c5272fb7fe7b07aa0f66bcb31ffe157893d75c14c47c5",
+      "source_match_count": 125,
+      "source_path": "2023-24/cl.txt"
+    },
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2024-09-17",
+      "data_through": "2025-05-31",
+      "format_era_id": "uefa-champions-league-league-2024",
+      "indexed_match_count": 189,
+      "name": "2024-25.cl.txt",
+      "season": "2024-25",
+      "sha256": "c2692b22af02c5df4587b69c5f430aebf7d936845b5337aee462ce8e649eb1b5",
+      "source_match_count": 189,
+      "source_path": "2024-25/cl.txt"
+    },
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2025-09-16",
+      "data_through": "2026-05-30",
+      "format_era_id": "uefa-champions-league-league-2024",
+      "indexed_match_count": 189,
+      "name": "2025-26.cl.txt",
+      "season": "2025-26",
+      "sha256": "2b1877308587ff1004c21b8e961b9050b8754f968244e0635eb005040fd9d5cb",
+      "source_match_count": 189,
+      "source_path": "2025-26/cl.txt"
+    },
+    {
+      "name": "CC0-1.0.txt",
+      "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-15T07:39:03Z",
+  "source_id": "openfootball-champions-league",
+  "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
+  "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef",
+  "url": "https://github.com/openfootball/champions-league"
+}

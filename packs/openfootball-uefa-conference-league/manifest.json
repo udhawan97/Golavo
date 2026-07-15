@@ -1,0 +1,72 @@
+{
+  "competition": "UEFA Conference League",
+  "competition_code": "conf",
+  "competition_id": "uefa-conference-league",
+  "coverage": {
+    "data_from": "2021-09-14",
+    "data_through": "2025-05-28",
+    "kickoff_precision": "day",
+    "qualifiers_included": false,
+    "status": "complete-historical-main-competition-results-at-pin"
+  },
+  "files": [
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2021-09-14",
+      "data_through": "2022-05-25",
+      "format_era_id": "uefa-conference-league-group-2021",
+      "indexed_match_count": 141,
+      "name": "2021-22.conf.txt",
+      "season": "2021-22",
+      "sha256": "5537cd70cc73898f2c44c1c512be6cd7abfc147df1aa6716a41a2a66dbc4aff1",
+      "source_match_count": 141,
+      "source_path": "2021-22/conf.txt"
+    },
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2022-09-08",
+      "data_through": "2023-06-07",
+      "format_era_id": "uefa-conference-league-group-2021",
+      "indexed_match_count": 141,
+      "name": "2022-23.conf.txt",
+      "season": "2022-23",
+      "sha256": "a40da4aab99944bdcd2976f9419ea817badb5dfc8f165d18242945109532b555",
+      "source_match_count": 141,
+      "source_path": "2022-23/conf.txt"
+    },
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2023-09-20",
+      "data_through": "2024-05-29",
+      "format_era_id": "uefa-conference-league-group-2021",
+      "indexed_match_count": 141,
+      "name": "2023-24.conf.txt",
+      "season": "2023-24",
+      "sha256": "d7030d077ffe5f4d8ddc6eae3e50b846b9409bd085593fde08342ddbae80f909",
+      "source_match_count": 141,
+      "source_path": "2023-24/conf.txt"
+    },
+    {
+      "cancelled_match_count": 0,
+      "data_from": "2024-10-02",
+      "data_through": "2025-05-28",
+      "format_era_id": "uefa-conference-league-league-2024",
+      "indexed_match_count": 153,
+      "name": "2024-25.conf.txt",
+      "season": "2024-25",
+      "sha256": "b2534794b2e8f70ed8734c2fd7baf9dc0f500c0ab9dd4fc575d82815340574d7",
+      "source_match_count": 153,
+      "source_path": "2024-25/conf.txt"
+    },
+    {
+      "name": "CC0-1.0.txt",
+      "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-15T07:39:04Z",
+  "source_id": "openfootball-champions-league",
+  "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
+  "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef",
+  "url": "https://github.com/openfootball/champions-league"
+}

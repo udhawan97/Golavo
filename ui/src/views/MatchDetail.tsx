@@ -649,7 +649,7 @@ function SealIneligible({ eligibility }: { eligibility: SealEligibility }) {
     kickoff_passed:
       "The seal window has closed. A forecast is only honest if it was sealed before kickoff — for this date-only fixture, before its 00:00 UTC day proxy, which has already passed.",
     unsupported_competition:
-      "Forward sealing currently covers men’s senior international fixtures. Club leagues are bundled for historical backtesting, not forward forecasts.",
+      "Forward sealing currently covers men’s senior international fixtures. Club competitions are bundled for historical analysis, not forward forecasts.",
     pack_unavailable:
       "The pinned data pack for this fixture isn’t available in this build yet, so a forecast can’t be sealed here.",
   };
@@ -675,7 +675,7 @@ function SealUnknown({ match }: { match: MatchRow }) {
         <div className="callout__title">No forecast sealed for this fixture yet</div>
         This build doesn’t report in-app sealing for this fixture.
         {match.source_kind === "club" && (
-          <> Forward sealing currently covers internationals; club leagues are backtesting data.</>
+          <> Forward sealing currently covers internationals; club competitions are historical data.</>
         )}{" "}
         <a href="#/guide/sealing">What is sealing? ›</a>
       </div>

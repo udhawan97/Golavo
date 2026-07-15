@@ -13,8 +13,8 @@ Every match also carries source-backed **Match Notes**. Below is what each does 
 The landing page is football, offline, from the first launch. It shows:
 
 - a **recent results** rail and an **upcoming fixtures** rail drawn from the local index;
-- **search over every match** in the bundled index (~75,000 games — internationals and the
-  five top European leagues), by team or competition;
+- **search over every match** in the bundled index (~77,000 games — internationals, the
+  five top European leagues, and UEFA club competitions), by team or competition;
 - **league shortcuts** into the Leagues hub.
 
 A fresh install with an empty record is still a full, useful page — the app opens on the
@@ -93,10 +93,11 @@ match that already kicked off — a forecast is only honest if it was sealed *be
 
 ## Leagues
 
-A browse hub for the five bundled club leagues and internationals. The club leagues are a
-**historical backtesting** surface, not live club forecasting — their pages never imply a live
-forecast. Forward sealing covers internationals only, because that is the single source that maps
-to a pinned CC0 pack.
+A browse hub for the bundled domestic leagues, UEFA club competitions, and internationals.
+The domestic leagues are a **historical backtesting** surface; the Champions League, Europa
+League, and Conference League are historical browsing and competition-local analytics surfaces.
+Their pages do not imply a complete future schedule or live club forecast. Forward sealing covers
+internationals only.
 
 ## Model Lab
 

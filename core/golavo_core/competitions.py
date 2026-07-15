@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.15.2"
+CATALOG_VERSION = "2026.07.15.3"
 
 
 def _capability(
@@ -129,17 +129,29 @@ def _uefa_club(
     slug: str,
     display_name: str,
     *,
+    coverage: str,
     began: str = "2021/22",
 ) -> dict[str, Any]:
     capabilities = _base_capabilities()
     capabilities["results"] = _capability(
-        "planned",
-        "The CC0 OpenFootball European competition source is registered but not packaged yet.",
+        "available",
+        f"Completed main-competition results are bundled for {coverage}.",
         "openfootball-champions-league",
     )
     capabilities["fixtures"] = _capability(
-        "planned",
-        "Phase 2 must import and completeness-check the pinned competition snapshot.",
+        "partial",
+        "Historical results are complete for the stated editions; no complete future schedule "
+        "is claimed.",
+        "openfootball-champions-league",
+    )
+    capabilities["strength_trends"] = _capability(
+        "available",
+        "Competition-local, cutoff-safe strength trends are derived from bundled results.",
+        "openfootball-champions-league",
+    )
+    capabilities["rest_congestion"] = _capability(
+        "available",
+        "Rest and load count only matches present in this competition's local index.",
         "openfootball-champions-league",
     )
     old_label = (
@@ -232,12 +244,25 @@ _COMPETITIONS: tuple[dict[str, Any], ...] = (
     _domestic("germany-bundesliga", "bundesliga", "Bundesliga", "Bundesliga"),
     _domestic("italy-serie-a", "serie-a", "Serie A", "Serie A"),
     _domestic("france-ligue-1", "ligue-1", "Ligue 1", "Ligue 1"),
-    _uefa_club("uefa-champions-league", "champions-league", "UEFA Champions League"),
-    _uefa_club("uefa-europa-league", "europa-league", "UEFA Europa League"),
+    _uefa_club(
+        "uefa-champions-league",
+        "champions-league",
+        "UEFA Champions League",
+        coverage="2020/21 through 2025/26",
+        began="2020/21",
+    ),
+    _uefa_club(
+        "uefa-europa-league",
+        "europa-league",
+        "UEFA Europa League",
+        coverage="2020/21 through 2024/25",
+        began="2020/21",
+    ),
     _uefa_club(
         "uefa-conference-league",
         "conference-league",
         "UEFA Conference League",
+        coverage="2021/22 through 2024/25",
     ),
     _international(
         "uefa-euro",

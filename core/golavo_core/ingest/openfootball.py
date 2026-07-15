@@ -54,6 +54,17 @@ _TRAIL_TOKENS = frozenset({
     "UD",
 })
 _ALIASES: dict[str, dict[str, str]] = {
+    "uefa": {
+        "Club Atlético de Madrid": "Atlético Madrid",
+        "FC Internazionale Milano": "Inter",
+        "Olympique de Marseille": "Marseille",
+        "Olympique Marseille": "Marseille",
+        "Lazio Roma": "Lazio",
+        "Real Sociedad de Fútbol": "Real Sociedad",
+        "Bor. Mönchengladbach": "Borussia Mönchengladbach",
+        "Olympique Lyonnais": "Lyon",
+        "Racing Club de Lens": "Lens",
+    },
     "es.1": {
         "Club Atlético de Madrid": "Atlético Madrid",
         "RCD Espanyol de Barcelona": "Espanyol",

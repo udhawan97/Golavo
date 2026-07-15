@@ -3,11 +3,11 @@ import type { MatchRow } from "./contract";
 import { LEAGUES, competitionRank, groupMatchesByCompetition, leagueSlugFor } from "./leagues";
 
 describe("league analytics identities", () => {
-  it("gives every bundled club league a stable backend competition id", () => {
+  it("gives every bundled club competition a stable backend competition id", () => {
     const clubs = LEAGUES.filter((league) => league.competition);
-    expect(clubs).toHaveLength(5);
+    expect(clubs).toHaveLength(8);
     expect(clubs.every((league) => league.competitionId?.includes("-"))).toBe(true);
-    expect(new Set(clubs.map((league) => league.competitionId)).size).toBe(5);
+    expect(new Set(clubs.map((league) => league.competitionId)).size).toBe(8);
   });
 });
 
@@ -44,6 +44,7 @@ describe("leagueSlugFor", () => {
   it("maps a big-five competition to its slug", () => {
     expect(leagueSlugFor("English Premier League", "club")).toBe("premier-league");
     expect(leagueSlugFor("Bundesliga", "club")).toBe("bundesliga");
+    expect(leagueSlugFor("UEFA Champions League", "club")).toBe("champions-league");
   });
   it("maps any international to the internationals hub", () => {
     expect(leagueSlugFor("FIFA World Cup", "international")).toBe("internationals");
