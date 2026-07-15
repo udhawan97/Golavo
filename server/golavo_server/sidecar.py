@@ -167,7 +167,7 @@ def _warm_calibration() -> None:
         pass
 
 
-def _warm_search() -> None:
+def _warm_search(warm_analysis: bool = True) -> None:
     """Pre-load the frozen match index so the first /matches/search request does
     not pay the ~25s pandas+parquet stall, then precompute the council for the
     home-window matches so the first cockpit open is likely already cached. Runs
@@ -179,7 +179,8 @@ def _warm_search() -> None:
         from golavo_server import analysis, matches
 
         matches._load_index()
-        analysis.warm_home_window()
+        if warm_analysis:
+            analysis.warm_home_window()
     except Exception:  # noqa: BLE001 (warm-up must never crash the server)
         pass
 
@@ -204,6 +205,8 @@ def _serve(
     token: str | None,
     data_dir: str | None,
     parent_pid: int | None = None,
+    stop_event: threading.Event | None = None,
+    warm_analysis: bool = True,
 ) -> None:
     """Run uvicorn (blocking). Env is set BEFORE importing the app so its
     module-level config (ledger dir) and the token gate see the right values."""
@@ -221,11 +224,35 @@ def _serve(
             target=_watch_parent, args=(parent_pid,), name="watch-parent", daemon=True
         ).start()
     threading.Thread(target=_warm_calibration, name="warm-calibration", daemon=True).start()
-    threading.Thread(target=_warm_search, name="warm-search", daemon=True).start()
-    uvicorn.run(app, host=host, port=port, log_level="warning")
+    threading.Thread(
+        target=_warm_search, args=(warm_analysis,), name="warm-search", daemon=True
+    ).start()
+    if stop_event is None:
+        uvicorn.run(app, host=host, port=port, log_level="warning")
+        return
+    # In-process smoke tests need an explicit shutdown path. Without it, their
+    # uvicorn and warm-analysis threads leak into later tests and can repopulate
+    # a cache after a fixture reset. The packaged sidecar passes no event and
+    # keeps the normal blocking production path above.
+    server = uvicorn.Server(uvicorn.Config(app, host=host, port=port, log_level="warning"))
+
+    def request_stop() -> None:
+        stop_event.wait()
+        server.should_exit = True
+
+    threading.Thread(target=request_stop, name="smoke-stop", daemon=True).start()
+    server.run()
 
 
 def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
+    stop_event = threading.Event()
+    try:
+        return _smoke_running(timeout, stop_event)
+    finally:
+        stop_event.set()
+
+
+def _smoke_running(timeout: float, stop_event: threading.Event) -> int:
     """Boot the server on an ephemeral port in a background thread and assert
     that /health becomes ready AND the match-search AND on-demand-notebook
     surfaces answer. Returns 0 on success, 1 on timeout/failure.
@@ -244,7 +271,17 @@ def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
     token = "smoke-" + os.urandom(8).hex()
     thread = threading.Thread(
         target=_serve,
-        kwargs={"host": host, "port": port, "token": token, "data_dir": None},
+        kwargs={
+            "host": host,
+            "port": port,
+            "token": token,
+            "data_dir": None,
+            "stop_event": stop_event,
+            # Smoke directly probes a notebook after the index is ready. It does
+            # not need the separate home-window council warmer, whose in-process
+            # work would otherwise outlive the smoke assertion.
+            "warm_analysis": False,
+        },
         daemon=True,
     )
     thread.start()
