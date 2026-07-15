@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { CommentatorsNotebook, FactLabel, NotebookFact } from "./contract";
-import { topInsights } from "./insights";
+import type { CommentatorsNotebook, FactLabel, MatchAnalysis, NotebookFact } from "./contract";
+import { chapterPullNumber, topInsights } from "./insights";
 
 let seq = 0;
 function mk(over: Partial<NotebookFact> & { label: FactLabel }): NotebookFact {
@@ -44,6 +44,39 @@ function notebook(facts: NotebookFact[]): CommentatorsNotebook {
     facts,
     suppressed: [],
     generator: "test",
+  };
+}
+
+function analysis(overrides: Partial<MatchAnalysis> = {}): MatchAnalysis {
+  return {
+    schema_version: "0.4.1",
+    analysis_kind: "preview",
+    match: {
+      match_id: "m1",
+      competition: "C",
+      kickoff_utc: "2026-01-02T00:00:00Z",
+      home_team: "A",
+      away_team: "B",
+      neutral_venue: false,
+      is_complete: false,
+    },
+    information_cutoff_utc: "2026-01-01T00:00:00Z",
+    abstained: false,
+    abstain_reason: null,
+    uncertainty: "medium",
+    team_history: { A: 20, B: 20 },
+    min_team_matches: 8,
+    council: {
+      voices: 2,
+      voices_agree: true,
+      leading_outcome: "home",
+      max_delta_p: 0.1,
+      outcome_range: null,
+    },
+    models: [],
+    score_matrix: null,
+    score_matrix_family: null,
+    ...overrides,
   };
 }
 
@@ -105,5 +138,91 @@ describe("topInsights", () => {
     const b = topInsights(notebook(facts.slice().reverse()), 3);
     expect(a).toHaveLength(3);
     expect(a.map((f) => f.id)).toEqual(b.map((f) => f.id));
+  });
+});
+
+describe("chapterPullNumber", () => {
+  const context = { analysis: null, notebook: null };
+
+  it("leaves chapters quiet when no already-rendered number qualifies", () => {
+    expect(chapterPullNumber("form", context)).toBeNull();
+    expect(chapterPullNumber("history", context)).toBeNull();
+  });
+
+  it("selects the longest current form run with stable result and team tie-breaks", () => {
+    const entry = (result: "W" | "D" | "L", date: string) => ({
+      result, opponent: "X", gf: result === "W" ? 2 : 1, ga: result === "L" ? 2 : 1,
+      date, is_home: false, neutral: false,
+    });
+    const value = chapterPullNumber("form", {
+      analysis: analysis({
+        team_form: {
+          B: [entry("W", "1"), entry("W", "2"), entry("W", "3")],
+          A: [entry("W", "1"), entry("W", "2"), entry("W", "3")],
+        },
+      }),
+      notebook: null,
+    });
+    expect(value).toMatchObject({ value: "3", takeaway: "A: Three away wins in a row." });
+  });
+
+  it("selects the style multiplier furthest from the engine baseline", () => {
+    const value = chapterPullNumber("style", {
+      analysis: analysis({
+        team_style: {
+          family: "dixon_coles",
+          derivation: "fitted_from_results",
+          baseline: 1,
+          clip: { min: 0.2, max: 3 },
+          teams: {
+            A: { attack: 1.08, defence: 0.92, expected_goals_for: null, expected_goals_against: null },
+            B: { attack: 1.24, defence: 1.04, expected_goals_for: null, expected_goals_against: null },
+          },
+        },
+      }),
+      notebook: null,
+    });
+    expect(value).toMatchObject({ value: "1.24×", label: "Fitted multiplier" });
+    expect(value?.takeaway).toContain("B's attack");
+  });
+
+  it("uses the same ranked notebook fact and display value as the history chapter", () => {
+    const fact = mk({
+      id: "unbeaten_run",
+      scope: "head_to_head",
+      label: "context",
+      text: "A are unbeaten in four meetings.",
+      base_rate: 0.625,
+    });
+    expect(chapterPullNumber("history", { analysis: null, notebook: notebook([fact]) })).toMatchObject({
+      label: "Unbeaten run",
+      value: "63%",
+      takeaway: "A are unbeaten in four meetings.",
+    });
+  });
+
+  it("selects the strongest voice probability and exact-score verdict deterministically", () => {
+    const current = analysis({
+      models: [
+        {
+          family: "elo_ordlogit", role: "voice", method: "ratings", abstained: false,
+          probs: { home: 0.61, draw: 0.22, away: 0.17 }, expected_goals: null, score_matrix: null, params: {},
+        },
+        {
+          family: "dixon_coles", role: "voice", method: "goals", abstained: false,
+          probs: { home: 0.58, draw: 0.24, away: 0.18 }, expected_goals: null, score_matrix: null, params: {},
+        },
+      ],
+      score_matrix: {
+        max_goals: 6, resolution: 12, grid: [[0.1]],
+        tail: { probability: 0, home: 0, draw: 0, away: 0 },
+        most_likely: { home: 2, away: 1, probability: 0.1234 }, total_probability: 1,
+      },
+    });
+    expect(chapterPullNumber("models", { analysis: current, notebook: null })).toMatchObject({ value: "61.0%" });
+    expect(chapterPullNumber("verdict", { analysis: current, notebook: null })).toMatchObject({
+      value: "2–1",
+      takeaway: "12.3% for this exact scoreline in the goal model.",
+    });
   });
 });

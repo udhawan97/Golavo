@@ -25,7 +25,11 @@ and a Settings gear.
 
 Open **any** indexed match — past or upcoming, club or international — and Golavo computes a
 leak-safe multi-model read **on demand**, at the seal's own `kickoff − 1s` cutoff. Nothing is
-precomputed and nothing is stored: the cockpit is a live read, never a sealed artifact.
+precomputed and nothing is stored: the cockpit is a live read, never a sealed artifact. It is
+presented as a six-chapter matchday programme: **form**, **fitted style**, **history**, **model
+deliberation**, **verdict and your pick**, then the optional **analyst's column**.
+
+![Match Cockpit in Casual mode, opening with the form chapter](/Golavo/screenshots/match-cockpit.png)
 
 - **Replay** — a played match, reconstructed using only data available before kickoff. It is
   **not** a forecast that existed at the time and never enters the track record; it just shows
@@ -36,16 +40,29 @@ Either way you get:
 
 - a gold **Your call** ticket on upcoming matches. Save a score, reveal the five deterministic
   rivals, change it until kickoff, then let the final result decide the points;
-
+- venue-aware last-five form, opponents on focus or hover, deterministic streaks, and a compact
+  goal-difference trend for each side;
+- a result-fitted attack and defence profile, plus guarded goal-timing and penalty-share facts
+  only when the engine's notebook contains them;
 - **Two voices** — Elo (ratings) and Dixon–Coles (goals) — shown side by side, with whether
   they **agree or disagree**. The Poisson variants are disclosed but never counted as extra
   opinions, and a **climatology baseline** is shown for reference. Nothing is averaged into a
   fake consensus — honest disagreement is the point.
 - A glanceable **Score Outlook** with the balanced over/under line, clean-sheet edge,
-  and goal peak. Open **More markets** for threshold bars, clean-sheet comparisons,
-  the total-goal distribution and expected total; the coherent **exact-score grid**
-  remains available behind its own disclosure.
+  and goal peak. Expert adds double chance, every total-goal threshold, clean-sheet
+  comparisons, the total-goal distribution, the coherent **exact-score grid**, and the exact
+  home/draw/away split in the probability mass beyond that grid.
 - An honest **abstain** state when either side has too little history to model.
+
+### Casual and Expert
+
+Both modes keep the same chapter order and forecast values. **Casual** is a concise editorial
+read: essential charts and one-line takeaways, with technical machinery kept out of the way.
+**Expert** visibly adds fitted parameters, precise style values, model-range bands, baseline and
+variant detail, all market rows, the exact-score matrix, source proof, and the full sealing audit.
+The mode summary beneath the match header states which depth is active.
+
+![Expert mode showing the fitted model values behind the council](/Golavo/screenshots/match-cockpit-expert.png)
 
 The cockpit is machine-checked leak-safe: the cutoff proof rejects any training row dated at or
 after `kickoff − 1s`.

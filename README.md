@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.11.1" src="https://img.shields.io/badge/version-v0.11.1-6082b8?style=flat-square">
+  <img alt="version v0.12.0" src="https://img.shields.io/badge/version-v0.12.0-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -45,7 +45,7 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.11.1 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.12.0 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, calibration record, optional guarded AI narration, and
@@ -93,20 +93,37 @@ model rivals on exactly the matches you choose to play.
 
 ## The Match Cockpit
 
-Most prediction products show you a number. Golavo shows you **where it came from,
-when it was locked, and what happened to it after the whistle**. The result may humble
-the model; it may not help with the rewrite.
+Most prediction products show you a number. Golavo gives the match room to unfold: six
+chapters move from recent form and fitted style through history and model disagreement to
+the verdict, your call, and an optional evidence-bound analyst column. The result may humble
+the model; it still cannot rewrite the original evidence.
 
 <p align="center">
-  <img src="docs-site/public/screenshots/match-cockpit.png" alt="Golavo Match Cockpit replay comparing Elo ratings and Dixon–Coles probabilities without averaging them" width="920">
+  <img src="docs-site/public/screenshots/match-cockpit.png" alt="Golavo Match Cockpit presented as a six-chapter matchday programme in Casual mode" width="920">
 </p>
 
 <p align="center">
-  <sub><strong>Two voices, one baseline, no fake consensus.</strong> This replay reconstructs the view using pre-kickoff data only and explains why the methods disagree.</sub>
+  <sub><strong>Six chapters, one honest read.</strong> Casual keeps the story concise; Expert restores fitted values, every market row, sources, and audit context without changing a probability.</sub>
 </p>
 
-- **Explore:** open any indexed match for a Replay (played) or Preview (scheduled).
-- **Compare:** Elo ratings and Dixon–Coles goals stay separate, with climatology shown only as a baseline.
+<details>
+<summary>&nbsp;📖&nbsp; Watch the programme unfold</summary>
+
+<br>
+
+<p align="center">
+  <img src="docs-site/public/screenshots/match-programme.gif" alt="Animated tour through Golavo's form, style, history, models, Expert detail, markets, and verdict chapters" width="920">
+</p>
+
+<p align="center">
+  <img src="docs-site/public/screenshots/match-cockpit-expert.png" alt="Golavo Expert mode showing fitted Elo and Dixon–Coles values under the hood" width="920">
+</p>
+
+</details>
+
+- **Read:** move through form, style, history, model deliberation, verdict and pick, then the optional analyst column.
+- **Choose depth:** Casual presents the essential story; Expert adds fitted values, full markets, source proof, and audit detail in the same order.
+- **Compare:** Elo ratings and Dixon–Coles goals stay separate, with climatology shown only as an Expert reference.
 - **Seal:** for eligible upcoming internationals, freeze the model, cutoff, inputs, source state, probabilities, and digest.
 - **Score:** after full time, append a scored or voided successor; never edit the original claim.
 
@@ -131,19 +148,19 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 
 | | Do this | Get this |
 | :---: | --- | --- |
-| 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A leak-safe multi-model read: two voices (Elo ratings, the Dixon–Coles goal model) plus a climatology baseline, where they agree or disagree, and a glanceable Score Outlook — computed on demand, never averaged into a fake consensus |
+| 🔭 | **Open any match in the Match Cockpit** — past or upcoming, club or international | A six-chapter, leak-safe programme: form, fitted style, history, two separate model voices, Score Outlook, verdict and pick, plus the optional evidence-bound analyst column |
 | ⚽ | **Browse Games, Leagues, and search 75,000 matches** — recent results, any upcoming fixtures, the big-five leagues | A useful home from the first launch, offline, with an empty ledger — the app opens on football, not on an audit form |
 | 🎟️ | **Make your score call** — edit until kickoff, then race five named model rivals | A fingerprinted local pick, simple 3 / 1 / +1 scoring, and My Season standings over only the matches you play |
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
 | 🔏 | **Track a prediction — seal before kickoff** — freeze probabilities, model version, seed, parameters, cutoff, and inputs | An immutable claim the result cannot rewrite; the cockpit’s live preview, put on the record |
-| 🥅 | **Explore the Score Outlook** — balanced O/U line, clean-sheet edge, goal peak, total-goal distribution, and an expandable exact-score grid with an honest out-of-grid tail | The same goal distribution behind the 1X2 forecast, shaped for a quick read without becoming a decorative second guess |
+| 🥅 | **Explore the Score Outlook** — key goal signals in Casual; double chance, every total-goal line, distribution, exact-score matrix, and the outcome split beyond the grid in Expert | The same goal distribution behind the 1X2 forecast, with progressive depth instead of a decorative second guess |
 | 🧾 | **Score after full time** — write a linked scored or voided successor | Outcome, assigned probability, log loss, Brier, or a real void reason |
 | 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
-| 🗒️ | **Read Match Notes** — form timelines, fitted team style, scorer and head-to-head features, plus signature stats and records | Source-backed evidence in an editorial hierarchy, de-duplicated from the headline picks, with sample/freshness guards and coincidences quarantined |
+| 🗒️ | **Read the programme evidence** — venue-aware form timelines and streaks, fitted team style, guarded goal timing, head-to-head features, signature stats and records | Source-backed evidence in an editorial hierarchy, de-duplicated from the pull numbers, with sample/freshness guards and coincidences quarantined |
 | 🏆 | **Read the match's history** — club comeback/lead records from recorded half-time scores, plus a trophy-and-awards shelf on exact FIFA World Cup fixtures | Source-backed context with visible sample limits and as-of filtering, never a second forecast engine |
 | 🤖 | **Enable the AI Analyst Read** *(optional)* — use the built-in Ollama guide to install a Fast or Deep model, connect llama.cpp, or bring a cloud key. Pick **Fast** (a small model, seconds) or **Deep analysis** (a bigger model, usually 5–8 minutes); optionally let it **research the web** | Opens with a one-line **verdict**, then a cited synthesis that *connects* the evidence (never authors a number), with real staged progress. Deep puts a bigger model on more of the evidence with scenarios; opt-in web research adds a separate, clearly-badged *not-engine-verified* section. A dropped claim's content is never shown |
-| 👓 | **Switch Casual / Expert** | Plain-language reading or full seal, provenance, uncertainty, and score-matrix detail — same numbers, different studs |
+| 👓 | **Switch Casual / Expert** | A concise editorial read or visibly deeper model values, market rows, sources, seal, provenance and score-matrix detail — same numbers, different depth |
 | 🖥️ | **Run locally** — source web app or Tauri desktop shell | A private workbench with no account, ads, or hosted forecasting backend |
 
 <details>
@@ -158,7 +175,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Artifacts** | Versioned JSON contracts for forecasts, evidence bundles, facts, and AI narration; canonical payload hashes and source snapshot ids |
 | **Models** | Climatological baseline, Elo ordinal-logit, independent Poisson, time-decayed Dixon–Coles, and bivariate Poisson; no permanent champion declared |
 | **Exact scores** | Goal-based seals include the coherent score grid they already imply, including an explicit high-score tail |
-| **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** (played match, reconstructed with pre-kickoff data only) or **Preview** (scheduled match). Two voices plus a baseline, honest disagreement, model-implied goals, and the goal model's score grid — machine-checked leak-safe, never sealed, never averaged |
+| **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** or **Preview** arranged as six programme chapters. Casual keeps the essential story; Expert exposes fitted model internals, complete market rows, source proof, and the coherent score grid — machine-checked leak-safe, never averaged |
 | **Navigation** | Games-first home (recent + upcoming rails, offline), Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
 | **Your Call / My Season** | Kickoff-locked score picks with SHA-256 integrity, durable local storage, five deterministic rivals, 3 / 1 / +1 scoring, standings, history, filters, cumulative points, and streaks |
 | **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, provenance, scored/voided/superseded states, Casual and Expert presentation, "three things to know" insight cards, re-seal "what moved" deltas, and reading-comfort themes (incl. a warm low-blue mode) |

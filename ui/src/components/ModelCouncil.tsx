@@ -25,6 +25,7 @@ import type { AsyncState } from "../lib/hooks";
 import { ProbabilityBar, TrustStrip } from "./primitives";
 import { BlockSkeleton, Loading } from "./states";
 import { InfoIcon, ShieldCheckIcon } from "./icons";
+import { ModelInternals } from "./ModelInternals";
 
 const VOICE_LABEL: Record<string, string> = {
   elo_ordlogit: "Elo · ratings",
@@ -41,20 +42,25 @@ export function ModelCouncil({
   home,
   away,
   onRetry,
+  headingLevel = 2,
+  expert = false,
 }: {
   state: AnalysisState;
   home: string;
   away: string;
   onRetry: () => void;
+  headingLevel?: 2 | 3;
+  expert?: boolean;
 }) {
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   return (
     <section className="panel" aria-labelledby="mc-h">
       <div className="panel__head">
-        <h2 id="mc-h">Model council</h2>
+        <Heading id="mc-h">Model council</Heading>
         <KindChip state={state} />
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: "1.1rem" }}>
-        <Body state={state} home={home} away={away} onRetry={onRetry} />
+        <Body state={state} home={home} away={away} onRetry={onRetry} expert={expert} />
       </div>
     </section>
   );
@@ -78,11 +84,13 @@ function Body({
   home,
   away,
   onRetry,
+  expert,
 }: {
   state: AnalysisState;
   home: string;
   away: string;
   onRetry: () => void;
+  expert: boolean;
 }) {
   if (state.status === "loading")
     return (
@@ -125,7 +133,7 @@ function Body({
 
   const a = resp.analysis;
   if (a.abstained) return <Abstained analysis={a} />;
-  return <Council analysis={a} home={home} away={away} />;
+  return <Council analysis={a} home={home} away={away} expert={expert} />;
 }
 
 /** Not enough history — the same honest floor a seal uses. No fabricated numbers. */
@@ -151,10 +159,12 @@ function Council({
   analysis,
   home,
   away,
+  expert,
 }: {
   analysis: MatchAnalysis;
   home: string;
   away: string;
+  expert: boolean;
 }) {
   const models = analysis.models;
   const voices = models.filter((m) => m.role === "voice" && m.probs);
@@ -187,7 +197,7 @@ function Council({
         ))}
       </div>
 
-      {c.outcome_range && c.voices >= 2 && (
+      {expert && c.outcome_range && c.voices >= 2 && (
         <OutcomeRangeBand range={c.outcome_range} home={home} away={away} />
       )}
 
@@ -196,20 +206,28 @@ function Council({
           <InfoIcon size={18} />
           <div>
             <div className="callout__title">Why they differ</div>
-            The ratings model weighs overall team strength; the goal model weighs recent
-            attack/defence rates. They diverge by up to{" "}
-            <span className="num">{Math.round((c.max_delta_p ?? 0) * 100)}</span> points on an
-            outcome here — a genuine disagreement worth noting, not a rounding gap.
+            {expert ? (
+              <>
+                The ratings model weighs overall team strength; the goal model weighs recent
+                attack/defence rates. They diverge by up to{" "}
+                <span className="num">{Math.round((c.max_delta_p ?? 0) * 100)}</span> points on an
+                outcome here — a genuine disagreement, not a rounding gap.
+              </>
+            ) : (
+              <>One voice trusts overall strength; the other gives more weight to recent scoring patterns.</>
+            )}
           </div>
         </div>
       )}
+
+      {expert && <ModelInternals analysis={analysis} home={home} away={away} />}
 
       {/* Likely goals & score live in the Score outlook section below, from the
           same goal model. */}
 
       {/* Baseline + variants — disclosed, never a vote. */}
-      <details className="council-more">
-        <summary>Baseline &amp; model variants</summary>
+      {expert && <details className="council-more" open>
+        <summary>Expert detail · baseline &amp; model variants</summary>
         <div className="stack" style={{ ["--gap" as string]: ".8rem", marginTop: ".75rem" }}>
           {baseline?.probs && (
             <p className="small muted" style={{ margin: 0 }}>
@@ -236,7 +254,7 @@ function Council({
             </div>
           )}
         </div>
-      </details>
+      </details>}
     </>
   );
 }

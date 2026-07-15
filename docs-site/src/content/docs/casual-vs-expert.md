@@ -3,12 +3,23 @@ title: Casual vs Expert
 description: Two presentation depths over the same sealed numbers. Different depth never means different certainty.
 ---
 
-Every forecast detail page has a **Casual ⇄ Expert** toggle (top-right, persisted like the theme). It changes how much is shown — never the probabilities. The 1X2 verdict bar and its plain-language headline are byte-for-byte identical in both modes.
+The Match Cockpit and every sealed forecast detail page have a **Casual ⇄ Expert** toggle
+(top-right, persisted like the theme). It changes how much is shown — never a probability.
+The active depth is stated beneath the match header so the change is visible before you scroll.
+
+On the Match Cockpit, both modes follow the same six chapters: form, fitted style, history,
+model deliberation, verdict and pick, then the optional analyst column. **Casual** keeps the
+essential story and compact charts. **Expert** adds full model values, market rows, sources,
+and audit context in place, without rearranging the page.
 
 The page reads top-to-bottom as: a calm **match header** (teams, competition, date, venue — the raw ids are demoted to the provenance drawer), the one-line **trust strip** ("Sealed before kickoff · Deterministic · AI never changes the numbers", each with an ⓘ for the detail), the verdict bar, a short **In plain terms** reading, **Three things to know**, the Commentator's Notebook, and the expert drawers.
 
 | | Casual | Expert |
 |---|---|---|
+| Match programme | concise chapter introductions, fixed-rule pull numbers, essential charts and takeaways | same order, plus precise style values, model-range bands, fitted parameters, full markets and source proof |
+| Model council | each voice and a plain-language explanation of disagreement | adds the outcome range, Elo and Dixon–Coles internals, climatology baseline, and goal-model variants |
+| Score Outlook | headline score/goal tiles, key split bars, and one quick market takeaway | adds double chance, all goal thresholds, clean-sheet comparison, goal distribution, beyond-grid outcome split, and exact-score matrix |
+| Match evidence | guarded facts and visual summaries | adds source/sample/freshness proof where the payload provides it |
 | Verdict | verdict bar + plain-language headline | verdict bar + plain-language headline |
 | Reading | *In plain terms* — most-likely outcome/score with a natural-frequency gloss ("about 3 in 5"), expected goals, uncertainty | same |
 | Three things to know | 3 fixed-rule picks from the notebook | same |
@@ -18,7 +29,10 @@ The page reads top-to-bottom as: a calm **match header** (teams, competition, da
 | Provenance & inputs | collapsed drawer | opened — per-snapshot source, sha256, retrieved-at, plus the demoted match/artifact ids |
 | Calibration | collapsed drawer | opened — uncertainty flag + link to the prediction ledger |
 
-The expert drawers are native `<details>` accordions: **collapsed** in Casual and **opened** in Expert, but a Casual reader can still expand any one — depth is progressive disclosure, not a hard wall. The Commentator's Notebook and the optional AI Deep Read sit below in **both** modes, always subordinate to the sealed numbers.
+On sealed forecast pages, expert drawers remain native `<details>` accordions: **collapsed** in
+Casual and **opened** in Expert. In the Match Cockpit, the deepest model and market blocks are
+Expert-only so the Casual programme stays genuinely concise. The deterministic verdict and the
+optional AI read remain in both modes, with AI always subordinate to the engine's numbers.
 
 **Percentages are whole numbers** in the verdict bar and readings (both modes), so the UI never implies precision the model doesn't have; the three 1X2 figures are rounded by largest-remainder so they still sum to 100. One decimal survives only in the expert heatmap, ledger, and evaluation tables.
 

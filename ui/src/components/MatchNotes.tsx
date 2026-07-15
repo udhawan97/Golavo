@@ -7,11 +7,20 @@ import { FormationPitch } from "./FormationPitch";
 import { AlertIcon } from "./icons";
 import { TeamStyleProfile } from "./TeamStyleProfile";
 import { EmptyState } from "./states";
+import { formStreakSentence, formVenue, goalDifferenceTrend, signedGoalDifference } from "../lib/matchProgramme";
 
 interface FormationEnrichment {
   home?: string | null;
   away?: string | null;
   source_label: string;
+}
+
+interface MatchNotesProps {
+  notebook: CommentatorsNotebook | null;
+  analysis: MatchAnalysis | null;
+  omitKeys?: ReadonlySet<string>;
+  formation?: FormationEnrichment | null;
+  expert?: boolean;
 }
 
 function displayValue(fact: NotebookFact): string {
@@ -46,20 +55,89 @@ function FactCard({ fact, index }: { fact: NotebookFact; index: number }) {
   );
 }
 
+export function FormSparkline({ team, entries }: { team: string; entries: FormEntry[] }) {
+  const values = goalDifferenceTrend(entries);
+  const min = Math.min(...values, 0);
+  const max = Math.max(...values, 0);
+  const spread = Math.max(1, max - min);
+  const points = values.map((value, index) => {
+    const x = values.length === 1 ? 30 : 2 + index * (56 / (values.length - 1));
+    const y = 16 - ((value - min) / spread) * 12;
+    return `${x},${y}`;
+  }).join(" ");
+  const equivalent = values.map(signedGoalDifference).join(", ");
+  return (
+    <div className="mn-form__trend">
+      <svg className="form-sparkline__svg" viewBox="0 0 60 20" aria-hidden focusable="false">
+        <line x1="2" x2="58" y1={16 - ((0 - min) / spread) * 12} y2={16 - ((0 - min) / spread) * 12} />
+        <polyline points={points} />
+      </svg>
+      <span className="small dim">Goal difference · oldest to newest</span>
+      <span className="visually-hidden">{team} goal-difference trend, oldest to newest: {equivalent}.</span>
+    </div>
+  );
+}
+
 function FormTimeline({ team, entries }: { team: string; entries: FormEntry[] }) {
   if (entries.length === 0) return <div className="mn-form"><b>{team}</b><span className="small dim">No prior results in this data.</span></div>;
+  const streak = formStreakSentence(entries);
   return (
     <div className="mn-form">
       <b>{team}</b>
       <div className="mn-form__track" aria-label={`${team} last ${entries.length} results`}>
-        {entries.map((entry, index) => (
-          <div className="mn-form__result" key={`${entry.date}-${index}`} title={`${entry.result} ${entry.gf}–${entry.ga} v ${entry.opponent}`}>
+        {entries.map((entry, index) => {
+          const venue = formVenue(entry);
+          const venueMark = venue === "home" ? "H" : venue === "away" ? "A" : "N";
+          const label = `${entry.result} ${entry.gf}–${entry.ga} against ${entry.opponent}, ${venue}`;
+          return (
+          <button type="button" className="mn-form__result" key={`${entry.date}-${index}`} aria-label={label} data-opponent={entry.opponent}>
             <span className={`mn-form__dot mn-form__dot--${entry.result.toLowerCase()}`}>{entry.result}</span>
-            <span className="num">{entry.gf}–{entry.ga}</span>
-          </div>
-        ))}
+            <span className="mn-form__score"><span className="num">{entry.gf}–{entry.ga}</span><span className="mn-form__venue" title={venue}>{venueMark}</span></span>
+          </button>
+          );
+        })}
       </div>
+      <FormSparkline team={team} entries={entries} />
+      {streak && <p className="mn-form__streak">{streak}</p>}
     </div>
+  );
+}
+
+const TIMING_BANDS = ["0–15", "15–30", "30–45", "45–60", "60–75", "75–90", "90+"];
+
+function GoalTimingSpotlight({ timing, penalties, expert }: {
+  timing: NotebookFact[];
+  penalties: NotebookFact[];
+  expert?: boolean;
+}) {
+  if (timing.length === 0) return null;
+  return (
+    <section className="mn-section mn-timing" aria-labelledby="mn-timing-title">
+      <div className="mn-section__head"><span className="upper">Scoring clock</span><h3 id="mn-timing-title">When they score</h3></div>
+      <div className="mn-timing__grid">
+        {timing.map((fact) => {
+          const phase = fact.values.phase === "opening" ? "opening" : fact.values.phase === "closing" ? "closing" : null;
+          const penalty = penalties.find((item) => item.subject === fact.subject);
+          return (
+            <article className="mn-timing__team" key={factKey(fact)}>
+              <header><strong>{fact.subject}</strong>{penalty && <span className="chip chip--neutral"><span className="num">{displayValue(penalty)}</span> penalty share</span>}</header>
+              <figure>
+                <svg viewBox="0 0 350 48" role="img" aria-label={`${fact.subject}: ${fact.text}`}>
+                  {TIMING_BANDS.map((band, index) => {
+                    const highlighted = phase === "opening" ? index === 0 : phase === "closing" ? index >= 5 : false;
+                    return <rect key={band} x={index * 50 + 2} y={highlighted ? 5 : 13} width="46" height={highlighted ? 28 : 20} rx="3" className={highlighted ? "is-highlighted" : undefined} />;
+                  })}
+                </svg>
+                <div className="mn-timing__labels" aria-hidden>{TIMING_BANDS.map((band) => <span className="num" key={band}>{band}</span>)}</div>
+                <figcaption>{fact.text}</figcaption>
+              </figure>
+              {expert && <FactSource fact={fact} />}
+            </article>
+          );
+        })}
+      </div>
+      <p className="small dim">Highlighted bands locate the guarded opening or closing phase reported by the engine; unhighlighted bands do not imply zero goals.</p>
+    </section>
   );
 }
 
@@ -81,24 +159,24 @@ function H2HBand({ fact }: { fact: NotebookFact }) {
   );
 }
 
-export function MatchNotes({
+/** One preparation path feeds every chapter extraction. The fact ranking,
+ * quarantine, source proof, and display values stay exactly where they lived. */
+function prepareNotes({
   notebook,
   analysis,
   omitKeys = new Set(),
   formation = null,
-  expert = false,
-}: {
-  notebook: CommentatorsNotebook | null;
-  analysis: MatchAnalysis | null;
-  omitKeys?: ReadonlySet<string>;
-  formation?: FormationEnrichment | null;
-  expert?: boolean;
-}) {
+}: MatchNotesProps) {
   const visible = notebook?.facts.filter((fact) => !omitKeys.has(factKey(fact))) ?? [];
-  const visibleNotebook = notebook ? { ...notebook, facts: visible } : null;
+  const timing = visible.filter((fact) => fact.id === "goal_timing_profile");
+  const timingSubjects = new Set(timing.map((fact) => fact.subject));
+  const penalties = visible.filter((fact) => fact.id === "penalty_goal_share" && timingSubjects.has(fact.subject));
+  const featuredKeys = new Set([...timing, ...penalties].map(factKey));
+  const rankable = visible.filter((fact) => !featuredKeys.has(factKey(fact)));
+  const visibleNotebook = notebook ? { ...notebook, facts: rankable } : null;
   const headlines = topInsights(visibleNotebook);
   const headlineKeys = new Set(headlines.map(factKey));
-  const deep = visible.filter((fact) => !headlineKeys.has(factKey(fact)));
+  const deep = rankable.filter((fact) => !headlineKeys.has(factKey(fact)));
   const editorial = deep.filter((fact) => fact.label !== "coincidence");
   const hero = editorial[0] ?? null;
   const scorers = editorial.filter((fact) => fact.id === "in_form_scorer" || fact.id === "top_scorer");
@@ -108,58 +186,145 @@ export function MatchNotes({
   const coincidences = visible.filter((fact) => fact.label === "coincidence");
   const home = analysis?.match.home_team ?? notebook?.match.home_team ?? "Home";
   const away = analysis?.match.away_team ?? notebook?.match.away_team ?? "Away";
-  const form = analysis?.team_form;
-  const hasBody = headlines.length > 0 || hero || cards.length || scorers.length || h2h || form || analysis?.team_style || formation;
+  return {
+    notebook,
+    analysis,
+    formation,
+    headlines,
+    hero,
+    scorers,
+    h2h,
+    cards,
+    coincidences,
+    timing,
+    penalties,
+    home,
+    away,
+    form: analysis?.team_form,
+  };
+}
 
+/** Chapter 01 extraction: the existing last-five strip, with no duplicated
+ * ranking or fetch ownership. */
+export function MatchFormBook(props: MatchNotesProps) {
+  const view = prepareNotes(props);
+  if (!view.form) {
+    return <EmptyState title="No recent form available">The model snapshot does not include a last-five sequence for this fixture.</EmptyState>;
+  }
   return (
-    <section className="mn" aria-labelledby="mn-title">
-      <header className="mn-masthead">
-        <div><span className="upper">Deterministic · source-backed</span><h2 id="mn-title">Match Notes</h2></div>
-        <div className="mn-folio small dim"><span>As of {notebook?.as_of_utc.slice(0, 10) ?? analysis?.information_cutoff_utc.slice(0, 10) ?? "—"}</span><span>Rule set {notebook?.registry_version ?? "—"}</span></div>
-      </header>
-      <p className="mn-deck">The form, records and source-backed details behind this fixture. Descriptive history only — never a forecast, and no AI wrote it.</p>
+    <div className="mn programme-notes">
+      <section className="mn-section" aria-label="Recent results">
+        <div className="mn-form-grid">
+          <FormTimeline team={view.home} entries={view.form[view.home] ?? []} />
+          <FormTimeline team={view.away} entries={view.form[view.away] ?? []} />
+        </div>
+        <p className="small dim">Last five completed matches · pre-kickoff only.</p>
+      </section>
+    </div>
+  );
+}
 
-      {!hasBody ? <EmptyState title="No match notes for this fixture">No deterministic facts cleared the sample and freshness guards. Nothing is invented to fill the page.</EmptyState> : null}
+/** Chapter 02 extraction: the same result-fitted profile and Expert reveal. */
+export function MatchStyleBook(props: MatchNotesProps) {
+  if (!props.analysis?.team_style) {
+    return <EmptyState title="No style profile available">The goal model did not produce a fitted style profile for this fixture.</EmptyState>;
+  }
+  return (
+    <div className="mn programme-notes mn-style">
+      <TeamStyleProfile analysis={props.analysis} expert={props.expert} />
+    </div>
+  );
+}
 
-      {headlines.length > 0 && (
+/** First movement of Chapter 03: head-to-head precedes the competition and
+ * second-half stories that MatchDetail composes immediately after it. */
+export function MatchHeadToHead(props: MatchNotesProps) {
+  const { h2h } = prepareNotes(props);
+  if (!h2h) return null;
+  return (
+    <div className="mn programme-notes">
+      <section className="mn-section" aria-labelledby="mn-h2h-title">
+        <div className="mn-section__head"><span className="upper">Head to head</span><h3 id="mn-h2h-title">When they’ve met</h3></div>
+        <H2HBand fact={h2h} />
+      </section>
+    </div>
+  );
+}
+
+/** The remainder of Chapter 03. Coincidences deliberately remain last among
+ * the editorial records and outside the model/AI evidence path. */
+export function MatchHistoryRecords(props: MatchNotesProps) {
+  const view = prepareNotes(props);
+  const hasBody = view.headlines.length > 0 || view.hero || view.cards.length || view.scorers.length || view.formation || view.timing.length > 0;
+  return (
+    <div className="mn programme-notes">
+      <div className="mn-records-head small dim">
+        <span>Deterministic · source-backed</span>
+        <span>As of {view.notebook?.as_of_utc.slice(0, 10) ?? view.analysis?.information_cutoff_utc.slice(0, 10) ?? "—"}</span>
+      </div>
+
+      {!hasBody && view.coincidences.length === 0 ? <EmptyState title="No further match records">No deterministic facts cleared the sample and freshness guards. Nothing is invented to fill the page.</EmptyState> : null}
+
+      {view.headlines.length > 0 && (
         <section className="mn-section mn-briefing" aria-labelledby="mn-briefing-title">
-          <div className="mn-section__head">
-            <span className="upper">00 · Quick briefing</span>
-            <h3 id="mn-briefing-title">Three things to know</h3>
-          </div>
-          <div className="mn-feature-grid">
-            {headlines.map((fact, index) => (
-              <FactCard fact={fact} index={index + 1} key={factKey(fact)} />
-            ))}
-          </div>
+          <div className="mn-section__head"><span className="upper">Quick briefing</span><h3 id="mn-briefing-title">Three things to know</h3></div>
+          <div className="mn-feature-grid">{view.headlines.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</div>
         </section>
       )}
 
-      {hero && (
+      {view.hero && (
         <article className="mn-cover">
-          <div><span className="upper">Cover story · {hero.subject}</span><div className="mn-cover__value num">{displayValue(hero)}</div></div>
-          {hero.base_rate !== null && <RateDial value={hero.base_rate} />}
-          <div className="mn-cover__copy"><h3>{FACT_DISPLAY[hero.id]?.title ?? "The headline number"}</h3><p>{hero.text}</p><FactSource fact={hero} /></div>
+          <div><span className="upper">Cover story · {view.hero.subject}</span><div className="mn-cover__value num">{displayValue(view.hero)}</div></div>
+          {view.hero.base_rate !== null && <RateDial value={view.hero.base_rate} />}
+          <div className="mn-cover__copy"><h3>{FACT_DISPLAY[view.hero.id]?.title ?? "The headline number"}</h3><p>{view.hero.text}</p><FactSource fact={view.hero} /></div>
         </article>
       )}
 
-      {form && (
-        <section className="mn-section" aria-labelledby="mn-form-title"><div className="mn-section__head"><span className="upper">01 · Recent results</span><h3 id="mn-form-title">The form book</h3></div><div className="mn-form-grid"><FormTimeline team={home} entries={form[home] ?? []} /><FormTimeline team={away} entries={form[away] ?? []} /></div><p className="small dim">Last five completed matches · pre-kickoff only.</p></section>
-      )}
+      {view.scorers.length > 0 && <section className="mn-section" aria-labelledby="mn-scorers-title"><div className="mn-section__head"><span className="upper">Players</span><h3 id="mn-scorers-title">Scorer spotlight</h3></div><div className="mn-feature-grid">{view.scorers.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</div></section>}
 
-      {analysis?.team_style && <section className="mn-section mn-style" aria-label="How they play"><div className="mn-section__head"><span className="upper">02 · Fitted from results</span><h3>How they play</h3></div><TeamStyleProfile analysis={analysis} expert={expert} /></section>}
+      <GoalTimingSpotlight timing={view.timing} penalties={view.penalties} expert={props.expert} />
 
-      {scorers.length > 0 && <section className="mn-section" aria-labelledby="mn-scorers-title"><div className="mn-section__head"><span className="upper">03 · Players</span><h3 id="mn-scorers-title">Scorer spotlight</h3></div><div className="mn-feature-grid">{scorers.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</div></section>}
+      {view.formation && (view.formation.home || view.formation.away) && <section className="mn-section" aria-labelledby="mn-formation-title"><div className="mn-section__head"><span className="upper">Optional enrichment</span><h3 id="mn-formation-title">Typical formation</h3></div><span className="chip chip--neutral">typical, from recent lineups — not today’s team sheet</span><div className="mn-formations">{view.formation.home && <FormationPitch formation={view.formation.home} team={view.home} />}{view.formation.away && <FormationPitch formation={view.formation.away} team={view.away} />}</div><p className="small dim">Source: {view.formation.source_label}. Display-only; never used by a model or pick.</p></section>}
 
-      {h2h && <section className="mn-section" aria-labelledby="mn-h2h-title"><div className="mn-section__head"><span className="upper">04 · Head to head</span><h3 id="mn-h2h-title">When they’ve met</h3></div><H2HBand fact={h2h} /></section>}
+      {view.cards.length > 0 && <section className="mn-section" aria-labelledby="mn-stats-title"><div className="mn-section__head"><span className="upper">Deeper cut</span><h3 id="mn-stats-title">Signature stats &amp; records</h3></div><div className="mn-stats-grid">{view.cards.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</div></section>}
 
-      {formation && (formation.home || formation.away) && <section className="mn-section" aria-labelledby="mn-formation-title"><div className="mn-section__head"><span className="upper">05 · Optional enrichment</span><h3 id="mn-formation-title">Typical formation</h3></div><span className="chip chip--neutral">typical, from recent lineups — not today’s team sheet</span><div className="mn-formations">{formation.home && <FormationPitch formation={formation.home} team={home} />}{formation.away && <FormationPitch formation={formation.away} team={away} />}</div><p className="small dim">Source: {formation.source_label}. Display-only; never used by a model or pick.</p></section>}
+      {view.coincidences.length > 0 && <aside className="mn-pub" aria-labelledby="mn-pub-title"><div className="mn-pub__head"><AlertIcon /><div><span className="upper">Quarantined coincidence</span><h3 id="mn-pub-title">For the pub</h3></div></div><p className="small">For the pub, not the forecast — capped at {view.notebook?.coincidence_cap ?? view.coincidences.length}, never shown to the AI.</p>{view.coincidences.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</aside>}
 
-      {cards.length > 0 && <section className="mn-section" aria-labelledby="mn-stats-title"><div className="mn-section__head"><span className="upper">06 · Deeper cut</span><h3 id="mn-stats-title">Signature stats &amp; records</h3></div><div className="mn-stats-grid">{cards.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</div></section>}
+    </div>
+  );
+}
 
-      {coincidences.length > 0 && <aside className="mn-pub" aria-labelledby="mn-pub-title"><div className="mn-pub__head"><AlertIcon /><div><span className="upper">Quarantined coincidence</span><h3 id="mn-pub-title">For the pub</h3></div></div><p className="small">For the pub, not the forecast — capped at {notebook?.coincidence_cap ?? coincidences.length}, never shown to the AI.</p>{coincidences.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</aside>}
+/** One programme-wide provenance footer. The content is the existing notebook
+ * footer recast as a colophon, not a second source summary. */
+export function MatchNotesColophon({ notebook }: { notebook: CommentatorsNotebook | null }) {
+  if (!notebook) return null;
+  return (
+    <footer className="programme-colophon" aria-label="Matchday programme colophon">
+      <div className="programme-colophon__masthead">
+        <span className="upper">Colophon</span>
+        <strong>Deterministic · source-backed</strong>
+      </div>
+      <dl>
+        <div><dt>Rule set</dt><dd className="num">{notebook.registry_version}</dd></div>
+        <div><dt>As of</dt><dd className="num">{notebook.as_of_utc.slice(0, 10)}</dd></div>
+        <div><dt>Fact checks</dt><dd><span className="num">{notebook.family_size}</span> fixed</dd></div>
+        <div><dt>Suppressed</dt><dd><span className="num">{notebook.suppressed.length}</span> by guards</dd></div>
+        <div className="programme-colophon__sources"><dt>Source IDs</dt><dd className="num">{notebook.source_ids.join(", ") || "none"}</dd></div>
+      </dl>
+    </footer>
+  );
+}
 
-      {notebook && <footer className="mn-sources small dim"><span>{notebook.family_size} fixed fact-checks · rule set {notebook.registry_version}</span><span>{notebook.suppressed.length} candidate{notebook.suppressed.length === 1 ? "" : "s"} suppressed by sample / staleness / cap guards</span><span>Sources: {notebook.source_ids.join(", ") || "none"}</span></footer>}
+/** Backward-compatible composition for any non-cockpit consumer. */
+export function MatchNotes(props: MatchNotesProps) {
+  const view = prepareNotes(props);
+  return (
+    <section className="stack" aria-label="Match notes" style={{ ["--gap" as string]: "1rem" }}>
+      <MatchFormBook {...props} />
+      <MatchStyleBook {...props} />
+      {view.h2h && <MatchHeadToHead {...props} />}
+      <MatchHistoryRecords {...props} />
+      <MatchNotesColophon notebook={props.notebook} />
     </section>
   );
 }

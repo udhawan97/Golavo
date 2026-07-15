@@ -99,17 +99,20 @@ export function WorldCupPedigree({
   competition,
   sourceKind,
   story,
+  headingLevel = 2,
 }: {
   competition: string;
   sourceKind: SourceKind;
   story: WorldCupPedigreeData | null;
+  headingLevel?: 2 | 3;
 }) {
   if (competition !== "FIFA World Cup" || sourceKind !== "international" || !story) return null;
   const era = yearSpan(story.dateRange);
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   return (
     <section className="panel wcp" aria-labelledby="wcp-h">
       <div className="panel__head">
-        <h2 id="wcp-h">World Cup pedigree</h2>
+        <Heading id="wcp-h">World Cup pedigree</Heading>
         {era && <span className="chip chip--neutral wcp-era">{era}</span>}
       </div>
       <div className="panel__body wcp-grid">

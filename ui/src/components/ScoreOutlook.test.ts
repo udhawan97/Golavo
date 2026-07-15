@@ -61,11 +61,12 @@ const analysis: MatchAnalysis = {
 };
 
 describe("ScoreOutlook market dashboard", () => {
-  it("keeps a compact exact-data preview ahead of the analytical details", () => {
+  it("keeps a compact exact-data preview ahead of the expert analytical details", () => {
     const html = renderToStaticMarkup(createElement(ScoreOutlook, {
       analysis,
       home: "France",
       away: "Spain",
+      expert: true,
     }));
 
     expect(html).toContain("Most balanced line");
@@ -90,11 +91,39 @@ describe("ScoreOutlook market dashboard", () => {
       analysis: tiedAnalysis,
       home: "France",
       away: "Spain",
+      expert: true,
     }));
 
     expect(html).toContain("Clean sheets level");
     expect(html).toContain("Even");
     expect(html).toContain("25.0% each");
     expect(html).not.toContain("Clean-sheet edge");
+  });
+
+  it("reveals exact double-chance and outcome-tail rows only in expert mode", () => {
+    const casual = renderToStaticMarkup(createElement(ScoreOutlook, {
+      analysis,
+      home: "France",
+      away: "Spain",
+    }));
+    const expert = renderToStaticMarkup(createElement(ScoreOutlook, {
+      analysis,
+      home: "France",
+      away: "Spain",
+      expert: true,
+    }));
+
+    expect(casual).toContain("widest safety net");
+    expect(casual).not.toContain("Double chance");
+    expect(casual).not.toContain("Beyond the grid");
+    expect(casual).not.toContain("Total-goal distribution");
+    expect(casual).not.toContain("Exact-score matrix");
+    expect(expert).toContain("Double chance");
+    expect(expert).toContain("1X");
+    expect(expert).toContain("Beyond the grid");
+    expect(expert).toContain("10.0%");
+    expect(expert).toContain("Per-team totals are not shown");
+    expect(expert).toContain("Total-goal distribution");
+    expect(expert).toContain("Exact-score matrix");
   });
 });

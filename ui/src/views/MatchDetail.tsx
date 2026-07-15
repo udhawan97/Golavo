@@ -9,6 +9,7 @@
  * what makes a searched fixture worth opening even with no forecast attached.
  */
 import { useRef, useState } from "react";
+import type { ReactNode } from "react";
 import type {
   MatchDetailResponse,
   MatchAnalysis,
@@ -20,24 +21,28 @@ import type {
 } from "../lib/contract";
 import { FAMILY_LABELS } from "../lib/contract";
 import { fetchMatch, fetchMatchAnalysis, fetchMatchNotebook, sealMatch, SealApiError } from "../lib/api";
-import { utc } from "../lib/format";
+import { pct, utc } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync, useForecastMode } from "../lib/hooks";
-import { ChevronRight, InfoIcon, SealIcon, ShieldCheckIcon } from "../components/icons";
-import { HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
+import { BookIcon, ChevronRight, DistributionIcon, InfoIcon, QuillIcon, ScaleIcon, SealIcon, ShieldCheckIcon, TrophyIcon } from "../components/icons";
+import { HorizonChip, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
 import { AiDeepRead } from "../components/ai/AiDeepRead";
 import { MatchHeader } from "../components/MatchHeader";
 import { ModelCouncil } from "../components/ModelCouncil";
 import { ScoreOutlook } from "../components/ScoreOutlook";
 import { SecondHalfStory } from "../components/SecondHalfStory";
 import { WorldCupPedigree } from "../components/WorldCupPedigree";
-import { MatchNotes } from "../components/MatchNotes";
+import { MatchFormBook, MatchHeadToHead, MatchHistoryRecords, MatchNotesColophon, MatchStyleBook } from "../components/MatchNotes";
 import { parseHalfTimeStory, parseWorldCupPedigree } from "../lib/factValues";
 import { TourOverlay } from "../components/TourOverlay";
 import { COCKPIT_TOUR, useTour } from "../lib/tour";
 import { useUpdater } from "../lib/updater-context";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 import { PickPanel } from "../components/PickPanel";
+import { ModeToggle } from "../components/ModeToggle";
+import { chapterPullNumber } from "../lib/insights";
+import { ProgrammePullNumber } from "../components/ProgrammePullNumber";
+import { factKey } from "../components/CommentatorsNotebook";
 
 export function MatchDetail({ id }: { id: string }) {
   const state = useAsync(() => fetchMatch(id), [id]);
@@ -81,7 +86,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
   const venue = match.city
     ? `${match.city}${match.country ? `, ${match.country}` : ""}`
     : match.country ?? "—";
-  const [mode] = useForecastMode();
+  const [mode, setMode] = useForecastMode();
 
   // Single fetch owner: the council, form strips, style profile, and score
   // outlook all read this one leak-safe analysis (coalesced + cached in api.ts).
@@ -131,45 +136,91 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       <ExpertSealRow detail={detail} />
     );
 
+  const notesProps = {
+    notebook,
+    analysis,
+    omitKeys: consumedKeys,
+    expert: mode === "expert",
+  };
+  const pullNotebook = notebook
+    ? { ...notebook, facts: notebook.facts.filter((fact) => !consumedKeys.has(factKey(fact))) }
+    : null;
+  const pullContext = { analysis, notebook: pullNotebook };
   return (
-    <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
+    <div className={`match-programme match-programme--${mode} stack`} style={{ ["--gap" as string]: "1.25rem" }}>
       <Breadcrumb label={`${match.home_team} v ${match.away_team}`} />
 
-      <MatchHeader
-        home={match.home_team}
-        away={match.away_team}
-        competition={match.competition}
-        kickoffUtc={match.kickoff_utc}
-        venue={venue}
-        chips={
-          <>
-            <StatusPill match={match} future={future} />
-            {match.neutral && <span className="chip chip--neutral">Neutral venue</span>}
-            {hasForecast && <span className="chip chip--sealed">Sealed forecast</span>}
-          </>
-        }
-      />
-
-      <PickPanel match={match} analysis={analysis} companion={sealCompanion} />
-
-      <div data-tour="cockpit-council">
-        <ModelCouncil
-          state={analysisState}
+      <div id="match-teaser">
+        <MatchHeader
           home={match.home_team}
           away={match.away_team}
-          onRetry={() => setRetryTick((t) => t + 1)}
+          competition={match.competition}
+          kickoffUtc={match.kickoff_utc}
+          venue={venue}
+          className="programme-teaser"
+          eyebrow="Matchday programme"
+          chips={
+            <>
+              <StatusPill match={match} future={future} />
+              {match.neutral && <span className="chip chip--neutral">Neutral venue</span>}
+              {hasForecast && <span className="chip chip--sealed">Sealed forecast</span>}
+            </>
+          }
+          right={<ModeToggle mode={mode} setMode={setMode} />}
+          footer={
+            <div className="programme-teaser__footer">
+              <span className="programme-mode-context" aria-live="polite">
+                <b>{mode === "expert" ? "Expert read" : "Casual read"}</b>
+                {mode === "expert"
+                  ? "Full model values, market detail, sources and audit context."
+                  : "The essential story, with technical depth kept out of the way."}
+              </span>
+              {analysis && <UncertaintyTag level={analysis.uncertainty} />}
+            </div>
+          }
         />
       </div>
 
-      {analysis && <ScoreOutlook analysis={analysis} home={match.home_team} away={match.away_team} />}
-      <WorldCupPedigree
-        competition={match.competition}
-        sourceKind={match.source_kind}
-        story={worldCupStory}
-      />
-      <SecondHalfStory sourceKind={match.source_kind} story={halfTimeStory} />
+      <ProgrammeContents />
 
-      <div data-tour="cockpit-notebook">
+      <ProgrammeChapter
+        number="01"
+        title="The form book"
+        intro={`Recent results set the tone: where ${match.home_team} and ${match.away_team} have played, who they faced, and whether either side arrives with momentum.`}
+        icon={<BookIcon />}
+        pull={chapterPullNumber("form", pullContext)}
+      >
+        {analysisState.status === "loading" ? <BlockSkeleton lines={3} /> : <MatchFormBook {...notesProps} />}
+      </ProgrammeChapter>
+
+      <ProgrammeChapter
+        number="02"
+        title="How they play"
+        intro={`Past scorelines sketch the contrast between ${match.home_team} and ${match.away_team}: their attacking force, defensive resistance, and the goals the model expects.`}
+        icon={<DistributionIcon />}
+        pull={chapterPullNumber("style", pullContext)}
+        dividerLabel="Fitted from results"
+      >
+        {analysisState.status === "loading" ? <BlockSkeleton lines={4} /> : <MatchStyleBook {...notesProps} />}
+      </ProgrammeChapter>
+
+      <ProgrammeChapter
+        number="03"
+        title="The history"
+        intro={`Previous meetings and tournament records place ${match.home_team} v ${match.away_team} in context, with every claim tied to its source and cutoff.`}
+        icon={<TrophyIcon />}
+        pull={chapterPullNumber("history", pullContext)}
+        dividerLabel="Deterministic · source-backed"
+        tour="cockpit-notebook"
+      >
+        <MatchHeadToHead {...notesProps} />
+        <WorldCupPedigree
+          competition={match.competition}
+          sourceKind={match.source_kind}
+          story={worldCupStory}
+          headingLevel={3}
+        />
+        <SecondHalfStory sourceKind={match.source_kind} story={halfTimeStory} headingLevel={3} />
         <MatchNotebookBlock
           state={notebookState}
           onRetry={() => setNotebookRetryTick((tick) => tick + 1)}
@@ -177,11 +228,59 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
           analysis={analysis}
           expert={mode === "expert"}
         />
-      </div>
+      </ProgrammeChapter>
 
-      <div data-tour="cockpit-ai">
+      <ProgrammeChapter
+        number="04"
+        title="The models deliberate"
+        intro={`Two deterministic voices examine the same fixture from different angles. Their agreement matters; their disagreement is part of the story.`}
+        icon={<ScaleIcon />}
+        pull={chapterPullNumber("models", pullContext)}
+        dividerLabel="Two voices · no averaging"
+        tour="cockpit-council"
+      >
+        <ModelCouncil
+          state={analysisState}
+          home={match.home_team}
+          away={match.away_team}
+          onRetry={() => setRetryTick((t) => t + 1)}
+          headingLevel={3}
+          expert={mode === "expert"}
+        />
+        {analysis && <ScoreOutlook analysis={analysis} home={match.home_team} away={match.away_team} headingLevel={3} expert={mode === "expert"} />}
+      </ProgrammeChapter>
+
+      <ProgrammeChapter
+        number="05"
+        title="The verdict"
+        intro={`The evidence resolves into one model call for ${match.home_team} v ${match.away_team}. Then the programme hands the decision to you.`}
+        icon={<SealIcon />}
+        pull={chapterPullNumber("verdict", pullContext)}
+        dividerLabel="Model call · your pick"
+        id="match-verdict"
+      >
+        <MatchVerdict analysis={analysis} loading={analysisState.status === "loading"} home={match.home_team} away={match.away_team} />
+        <PickPanel
+          match={match}
+          analysis={analysis}
+          companion={sealCompanion}
+          headingLevel={3}
+          stickyTargetId="match-verdict"
+          stickyAfterId="match-teaser"
+        />
+      </ProgrammeChapter>
+
+      <ProgrammeChapter
+        number="06"
+        title="The analyst’s column"
+        intro={`An optional, evidence-bound reading closes the programme by connecting the strongest signals without changing a single forecast number.`}
+        icon={<QuillIcon />}
+        dividerLabel="Optional · evidence-bound"
+        tour="cockpit-ai"
+      >
         <AiDeepRead
           source={{ kind: "match", matchId: id }}
+          headingLevel={3}
           context={{
             homeTeam: match.home_team,
             awayTeam: match.away_team,
@@ -189,10 +288,125 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
             leadingOutcome: analysis?.council.leading_outcome,
           }}
         />
-      </div>
+      </ProgrammeChapter>
+
+      <MatchNotesColophon notebook={notebook} />
 
       <TourOverlay ctrl={cockpitTour} />
     </div>
+  );
+}
+
+function ProgrammeContents() {
+  const chapters = [
+    ["01", "The form book", "programme-01"],
+    ["02", "How they play", "programme-02"],
+    ["03", "The history", "programme-03"],
+    ["04", "The models deliberate", "programme-04"],
+    ["05", "The verdict", "match-verdict"],
+    ["06", "The analyst’s column", "programme-06"],
+  ];
+  const goToChapter = (id: string) => {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  };
+  return (
+    <nav className="programme-contents" aria-label="Programme chapters">
+      <span className="programme-contents__label upper">In this programme</span>
+      <ol>
+        {chapters.map(([number, label, id]) => (
+          <li key={number}><button type="button" aria-controls={id} onClick={() => goToChapter(id)}><span className="num">{number}</span>{label}</button></li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+function ProgrammeChapter({
+  number,
+  title,
+  intro,
+  icon,
+  pull = null,
+  dividerLabel,
+  children,
+  id = `programme-${number}`,
+  tour,
+}: {
+  number: string;
+  title: string;
+  intro: ReactNode;
+  icon: ReactNode;
+  pull?: ReturnType<typeof chapterPullNumber>;
+  dividerLabel?: string;
+  children: ReactNode;
+  id?: string;
+  tour?: "cockpit-council" | "cockpit-notebook" | "cockpit-ai";
+}) {
+  const titleId = `${id}-title`;
+  return (
+    <section id={id} className="programme-chapter" aria-labelledby={titleId} data-tour={tour}>
+      {dividerLabel && <div className="programme-chapter__divider" aria-hidden><span>{dividerLabel}</span></div>}
+      <header className="programme-chapter__masthead">
+        <div className="programme-chapter__folio">
+          <span className="programme-chapter__icon" aria-hidden>{icon}</span>
+          <span className="upper">Chapter</span>
+          <span className="programme-chapter__number num">{number}</span>
+        </div>
+        <div className="programme-chapter__heading">
+          <h2 id={titleId}>{title}</h2>
+          <p>{intro}</p>
+        </div>
+      </header>
+      <div className="programme-chapter__rule" aria-hidden />
+      <ProgrammePullNumber pull={pull} />
+      <div className="programme-chapter__body stack" style={{ ["--gap" as string]: "1rem" }}>{children}</div>
+    </section>
+  );
+}
+
+function MatchVerdict({
+  analysis,
+  loading,
+  home,
+  away,
+}: {
+  analysis: MatchAnalysis | null;
+  loading: boolean;
+  home: string;
+  away: string;
+}) {
+  if (loading) return <BlockSkeleton lines={3} />;
+  if (!analysis || analysis.abstained || !analysis.score_matrix) {
+    return (
+      <section className="programme-verdict" aria-labelledby="match-verdict-call">
+        <span className="upper">Model call</span>
+        <h3 id="match-verdict-call">No verdict issued</h3>
+        <p>The deterministic models did not clear the history needed to make an honest call.</p>
+      </section>
+    );
+  }
+  const leading = analysis.council.leading_outcome;
+  const call = leading === "home" ? `${home} to win` : leading === "away" ? `${away} to win` : leading === "draw" ? "Draw" : "Models split";
+  const score = analysis.score_matrix.most_likely;
+  return (
+    <section className="programme-verdict" aria-labelledby="match-verdict-call">
+      <div className="programme-verdict__call">
+        <span className="upper">Leading outcome</span>
+        <h3 id="match-verdict-call">{call}</h3>
+      </div>
+      <div className="programme-verdict__score">
+        <span className="upper">Most likely score</span>
+        <strong className="num">{score.home}–{score.away}</strong>
+        <span className="small muted">{pct(score.probability)} for this exact score</span>
+      </div>
+      <div className="programme-verdict__confidence">
+        <span className="upper">Confidence</span>
+        <UncertaintyTag level={analysis.uncertainty} />
+      </div>
+    </section>
   );
 }
 
@@ -247,7 +461,7 @@ function ForecastLinks({
   return (
     <section className="panel pick-seal-panel" aria-labelledby="md-fc">
       <div className="panel__head">
-        <h2 id="md-fc">Sealed forecast{forecasts.length === 1 ? "" : "s"}</h2>
+        <h3 id="md-fc">Sealed forecast{forecasts.length === 1 ? "" : "s"}</h3>
         <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
           sealed before kickoff
         </span>
@@ -291,7 +505,7 @@ function PlayedNoForecast({ match }: { match: MatchRow }) {
   return (
     <section className="panel" aria-labelledby="md-final">
       <div className="panel__head">
-        <h2 id="md-final">Final score</h2>
+        <h3 id="md-final">Final score</h3>
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: "1rem" }}>
         <div className="score-hero">
@@ -516,7 +730,7 @@ function NotebookBlockBody({
             Try again
           </button>
         </div>
-        <MatchNotes notebook={null} analysis={analysis} omitKeys={omitKeys} expert={expert} />
+        <MatchHistoryRecords notebook={null} analysis={analysis} omitKeys={omitKeys} expert={expert} />
       </div>
     );
   }
@@ -536,7 +750,7 @@ function NotebookBlockBody({
           {caption}
         </p>
       )}
-      <MatchNotes notebook={resp.available ? resp.notebook : null} analysis={analysis} omitKeys={omitKeys} expert={expert} />
+      <MatchHistoryRecords notebook={resp.available ? resp.notebook : null} analysis={analysis} omitKeys={omitKeys} expert={expert} />
     </>
   );
 }

@@ -19,6 +19,9 @@ export function MatchHeader({
   venue,
   chips,
   right,
+  eyebrow,
+  footer,
+  className = "",
 }: {
   home: string;
   away: string;
@@ -27,9 +30,13 @@ export function MatchHeader({
   venue: string;
   chips?: ReactNode;
   right?: ReactNode;
+  eyebrow?: ReactNode;
+  footer?: ReactNode;
+  className?: string;
 }) {
   return (
-    <header className="detail-hero stack" style={{ ["--gap" as string]: ".6rem" }}>
+    <header className={`detail-hero stack${className ? ` ${className}` : ""}`} style={{ ["--gap" as string]: ".6rem" }}>
+      {eyebrow && <div className="detail-hero__eyebrow upper">{eyebrow}</div>}
       <div className="badge-row">
         {chips}
         {right && <span style={{ marginLeft: "auto" }}>{right}</span>}
@@ -47,6 +54,7 @@ export function MatchHeader({
         </MetaItem>
         <MetaItem icon={<PinIcon />}>{venue}</MetaItem>
       </MetaLine>
+      {footer}
     </header>
   );
 }
