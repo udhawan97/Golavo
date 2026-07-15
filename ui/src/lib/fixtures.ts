@@ -1,10 +1,10 @@
 /**
- * The "keep fixtures up to date" preference (off by default).
+ * The "keep matches up to date" preference (off by default).
  *
  * Golavo makes no automatic network calls; turning this on is the user's explicit
- * consent for the app to ask the CC0 data source, on launch, whether a new
- * upcoming fixture has appeared (via `checkNewFixtures`). Persisted like the other
- * local preferences (theme, AI provider).
+ * consent for the app to ask CC0 sources whether a new upcoming fixture has
+ * appeared and whether a completed sealed forecast has a published final result.
+ * Persisted like the other local preferences (theme, AI provider).
  */
 import { useCallback, useState } from "react";
 

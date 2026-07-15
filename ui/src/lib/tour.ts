@@ -60,6 +60,11 @@ export const COCKPIT_TOUR: TourDef = {
   id: "cockpit",
   steps: [
     {
+      target: "cockpit-mode",
+      title: "Choose your reading depth",
+      body: "Casual keeps the essential story concise. Expert reveals full model values, market detail, sources and audit context. Switch anytime — the forecast itself never changes.",
+    },
+    {
       target: "cockpit-pick",
       title: "Make your call",
       body: "Pick the score you believe. Change it any time before kickoff; at kickoff it locks, and the result decides your points.",
@@ -67,7 +72,7 @@ export const COCKPIT_TOUR: TourDef = {
     {
       target: "cockpit-council",
       title: "The model council",
-      body: "Five methods forecast this match independently. Where they agree is a strong signal; where they diverge, you see the spread instead of a false average.",
+      body: "Two independent model voices forecast the match. The baseline and goal-model variants are disclosed separately, so extra methods never masquerade as extra votes.",
     },
     {
       target: "cockpit-notebook",

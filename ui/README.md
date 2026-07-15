@@ -39,6 +39,7 @@ VITE_GOLAVO_API=http://127.0.0.1:8000 npm run dev
 | Sealed forecast list | `GET {base}/api/v1/forecasts` | `src/mocks/forecasts/*.json` |
 | Forecast detail + facts | `GET {base}/api/v1/forecasts/{id}`, `/facts` | same, by id |
 | Track record (calibration) | `GET {base}/api/v1/calibration` | `src/mocks/calibration.json` |
+| Settle finished forecasts *(user-authorized network check)* | `POST {base}/api/v1/forecasts/settle` | disabled in mock mode |
 | Backtests | `GET {base}/api/v1/eval/summary` | `src/mocks/eval-summary.json` |
 | App/contract meta | `GET {base}/api/v1/meta` | synthesized (`forecast_source: sample`) |
 | Fixtures awareness check *(opt-in)* | `GET {base}/api/v1/fixtures/check` | disabled in mock mode |

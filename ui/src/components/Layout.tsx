@@ -156,7 +156,7 @@ export function Layout({
         <div className="container">
           <span>
             Golavo · Local Football Intelligence —{" "}
-            <span className="dim">read-only, offline, no account. Your picks lock at kickoff and are scored after full time.</span>
+            <span className="dim">local-first, no account. Match updates are opt-in; picks lock at kickoff and score after full time.</span>
             {" · "}
             <a href="#/settings">Settings</a>
           </span>

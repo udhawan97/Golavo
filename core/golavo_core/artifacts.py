@@ -474,37 +474,45 @@ def seal_forecast(
     return _write_artifact(artifact, output_dir)
 
 
-def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Path) -> Path:
-    """Score a seal from a newer snapshot, writing a superseding artifact."""
-    # Integrity-verify the input seal, not just its schema: a tampered fa_*.json
-    # must be rejected here rather than acquiring a scored successor and only being
-    # caught later when the calibration aggregator re-reads the ledger.
-    sealed = load_verified_artifact(artifact_path)
+def _score_snapshot_anchor(
+    sealed: dict[str, Any], result_snapshot: dict[str, Any]
+) -> datetime:
+    """Validate the terminal-state and temporal boundary before result lookup."""
     if sealed["status"] != "sealed" or sealed["forecast"]["probs"] is None:
         raise ValueError("only a non-abstained sealed artifact can be scored")
-    newer_snapshot = snapshot_descriptor(newer_pack_dir)
     old_anchor = max(
         _utc(snapshot_anchor_utc(item)) for item in sealed["inputs"]["snapshots"]
     )
-    new_anchor = _utc(snapshot_anchor_utc(newer_snapshot))
+    new_anchor = _utc(snapshot_anchor_utc(result_snapshot))
     if new_anchor <= old_anchor:
         raise ValueError(
             "scoring requires a snapshot whose data state is strictly newer than the seal's"
         )
+    return new_anchor
 
-    match = sealed["match"]
-    matches = load_matches(newer_pack_dir)
-    actual = _find_match(
-        matches,
-        match["kickoff_utc"][:10],
-        match["home_team"],
-        match["away_team"],
-        match["match_id"],
-    )
-    if not bool(actual["is_complete"]):
-        raise ValueError("newer snapshot does not contain a completed result for this match")
-    home_goals = int(actual["home_score"])
-    away_goals = int(actual["away_score"])
+
+def _score_verified_seal(
+    *,
+    sealed: dict[str, Any],
+    result_snapshot: dict[str, Any],
+    home_goals: int,
+    away_goals: int,
+    output_dir: Path,
+) -> Path:
+    """Append one scored successor from a trusted, newer result observation.
+
+    Forecast fitting and result publication are separate provenance events.  The
+    historical pack scorer below still supplies a validated pack descriptor;
+    the desktop settlement service supplies a descriptor for the exact pinned
+    result payload it fetched.  Both paths converge here so metric computation,
+    immutability, and the strictly-newer-snapshot guard cannot drift.
+    """
+    new_anchor = _score_snapshot_anchor(sealed, result_snapshot)
+    if isinstance(home_goals, bool) or not isinstance(home_goals, int) or home_goals < 0:
+        raise ValueError("home_goals must be a non-negative integer")
+    if isinstance(away_goals, bool) or not isinstance(away_goals, int) or away_goals < 0:
+        raise ValueError("away_goals must be a non-negative integer")
+
     outcome = "home" if home_goals > away_goals else "draw" if home_goals == away_goals else "away"
     probs = sealed["forecast"]["probs"]
     assigned = float(probs[outcome])
@@ -515,7 +523,7 @@ def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Pat
     scored = copy.deepcopy(sealed)
     scored["status"] = "scored"
     scored["supersedes"] = sealed["artifact_id"]
-    scored["inputs"]["snapshots"] = [*sealed["inputs"]["snapshots"], newer_snapshot]
+    scored["inputs"]["snapshots"] = [*sealed["inputs"]["snapshots"], copy.deepcopy(result_snapshot)]
     scored["evaluation"] = {
         "actual": {"home_goals": home_goals, "away_goals": away_goals, "outcome": outcome},
         "scored_at_utc": _iso(new_anchor),
@@ -533,6 +541,61 @@ def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Pat
     scored["artifact_id"] = _artifact_id(stable)
     scored["provenance"]["payload_sha256"] = payload_sha256(scored)
     return _write_artifact(scored, output_dir)
+
+
+def score_forecast_result(
+    *,
+    artifact_path: Path,
+    result_snapshot: dict[str, Any],
+    home_goals: int,
+    away_goals: int,
+    output_dir: Path,
+) -> Path:
+    """Score a seal from one pinned trusted result payload.
+
+    The caller owns source-specific fixture matching.  This boundary owns the
+    immutable artifact guarantees: it integrity-checks the seal, requires a
+    strictly newer snapshot descriptor, validates the resulting artifact against
+    the public schema, and appends rather than edits.
+    """
+    sealed = load_verified_artifact(artifact_path)
+    return _score_verified_seal(
+        sealed=sealed,
+        result_snapshot=result_snapshot,
+        home_goals=home_goals,
+        away_goals=away_goals,
+        output_dir=output_dir,
+    )
+
+
+def score_forecast(*, artifact_path: Path, newer_pack_dir: Path, output_dir: Path) -> Path:
+    """Score a seal from a newer snapshot, writing a superseding artifact."""
+    # Integrity-verify the input seal, not just its schema: a tampered fa_*.json
+    # must be rejected here rather than acquiring a scored successor and only being
+    # caught later when the calibration aggregator re-reads the ledger.
+    sealed = load_verified_artifact(artifact_path)
+    newer_snapshot = snapshot_descriptor(newer_pack_dir)
+    # Preserve the fail-fast contract: terminal artifacts and stale snapshots
+    # are rejected before loading/searching a potentially large result pack.
+    _score_snapshot_anchor(sealed, newer_snapshot)
+    match = sealed["match"]
+    matches = load_matches(newer_pack_dir)
+    actual = _find_match(
+        matches,
+        match["kickoff_utc"][:10],
+        match["home_team"],
+        match["away_team"],
+        match["match_id"],
+    )
+    if not bool(actual["is_complete"]):
+        raise ValueError("newer snapshot does not contain a completed result for this match")
+    return _score_verified_seal(
+        sealed=sealed,
+        result_snapshot=newer_snapshot,
+        home_goals=int(actual["home_score"]),
+        away_goals=int(actual["away_score"]),
+        output_dir=output_dir,
+    )
 
 
 def void_forecast(

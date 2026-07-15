@@ -5,18 +5,59 @@
  * artifacts — never evaluation backtests. Those live under #/lab/backtests and
  * are labeled as such; the split is the product's honesty boundary.
  */
-import { useMemo, useState } from "react";
-import type { CalibrationChain, CalibrationSummary, Probs } from "../lib/contract";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type {
+  CalibrationChain,
+  CalibrationSummary,
+  Probs,
+  SettlementPendingReason,
+  SettlementReport,
+} from "../lib/contract";
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
-import { fetchCalibration } from "../lib/api";
+import { DATA_SOURCE, fetchCalibration, settleForecasts } from "../lib/api";
 import { num, pct, utc, utcDate } from "../lib/format";
 import { METRIC_GLOSS } from "../lib/glossary";
 import { useAsync } from "../lib/hooks";
+import { useKeepFixturesFresh } from "../lib/fixtures";
+import { beginActivity, endActivity } from "../lib/activity";
 import { ReliabilityDiagram } from "../components/ReliabilityDiagram";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
+type SettlementState =
+  | { status: "idle" }
+  | { status: "checking" }
+  | { status: "ready"; report: SettlementReport }
+  | { status: "error"; error: Error };
+
 export function PredictionLedger() {
-  const state = useAsync(fetchCalibration, []);
+  const [revision, setRevision] = useState(0);
+  const [keepFresh] = useKeepFixturesFresh();
+  const [settlement, setSettlement] = useState<SettlementState>({ status: "idle" });
+  const state = useAsync(fetchCalibration, [revision]);
+  const checkResults = useCallback(async () => {
+    if (DATA_SOURCE !== "live") return;
+    setSettlement({ status: "checking" });
+    beginActivity("results", "Checking finished match results…");
+    try {
+      const report = await settleForecasts();
+      setSettlement({ status: "ready", report });
+      setRevision((value) => value + 1);
+    } catch (error) {
+      setSettlement({
+        status: "error",
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
+    } finally {
+      endActivity("results");
+    }
+  }, []);
+
+  // Existing privacy preference: no automatic internet access unless the user
+  // enabled keep-data-fresh. A manual result check remains available regardless.
+  useEffect(() => {
+    if (keepFresh) void checkResults();
+  }, [checkResults, keepFresh]);
+
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.6rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
@@ -36,20 +77,30 @@ export function PredictionLedger() {
         </>
       )}
       {state.status === "error" && <ErrorState error={state.error} />}
-      {state.status === "ready" && <Ledger data={state.data} />}
+      {state.status === "ready" && (
+        <Ledger data={state.data} settlement={settlement} onCheckResults={checkResults} />
+      )}
     </div>
   );
 }
 
-function Ledger({ data }: { data: CalibrationSummary }) {
+function Ledger({
+  data,
+  settlement,
+  onCheckResults,
+}: {
+  data: CalibrationSummary;
+  settlement: SettlementState;
+  onCheckResults: () => Promise<void>;
+}) {
   const { counts } = data;
   const total = counts.sealed + counts.abstained;
   if (total === 0) {
     return (
       <EmptyState title="No sealed forecasts yet">
         The ledger fills only with genuine pre-kickoff seals. When an upcoming
-        international is sealed, it appears here; after full time a newer snapshot
-        scores it and the calibration record grows.
+        international is sealed, it appears here; after full time Golavo checks a
+        newer trusted result snapshot and appends the scored outcome.
       </EmptyState>
     );
   }
@@ -61,24 +112,103 @@ function Ledger({ data }: { data: CalibrationSummary }) {
           <span className="chip chip--abstained">{counts.abstained} abstained</span>
           <span className="chip chip--scored">{counts.scored} scored</span>
           <span className="chip chip--voided">{counts.voided} voided</span>
-          <span className="chip chip--neutral">{counts.pending} awaiting full time</span>
+          <span className="chip chip--neutral">{counts.pending} unresolved</span>
+          {DATA_SOURCE === "live" && (
+            <button
+              type="button"
+              className="btn btn--ghost"
+              disabled={settlement.status === "checking"}
+              onClick={() => { void onCheckResults(); }}
+              style={{ marginLeft: ".35rem" }}
+            >
+              {settlement.status === "checking" ? "Checking results…" : "Check results now"}
+            </button>
+          )}
           <span className="muted small" style={{ marginLeft: "auto" }}>
             {data.generated_from}
           </span>
         </div>
       </section>
 
+      <SettlementNotice state={settlement} />
+
       <RunningCalibration data={data} />
 
-      <ChainsTable chains={data.chains} />
+      <ChainsTable
+        chains={data.chains}
+        pendingReasons={
+          settlement.status === "ready"
+            ? new Map(
+                settlement.report.still_pending.map((item) => [item.artifact_id, item.reason]),
+              )
+            : new Map()
+        }
+      />
     </>
+  );
+}
+
+function SettlementNotice({ state }: { state: SettlementState }) {
+  if (state.status === "idle" || state.status === "checking") return null;
+  if (state.status === "error") {
+    return (
+      <div className="callout callout--warning" role="alert">
+        <div>
+          <div className="callout__title">Results could not be checked</div>
+          <p className="small" style={{ margin: ".3rem 0 0" }}>{state.error.message}</p>
+        </div>
+      </div>
+    );
+  }
+  const { report } = state;
+  if (report.scored.length > 0) {
+    return (
+      <div className="callout callout--success" role="status">
+        <div>
+          <div className="callout__title">
+            {report.scored.length === 1 ? "1 forecast settled" : `${report.scored.length} forecasts settled`}
+          </div>
+          <p className="small" style={{ margin: ".3rem 0 0" }}>
+            {report.scored.map((item) => (
+              `${item.home_team} ${item.home_goals}–${item.away_goals} ${item.away_team}`
+            )).join(" · ")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+  if (report.errors.length > 0) {
+    return (
+      <div className="callout callout--warning" role="status">
+        <div>
+          <div className="callout__title">Result check needs attention</div>
+          <p className="small" style={{ margin: ".3rem 0 0" }}>
+            {report.errors.map((error) => error.message).join(" · ")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="callout callout--info" role="status">
+      <div>
+        <div className="callout__title">
+          {report.eligible > 0 ? "Results checked — publication pending" : "No results are due yet"}
+        </div>
+        <p className="small" style={{ margin: ".3rem 0 0" }}>
+          {report.eligible > 0
+            ? "The trusted sources have not published a final score for every finished fixture yet. Golavo will never guess one."
+            : "There are no unscored forecasts more than three hours past kickoff."}
+        </p>
+      </div>
+    </div>
   );
 }
 
 type ChainCategory = "scored" | "awaiting" | "voided" | "abstained";
 const CATEGORY_LABELS: Record<ChainCategory, string> = {
   scored: "Scored",
-  awaiting: "Awaiting",
+  awaiting: "Unresolved",
   voided: "Voided",
   abstained: "Abstained",
 };
@@ -95,7 +225,13 @@ function chainCategory(chain: CalibrationChain): ChainCategory {
 /** The sealed→scored chains table with client-side filters. The top count chips
  *  stay UNfiltered (they summarize the whole ledger); this table narrows to a
  *  resolution bucket and/or competition, and captions "showing n of m chains". */
-function ChainsTable({ chains }: { chains: CalibrationChain[] }) {
+function ChainsTable({
+  chains,
+  pendingReasons,
+}: {
+  chains: CalibrationChain[];
+  pendingReasons: Map<string, SettlementPendingReason>;
+}) {
   const [category, setCategory] = useState<ChainCategory | "all">("all");
   const [competition, setCompetition] = useState<string>("all");
 
@@ -165,16 +301,21 @@ function ChainsTable({ chains }: { chains: CalibrationChain[] }) {
             </thead>
             <tbody>
               {filtered.map((chain) => (
-                <ChainRow key={chain.sealed_artifact_id} chain={chain} />
+                <ChainRow
+                  key={chain.sealed_artifact_id}
+                  chain={chain}
+                  pendingReason={pendingReasons.get(chain.sealed_artifact_id)}
+                />
               ))}
             </tbody>
           </table>
         </div>
       </div>
       <p className="small dim" style={{ maxWidth: "70ch" }}>
-        The source publishes dates, not kickoff times, so seals close at 00:00 UTC on
-        match day — a conservative day-before cutoff. A voided row records a
-        postponement or abandonment with its reason; it never fabricates a result.
+        Result checks use pinned, hashed CC0 source snapshots. When two trusted
+        sources publish different scores, Golavo refuses to settle the row until the
+        conflict is resolved. A voided row records a postponement or abandonment; it
+        never fabricates a result.
       </p>
     </section>
   );
@@ -198,7 +339,13 @@ function probsLabel(probs: Probs | null): string {
   return `${pct(probs.home)} / ${pct(probs.draw)} / ${pct(probs.away)}`;
 }
 
-function ChainRow({ chain }: { chain: CalibrationChain }) {
+function ChainRow({
+  chain,
+  pendingReason,
+}: {
+  chain: CalibrationChain;
+  pendingReason?: SettlementPendingReason;
+}) {
   const { match, resolution } = chain;
   return (
     <tr>
@@ -213,7 +360,7 @@ function ChainRow({ chain }: { chain: CalibrationChain }) {
       <td>{utcDate(match.kickoff_utc)}</td>
       <td title={utc(chain.sealed_at_utc)}>{utcDate(chain.sealed_at_utc)}</td>
       <td className="num">{probsLabel(chain.probs)}</td>
-      <td><Resolution chain={chain} /></td>
+      <td><Resolution chain={chain} pendingReason={pendingReason} /></td>
       <td className="num headline-col">
         {resolution.metrics ? num(resolution.metrics.log_loss, 3) : "—"}
       </td>
@@ -222,7 +369,28 @@ function ChainRow({ chain }: { chain: CalibrationChain }) {
   );
 }
 
-function Resolution({ chain }: { chain: CalibrationChain }) {
+export function pendingResolutionLabel(
+  chain: CalibrationChain,
+  nowMs = Date.now(),
+  reason?: SettlementPendingReason,
+): string {
+  if (reason === "result_not_published") return "result not published";
+  if (reason === "source_conflict") return "source conflict";
+  if (reason === "scoring_refused") return "review needed";
+  const kickoff = Date.parse(chain.match.kickoff_utc);
+  if (Number.isFinite(kickoff) && nowMs >= kickoff + 3 * 60 * 60 * 1000)
+    return "result check needed";
+  if (Number.isFinite(kickoff) && nowMs >= kickoff) return "match in progress";
+  return "awaiting full time";
+}
+
+function Resolution({
+  chain,
+  pendingReason,
+}: {
+  chain: CalibrationChain;
+  pendingReason?: SettlementPendingReason;
+}) {
   const { resolution } = chain;
   if (resolution.status === "scored" && resolution.actual) {
     return (
@@ -238,7 +406,7 @@ function Resolution({ chain }: { chain: CalibrationChain }) {
       </span>
     );
   }
-  return <span className="chip chip--neutral">awaiting full time</span>;
+  return <span className="chip chip--neutral">{pendingResolutionLabel(chain, Date.now(), pendingReason)}</span>;
 }
 
 function RunningCalibration({ data }: { data: CalibrationSummary }) {
