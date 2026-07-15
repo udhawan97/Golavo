@@ -17,6 +17,22 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Attribution: International football results from martj42/international_results (Mart Jürisoo), CC0-1.0.
 - Notes: Bundled and seal-eligible. Sole forward-seal training source. Date-only; exact kickoff requires the worldcup-json overlay.
 
+### openfootball/champions-league — available, not bundled
+
+- Source: https://github.com/openfootball/champions-league
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/champions-league/blob/master/LICENSE.md)
+- Attribution: European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Registered for Phase 2, not bundled yet. Every imported competition-season must pass fixture/result completeness and format-era checks before Golavo marks it available.
+
+### openfootball/euro — available, not bundled
+
+- Source: https://github.com/openfootball/euro
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/euro/blob/master/LICENSE.md)
+- Attribution: European Championship data from openfootball/euro (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Registered for Phase 2, not bundled yet. Used only after edition completeness and rule-version validation; martj42 remains the historical international results source.
+
 ### openfootball/football.json — **bundled**
 
 - Source: https://github.com/openfootball/football.json
@@ -42,6 +58,14 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - License: CC-BY-4.0 (https://download.geonames.org/export/dump/readme.txt)
 - Attribution: Geographic data from GeoNames (geonames.org), licensed CC BY 4.0.
 - Notes: Planned enrichment source. Bulk dumps only, no runtime web-service dependency. Commercial use permitted with attribution.
+
+### Natural Earth — available, not bundled
+
+- Source: https://www.naturalearthdata.com/
+- Contributors: Tom Patterson, Nathaniel Vaughn Kelso, Natural Earth contributors
+- License: PUBLIC-DOMAIN (https://www.naturalearthdata.com/about/terms-of-use/)
+- Attribution: Made with Natural Earth.
+- Notes: Registered for Phase 3, not bundled yet. Golavo will pin one simplified release and hash; no online tile service or third-party basemap is required.
 
 ### Wikidata — available, not bundled
 
@@ -90,7 +114,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - License: CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/)
 - Attribution: Event data: Pappalardo et al., Sci Data 6:236 (2019), CC BY 4.0 (collected by Wyscout).
 - Citation key: `pappalardo2019dataset` (see CITATIONS.bib)
-- Notes: Optional research pack. Historical only; never blended into live models. Labeled 'research event data (2017/18)', never 'observed xG'.
+- Notes: Optional research pack. Historical team-level research only; never blended into live models or simulations. Labeled by exact competition and era, never 'observed xG'. Raw events are optional; compact derived artifacts may be bundled with attribution and modification notices.
 
 ### SkillCorner Open Data — optional download, isolated pack
 

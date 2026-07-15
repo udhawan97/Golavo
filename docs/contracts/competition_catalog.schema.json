@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/competition-catalog-0.1.0.schema.json",
+  "title": "Golavo competition and capability catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "catalog_version", "scope", "refresh_policy", "competitions"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "catalog_version": {"type": "string", "pattern": "^[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]+$"},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["team_category", "club_history", "cross_era_default"],
+      "properties": {
+        "team_category": {"const": "mens-senior"},
+        "club_history": {"const": "current-plus-five-completed-seasons"},
+        "cross_era_default": {"const": "strict"}
+      }
+    },
+    "refresh_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["daily_open_snapshots", "on_demand_open_refresh", "byok_api", "byok_reason"],
+      "properties": {
+        "daily_open_snapshots": {"enum": ["available", "planned", "blocked"]},
+        "on_demand_open_refresh": {"enum": ["available", "planned", "blocked"]},
+        "byok_api": {"enum": ["available", "planned", "blocked"]},
+        "byok_reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "competitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/Competition"}
+    }
+  },
+  "$defs": {
+    "Capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "source_ids"],
+      "properties": {
+        "status": {"enum": ["available", "partial", "planned", "unavailable", "blocked"]},
+        "reason": {"type": "string", "minLength": 1},
+        "source_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      }
+    },
+    "FormatEra": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format_era_id", "label", "first_cycle", "last_cycle", "rules_status"],
+      "properties": {
+        "format_era_id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "label": {"type": "string", "minLength": 1},
+        "first_cycle": {"type": "string", "minLength": 4},
+        "last_cycle": {"type": ["string", "null"]},
+        "rules_status": {"enum": ["declared", "implemented", "verified"]}
+      }
+    },
+    "Competition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["competition_id", "slug", "display_name", "team_scope", "jurisdiction", "source_competition_names", "format_eras", "capabilities"],
+      "properties": {
+        "competition_id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "display_name": {"type": "string", "minLength": 1},
+        "team_scope": {"enum": ["club", "international"]},
+        "jurisdiction": {"enum": ["domestic", "uefa-club", "uefa-international"]},
+        "source_competition_names": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "format_eras": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/FormatEra"}},
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["results", "fixtures", "report_cards", "strength_trends", "rest_congestion", "schedule_difficulty", "conditions", "simulation", "research", "weather_context"],
+          "properties": {
+            "results": {"$ref": "#/$defs/Capability"},
+            "fixtures": {"$ref": "#/$defs/Capability"},
+            "report_cards": {"$ref": "#/$defs/Capability"},
+            "strength_trends": {"$ref": "#/$defs/Capability"},
+            "rest_congestion": {"$ref": "#/$defs/Capability"},
+            "schedule_difficulty": {"$ref": "#/$defs/Capability"},
+            "conditions": {"$ref": "#/$defs/Capability"},
+            "simulation": {"$ref": "#/$defs/Capability"},
+            "research": {"$ref": "#/$defs/Capability"},
+            "weather_context": {"$ref": "#/$defs/Capability"}
+          }
+        }
+      }
+    }
+  }
+}

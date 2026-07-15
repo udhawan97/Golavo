@@ -70,6 +70,11 @@ def facts_schema_path() -> Path:
     return resource("docs", "contracts", "facts.schema.json")
 
 
+def competition_catalog_schema_path() -> Path:
+    """Absolute path to the competition identity/capability contract."""
+    return resource("docs", "contracts", "competition_catalog.schema.json")
+
+
 def match_index_path() -> Path:
     """Absolute path to the committed, frozen match search index (Parquet)."""
     return resource("data", "index", "matches_index.parquet")

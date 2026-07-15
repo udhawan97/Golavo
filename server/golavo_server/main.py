@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from golavo_server import __version__, analysis, matches, runtime, seal
+from golavo_server import __version__, analysis, capabilities, matches, runtime, seal
 from golavo_server import picks as pick_service
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
@@ -146,6 +146,12 @@ def meta() -> dict[str, Any]:
         "version": __version__,
         "forecast_source": "sample" if showing_samples() else "ledger",
     }
+
+
+@app.get("/api/v1/capabilities")
+def get_capabilities() -> dict[str, Any]:
+    """Stable competition identities and honest per-feature availability states."""
+    return capabilities.get_capabilities()
 
 
 @app.get("/api/v1/ai/local-models")
