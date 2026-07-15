@@ -19,11 +19,12 @@ import { utcDate } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import type { AsyncState } from "../lib/hooks";
 import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
-import { ChevronRight, SearchIcon } from "../components/icons";
+import { ChevronRight, PinIcon, SearchIcon } from "../components/icons";
 import { useWarmupStatus } from "../lib/warmup";
 import { WarmupHero } from "../components/EngineWarmup";
 import { usePicks } from "../lib/picks";
 import { PickChip, pickChipLabel } from "../components/PickChip";
+import { nationalFlag, teamMonogram, teamNameDensity } from "../lib/teamIdentity";
 
 const WELCOME_KEY = "golavo-welcome-dismissed";
 
@@ -287,10 +288,30 @@ export function Rail({
   );
 }
 
+function TeamMark({ team, international }: { team: string; international: boolean }) {
+  const flag = international ? nationalFlag(team) : null;
+  return (
+    <span className={`game-card__mark${flag ? " game-card__mark--flag" : ""}`} aria-hidden="true">
+      {flag ?? teamMonogram(team)}
+    </span>
+  );
+}
+
+function MatchLocation({ match }: { match: MatchRow }) {
+  const parts = [match.city, match.country].filter(
+    (part, index, all): part is string => Boolean(part) && all.indexOf(part) === index,
+  );
+  if (parts.length === 0) return <span>Location unavailable</span>;
+  return <span>{parts.join(" · ")}</span>;
+}
+
 export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anchor?: boolean; pick?: PickView }) {
   const state = match.is_complete
     ? `played, final score ${match.home_score}–${match.away_score}`
     : "upcoming";
+  const isInternational = match.source_kind === "international";
+  const homeDensity = teamNameDensity(match.home_team);
+  const awayDensity = teamNameDensity(match.away_team);
   return (
     <a
       className="game-card"
@@ -298,9 +319,17 @@ export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anc
       data-tour={anchor ? "match-card" : undefined}
       aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}.${pickChipLabel(match, pick) ? ` ${pickChipLabel(match, pick)}.` : ""} Open analytics.`}
     >
-      <div className="game-card__comp small muted">{match.competition}</div>
+      <div className="game-card__meta">
+        <span className="game-card__state">{match.is_complete ? "Final" : "Upcoming"}</span>
+        <span className="game-card__date">{utcDate(match.kickoff_utc)}</span>
+      </div>
       <div className="game-card__teams">
-        <span className="game-card__team">{match.home_team}</span>
+        <span className="game-card__side game-card__side--home">
+          <TeamMark team={match.home_team} international={isInternational} />
+          <span className={`game-card__team game-card__team--${homeDensity}`} title={match.home_team}>
+            {match.home_team}
+          </span>
+        </span>
         <span className="game-card__mid">
           {match.is_complete ? (
             <span className="num game-card__score">
@@ -310,12 +339,20 @@ export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anc
             <span className="small muted">v</span>
           )}
         </span>
-        <span className="game-card__team game-card__team--away">{match.away_team}</span>
+        <span className="game-card__side game-card__side--away">
+          <TeamMark team={match.away_team} international={isInternational} />
+          <span className={`game-card__team game-card__team--away game-card__team--${awayDensity}`} title={match.away_team}>
+            {match.away_team}
+          </span>
+        </span>
       </div>
-      <div className="game-card__foot small muted">
-        <span>{match.is_complete ? "Played" : "Upcoming"} · {utcDate(match.kickoff_utc)}</span>
+      <div className="game-card__foot">
+        <span className="game-card__location">
+          <PinIcon size={13} />
+          <MatchLocation match={match} />
+        </span>
         <span className="game-card__analyze" aria-hidden>
-          Analyze <ChevronRight size={13} />
+          Open analysis <ChevronRight size={13} />
         </span>
       </div>
       <PickChip match={match} pick={pick} />

@@ -45,7 +45,7 @@ for (const width of WIDTHS) {
   }
 }
 
-test("long club names wrap inside match cards", async ({ page }) => {
+test("long club names wrap only between words inside match cards", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/#/");
   const card = page.locator(".game-card").first();
@@ -61,6 +61,33 @@ test("long club names wrap inside match cards", async ({ page }) => {
     expect(teamBox).not.toBeNull();
     expect(teamBox!.x).toBeGreaterThanOrEqual(cardBox!.x);
     expect(teamBox!.x + teamBox!.width).toBeLessThanOrEqual(cardBox!.x + cardBox!.width);
+    const wrapping = await teams.nth(index).evaluate((node) => {
+      const style = getComputedStyle(node);
+      return {
+        overflowWrap: style.overflowWrap,
+        wordBreak: style.wordBreak,
+        height: node.getBoundingClientRect().height,
+        lineHeight: Number.parseFloat(style.lineHeight),
+        scrollWidth: node.scrollWidth,
+        clientWidth: node.clientWidth,
+      };
+    });
+    expect(wrapping.overflowWrap).toBe("normal");
+    expect(wrapping.wordBreak).toBe("normal");
+    expect(wrapping.scrollWidth).toBeLessThanOrEqual(wrapping.clientWidth);
+    expect(wrapping.height).toBeGreaterThan(wrapping.lineHeight * 1.5);
+    expect(wrapping.height).toBeLessThanOrEqual(wrapping.lineHeight * 2.1);
+  }
+});
+
+test("matchday grid uses three, two, then one column", async ({ page }) => {
+  for (const [width, expected] of [[1280, 3], [900, 2], [600, 1]] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/#/");
+    const grid = page.locator(".game-grid").first();
+    await grid.waitFor();
+    const columns = await grid.evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+    expect(columns, `expected ${expected} columns at ${width}px`).toBe(expected);
   }
 });
 
