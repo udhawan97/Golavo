@@ -6,6 +6,33 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-07-14
+
+Golavo's first launch, match browsing, and sealed-forecast audit now share a
+clearer visual hierarchy without changing any deterministic forecast values.
+
+### Changed
+- **First launch is easier to trust.** Startup now distinguishes unpacking,
+  engine startup, and match-index warming with stage-specific reassurance,
+  elapsed-time context, and a polished branded presentation that respects
+  reduced-motion preferences.
+- **Matchday cards are faster to scan.** A responsive three/two/one-column grid,
+  compact team marks, clearer fixture state, venue treatment, and contained
+  hover/focus behavior improve desktop and mobile browsing.
+- **Forecast and seal are one commitment.** The sealed outcome bucket and most
+  likely individual scoreline are shown together, with an explicit explanation
+  that a result probability combines many scorelines. Human-readable seal facts
+  stay visible while seed and hashes move into a verification disclosure.
+
+### Fixed
+- Long club names now step down before they crowd the protected score lane, with
+  deliberate spacing preserved on both sides at phone and desktop widths.
+- Failed update checks now open the GitHub releases page through the operating
+  system browser from both signed-updater and unsigned/local fallback states.
+- Outcome percentages use the same sum-to-100 rounding as the probability bar,
+  removing cases where the prominent forecast and plain-language summary could
+  disagree by one percentage point.
+
 ## [0.10.3] - 2026-07-14
 
 ### Fixed
@@ -1078,7 +1105,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.10.3...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.11.1...HEAD
+[0.11.1]: https://github.com/udhawan97/Golavo/compare/v0.10.3...v0.11.1
 [0.10.3]: https://github.com/udhawan97/Golavo/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/udhawan97/Golavo/compare/v0.10.0...v0.10.2
 [0.4.0]: https://github.com/udhawan97/Golavo/compare/v0.3.3...v0.4.0

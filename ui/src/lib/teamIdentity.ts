@@ -85,7 +85,10 @@ export function teamMonogram(team: string): string {
 /** A typography hint, never an abbreviation or mutation of the real name. */
 export function teamNameDensity(team: string): "regular" | "compact" | "tight" {
   const longestWord = Math.max(...team.trim().split(/\s+/).map((word) => word.length));
-  if (longestWord >= 17 || team.length >= 28) return "tight";
-  if (longestWord >= 13 || team.length >= 22) return "compact";
+  // Chromium's bundled Linux fonts run wider than macOS for several football
+  // names (notably "Wolverhampton"). Step down before a single word can crowd
+  // the protected score lane; the visible name is never abbreviated or broken.
+  if (longestWord >= 15 || team.length >= 27) return "tight";
+  if (longestWord >= 12 || team.length >= 20) return "compact";
   return "regular";
 }

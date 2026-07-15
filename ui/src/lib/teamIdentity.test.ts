@@ -16,6 +16,7 @@ describe("team identity", () => {
   it("only changes typography for unusually demanding names", () => {
     expect(teamNameDensity("Spain")).toBe("regular");
     expect(teamNameDensity("Manchester United")).toBe("regular");
-    expect(teamNameDensity("Borussia Mönchengladbach")).toBe("compact");
+    expect(teamNameDensity("Wolverhampton Wanderers")).toBe("compact");
+    expect(teamNameDensity("Borussia Mönchengladbach")).toBe("tight");
   });
 });

@@ -1983,7 +1983,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .game-card__teams {
   display: grid;
   grid-template-columns: minmax(0, 1fr) clamp(3.5rem, 18%, 4rem) minmax(0, 1fr);
-  align-items: center; gap: .6rem; min-width: 0;
+  align-items: center; gap: .72rem; min-width: 0;
   margin: .8rem 0 .75rem;
 }
 .game-card__side {
@@ -2009,11 +2009,13 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 .game-card__team--away { text-align: left; }
 .game-card__side--home .game-card__team { text-align: right; }
-.game-card__team--compact { font-size: .86rem; }
-.game-card__team--tight { font-size: .78rem; letter-spacing: -.012em; }
-.game-card__mid { display: grid; place-items: center; text-align: center; }
+.game-card__team--compact { font-size: .8rem; letter-spacing: -.01em; }
+.game-card__team--tight { font-size: .73rem; letter-spacing: -.016em; }
+.game-card__mid {
+  display: grid; place-items: center; min-width: 0; text-align: center;
+}
 .game-card__score {
-  min-width: 3.45rem; padding: .24rem .42rem;
+  min-width: 3.55rem; padding: .26rem .48rem;
   font-variant-numeric: tabular-nums; font-size: 1.06rem; font-weight: 720; letter-spacing: -.025em;
   background: color-mix(in srgb, var(--surface-3) 86%, transparent);
   border: 1px solid var(--border-strong); border-radius: var(--radius-xs);
@@ -2052,7 +2054,8 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   .game-card { min-height: 0; padding: .78rem .9rem .82rem; }
   .game-card::after { width: 10.5rem; height: 6rem; right: -2rem; }
   .game-card__teams {
-    grid-template-columns: minmax(0, 1fr) 3.5rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 3.7rem minmax(0, 1fr);
+    gap: .68rem;
     margin: .55rem 0 .5rem;
   }
   .game-card__side { flex-direction: row; align-items: center; gap: .45rem; }

@@ -48,11 +48,19 @@ for (const width of WIDTHS) {
 test("long club names wrap only between words inside match cards", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/#/");
-  const card = page.locator(".game-card").first();
+  const card = page.locator(".game-card:has(.game-card__score)").first();
   await card.waitFor();
   const teams = card.locator(".game-card__team");
-  await teams.nth(0).evaluate((node) => { node.textContent = "Nottingham Forest"; });
-  await teams.nth(1).evaluate((node) => { node.textContent = "Wolverhampton Wanderers"; });
+  await teams.nth(0).evaluate((node) => {
+    node.textContent = "Nottingham Forest";
+    node.classList.remove("game-card__team--compact", "game-card__team--tight");
+    node.classList.add("game-card__team--regular");
+  });
+  await teams.nth(1).evaluate((node) => {
+    node.textContent = "Wolverhampton Wanderers";
+    node.classList.remove("game-card__team--regular", "game-card__team--tight");
+    node.classList.add("game-card__team--compact");
+  });
 
   const cardBox = await card.boundingBox();
   expect(cardBox).not.toBeNull();
@@ -78,6 +86,17 @@ test("long club names wrap only between words inside match cards", async ({ page
     expect(wrapping.height).toBeGreaterThan(wrapping.lineHeight * 1.5);
     expect(wrapping.height).toBeLessThanOrEqual(wrapping.lineHeight * 2.1);
   }
+
+  // The score owns a protected centre lane: even demanding names must leave a
+  // deliberate visual pause on both sides instead of appearing fused to it.
+  const scoreBox = await card.locator(".game-card__score").boundingBox();
+  const homeBox = await teams.nth(0).boundingBox();
+  const awayBox = await teams.nth(1).boundingBox();
+  expect(scoreBox).not.toBeNull();
+  expect(homeBox).not.toBeNull();
+  expect(awayBox).not.toBeNull();
+  expect(scoreBox!.x - (homeBox!.x + homeBox!.width)).toBeGreaterThanOrEqual(8);
+  expect(awayBox!.x - (scoreBox!.x + scoreBox!.width)).toBeGreaterThanOrEqual(8);
 });
 
 test("matchday grid uses three, two, then one column", async ({ page }) => {
