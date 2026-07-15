@@ -165,6 +165,9 @@ test("manual check error: named copy, raw detail, releases fallback", async ({ p
     "href",
     "https://github.com/udhawan97/Golavo/releases",
   );
+  await sheet(page).getByRole("link", { name: "releases page" }).click();
+  const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);
+  expect(invoked).toContain("open_external_url");
   await expect(sheet(page).getByRole("button", { name: "Try again" })).toBeVisible();
 
   await sheet(page).getByRole("button", { name: "Close" }).click();
@@ -290,11 +293,14 @@ test("fallback: check error shows named copy + releases fallback", async ({ page
   await page.getByRole("button", { name: "Check for updates" }).click();
   await expect(page.getByText("Couldn’t reach GitHub")).toBeVisible();
   await expect(page.getByText("dns error")).toBeVisible();
-  await expect(page.getByRole("link", { name: "releases page" })).toBeVisible();
+  const releasesLink = page.getByRole("link", { name: "releases page" });
+  await expect(releasesLink).toBeVisible();
+  await releasesLink.click();
 
   // A failed CHECK must retry the check (not download a stale rel).
   await page.getByRole("button", { name: "Try again" }).click();
   const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);
+  expect(invoked).toContain("open_external_url");
   expect(invoked.filter((c) => c === "fallback_check").length).toBeGreaterThanOrEqual(2);
   expect(invoked).not.toContain("fallback_download");
 });
@@ -309,6 +315,9 @@ test("fallback: newer release with no installer for this platform points at rele
   await expect(page.getByText(/no installer for your platform/)).toBeVisible();
   const updates = page.getByRole("region", { name: "Updates" });
   await expect(updates.getByRole("button", { name: /Download/ })).toHaveCount(0);
+  await updates.getByRole("link", { name: "releases page" }).click();
+  const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);
+  expect(invoked).toContain("open_external_url");
 });
 
 test("Settings honesty: source build (no Tauri) points at git pull", async ({ page }) => {

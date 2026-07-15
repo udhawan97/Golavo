@@ -1166,6 +1166,92 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
 /* Plain-language verdict — prominent but never louder than the numbers. */
 .verdict { font-size: 1.16rem; font-weight: 650; line-height: 1.3; letter-spacing: -0.01em; }
 
+/* The seal's two different probability questions, made impossible to confuse:
+   an outcome bucket (all winning/drawing scorelines combined) and one exact
+   scoreline. The exact score is large enough to answer at a glance, while the
+   explanatory bridge keeps it subordinate to the aggregate outcome call. */
+.seal-call {
+  display: grid; gap: var(--space-3);
+  border: 1px solid var(--gold-line); border-radius: var(--radius-sm);
+  overflow: hidden; background: color-mix(in srgb, var(--gold-soft) 42%, var(--surface-1));
+}
+.seal-call--with-score { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); }
+.seal-call__item { min-width: 0; padding: var(--space-4); }
+.seal-call__item--score {
+  border-left: 1px solid var(--gold-line);
+  background: color-mix(in srgb, var(--surface-2) 72%, transparent);
+}
+.seal-call__label {
+  margin: 0 0 var(--space-2); color: var(--text-muted); font-size: var(--text-xs);
+  font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.seal-call__primary { display: flex; align-items: baseline; gap: var(--space-3); justify-content: space-between; }
+.seal-call__primary > strong { min-width: 0; font-size: var(--text-xl); line-height: 1.15; letter-spacing: -.02em; }
+.seal-call__prob { flex: none; color: var(--gold); font-size: var(--text-xl); font-weight: 750; }
+.seal-call__scoreline {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center; gap: var(--space-2); color: var(--text-muted); font-size: var(--text-sm);
+}
+.seal-call__scoreline span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seal-call__scoreline span:last-child { text-align: right; }
+.seal-call__scoreline strong { color: var(--text); font-size: clamp(1.8rem, 1.35rem + 1.4vw, 2.4rem); line-height: 1; }
+.seal-call__support { margin: var(--space-2) 0 0; color: var(--text-muted); font-size: var(--text-sm); }
+.seal-call__support b { color: var(--text); }
+.seal-call__explanation {
+  margin: 0; padding: var(--space-3) var(--space-4); border-left: 3px solid var(--gold-line);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent); color: var(--text-muted);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: var(--text-sm); line-height: 1.5;
+}
+.seal-call__explanation b { color: var(--text); }
+
+/* Forecast + seal are one commitment card. Scan-level provenance stays visible;
+   machine-oriented identifiers remain one disclosure away for audit work. */
+.forecast-seal {
+  position: relative; overflow: hidden; border-color: var(--gold-line);
+  background:
+    radial-gradient(180px 140px at 100% 0%, var(--gold-soft), transparent 72%),
+    var(--surface-1);
+}
+.forecast-seal .panel__head { border-color: var(--gold-line); }
+.forecast-seal__meta {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
+  background: color-mix(in srgb, var(--surface-2) 62%, transparent);
+}
+.forecast-seal__meta-item { min-width: 0; padding: var(--space-3) var(--space-4); }
+.forecast-seal__meta-item:nth-child(even) { border-left: 1px solid var(--border); }
+.forecast-seal__meta-item:nth-child(n + 3) { border-top: 1px solid var(--border); }
+.forecast-seal__meta-item span {
+  display: block; margin-bottom: var(--space-1); color: var(--text-dim);
+  font-size: var(--text-xs); font-weight: 650; letter-spacing: .06em; text-transform: uppercase;
+}
+.forecast-seal__meta-item strong {
+  display: block; min-width: 0; color: var(--text); font-size: var(--text-sm);
+  font-weight: 650; overflow-wrap: anywhere;
+}
+.seal-audit { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-1); }
+.seal-audit > summary {
+  display: flex; align-items: center; gap: var(--space-2); min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3); cursor: pointer; list-style: none;
+  color: var(--text-muted); font-size: var(--text-sm); font-weight: 650;
+}
+.seal-audit > summary::-webkit-details-marker { display: none; }
+.seal-audit > summary:hover { color: var(--text); }
+.seal-audit > summary small { margin-left: auto; color: var(--text-dim); font-weight: 500; }
+.seal-audit__chev { flex: none; transition: transform .18s ease; }
+.seal-audit[open] .seal-audit__chev { transform: rotate(180deg); }
+.seal-audit__body { padding: var(--space-4); border-top: 1px solid var(--border); }
+.seal-audit__body > p { margin: var(--space-3) 0 0; }
+@media (max-width: 620px) {
+  .seal-call--with-score { grid-template-columns: 1fr; }
+  .seal-call__item--score { border-left: 0; border-top: 1px solid var(--gold-line); }
+  .forecast-seal__meta { grid-template-columns: 1fr; }
+  .forecast-seal__meta-item:nth-child(even) { border-left: 0; }
+  .forecast-seal__meta-item:nth-child(n + 2) { border-top: 1px solid var(--border); }
+  .seal-audit > summary { flex-wrap: wrap; }
+  .seal-audit > summary small { width: 100%; margin-left: calc(16px + var(--space-2)); }
+}
+
 /* Cited, sealed-number facts (Casual). Clearly the engine's, clearly not AI. */
 .cited { border: 1px solid var(--border); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--surface-2) 55%, transparent); padding: .7rem .85rem; }
 .cited__cap { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); margin-bottom: .5rem; }

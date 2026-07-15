@@ -17,6 +17,7 @@ import {
   formatWhen,
 } from "../lib/updater";
 import type { UpdaterPhase } from "../lib/updater";
+import { handleExternalLinkClick } from "../lib/external-links";
 import { DownloadIcon } from "./icons";
 
 // ---------------------------------------------------------------- pill ------
@@ -168,7 +169,12 @@ export function ReleaseNotes({ notes }: { notes: string }) {
 
 function ReleasesLink({ children = "releases page" }: { children?: ReactNode }) {
   return (
-    <a href={RELEASES_URL} target="_blank" rel="noreferrer">
+    <a
+      href={RELEASES_URL}
+      target="_blank"
+      rel="noreferrer"
+      onClick={handleExternalLinkClick}
+    >
       {children}
     </a>
   );

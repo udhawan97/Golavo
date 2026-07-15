@@ -8,12 +8,11 @@ import { num, pct, pctWhole, inWords, largestRemainder, utc, utcDate } from "../
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { verdictSummary } from "../lib/summary";
 import { leadingOutcomeFromProbs } from "../lib/aiPresentation";
-import { AlertIcon, ChevronRight, InfoIcon, LinkIcon, ScaleIcon, ShieldCheckIcon, SparkIcon, VoidIcon } from "../components/icons";
+import { AlertIcon, ChevronDown, ChevronRight, InfoIcon, LinkIcon, ScaleIcon, SealIcon, ShieldCheckIcon, SparkIcon, VoidIcon } from "../components/icons";
 import { Hash, HorizonChip, ProbabilityBar, StatTile, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
 import { MatchHeader } from "../components/MatchHeader";
 import { Drawer } from "../components/disclosure";
 import { ScoreMatrixHeatmap } from "../components/ScoreMatrixHeatmap";
-import { SealStamp } from "../components/SealStamp";
 import { Provenance } from "../components/Provenance";
 import { ScoredPanel } from "../components/ScoredPanel";
 import { AiDeepRead } from "../components/ai/AiDeepRead";
@@ -107,13 +106,12 @@ function Detail({
               <>
                 {status === "voided" && <VoidBanner reason={artifact.void_reason ?? null} />}
                 <VerdictPanel artifact={artifact} showBar={status !== "scored"} dim={status === "voided"} />
-                <PlainTerms artifact={artifact} />
-                {status === "scored" && <ScoredPanel artifact={artifact} />}
               </>
             )}
         </div>
         <div className="stack" style={{ ["--gap" as string]: "1.1rem" }}>
-          <SealStamp artifact={artifact} />
+          {!abstained && <PlainTerms artifact={artifact} />}
+          {status === "scored" && <ScoredPanel artifact={artifact} />}
         </div>
       </div>
 
@@ -234,20 +232,139 @@ function ForecastTrustStrip({ artifact }: { artifact: ForecastArtifact }) {
 /** The verdict bar + one plain-language headline. Identical in both modes — the
  *  sealed certainty never changes when the depth toggle flips. */
 function VerdictPanel({ artifact, showBar, dim }: { artifact: ForecastArtifact; showBar: boolean; dim: boolean }) {
-  const { forecast, match } = artifact;
+  const { forecast, match, model, provenance } = artifact;
   const summary = verdictSummary(artifact);
+  const probs = forecast.probs;
+  const [homeWhole, drawWhole, awayWhole] = probs
+    ? largestRemainder([probs.home, probs.draw, probs.away])
+    : [0, 0, 0];
+  const outcomes = probs
+    ? [
+        {
+          key: "home",
+          label: `${match.home_team} to win`,
+          explanation: `every ${match.home_team}-winning scoreline`,
+          probability: probs.home,
+          whole: homeWhole,
+        },
+        {
+          key: "draw",
+          label: "Draw",
+          explanation: "every level scoreline",
+          probability: probs.draw,
+          whole: drawWhole,
+        },
+        {
+          key: "away",
+          label: `${match.away_team} to win`,
+          explanation: `every ${match.away_team}-winning scoreline`,
+          probability: probs.away,
+          whole: awayWhole,
+        },
+      ].sort((a, b) => b.probability - a.probability)
+    : [];
+  const leader = outcomes[0] ?? null;
+  const score = forecast.score_matrix?.most_likely ?? null;
   const awaitingKickoff = artifact.status === "sealed" && new Date(match.kickoff_utc).getTime() > Date.now();
   return (
-    <section className="panel" aria-labelledby="fc-h">
+    <section className="panel forecast-seal" aria-labelledby="fc-h">
       <div className="panel__head">
-        <h2 id="fc-h">Forecast</h2>
+        <SealIcon size={17} style={{ color: "var(--gold)" }} />
+        <h2 id="fc-h">Sealed forecast</h2>
         <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>Win · Draw · Win — 90 min</span>
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: "1rem", opacity: dim ? 0.6 : 1 }}>
-        <p className="verdict">{summary.headline}</p>
-        {showBar && forecast.probs && (
-          <ProbabilityBar probs={forecast.probs} home={match.home_team} away={match.away_team} height={44} />
+        {leader && (
+          <div className={`seal-call${score ? " seal-call--with-score" : ""}`}>
+            <div className="seal-call__item seal-call__item--outcome">
+              <p className="seal-call__label">Sealed outcome · 90 minutes</p>
+              <div className="seal-call__primary">
+                <strong>{leader.label}</strong>
+                <span className="seal-call__prob num">{leader.whole}%</span>
+              </div>
+              <p className="seal-call__support">{summary.headline}</p>
+            </div>
+
+            {score && (
+              <div className="seal-call__item seal-call__item--score">
+                <p className="seal-call__label">Most likely individual scoreline</p>
+                <div
+                  className="seal-call__scoreline"
+                  aria-label={`${match.home_team} ${score.home}, ${match.away_team} ${score.away}`}
+                >
+                  <span>{match.home_team}</span>
+                  <strong className="num">{score.home}–{score.away}</strong>
+                  <span>{match.away_team}</span>
+                </div>
+                <p className="seal-call__support">
+                  <b className="num">{pctWhole(score.probability)}</b> for this one exact score
+                </p>
+              </div>
+            )}
+          </div>
         )}
+
+        {leader && score && (
+          <p className="seal-call__explanation">
+            <b>{leader.whole}%</b> combines {leader.explanation}. The <b>{score.home}–{score.away}</b>{" "}
+            score is the single largest scoreline at <b>{pctWhole(score.probability)}</b>—it is not
+            the overall outcome call.
+          </p>
+        )}
+
+        {showBar && probs && (
+          <ProbabilityBar probs={probs} home={match.home_team} away={match.away_team} height={44} />
+        )}
+
+        <div className="forecast-seal__meta" aria-label="Seal summary">
+          <div className="forecast-seal__meta-item">
+            <span>Sealed at</span>
+            <strong className="num">{utc(forecast.sealed_at_utc)}</strong>
+          </div>
+          <div className="forecast-seal__meta-item">
+            <span>Horizon</span>
+            <strong>{HORIZON_LABELS[forecast.horizon]} before kickoff</strong>
+          </div>
+          <div className="forecast-seal__meta-item">
+            <span>Model</span>
+            <strong>{FAMILY_LABELS[model.family]} · v{model.version}</strong>
+          </div>
+          <div className="forecast-seal__meta-item">
+            <span>Commitment</span>
+            <strong>{provenance.deterministic ? "Deterministic · immutable" : "Immutable record"}</strong>
+          </div>
+        </div>
+
+        <details className="seal-audit">
+          <summary>
+            <ChevronDown className="seal-audit__chev" size={16} aria-hidden />
+            <span>Seal verification details</span>
+            <small>Seed, generator, and hashes</small>
+          </summary>
+          <div className="seal-audit__body">
+            <dl className="kv kv--seal">
+              <dt>Model id</dt>
+              <dd className="mono">{model.model_id}</dd>
+
+              <dt>Seed</dt>
+              <dd className="mono num">{model.seed}</dd>
+
+              <dt>Code git sha</dt>
+              <dd><Hash value={model.code_git_sha} /></dd>
+
+              <dt>Params hash</dt>
+              <dd><Hash value={model.params_hash} /></dd>
+
+              <dt>Payload sha256</dt>
+              <dd><Hash value={provenance.payload_sha256} /></dd>
+            </dl>
+            <p className="small dim">
+              Generated by {provenance.generator}. Identical inputs and seed reproduce this
+              sealed artifact byte-for-byte.
+            </p>
+          </div>
+        </details>
+
         {awaitingKickoff && (
           <p className="callout callout--info" style={{ fontSize: ".88rem" }}>
             <InfoIcon size={18} />
@@ -267,11 +384,14 @@ function PlainTerms({ artifact }: { artifact: ForecastArtifact }) {
   const probs = forecast.probs;
   const sm = forecast.score_matrix;
   const xg = forecast.expected_goals;
+  const [homeWhole, drawWhole, awayWhole] = probs
+    ? largestRemainder([probs.home, probs.draw, probs.away])
+    : [0, 0, 0];
   const ranked = probs
     ? [
-        { who: match.home_team, suffix: " to win", p: probs.home },
-        { who: "A draw", suffix: "", p: probs.draw },
-        { who: match.away_team, suffix: " to win", p: probs.away },
+        { who: match.home_team, suffix: " to win", p: probs.home, whole: homeWhole },
+        { who: "A draw", suffix: "", p: probs.draw, whole: drawWhole },
+        { who: match.away_team, suffix: " to win", p: probs.away, whole: awayWhole },
       ].sort((a, b) => b.p - a.p)
     : [];
   const leader = ranked[0] ?? null;
@@ -286,14 +406,14 @@ function PlainTerms({ artifact }: { artifact: ForecastArtifact }) {
           <ul className="cited__list">
             {leader && (
               <li>
-                Most likely outcome: <b>{leader.who}{leader.suffix}</b> at{" "}
-                <b className="num">{pctWhole(leader.p)}</b>{" "}
+                Outcome leader: <b>{leader.who}{leader.suffix}</b> at{" "}
+                <b className="num">{leader.whole}%</b>{" "}
                 <span className="dim">({inWords(leader.p)})</span>
               </li>
             )}
             {sm && (
               <li>
-                Most likely score{" "}
+                Top individual scoreline{" "}
                 <b className="num">{match.home_team} {sm.most_likely.home}–{sm.most_likely.away} {match.away_team}</b>{" "}
                 at <b className="num">{pctWhole(sm.most_likely.probability)}</b>{" "}
                 <span className="dim">({inWords(sm.most_likely.probability)})</span>
