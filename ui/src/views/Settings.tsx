@@ -225,7 +225,7 @@ export function Settings({
             </p>
             <div className="settings__row" style={{ justifyContent: "flex-start", gap: ".6rem", flexWrap: "wrap" }}>
               <button type="button" className="btn btn--ghost" onClick={() => void dataRefresh.checkNow()}>
-                Check now
+                Check approved sources
               </button>
               <button type="button" className="btn btn--primary" onClick={() => void dataRefresh.refreshNow()}>
                 Refresh now
