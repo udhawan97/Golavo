@@ -199,6 +199,101 @@ export interface EvalSummary {
   primary_metric?: string;
   sources?: (Snapshot | null)[];
   folds: Fold[];
+  report_cards?: ReportCard[];
+}
+
+export interface ReportCardModel {
+  family: ModelFamily;
+  n_matches: number;
+  n_folds: number;
+  log_loss: number;
+  brier: number;
+  ece: number;
+  rps: number;
+  skill_score: number;
+  skill_ci_95: [number, number] | null;
+  sample_status: "available" | "insufficient_sample";
+  mean_rank: number;
+  best_rank: number;
+  worst_rank: number;
+  first_place_folds: number;
+}
+
+export interface ReportCard {
+  competition: string;
+  baseline_family: "climatological";
+  primary_metric: "log_loss";
+  minimum_matches: number;
+  bootstrap: {
+    method: "fold-stratified-match-bootstrap";
+    replicates: number;
+    seed: number;
+  };
+  window_start: string;
+  window_end: string;
+  models: ReportCardModel[];
+}
+
+// ---- Existing-data competition analytics ----------------------------------
+
+export type AnalyticsStatus = "available" | "insufficient_sample" | "unavailable" | "blocked";
+
+export interface StrengthPoint {
+  cutoff_utc: string;
+  sample_matches: number;
+  attack_index: number;
+  defence_index: number;
+  overall_index: number;
+}
+
+export interface TeamStrengthTrend {
+  team: string;
+  current: StrengthPoint;
+  trend: StrengthPoint[];
+}
+
+export interface TeamWorkload {
+  team: string;
+  last_indexed_match_utc: string;
+  rest_days: number;
+  matches_last_7_days: number;
+  matches_last_14_days: number;
+  matches_last_28_days: number;
+  congestion: "normal" | "elevated" | "high";
+}
+
+export interface CompetitionAnalytics {
+  schema_version: string;
+  competition_id: string;
+  competition_name: string;
+  as_of_utc: string;
+  scope: {
+    team_category: "club" | "international";
+    strength_comparison: "this_competition_only";
+    model_input: false;
+  };
+  provenance: { source_ids: string[]; index_sha256?: string };
+  strength_trends: {
+    status: AnalyticsStatus;
+    reason: string | null;
+    method: string;
+    minimum_matches: number;
+    data_through_utc?: string;
+    comparison_scope?: "this_competition_only";
+    teams: TeamStrengthTrend[];
+  };
+  rest_congestion: {
+    status: AnalyticsStatus;
+    reason: string | null;
+    method: string;
+    coverage_note: string;
+    teams: TeamWorkload[];
+  };
+  schedule_difficulty: {
+    status: "blocked" | "unavailable";
+    reason: string;
+    required_capability: string;
+  };
 }
 
 // ---- Calibration record (v0.2.0) --------------------------------------------

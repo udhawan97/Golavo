@@ -1,12 +1,12 @@
 ---
 title: Model cards & calibration
-description: Per-competition model cards with the real backtest metrics (log loss, Brier, ECE, RPS) and reliability diagrams.
+description: Per-competition model cards with skill intervals, real backtest metrics, and reliability diagrams.
 ---
 
 These cards report the **actual** out-of-sample backtest metrics Golavo emits, one card per competition. They are generated from the schema-validated `eval_summary*.json` artifacts by `scripts/build_model_cards.py` — never hand-edited — so the numbers here match what CI validates. **Log loss is primary.** No model is a declared champion; forward evidence (the [calibration record](/Golavo/prediction-ledger/)) is kept separate from these historical folds.
 
 :::note[How to read a card]
-Each card lists the five deterministic candidates against the climatological baseline. Metrics are out-of-sample on strictly chronological folds. League strengths are **not** comparable across competitions — each league is modeled independently from its own pack.
+Each card lists the five deterministic candidates against the climatological baseline. Skill is `1 - model log loss / baseline log loss`; its 95% interval is a seeded, fold-stratified bootstrap over held-out matches. Metrics are out-of-sample on strictly chronological folds. League strengths are **not** comparable across competitions — each league is modeled independently from its own pack.
 :::
 
 ## Men's senior full internationals
@@ -14,6 +14,32 @@ Each card lists the five deterministic candidates against the climatological bas
 - **Scope:** Men's senior full internationals (forward seal→score surface plus these historical test folds).
 - **Source snapshot:** martj42/international_results `ddd7249ac0c2`, retrieved 2026-07-10 (CC0-1.0).
 - **Folds:** WC2022, EURO2024, WC2026 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
+
+**Competition report cards** (positive skill means lower log loss than climatology):
+
+**FIFA World Cup report card** (2022-11-20 to 2026-07-19):
+
+| Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
+|---|---:|---:|---:|---:|---:|
+| climatological (baseline) | 161 / 2 | 1.0636 | +0.0% (+0.0% to +0.0%) | 0.0310 | 5.0 (5–5) |
+| Elo ordinal-logit | 161 / 2 | 0.9494 | +10.7% (+5.6% to +15.4%) | 0.1559 | 1.0 (1–1) |
+| independent Poisson | 161 / 2 | 1.0027 | +5.7% (+0.7% to +10.6%) | 0.0972 | 3.0 (3–3) |
+| time-decayed Dixon-Coles | 161 / 2 | 1.0000 | +6.0% (+0.6% to +10.9%) | 0.0920 | 2.0 (2–2) |
+| bivariate Poisson | 161 / 2 | 1.0027 | +5.7% (+0.5% to +10.5%) | 0.0972 | 4.0 (4–4) |
+
+Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
+
+**UEFA Euro report card** (2024-06-14 to 2024-07-14):
+
+| Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
+|---|---:|---:|---:|---:|---:|
+| climatological (baseline) | 51 / 1 | 1.1422 | +0.0% (+0.0% to +0.0%) | 0.1377 | 5.0 (5–5) |
+| Elo ordinal-logit | 51 / 1 | 1.0300 | +9.8% (+1.3% to +17.4%) | 0.0625 | 4.0 (4–4) |
+| independent Poisson | 51 / 1 | 1.0228 | +10.5% (+3.4% to +17.2%) | 0.0887 | 2.0 (2–2) |
+| time-decayed Dixon-Coles | 51 / 1 | 0.9973 | +12.7% (+4.5% to +19.8%) | 0.0890 | 1.0 (1–1) |
+| bivariate Poisson | 51 / 1 | 1.0228 | +10.5% (+3.6% to +17.7%) | 0.0887 | 3.0 (3–3) |
+
+Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
 
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
@@ -53,6 +79,20 @@ Every candidate beats the climatological baseline on log loss on every fold; the
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
 - **Folds:** EPL2022-23, EPL2023-24, EPL2024-25 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
 
+**Competition report cards** (positive skill means lower log loss than climatology):
+
+**English Premier League report card** (2022-08-01 to 2025-06-30):
+
+| Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
+|---|---:|---:|---:|---:|---:|
+| climatological (baseline) | 1140 / 3 | 1.0623 | +0.0% (+0.0% to +0.0%) | 0.0298 | 5.0 (5–5) |
+| Elo ordinal-logit | 1140 / 3 | 0.9924 | +6.6% (+5.0% to +8.1%) | 0.0622 | 2.0 (1–4) |
+| independent Poisson | 1140 / 3 | 1.0065 | +5.2% (+3.3% to +7.2%) | 0.0542 | 1.7 (1–2) |
+| time-decayed Dixon-Coles | 1140 / 3 | 1.0104 | +4.9% (+2.9% to +6.9%) | 0.0528 | 3.7 (3–4) |
+| bivariate Poisson | 1140 / 3 | 1.0065 | +5.2% (+3.3% to +7.2%) | 0.0542 | 2.7 (2–3) |
+
+Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
+
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
 | Model | EPL2022-23 | EPL2023-24 | EPL2024-25 |
@@ -90,6 +130,20 @@ Every candidate beats the climatological baseline on log loss on every fold; the
 - **Scope:** La Liga (historical, completed seasons only — **not live**).
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
 - **Folds:** LALIGA2021-22, LALIGA2022-23, LALIGA2023-24 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
+
+**Competition report cards** (positive skill means lower log loss than climatology):
+
+**La Liga report card** (2021-08-01 to 2024-06-30):
+
+| Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
+|---|---:|---:|---:|---:|---:|
+| climatological (baseline) | 1140 / 3 | 1.0699 | +0.0% (+0.0% to +0.0%) | 0.0232 | 5.0 (5–5) |
+| Elo ordinal-logit | 1140 / 3 | 1.0032 | +6.2% (+4.7% to +7.8%) | 0.0555 | 3.3 (2–4) |
+| independent Poisson | 1140 / 3 | 0.9898 | +7.5% (+5.5% to +9.5%) | 0.0451 | 2.0 (1–3) |
+| time-decayed Dixon-Coles | 1140 / 3 | 0.9892 | +7.5% (+5.6% to +9.5%) | 0.0485 | 1.7 (1–3) |
+| bivariate Poisson | 1140 / 3 | 0.9898 | +7.5% (+5.5% to +9.4%) | 0.0451 | 3.0 (2–4) |
+
+Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
 
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
@@ -130,6 +184,20 @@ Every candidate beats the climatological baseline on log loss on every fold; the
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
 - **Folds:** BUNDESLIGA2022-23, BUNDESLIGA2023-24, BUNDESLIGA2024-25 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
 
+**Competition report cards** (positive skill means lower log loss than climatology):
+
+**Bundesliga report card** (2022-08-01 to 2025-06-30):
+
+| Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
+|---|---:|---:|---:|---:|---:|
+| climatological (baseline) | 918 / 3 | 1.0751 | +0.0% (+0.0% to +0.0%) | 0.0346 | 5.0 (5–5) |
+| Elo ordinal-logit | 918 / 3 | 1.0149 | +5.6% (+3.9% to +7.3%) | 0.0374 | 2.3 (1–3) |
+| independent Poisson | 918 / 3 | 1.0160 | +5.5% (+3.4% to +7.6%) | 0.0569 | 1.7 (1–3) |
+| time-decayed Dixon-Coles | 918 / 3 | 1.0198 | +5.1% (+3.1% to +7.1%) | 0.0588 | 3.3 (2–4) |
+| bivariate Poisson | 918 / 3 | 1.0160 | +5.5% (+3.4% to +7.6%) | 0.0569 | 2.7 (2–4) |
+
+Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
+
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
 | Model | BUNDESLIGA2022-23 | BUNDESLIGA2023-24 | BUNDESLIGA2024-25 |
@@ -167,6 +235,20 @@ Every candidate beats the climatological baseline on log loss on every fold; the
 - **Scope:** Serie A (historical, completed seasons only — **not live**).
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
 - **Folds:** SERIEA2021-22, SERIEA2022-23, SERIEA2023-24 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
+
+**Competition report cards** (positive skill means lower log loss than climatology):
+
+**Serie A report card** (2021-08-01 to 2024-06-30):
+
+| Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
+|---|---:|---:|---:|---:|---:|
+| climatological (baseline) | 1140 / 3 | 1.0857 | +0.0% (+0.0% to +0.0%) | 0.0248 | 5.0 (5–5) |
+| Elo ordinal-logit | 1140 / 3 | 1.0091 | +7.1% (+5.7% to +8.6%) | 0.0425 | 2.3 (1–4) |
+| independent Poisson | 1140 / 3 | 1.0071 | +7.2% (+5.3% to +9.2%) | 0.0427 | 2.7 (2–3) |
+| time-decayed Dixon-Coles | 1140 / 3 | 1.0040 | +7.5% (+5.6% to +9.4%) | 0.0453 | 1.3 (1–2) |
+| bivariate Poisson | 1140 / 3 | 1.0071 | +7.2% (+5.2% to +9.2%) | 0.0427 | 3.7 (3–4) |
+
+Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
 
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
@@ -206,6 +288,20 @@ Every candidate beats the climatological baseline on log loss on every fold; the
 - **Scope:** Ligue 1 (historical, completed seasons only — **not live**).
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
 - **Folds:** LIGUE1-2022-23, LIGUE1-2023-24, LIGUE1-2024-25 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
+
+**Competition report cards** (positive skill means lower log loss than climatology):
+
+**Ligue 1 report card** (2022-08-01 to 2025-06-30):
+
+| Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
+|---|---:|---:|---:|---:|---:|
+| climatological (baseline) | 992 / 3 | 1.0734 | +0.0% (+0.0% to +0.0%) | 0.0298 | 5.0 (5–5) |
+| Elo ordinal-logit | 992 / 3 | 1.0198 | +5.0% (+3.4% to +6.5%) | 0.0485 | 3.0 (1–4) |
+| independent Poisson | 992 / 3 | 1.0123 | +5.7% (+3.7% to +7.6%) | 0.0543 | 1.3 (1–2) |
+| time-decayed Dixon-Coles | 992 / 3 | 1.0148 | +5.5% (+3.6% to +7.4%) | 0.0437 | 3.3 (3–4) |
+| bivariate Poisson | 992 / 3 | 1.0123 | +5.7% (+3.9% to +7.6%) | 0.0543 | 2.3 (2–3) |
+
+Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
 
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 

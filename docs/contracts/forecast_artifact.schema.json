@@ -203,6 +203,10 @@
         "generated_at_utc": {"type": "string", "format": "date-time"},
         "primary_metric": {"const": "log_loss"},
         "source_snapshot": {"$ref": "#/$defs/Snapshot"},
+        "report_cards": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ReportCard"}
+        },
         "folds": {
           "type": "array",
           "minItems": 1,
@@ -238,6 +242,65 @@
             }
           }
         }
+      }
+    },
+    "ReportCard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["competition", "baseline_family", "primary_metric", "minimum_matches", "bootstrap", "window_start", "window_end", "models"],
+      "properties": {
+        "competition": {"type": "string"},
+        "baseline_family": {"const": "climatological"},
+        "primary_metric": {"const": "log_loss"},
+        "minimum_matches": {"type": "integer", "minimum": 1},
+        "bootstrap": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method", "replicates", "seed"],
+          "properties": {
+            "method": {"const": "fold-stratified-match-bootstrap"},
+            "replicates": {"type": "integer", "minimum": 1},
+            "seed": {"type": "integer"}
+          }
+        },
+        "window_start": {"type": "string", "format": "date"},
+        "window_end": {"type": "string", "format": "date"},
+        "models": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/ReportCardModel"}
+        }
+      }
+    },
+    "ReportCardModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "n_matches", "n_folds", "log_loss", "brier", "ece", "rps", "skill_score", "skill_ci_95", "sample_status", "mean_rank", "best_rank", "worst_rank", "first_place_folds"],
+      "properties": {
+        "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson"]},
+        "n_matches": {"type": "integer", "minimum": 1},
+        "n_folds": {"type": "integer", "minimum": 1},
+        "log_loss": {"type": "number", "minimum": 0},
+        "brier": {"type": "number", "minimum": 0},
+        "ece": {"type": "number", "minimum": 0},
+        "rps": {"type": "number", "minimum": 0},
+        "skill_score": {"type": "number"},
+        "skill_ci_95": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "array",
+              "prefixItems": [{"type": "number"}, {"type": "number"}],
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
+        },
+        "sample_status": {"enum": ["available", "insufficient_sample"]},
+        "mean_rank": {"type": "number", "minimum": 1},
+        "best_rank": {"type": "integer", "minimum": 1},
+        "worst_rank": {"type": "integer", "minimum": 1},
+        "first_place_folds": {"type": "integer", "minimum": 0}
       }
     },
     "ReliabilityBin": {
