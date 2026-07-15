@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { MatchRow } from "./contract";
-import { competitionRank, groupMatchesByCompetition, leagueSlugFor } from "./leagues";
+import { LEAGUES, competitionRank, groupMatchesByCompetition, leagueSlugFor } from "./leagues";
+
+describe("league analytics identities", () => {
+  it("gives every bundled club league a stable backend competition id", () => {
+    const clubs = LEAGUES.filter((league) => league.competition);
+    expect(clubs).toHaveLength(5);
+    expect(clubs.every((league) => league.competitionId?.includes("-"))).toBe(true);
+    expect(new Set(clubs.map((league) => league.competitionId)).size).toBe(5);
+  });
+});
 
 describe("competitionRank", () => {
   it("orders top-5 club leagues in their curated order", () => {

@@ -104,11 +104,12 @@ def test_eval_summary_merges_all_league_folds() -> None:
     """The default summary paths are the six committed evaluation files; the
     endpoint must serve their folds concatenated, in declared order."""
     expected_folds: list[str] = []
+    expected_report_cards: list[str] = []
     for path in server_main.EVAL_SUMMARY_PATHS:
         assert path.is_file(), f"missing committed summary: {path}"
-        expected_folds.extend(
-            fold["fold_id"] for fold in json.loads(path.read_text())["folds"]
-        )
+        summary = json.loads(path.read_text())
+        expected_folds.extend(fold["fold_id"] for fold in summary["folds"])
+        expected_report_cards.extend(card["competition"] for card in summary["report_cards"])
     combined = TestClient(server_main.app).get("/api/v1/eval/summary").json()
     assert [fold["fold_id"] for fold in combined["folds"]] == expected_folds
     competitions = {fold["competition"] for fold in combined["folds"]}
@@ -116,6 +117,7 @@ def test_eval_summary_merges_all_league_folds() -> None:
         "English Premier League", "La Liga", "Bundesliga", "Serie A", "Ligue 1",
     } <= competitions
     assert len(combined["sources"]) == len(server_main.EVAL_SUMMARY_PATHS)
+    assert [card["competition"] for card in combined["report_cards"]] == expected_report_cards
 
 
 def test_calibration_route_recomputes_from_the_ledger(monkeypatch, tmp_path) -> None:

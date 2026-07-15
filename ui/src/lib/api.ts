@@ -2,19 +2,21 @@
  * Data access layer.
  *
  * Honesty rule: the UI never fabricates a backend. If VITE_GOLAVO_API is set at
- * build time, we GET the three documented read-only endpoints. Otherwise we load
+ * build time, we use the documented local read/write API. Otherwise we load
  * the bundled mock fixtures and label the source as "mock" everywhere it matters.
  *
- * Documented endpoints (the ONLY ones assumed to exist):
+ * Core documented endpoints include:
  *   GET {base}/api/v1/forecasts          -> ForecastArtifact[]  (or {forecasts:[]})
  *   GET {base}/api/v1/forecasts/{id}      -> ForecastArtifact
  *   GET {base}/api/v1/eval/summary        -> EvalSummary
  *   GET {base}/api/v1/calibration         -> CalibrationSummary
+ *   GET {base}/api/v1/analytics/competitions/{id} -> CompetitionAnalytics
  *   POST {base}/api/v1/forecasts/settle   -> SettlementReport
  */
 import { ACCEPTED_SCHEMA_VERSIONS } from "./contract";
 import type {
   CalibrationSummary,
+  CompetitionAnalytics,
   CompetitionsResponse,
   EvalSummary,
   FixturesCheckResponse,
@@ -286,6 +288,20 @@ function assertEval(x: unknown, ctx: string): EvalSummary {
   return e;
 }
 
+function assertCompetitionAnalytics(x: unknown, ctx: string): CompetitionAnalytics {
+  const data = x as CompetitionAnalytics;
+  if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (typeof data.competition_id !== "string")
+    throw new ContractError(`${ctx}: missing competition_id`);
+  if (!Array.isArray(data.strength_trends?.teams))
+    throw new ContractError(`${ctx}: strength_trends.teams is not an array`);
+  if (!Array.isArray(data.rest_congestion?.teams))
+    throw new ContractError(`${ctx}: rest_congestion.teams is not an array`);
+  if (!data.schedule_difficulty?.status)
+    throw new ContractError(`${ctx}: missing schedule_difficulty state`);
+  return data;
+}
+
 function assertCalibration(x: unknown, ctx: string): CalibrationSummary {
   const c = x as CalibrationSummary;
   if (!c || typeof c !== "object") throw new ContractError(`${ctx}: not an object`);
@@ -480,6 +496,50 @@ export async function fetchNotebook(id: string): Promise<NotebookResponse> {
 export async function fetchEvalSummary(): Promise<EvalSummary> {
   if (!API_BASE) return assertEval(await loadMockEval(), "eval/summary (mock)");
   return assertEval(await getJson("/api/v1/eval/summary"), "eval/summary");
+}
+
+export async function fetchCompetitionAnalytics(
+  competitionId: string,
+  asOfUtc?: string,
+): Promise<CompetitionAnalytics> {
+  if (!API_BASE) {
+    return {
+      schema_version: "0.1.0",
+      competition_id: competitionId,
+      competition_name: competitionId,
+      as_of_utc: asOfUtc ?? new Date().toISOString(),
+      scope: {
+        team_category: "club",
+        strength_comparison: "this_competition_only",
+        model_input: false,
+      },
+      provenance: { source_ids: [] },
+      strength_trends: {
+        status: "unavailable",
+        reason: "Connect the Golavo engine to calculate strengths from the local index.",
+        method: "time-decayed-poisson-rates-v1",
+        minimum_matches: 8,
+        teams: [],
+      },
+      rest_congestion: {
+        status: "unavailable",
+        reason: "Connect the Golavo engine to calculate workload from the local index.",
+        method: "indexed-match-counts-v1",
+        coverage_note: "Counts include only competitions present in Golavo's local index.",
+        teams: [],
+      },
+      schedule_difficulty: {
+        status: "blocked",
+        reason: "A complete remaining-fixture list is required.",
+        required_capability: "complete_remaining_fixtures",
+      },
+    };
+  }
+  const query = asOfUtc ? `?as_of_utc=${encodeURIComponent(asOfUtc)}` : "";
+  return assertCompetitionAnalytics(
+    await getJson(`/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}${query}`),
+    `analytics/competitions/${competitionId}`,
+  );
 }
 
 export async function fetchCalibration(): Promise<CalibrationSummary> {

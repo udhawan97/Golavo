@@ -16,6 +16,8 @@ export interface League {
   name: string;
   /** The index `competition` string (club leagues), or omitted for internationals. */
   competition?: string;
+  /** Stable backend identity for capability and analytics routes. */
+  competitionId?: string;
   sourceKind?: SourceKind;
   note: string;
 }
@@ -26,14 +28,17 @@ export const LEAGUES: League[] = [
   { slug: "internationals", name: "Internationals", sourceKind: "international",
     note: "Men’s senior internationals — the one surface that refreshes on demand." },
   { slug: "premier-league", name: "Premier League", competition: "English Premier League",
+    competitionId: "england-premier-league",
     note: "England · bundled 2010–11 onward (historical)." },
-  { slug: "la-liga", name: "La Liga", competition: "La Liga",
+  { slug: "la-liga", name: "La Liga", competition: "La Liga", competitionId: "spain-la-liga",
     note: "Spain · bundled 2012–13 onward (historical)." },
   { slug: "bundesliga", name: "Bundesliga", competition: "Bundesliga",
+    competitionId: "germany-bundesliga",
     note: "Germany · bundled 2010–11 onward (historical)." },
-  { slug: "serie-a", name: "Serie A", competition: "Serie A",
+  { slug: "serie-a", name: "Serie A", competition: "Serie A", competitionId: "italy-serie-a",
     note: "Italy · bundled 2013–14 onward (historical)." },
   { slug: "ligue-1", name: "Ligue 1", competition: "Ligue 1",
+    competitionId: "france-ligue-1",
     note: "France · bundled 2014–15 onward (historical)." },
 ];
 

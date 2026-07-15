@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { EvalSummary, Fold, FoldModel, ModelFamily } from "../lib/contract";
+import type { EvalSummary, Fold, FoldModel, ModelFamily, ReportCard } from "../lib/contract";
 import { FAMILY_LABELS } from "../lib/contract";
 import { fetchEvalSummary } from "../lib/api";
 import { num } from "../lib/format";
@@ -77,7 +77,7 @@ function LeaderStrip({ folds }: { folds: Fold[] }) {
           <b>{FAMILY_LABELS[family]}</b> {wins} {wins === 1 ? "fold" : "folds"}
         </span>
       ))}
-      <span className="small dim">· leadership flips by league and season — never averaged.</span>
+      <span className="small dim">· raw fold leadership can flip by league and season.</span>
     </div>
   );
 }
@@ -92,6 +92,9 @@ function Summary({ data }: { data: EvalSummary }) {
   }
   return (
     <>
+      {data.report_cards && data.report_cards.length > 0 && (
+        <ReportCards cards={data.report_cards} />
+      )}
       <LeaderStrip folds={data.folds} />
       {groupByCompetition(data.folds).map(([competition, folds]) => (
         <details key={competition} className="lab-group" open>
@@ -108,6 +111,75 @@ function Summary({ data }: { data: EvalSummary }) {
       ))}
       <Calibration folds={data.folds} />
     </>
+  );
+}
+
+function signedPct(value: number): string {
+  const rounded = (value * 100).toFixed(1);
+  return `${value > 0 ? "+" : ""}${rounded}%`;
+}
+
+function ReportCards({ cards }: { cards: ReportCard[] }) {
+  return (
+    <section className="stack" style={{ ["--gap" as string]: "1rem" }} aria-labelledby="cards-h">
+      <div>
+        <h2 id="cards-h" className="upper muted">Model report cards</h2>
+        <p className="small dim measure" style={{ margin: ".25rem 0 0" }}>
+          Match-weighted held-out performance by competition. Skill compares log loss with the
+          team-blind climatological baseline; intervals use a seeded, fold-stratified match bootstrap.
+        </p>
+      </div>
+      {cards.map((card, index) => (
+        <ReportCardTable key={card.competition} card={card} initiallyOpen={index === 0} />
+      ))}
+    </section>
+  );
+}
+
+function ReportCardTable({ card, initiallyOpen }: { card: ReportCard; initiallyOpen: boolean }) {
+  const best = Math.min(...card.models.map((model) => model.log_loss));
+  return (
+    <details className="lab-group report-card" open={initiallyOpen}>
+      <summary className="lab-group__summary">
+        <span className="upper muted">{card.competition}</span>
+        <span className="small dim">{card.window_start.slice(0, 4)}–{card.window_end.slice(0, 4)}</span>
+      </summary>
+      <div className="table-wrap" style={{ marginTop: ".8rem" }}>
+        <table className="grid">
+          <thead>
+            <tr>
+              <th scope="col">Model</th>
+              <th scope="col">Matches</th>
+              <th scope="col">Log loss</th>
+              <th scope="col">Skill vs baseline (95% CI)</th>
+              <th scope="col">ECE</th>
+              <th scope="col">Fold rank</th>
+            </tr>
+          </thead>
+          <tbody>
+            {card.models.map((model) => (
+              <tr key={model.family} className={model.log_loss === best ? "is-leader" : undefined}>
+                <th scope="row">{FAMILY_LABELS[model.family]}</th>
+                <td className="num">{model.n_matches} / {model.n_folds} folds</td>
+                <td className={`num${model.log_loss === best ? " cell-best" : ""}`}>{num(model.log_loss, 3)}</td>
+                <td className="num">
+                  {model.sample_status === "available" && model.skill_ci_95
+                    ? `${signedPct(model.skill_score)} (${signedPct(model.skill_ci_95[0])} to ${signedPct(model.skill_ci_95[1])})`
+                    : `Insufficient sample (a fold has <${card.minimum_matches})`}
+                </td>
+                <td className="num">{num(model.ece, 3)}</td>
+                <td className="num">
+                  {num(model.mean_rank, 1)} mean · {model.best_rank}–{model.worst_rank}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="small dim" style={{ margin: ".65rem 0 0" }}>
+        Positive skill means lower log loss than climatology. {card.bootstrap.replicates.toLocaleString()} deterministic bootstrap samples; seed root {card.bootstrap.seed}.
+      </p>
+    </details>
   );
 }
 

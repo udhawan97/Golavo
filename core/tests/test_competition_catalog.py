@@ -65,6 +65,20 @@ def test_capabilities_never_claim_blocked_features_are_available() -> None:
     assert catalog["refresh_policy"]["byok_api"] == "blocked"
 
 
+def test_phase_one_capabilities_match_the_shipped_analytics() -> None:
+    catalog = {item["competition_id"]: item for item in competition_catalog()["competitions"]}
+    premier = catalog["england-premier-league"]["capabilities"]
+    assert premier["report_cards"]["status"] == "available"
+    assert premier["strength_trends"]["status"] == "available"
+    assert premier["rest_congestion"]["status"] == "available"
+    assert premier["schedule_difficulty"]["status"] == "blocked"
+
+    euro = catalog["uefa-euro"]["capabilities"]
+    assert euro["report_cards"]["status"] == "available"
+    assert euro["strength_trends"]["status"] == "available"
+    assert catalog["uefa-champions-league"]["capabilities"]["report_cards"]["status"] == "planned"
+
+
 def test_source_alias_resolution_is_exact_and_does_not_guess_region() -> None:
     assert competition_id_for_source_name("English Premier League") == "england-premier-league"
     assert competition_id_for_source_name("UEFA Nations League") == "uefa-nations-league"

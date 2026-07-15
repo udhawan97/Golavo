@@ -101,6 +101,41 @@ def _reliability_table(summary: dict) -> tuple[str, str, list[str]]:
     return fold["fold_id"], FAMILY_LABEL.get(best["family"], best["family"]), lines
 
 
+def _skill(value: float) -> str:
+    return f"{value * 100:+.1f}%"
+
+
+def _report_card_tables(summary: dict) -> list[str]:
+    lines: list[str] = []
+    for card in summary.get("report_cards", []):
+        lines += [
+            f"**{card['competition']} report card** ({card['window_start']} to {card['window_end']}):",
+            "",
+            "| Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+        for model in card["models"]:
+            interval = model["skill_ci_95"]
+            skill = (
+                f"{_skill(model['skill_score'])} ({_skill(interval[0])} to {_skill(interval[1])})"
+                if interval is not None
+                else f"insufficient sample (a fold has <{card['minimum_matches']})"
+            )
+            lines.append(
+                f"| {FAMILY_LABEL.get(model['family'], model['family'])} | "
+                f"{model['n_matches']} / {model['n_folds']} | {_f(model['log_loss'])} | "
+                f"{skill} | {_f(model['ece'])} | {model['mean_rank']:.1f} "
+                f"({model['best_rank']}–{model['worst_rank']}) |"
+            )
+        lines += [
+            "",
+            f"Skill intervals use {card['bootstrap']['replicates']:,} seeded, "
+            "fold-stratified match-bootstrap samples.",
+            "",
+        ]
+    return lines
+
+
 def _card(summary: dict, name: str, source: str, surface: str) -> list[str]:
     snap = summary["source_snapshot"]
     ref = str(snap["upstream_ref"])[:12]
@@ -118,6 +153,11 @@ def _card(summary: dict, name: str, source: str, surface: str) -> list[str]:
         f"- **Source snapshot:** {source} `{ref}`, retrieved {retrieved} ({snap['license']}).",
         f"- **Folds:** {fold_ids} — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.",
         "",
+        "**Competition report cards** (positive skill means lower log loss than climatology):",
+        "",
+    ]
+    lines += _report_card_tables(summary)
+    lines += [
         "**Log loss by fold** (primary metric; lower is better; **bold** = best in fold):",
         "",
     ]
@@ -141,13 +181,13 @@ def build() -> str:
     header = [
         "---",
         "title: Model cards & calibration",
-        "description: Per-competition model cards with the real backtest metrics (log loss, Brier, ECE, RPS) and reliability diagrams.",
+        "description: Per-competition model cards with skill intervals, real backtest metrics, and reliability diagrams.",
         "---",
         "",
         "These cards report the **actual** out-of-sample backtest metrics Golavo emits, one card per competition. They are generated from the schema-validated `eval_summary*.json` artifacts by `scripts/build_model_cards.py` — never hand-edited — so the numbers here match what CI validates. **Log loss is primary.** No model is a declared champion; forward evidence (the [calibration record](/Golavo/prediction-ledger/)) is kept separate from these historical folds.",
         "",
         ":::note[How to read a card]",
-        "Each card lists the five deterministic candidates against the climatological baseline. Metrics are out-of-sample on strictly chronological folds. League strengths are **not** comparable across competitions — each league is modeled independently from its own pack.",
+        "Each card lists the five deterministic candidates against the climatological baseline. Skill is `1 - model log loss / baseline log loss`; its 95% interval is a seeded, fold-stratified bootstrap over held-out matches. Metrics are out-of-sample on strictly chronological folds. League strengths are **not** comparable across competitions — each league is modeled independently from its own pack.",
         ":::",
         "",
     ]

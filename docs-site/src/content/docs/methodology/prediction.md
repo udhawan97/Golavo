@@ -67,6 +67,16 @@ Golavo reports expected calibration error plus reliability bins with Wilson inte
 
 **Log loss is primary.** Multiclass Brier, ECE with reliability bins and Wilson intervals, and RPS are reported per tournament fold. Count-market metrics are not reported.
 
+### Report cards and skill
+
+The Backtests page also aggregates held-out folds into competition-specific report cards. Skill is `1 − LL_model / LL_climatology`; positive values beat the team-blind baseline. A 95% interval comes from 2,000 deterministic, fold-stratified bootstrap resamples of held-out matches. Every card retains its match count, fold dates, ECE, and best-to-worst fold rank so an average cannot hide unstable leadership.
+
+### Competition strength and workload
+
+League pages refit the shipped, time-decayed Poisson rate model at month-end cutoffs using only completed rows at or before each cutoff. Attack and defensive-resistance indices are centered on 100 and require at least eight matches. They are explicitly **within-competition indices**; comparing a 110 in one league with a 110 in another is invalid.
+
+Rest and congestion are descriptive counts from Golavo's local match index, not model inputs. They may miss competitions the index does not contain. Schedule difficulty remains unavailable until a source supplies a completeness-certified remaining fixture list; Golavo does not score a partial schedule.
+
 ## Minimum-data gates
 
 If either team has fewer than 10 matches in the configured decay window, Golavo emits an abstained artifact with an explicit reason. If the match or cutoff cannot be verified, sealing fails closed.

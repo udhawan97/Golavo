@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from golavo_server import __version__, analysis, capabilities, matches, runtime, seal
+from golavo_server import __version__, analysis, analytics, capabilities, matches, runtime, seal
 from golavo_server import picks as pick_service
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
@@ -152,6 +152,21 @@ def meta() -> dict[str, Any]:
 def get_capabilities() -> dict[str, Any]:
     """Stable competition identities and honest per-feature availability states."""
     return capabilities.get_capabilities()
+
+
+@app.get("/api/v1/analytics/competitions/{competition_id}")
+def get_competition_analytics(
+    competition_id: str, as_of_utc: str | None = None
+) -> dict[str, Any]:
+    """Cutoff-safe strength and workload context from the active local index."""
+    try:
+        return analytics.get_competition_analytics(competition_id, as_of_utc=as_of_utc)
+    except ValueError as exc:
+        message = str(exc)
+        status = 404 if message.startswith("unknown competition_id") else 400
+        raise HTTPException(status_code=status, detail=message) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @app.get("/api/v1/ai/local-models")
@@ -1047,11 +1062,14 @@ def eval_summary() -> dict[str, Any]:
     if not summaries:
         raise HTTPException(status_code=404, detail="evaluation summary not found")
     folds: list[dict[str, Any]] = []
+    report_cards: list[dict[str, Any]] = []
     for summary in summaries:
         folds.extend(summary.get("folds", []))
+        report_cards.extend(summary.get("report_cards", []))
     return {
         "schema_version": summaries[0].get("schema_version", "0.1.0"),
         "primary_metric": "log_loss",
         "sources": [summary.get("source_snapshot") for summary in summaries],
         "folds": folds,
+        "report_cards": report_cards,
     }

@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.15.1"
+CATALOG_VERSION = "2026.07.15.2"
 
 
 def _capability(
@@ -90,6 +90,21 @@ def _domestic(
         "Only fixtures present in the pinned snapshot are available; completeness is not assumed.",
         "openfootball-football-json",
     )
+    capabilities["report_cards"] = _capability(
+        "available",
+        "Three chronological held-out season folds include seeded match-bootstrap skill intervals.",
+        "openfootball-football-json",
+    )
+    capabilities["strength_trends"] = _capability(
+        "available",
+        "Competition-local, cutoff-safe Poisson strength trends are derived from bundled results.",
+        "openfootball-football-json",
+    )
+    capabilities["rest_congestion"] = _capability(
+        "available",
+        "Rest and fixture load are derived from matches present in the local index.",
+        "openfootball-football-json",
+    )
     capabilities["research"] = _capability(
         "partial",
         "Pappalardo/Wyscout event research is limited to the 2017/18 season.",
@@ -160,6 +175,7 @@ def _international(
     format_eras: list[dict[str, Any]],
     *,
     research: bool = False,
+    report_card: bool = False,
 ) -> dict[str, Any]:
     capabilities = _base_capabilities()
     capabilities["results"] = _capability(
@@ -172,6 +188,24 @@ def _international(
         "Historical results do not imply a complete future schedule.",
         "martj42-international-results",
     )
+    if source_names:
+        capabilities["strength_trends"] = _capability(
+            "available",
+            "Competition-local, cutoff-safe strength trends are derived from bundled results.",
+            "martj42-international-results",
+        )
+        capabilities["rest_congestion"] = _capability(
+            "available",
+            "Rest and load count matches present in Golavo's international index.",
+            "martj42-international-results",
+        )
+    if report_card:
+        capabilities["report_cards"] = _capability(
+            "available",
+            "A frozen chronological tournament fold includes seeded match-bootstrap "
+            "skill intervals.",
+            "martj42-international-results",
+        )
     if research:
         capabilities["research"] = _capability(
             "partial",
@@ -214,6 +248,7 @@ _COMPETITIONS: tuple[dict[str, Any], ...] = (
             _format("uefa-euro-finals-2020", "24-team finals era", "2020", "2024"),
         ],
         research=True,
+        report_card=True,
     ),
     _international(
         "uefa-euro-qualification",

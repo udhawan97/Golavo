@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -13,6 +14,10 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 from golavo_core.ingest import load_matches, snapshot_descriptor, training_rows, validate_pack
 from golavo_core.models import FAMILIES, fit_model
+
+REPORT_CARD_BOOTSTRAP_REPLICATES = 2000
+REPORT_CARD_BOOTSTRAP_SEED = 20260715
+REPORT_CARD_MIN_MATCHES = 50
 
 FOLDS = (
     {
@@ -141,6 +146,135 @@ def _metrics(probs: np.ndarray, outcomes: np.ndarray) -> dict[str, Any]:
     }
 
 
+def _log_loss_rows(probs: np.ndarray, outcomes: np.ndarray) -> np.ndarray:
+    assigned = np.clip(probs[np.arange(len(outcomes)), outcomes], 1e-12, 1.0)
+    return -np.log(assigned)
+
+
+def _bootstrap_skill_interval(
+    model_rows: list[np.ndarray],
+    baseline_rows: list[np.ndarray],
+    *,
+    seed: int,
+) -> list[float]:
+    """Seeded, fold-stratified match bootstrap for relative log-loss skill."""
+    rng = np.random.default_rng(seed)
+    values = np.empty(REPORT_CARD_BOOTSTRAP_REPLICATES, dtype=float)
+    for replicate in range(REPORT_CARD_BOOTSTRAP_REPLICATES):
+        model_total = 0.0
+        baseline_total = 0.0
+        count = 0
+        for model, baseline in zip(model_rows, baseline_rows, strict=True):
+            indices = rng.integers(0, len(model), size=len(model))
+            model_total += float(model[indices].sum())
+            baseline_total += float(baseline[indices].sum())
+            count += len(model)
+        model_mean = model_total / count
+        baseline_mean = baseline_total / count
+        values[replicate] = 1.0 - model_mean / baseline_mean
+    low, high = np.quantile(values, [0.025, 0.975])
+    return [round(float(low), 6), round(float(high), 6)]
+
+
+def _build_report_cards(
+    folds: list[dict[str, Any]],
+    losses: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Aggregate held-out folds without erasing their dates or rank variation."""
+    loss_by_fold = {str(item["fold_id"]): item for item in losses}
+    competitions: list[str] = []
+    for fold in folds:
+        competition = str(fold["competition"])
+        if competition not in competitions:
+            competitions.append(competition)
+
+    cards: list[dict[str, Any]] = []
+    for competition in competitions:
+        selected = [fold for fold in folds if fold["competition"] == competition]
+        baseline_rows = [
+            loss_by_fold[str(fold["fold_id"])]["families"]["climatological"]
+            for fold in selected
+        ]
+        n_matches = sum(int(fold["n_matches"]) for fold in selected)
+        model_cards: list[dict[str, Any]] = []
+        for family in FAMILIES:
+            family_rows = [
+                loss_by_fold[str(fold["fold_id"])]["families"][family]
+                for fold in selected
+            ]
+            model_total = sum(float(values.sum()) for values in family_rows)
+            baseline_total = sum(float(values.sum()) for values in baseline_rows)
+            skill = 1.0 - model_total / baseline_total
+            weighted = {
+                metric: sum(
+                    float(next(m for m in fold["models"] if m["family"] == family)[metric])
+                    * int(fold["n_matches"])
+                    for fold in selected
+                )
+                / n_matches
+                for metric in ("brier", "ece", "rps")
+            }
+            ranks: list[int] = []
+            for fold in selected:
+                ordered = sorted(fold["models"], key=lambda model: model["log_loss"])
+                ranks.append(
+                    next(
+                        i
+                        for i, model in enumerate(ordered, 1)
+                        if model["family"] == family
+                    )
+                )
+            sample_status = (
+                "available"
+                if all(
+                    int(fold["n_matches"]) >= REPORT_CARD_MIN_MATCHES
+                    for fold in selected
+                )
+                else "insufficient_sample"
+            )
+            digest = hashlib.sha256(f"{competition}|{family}".encode()).digest()
+            seed = REPORT_CARD_BOOTSTRAP_SEED + int.from_bytes(digest[:4], "big")
+            model_cards.append(
+                {
+                    "family": family,
+                    "n_matches": n_matches,
+                    "n_folds": len(selected),
+                    "log_loss": round(model_total / n_matches, 6),
+                    "brier": round(weighted["brier"], 6),
+                    "ece": round(weighted["ece"], 6),
+                    "rps": round(weighted["rps"], 6),
+                    "skill_score": round(skill, 6),
+                    "skill_ci_95": (
+                        _bootstrap_skill_interval(family_rows, baseline_rows, seed=seed)
+                        if sample_status == "available"
+                        else None
+                    ),
+                    "sample_status": sample_status,
+                    "mean_rank": round(sum(ranks) / len(ranks), 3),
+                    "best_rank": min(ranks),
+                    "worst_rank": max(ranks),
+                    "first_place_folds": sum(rank == 1 for rank in ranks),
+                }
+            )
+        cards.append(
+            {
+                "competition": competition,
+                "baseline_family": "climatological",
+                "primary_metric": "log_loss",
+                "minimum_matches": REPORT_CARD_MIN_MATCHES,
+                "bootstrap": {
+                    "method": "fold-stratified-match-bootstrap",
+                    "replicates": REPORT_CARD_BOOTSTRAP_REPLICATES,
+                    "seed": REPORT_CARD_BOOTSTRAP_SEED,
+                },
+                "window_start": min(str(fold["window_start"]) for fold in selected),
+                "window_end": max(str(fold["window_end"]) for fold in selected),
+                "models": model_cards,
+            }
+        )
+    return cards
+
+
 def _predict_frame(model: Any, matches: pd.DataFrame) -> np.ndarray:
     return np.array(
         [
@@ -175,6 +309,7 @@ def _evaluate_folds(
     matches: pd.DataFrame, snapshot: dict[str, str], folds: tuple[dict, ...]
 ) -> dict[str, Any]:
     fold_results: list[dict[str, Any]] = []
+    fold_losses: list[dict[str, Any]] = []
     for fold in folds:
         start = pd.Timestamp(fold["window_start"], tz="UTC")
         end = pd.Timestamp(fold["window_end"], tz="UTC")
@@ -192,10 +327,12 @@ def _evaluate_folds(
         outcomes = _outcomes(test)
         xi = _tune_dixon_coles_xi(train, cutoff.isoformat())
         models: list[dict[str, Any]] = []
+        losses: dict[str, np.ndarray] = {}
         for family in FAMILIES:
             family_xi = xi if family == "dixon_coles" else 0.001
             fitted = fit_model(family, train, cutoff.isoformat(), xi=family_xi)
             predictions = _predict_frame(fitted, test)
+            losses[family] = _log_loss_rows(predictions, outcomes)
             metrics = _metrics(predictions, outcomes)
             params = fitted.predict(
                 str(test.iloc[0]["home_team"]),
@@ -211,12 +348,16 @@ def _evaluate_folds(
                 "models": models,
             }
         )
+        fold_losses.append(
+            {"fold_id": fold["fold_id"], "competition": fold["competition"], "families": losses}
+        )
     return {
         "schema_version": "0.1.0",
         "generated_at_utc": snapshot["retrieved_at_utc"],
         "primary_metric": "log_loss",
         "source_snapshot": snapshot,
         "folds": fold_results,
+        "report_cards": _build_report_cards(fold_results, fold_losses),
     }
 
 
@@ -266,7 +407,7 @@ def _render_report(
             )
     lines += ["", "## Interpretation", "", *notes, ""]
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    report_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
 def write_evaluation(
