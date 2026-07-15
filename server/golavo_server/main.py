@@ -20,6 +20,7 @@ from golavo_server import (
     conditions,
     matches,
     outlook,
+    research_pack,
     runtime,
     seal,
 )
@@ -203,6 +204,17 @@ def get_season_outlook(
         raise HTTPException(status_code=status, detail=message) from exc
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/research/competitions/{competition_id}")
+def get_research_team_analytics(competition_id: str) -> dict[str, Any]:
+    """Historical, competition-and-era-scoped team aggregates from an isolated pack."""
+    try:
+        return research_pack.team_analytics(competition_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except (OSError, json.JSONDecodeError, ValidationError) as exc:
+        raise HTTPException(status_code=503, detail="research pack unavailable") from exc
 
 
 @app.get("/api/v1/ai/local-models")

@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.15.6"
+CATALOG_VERSION = "2026.07.15.7"
 
 
 def _capability(
@@ -239,9 +239,12 @@ def _international(
             "openfootball-worldcup-json",
         )
     if research:
+        covered_era = (
+            "World Cup 2018" if competition_id == "fifa-world-cup" else "Euro 2016"
+        )
         capabilities["research"] = _capability(
             "partial",
-            "Pappalardo/Wyscout event research covers Euro 2016 only.",
+            f"Pappalardo/Wyscout team event research covers {covered_era} only.",
             "pappalardo-wyscout-events",
         )
     return {
@@ -290,6 +293,7 @@ _COMPETITIONS: tuple[dict[str, Any], ...] = (
         "FIFA World Cup",
         ["FIFA World Cup"],
         [_format("fifa-world-cup-2026", "48-team finals era", "2026", None)],
+        research=True,
         report_card=True,
         simulation=True,
         jurisdiction="fifa-international",

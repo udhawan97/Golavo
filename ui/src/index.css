@@ -2217,11 +2217,26 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .outlook-method p { max-width: 72ch; }
 .season-table { min-width: 440px; }
 .season-probability-table { min-width: 590px; }
+.research-analytics {
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-1); box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.research-analytics > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1rem 1.2rem; cursor: pointer; list-style-position: inside;
+}
+.research-analytics > summary > span:first-child { display: inline-grid; gap: .2rem; }
+.research-analytics > summary small { color: var(--text-dim); font-size: var(--text-sm); font-weight: 400; }
+.research-analytics__body { padding: 0 1.2rem 1.2rem; border-top: 1px solid var(--border); }
+.research-team-select { max-width: 22rem; margin-top: 1rem; }
+.research-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
 @media (max-width: 640px) {
   .tournament-outlook .hgroup,
   .season-outlook .hgroup { align-items: flex-start; }
   .outlook-voices { display: flex; width: 100%; }
   .outlook-voices button { flex: 1; padding-inline: .45rem; }
+  .research-analytics > summary { align-items: flex-start; flex-direction: column; }
+  .research-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .analytics-table th[scope="row"] { white-space: nowrap; }
 .load-chip {

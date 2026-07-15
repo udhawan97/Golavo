@@ -8,6 +8,13 @@
       "source_id": "fjelstul-worldcup",
       "upstream_committed_at_utc": "2023-07-20T01:14:23Z",
       "upstream_ref": "f942c6b"
+    },
+    {
+      "manifest_sha256": "fbf40463d45fbee46d5430688107ac23f57b929f51f9e20f07d3104f01985ef4",
+      "pack": "packs/pappalardo-wyscout-research-2019",
+      "retrieved_at_utc": "2026-07-15T17:18:00Z",
+      "source_id": "pappalardo-wyscout-events",
+      "upstream_ref": "doi:10.6084/m9.figshare.c.4415000.v5"
     }
   ]
 }
