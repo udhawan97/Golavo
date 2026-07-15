@@ -90,10 +90,14 @@ BUNDLE_DIR="desktop/src-tauri/target/${TARGET}/release/bundle"
 mkdir -p "$OUT"
 # Copy only the installer/update artifacts (NOT the raw ~73MB sidecar that
 # PyInstaller left in $OUT — it is already staged under desktop/.../binaries/).
-find "$BUNDLE_DIR" -type f \
+COLLECTED=()
+while IFS= read -r -d '' artifact; do
+  cp "$artifact" "$OUT/"
+  COLLECTED+=("$(basename "$artifact")")
+done < <(find "$BUNDLE_DIR" -type f \
   \( -name '*.dmg' -o -name '*.app.tar.gz' -o -name '*.msi' -o -name '*.exe' \
      -o -name '*.sig' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.nsis.zip' \) \
-  -exec cp {} "$OUT/" \; 2>/dev/null || true
+  ! -name 'rw.*' -print0 2>/dev/null)
 
 # Checksum exactly those artifact types, deterministically (sorted), bash-safe.
 # Named per-target: both platform legs upload into one merged dist in CI, and
@@ -103,10 +107,9 @@ SUMS_FILE="SHA256SUMS-${TARGET}"
 SUM_TOOL="sha256sum"; command -v sha256sum >/dev/null 2>&1 || SUM_TOOL="shasum -a 256"
 (
   cd "$OUT"
-  shopt -s nullglob
-  files=( *.dmg *.app.tar.gz *.msi *.exe *.sig *.AppImage *.deb *.nsis.zip )
   : > "$SUMS_FILE"
-  for f in $(printf '%s\n' "${files[@]}" | sort -u); do
+  for f in $(printf '%s\n' "${COLLECTED[@]}" | sort -u); do
+    [ -n "$f" ] || continue
     $SUM_TOOL "$f" >> "$SUMS_FILE"
   done
 )

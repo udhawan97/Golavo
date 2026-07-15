@@ -67,7 +67,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Attribution: Made with Natural Earth.
 - Notes: Bundled as a separately registered public-domain enrichment pack pinned to Admin-0 Countries v5.1.1 at commit 9380cca and exact file hashes. The compact 1:110m GeoJSON basemap is offline; no tile service is required.
 
-### Wikidata — available, not bundled
+### Wikidata — **bundled**
 
 - Source: https://www.wikidata.org/wiki/Wikidata:Licensing
 - Contributors: Wikidata contributors

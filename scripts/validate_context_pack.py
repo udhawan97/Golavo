@@ -12,6 +12,39 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
 
+CONTEXT_ONLY_SOURCE_IDS = {
+    "geonames",
+    "natural-earth",
+    "wikidata",
+}
+MODEL_AND_ARTIFACT_SINKS = (
+    "core/golavo_core/analysis.py",
+    "core/golavo_core/analytics.py",
+    "core/golavo_core/artifacts.py",
+    "core/golavo_core/calibration.py",
+    "core/golavo_core/evaluation.py",
+    "core/golavo_core/models",
+    "core/golavo_core/outlook.py",
+    "core/golavo_core/score_matrix.py",
+    "core/golavo_core/season_outlook.py",
+    "server/golavo_server/analysis.py",
+    "server/golavo_server/analytics.py",
+    "server/golavo_server/outlook.py",
+    "server/golavo_server/seal.py",
+    "server/golavo_server/settlement.py",
+)
+FORBIDDEN_RUNTIME_MARKERS = (
+    "golavo_server.context_registry",
+    "golavo_server.conditions",
+    "context_manifest_path",
+    "context_venue_entities_path",
+    "context_venue_assignments_path",
+    "geonames_places_path",
+    "natural_earth_world_path",
+    "data/context/",
+    "data/enrichment/",
+)
+
 
 def _read(relative: str) -> Any:
     return json.loads((ROOT / relative).read_text(encoding="utf-8"))
@@ -26,6 +59,93 @@ def _validate(schema_path: str, value: Any) -> None:
     if errors:
         first = errors[0]
         raise ValueError(f"{schema_path}: {list(first.absolute_path)}: {first.message}")
+
+
+def _source_ids(value: Any) -> set[str]:
+    found: set[str] = set()
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key == "source_id" and isinstance(item, str):
+                found.add(item)
+            elif key == "source_ids" and isinstance(item, list):
+                found.update(str(source_id) for source_id in item)
+            found.update(_source_ids(item))
+    elif isinstance(value, list):
+        for item in value:
+            found.update(_source_ids(item))
+    return found
+
+
+def validate_display_boundary(root: Path = ROOT) -> None:
+    """Prove display context cannot become a model, artifact, or index input."""
+    for relative in MODEL_AND_ARTIFACT_SINKS:
+        target = root / relative
+        paths = target.rglob("*.py") if target.is_dir() else [target]
+        for path in paths:
+            if not path.is_file():
+                continue
+            text = path.read_text(encoding="utf-8").casefold()
+            marker = next((item for item in FORBIDDEN_RUNTIME_MARKERS if item in text), None)
+            if marker:
+                raise ValueError(
+                    f"{path.relative_to(root)} imports display context into a model/artifact sink: "
+                    f"{marker}"
+                )
+
+    for folder_relative in ("data/fixtures/sample_artifacts", "packs/core-cc0"):
+        folder = root / folder_relative
+        if not folder.is_dir():
+            continue
+        for path in folder.rglob("*.json"):
+            overlap = _source_ids(json.loads(path.read_text(encoding="utf-8"))) & (
+                CONTEXT_ONLY_SOURCE_IDS
+            )
+            if overlap:
+                raise ValueError(
+                    f"{path.relative_to(root)} contains display-only context sources: "
+                    f"{sorted(overlap)}"
+                )
+
+    meta_path = root / "data/index/matches_index.meta.json"
+    if meta_path.is_file():
+        built_from = _read_from(root, "data/index/matches_index.meta.json").get(
+            "built_from", []
+        )
+        overlap = {
+            str(item.get("source_id"))
+            for item in built_from
+            if item.get("source_id") in CONTEXT_ONLY_SOURCE_IDS
+        }
+        if overlap:
+            raise ValueError(
+                f"match index metadata contains display-only context sources: {sorted(overlap)}"
+            )
+
+    index_path = root / "data/index/matches_index.parquet"
+    if index_path.is_file():
+        try:
+            import pyarrow.parquet as parquet
+        except ImportError as exc:  # pragma: no cover - validation env ships pyarrow
+            raise ValueError("pyarrow is required to inspect context provenance") from exc
+        parquet_file = parquet.ParquetFile(index_path)
+        columns = [
+            name
+            for name in parquet_file.schema_arrow.names
+            if name == "source_id" or name.endswith("_source_id")
+        ]
+        table = parquet_file.read(columns=columns)
+        for name in columns:
+            values = {str(item) for item in table.column(name).to_pylist() if item is not None}
+            overlap = values & CONTEXT_ONLY_SOURCE_IDS
+            if overlap:
+                raise ValueError(
+                    f"match index parquet contains display-only context in {name}: "
+                    f"{sorted(overlap)}"
+                )
+
+
+def _read_from(root: Path, relative: str) -> Any:
+    return json.loads((root / relative).read_text(encoding="utf-8"))
 
 
 def validate() -> dict[str, int]:
@@ -81,6 +201,8 @@ def validate() -> dict[str, int]:
         raise ValueError(f"context sources differ: expected {sorted(expected_sources)}")
     if manifest["display_only"] is not True or manifest["model_input"] is not False:
         raise ValueError("context pack crossed the display-only boundary")
+
+    validate_display_boundary()
 
     return {
         "places": len(set(place_ids)),

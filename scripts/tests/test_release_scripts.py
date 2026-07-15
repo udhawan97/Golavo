@@ -22,6 +22,15 @@ bump_version = _load("bump_version")
 make_update_manifest = _load("make_update_manifest")
 
 
+def test_desktop_collector_excludes_temporary_and_stale_local_dmgs() -> None:
+    build_script = SCRIPTS.parent / "packaging/build.sh"
+    text = build_script.read_text(encoding="utf-8")
+    assert "! -name 'rw.*'" in text
+    assert 'COLLECTED+=("$(basename "$artifact")")' in text
+    assert 'printf \'%s\\n\' "${COLLECTED[@]}"' in text
+    assert "files=( *.dmg" not in text
+
+
 # --- bump_version ------------------------------------------------------------
 
 

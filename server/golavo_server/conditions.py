@@ -418,6 +418,9 @@ def conditions_snapshot(
     selected = frame.loc[frame["match_id"].astype("string") == str(match_id)]
     if selected.empty:
         return None
+    capability = context_registry.capabilities(index_fingerprint)
+    if capability["status"] == "unavailable":
+        raise OSError("context pack unavailable")
     target = selected.iloc[0]
     city = None if pd.isna(target.get("city")) else str(target.get("city"))
     country = None if pd.isna(target.get("country")) else str(target.get("country"))
@@ -442,14 +445,10 @@ def conditions_snapshot(
     ]
     map_status = "available" if len(routes) == 2 else "partial" if routes else "unknown"
     kickoff_utc = pd.Timestamp(target["kickoff_utc"]).isoformat().replace("+00:00", "Z")
-    capability = context_registry.capabilities(index_fingerprint)
     venue = context_registry.venue_for_match(target)
     sources = context_registry.source_catalog()
     if not sources:
-        sources = [
-            {"source_id": "geonames", "attribution": GEONAMES_ATTRIBUTION},
-            {"source_id": "natural-earth", "attribution": NATURAL_EARTH_ATTRIBUTION},
-        ]
+        raise OSError("context source catalog unavailable")
     return {
         "schema_version": SCHEMA_VERSION,
         "label": LABEL,
@@ -497,21 +496,11 @@ def world_map() -> dict[str, Any]:
             raise OSError("Natural Earth basemap unavailable") from exc
         if not isinstance(payload, dict) or payload.get("type") != "FeatureCollection":
             raise OSError("Natural Earth basemap invalid")
-        try:
-            manifest = json.loads(
-                Path(resources.context_manifest_path()).read_text(encoding="utf-8")
-            )
-            entry = next(
-                item
-                for item in manifest["files"]
-                if item["path"] == "data/enrichment/world_110m.geojson"
-            )
-            payload = {
-                **payload,
-                "context_pack_version": manifest["context_pack_version"],
-                "sha256": entry["sha256"],
-            }
-        except (OSError, ValueError, TypeError, KeyError, StopIteration):
-            pass
+        entry = context_registry.resource_metadata("data/enrichment/world_110m.geojson")
+        payload = {
+            **payload,
+            "context_pack_version": entry["context_pack_version"],
+            "sha256": entry["sha256"],
+        }
         _WORLD = payload
     return _WORLD

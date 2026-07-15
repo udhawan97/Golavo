@@ -53,3 +53,29 @@ def test_no_alias_or_collision_uses_a_population_tiebreak() -> None:
     assert metadata["ambiguous_pairs"] == 82
     assert metadata["alias_pending_pairs"] == 175
     assert "population" not in metadata["matching"].casefold()
+
+
+def test_display_context_is_absent_from_models_artifacts_and_index() -> None:
+    validate_context_pack.validate_display_boundary()
+
+
+def test_model_sink_context_import_canary_fails(tmp_path: Path) -> None:
+    sink = tmp_path / "core/golavo_core/models/candidates.py"
+    sink.parent.mkdir(parents=True)
+    sink.write_text(
+        "from golavo_core.resources import geonames_places_path\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="imports display context"):
+        validate_context_pack.validate_display_boundary(tmp_path)
+
+
+def test_index_context_provenance_canary_fails(tmp_path: Path) -> None:
+    meta = tmp_path / "data/index/matches_index.meta.json"
+    meta.parent.mkdir(parents=True)
+    meta.write_text(
+        json.dumps({"built_from": [{"source_id": "geonames", "license": "CC-BY-4.0"}]}),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="display-only context sources"):
+        validate_context_pack.validate_display_boundary(tmp_path)

@@ -7,7 +7,7 @@ developers can also run it directly.
 Run modes:
   golavo-sidecar --host H --port P --token T   serve (blocks) on http://H:P
   golavo-sidecar --smoke                        boot on an ephemeral port, probe
-                                                /health + search + notebook,
+                                                health, search, notebook and context,
                                                 print version, exit 0/1
   golavo-sidecar --version                      print the version and exit
 
@@ -26,6 +26,7 @@ import sys
 import threading
 import time
 import urllib.request
+from typing import Any
 
 SMOKE_TIMEOUT_S = 30.0
 
@@ -254,8 +255,8 @@ def _smoke(timeout: float = SMOKE_TIMEOUT_S) -> int:
 
 def _smoke_running(timeout: float, stop_event: threading.Event) -> int:
     """Boot the server on an ephemeral port in a background thread and assert
-    that /health becomes ready AND the match-search AND on-demand-notebook
-    surfaces answer. Returns 0 on success, 1 on timeout/failure.
+    that /health becomes ready and the match-search, on-demand-notebook and
+    display-context surfaces answer. Returns 0 on success, 1 on timeout/failure.
 
     The extra probes are what catch a frozen build that dropped a datas entry:
     /health only proves the server booted, while a missing index makes
@@ -386,6 +387,57 @@ def _smoke_running(timeout: float, stop_event: threading.Event) -> int:
         )
         return 1
 
+    # The display-context bundle is a separate immutable generation. Probe a
+    # known reviewed World Cup venue plus the map and capability surfaces so a
+    # release cannot silently omit any of its PyInstaller ``datas`` entries.
+    def context_get(path: str) -> dict[str, Any]:
+        url = f"http://{host}:{port}{path}"
+        context_request = urllib.request.Request(url)  # noqa: S310 (loopback only)
+        context_request.add_header(runtime.TOKEN_HEADER, token)
+        with urllib.request.urlopen(context_request, timeout=5.0) as response:  # noqa: S310
+            return json.loads(response.read().decode("utf-8"))
+
+    try:
+        context_capability = context_get("/api/v1/context/capabilities")
+        context_match = context_get(
+            "/api/v1/matches/m_dd0b23e04619d47d/conditions"
+        )
+        context_map = context_get("/api/v1/maps/world")
+    except Exception as exc:  # noqa: BLE001 (any failure => packaged context is broken)
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED — display context probe error "
+            f"({exc})",
+            file=sys.stderr,
+        )
+        return 1
+    expected_context_sources = {
+        "geonames",
+        "natural-earth",
+        "openfootball-worldcup-json",
+        "wikidata",
+    }
+    if (
+        context_capability.get("status") == "unavailable"
+        or context_capability.get("display_only") is not True
+        or context_capability.get("model_input") is not False
+        or context_match.get("schema_version") != "0.3.0"
+        or context_match.get("match", {}).get("venue", {}).get("status") != "available"
+        or context_match.get("match", {}).get("location", {}).get("status") != "available"
+        or {item.get("source_id") for item in context_match.get("sources", [])}
+        != expected_context_sources
+        or context_map.get("type") != "FeatureCollection"
+        or context_map.get("source_id") != "natural-earth"
+        or not context_map.get("features")
+        or not context_map.get("sha256")
+    ):
+        print(
+            f"golavo-sidecar {__version__}: smoke FAILED — display context incomplete "
+            f"(capability={context_capability}; match={context_match}; "
+            f"map_features={len(context_map.get('features', []))})",
+            file=sys.stderr,
+        )
+        return 1
+
     # The internationals pack must be bundled, else every in-app forecast seal
     # reports pack_unavailable (the route can't train). A direct resolver check is
     # the tightest guard — it needs no in-window fixture (none may be schedulable).
@@ -402,7 +454,8 @@ def _smoke_running(timeout: float, stop_event: threading.Event) -> int:
     n = len(search_body["matches"])
     print(
         f"golavo-sidecar {__version__}: smoke OK on {host}:{port} "
-        f"(health + {n} search matches + notebook {match_id} + internationals pack)"
+        f"(health + {n} search matches + notebook {match_id} + display context + "
+        "internationals pack)"
     )
     return 0
 
@@ -410,7 +463,9 @@ def _smoke_running(timeout: float, stop_event: threading.Event) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="golavo-sidecar")
     parser.add_argument(
-        "--smoke", action="store_true", help="boot, probe /health + search + notebook, exit 0/1"
+        "--smoke",
+        action="store_true",
+        help="boot, probe health + search + notebook + context, exit 0/1",
     )
     parser.add_argument("--version", action="store_true", help="print version and exit")
     parser.add_argument("--host", default=os.environ.get("GOLAVO_HOST", "127.0.0.1"))

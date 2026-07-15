@@ -165,6 +165,13 @@ def test_pyinstaller_spec_bundles_every_runtime_schema() -> None:
         assert schema_name in spec_text, f"{schema_name} missing from the sidecar spec datas"
 
 
+def test_pyinstaller_spec_bundles_display_context_runtime_files() -> None:
+    spec = Path(__file__).resolve().parents[2] / "packaging" / "golavo-sidecar.spec"
+    spec_text = spec.read_text(encoding="utf-8")
+    for name in ("manifest.json", "venue_entities.json", "venue_assignments.json"):
+        assert name in spec_text, f"data/context/{name} missing from sidecar datas"
+
+
 # --- parent-pid watchdog -----------------------------------------------------
 
 

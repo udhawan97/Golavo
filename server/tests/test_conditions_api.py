@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
-from golavo_server import conditions, main, matches
+from golavo_core import resources
+from golavo_server import conditions, context_registry, main, matches
 from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -300,3 +302,33 @@ def test_context_capability_and_derived_provenance(client: TestClient) -> None:
         assert team["kickoff_gap"]["derivation"]["input_claim_ids"]
         assert team["travel"]["derivation"]["algorithm_id"] == "great-circle-haversine"
         assert team["travel"]["derivation"]["input_claim_ids"]
+
+
+def test_corrupt_context_generation_fails_every_display_surface_closed(
+    client: TestClient,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = tmp_path / "bundle"
+    manifest = json.loads(
+        (ROOT / "data/context/manifest.json").read_text(encoding="utf-8")
+    )
+    for relative in ["data/context/manifest.json", *[item["path"] for item in manifest["files"]]]:
+        source = ROOT / relative
+        target = bundle / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+    # One altered byte invalidates the whole immutable generation. No remaining
+    # file may be displayed merely because it can still be parsed.
+    places = bundle / "data/enrichment/places.json"
+    places.write_bytes(places.read_bytes() + b" ")
+    monkeypatch.setattr(context_registry, "MANIFEST_PATH", bundle / "data/context/manifest.json")
+    monkeypatch.setattr(resources, "resource_root", lambda: bundle)
+    conditions.reset_cache()
+
+    capability = client.get("/api/v1/context/capabilities")
+    assert capability.status_code == 200
+    assert capability.json()["status"] == "unavailable"
+    assert client.get("/api/v1/matches/m_target/conditions").status_code == 503
+    assert client.get("/api/v1/maps/world").status_code == 503

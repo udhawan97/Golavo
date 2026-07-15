@@ -556,6 +556,8 @@ def get_match_conditions(match_id: str) -> dict[str, Any]:
         )
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail="context pack unavailable") from exc
     if result is None:
         raise HTTPException(status_code=404, detail="match not found")
     return result
