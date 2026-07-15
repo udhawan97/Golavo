@@ -35,11 +35,15 @@ describe("tour definitions", () => {
       "nav-settings",
     ]);
     expect(COCKPIT_TOUR.steps.map((s) => s.target)).toEqual([
+      "cockpit-mode",
       "cockpit-pick",
       "cockpit-council",
       "cockpit-notebook",
       "cockpit-ai",
     ]);
+    expect(COCKPIT_TOUR.steps[0].body).toContain("Casual keeps the essential story concise");
+    expect(COCKPIT_TOUR.steps[0].body).toContain("Expert reveals full model values");
+    expect(COCKPIT_TOUR.steps[0].body).toContain("forecast itself never changes");
   });
 
   it("every step has a title and body", () => {

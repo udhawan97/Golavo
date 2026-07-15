@@ -12,6 +12,7 @@ test("match cockpit reads as a six-chapter programme ending in the verdict", asy
   await expect(teaser.getByText("Casual read")).toBeVisible();
   await expect(teaser.getByText("The essential story, with technical depth kept out of the way.")).toBeVisible();
   await expect(teaser.getByRole("group", { name: "Detail level" })).toBeVisible();
+  await expect(teaser.getByText("Same forecast · different depth")).toBeVisible();
   await expect(teaser.getByText("Most likely score")).toHaveCount(0);
 
   const chapters = [

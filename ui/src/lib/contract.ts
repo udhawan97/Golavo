@@ -248,6 +248,37 @@ export interface CalibrationSummary {
   chains: CalibrationChain[];
 }
 
+export type SettlementPendingReason =
+  | "result_not_published"
+  | "source_conflict"
+  | "scoring_refused";
+
+export interface SettlementReport {
+  schema_version: SchemaVersion;
+  checked_at_utc: string;
+  pending_before_check: number;
+  eligible: number;
+  deferred_in_progress: string[];
+  sources_checked: string[];
+  scored: Array<{
+    sealed_artifact_id: string;
+    scored_artifact_id: string;
+    home_team: string;
+    away_team: string;
+    home_goals: number;
+    away_goals: number;
+    source_id: string;
+  }>;
+  still_pending: Array<{
+    artifact_id: string;
+    reason: SettlementPendingReason;
+  }>;
+  errors: Array<{
+    source_id: string;
+    message: string;
+  }>;
+}
+
 // ---- Commentator's Notebook (Phase 7) ---------------------------------------
 // Deterministic, source-backed facts computed by a fixed template family. Every
 // fact is labelled and sample-guarded; coincidences are capped and quarantined.

@@ -711,6 +711,30 @@ def calibration() -> dict[str, Any]:
     return calibration_summary(ARTIFACT_DIR)
 
 
+@app.post("/api/v1/forecasts/settle")
+async def settle_forecasts() -> dict[str, Any]:
+    """Check pinned CC0 result sources and settle every eligible local seal.
+
+    This is deliberately a POST and never runs merely because the sidecar
+    started: the UI calls it after an explicit "Check results" action, or under
+    the user's persisted keep-data-fresh consent.  Source fetching and metric
+    work run off the event loop; scoring appends immutable successors and never
+    edits the sealed forecast.
+    """
+    from golavo_server import settlement
+
+    try:
+        return await run_in_threadpool(settlement.settle_pending_forecasts, ARTIFACT_DIR)
+    except (OSError, ValueError, ValidationError) as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "reason_code": "ledger_invalid",
+                "message": f"the local forecast ledger could not be settled safely: {exc}",
+            },
+        ) from exc
+
+
 @app.post("/api/v1/forecasts/{artifact_id}/narrative")
 async def narrative(artifact_id: str, request: Request, background_tasks: BackgroundTasks) -> Any:
     """Return an OPTIONAL, guard-validated AI narration for one artifact.

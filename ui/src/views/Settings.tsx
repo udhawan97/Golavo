@@ -203,7 +203,7 @@ export function Settings({
         <div className="panel__body stack settings__rows">
           <div className="settings__field">
             <div className="settings__row">
-              <label htmlFor="fixtures-toggle">Keep fixtures up to date</label>
+              <label htmlFor="fixtures-toggle">Keep matches up to date</label>
               <input
                 id="fixtures-toggle"
                 type="checkbox"
@@ -212,10 +212,11 @@ export function Settings({
               />
             </div>
             <p className="settings__hint">
-              When on, Golavo asks the public CC0 fixture source, on launch, whether a new
-              upcoming international match has appeared, and flags it on the Matches page so you
-              can forecast it. This is the only time the app reaches the internet on its own —
-              it’s off by default, reads only public fixture data, and sends nothing.
+              When on, Golavo asks public CC0 sources for newly scheduled internationals and
+              published final scores when you visit the relevant page. Finished sealed forecasts
+              are settled automatically from pinned, hashed source snapshots. This is the only
+              time the app reaches the internet on its own — it’s off by default, reads only
+              public match data, and sends nothing.
             </p>
           </div>
         </div>

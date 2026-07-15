@@ -10,6 +10,7 @@
  *   GET {base}/api/v1/forecasts/{id}      -> ForecastArtifact
  *   GET {base}/api/v1/eval/summary        -> EvalSummary
  *   GET {base}/api/v1/calibration         -> CalibrationSummary
+ *   POST {base}/api/v1/forecasts/settle   -> SettlementReport
  */
 import { ACCEPTED_SCHEMA_VERSIONS } from "./contract";
 import type {
@@ -33,6 +34,7 @@ import type {
   RecentMatchesResponse,
   SealEligibility,
   SealResult,
+  SettlementReport,
   SourceKind,
 } from "./contract";
 import type { AiDepth, AiProvider, NarrativeResponse } from "./ai";
@@ -483,6 +485,39 @@ export async function fetchEvalSummary(): Promise<EvalSummary> {
 export async function fetchCalibration(): Promise<CalibrationSummary> {
   if (!API_BASE) return assertCalibration(await loadMockCalibration(), "calibration (mock)");
   return assertCalibration(await getJson("/api/v1/calibration"), "calibration");
+}
+
+/** User-authorized result refresh + immutable settlement of every eligible seal. */
+export async function settleForecasts(): Promise<SettlementReport> {
+  if (!API_BASE) throw new Error("Result settlement requires the connected Golavo app.");
+  const res = await fetch(`${API_BASE}/api/v1/forecasts/settle`, {
+    method: "POST",
+    headers: apiHeaders(),
+  });
+  if (!res.ok) {
+    let message = `result check failed (HTTP ${res.status})`;
+    try {
+      const body = (await res.json()) as { detail?: { message?: unknown } | string };
+      if (typeof body.detail === "string") message = body.detail;
+      if (body.detail && typeof body.detail === "object" && typeof body.detail.message === "string")
+        message = body.detail.message;
+    } catch { /* keep the status-based fallback */ }
+    throw new Error(message);
+  }
+  const body = (await res.json()) as Partial<SettlementReport>;
+  assertVersion(body.schema_version, "forecast settlement");
+  if (
+    typeof body.checked_at_utc !== "string"
+    || typeof body.pending_before_check !== "number"
+    || typeof body.eligible !== "number"
+    || !Array.isArray(body.deferred_in_progress)
+    || !Array.isArray(body.sources_checked)
+    || !Array.isArray(body.scored)
+    || !Array.isArray(body.still_pending)
+    || !Array.isArray(body.errors)
+  ) throw new ContractError("forecast settlement: malformed report");
+  clearApiCache();
+  return body as SettlementReport;
 }
 
 /**

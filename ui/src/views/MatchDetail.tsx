@@ -166,7 +166,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
               {hasForecast && <span className="chip chip--sealed">Sealed forecast</span>}
             </>
           }
-          right={<ModeToggle mode={mode} setMode={setMode} />}
+          right={<ModeToggle mode={mode} setMode={setMode} tour="cockpit-mode" />}
           footer={
             <div className="programme-teaser__footer">
               <span className="programme-mode-context" aria-live="polite">

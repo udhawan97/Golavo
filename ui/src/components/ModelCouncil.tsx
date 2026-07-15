@@ -13,6 +13,7 @@
  * This component renders model numbers, but only ones the deterministic engine
  * produced for this exact fixture at a pre-kickoff cutoff. It never seals.
  */
+import type { ReactNode } from "react";
 import type {
   CouncilModel,
   MatchAnalysis,
@@ -20,11 +21,18 @@ import type {
   Outcome,
   Probs,
 } from "../lib/contract";
+import { FAMILY_LABELS } from "../lib/contract";
 import { pctWhole, utc } from "../lib/format";
 import type { AsyncState } from "../lib/hooks";
 import { ProbabilityBar, TrustStrip } from "./primitives";
 import { BlockSkeleton, Loading } from "./states";
-import { InfoIcon, ShieldCheckIcon } from "./icons";
+import {
+  BundleIcon,
+  ChevronDown,
+  DistributionIcon,
+  InfoIcon,
+  ShieldCheckIcon,
+} from "./icons";
 import { ModelInternals } from "./ModelInternals";
 
 const VOICE_LABEL: Record<string, string> = {
@@ -226,36 +234,179 @@ function Council({
           same goal model. */}
 
       {/* Baseline + variants — disclosed, never a vote. */}
-      {expert && <details className="council-more" open>
-        <summary>Expert detail · baseline &amp; model variants</summary>
-        <div className="stack" style={{ ["--gap" as string]: ".8rem", marginTop: ".75rem" }}>
+      {expert && (
+        <ExpertDetail
+          baseline={baseline}
+          variants={variants}
+          home={home}
+          away={away}
+        />
+      )}
+    </>
+  );
+}
+
+/** A compact evidence shelf for the council's reference layers. These models
+ *  remain visibly separate from the two voting voices above. */
+export function ExpertDetail({
+  baseline,
+  variants,
+  home,
+  away,
+}: {
+  baseline?: CouncilModel;
+  variants: CouncilModel[];
+  home: string;
+  away: string;
+}) {
+  const visibleVariants = variants.filter((model) => model.probs);
+  if (!baseline?.probs && visibleVariants.length === 0) return null;
+
+  return (
+    <details className="council-more" open>
+      <summary className="council-more__summary">
+        <span className="council-more__summary-icon" aria-hidden>
+          <BundleIcon size={17} />
+        </span>
+        <span className="council-more__summary-copy">
+          <strong>Expert detail</strong>
+          <small>Baseline &amp; model-family disclosure</small>
+        </span>
+        <span className="council-more__summary-tag">Reference layer</span>
+        <ChevronDown className="council-more__chevron" size={16} />
+      </summary>
+
+      <div className="council-more__body">
+        <div className="council-artifacts">
           {baseline?.probs && (
-            <p className="small muted" style={{ margin: 0 }}>
-              <strong>Climatology baseline</strong> (league base rates, not a team opinion):{" "}
-              {home} {pctWhole(baseline.probs.home)} · Draw {pctWhole(baseline.probs.draw)} · {away}{" "}
-              {pctWhole(baseline.probs.away)}. A voice earns its keep by beating this.
-            </p>
+            <article className="council-artifact council-artifact--baseline">
+              <ArtifactHeader
+                icon={<DistributionIcon size={17} />}
+                index="01"
+                eyebrow="Reference floor"
+                title="Climatology baseline"
+                tag="Not a voice"
+              />
+              <p className="council-artifact__intro">
+                League base rates, before either team enters the picture. A model earns its place by
+                adding signal beyond this benchmark.
+              </p>
+              <ProbabilityRibbon probs={baseline.probs} home={home} away={away} />
+              <footer className="council-artifact__foot">
+                <span aria-hidden className="council-artifact__rule" />
+                Baseline only · no team opinion
+              </footer>
+            </article>
           )}
-          {variants.length > 0 && (
-            <div className="small muted">
-              <strong>Goal-model variants</strong> — the same fit, different low-score handling.
-              They are disclosure, not extra votes:
-              <ul style={{ margin: ".4rem 0 0" }}>
-                {variants.map((m) => (
-                  <li key={m.family}>
-                    {m.family}: {m.probs && (
-                      <span className="num">
-                        {pctWhole(m.probs.home)}/{pctWhole(m.probs.draw)}/{pctWhole(m.probs.away)}
-                      </span>
-                    )}
-                  </li>
+
+          {visibleVariants.length > 0 && (
+            <article className="council-artifact council-artifact--variants">
+              <ArtifactHeader
+                icon={<BundleIcon size={17} />}
+                index="02"
+                eyebrow="Sensitivity check"
+                title="Goal-model variants"
+                tag="Same fitted data"
+              />
+              <p className="council-artifact__intro">
+                Alternative low-score handling from the same goal-model fit. Compare the shape;
+                don’t count these as extra votes.
+              </p>
+              <div className="council-variant-list">
+                {visibleVariants.map((model) => (
+                  <div className="council-variant" key={model.family}>
+                    <span className="council-variant__name">
+                      {FAMILY_LABELS[model.family] ?? model.family.replaceAll("_", " ")}
+                    </span>
+                    <ProbabilityRibbon
+                      probs={model.probs as Probs}
+                      home={home}
+                      away={away}
+                      compact
+                    />
+                  </div>
                 ))}
-              </ul>
-            </div>
+              </div>
+              <footer className="council-artifact__foot">
+                <span aria-hidden className="council-artifact__rule" />
+                Disclosure only · zero additional votes
+              </footer>
+            </article>
           )}
         </div>
-      </details>}
-    </>
+      </div>
+    </details>
+  );
+}
+
+function ArtifactHeader({
+  icon,
+  index,
+  eyebrow,
+  title,
+  tag,
+}: {
+  icon: ReactNode;
+  index: string;
+  eyebrow: string;
+  title: string;
+  tag: string;
+}) {
+  return (
+    <header className="council-artifact__head">
+      <span className="council-artifact__icon" aria-hidden>{icon}</span>
+      <span className="council-artifact__title">
+        <span className="upper">{eyebrow}</span>
+        <strong>{title}</strong>
+      </span>
+      <span className="council-artifact__tag">{tag}</span>
+      <span className="council-artifact__index num" aria-hidden>{index}</span>
+    </header>
+  );
+}
+
+function ProbabilityRibbon({
+  probs,
+  home,
+  away,
+  compact = false,
+}: {
+  probs: Probs;
+  home: string;
+  away: string;
+  compact?: boolean;
+}) {
+  const outcomes = [
+    { key: "home", label: home, short: "H", value: probs.home },
+    { key: "draw", label: "Draw", short: "D", value: probs.draw },
+    { key: "away", label: away, short: "A", value: probs.away },
+  ] as const;
+  const ariaLabel = outcomes
+    .map(({ label, value }) => `${label} ${pctWhole(value)}`)
+    .join(", ");
+
+  return (
+    <div className={`council-ribbon${compact ? " council-ribbon--compact" : ""}`}>
+      <div className="council-ribbon__track" role="img" aria-label={ariaLabel}>
+        {outcomes.map(({ key, value }) => (
+          <span
+            aria-hidden
+            className={`council-ribbon__segment council-ribbon__segment--${key}`}
+            key={key}
+            style={{ width: `${value * 100}%` }}
+          />
+        ))}
+      </div>
+      <div className="council-ribbon__legend" aria-hidden>
+        {outcomes.map(({ key, label, short, value }) => (
+          <span className={`council-ribbon__outcome council-ribbon__outcome--${key}`} key={key}>
+            <i />
+            <span className="council-ribbon__label">{compact ? short : label}</span>
+            <strong className="num">{pctWhole(value)}</strong>
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 

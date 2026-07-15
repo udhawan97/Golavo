@@ -183,7 +183,7 @@ function WindowBody({
       return (
         <EmptyState title="No forward fixtures in this snapshot">
           The bundled snapshot holds no scheduled matches yet. Internationals refresh on demand —
-          turn on <a href="#/settings">Keep fixtures fresh</a> in Settings — and club fixtures appear
+          turn on <a href="#/settings">Keep matches up to date</a> in Settings — and club fixtures appear
           once the open feed publishes them. Switch to <b>Last week</b> for recent results.
         </EmptyState>
       );

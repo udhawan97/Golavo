@@ -31,7 +31,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: Gerald Bauer, openfootball contributors
 - License: CC0-1.0 (https://github.com/openfootball/worldcup.json/blob/master/LICENSE.md)
 - Attribution: World Cup fixtures and kickoff times from openfootball/worldcup.json (Gerald Bauer and contributors), CC0-1.0.
-- Notes: Bundled as a fixture/kickoff co-source inside the refreshed internationals pack: supplies the World Cup fixtures martj42 has not published yet plus exact kickoff times. Excluded from model training (martj42 remains the sole training source); completed results are cross-checked against martj42 and the build fails closed on disagreement; W###/L### placeholder fixtures are rejected until the bracket resolves.
+- Notes: Bundled as a fixture/kickoff co-source inside the refreshed internationals pack: supplies the World Cup fixtures martj42 has not published yet plus exact kickoff times. Excluded from model training (martj42 remains the sole training source). A user-authorized post-match check may also use its pinned, hashed final score to settle a World Cup seal when martj42 still reports NA/NA; if both sources publish and disagree, settlement fails closed. W###/L### placeholder fixtures are rejected until the bracket resolves.
 
 ## Bundled enrichment data (CC BY)
 
