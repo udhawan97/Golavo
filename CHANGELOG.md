@@ -38,6 +38,14 @@ available in the same order.
 - **Release presentation refreshed.** The README and documentation site now use
   current Match Cockpit screenshots and an animated tour of the programme.
 
+### Fixed
+- **Deep analysis keeps the complete evidence.** Ollama context sizing now leaves
+  room for both the full match prompt and its structured answer, preventing the
+  silent evidence truncation or HTTP 500 that could strand a read until the
+  12-minute UI deadline. Context failures retry with the compact guarded bundle,
+  and a sidecar restart now reports a lost job promptly instead of posing as a
+  model timeout.
+
 ### Accessibility
 - Pull numbers have meaningful accessible labels, inline SVGs retain adjacent text
   equivalents, chapter introductions remain plain aligned text, and all new charts

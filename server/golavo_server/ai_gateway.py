@@ -61,6 +61,17 @@ _DEPTH_TIMEOUTS = {"fast": 120.0, "deep": 480.0}  # seconds; deep = up to 8 minu
 _DEPTH_MAX_OUTPUT = {"fast": 640, "deep": 1536}  # model output token cap (num_predict)
 _MAX_TIMEOUT = 480.0
 
+# Ollama does not expose its model tokenizer through the local API. A four-
+# characters-per-token estimate is too optimistic for Golavo's JSON evidence
+# (short ids, punctuation and source URLs): a real Deep prompt measured 9,752
+# tokens after being estimated below 8,704, leaving no room for the requested
+# output and causing Ollama to return HTTP 500. Use a conservative estimate plus
+# explicit decode headroom, rounded to Ollama-friendly context increments.
+_OLLAMA_CHARS_PER_TOKEN = 2
+_OLLAMA_CONTEXT_HEADROOM = 2048
+_OLLAMA_CONTEXT_STEP = 2048
+_OLLAMA_MAX_CONTEXT = 32768
+
 _DEFAULT_BASE_URLS = {
     "ollama": "http://localhost:11434/v1",
     "llama_server": "http://127.0.0.1:8080/v1",
@@ -431,8 +442,12 @@ def build_ollama_payload(
         root = root[: -len("/v1")]
     url = f"{root}/api/chat"
     headers = {"Content-Type": "application/json"}
-    approx_tokens = (len(system) + len(user)) // 4
-    num_ctx = min(32768, max(4096, ((approx_tokens + config.max_output_tokens) // 2048 + 1) * 2048))
+    prompt_tokens = math.ceil((len(system) + len(user)) / _OLLAMA_CHARS_PER_TOKEN)
+    needed_tokens = prompt_tokens + config.max_output_tokens + _OLLAMA_CONTEXT_HEADROOM
+    num_ctx = min(
+        _OLLAMA_MAX_CONTEXT,
+        max(4096, math.ceil(needed_tokens / _OLLAMA_CONTEXT_STEP) * _OLLAMA_CONTEXT_STEP),
+    )
     body: dict[str, Any] = {
         "model": config.model,
         "messages": [
@@ -1436,7 +1451,7 @@ def generate_narration(
     reached_provider = False  # did any attempt get a response back from the model?
     _emit("writing", "The model is reading and writing")
     attempt_user = user
-    for _ in range(MAX_ATTEMPTS):
+    for attempt in range(MAX_ATTEMPTS):
         if _cancelled():
             return envelope("local_only", reason="cancelled", web_sources=web_sources)
         try:
@@ -1462,6 +1477,19 @@ def generate_narration(
                 reasons.append("provider call timed out")
                 break
             reasons.append(f"provider call failed ({type(exc).__name__})")
+            # A local HTTP failure can be Ollama rejecting a context-heavy
+            # request before decoding. Retrying the identical oversized prompt
+            # cannot recover; use the same compact, still guard-validated slice
+            # used for malformed JSON retries.
+            if run_config.provider in LOCAL_PROVIDERS and attempt + 1 < MAX_ATTEMPTS:
+                _emit("writing", "Retrying with a compact evidence set")
+                attempt_user = build_user_prompt(
+                    bundle,
+                    run_config.untrusted_context,
+                    depth=run_config.depth,
+                    research_sources=research_prompt_sources or None,
+                    compact_retry=True,
+                ) + JSON_RETRY_INSTRUCTION
             continue
         reached_provider = True
         raw = extract_json_object(raw_text)
