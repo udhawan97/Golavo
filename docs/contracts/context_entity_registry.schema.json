@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/context-entity-registry-0.1.0.schema.json",
+  "title": "Golavo display-only context entity registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "context_pack_version", "entities"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "context_pack_version": {"type": "string", "pattern": "^[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]+$"},
+    "entities": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/entity"}
+    }
+  },
+  "$defs": {
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "source_record_id", "source_revision", "snapshot_sha256"],
+      "properties": {
+        "source_id": {"enum": ["geonames", "wikidata", "openfootball-worldcup-json"]},
+        "source_record_id": {"type": "string", "minLength": 1},
+        "source_revision": {"type": "string", "minLength": 1},
+        "snapshot_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "retrieved_at_utc": {"type": "string", "format": "date-time"},
+        "field": {"type": "string", "minLength": 1}
+      }
+    },
+    "identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "source_record_id", "source_revision"],
+      "properties": {
+        "source_id": {"enum": ["geonames", "wikidata", "openfootball-worldcup-json"]},
+        "source_record_id": {"type": "string", "minLength": 1},
+        "source_revision": {"type": "string", "minLength": 1}
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "field", "value", "source_refs"],
+      "properties": {
+        "claim_id": {"type": "string", "pattern": "^ctxc_[0-9a-f]{16}$"},
+        "field": {"type": "string", "minLength": 1},
+        "value": {},
+        "language": {"type": ["string", "null"]},
+        "precision": {"type": ["string", "null"]},
+        "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sourceRef"}}
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_id", "entity_kind", "canonical_label", "resolution_status", "identifiers", "claims", "supersedes"],
+      "properties": {
+        "entity_id": {"type": "string", "pattern": "^(place|venue|team|federation)_[0-9a-f]{16}$"},
+        "entity_kind": {"enum": ["place", "venue", "team", "federation"]},
+        "canonical_label": {"type": "string", "minLength": 1},
+        "resolution_status": {"enum": ["resolved", "ambiguous", "conflicting", "unresolved", "deprecated"]},
+        "identifiers": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/identifier"}},
+        "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+        "supersedes": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

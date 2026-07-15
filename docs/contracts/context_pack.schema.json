@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/context-pack-0.1.0.schema.json",
+  "title": "Golavo bundled display-only context pack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "context_pack_version", "created_at_utc", "display_only",
+    "model_input", "sources", "files", "limits"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "context_pack_version": {"type": "string", "pattern": "^[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]+$"},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "display_only": {"const": true},
+    "model_input": {"const": false},
+    "sources": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "upstream_ref", "retrieved_at_utc", "manifest_sha256", "license", "attribution"],
+        "properties": {
+          "source_id": {"enum": ["geonames", "natural-earth", "wikidata", "openfootball-worldcup-json"]},
+          "upstream_ref": {"type": "string", "minLength": 1},
+          "retrieved_at_utc": {"type": "string", "format": "date-time"},
+          "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "license": {"type": "string", "minLength": 1},
+          "attribution": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "bytes"],
+        "properties": {
+          "path": {"type": "string", "pattern": "^data/context/[A-Za-z0-9._/-]+$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime_bytes", "entity_count", "wikidata_entity_count"],
+      "properties": {
+        "runtime_bytes": {"type": "integer", "minimum": 1, "maximum": 2621440},
+        "entity_count": {"type": "integer", "minimum": 0},
+        "wikidata_entity_count": {"type": "integer", "minimum": 0, "maximum": 300}
+      }
+    }
+  }
+}

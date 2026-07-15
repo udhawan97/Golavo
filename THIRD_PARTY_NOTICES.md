@@ -57,7 +57,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: GeoNames.org
 - License: CC-BY-4.0 (https://download.geonames.org/export/dump/readme.txt)
 - Attribution: Data from GeoNames (geonames.org), CC BY 4.0.
-- Notes: Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact runtime table resolves 1,828 of 2,215 indexed city-country pairs using exact normalized names; unresolved or ambiguous data stays unknown. Bulk files only, no runtime web-service dependency or identity merging.
+- Notes: Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The legacy compact table resolves 1,828 of 2,215 indexed city-country pairs; 82 exact-name collisions were deterministically selected by population/id and must be rebuilt fail-closed under ADR-0006 before being treated as reviewed identities. Bulk files only, no runtime web-service dependency.
 
 ### Natural Earth — **bundled**
 
@@ -73,7 +73,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: Wikidata contributors
 - License: CC0-1.0 (https://www.wikidata.org/wiki/Wikidata:Licensing)
 - Attribution: Structured data from Wikidata (CC0); we credit it voluntarily as 'Data from Wikidata'.
-- Notes: Later-if-needed. Structured data is CC0; prose (CC BY-SA) and Commons media (per-file) are excluded. Never auto-merge identities from a similarity match.
+- Notes: Approved only for a maintainer-reviewed QID allowlist fetched as revision-pinned individual entity JSON. Structured claims are CC0; prose, sitelink text and Commons media are excluded. No installed-app network access and no automatic identity merge from similarity.
 
 ## Optional isolated packs — ODbL (share-alike)
 
