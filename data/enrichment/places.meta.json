@@ -1,1563 +1,4520 @@
 {
+  "alias_pending_pairs": 175,
+  "ambiguous_pairs": 82,
   "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
-  "matching": "exact normalized city inside exact or audited historical country; highest population then lowest geoname_id",
-  "multi_candidate_pairs": 82,
-  "places_sha256": "df2b14c10107cbac0746586ae276ebcb54430f337132439c9b3e8688bb8c6351",
+  "manual_review_count": 0,
+  "matching": "unique exact GeoNames primary name, or an explicit checked-in resolution",
+  "places_sha256": "c5c3bf86283680a908c1c83448a6d38bcdb148e8a16a3d87876f0d35895f416e",
   "requested_pairs": 2215,
-  "resolved_pairs": 1828,
+  "resolved_pairs": 1571,
   "schema_version": "0.1.0",
   "source_dump_date": "2026-07-15",
   "source_id": "geonames",
   "source_pack": "packs/geonames-2026-07-15",
   "unresolved": [
     {
+      "candidate_entity_ids": [],
       "city": "Alderney",
-      "country": "Alderney"
+      "country": "Alderney",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Saint Anne",
-      "country": "Alderney"
+      "country": "Alderney",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Encamp",
-      "country": "Andorra"
+      "country": "Andorra",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Sant Julià de Lòria",
-      "country": "Andorra"
+      "country": "Andorra",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "North Sound",
-      "country": "Antigua and Barbuda"
+      "country": "Antigua and Barbuda",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Osbourn",
-      "country": "Antigua and Barbuda"
+      "country": "Antigua and Barbuda",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Piggotts",
-      "country": "Antigua and Barbuda"
+      "country": "Antigua and Barbuda",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_f5f2139387738ea2"
+      ],
+      "city": "St. John's",
+      "country": "Antigua and Barbuda",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_ae8ba4fa3c687046",
+        "place_f23f8d49705a0515"
+      ],
+      "city": "Avellaneda",
+      "country": "Argentina",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Cutral Có",
-      "country": "Argentina"
+      "country": "Argentina",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_9341e897f92527d0",
+        "place_e831be352dd4e56f"
+      ],
+      "city": "San Martín",
+      "country": "Argentina",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Gosford",
-      "country": "Australia"
+      "country": "Australia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Penrith",
-      "country": "Australia"
+      "country": "Australia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "South Geelong",
-      "country": "Australia"
+      "country": "Australia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Speers Point",
-      "country": "Australia"
+      "country": "Australia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Altach",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Anif",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Bad Erlach",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Bad Waltersdorf",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Bischofshofen",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Grassau",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Grödig",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Hartberg",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Kapfenberg",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Kematen",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_7d356eba20c88eef"
+      ],
+      "city": "Klagenfurt",
+      "country": "Austria",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Kufstein",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Maria Enzersdorf",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Matrei in Osttirol",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Mauer",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Pasching",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Ried im Innkreis",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Ritzing",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Rohrbach an der Lafnitz",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Sankt Veit an der Glan",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Schwaz",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Schwechat",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Seekirchen am Wallersee",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Wattens",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Zell am See",
-      "country": "Austria"
+      "country": "Austria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Askeran",
-      "country": "Azerbaijan"
+      "country": "Azerbaijan",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Gabala",
-      "country": "Azerbaijan"
+      "country": "Azerbaijan",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_21a04ca0c400acc8",
+        "place_3774e511458bd809"
+      ],
+      "city": "Gəncə",
+      "country": "Azerbaijan",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_0ae22371e79e3bf0"
+      ],
+      "city": "Lənkəran",
+      "country": "Azerbaijan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Martakert",
-      "country": "Azerbaijan"
+      "country": "Azerbaijan",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Martuni",
-      "country": "Azerbaijan"
+      "country": "Azerbaijan",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Masazir",
-      "country": "Azerbaijan"
+      "country": "Azerbaijan",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Stepanakert",
-      "country": "Azerbaijan"
+      "country": "Azerbaijan",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_8f802f10828410c8"
+      ],
+      "city": "Sumgait",
+      "country": "Azerbaijan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Arad",
-      "country": "Bahrain"
+      "country": "Bahrain",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "East Riffa",
-      "country": "Bahrain"
+      "country": "Bahrain",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_3bf5715b6384e167"
+      ],
+      "city": "Isa Town",
+      "country": "Bahrain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_9c43b4d0af024c63"
+      ],
+      "city": "Muharraq",
+      "country": "Bahrain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_82086a7d587535cd"
+      ],
+      "city": "Riffa",
+      "country": "Bahrain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_9cba1259aec0e122"
+      ],
+      "city": "Chittagong",
+      "country": "Bangladesh",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Nilphamari Sadar",
-      "country": "Bangladesh"
+      "country": "Bangladesh",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Black Rock",
-      "country": "Barbados"
+      "country": "Barbados",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Wildey",
-      "country": "Barbados"
+      "country": "Barbados",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_5fec564ec5e0031d"
+      ],
+      "city": "Borisov",
+      "country": "Belarus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_4b89c817a9f0f8ed"
+      ],
+      "city": "Grodno",
+      "country": "Belarus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7df68b78dee6821b"
+      ],
+      "city": "Homel",
+      "country": "Belarus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_24554de4909b6534"
+      ],
+      "city": "Maladzyechna",
+      "country": "Belarus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_a57eb6031b87f6bf"
+      ],
+      "city": "Vitsebsk",
+      "country": "Belarus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_884abd5ebd04778c"
+      ],
+      "city": "Zhodzina",
+      "country": "Belarus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Brazzaville",
-      "country": "Belgian Congo"
+      "country": "Belgian Congo",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_d2f11182558881f1"
+      ],
+      "city": "Léopoldville",
+      "country": "Belgian Congo",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_cbbfa8d61b872a66"
+      ],
+      "city": "Bruges",
+      "country": "Belgium",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3fd8fddef24c5849"
+      ],
+      "city": "Ghent",
+      "country": "Belgium",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Molenbeek",
-      "country": "Belgium"
+      "country": "Belgium",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Devonshire Parish",
-      "country": "Bermuda"
+      "country": "Bermuda",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "El Alto",
-      "country": "Bolivia"
+      "country": "Bolivia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_4c06861f60993310"
+      ],
+      "city": "Santa Cruz",
+      "country": "Bolivia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Villa Tunari",
-      "country": "Bolivia"
+      "country": "Bolivia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Rincon",
-      "country": "Bonaire"
+      "country": "Bonaire",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Orapa",
-      "country": "Botswana"
+      "country": "Botswana",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_8b31fe771ac2469b",
+        "place_ef4797f7a0b3327c"
+      ],
+      "city": "Belo Horizonte",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_401b8b1f6a62c0e0",
+        "place_821ad0376532ad47",
+        "place_8e04269ba04ae416",
+        "place_a52dc2f80b6aaa26",
+        "place_c525ce979b64a1c9"
+      ],
+      "city": "Belém",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_155e25aa32c219da",
+        "place_295eb87cce07a546",
+        "place_2b1cc44c364d9257"
+      ],
+      "city": "Brasília",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_14a872fd2f5de9ec",
+        "place_22ad29d7ba84f5b6"
+      ],
+      "city": "Campina Grande",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_34e6ddcb7e43e0df",
+        "place_58ec3481fd102514",
+        "place_c106a15abf283f73"
+      ],
+      "city": "Campinas",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1fecfa4601209c30",
+        "place_28fd1bb96acf7361",
+        "place_6674d01f7d599fa6"
+      ],
+      "city": "Campo Grande",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_578aaca995be09a6",
+        "place_588d4a88ee221c72"
+      ],
+      "city": "Fortaleza",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_70e25b79ed813a92",
+        "place_9836dabf56ee0956",
+        "place_a29024e87d8a4a44",
+        "place_e1c0e4a08762a227",
+        "place_e2e0451fdc68a269"
+      ],
+      "city": "João Pessoa",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_87f7980b09e16e83",
+        "place_9574ca97f6d48e86",
+        "place_f189c725ce881bc0"
+      ],
+      "city": "Porto Alegre",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_73af598c040bac40",
+        "place_b05a18badf00dc9d"
+      ],
+      "city": "São José do Rio Preto",
+      "country": "Brazil",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Spanish Town",
-      "country": "British Virgin Islands"
+      "country": "British Virgin Islands",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Tortola",
-      "country": "British Virgin Islands"
+      "country": "British Virgin Islands",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Balchik",
-      "country": "Bulgaria"
+      "country": "Bulgaria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_1e9164a30f73801e"
+      ],
+      "city": "Veliko Tărnovo",
+      "country": "Bulgaria",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_2d97a4e678454734"
+      ],
+      "city": "Bobo Dioulasso",
+      "country": "Burkina Faso",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_9a6df273ff7cb6b8"
+      ],
+      "city": "Rangoon",
+      "country": "Burma",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Majadahonda",
-      "country": "Cameroon"
+      "country": "Cameroon",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_8635a8c1a91696e7",
+        "place_9323de274beed388"
+      ],
+      "city": "Saint John",
+      "country": "Canada",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Fos-sur-Mer",
-      "country": "Cape Verde"
+      "country": "Cape Verde",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Independencia",
-      "country": "Chile"
-    },
-    {
-      "city": "Iconi",
-      "country": "Comoros"
-    },
-    {
-      "city": "Mitsamiouli",
-      "country": "Comoros"
-    },
-    {
-      "city": "San Carlos",
-      "country": "Costa Rica"
-    },
-    {
-      "city": "Agía Nápa",
-      "country": "Cyprus"
-    },
-    {
-      "city": "Akdoğan",
-      "country": "Cyprus"
-    },
-    {
-      "city": "Dasaki Achnas",
-      "country": "Cyprus"
-    },
-    {
-      "city": "Dherynia",
-      "country": "Cyprus"
-    },
-    {
-      "city": "Paralímni",
-      "country": "Cyprus"
-    },
-    {
-      "city": "Pégeia",
-      "country": "Cyprus"
-    },
-    {
-      "city": "Púla",
-      "country": "Cyprus"
-    },
-    {
-      "city": "Drnovice",
-      "country": "Czech Republic"
-    },
-    {
-      "city": "Grand Bay",
-      "country": "Dominica"
-    },
-    {
-      "city": "Berrechid",
-      "country": "Egypt"
-    },
-    {
-      "city": "Caen",
-      "country": "Egypt"
-    },
-    {
-      "city": "Gijon",
-      "country": "Egypt"
-    },
-    {
-      "city": "Xianghe",
-      "country": "Egypt"
-    },
-    {
-      "city": "el-Gouna",
-      "country": "Egypt"
-    },
-    {
-      "city": "Athersley",
-      "country": "England"
-    },
-    {
-      "city": "Aveley",
-      "country": "England"
-    },
-    {
-      "city": "Bedfont",
-      "country": "England"
-    },
-    {
-      "city": "Brading",
-      "country": "England"
-    },
-    {
-      "city": "Brentford",
-      "country": "England"
-    },
-    {
-      "city": "Bromley",
-      "country": "England"
-    },
-    {
-      "city": "Burton on Trent",
-      "country": "England"
-    },
-    {
-      "city": "Cornwall",
-      "country": "England"
-    },
-    {
-      "city": "East Cowes",
-      "country": "England"
-    },
-    {
-      "city": "Fitzwilliam",
-      "country": "England"
-    },
-    {
-      "city": "Freshwater",
-      "country": "England"
-    },
-    {
-      "city": "Haringey",
-      "country": "England"
-    },
-    {
-      "city": "Isle of Wight",
-      "country": "England"
-    },
-    {
-      "city": "Oakfield",
-      "country": "England"
-    },
-    {
-      "city": "Rookley",
-      "country": "England"
-    },
-    {
-      "city": "Rotherhithe",
-      "country": "England"
-    },
-    {
-      "city": "Shanklin",
-      "country": "England"
-    },
-    {
-      "city": "Mongomo",
-      "country": "Equatorial Guinea"
-    },
-    {
-      "city": "Karksi-Nuia",
-      "country": "Estonia"
-    },
-    {
-      "city": "Kuressaare",
-      "country": "Estonia"
-    },
-    {
-      "city": "Rakvere",
-      "country": "Estonia"
-    },
-    {
-      "city": "Valga",
-      "country": "Estonia"
-    },
-    {
-      "city": "Võru",
-      "country": "Estonia"
-    },
-    {
-      "city": "Asmara",
-      "country": "Ethiopia"
-    },
-    {
-      "city": "Fuglafjørður",
-      "country": "Faroe Islands"
-    },
-    {
-      "city": "Gøta",
-      "country": "Faroe Islands"
-    },
-    {
-      "city": "Klaksvík",
-      "country": "Faroe Islands"
-    },
-    {
-      "city": "Sandavágur",
-      "country": "Faroe Islands"
-    },
-    {
-      "city": "Sandur",
-      "country": "Faroe Islands"
-    },
-    {
-      "city": "Toftir",
-      "country": "Faroe Islands"
-    },
-    {
-      "city": "Vágur",
-      "country": "Faroe Islands"
-    },
-    {
-      "city": "Ba",
-      "country": "Fiji"
-    },
-    {
-      "city": "Nausori",
-      "country": "Fiji"
-    },
-    {
-      "city": "Navua",
-      "country": "Fiji"
-    },
-    {
-      "city": "Eckerö",
-      "country": "Finland"
-    },
-    {
-      "city": "Finström",
-      "country": "Finland"
-    },
-    {
-      "city": "Hammarland",
-      "country": "Finland"
-    },
-    {
-      "city": "Jomala",
-      "country": "Finland"
-    },
-    {
-      "city": "Kuusankoski",
-      "country": "Finland"
-    },
-    {
-      "city": "Mariehamn",
-      "country": "Finland"
-    },
-    {
-      "city": "Saltvik",
-      "country": "Finland"
-    },
-    {
-      "city": "Sund",
-      "country": "Finland"
-    },
-    {
-      "city": "Åland",
-      "country": "Finland"
-    },
-    {
-      "city": "Amanvillers",
-      "country": "France"
-    },
-    {
-      "city": "Beausoleil",
-      "country": "France"
-    },
-    {
-      "city": "Bois-Guillaume",
-      "country": "France"
-    },
-    {
-      "city": "Bondoufle",
-      "country": "France"
-    },
-    {
-      "city": "Cap-d'Ail",
-      "country": "France"
-    },
-    {
-      "city": "Chambly",
-      "country": "France"
-    },
-    {
-      "city": "Chantilly",
-      "country": "France"
-    },
-    {
-      "city": "Clairefontaine-en-Yvelines",
-      "country": "France"
-    },
-    {
-      "city": "Costebelle",
-      "country": "France"
-    },
-    {
-      "city": "Dinard",
-      "country": "France"
-    },
-    {
-      "city": "Essonne",
-      "country": "France"
-    },
-    {
-      "city": "Fontès",
-      "country": "France"
-    },
-    {
-      "city": "Guingamp",
-      "country": "France"
-    },
-    {
-      "city": "Hauts de Seine",
-      "country": "France"
-    },
-    {
-      "city": "La Chaux",
-      "country": "France"
-    },
-    {
-      "city": "Le Touquet",
-      "country": "France"
-    },
-    {
-      "city": "Mallemort",
-      "country": "France"
-    },
-    {
-      "city": "Occitania",
-      "country": "France"
-    },
-    {
-      "city": "Olargues",
-      "country": "France"
-    },
-    {
-      "city": "Saint-Dalmas-De-Tende",
-      "country": "France"
-    },
-    {
-      "city": "Saint-Zacharie",
-      "country": "France"
-    },
-    {
-      "city": "Val-d'Oise",
-      "country": "France"
-    },
-    {
-      "city": "Val-de-Marne",
-      "country": "France"
-    },
-    {
-      "city": "Vittel",
-      "country": "France"
-    },
-    {
-      "city": "Évian-les-Bains",
-      "country": "France"
-    },
-    {
-      "city": "Gagra",
-      "country": "Georgia"
-    },
-    {
-      "city": "Gurjaani",
-      "country": "Georgia"
-    },
-    {
-      "city": "Altenkirchen",
-      "country": "Germany"
-    },
-    {
-      "city": "Beuthen",
-      "country": "Germany"
-    },
-    {
-      "city": "Breslau",
-      "country": "Germany"
-    },
-    {
-      "city": "Kelsterbach",
-      "country": "Germany"
-    },
-    {
-      "city": "Königsberg",
-      "country": "Germany"
-    },
-    {
-      "city": "Stettin",
-      "country": "Germany"
-    },
-    {
-      "city": "Vienna",
-      "country": "Germany"
-    },
-    {
-      "city": "Europa Point",
-      "country": "Gibraltar"
-    },
-    {
-      "city": "Perivólia",
-      "country": "Greece"
-    },
-    {
-      "city": "Carriacou",
-      "country": "Grenada"
-    },
-    {
-      "city": "Gouyave",
-      "country": "Grenada"
-    },
-    {
-      "city": "Grenada",
-      "country": "Grenada"
-    },
-    {
-      "city": "Grenville",
-      "country": "Grenada"
-    },
-    {
-      "city": "Sauteurs",
-      "country": "Grenada"
-    },
-    {
-      "city": "Morne-à-l'Eau",
-      "country": "Guadeloupe"
-    },
-    {
-      "city": "Vieux-Habitants",
-      "country": "Guadeloupe"
-    },
-    {
-      "city": "Dededo",
-      "country": "Guam"
-    },
-    {
-      "city": "Yona",
-      "country": "Guam"
-    },
-    {
-      "city": "Alderney",
-      "country": "Guernsey"
-    },
-    {
-      "city": "Guernsey",
-      "country": "Guernsey"
-    },
-    {
-      "city": "Saint Martin",
-      "country": "Guernsey"
-    },
-    {
-      "city": "Saint Sampson",
-      "country": "Guernsey"
-    },
-    {
-      "city": "Blairmont",
-      "country": "Guyana"
-    },
-    {
-      "city": "Leonora",
-      "country": "Guyana"
-    },
-    {
-      "city": "Providence",
-      "country": "Guyana"
-    },
-    {
-      "city": "Uitvlugt",
-      "country": "Guyana"
-    },
-    {
-      "city": "So Kon Po",
-      "country": "Hong Kong"
-    },
-    {
-      "city": "Felcsút",
-      "country": "Hungary"
-    },
-    {
-      "city": "Miercurea Ciuc",
-      "country": "Hungary"
-    },
-    {
-      "city": "Akranes",
-      "country": "Iceland"
-    },
-    {
-      "city": "Höfn",
-      "country": "Iceland"
-    },
-    {
-      "city": "Húsavík",
-      "country": "Iceland"
-    },
-    {
-      "city": "Neskaupstaður",
-      "country": "Iceland"
-    },
-    {
-      "city": "Njarðvík",
-      "country": "Iceland"
-    },
-    {
-      "city": "Sauðárkrókur",
-      "country": "Iceland"
-    },
-    {
-      "city": "Gianyar",
-      "country": "Indonesia"
-    },
-    {
-      "city": "Arad",
-      "country": "Iran"
-    },
-    {
-      "city": "Fuladshahr",
-      "country": "Iran"
-    },
-    {
-      "city": "Al-Ain",
-      "country": "Iraq"
-    },
-    {
-      "city": "Habbaniyah",
-      "country": "Iraq"
-    },
-    {
-      "city": "Salahaddin",
-      "country": "Iraq"
-    },
-    {
-      "city": "Belfast",
-      "country": "Ireland"
-    },
-    {
-      "city": "Braddan",
-      "country": "Isle of Man"
-    },
-    {
-      "city": "Castletown",
-      "country": "Isle of Man"
-    },
-    {
-      "city": "Peel",
-      "country": "Isle of Man"
-    },
-    {
-      "city": "Port Erin",
-      "country": "Isle of Man"
-    },
-    {
-      "city": "Ramsey",
-      "country": "Isle of Man"
-    },
-    {
-      "city": "St John's",
-      "country": "Isle of Man"
-    },
-    {
-      "city": "Umm al-Fahm",
-      "country": "Israel"
-    },
-    {
-      "city": "Capoliveri",
-      "country": "Italy"
-    },
-    {
-      "city": "Caraglio",
-      "country": "Italy"
-    },
-    {
-      "city": "Celle Ligure",
-      "country": "Italy"
-    },
-    {
-      "city": "Ospedaletti",
-      "country": "Italy"
-    },
-    {
-      "city": "Rodengo Saiano",
-      "country": "Italy"
-    },
-    {
-      "city": "Ebimpé",
-      "country": "Ivory Coast"
-    },
-    {
-      "city": "Falmouth",
-      "country": "Jamaica"
-    },
-    {
-      "city": "San José",
-      "country": "Jamaica"
-    },
-    {
-      "city": "Miyagi",
-      "country": "Japan"
-    },
-    {
-      "city": "Grouville",
-      "country": "Jersey"
-    },
-    {
-      "city": "Jersey",
-      "country": "Jersey"
-    },
-    {
-      "city": "St. Brelade",
-      "country": "Jersey"
-    },
-    {
-      "city": "St. Clement",
-      "country": "Jersey"
-    },
-    {
-      "city": "St. John",
-      "country": "Jersey"
-    },
-    {
-      "city": "St. Lawrence",
-      "country": "Jersey"
-    },
-    {
-      "city": "St. Ouen",
-      "country": "Jersey"
-    },
-    {
-      "city": "St. Peter",
-      "country": "Jersey"
-    },
-    {
-      "city": "Bondoufle",
-      "country": "Kenya"
-    },
-    {
-      "city": "Kasarani",
-      "country": "Kenya"
-    },
-    {
-      "city": "Al-Jahra",
-      "country": "Kuwait"
-    },
-    {
-      "city": "Sulaibikhat",
-      "country": "Kuwait"
-    },
-    {
-      "city": "Ozolnieki",
-      "country": "Latvia"
-    },
-    {
-      "city": "Bourj Hammoud",
-      "country": "Lebanon"
-    },
-    {
-      "city": "Paynesville",
-      "country": "Liberia"
-    },
-    {
-      "city": "Agilat",
-      "country": "Libya"
-    },
-    {
-      "city": "Benina",
-      "country": "Libya"
-    },
-    {
-      "city": "Bin Ghashir",
-      "country": "Libya"
-    },
-    {
-      "city": "Balzers",
-      "country": "Liechtenstein"
-    },
-    {
-      "city": "Eschen",
-      "country": "Liechtenstein"
-    },
-    {
-      "city": "Differdange",
-      "country": "Luxembourg"
-    },
-    {
-      "city": "Ettelbruck",
-      "country": "Luxembourg"
-    },
-    {
-      "city": "Hesperange",
-      "country": "Luxembourg"
-    },
-    {
-      "city": "Mondercange",
-      "country": "Luxembourg"
-    },
-    {
+      "country": "Chile",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_21e85d5db4729e9c",
+        "place_26daff2f16720b8c",
+        "place_ccfca955fa8f33cf"
+      ],
+      "city": "Changsha",
+      "country": "China",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_8f92cc469b1e51d1",
+        "place_f628d44b810e3465",
+        "place_f87214108e1e4ae7"
+      ],
+      "city": "Suzhou",
+      "country": "China",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1fe0fe53d8d11514",
+        "place_8b8da0ecd883f9af",
+        "place_93a517f17e95ec1c",
+        "place_aac6a703c374ffb9"
+      ],
+      "city": "Zhongshan",
+      "country": "China",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_40d0b3f120511e20",
+        "place_aad1a6e6adc3bde9"
+      ],
       "city": "Zhuhai",
-      "country": "Macau"
+      "country": "China",
+      "reason": "ambiguous"
     },
     {
+      "candidate_entity_ids": [],
+      "city": "Iconi",
+      "country": "Comoros",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Mitsamiouli",
+      "country": "Comoros",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_a2bab9942f19a350"
+      ],
+      "city": "Ciudad Quesada",
+      "country": "Costa Rica",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "San Carlos",
+      "country": "Costa Rica",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_fa18f6c1620ea7b5"
+      ],
+      "city": "San Isidro de El General",
+      "country": "Costa Rica",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_8a10f56447acf072",
+        "place_f684251131d93a42"
+      ],
+      "city": "San José",
+      "country": "Costa Rica",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Agía Nápa",
+      "country": "Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Akdoğan",
+      "country": "Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Dasaki Achnas",
+      "country": "Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Dherynia",
+      "country": "Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_12a3ae8cd9acdfba"
+      ],
+      "city": "Morphou",
+      "country": "Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Paralímni",
+      "country": "Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Pégeia",
+      "country": "Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Púla",
+      "country": "Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Drnovice",
+      "country": "Czech Republic",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_91445343fd60db97"
+      ],
+      "city": "Plzeň",
+      "country": "Czech Republic",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_91445343fd60db97"
+      ],
+      "city": "Plzeň",
+      "country": "Czechoslovakia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3f854e5882c2c8df"
+      ],
+      "city": "Aarhus",
+      "country": "Denmark",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_8da945c9967bb0a9"
+      ],
+      "city": "Brondbyvester",
+      "country": "Denmark",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_8da945c9967bb0a9"
+      ],
+      "city": "Brøndby",
+      "country": "Denmark",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Grand Bay",
+      "country": "Dominica",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Berrechid",
+      "country": "Egypt",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Caen",
+      "country": "Egypt",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_4a44850da0b525e3"
+      ],
+      "city": "El Mahalla El Kubra",
+      "country": "Egypt",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Gijon",
+      "country": "Egypt",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_6a22a00361932927",
+        "place_6fb2887e0e03807b"
+      ],
+      "city": "New Cairo",
+      "country": "Egypt",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Xianghe",
+      "country": "Egypt",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "el-Gouna",
+      "country": "Egypt",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Athersley",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Aveley",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Bedfont",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Brading",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Brentford",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Bromley",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Burton on Trent",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Cornwall",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "East Cowes",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_b9617f2573417e57"
+      ],
+      "city": "Enfield",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Fitzwilliam",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Freshwater",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Haringey",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Isle of Wight",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_0d1f932911af3095"
+      ],
+      "city": "Newcastle",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_5d091177fe962845",
+        "place_7d0c846c488a58db"
+      ],
+      "city": "Newport",
+      "country": "England",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Oakfield",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Rookley",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Rotherhithe",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Shanklin",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Mongomo",
+      "country": "Equatorial Guinea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Karksi-Nuia",
+      "country": "Estonia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Kuressaare",
+      "country": "Estonia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Rakvere",
+      "country": "Estonia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Valga",
+      "country": "Estonia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Võru",
+      "country": "Estonia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_cb794e059f47d2c3"
+      ],
+      "city": "Adama",
+      "country": "Ethiopia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Asmara",
+      "country": "Ethiopia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_4f063a40ac585a1d"
+      ],
+      "city": "Hawassa",
+      "country": "Ethiopia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Fuglafjørður",
+      "country": "Faroe Islands",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Gøta",
+      "country": "Faroe Islands",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Klaksvík",
+      "country": "Faroe Islands",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Sandavágur",
+      "country": "Faroe Islands",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Sandur",
+      "country": "Faroe Islands",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Toftir",
+      "country": "Faroe Islands",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Vágur",
+      "country": "Faroe Islands",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Ba",
+      "country": "Fiji",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Nausori",
+      "country": "Fiji",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Navua",
+      "country": "Fiji",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Eckerö",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Finström",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Hammarland",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Jomala",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Kuusankoski",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Mariehamn",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Saltvik",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Sund",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Åland",
+      "country": "Finland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Amanvillers",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Beausoleil",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Bois-Guillaume",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Bondoufle",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Cap-d'Ail",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Chambly",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Chantilly",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Clairefontaine-en-Yvelines",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Costebelle",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Dinard",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Essonne",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Fontès",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Guingamp",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Hauts de Seine",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "La Chaux",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Le Touquet",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Mallemort",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Occitania",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Olargues",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Saint-Dalmas-De-Tende",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Saint-Zacharie",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7c4562cb02aa4a3a",
+        "place_c51696584cee8dd4"
+      ],
+      "city": "Saint-Étienne",
+      "country": "France",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Val-d'Oise",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Val-de-Marne",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Vittel",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Évian-les-Bains",
+      "country": "France",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_c2b1e65a1630f984"
+      ],
+      "city": "Bathurst",
+      "country": "Gambia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Gagra",
+      "country": "Georgia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Gurjaani",
+      "country": "Georgia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_2af5e772f84a3744"
+      ],
+      "city": "Sukhumi",
+      "country": "Georgia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_a5d03fc0804344f4"
+      ],
+      "city": "Tskhinvali",
+      "country": "Georgia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_f28518155c9195a6"
+      ],
+      "city": "Brandenburg",
+      "country": "German DR",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7b3e412ddb12d26f"
+      ],
+      "city": "Frankfurt an der Oder",
+      "country": "German DR",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_01ea4109c8d31b77",
+        "place_2277a89cdec134d0"
+      ],
+      "city": "Halle",
+      "country": "German DR",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_8572473dbf64f43f"
+      ],
+      "city": "Karl-Marx-Stadt",
+      "country": "German DR",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Altenkirchen",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Beuthen",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Breslau",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_0d72a54f0a12973b"
+      ],
+      "city": "Cologne",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7b3e412ddb12d26f",
+        "place_fdc5a6791b4f1189"
+      ],
+      "city": "Frankfurt",
+      "country": "Germany",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_361aec710e213b7f",
+        "place_ab7684add0c49c1c"
+      ],
+      "city": "Freiburg",
+      "country": "Germany",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_c8802649c4118614"
+      ],
+      "city": "Hanover",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Kelsterbach",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Königsberg",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7fa057b8b503a165"
+      ],
+      "city": "Ludwigshafen",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_e7ed64b117bb012d"
+      ],
+      "city": "Offenbach am Main",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Stettin",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Vienna",
+      "country": "Germany",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_c423b1888242e844"
+      ],
+      "city": "Obuasi",
+      "country": "Ghana",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_48eef00421742fd1",
+        "place_fadd6dc60e25cef7"
+      ],
+      "city": "Sekondi",
+      "country": "Ghana",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Europa Point",
+      "country": "Gibraltar",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_830060284a940351"
+      ],
+      "city": "Chalcis",
+      "country": "Greece",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_2d200719793700fd"
+      ],
+      "city": "Heraklion",
+      "country": "Greece",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_c6ebf91804952176"
+      ],
+      "city": "Patras",
+      "country": "Greece",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Perivólia",
+      "country": "Greece",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_f6f4bdeb2a70e2c7"
+      ],
+      "city": "Rhodes",
+      "country": "Greece",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_e1bd6725167efdee"
+      ],
+      "city": "Salonica",
+      "country": "Greece",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Carriacou",
+      "country": "Grenada",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Gouyave",
+      "country": "Grenada",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Grenada",
+      "country": "Grenada",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Grenville",
+      "country": "Grenada",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Sauteurs",
+      "country": "Grenada",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3f762ebdae28557d"
+      ],
+      "city": "St. George's",
+      "country": "Grenada",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Morne-à-l'Eau",
+      "country": "Guadeloupe",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Vieux-Habitants",
+      "country": "Guadeloupe",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Dededo",
+      "country": "Guam",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Yona",
+      "country": "Guam",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7e877ab82e44eec6"
+      ],
+      "city": "San José",
+      "country": "Guatemala",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Alderney",
+      "country": "Guernsey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Guernsey",
+      "country": "Guernsey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Saint Martin",
+      "country": "Guernsey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Saint Sampson",
+      "country": "Guernsey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_2fe193500f1fb409"
+      ],
+      "city": "St. Peter Port",
+      "country": "Guernsey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Blairmont",
+      "country": "Guyana",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Leonora",
+      "country": "Guyana",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Providence",
+      "country": "Guyana",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Uitvlugt",
+      "country": "Guyana",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_79e76c8e79146038",
+        "place_a9ba5362871a61a2"
+      ],
+      "city": "La Ceiba",
+      "country": "Honduras",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_43542f2577de3df3"
+      ],
+      "city": "Puerto Cortés",
+      "country": "Honduras",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_42faa99782b98b0a",
+        "place_c772b55e515b06b2"
+      ],
+      "city": "Hong Kong",
+      "country": "Hong Kong",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_39eeb153e97c58ca",
+        "place_67d837ebaff45cb8"
+      ],
+      "city": "Kowloon",
+      "country": "Hong Kong",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_c77d34adccd73340"
+      ],
+      "city": "Siu Sai Wan",
+      "country": "Hong Kong",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "So Kon Po",
+      "country": "Hong Kong",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_42faa99782b98b0a",
+        "place_49b2a27d313d7f39"
+      ],
+      "city": "Victoria",
+      "country": "Hong Kong",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Felcsút",
+      "country": "Hungary",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Miercurea Ciuc",
+      "country": "Hungary",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Akranes",
+      "country": "Iceland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Höfn",
+      "country": "Iceland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Húsavík",
+      "country": "Iceland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Neskaupstaður",
+      "country": "Iceland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Njarðvík",
+      "country": "Iceland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Sauðárkrókur",
+      "country": "Iceland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_d435a45b889b488e"
+      ],
+      "city": "Bombay",
+      "country": "India",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_55d37f3e5229e590"
+      ],
+      "city": "Calcutta",
+      "country": "India",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_e670629e8dc0b2a8"
+      ],
+      "city": "Ernakulam",
+      "country": "India",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_a0c510515dc8d833"
+      ],
+      "city": "Gurgaon",
+      "country": "India",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_948f9c6529e1eddd"
+      ],
+      "city": "Madras",
+      "country": "India",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_090de323a957071e"
+      ],
+      "city": "Margao",
+      "country": "India",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_4a4b0991e598f3f6",
+        "place_ccf1ed754a263d8f"
+      ],
+      "city": "New Delhi",
+      "country": "India",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Gianyar",
+      "country": "Indonesia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_581f98904a0a82f9"
+      ],
+      "city": "Solo",
+      "country": "Indonesia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Arad",
+      "country": "Iran",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Fuladshahr",
+      "country": "Iran",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_11cb29f998c73615",
+        "place_8b1eecc8479eb070"
+      ],
+      "city": "Karaj",
+      "country": "Iran",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3765b1e7a70320a0",
+        "place_e5a697eb755eec3f"
+      ],
+      "city": "Tehran",
+      "country": "Iran",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Al-Ain",
+      "country": "Iraq",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_4cdcea2f6a35cacc"
+      ],
+      "city": "Basra",
+      "country": "Iraq",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_0371be367c3fc84f"
+      ],
+      "city": "Duhok",
+      "country": "Iraq",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Habbaniyah",
+      "country": "Iraq",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7392ab1e0324a2aa"
+      ],
+      "city": "Kut",
+      "country": "Iraq",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Salahaddin",
+      "country": "Iraq",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Belfast",
+      "country": "Ireland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Braddan",
+      "country": "Isle of Man",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Castletown",
+      "country": "Isle of Man",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Peel",
+      "country": "Isle of Man",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Port Erin",
+      "country": "Isle of Man",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Ramsey",
+      "country": "Isle of Man",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "St John's",
+      "country": "Isle of Man",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_e585594eabfd201d"
+      ],
+      "city": "Beer Sheva",
+      "country": "Israel",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_416976c4ff6f9434"
+      ],
+      "city": "Beit She'an",
+      "country": "Israel",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_ea4936d93b12ea93"
+      ],
+      "city": "Petah Tikva",
+      "country": "Israel",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Umm al-Fahm",
+      "country": "Israel",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Capoliveri",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Caraglio",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Celle Ligure",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_dcbe271760f3c42d"
+      ],
+      "city": "Montecatini Terme",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_612406def08d5f71"
+      ],
+      "city": "Napoli",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Ospedaletti",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_9fbc6dbfeda57f26"
+      ],
+      "city": "Reggio Emilia",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_b560a030a4f729ab"
+      ],
+      "city": "Reggio di Calabria",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Rodengo Saiano",
+      "country": "Italy",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Ebimpé",
+      "country": "Ivory Coast",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Falmouth",
+      "country": "Jamaica",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "San José",
+      "country": "Jamaica",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_353e78e082146187",
+        "place_a1dbb9e8a411fd24"
+      ],
+      "city": "Hiroshima",
+      "country": "Japan",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_0de02e58fc0369a4",
+        "place_6073f32e8c278e86"
+      ],
+      "city": "Kashima",
+      "country": "Japan",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_11e296913347af6c",
+        "place_4b3a10f5d320fc80"
+      ],
+      "city": "Miki",
+      "country": "Japan",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Miyagi",
+      "country": "Japan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1cb2c9e9c910bf71",
+        "place_502c4f5223d35961",
+        "place_6587585dfff83ead",
+        "place_db075eaf4e5dace9"
+      ],
+      "city": "Miyoshi",
+      "country": "Japan",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_704118ebe2cfe95b",
+        "place_a18fe9b82841ee82"
+      ],
+      "city": "Nagasaki",
+      "country": "Japan",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_6e30220e717f2de8",
+        "place_89158abc58cc2bdd"
+      ],
+      "city": "Sendai",
+      "country": "Japan",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_e32e70d7278854a7"
+      ],
+      "city": "Tottori",
+      "country": "Japan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_a174d377e0381883",
+        "place_c58b222618b836b1"
+      ],
+      "city": "Toyota",
+      "country": "Japan",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Grouville",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Jersey",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_aaa800c02df7aa08"
+      ],
+      "city": "St Helier",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "St. Brelade",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "St. Clement",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "St. John",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "St. Lawrence",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "St. Ouen",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "St. Peter",
+      "country": "Jersey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_802683a0a5b981c7"
+      ],
+      "city": "Qyzylorda",
+      "country": "Kazakhstan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Bondoufle",
+      "country": "Kenya",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Kasarani",
+      "country": "Kenya",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_61185dea9b9f1ffb"
+      ],
+      "city": "Mitrovica",
+      "country": "Kosovo",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Al-Jahra",
+      "country": "Kuwait",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_5f8c5ac51d42c5fc"
+      ],
+      "city": "Salmiya",
+      "country": "Kuwait",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Sulaibikhat",
+      "country": "Kuwait",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Ozolnieki",
+      "country": "Latvia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Bourj Hammoud",
+      "country": "Lebanon",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Paynesville",
+      "country": "Liberia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Agilat",
+      "country": "Libya",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Benina",
+      "country": "Libya",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Bin Ghashir",
+      "country": "Libya",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_2885fe7fce7aedfa"
+      ],
+      "city": "Misrata",
+      "country": "Libya",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Balzers",
+      "country": "Liechtenstein",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Eschen",
+      "country": "Liechtenstein",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Differdange",
+      "country": "Luxembourg",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Ettelbruck",
+      "country": "Luxembourg",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Hesperange",
+      "country": "Luxembourg",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Mondercange",
+      "country": "Luxembourg",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "Zhuhai",
+      "country": "Macau",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Madagascar",
-      "country": "Madagascar"
+      "country": "Madagascar",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_2f4cc5baabd37d37"
+      ],
+      "city": "Tananarive",
+      "country": "Madagascar",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Nchalo",
-      "country": "Malawi"
+      "country": "Malawi",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Sucoma",
-      "country": "Malawi"
+      "country": "Malawi",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_29cd917958d8817e"
+      ],
+      "city": "Johor",
+      "country": "Malaysia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_8a2b296451b4434f"
+      ],
+      "city": "Krubong",
+      "country": "Malaysia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Malacca City",
-      "country": "Malaysia"
+      "country": "Malaysia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Paroi",
-      "country": "Malaysia"
+      "country": "Malaysia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Paya Rumput",
-      "country": "Malaysia"
+      "country": "Malaysia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_1c47d275c8c2a919"
+      ],
+      "city": "Selayang",
+      "country": "Malaysia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Terengganu",
-      "country": "Malaysia"
+      "country": "Malaysia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Addu City",
-      "country": "Maldives"
+      "country": "Maldives",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Laamu",
-      "country": "Maldives"
+      "country": "Maldives",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Attard",
-      "country": "Malta"
+      "country": "Malta",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Gżira",
-      "country": "Malta"
+      "country": "Malta",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Marsa",
-      "country": "Malta"
+      "country": "Malta",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Paola",
-      "country": "Malta"
+      "country": "Malta",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Sannat",
-      "country": "Malta"
+      "country": "Malta",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Ta' Qali",
-      "country": "Malta"
+      "country": "Malta",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Xewkija",
-      "country": "Malta"
+      "country": "Malta",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Xinjing",
-      "country": "Manchuria"
+      "country": "Manchuria",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Tel Aviv",
-      "country": "Mandatory Palestine"
+      "country": "Mandatory Palestine",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Rivière-Pilote",
-      "country": "Martinique"
+      "country": "Martinique",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Saint-Pierre",
-      "country": "Martinique"
+      "country": "Martinique",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Belle Vue Harel",
-      "country": "Mauritius"
+      "country": "Mauritius",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Belle Vue Maurel",
-      "country": "Mauritius"
+      "country": "Mauritius",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Mapou",
-      "country": "Mauritius"
+      "country": "Mauritius",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Mauritius",
-      "country": "Mauritius"
+      "country": "Mauritius",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Rose Hill",
-      "country": "Mauritius"
+      "country": "Mauritius",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_0f71d1e1d3676bf0"
+      ],
+      "city": "Acapulco",
+      "country": "Mexico",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_8de0ae69efbcaa9b",
+        "place_96647e9f08f66c0a",
+        "place_e88afc5b9fb07079"
+      ],
+      "city": "Guadalupe",
+      "country": "Mexico",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_0a23edb12bb0e8a1"
+      ],
+      "city": "León",
+      "country": "Mexico",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_ed0f0d21b047b4fe"
+      ],
+      "city": "Nezahualcóyotl",
+      "country": "Mexico",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_e59bd86703957baa"
+      ],
+      "city": "Pachuca",
+      "country": "Mexico",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_07bbe093009e454f",
+        "place_bc3096952517cf20"
+      ],
+      "city": "Puebla",
+      "country": "Mexico",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7f6b342eca3708cf"
+      ],
+      "city": "Querétaro",
+      "country": "Mexico",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_8d0c56e406569dae"
+      ],
+      "city": "Texcoco",
+      "country": "Mexico",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_732717db35462063"
+      ],
+      "city": "Tuxtla Gutiérrez",
+      "country": "Mexico",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Colonia",
-      "country": "Micronesia"
+      "country": "Micronesia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_734f456b937fd6f4"
+      ],
+      "city": "Ulaanbaatar",
+      "country": "Mongolia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Lookout",
-      "country": "Montserrat"
+      "country": "Montserrat",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_fc9695dbb6fc4f6d"
+      ],
+      "city": "Fez",
+      "country": "Morocco",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_16c44e925c130991"
+      ],
+      "city": "Naypyidaw",
+      "country": "Myanmar",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_bd55a26f9edd12c4"
+      ],
+      "city": "Lalitpur",
+      "country": "Nepal",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3cf8f09eef8bbdd8"
+      ],
+      "city": "Almere",
+      "country": "Netherlands",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Pernis",
-      "country": "Netherlands"
+      "country": "Netherlands",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Boulari",
-      "country": "New Caledonia"
+      "country": "New Caledonia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Koné",
-      "country": "New Caledonia"
+      "country": "New Caledonia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "La Foa",
-      "country": "New Caledonia"
+      "country": "New Caledonia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Lifou",
-      "country": "New Caledonia"
+      "country": "New Caledonia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "New Caledonia",
-      "country": "New Caledonia"
+      "country": "New Caledonia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_bf4f952db4c7ae88"
+      ],
+      "city": "Port Vila",
+      "country": "New Hebrides",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Mount Maunganui",
-      "country": "New Zealand"
+      "country": "New Zealand",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_2a828fe033ae2151",
+        "place_8cdab175d0f8807f"
+      ],
+      "city": "Abuja",
+      "country": "Nigeria",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_10f135b40538f2a6",
+        "place_534fbfdf53aa4ec5"
+      ],
+      "city": "Enugu",
+      "country": "Nigeria",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_f3004726b99e070e"
+      ],
+      "city": "Nampo",
+      "country": "North Korea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_460e654f46b1ab02"
+      ],
+      "city": "Gazimağusa",
+      "country": "Northern Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_12a3ae8cd9acdfba"
+      ],
+      "city": "Güzelyurt",
+      "country": "Northern Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_6189d30f6696cce2"
+      ],
+      "city": "Lefkoşa",
+      "country": "Northern Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_12a3ae8cd9acdfba"
+      ],
+      "city": "Morphou",
+      "country": "Northern Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Koblerville",
-      "country": "Northern Mariana Islands"
+      "country": "Northern Mariana Islands",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Oleai",
-      "country": "Northern Mariana Islands"
+      "country": "Northern Mariana Islands",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Susupe",
-      "country": "Northern Mariana Islands"
+      "country": "Northern Mariana Islands",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_25d09c6c6f2dfaf7"
+      ],
+      "city": "Kristiania",
+      "country": "Norway",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Dhaka",
-      "country": "Pakistan"
+      "country": "Pakistan",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Koror",
-      "country": "Palau"
+      "country": "Palau",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Al-Khader",
-      "country": "Palestine"
+      "country": "Palestine",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Al-Ram",
-      "country": "Palestine"
+      "country": "Palestine",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Hebron",
-      "country": "Palestine"
+      "country": "Palestine",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Jenin",
-      "country": "Palestine"
+      "country": "Palestine",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Jericho",
-      "country": "Palestine"
+      "country": "Palestine",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Nablus",
-      "country": "Palestine"
+      "country": "Palestine",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Luque",
-      "country": "Paraguay"
+      "country": "Paraguay",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_4739adf05e0ecd93"
+      ],
+      "city": "Bacolod",
+      "country": "Philippines",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Barotac Nuevo",
-      "country": "Philippines"
+      "country": "Philippines",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_240bc1a9ccc55270"
+      ],
+      "city": "Iloilo City",
+      "country": "Philippines",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Brzeszcze",
-      "country": "Poland"
+      "country": "Poland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Byton",
-      "country": "Poland"
+      "country": "Poland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Grodzisk Wielkopolski",
-      "country": "Poland"
+      "country": "Poland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_284f7c60a298cd13"
+      ],
+      "city": "Jastrzębie-Zdrój",
+      "country": "Poland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Lwów",
-      "country": "Poland"
+      "country": "Poland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Wronki",
-      "country": "Poland"
+      "country": "Poland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Alcochete",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Alverca do Ribatejo",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Faro-Loulé",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Parchal",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Penafiel",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Rio Maior",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "São João da Venda",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Vila Real de Santo António",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Águeda",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Óbidos",
-      "country": "Portugal"
+      "country": "Portugal",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Añasco",
-      "country": "Puerto Rico"
+      "country": "Puerto Rico",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_7546b4440e8c436e"
+      ],
+      "city": "Al Khor",
+      "country": "Qatar",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_9927ff9157baeda2"
+      ],
+      "city": "Al Rayyan",
+      "country": "Qatar",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Cernăuţi",
-      "country": "Romania"
+      "country": "Romania",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_10ddb600596b55b6"
+      ],
+      "city": "Cluj",
+      "country": "Romania",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_5fdd03e9283eebec"
+      ],
+      "city": "Sepsiszentgyörgy",
+      "country": "Romania",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_b1240568f3744ef9"
+      ],
+      "city": "Ekaterinburg",
+      "country": "Russia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_bd2a1800ebebd08a"
+      ],
+      "city": "Groznyy",
+      "country": "Russia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_bf5428b1ce0582e6",
+        "place_eea7bc92e4a8fd0d"
+      ],
+      "city": "Kaliningrad",
+      "country": "Russia",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_afb83be4b35d95d7"
+      ],
+      "city": "Nizhny Novgorod",
+      "country": "Russia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Les Avirons",
-      "country": "Réunion"
+      "country": "Réunion",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Réunion",
-      "country": "Réunion"
+      "country": "Réunion",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Saint-Jean",
-      "country": "Saint Barthélemy"
+      "country": "Saint Barthélemy",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Old Road Town",
-      "country": "Saint Kitts and Nevis"
+      "country": "Saint Kitts and Nevis",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Vieux Fort",
-      "country": "Saint Lucia"
+      "country": "Saint Lucia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Quartier-d'Orleans",
-      "country": "Saint Martin"
+      "country": "Saint Martin",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Arnos Vale",
-      "country": "Saint Vincent and the Grenadines"
+      "country": "Saint Vincent and the Grenadines",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Georgetown",
-      "country": "Saint Vincent and the Grenadines"
+      "country": "Saint Vincent and the Grenadines",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Saint George's",
-      "country": "Saint Vincent and the Grenadines"
+      "country": "Saint Vincent and the Grenadines",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Serravalle",
-      "country": "San Marino"
+      "country": "San Marino",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_94f40a038bed2ac6"
+      ],
+      "city": "Al Hofuf",
+      "country": "Saudi Arabia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3bc7bccfd12beea1"
+      ],
+      "city": "Buraidah",
+      "country": "Saudi Arabia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_cae9219af23cc02b"
+      ],
+      "city": "Jubail",
+      "country": "Saudi Arabia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_a26069ef5850b143"
+      ],
+      "city": "Medina",
+      "country": "Saudi Arabia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_80d94ff771d55bea"
+      ],
+      "city": "Taif",
+      "country": "Saudi Arabia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Dounby",
-      "country": "Scotland"
+      "country": "Scotland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Finstown",
-      "country": "Scotland"
+      "country": "Scotland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Holm",
-      "country": "Scotland"
+      "country": "Scotland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Kirkwall",
-      "country": "Scotland"
+      "country": "Scotland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Rendall",
-      "country": "Scotland"
+      "country": "Scotland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Shetland",
-      "country": "Scotland"
+      "country": "Scotland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Stromness",
-      "country": "Scotland"
+      "country": "Scotland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_c61cc925de6b820d"
+      ],
+      "city": "Mahé",
+      "country": "Seychelles",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Praslin",
-      "country": "Seychelles"
+      "country": "Seychelles",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Roche Caiman",
-      "country": "Seychelles"
+      "country": "Seychelles",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_01eefb4c11e51321"
+      ],
+      "city": "Bishan",
+      "country": "Singapore",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_f7a1abc058234f96"
+      ],
+      "city": "Choa Chu Kang",
+      "country": "Singapore",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1e3a17d417bd7445"
+      ],
+      "city": "Hougang",
+      "country": "Singapore",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Jalan Besar",
-      "country": "Singapore"
+      "country": "Singapore",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_bd280452ed37e39e"
+      ],
+      "city": "Jurong",
+      "country": "Singapore",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Jurong Stadium",
-      "country": "Singapore"
+      "country": "Singapore",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_fb8ed6d0d616b090"
+      ],
+      "city": "Yishun",
+      "country": "Singapore",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Zlaté Moravce",
-      "country": "Slovakia"
+      "country": "Slovakia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Domžale",
-      "country": "Slovenia"
+      "country": "Slovenia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Murska Sobota",
-      "country": "Slovenia"
+      "country": "Slovenia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Nova Gorica",
-      "country": "Slovenia"
+      "country": "Slovenia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Atteridgeville",
-      "country": "South Africa"
+      "country": "South Africa",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Bushbuckridge",
-      "country": "South Africa"
+      "country": "South Africa",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Clermont",
-      "country": "South Africa"
+      "country": "South Africa",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "KwaMashu",
-      "country": "South Africa"
+      "country": "South Africa",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_9e1d2c241bf18db7"
+      ],
+      "city": "Nelspruit",
+      "country": "South Africa",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Phokeng",
-      "country": "South Africa"
+      "country": "South Africa",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_dd8efb7f64ce0dd5"
+      ],
+      "city": "Port Elizabeth",
+      "country": "South Africa",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Saulspoort",
-      "country": "South Africa"
+      "country": "South Africa",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Umlazi",
-      "country": "South Africa"
+      "country": "South Africa",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_c6caf6b448f8ec97"
+      ],
+      "city": "Witbank",
+      "country": "South Africa",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_e7e7e99f82e9201c"
+      ],
+      "city": "Ansan",
+      "country": "South Korea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_37c899d7caf3707e"
+      ],
+      "city": "Anyang",
+      "country": "South Korea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_127fd031e88062dd"
+      ],
+      "city": "Bucheon",
+      "country": "South Korea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_83160919d574abe7"
+      ],
+      "city": "Cheongju",
+      "country": "South Korea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_cca9ab7f6aae648d",
+        "place_ef12a5029a12e31d"
+      ],
+      "city": "Chungju",
+      "country": "South Korea",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_29cc509badecf8d6"
+      ],
+      "city": "Goyang",
+      "country": "South Korea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_42fc2376696c3b16",
+        "place_e659ea4b6a6ebb4b"
+      ],
+      "city": "Gwangju",
+      "country": "South Korea",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_4c531b46d231234d"
+      ],
+      "city": "Hwaseong",
+      "country": "South Korea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Paju",
-      "country": "South Korea"
+      "country": "South Korea",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_be301c4e7a71a3b2"
+      ],
+      "city": "Seongnam",
+      "country": "South Korea",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Yongin",
-      "country": "South Korea"
+      "country": "South Korea",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_92bae80d958464f8"
+      ],
+      "city": "Salisbury",
+      "country": "Southern Rhodesia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_ef097b9714e53133"
+      ],
+      "city": "Leningrad",
+      "country": "Soviet Union",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_260a029497a6494f"
+      ],
+      "city": "Odessa",
+      "country": "Soviet Union",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1e986061d6ddc438"
+      ],
+      "city": "Castellón de la Plana",
+      "country": "Spain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_c792c972d34474af"
+      ],
+      "city": "Las Palmas",
+      "country": "Spain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Llagostera",
-      "country": "Spain"
+      "country": "Spain",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Mallorca",
-      "country": "Spain"
+      "country": "Spain",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_5c58e88f6d127b21",
+        "place_dbab54fdd58919fc"
+      ],
+      "city": "Oliva",
+      "country": "Spain",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_4c3afea776ee8ba7"
+      ],
+      "city": "Palma de Mallorca",
+      "country": "Spain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Peralada",
-      "country": "Spain"
+      "country": "Spain",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_b0b0f4c438b9d0f6",
+        "place_e62b5572fa229d66"
+      ],
+      "city": "Salamanca",
+      "country": "Spain",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_318bab0944142824"
+      ],
+      "city": "San Sebastián",
+      "country": "Spain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_acaea44fc3913939"
+      ],
+      "city": "Seville",
+      "country": "Spain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Villarreal",
-      "country": "Spain"
+      "country": "Spain",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_c601224f319a3c59"
+      ],
+      "city": "Vitoria-Gasteiz",
+      "country": "Spain",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_5ea0ab108e60118e"
+      ],
+      "city": "Wad Madani",
+      "country": "Sudan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1975d0a5394c8eca"
+      ],
+      "city": "al-Ubayyid",
+      "country": "Sudan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Big Bend",
-      "country": "Swaziland"
+      "country": "Swaziland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Mhlume",
-      "country": "Swaziland"
+      "country": "Swaziland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Dalhem",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Fardhem",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Fårösund",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Gutavallen",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Gällivare",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Hemse",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Malmberget",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Norrbacka",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Stenkyrka",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Säve",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Väskinde",
-      "country": "Sweden"
+      "country": "Sweden",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_e6fb519e0e3973e7"
+      ],
+      "city": "Biel",
+      "country": "Switzerland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Domat/Ems",
-      "country": "Switzerland"
+      "country": "Switzerland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_ccbdeb47592251cb"
+      ],
+      "city": "Lucerne",
+      "country": "Switzerland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_cc8aaec7c1c534a7"
+      ],
+      "city": "Sion",
+      "country": "Switzerland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_465f3d182f158199"
+      ],
+      "city": "St. Gallen",
+      "country": "Switzerland",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Tenero-Contra",
-      "country": "Switzerland"
+      "country": "Switzerland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Trübbach",
-      "country": "Switzerland"
+      "country": "Switzerland",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Pirae",
-      "country": "Tahiti"
+      "country": "Tahiti",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_0e680bda5fc4f5d7"
+      ],
+      "city": "Qurghonteppa",
+      "country": "Tajikistan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Chamazi",
-      "country": "Tanzania"
+      "country": "Tanzania",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_98968f1dfc9ac5d4"
+      ],
+      "city": "Unguja",
+      "country": "Tanzania",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_5d0b5a968d4bc7ff"
+      ],
+      "city": "Ayutthaya",
+      "country": "Thailand",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_86f8c9d2ef04bfbb"
+      ],
+      "city": "Buriram",
+      "country": "Thailand",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_5f7132eba98a99e3"
+      ],
+      "city": "Chonburi",
+      "country": "Thailand",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3810f1e13a229899"
+      ],
+      "city": "Nonthaburi",
+      "country": "Thailand",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Phang Nga",
-      "country": "Thailand"
+      "country": "Thailand",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_79610ade888b81cd"
+      ],
+      "city": "Sisaket",
+      "country": "Thailand",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Thailand",
-      "country": "Thailand"
+      "country": "Thailand",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Thanyaburi",
-      "country": "Thailand"
+      "country": "Thailand",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Woumé",
-      "country": "Togo"
+      "country": "Togo",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Ha'ateiho",
-      "country": "Tonga"
+      "country": "Tonga",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_11c0033266474c64"
+      ],
+      "city": "Nuku'alofa",
+      "country": "Tonga",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "‘Atele",
-      "country": "Tonga"
+      "country": "Tonga",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Bacolet",
-      "country": "Trinidad and Tobago"
+      "country": "Trinidad and Tobago",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Couva",
-      "country": "Trinidad and Tobago"
+      "country": "Trinidad and Tobago",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Macoya",
-      "country": "Trinidad and Tobago"
+      "country": "Trinidad and Tobago",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Palo Seco",
-      "country": "Trinidad and Tobago"
+      "country": "Trinidad and Tobago",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Pointe-à-Pierre",
-      "country": "Trinidad and Tobago"
+      "country": "Trinidad and Tobago",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Aïn Draham",
-      "country": "Tunisia"
+      "country": "Tunisia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Hammam Lif",
-      "country": "Tunisia"
+      "country": "Tunisia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Houmet Souk",
-      "country": "Tunisia"
+      "country": "Tunisia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Port el-Kantaoui",
-      "country": "Tunisia"
+      "country": "Tunisia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_115e268e442cd3d5"
+      ],
+      "city": "Aksu",
+      "country": "Turkey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_6d7a7398464d3c45"
+      ],
+      "city": "Diyarbakir",
+      "country": "Turkey",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Kartepe",
-      "country": "Turkey"
+      "country": "Turkey",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_5aea6a76c3d2dbb0"
+      ],
+      "city": "Dnipropetrovs'k",
+      "country": "Ukraine",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_260a029497a6494f"
+      ],
+      "city": "Odessa",
+      "country": "Ukraine",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Zaporizhia",
-      "country": "Ukraine"
+      "country": "Ukraine",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_ada1d9cb932b0342"
+      ],
+      "city": "Al Ain",
+      "country": "United Arab Emirates",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Al Hamriyah",
-      "country": "United Arab Emirates"
+      "country": "United Arab Emirates",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_d187ba8d492b915f"
+      ],
+      "city": "Ras al-Khaimah",
+      "country": "United Arab Emirates",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Alexandria",
-      "country": "United Arab Republic"
+      "country": "United Arab Republic",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Cairo",
-      "country": "United Arab Republic"
+      "country": "United Arab Republic",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_4561e56ebc2ed64e",
+        "place_4e0356f92fadc5fa",
+        "place_a01c4bc500f5b11f",
+        "place_da1fa06b87ff08f6",
+        "place_ff7c9d71d566244c"
+      ],
+      "city": "Arlington",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_25137d3f9b6d07f4",
+        "place_33202e5943820e44",
+        "place_74c38c05351d951c",
+        "place_7e2251561005e247",
+        "place_ebeda8a48d10d57d"
+      ],
+      "city": "Auburn",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3cd1a5317443ab33",
+        "place_4d67d1cef96eca7c",
+        "place_5a10a6373a7d4264"
+      ],
+      "city": "Austin",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_2c537be8e8721d86",
+        "place_638c065b42cd9073"
+      ],
+      "city": "Bethlehem",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_019fe988080a9d86",
+        "place_a3adb01d66fd52e0",
+        "place_f92a49cdd2edf707"
+      ],
+      "city": "Birmingham",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7d59ac9d699838c4",
+        "place_8594c840e0be371f"
+      ],
+      "city": "Carson",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_7ce9c2069431a784",
+        "place_83a178c50463fd5e"
+      ],
+      "city": "Cary",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_49fd090c9a9d3dd8",
+        "place_925906fdf9e4e0a3"
+      ],
+      "city": "Chester",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1b507864051e2ade",
+        "place_29065bfa069c4ccf"
+      ],
+      "city": "Cleveland",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Cocoa Beach",
-      "country": "United States"
+      "country": "United States",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_709da061c40d1651",
+        "place_b087a260e13fa549",
+        "place_b35711931814d44a",
+        "place_b4b6bd4a5194f8e8",
+        "place_dcd58d33769cdec7"
+      ],
+      "city": "Columbus",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_5cee9dc3be2e209c",
+        "place_b4e20da756387e8b"
+      ],
+      "city": "Dallas",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Dallas (Arlington)",
-      "country": "United States"
+      "country": "United States",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Davidson",
-      "country": "United States"
+      "country": "United States",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "East Rutherford",
-      "country": "United States"
+      "country": "United States",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Foxborough",
-      "country": "United States"
+      "country": "United States",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_5eb79ed725c0815b",
+        "place_7484907849e2a518"
+      ],
+      "city": "Fresno",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_215612db1c9ee8c8",
+        "place_45287d3bcef07a9c"
+      ],
+      "city": "Frisco",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_11f19c8a2b26e209",
+        "place_ba3418eaa77c1352",
+        "place_f68a8de65615abc7"
+      ],
+      "city": "Glendale",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1ff78368397ac290",
+        "place_a4fbc413d5681fd3",
+        "place_cbecad9331fdedef"
+      ],
+      "city": "Harrison",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Hershey",
-      "country": "United States"
+      "country": "United States",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_0e4384e76191d161",
+        "place_3f8de7e82e0076a5",
+        "place_ce9b06e015ab2db4",
+        "place_d0db188535ec6d79",
+        "place_e9ce3e0e3547fc3a"
+      ],
+      "city": "Jacksonville",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_2dc64cab0cadf161",
+        "place_a874619d35b588ca"
+      ],
+      "city": "Kansas City",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_25e76a92126c9a94",
+        "place_286960bf60adb2d3"
+      ],
+      "city": "Kent",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_32b6d8121131aa49",
+        "place_b02f5c2d9dc2fb55"
+      ],
+      "city": "Leesburg",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_38b180175391b63d",
+        "place_6eaea4f7d91873fb",
+        "place_cca0931978de1701"
+      ],
+      "city": "Long Beach",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_0506d51ee599f958",
+        "place_3cf3d8b2709c3c82"
+      ],
+      "city": "New Britain",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3aee70c508d60f45",
+        "place_d58d54bbcb035caa"
+      ],
+      "city": "New Haven",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_62afabff931070e1"
+      ],
+      "city": "New York",
+      "country": "United States",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_15b670bf19644a16",
+        "place_921e3ed370b8bbc9",
+        "place_c7f46b0b15aa21c8",
+        "place_e52462daea16dffa"
+      ],
+      "city": "Newark",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_56c37b2311a97574",
+        "place_b93afe2557fa25d9"
+      ],
+      "city": "Paradise",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1688bc0aeea266a5",
+        "place_bb787bbb903db465",
+        "place_e8c4131047b43b74"
+      ],
+      "city": "Pasadena",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1a0eb5dfd332ab15",
+        "place_497eb3de522db3ac"
+      ],
+      "city": "Philadelphia",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3ab0d24b7e503d2a",
+        "place_76f1cb31a35a70f9"
+      ],
+      "city": "Phoenix",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_0cdb0e0a48ac9149",
+        "place_213c18cdeae589dd",
+        "place_4ad911de20c61138",
+        "place_60cd415cd0b073bb",
+        "place_cb79868449f78ec5"
+      ],
+      "city": "Portland",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_3b220e1430f76007",
+        "place_62d3f01183e6cf85",
+        "place_700cfb22c744dda4",
+        "place_852374b66c0f1393",
+        "place_a182b46a00ba2393"
+      ],
+      "city": "Richmond",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_715b9595cbc41545",
+        "place_94f3838e4bf1b805"
+      ],
+      "city": "Sandy",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_d20cc6e08e2915e4",
+        "place_fb44f82a5f6ee713"
+      ],
+      "city": "Stockton",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Summerfield",
-      "country": "United States"
+      "country": "United States",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_23256fbec65ea45a",
+        "place_95fb24217e65e6c5"
+      ],
+      "city": "Wakefield",
+      "country": "United States",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Washington, D.C.",
-      "country": "United States"
+      "country": "United States",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Frederiksted",
-      "country": "United States Virgin Islands"
+      "country": "United States Virgin Islands",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Upper Bethlehem",
-      "country": "United States Virgin Islands"
+      "country": "United States Virgin Islands",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_2d97a4e678454734"
+      ],
+      "city": "Bobo Dioulasso",
+      "country": "Upper Volta",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_4d8034276b48002d"
+      ],
+      "city": "Samarqand",
+      "country": "Uzbekistan",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Luganville",
-      "country": "Vanuatu"
+      "country": "Vanuatu",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_bf4f952db4c7ae88"
+      ],
+      "city": "Port Vila",
+      "country": "Vanuatu",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_741f1f5ea06244d1"
+      ],
+      "city": "Guayana",
+      "country": "Venezuela",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Puerto Ordaz",
-      "country": "Venezuela"
+      "country": "Venezuela",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Táchira",
-      "country": "Venezuela"
+      "country": "Venezuela",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_1b6c9165f1167213"
+      ],
+      "city": "Saigon",
+      "country": "Vietnam",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_1b6c9165f1167213"
+      ],
+      "city": "Saigon",
+      "country": "Vietnam Republic",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Anglesey",
-      "country": "Wales"
+      "country": "Wales",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_95afba84b6ca3c5f",
+        "place_c2076a8819767072"
+      ],
+      "city": "Bangor",
+      "country": "Wales",
+      "reason": "ambiguous"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_805c9f0cac603643"
+      ],
+      "city": "Sana'a",
+      "country": "Yemen",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_805c9f0cac603643"
+      ],
+      "city": "Sana'a",
+      "country": "Yemen AR",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Borovo",
-      "country": "Yugoslavia"
+      "country": "Yugoslavia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [
+        "place_f410324a544898c5"
+      ],
+      "city": "Titograd",
+      "country": "Yugoslavia",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Titova Mitrovica",
-      "country": "Yugoslavia"
+      "country": "Yugoslavia",
+      "reason": "unresolved"
     },
     {
+      "candidate_entity_ids": [],
       "city": "Gombani",
-      "country": "Zanzibar"
+      "country": "Zanzibar",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_98968f1dfc9ac5d4"
+      ],
+      "city": "Zanzibar City",
+      "country": "Zanzibar",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_71c0a15a084071b9"
+      ],
+      "city": "Gwelo",
+      "country": "Zimbabwe",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_92bae80d958464f8"
+      ],
+      "city": "Salisbury",
+      "country": "Zimbabwe",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_5939928f67f0e823"
+      ],
+      "city": "Umtali",
+      "country": "Zimbabwe",
+      "reason": "unresolved"
     }
   ],
-  "unresolved_pairs": 387
+  "unresolved_pairs": 644
 }

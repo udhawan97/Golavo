@@ -1,0 +1,349 @@
+{
+  "assignments": [
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Toronto",
+      "match_country": "Canada",
+      "source_city": "Toronto",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Toronto",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_cc51b9af2f627df8",
+      "wikidata_candidate_qid": "Q796351",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Vancouver",
+      "match_country": "Canada",
+      "source_city": "Vancouver",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Vancouver",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_7771ac9283efc25c",
+      "wikidata_candidate_qid": "Q612227",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Guadalupe",
+      "match_country": "Mexico",
+      "source_city": "Monterrey (Guadalupe)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Monterrey (Guadalupe)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_425b0bfa57d94283",
+      "wikidata_candidate_qid": "Q3058827",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Mexico City",
+      "match_country": "Mexico",
+      "source_city": "Mexico City",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Mexico City",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_91edc412659a2940",
+      "wikidata_candidate_qid": "Q320454",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Zapopan",
+      "match_country": "Mexico",
+      "source_city": "Guadalajara (Zapopan)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Guadalajara (Zapopan)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_66de2539bc8d484d",
+      "wikidata_candidate_qid": "Q666183",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Arlington",
+      "match_country": "United States",
+      "source_city": "Dallas (Arlington)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Dallas (Arlington)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_18166a41abc328e7",
+      "wikidata_candidate_qid": "Q838284",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Atlanta",
+      "match_country": "United States",
+      "source_city": "Atlanta",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Atlanta",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_208761208c99385d",
+      "wikidata_candidate_qid": "Q7007552",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Dallas",
+      "match_country": "United States",
+      "source_city": "Dallas (Arlington)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Dallas (Arlington)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_18166a41abc328e7",
+      "wikidata_candidate_qid": "Q838284",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Dallas (Arlington)",
+      "match_country": "United States",
+      "source_city": "Dallas (Arlington)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Dallas (Arlington)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_18166a41abc328e7",
+      "wikidata_candidate_qid": "Q838284",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "East Rutherford",
+      "match_country": "United States",
+      "source_city": "New York/New Jersey (East Rutherford)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:New York/New Jersey (East Rutherford)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_74d3ae912683ada8",
+      "wikidata_candidate_qid": "Q10862290",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Foxborough",
+      "match_country": "United States",
+      "source_city": "Boston (Foxborough)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Boston (Foxborough)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_c6edc4e5566eaa5e",
+      "wikidata_candidate_qid": "Q373355",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Houston",
+      "match_country": "United States",
+      "source_city": "Houston",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Houston",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_a2ba10a36deb3f03",
+      "wikidata_candidate_qid": "Q1058864",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": "Pinned coordinates differ by more than 250 metres; retain the source venue without merging the Wikidata identity.",
+      "match_city": "Inglewood",
+      "match_country": "United States",
+      "source_city": "Los Angeles (Inglewood)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_8ad33205fd8493bc",
+      "wikidata_candidate_qid": "Q19520501",
+      "wikidata_link_status": "conflicting"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Kansas City",
+      "match_country": "United States",
+      "source_city": "Kansas City",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Kansas City",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_b8a1d12f40fab68a",
+      "wikidata_candidate_qid": "Q544553",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Miami Gardens",
+      "match_country": "United States",
+      "source_city": "Miami (Miami Gardens)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Miami (Miami Gardens)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_76c802a043602c93",
+      "wikidata_candidate_qid": "Q864339",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Philadelphia",
+      "match_country": "United States",
+      "source_city": "Philadelphia",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Philadelphia",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_93e2b76d71eadc8f",
+      "wikidata_candidate_qid": "Q1052370",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Santa Clara",
+      "match_country": "United States",
+      "source_city": "San Francisco Bay Area (Santa Clara)",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:San Francisco Bay Area (Santa Clara)",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_1acc274b2a5e9869",
+      "wikidata_candidate_qid": "Q7419343",
+      "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "martj42-international-results",
+        "openfootball-worldcup-json"
+      ],
+      "competition": "FIFA World Cup",
+      "conflict_reason": null,
+      "match_city": "Seattle",
+      "match_country": "United States",
+      "source_city": "Seattle",
+      "source_id": "openfootball-worldcup-json",
+      "source_record_id": "2026/stadium:Seattle",
+      "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d",
+      "valid_from": "2026-06-11",
+      "valid_to": "2026-07-19",
+      "venue_entity_id": "venue_45eb59f062e8ca4e",
+      "wikidata_candidate_qid": "Q612736",
+      "wikidata_link_status": "accepted"
+    }
+  ],
+  "schema_version": "0.1.0",
+  "source_id": "openfootball-worldcup-json",
+  "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+}
