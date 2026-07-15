@@ -62,6 +62,7 @@
         "share_alike": {"type": "boolean"},
         "refresh": {"$ref": "#/$defs/refresh"},
         "overlay": {"$ref": "#/$defs/overlay"},
+        "entity_access": {"$ref": "#/$defs/entityAccess"},
         "recheck_by": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
         "verified": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
         "notes": {"type": "string"}
@@ -117,6 +118,33 @@
         "default_interval_seconds": {"type": "integer", "minimum": 900},
         "max_file_bytes": {"type": "integer", "minimum": 1024},
         "max_snapshot_bytes": {"type": "integer", "minimum": 1024}
+      }
+    },
+    "entityAccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode", "runtime_network", "allowed_namespaces", "allowed_properties",
+        "languages", "max_entities", "retain_revision_evidence"
+      ],
+      "properties": {
+        "mode": {"const": "revision-pinned-individual-entities"},
+        "runtime_network": {"const": false},
+        "allowed_namespaces": {"const": ["item", "property"]},
+        "allowed_properties": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^P[1-9][0-9]*$"},
+          "uniqueItems": true
+        },
+        "languages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^[a-z]{2,3}$"},
+          "uniqueItems": true
+        },
+        "max_entities": {"type": "integer", "minimum": 1, "maximum": 300},
+        "retain_revision_evidence": {"const": true}
       }
     },
     "overlay": {

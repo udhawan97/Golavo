@@ -32,7 +32,9 @@ settlement, calibration, artifacts, or exports. See ADR-0005 and
 **Open context/reference (not football, but useful complements):**
 
 - **Weather** (redistributable, unlike Open-Meteo's non-commercial *free API*): [Meteostat](https://dev.meteostat.net/) (CC-BY), [NOAA NCEI/GHCN](https://www.ncei.noaa.gov/access) (CC0), [ERA5/Copernicus](https://cds.climate.copernicus.eu/) (CC-BY), [NASA POWER](https://power.larc.nasa.gov/) (CC-BY), [DWD Open Data](https://opendata.dwd.de/) (CC-BY).
-- **Venue geo/altitude**: [GeoNames](https://www.geonames.org/) (CC-BY, daily), OpenStreetMap via [Nominatim](https://nominatim.org/)/[Overpass](https://wiki.openstreetmap.org/wiki/Overpass_API) (ODbL, share-alike).
+- **Place coordinates/timezone/elevation**: [GeoNames bulk dumps](https://download.geonames.org/export/dump/readme.txt) (CC BY 4.0). Golavo bundles a compact reviewed extraction, labels these as city/place facts rather than stadium facts, and makes no runtime geocoder request.
+- **Stable entity and selected venue metadata**: [Wikidata structured entities](https://www.wikidata.org/wiki/Wikidata:Licensing) (CC0) may be used only through a revision-pinned, manually reviewed QID/property allowlist. Page prose, sitelink text and Commons media are excluded.
+- **Offline maps**: [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/) is public-domain map data; Golavo keeps a pinned lightweight 1:110m asset and the voluntary “Made with Natural Earth” credit.
 
 ### Tier B — FREE TO FETCH, NOT OPEN (use per-user locally; never redistribute) — a new middle tier
 

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/context-resolution-0.1.0.schema.json",
+  "title": "Golavo manually reviewed context resolutions",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "resolutions"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "resolutions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/resolution"}
+    }
+  },
+  "$defs": {
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resolution_id", "source_id", "source_record_id", "entity_kind",
+        "observed_label", "scope", "candidate_entity_ids", "decision",
+        "resolved_entity_id", "reviewed_by", "reviewed_at_utc", "rationale"
+      ],
+      "properties": {
+        "resolution_id": {"type": "string", "pattern": "^ctxr_[0-9a-f]{16}$"},
+        "source_id": {"type": "string", "minLength": 1, "not": {"const": "openligadb"}},
+        "source_record_id": {"type": "string", "minLength": 1},
+        "entity_kind": {"enum": ["place", "venue", "team", "federation"]},
+        "observed_label": {"type": "string", "minLength": 1},
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["country", "competition_id", "valid_from", "valid_to"],
+          "properties": {
+            "country": {"type": ["string", "null"]},
+            "competition_id": {"type": ["string", "null"]},
+            "valid_from": {"type": ["string", "null"], "format": "date"},
+            "valid_to": {"type": ["string", "null"], "format": "date"}
+          }
+        },
+        "candidate_entity_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "decision": {"enum": ["accepted", "rejected", "ambiguous", "conflicting", "unresolved"]},
+        "resolved_entity_id": {"type": ["string", "null"]},
+        "reviewed_by": {"type": ["string", "null"]},
+        "reviewed_at_utc": {"type": ["string", "null"], "format": "date-time"},
+        "rationale": {"type": "string", "minLength": 1}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"decision": {"const": "accepted"}}},
+          "then": {
+            "properties": {
+              "resolved_entity_id": {"type": "string", "minLength": 1},
+              "reviewed_by": {"type": "string", "minLength": 1},
+              "reviewed_at_utc": {"type": "string", "format": "date-time"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

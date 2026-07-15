@@ -123,8 +123,8 @@
       "pin_strategy": "dump-date",
       "fields": "city coordinates, country, timezone, altitude — bulk dumps (cities15000, countryInfo, timeZones)",
       "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
-      "verified": "2026-07-12",
-      "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact runtime table resolves 1,828 of 2,215 indexed city-country pairs using exact normalized names; unresolved or ambiguous data stays unknown. Bulk files only, no runtime web-service dependency or identity merging."
+      "verified": "2026-07-15",
+      "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The legacy compact table resolves 1,828 of 2,215 indexed city-country pairs; 82 exact-name collisions were deterministically selected by population/id and must be rebuilt fail-closed under ADR-0006 before being treated as reviewed identities. Bulk files only, no runtime web-service dependency."
     },
     {
       "source_id": "natural-earth",
@@ -148,11 +148,20 @@
       "license": "CC0-1.0",
       "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
       "classification": "enrichment",
-      "pin_strategy": "dump-date",
+      "pin_strategy": "entity-revisions",
       "fields": "structured data only — stable entity ids, multilingual aliases, country/confederation, venue metadata",
+      "entity_access": {
+        "mode": "revision-pinned-individual-entities",
+        "runtime_network": false,
+        "allowed_namespaces": ["item", "property"],
+        "allowed_properties": ["P17", "P31", "P131", "P625", "P1083", "P463"],
+        "languages": ["en"],
+        "max_entities": 300,
+        "retain_revision_evidence": true
+      },
       "attribution": "Structured data from Wikidata (CC0); we credit it voluntarily as 'Data from Wikidata'.",
-      "verified": "2026-07-12",
-      "notes": "Later-if-needed. Structured data is CC0; prose (CC BY-SA) and Commons media (per-file) are excluded. Never auto-merge identities from a similarity match."
+      "verified": "2026-07-15",
+      "notes": "Approved only for a maintainer-reviewed QID allowlist fetched as revision-pinned individual entity JSON. Structured claims are CC0; prose, sitelink text and Commons media are excluded. No installed-app network access and no automatic identity merge from similarity."
     },
     {
       "source_id": "openligadb",
