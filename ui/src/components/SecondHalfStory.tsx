@@ -18,15 +18,18 @@ function leadLabel(team: HalfTimeTeamStory): string {
 export function SecondHalfStory({
   sourceKind,
   story,
+  headingLevel = 2,
 }: {
   sourceKind: SourceKind;
   story: HalfTimeStoryData | null;
+  headingLevel?: 2 | 3;
 }) {
   if (sourceKind !== "club" || !story) return null;
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   return (
     <section className="panel shs" aria-labelledby="shs-h">
       <div className="panel__head">
-        <h2 id="shs-h">Second-half story</h2>
+        <Heading id="shs-h">Second-half story</Heading>
         <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
           recorded half-times only
         </span>

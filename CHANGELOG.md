@@ -6,6 +6,51 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-07-14
+
+The Match Cockpit now reads like a six-chapter matchday programme: the same
+deterministic evidence, shaped into a calmer Casual read with full Expert depth
+available in the same order.
+
+### Added
+- **A six-chapter matchday programme.** Form, style, history, model deliberation,
+  verdict and pick, and the optional analyst column now form one editorial read
+  with chapter mastheads, fixed-rule pull numbers, inline sparklines, ruled
+  dividers, and a source-backed colophon.
+- **The engine's hidden depth is now visible.** Expert mode exposes fitted Elo and
+  Dixon–Coles parameters with plain-language definitions, while the form book adds
+  venue markers, opponents, deterministic streaks, and last-five goal-difference
+  trends.
+- **A fuller Score Outlook.** Double chance, match-total thresholds, and the
+  home/draw/away split beyond the displayed score grid join the existing goal-line,
+  clean-sheet, distribution, and exact-score views.
+- **Timing and discipline context.** Guarded goal-timing profiles render as compact
+  minute-band timelines, with the engine-provided penalty-goal share alongside
+  them when the notebook contains that fact.
+
+### Changed
+- **Casual and Expert now share one reading rhythm.** Casual keeps each new signal
+  to a short takeaway or compact chart; Expert preserves the fitted values and all
+  market rows without changing their order or the underlying probabilities.
+- **The verdict keeps the final word.** The score outlook, pick, seal flow, and AI
+  column remain subordinate to the deterministic model council, with every number
+  still supplied by the engine or its existing market helpers.
+- **Release presentation refreshed.** The README and documentation site now use
+  current Match Cockpit screenshots and an animated tour of the programme.
+
+### Fixed
+- **Deep analysis keeps the complete evidence.** Ollama context sizing now leaves
+  room for both the full match prompt and its structured answer, preventing the
+  silent evidence truncation or HTTP 500 that could strand a read until the
+  12-minute UI deadline. Context failures retry with the compact guarded bundle,
+  and a sidecar restart now reports a lost job promptly instead of posing as a
+  model timeout.
+
+### Accessibility
+- Pull numbers have meaningful accessible labels, inline SVGs retain adjacent text
+  equivalents, chapter introductions remain plain aligned text, and all new charts
+  use the existing theme-safe outcome tokens with reduced-motion behavior unchanged.
+
 ## [0.11.1] - 2026-07-14
 
 Golavo's first launch, match browsing, and sealed-forecast audit now share a
@@ -1105,7 +1150,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.11.1...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/udhawan97/Golavo/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/udhawan97/Golavo/compare/v0.10.3...v0.11.1
 [0.10.3]: https://github.com/udhawan97/Golavo/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/udhawan97/Golavo/compare/v0.10.0...v0.10.2

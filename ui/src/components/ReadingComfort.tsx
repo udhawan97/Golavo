@@ -49,7 +49,7 @@ export function ReadingComfort({
       {open && (
         <div className="rc__panel" id={panelId} role="group" aria-label="Reading comfort">
           <ReadingControls prefs={prefs} onChange={onChange} />
-          <p className="rc__note">Warm tones for comfortable evening reading.</p>
+          <p className="rc__note">Tune the page for comfortable, focused reading.</p>
         </div>
       )}
     </div>

@@ -3,20 +3,23 @@ title: Match Notes & optional enrichment
 description: How Golavo turns deterministic match evidence into an editorial Match Notes read, and where optional lineup enrichment stops.
 ---
 
-**Match Notes** is the cockpit's editorial layer for descriptive evidence. It reorganizes facts
-that already cleared the engine's sample, freshness, and source guards; it does not create new
-facts or become a second forecast model.
+**Match Notes** supplies the descriptive evidence inside the cockpit's matchday programme. It
+reorganizes facts that already cleared the engine's sample, freshness, and source guards; it
+does not create new facts or become a second forecast model.
 
 ## What ships today
 
 - a cover story chosen only after the fixed-rule **Three things to know** have been removed;
-- each side's last-five pre-kickoff form timeline;
+- each side's last-five pre-kickoff form timeline, with venue, opponent, deterministic streak,
+  and a compact goal-difference trend;
 - the goal model's attack and defence profile, explicitly labelled as fitted from results;
+- guarded goal-timing bands and penalty-goal share when those notebook facts are present;
 - scorer spotlights when the vendored source actually contains scorer data;
 - head-to-head and signature-stat layouts with sample, minimum sample, freshness, date range,
   scope, and a per-fact source disclosure;
 - coincidences preserved in a quarantined **For the pub** sidebar, capped and never shown to AI;
-- a footer naming the fixed fact family, rule-set version, suppressed-candidate count, and sources.
+- a programme colophon naming the fixed fact family, rule-set version, as-of date,
+  suppressed-candidate count, and sources.
 
 Sparse data stays sparse. A section renders only when its typed evidence exists; Golavo does not
 fill the page with inferred tactics, players, or formations.

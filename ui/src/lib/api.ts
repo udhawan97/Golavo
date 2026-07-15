@@ -743,17 +743,35 @@ async function postNarrative(
  *  deep budget is 8 minutes; the wider collection deadline leaves room for
  *  evidence assembly/research and transient polling failures without creating
  *  another 300-second cutoff in the UI. */
+export function narrativeJobWasLost(seenJob: boolean, consecutiveMissing: number): boolean {
+  // A job that was visible and then disappears was lost with a sidecar restart.
+  // Before the first successful poll, tolerate two 404s for an unusually slow
+  // hand-off — the third is no longer a transient race.
+  return seenJob || consecutiveMissing >= 3;
+}
+
 async function waitForNarrativeResult(
   jobId: string,
   base: NarrativeResponse,
 ): Promise<NarrativeResponse> {
   const deadline = Date.now() + 12 * 60 * 1000;
   const url = `${API_BASE}/api/v1/ai/jobs/${encodeURIComponent(jobId)}`;
+  let seenJob = false;
+  let consecutiveMissing = 0;
   while (Date.now() < deadline) {
     try {
       const res = await fetch(url, { headers: apiHeaders() });
       if (res.status === 401) throw new Error("AI result could not be authorized");
+      if (res.status === 404) {
+        consecutiveMissing += 1;
+        if (narrativeJobWasLost(seenJob, consecutiveMissing))
+          throw new Error(
+            "AI_JOB_TERMINAL:Deep analysis stopped because the local engine restarted. Try again.",
+          );
+      }
       if (res.ok) {
+        seenJob = true;
+        consecutiveMissing = 0;
         const job = (await res.json()) as {
           state?: "running" | "done" | "failed" | "cancelled";
           result?: Partial<NarrativeResponse>;
@@ -767,8 +785,9 @@ async function waitForNarrativeResult(
           throw new Error(`AI_JOB_TERMINAL:${job.error || "AI generation failed before a safe result was produced"}`);
         if (job.state === "cancelled") throw new Error("AI_JOB_TERMINAL:AI generation was cancelled");
       }
-      // A transient 404/5xx or network blip must not discard a Gemma result that
-      // is still being produced server-side. Keep polling until the wide deadline.
+      // A transient 5xx or network blip must not discard a Gemma result that is
+      // still being produced server-side. A persistent/late 404 is different:
+      // the process-local job vanished, so waiting 12 minutes cannot recover it.
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.startsWith("AI_JOB_TERMINAL:"))

@@ -12,7 +12,7 @@
  * Mirrors core/golavo_core/score_matrix.py (double_chance / total_goals_bands /
  * total_goals_over_under); both sum the same stored grid, so they agree exactly.
  */
-import type { ForecastBlock, ScoreMatrix } from "./contract";
+import type { ForecastBlock, Probs, ScoreMatrix } from "./contract";
 
 export interface DoubleChance {
   home_or_draw: number;
@@ -49,18 +49,21 @@ function round(value: number, dp: number): number {
 
 export function deriveMarkets(forecast: ForecastBlock): DerivedMarkets {
   const probs = forecast.probs;
-  const doubleChance = probs
-    ? {
-        home_or_draw: round(probs.home + probs.draw, 6),
-        home_or_away: round(probs.home + probs.away, 6),
-        draw_or_away: round(probs.draw + probs.away, 6),
-      }
-    : null;
+  const doubleChance = probs ? doubleChanceMarkets(probs) : null;
   const sm = forecast.score_matrix ?? null;
   return {
     doubleChance,
     bands: sm ? totalGoalBands(sm) : null,
     thresholds: sm ? goalThresholds(sm) : null,
+  };
+}
+
+/** Exact pair-sums of an engine-provided 1X2 distribution. */
+export function doubleChanceMarkets(probs: Probs): DoubleChance {
+  return {
+    home_or_draw: round(probs.home + probs.draw, 6),
+    home_or_away: round(probs.home + probs.away, 6),
+    draw_or_away: round(probs.draw + probs.away, 6),
   };
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { MatchAnalysis, MatchRow, PickView } from "../lib/contract";
 import { DATA_SOURCE, PickApiError } from "../lib/api";
@@ -21,10 +21,16 @@ export function PickPanel({
   match,
   analysis,
   companion,
+  headingLevel = 2,
+  stickyTargetId,
+  stickyAfterId,
 }: {
   match: MatchRow;
   analysis: MatchAnalysis | null;
   companion?: ReactNode;
+  headingLevel?: 2 | 3;
+  stickyTargetId?: string;
+  stickyAfterId?: string;
 }) {
   const controller = usePick(match.match_id);
   const response = controller.state.status === "ready" ? controller.state.data : null;
@@ -36,6 +42,27 @@ export function PickPanel({
   const [error, setError] = useState<string | null>(null);
   const [welcome, setWelcome] = useState(false);
   const lock = useCountdown(pick ?? match);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [pastStickyStart, setPastStickyStart] = useState(false);
+  const [pickerVisible, setPickerVisible] = useState(false);
+
+  useEffect(() => {
+    const start = stickyAfterId ? document.getElementById(stickyAfterId) : null;
+    const picker = rootRef.current;
+    if (!start || !picker || !stickyTargetId || typeof IntersectionObserver === "undefined") return;
+    const startObserver = new IntersectionObserver(([entry]) => {
+      setPastStickyStart(!entry.isIntersecting && entry.boundingClientRect.bottom < 0);
+    });
+    const pickerObserver = new IntersectionObserver(([entry]) => setPickerVisible(entry.isIntersecting), {
+      threshold: 0.05,
+    });
+    startObserver.observe(start);
+    pickerObserver.observe(picker);
+    return () => {
+      startObserver.disconnect();
+      pickerObserver.disconnect();
+    };
+  }, [controller.state.status, stickyAfterId, stickyTargetId]);
 
   useEffect(() => {
     if (!pick) return;
@@ -101,13 +128,14 @@ export function PickPanel({
   };
 
   const open = !match.is_complete && (!pick || pick.status === "draft") && lock?.phase === "open";
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   return (
-    <div className="pick-stack" data-tour="cockpit-pick">
+    <div className="pick-stack" data-tour="cockpit-pick" ref={rootRef}>
       <div className={`pick-decision-grid${companion ? " pick-decision-grid--paired" : ""}`}>
-        <section className={`pick-ticket pick-ticket--${pick?.status ?? "open"}`} aria-labelledby="pick-title">
+        <section className={`pick-ticket pick-ticket--${pick?.status ?? "open"}`} aria-label="Your call">
           <div className="pick-ticket__kicker">YOUR CALL</div>
           {match.is_complete && !pick ? (
-            <Skipped />
+            <Skipped Heading={Heading} />
           ) : pick?.status === "scored" ? (
             <ScoredPickState pick={pick} />
           ) : pick && lock?.phase === "locked" ? (
@@ -123,7 +151,7 @@ export function PickPanel({
             />
           ) : open ? (
             <>
-              <h2 id="pick-title">What’s your score?</h2>
+              <Heading>What’s your score?</Heading>
               <p className="muted measure">Move the numbers to the score you believe. You can change it any time before kickoff.</p>
               <div className="score-steppers">
                 <ScoreStepper team={match.home_team} tone="home" value={home} onChange={setHome} />
@@ -138,7 +166,7 @@ export function PickPanel({
               </div>
             </>
           ) : (
-            <Skipped />
+            <Skipped Heading={Heading} />
           )}
           {error && <div className="pick-ticket__error" role="alert">{error}</div>}
           {welcome && (
@@ -155,7 +183,57 @@ export function PickPanel({
         {companion && <div className="pick-seal-slot">{companion}</div>}
       </div>
       <RivalPicks rivals={rivals} pick={pick} />
+      {stickyTargetId && pastStickyStart && !pickerVisible && (
+        <StickyPickBar
+          pick={pick}
+          match={match}
+          lock={lock}
+          targetId={stickyTargetId}
+        />
+      )}
     </div>
+  );
+}
+
+function StickyPickBar({
+  pick,
+  match,
+  lock,
+  targetId,
+}: {
+  pick: PickView | null;
+  match: MatchRow;
+  lock: ReturnType<typeof useCountdown>;
+  targetId: string;
+}) {
+  const score = pick
+    ? `Your call: ${pick.record.user_pick.home_goals}–${pick.record.user_pick.away_goals}`
+    : "No pick yet";
+  const status = pick?.status === "scored"
+    ? "Scored"
+    : pick?.status === "void"
+      ? "Void"
+      : match.is_complete
+        ? "Picks closed"
+        : lock?.phase === "locked"
+          ? "Locked"
+          : lock
+            ? formatLockCountdown(lock.msToLock, lock.dayOnly)
+            : "Lock time unavailable";
+  const goToVerdict = () => {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  };
+  return (
+    <aside className="sticky-pick" aria-label="Your match pick shortcut">
+      <button type="button" className="sticky-pick__button" onClick={goToVerdict} aria-controls={targetId}>
+        <span className="sticky-pick__call num">{score}</span>
+        <span className="sticky-pick__lock"><LockIcon size={14} />{status}</span>
+        <span className="sticky-pick__action">Go to verdict <span aria-hidden>↓</span></span>
+      </button>
+    </aside>
   );
 }
 
@@ -211,6 +289,6 @@ export function ScoredPickState({ pick }: { pick: PickView }) {
   );
 }
 
-function Skipped() {
-  return <div><h2 id="pick-title">You didn’t call this one.</h2><p className="muted">Skipping costs nothing — the models only score on matches you play.</p></div>;
+function Skipped({ Heading }: { Heading: "h2" | "h3" }) {
+  return <div><Heading>You didn’t call this one.</Heading><p className="muted">Skipping costs nothing — the models only score on matches you play.</p></div>;
 }

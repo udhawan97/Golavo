@@ -428,6 +428,18 @@ def test_deep_read_asks_for_more_and_uses_a_longer_output_cap() -> None:
     assert fast_body["format"]["properties"]["candidate_facts"]["maxItems"] == 0
 
 
+def test_ollama_context_keeps_room_for_realistic_deep_prompt_and_output() -> None:
+    deep = resolve_provider({"provider": "ollama", "depth": "deep"})
+    # Mirrors the observed England v Argentina evidence prompt before optional
+    # web excerpts. The old chars/4 estimate selected 8,192 and Ollama either
+    # truncated the evidence or returned HTTP 500 once decoding began.
+    system = "s" * 4_824
+    user = "u" * 16_812
+    _url, _headers, body = ai_gateway.build_ollama_payload(deep, system, user)
+    assert body["options"]["num_ctx"] == 16_384
+    assert body["options"]["num_ctx"] > body["options"]["num_predict"] + len(system + user) // 2
+
+
 def test_local_model_can_be_pinned_by_env(monkeypatch) -> None:
     monkeypatch.setenv("GOLAVO_OLLAMA_MODEL", "mistral-small")
     assert resolve_provider({"provider": "ollama"}).model == "mistral-small"
@@ -540,6 +552,31 @@ def test_local_only_reason_distinguishes_unreachable_from_unverified(bundle: dic
     env2 = generate_narration(bundle, _cfg(), transport=liar, cache=NarrationCache())
     assert env2.status == "local_only"
     assert "could not be verified" in (env2.reason or "")
+
+
+def test_local_http_failure_retries_with_compact_evidence(bundle: dict) -> None:
+    users: list[str] = []
+    progress: list[str] = []
+
+    def flaky(system: str, user: str) -> str:
+        users.append(user)
+        if len(users) == 1:
+            raise OSError("local provider rejected the full context")
+        return json.dumps(_valid_response(bundle))
+
+    env = generate_narration(
+        bundle,
+        _cfg(provider="ollama", depth="deep"),
+        transport=flaky,
+        cache=NarrationCache(),
+        progress=lambda _stage, detail, _counts: progress.append(detail),
+    )
+
+    assert env.status == "ok"
+    assert len(users) == 2
+    assert users[1] != users[0]
+    assert "RETRY BECAUSE YOUR PREVIOUS RESPONSE WAS NOT VALID JSON" in users[1]
+    assert "Retrying with a compact evidence set" in progress
 
 
 def test_truncated_local_response_falls_back_not_raises(bundle: dict) -> None:

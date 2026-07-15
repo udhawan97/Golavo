@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { goalThresholds, totalGoalBands } from "./markets";
+import { doubleChanceMarkets, goalThresholds, totalGoalBands } from "./markets";
 import type { ScoreMatrix } from "./contract";
 
 /** A tiny 2×2 grid (max_goals=1) with a small tail, used to check the exact
@@ -23,6 +23,16 @@ describe("goalThresholds", () => {
     expect(t.under).toBeCloseTo(0.30, 9);
     // over + under always partitions the mass to 1.
     expect(t.over + t.under).toBeCloseTo(1, 9);
+  });
+});
+
+describe("doubleChanceMarkets", () => {
+  it("returns the exact pair-sums of engine 1X2 probabilities", () => {
+    expect(doubleChanceMarkets({ home: 0.48, draw: 0.27, away: 0.25 })).toEqual({
+      home_or_draw: 0.75,
+      home_or_away: 0.73,
+      draw_or_away: 0.52,
+    });
   });
 });
 

@@ -29,7 +29,7 @@ test("sealed forecast separates the outcome call from one exact scoreline", asyn
   await expect(audit.getByText("Payload sha256")).toBeVisible();
 });
 
-test("the match keeps the score picker and sealed model call together at the top", async ({ page }) => {
+test("the match keeps the score picker and sealed model call together beneath the verdict", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("golavo-forecast-mode", "expert"));
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(UPCOMING_MATCH);
@@ -40,16 +40,19 @@ test("the match keeps the score picker and sealed model call together at the top
   await expect(picker.getByRole("heading", { name: "What’s your score?" })).toBeVisible();
   await expect(seal).toBeVisible();
 
-  const [pickerBox, sealBox, councilBox] = await Promise.all([
+  const [pickerBox, sealBox, councilBox, verdictBox] = await Promise.all([
     picker.boundingBox(),
     seal.boundingBox(),
     page.locator('[data-tour="cockpit-council"]').boundingBox(),
+    page.locator(".programme-verdict").boundingBox(),
   ]);
   expect(pickerBox).not.toBeNull();
   expect(sealBox).not.toBeNull();
   expect(councilBox).not.toBeNull();
+  expect(verdictBox).not.toBeNull();
   expect(Math.abs(pickerBox!.y - sealBox!.y)).toBeLessThanOrEqual(2);
-  expect(councilBox!.y).toBeGreaterThan(sealBox!.y + sealBox!.height);
+  expect(verdictBox!.y).toBeGreaterThan(councilBox!.y + councilBox!.height);
+  expect(pickerBox!.y).toBeGreaterThanOrEqual(verdictBox!.y + verdictBox!.height - 1);
 
   await page.setViewportSize({ width: 375, height: 812 });
   const [mobilePicker, mobileSeal, rivals] = await Promise.all([

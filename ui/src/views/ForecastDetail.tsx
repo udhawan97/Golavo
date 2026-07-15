@@ -11,6 +11,7 @@ import { leadingOutcomeFromProbs } from "../lib/aiPresentation";
 import { AlertIcon, ChevronDown, ChevronRight, InfoIcon, LinkIcon, ScaleIcon, SealIcon, ShieldCheckIcon, SparkIcon, VoidIcon } from "../components/icons";
 import { Hash, HorizonChip, ProbabilityBar, StatTile, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
 import { MatchHeader } from "../components/MatchHeader";
+import { ModeToggle } from "../components/ModeToggle";
 import { Drawer } from "../components/disclosure";
 import { ScoreMatrixHeatmap } from "../components/ScoreMatrixHeatmap";
 import { Provenance } from "../components/Provenance";
@@ -131,27 +132,6 @@ function Detail({
           leadingOutcome: leadingOutcomeFromProbs(forecast.probs),
         }}
       />
-    </div>
-  );
-}
-
-/** Casual ⇄ Expert depth switch. Two buttons, aria-pressed; it changes how much
- *  detail is shown, never the probabilities. */
-function ModeToggle({ mode, setMode }: { mode: ForecastMode; setMode: (m: ForecastMode) => void }) {
-  const modes: Array<[ForecastMode, string]> = [["casual", "Casual"], ["expert", "Expert"]];
-  return (
-    <div className="mode-toggle" role="group" aria-label="Detail level" style={{ marginLeft: "auto" }}>
-      {modes.map(([value, label]) => (
-        <button
-          key={value}
-          type="button"
-          className={`mode-toggle__btn${mode === value ? " is-active" : ""}`}
-          aria-pressed={mode === value}
-          onClick={() => setMode(value)}
-        >
-          {label}
-        </button>
-      ))}
     </div>
   );
 }

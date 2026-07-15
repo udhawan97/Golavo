@@ -56,9 +56,11 @@ function ReadMark() {
 export function AiDeepRead({
   source,
   context,
+  headingLevel = 2,
 }: {
   source: DeepReadSource;
   context?: AiDisplayContext;
+  headingLevel?: 2 | 3;
 }) {
   const [provider, setProvider] = useAiProvider();
   const [allowBackground, setAllowBackground] = useAiBackground();
@@ -196,11 +198,12 @@ export function AiDeepRead({
   const progress = usePolledProgress(loadingJobId, state.status === "loading");
 
   const isMatch = source.kind === "match";
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   return (
     <section className="panel ai-panel" aria-labelledby="ai-h">
       <div className="panel__head ai-panel__head">
         <span className="ai-panel__mark" aria-hidden><ReadMark /></span>
-        <h2 id="ai-h">{isMatch ? "AI Analyst Read" : "AI Deep Read"}</h2>
+        <Heading id="ai-h">{isMatch ? "AI Analyst Read" : "AI Deep Read"}</Heading>
         <span className="chip chip--neutral ai-panel__opt">Optional</span>
         <label className="ai-provider" style={{ marginLeft: "auto" }}>
           <span className="visually-hidden">AI provider</span>
