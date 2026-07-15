@@ -42,7 +42,8 @@ Either way you get:
   venue-local kickoff only when the source has an exact instant, pre-match rest days, and
   great-circle travel from each side's previous indexed match. Routes use a bundled Natural
   Earth map; GeoNames and map credits stay visible. It is labeled **Context, not a model
-  input**, and every missing stadium/place remains **Unknown**;
+  input**, every missing stadium/place remains **Unknown**, and weather stays an
+  explicit blocked row until a lawful issued-before-kickoff history exists;
 - a gold **Your call** ticket on upcoming matches. Save a score, reveal the five deterministic
   rivals, change it until kickoff, then let the final result decide the points;
 - venue-aware last-five form, opponents on focus or hover, deterministic streaks, and a compact
@@ -98,11 +99,18 @@ match that already kicked off — a forecast is only honest if it was sealed *be
 
 ## Leagues
 
-A browse hub for the bundled domestic leagues, UEFA club competitions, and internationals.
+A browse hub with mutually exclusive **International tournaments**, **Domestic leagues**,
+and **UEFA club competitions** sections.
 The domestic leagues are a **historical backtesting** surface; the Champions League, Europa
 League, and Conference League are historical browsing and competition-local analytics surfaces.
 Their pages do not imply a complete future schedule or live club forecast. Forward sealing covers
 internationals only.
+
+Domestic league pages add competition-local strength trends and workload context,
+plus a season-outlook gate that refuses to simulate an incomplete schedule. Covered
+pages also carry a collapsed historical research disclosure. It names the competition
+and era before showing team-only Pappalardo/Wyscout aggregates; those numbers are never
+mixed with current players, current matches, forecasts, or simulations.
 
 ## Model Lab
 

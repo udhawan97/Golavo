@@ -47,6 +47,21 @@ filenames, and SHA-256 digests are recorded under `co_sources` in the pack's
 manifest.json. A copy of the CC0 1.0 legal text is vendored beside the data.
 
 --------------------------------------------------------------------------
+HISTORICAL TEAM RESEARCH PACK
+--------------------------------------------------------------------------
+
+Pappalardo/Wyscout public soccer event dataset — CC-BY-4.0.
+Source: https://figshare.com/collections/Soccer_match_event_dataset/4415000
+
+Event data: Pappalardo et al., Scientific Data 6:236 (2019), CC BY
+4.0 (collected by Wyscout). Golavo modifies the source into seven compact,
+competition-and-era team summaries. The pack covers 1,941 matches and
+3,251,294 events; raw events and player identities are not redistributed.
+These historical aggregates never enter model training, forecasts, or
+simulations. Exact source and derived hashes plus the modification notice live
+in packs/pappalardo-wyscout-research-2019.
+
+--------------------------------------------------------------------------
 REJECTED DEPENDENCIES
 --------------------------------------------------------------------------
 
@@ -55,9 +70,9 @@ DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL
 endpoints, European Soccer DB, or eatpizzanot. Downstream CC0/PDDL labels do not
 cure upstream ToS or database-provenance problems.
 
-Wikidata, Wyscout, weather sources, ODbL overlays, Football-Data.org, and
-API-Football are not current dependencies. Future use requires a fresh license
-and provenance review.
+Wikidata, weather sources, ODbL overlays, Football-Data.org, and API-Football
+are not current dependencies. Future use requires a fresh license and
+provenance review.
 
 Golavo is not affiliated with, endorsed by, or sponsored by FIFA, UEFA, any
 league, club, or competition organizer. Competition names are used factually

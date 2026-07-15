@@ -22,8 +22,9 @@ competition-local strength and rest/congestion analytics, not report cards or se
 simulations.
 
 The OpenFootball club packs are season-lagged captures with no verified live cadence, so
-a **club forward loop is not shipped**. The international source publishes dates without
-kickoff times, so seals close at a conservative 00:00 UTC day-before cutoff; snapshots are
+a **club forward loop is not shipped**. The general international source publishes dates
+without kickoff times, so those seals close at a conservative 00:00 UTC day-before cutoff;
+the pinned World Cup 2026 overlay carries exact kickoffs for its fixtures. Snapshots are
 immutable, retained, and registered in `packs/snapshots.json`. See
 [The Prediction Ledger](/Golavo/prediction-ledger/).
 
@@ -43,12 +44,16 @@ immutable, retained, and registered in `packs/snapshots.json`. See
 | UEFA Champions League results | 6 complete main-competition editions 2020-21 → 2025-26 (openfootball, CC0) | ✅ browse + competition-local strength/rest analytics |
 | UEFA Europa League results | 5 complete main-competition editions 2020-21 → 2024-25 (openfootball, CC0) | ✅ browse + competition-local strength/rest analytics |
 | UEFA Conference League results | 4 complete main-competition editions 2021-22 → 2024-25 (openfootball, CC0) | ✅ browse + competition-local strength/rest analytics |
+| World Cup 2026 fixture overlay | exact knockout kickoffs and bracket context (openfootball, CC0) | ✅ seal timing + exact four-team outlook; excluded from model training |
+| Historical event research | 1,941 matches / 3,251,294 events: 2017/18 big five, Euro 2016, World Cup 2018 (Pappalardo/Wyscout, CC BY 4.0) | ✅ isolated team-only summaries; never train, seal, or simulate |
+| Conditions context | city, timezone, elevation, rest, travel routes (GeoNames + Natural Earth) | ✅ display only; not a model input |
+| Historical weather forecasts | no accepted issued-before-kickoff source | 🚫 blocked; observed weather is not substituted |
 | Club half-time scores | recorded on many rows across EPL/Bundesliga 2010-11 → 2025-26, La Liga 2012-13 → 2025-26, Serie A 2013-14 → 2025-26, and Ligue 1 2014-15 → 2025-26 | ✅ descriptive comeback/lead facts only; missing HT rows are excluded |
 | Men's World Cup history | tournaments, standings, team appearances, and individual awards, 1930–2022 (Fjelstul, CC-BY-SA-4.0) | ✅ isolated descriptive facts only; never joined to the forecast index |
 | Lineups / minutes | no accepted open source | 🚫 unavailable |
 | Injuries / suspensions | no accepted open source | 🚫 unavailable |
-| Corners / shots / cards | no accepted open source | 🚫 unavailable |
-| xG | no accepted open source | 🚫 unavailable |
+| Live corners / shots / cards | no accepted open source | 🚫 unavailable; historical research shot rates are era-scoped separately |
+| Observed xG | no accepted open source | 🚫 unavailable; Golavo's historical research xT is not xG |
 
 Transfermarkt-derived and DataHub football datasets are rejected. Their downstream CC0/PDDL labels do not cure upstream ToS and database-provenance risk. European Soccer DB, `eatpizzanot`, Understat, FBref, Sofascore, FotMob, and unofficial FPL endpoints are also outside the accepted source set.
 
