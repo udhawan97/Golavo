@@ -25,6 +25,14 @@ describe("league analytics identities", () => {
     expect(LEAGUES.filter((league) => leagueHubCategory(league) === "domestic"))
       .toHaveLength(5);
   });
+
+  it("enables historical research only where a bundled competition-era artifact exists", () => {
+    const research = LEAGUES.filter((league) => league.researchAnalytics);
+    expect(research.map((league) => league.slug)).toEqual([
+      "world-cup-2026", "premier-league", "la-liga", "bundesliga", "serie-a", "ligue-1",
+    ]);
+    expect(research.every((league) => league.competitionId)).toBe(true);
+  });
 });
 
 describe("competitionRank", () => {

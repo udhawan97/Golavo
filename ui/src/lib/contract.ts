@@ -296,6 +296,43 @@ export interface CompetitionAnalytics {
   };
 }
 
+// ---- Historical team research ---------------------------------------------
+
+export interface ResearchTeamRow {
+  team_id: number;
+  team: string;
+  matches: number;
+  passes_attempted: number;
+  passes_completed: number;
+  pass_completion_pct: number;
+  progressive_passes_per_match: number;
+  shots_per_match: number;
+  goals_per_match: number;
+  chain_proxy_events: number;
+  chain_proxy_count: number;
+  progressive_chains_per_match: number;
+  research_xt_created_per_match: number;
+}
+
+export interface ResearchTeamAnalytics {
+  schema_version: "0.1.0";
+  status: "available";
+  label: string;
+  competition_id: string;
+  competition_name: string;
+  era: string;
+  team_scope: "team_aggregate_only";
+  coverage: { matches: number; events: number; teams: number };
+  methods: { progressive_pass: string; chain_proxy: string; research_xt: string };
+  teams: ResearchTeamRow[];
+  provenance: {
+    source_id: "pappalardo-wyscout-events";
+    license: "CC-BY-4.0";
+    attribution: string;
+    modifications: string;
+  };
+}
+
 // ---- Tournament outlook ----------------------------------------------------
 
 export interface TournamentOutlookTeam {

@@ -200,6 +200,16 @@ certificate passes.
 
 ### 4.5 Event analytics (Phase 4; research pack #1, per-match precomputed artifacts)
 
+**Implementation evidence (2026-07-15):** Golavo now bundles a compact,
+isolated CC-BY research pack covering all 1,941 matches and 3,251,294 events as
+seven team-only competition-era summaries. The shipped surface deliberately
+does not carry player identities, raw events, or pass networks. It exposes
+progressive passing, shot rates, a disclosed same-team event-run proxy, and an
+own 12×8 research-xT calculation behind collapsed league-page disclosure. Every
+panel names its historical era and states that it never enters forecasts or
+simulations. The larger per-match/player research design below remains future
+work, not a claim about v0.13.0.
+
 For each covered match (1,941): **pass networks** (nodes = starters, edges = completed passes ≥3, positions = median touch location), **shot maps** (Wyscout tags; no xG claim — shot locations/outcomes only, optional "research shot-value" if we ship our own grid-xT), **possession chains** (chain = uninterrupted team possession; progression = Δ distance-to-goal), **xT** (own reimplementation of the standard 12×8 grid transition model, trained on the pack itself, versioned; socceraction as reference only). Sample floors: pass network needs full-match event coverage (drop else); xT model trained once on 2017/18 corpus, frozen, documented. Chronological availability: historical only — **never blended into live match models**. Missing: any live match renders "No lawful event feed for this match." Labels: era badge "2017/18 Wyscout research data (CC BY 4.0, Pappalardo et al.)". AI: may summarize with whitelisted numbers.
 
 ### 4.6 Tracking analytics (Phase 4; research pack #2)

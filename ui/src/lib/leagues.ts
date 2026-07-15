@@ -22,6 +22,8 @@ export interface League {
   sourceKind?: SourceKind;
   /** Domestic double-round-robin rule is verified for this competition. */
   seasonOutlook?: boolean;
+  /** A bundled historical event-research aggregate exists for one named era. */
+  researchAnalytics?: boolean;
   note: string;
 }
 
@@ -42,22 +44,22 @@ export const LEAGUES: League[] = [
   { slug: "internationals", name: "Internationals", sourceKind: "international",
     note: "Men’s senior internationals — the one surface that refreshes on demand." },
   { slug: "world-cup-2026", name: "World Cup 2026", competition: "FIFA World Cup",
-    competitionId: "fifa-world-cup", sourceKind: "international",
+    competitionId: "fifa-world-cup", sourceKind: "international", researchAnalytics: true,
     note: "Men’s World Cup · exact semifinal bracket and model outlook." },
   { slug: "premier-league", name: "Premier League", competition: "English Premier League",
-    competitionId: "england-premier-league", seasonOutlook: true,
+    competitionId: "england-premier-league", seasonOutlook: true, researchAnalytics: true,
     note: "England · bundled 2010–11 onward (historical)." },
   { slug: "la-liga", name: "La Liga", competition: "La Liga", competitionId: "spain-la-liga",
-    seasonOutlook: true,
+    seasonOutlook: true, researchAnalytics: true,
     note: "Spain · bundled 2012–13 onward (historical)." },
   { slug: "bundesliga", name: "Bundesliga", competition: "Bundesliga",
-    competitionId: "germany-bundesliga", seasonOutlook: true,
+    competitionId: "germany-bundesliga", seasonOutlook: true, researchAnalytics: true,
     note: "Germany · bundled 2010–11 onward (historical)." },
   { slug: "serie-a", name: "Serie A", competition: "Serie A", competitionId: "italy-serie-a",
-    seasonOutlook: true,
+    seasonOutlook: true, researchAnalytics: true,
     note: "Italy · bundled 2013–14 onward (historical)." },
   { slug: "ligue-1", name: "Ligue 1", competition: "Ligue 1",
-    competitionId: "france-ligue-1", seasonOutlook: true,
+    competitionId: "france-ligue-1", seasonOutlook: true, researchAnalytics: true,
     note: "France · bundled 2014–15 onward (historical)." },
   { slug: "champions-league", name: "Champions League", competition: "UEFA Champions League",
     competitionId: "uefa-champions-league",

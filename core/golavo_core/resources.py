@@ -80,6 +80,16 @@ def conditions_snapshot_schema_path() -> Path:
     return resource("docs", "contracts", "conditions_snapshot.schema.json")
 
 
+def research_team_analytics_schema_path() -> Path:
+    """Absolute path to the historical team-only research artifact contract."""
+    return resource("docs", "contracts", "research_team_analytics.schema.json")
+
+
+def wyscout_research_pack_path() -> Path:
+    """Compact CC-BY research pack; raw source events are never bundled."""
+    return resource("packs", "pappalardo-wyscout-research-2019")
+
+
 def match_index_path() -> Path:
     """Absolute path to the committed, frozen match search index (Parquet)."""
     return resource("data", "index", "matches_index.parquet")

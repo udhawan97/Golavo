@@ -44,6 +44,8 @@ datas = [
     (os.path.join(ROOT, "docs", "contracts", "competition_catalog.schema.json"), "docs/contracts"),
     # Phase 3 display-only location/rest/travel contract.
     (os.path.join(ROOT, "docs", "contracts", "conditions_snapshot.schema.json"), "docs/contracts"),
+    # Historical team-only event research contract.
+    (os.path.join(ROOT, "docs", "contracts", "research_team_analytics.schema.json"), "docs/contracts"),
 ]
 datas += [
     (os.path.join(ROOT, "docs", "handoff", name), "docs/handoff") for name in _EVAL_SUMMARIES
@@ -91,6 +93,15 @@ _snap_path = os.path.join(ROOT, "packs", "snapshots.json")
 datas += [(_snap_path, "packs")]
 _isolated_path = os.path.join(ROOT, "packs", "isolated.json")
 datas += [(_isolated_path, "packs")]
+_research = next(
+    e for e in _json.load(open(_isolated_path))["snapshots"]
+    if str(e["source_id"]) == "pappalardo-wyscout-events"
+)["pack"]
+datas += [
+    (path, _research)
+    for path in glob.glob(os.path.join(ROOT, _research, "*"))
+    if os.path.isfile(path)
+]
 _fjelstul = next(
     e for e in _json.load(open(_isolated_path))["snapshots"]
     if str(e["source_id"]) == "fjelstul-worldcup"

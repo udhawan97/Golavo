@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/research-team-analytics-0.1.0.schema.json",
+  "title": "Golavo historical team research analytics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "label", "competition_id", "competition_name", "era", "team_scope", "coverage", "methods", "teams", "provenance"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "status": {"const": "available"},
+    "label": {"type": "string", "minLength": 1},
+    "competition_id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "competition_name": {"type": "string", "minLength": 1},
+    "era": {"type": "string", "minLength": 4},
+    "team_scope": {"const": "team_aggregate_only"},
+    "coverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["matches", "events", "teams"],
+      "properties": {
+        "matches": {"type": "integer", "minimum": 1},
+        "events": {"type": "integer", "minimum": 1},
+        "teams": {"type": "integer", "minimum": 2}
+      }
+    },
+    "methods": {
+      "type": "object", "additionalProperties": false,
+      "required": ["progressive_pass", "chain_proxy", "research_xt"],
+      "properties": {
+        "progressive_pass": {"type": "string", "minLength": 1},
+        "chain_proxy": {"type": "string", "minLength": 1},
+        "research_xt": {"type": "string", "minLength": 1}
+      }
+    },
+    "teams": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/Team"}},
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_id", "license", "attribution", "modifications"],
+      "properties": {
+        "source_id": {"const": "pappalardo-wyscout-events"},
+        "license": {"const": "CC-BY-4.0"},
+        "attribution": {"type": "string", "minLength": 1},
+        "modifications": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "$defs": {
+    "Team": {
+      "type": "object", "additionalProperties": false,
+      "required": ["team_id", "team", "matches", "passes_attempted", "passes_completed", "pass_completion_pct", "progressive_passes_per_match", "shots_per_match", "goals_per_match", "chain_proxy_events", "chain_proxy_count", "progressive_chains_per_match", "research_xt_created_per_match"],
+      "properties": {
+        "team_id": {"type": "integer", "minimum": 1},
+        "team": {"type": "string", "minLength": 1},
+        "matches": {"type": "integer", "minimum": 1},
+        "passes_attempted": {"type": "integer", "minimum": 0},
+        "passes_completed": {"type": "integer", "minimum": 0},
+        "pass_completion_pct": {"type": "number", "minimum": 0, "maximum": 100},
+        "progressive_passes_per_match": {"type": "number", "minimum": 0},
+        "shots_per_match": {"type": "number", "minimum": 0},
+        "goals_per_match": {"type": "number", "minimum": 0},
+        "chain_proxy_events": {"type": "integer", "minimum": 0},
+        "chain_proxy_count": {"type": "integer", "minimum": 0},
+        "progressive_chains_per_match": {"type": "number", "minimum": 0},
+        "research_xt_created_per_match": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}

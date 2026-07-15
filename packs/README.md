@@ -12,6 +12,12 @@ lives inside the pack, the current check catches corruption, not a forged pack.
 | `core-cc0` | openfootball, martj42, Wikidata | CC0 (public domain) | primary |
 | `overlay-odbl` | OpenLigaDB | ODbL 1.0 | **isolated** optional overlay |
 | `fjelstul-worldcup-f942c6b` | Fjelstul World Cup Database | CC-BY-SA-4.0 | **vendored, isolated facts-only pack** |
+| `pappalardo-wyscout-research-2019` | Pappalardo/Wyscout public event corpus | CC-BY-4.0 | **bundled compact team-only research artifacts; raw events excluded** |
+
+The Pappalardo/Wyscout pack contains seven competition-and-era summaries
+(2017/18 big-five leagues, Euro 2016, World Cup 2018). Its generated artifacts
+cover the published 1,941 matches and 3,251,294 events in about 100 KB. Player
+identities and the 74 MB compressed raw event archive are not redistributed.
 
 ## Vendored sourcepacks (in this repository)
 

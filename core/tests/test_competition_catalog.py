@@ -98,6 +98,9 @@ def test_phase_one_capabilities_match_the_shipped_analytics() -> None:
         "martj42-international-results",
         "openfootball-worldcup-json",
     ]
+    assert world_cup["research"]["status"] == "partial"
+    assert world_cup["research"]["source_ids"] == ["pappalardo-wyscout-events"]
+    assert premier["research"]["status"] == "partial"
 
 
 def test_source_alias_resolution_is_exact_and_does_not_guess_region() -> None:

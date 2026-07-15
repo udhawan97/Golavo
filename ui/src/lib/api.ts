@@ -35,6 +35,7 @@ import type {
   PicksListResponse,
   PicksSummary,
   RecentMatchesResponse,
+  ResearchTeamAnalytics,
   SealEligibility,
   SealResult,
   SeasonOutlook,
@@ -545,6 +546,30 @@ export async function fetchCompetitionAnalytics(
   return assertCompetitionAnalytics(
     await getJson(`/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}${query}`),
     `analytics/competitions/${competitionId}`,
+  );
+}
+
+function assertResearchTeamAnalytics(x: unknown, ctx: string): ResearchTeamAnalytics {
+  const data = x as ResearchTeamAnalytics;
+  if (!data || typeof data !== "object" || data.schema_version !== "0.1.0")
+    throw new ContractError(`${ctx}: unsupported research artifact contract`);
+  if (data.status !== "available" || data.team_scope !== "team_aggregate_only")
+    throw new ContractError(`${ctx}: research data must be available and team-only`);
+  if (!data.era || !Array.isArray(data.teams) || data.teams.length < 2)
+    throw new ContractError(`${ctx}: competition era and team rows are required`);
+  if (data.coverage?.teams !== data.teams.length)
+    throw new ContractError(`${ctx}: coverage team count does not match rows`);
+  return data;
+}
+
+/** Historical CC-BY research is optional and never mocked into the web preview. */
+export async function fetchResearchTeamAnalytics(
+  competitionId: string,
+): Promise<ResearchTeamAnalytics | null> {
+  if (!API_BASE) return null;
+  return assertResearchTeamAnalytics(
+    await getJson(`/api/v1/research/competitions/${encodeURIComponent(competitionId)}`),
+    `research/competitions/${competitionId}`,
   );
 }
 
