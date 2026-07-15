@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import type { MatchAnalysis, MatchRow, PickView } from "../lib/contract";
 import { DATA_SOURCE, PickApiError } from "../lib/api";
 import {
@@ -16,7 +17,15 @@ import { MOCK_RIVALS } from "../mocks/picks";
 
 const FIRST_PICK_KEY = "golavo-first-pick-welcome";
 
-export function PickPanel({ match, analysis }: { match: MatchRow; analysis: MatchAnalysis | null }) {
+export function PickPanel({
+  match,
+  analysis,
+  companion,
+}: {
+  match: MatchRow;
+  analysis: MatchAnalysis | null;
+  companion?: ReactNode;
+}) {
   const controller = usePick(match.match_id);
   const response = controller.state.status === "ready" ? controller.state.data : null;
   const pick = response?.pick ?? null;
@@ -94,54 +103,57 @@ export function PickPanel({ match, analysis }: { match: MatchRow; analysis: Matc
   const open = !match.is_complete && (!pick || pick.status === "draft") && lock?.phase === "open";
   return (
     <div className="pick-stack" data-tour="cockpit-pick">
-      <section className={`pick-ticket pick-ticket--${pick?.status ?? "open"}`} aria-labelledby="pick-title">
-        <div className="pick-ticket__kicker">YOUR CALL</div>
-        {match.is_complete && !pick ? (
-          <Skipped />
-        ) : pick?.status === "scored" ? (
-          <ScoredPickState pick={pick} />
-        ) : pick && lock?.phase === "locked" ? (
-          <LockedPickState pick={pick} preview={Boolean(pick.preview)} />
-        ) : open && pick && !editing ? (
-          <Saved
-            pick={pick}
-            countdown={formatLockCountdown(lock.msToLock, lock.dayOnly)}
-            dayOnly={lock.dayOnly}
-            onEdit={() => setEditing(true)}
-            onRemove={remove}
-            busy={busy}
-          />
-        ) : open ? (
-          <>
-            <h2 id="pick-title">What’s your score?</h2>
-            <p className="muted measure">Move the numbers to the score you believe. You can change it any time before kickoff.</p>
-            <div className="score-steppers">
-              <ScoreStepper team={match.home_team} tone="home" value={home} onChange={setHome} />
-              <span className="score-steppers__dash" aria-hidden>–</span>
-              <ScoreStepper team={match.away_team} tone="away" value={away} onChange={setAway} />
+      <div className={`pick-decision-grid${companion ? " pick-decision-grid--paired" : ""}`}>
+        <section className={`pick-ticket pick-ticket--${pick?.status ?? "open"}`} aria-labelledby="pick-title">
+          <div className="pick-ticket__kicker">YOUR CALL</div>
+          {match.is_complete && !pick ? (
+            <Skipped />
+          ) : pick?.status === "scored" ? (
+            <ScoredPickState pick={pick} />
+          ) : pick && lock?.phase === "locked" ? (
+            <LockedPickState pick={pick} preview={Boolean(pick.preview)} />
+          ) : open && pick && !editing ? (
+            <Saved
+              pick={pick}
+              countdown={formatLockCountdown(lock.msToLock, lock.dayOnly)}
+              dayOnly={lock.dayOnly}
+              onEdit={() => setEditing(true)}
+              onRemove={remove}
+              busy={busy}
+            />
+          ) : open ? (
+            <>
+              <h2 id="pick-title">What’s your score?</h2>
+              <p className="muted measure">Move the numbers to the score you believe. You can change it any time before kickoff.</p>
+              <div className="score-steppers">
+                <ScoreStepper team={match.home_team} tone="home" value={home} onChange={setHome} />
+                <span className="score-steppers__dash" aria-hidden>–</span>
+                <ScoreStepper team={match.away_team} tone="away" value={away} onChange={setAway} />
+              </div>
+              <div className="pick-ticket__actions">
+                <button type="button" className="btn btn--primary" onClick={save} disabled={busy}>
+                  {busy ? "Saving…" : pick ? "Save changes" : "Save my call"}
+                </button>
+                {pick && <button type="button" className="btn btn--ghost" onClick={() => setEditing(false)}>Cancel</button>}
+              </div>
+            </>
+          ) : (
+            <Skipped />
+          )}
+          {error && <div className="pick-ticket__error" role="alert">{error}</div>}
+          {welcome && (
+            <div className="pick-welcome">
+              <span>Your first call. No account, no stakes — pick the score you believe and see how you stack up against five AI rivals.</span>
+              <button type="button" onClick={dismissWelcome}>Got it</button>
             </div>
-            <div className="pick-ticket__actions">
-              <button type="button" className="btn btn--primary" onClick={save} disabled={busy}>
-                {busy ? "Saving…" : pick ? "Save changes" : "Save my call"}
-              </button>
-              {pick && <button type="button" className="btn btn--ghost" onClick={() => setEditing(false)}>Cancel</button>}
-            </div>
-          </>
-        ) : (
-          <Skipped />
-        )}
-        {error && <div className="pick-ticket__error" role="alert">{error}</div>}
-        {welcome && (
-          <div className="pick-welcome">
-            <span>Your first call. No account, no stakes — pick the score you believe and see how you stack up against five AI rivals.</span>
-            <button type="button" onClick={dismissWelcome}>Got it</button>
-          </div>
-        )}
-        <footer className="pick-ticket__footer">
-          3 points for the exact score · 1 for the right winner (or a draw) · +1 if you beat every model. <a href="#/guide/picks">How picks work ›</a>
-          {pick?.preview && <span className="chip chip--neutral">Practice mode — never counted</span>}
-        </footer>
-      </section>
+          )}
+          <footer className="pick-ticket__footer">
+            3 points for the exact score · 1 for the right winner (or a draw) · +1 if you beat every model. <a href="#/guide/picks">How picks work ›</a>
+            {pick?.preview && <span className="chip chip--neutral">Practice mode — never counted</span>}
+          </footer>
+        </section>
+        {companion && <div className="pick-seal-slot">{companion}</div>}
+      </div>
       <RivalPicks rivals={rivals} pick={pick} />
     </div>
   );

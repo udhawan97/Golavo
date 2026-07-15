@@ -118,6 +118,18 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
   // so it never spotlights a bare loading skeleton with no anchor.
   const { consentNeeded } = useUpdater();
   const cockpitTour = useTour(COCKPIT_TOUR, !consentNeeded);
+  const sealCompanion =
+    mode === "expert" ? (
+      hasForecast ? (
+        <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
+      ) : match.is_complete ? (
+        <PlayedNoForecast match={match} />
+      ) : (
+        <SealAction detail={detail} />
+      )
+    ) : (
+      <ExpertSealRow detail={detail} />
+    );
 
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
@@ -138,7 +150,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         }
       />
 
-      <PickPanel match={match} analysis={analysis} />
+      <PickPanel match={match} analysis={analysis} companion={sealCompanion} />
 
       <div data-tour="cockpit-council">
         <ModelCouncil
@@ -156,18 +168,6 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         story={worldCupStory}
       />
       <SecondHalfStory sourceKind={match.source_kind} story={halfTimeStory} />
-
-      {mode === "expert" ? (
-        hasForecast ? (
-          <ForecastLinks forecasts={match.forecasts} linkedBy={linked_by} />
-        ) : match.is_complete ? (
-          <PlayedNoForecast match={match} />
-        ) : (
-          <SealAction detail={detail} />
-        )
-      ) : (
-        <ExpertSealRow detail={detail} />
-      )}
 
       <div data-tour="cockpit-notebook">
         <MatchNotebookBlock
@@ -245,7 +245,7 @@ function ForecastLinks({
   linkedBy: MatchDetailResponse["linked_by"];
 }) {
   return (
-    <section className="panel" aria-labelledby="md-fc">
+    <section className="panel pick-seal-panel" aria-labelledby="md-fc">
       <div className="panel__head">
         <h2 id="md-fc">Sealed forecast{forecasts.length === 1 ? "" : "s"}</h2>
         <span className="chip chip--neutral" style={{ marginLeft: "auto" }}>
@@ -267,15 +267,18 @@ function ForecastLinks({
                   <StatusChip status={f.status} />
                   <HorizonChip horizon={f.horizon} />
                 </div>
-                <span className="md-fc-card__when small muted">Sealed {utc(f.sealed_at_utc)}</span>
+                <span className="md-fc-card__main">
+                  <strong>View model prediction</strong>
+                  <span className="small muted">Sealed {utc(f.sealed_at_utc)}</span>
+                </span>
                 <ChevronRight size={16} />
               </a>
             </li>
           ))}
         </ul>
         <p className="small dim" style={{ margin: 0 }}>
-          The sealed numbers live on the forecast page — this card only links to them. Nothing here
-          restates or recomputes a probability.
+          Open the seal for the model’s outcome call, top exact score, and probabilities. This match
+          page never restates or recomputes them.
         </p>
       </div>
     </section>
