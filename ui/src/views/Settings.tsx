@@ -480,7 +480,14 @@ function FallbackUpdates({ u }: { u: UpdaterController }) {
           ) : (
             <p className="settings__hint">
               There’s no installer for your platform in that release. Update from the{" "}
-              <a href={RELEASES_URL} target="_blank" rel="noreferrer">releases page</a>.
+              <a
+                href={RELEASES_URL}
+                target="_blank"
+                rel="noreferrer"
+                onClick={handleExternalLinkClick}
+              >
+                releases page
+              </a>.
             </p>
           )}
         </>
@@ -517,7 +524,14 @@ function FallbackUpdates({ u }: { u: UpdaterController }) {
             >
               Try again
             </button>
-            <a href={RELEASES_URL} target="_blank" rel="noreferrer">releases page</a>
+            <a
+              href={RELEASES_URL}
+              target="_blank"
+              rel="noreferrer"
+              onClick={handleExternalLinkClick}
+            >
+              releases page
+            </a>
           </div>
         </>
       ) : (
