@@ -569,9 +569,21 @@ def test_malformed_job_id_is_rejected() -> None:
     ).status_code == 404
 
 
-def test_retrospective_route_runs_async_with_a_job_id(monkeypatch) -> None:
+def test_retrospective_route_runs_async_and_a_mid_flight_poll_sees_running(
+    monkeypatch,
+) -> None:
     """A job_id request returns 202 immediately, and the background task drives
-    the same job through to a stamped "done" result — never the AI job route."""
+    the same job through to a stamped "done" result — never the AI job route.
+
+    TestClient drains background tasks before ``post()`` returns, so asserting
+    ``state == "done"`` only *after* the call returns cannot tell an async
+    implementation apart from a synchronous one that also returns 202. This
+    test blocks the stub mid-flight (BackgroundTasks runs a sync callable via
+    ``run_in_threadpool``, off the event loop) and polls from another thread
+    while ``build`` is still running, so "running" is genuinely observed.
+    """
+    import threading
+
     from fastapi.testclient import TestClient
     from golavo_server import jobs
     from golavo_server import main as server_main
@@ -585,17 +597,40 @@ def test_retrospective_route_runs_async_with_a_job_id(monkeypatch) -> None:
         "matches": [],
         "biggest_surprises": [],
     }
-    monkeypatch.setattr(server_retrospective, "build", lambda **_: stub)
+    release = threading.Event()
+    entered = threading.Event()
+
+    def blocking_build(**_: object) -> dict[str, Any]:
+        entered.set()
+        assert release.wait(timeout=5), "test deadlocked waiting for release"
+        return stub
+
+    monkeypatch.setattr(server_retrospective, "build", blocking_build)
     job_id = "rt-job-0001"
     jobs.store()._jobs.pop(job_id, None)
 
     client = TestClient(server_main.app)
-    response = client.post(
-        "/api/v1/tournaments/worldcup-2026/retrospective", json={"job_id": job_id}
-    )
+    responses: dict[str, Any] = {}
 
-    assert response.status_code == 202
-    assert response.json() == {"job_id": job_id, "state": "running"}
+    def _post() -> None:
+        responses["post"] = client.post(
+            "/api/v1/tournaments/worldcup-2026/retrospective", json={"job_id": job_id}
+        )
+
+    thread = threading.Thread(target=_post)
+    thread.start()
+    try:
+        assert entered.wait(timeout=5), "background task never started"
+        mid_flight = client.get(
+            f"/api/v1/tournaments/worldcup-2026/retrospective/jobs/{job_id}"
+        ).json()
+    finally:
+        release.set()
+        thread.join(timeout=5)
+
+    assert responses["post"].status_code == 202
+    assert responses["post"].json() == {"job_id": job_id, "state": "running"}
+    assert mid_flight["state"] == "running"
 
     polled = client.get(
         f"/api/v1/tournaments/worldcup-2026/retrospective/jobs/{job_id}"
@@ -603,6 +638,104 @@ def test_retrospective_route_runs_async_with_a_job_id(monkeypatch) -> None:
     assert polled["job_id"] == job_id
     assert polled["state"] == "done"
     assert polled["result"] == stub
+    jobs.store()._jobs.pop(job_id, None)
+
+
+def test_retrospective_job_seeds_its_own_stage_before_any_progress_tick(
+    monkeypatch,
+) -> None:
+    """A client polling right after the 202, before the worker's first progress
+    tick, must see this lane's own stage — never the AI lane's default
+    ("assembling_evidence", jobs.Job's dataclass default). Blocks the build stub
+    before it calls progress at all, so the poll below observes only the route's
+    post-start() seeding, not a tick."""
+    import threading
+
+    from fastapi.testclient import TestClient
+    from golavo_server import jobs
+    from golavo_server import main as server_main
+
+    release = threading.Event()
+    entered = threading.Event()
+
+    def blocking_build(**_: object) -> dict[str, Any]:
+        entered.set()
+        assert release.wait(timeout=5), "test deadlocked waiting for release"
+        return {"status": "available", "matches": [], "biggest_surprises": []}
+
+    monkeypatch.setattr(server_retrospective, "build", blocking_build)
+    job_id = "rt-seedtest1"
+    jobs.store()._jobs.pop(job_id, None)
+
+    client = TestClient(server_main.app)
+    thread = threading.Thread(
+        target=lambda: client.post(
+            "/api/v1/tournaments/worldcup-2026/retrospective", json={"job_id": job_id}
+        )
+    )
+    thread.start()
+    try:
+        assert entered.wait(timeout=5), "background task never started"
+        polled = client.get(
+            f"/api/v1/tournaments/worldcup-2026/retrospective/jobs/{job_id}"
+        ).json()
+    finally:
+        release.set()
+        thread.join(timeout=5)
+        jobs.store()._jobs.pop(job_id, None)
+
+    assert polled["stage"] == "replaying"
+    assert polled["stage"] not in jobs.STAGES  # never the AI lane's stage vocabulary
+    assert polled["detail"]  # honest, non-null — never the empty default
+    assert polled["counts"] == {"completed": 0, "total": 0}  # never {}
+
+
+def test_retrospective_progress_callback_drives_the_lane_stage_detail_counts(
+    monkeypatch,
+) -> None:
+    """``_progress`` is what a live progress bar renders from and had zero direct
+    coverage — partly why the AI-lane leak in the pre-tick window (see the seeding
+    test above) shipped unnoticed. Drive it for real and check the exact payload
+    shape a client would render."""
+    import threading
+
+    from fastapi.testclient import TestClient
+    from golavo_server import jobs
+    from golavo_server import main as server_main
+
+    release = threading.Event()
+    reached = threading.Event()
+
+    def build_with_progress(*, progress=None, is_cancelled=None):
+        progress(3, 9)
+        reached.set()
+        assert release.wait(timeout=5), "test deadlocked waiting for release"
+        return {"status": "available", "matches": [], "biggest_surprises": []}
+
+    monkeypatch.setattr(server_retrospective, "build", build_with_progress)
+    job_id = "rt-progress01"
+    jobs.store()._jobs.pop(job_id, None)
+
+    client = TestClient(server_main.app)
+    thread = threading.Thread(
+        target=lambda: client.post(
+            "/api/v1/tournaments/worldcup-2026/retrospective", json={"job_id": job_id}
+        )
+    )
+    thread.start()
+    try:
+        assert reached.wait(timeout=5), "progress callback was never reached"
+        polled = client.get(
+            f"/api/v1/tournaments/worldcup-2026/retrospective/jobs/{job_id}"
+        ).json()
+    finally:
+        release.set()
+        thread.join(timeout=5)
+        jobs.store()._jobs.pop(job_id, None)
+
+    assert polled["stage"] == "replaying"
+    assert polled["detail"] == "Backtesting match 3 of 9"
+    assert polled["counts"] == {"completed": 3, "total": 9}
 
 
 def test_retrospective_route_rejects_a_conflicting_job_id(monkeypatch) -> None:
@@ -639,3 +772,65 @@ def test_retrospective_route_maps_match_index_unavailable_to_503(monkeypatch) ->
     )
 
     assert response.status_code == 503
+
+
+# --- cancellation ------------------------------------------------------------
+
+
+def test_retrospective_cancel_rejects_a_malformed_job_id() -> None:
+    from fastapi.testclient import TestClient
+    from golavo_server import main as server_main
+
+    response = TestClient(server_main.app).post(
+        "/api/v1/tournaments/worldcup-2026/retrospective/jobs/bad/cancel"
+    )
+
+    assert response.status_code == 400
+
+
+def test_retrospective_cancel_stops_a_running_job_through_its_own_lane() -> None:
+    """The lane's own cancel door — a 6-minute compute the user cannot stop is a
+    real usability problem, and the only previously-reachable cancel route was
+    the AI-named one this lane must not depend on."""
+    from fastapi.testclient import TestClient
+    from golavo_server import jobs
+    from golavo_server import main as server_main
+
+    job_id = "rt-cancel0001"
+    jobs.store()._jobs.pop(job_id, None)
+    jobs.store().start(job_id)
+
+    client = TestClient(server_main.app)
+    response = client.post(
+        f"/api/v1/tournaments/worldcup-2026/retrospective/jobs/{job_id}/cancel"
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"job_id": job_id, "cancelled": True}
+    assert jobs.store().get(job_id).state == "cancelled"
+    jobs.store()._jobs.pop(job_id, None)
+
+
+def test_a_late_fail_never_overwrites_a_cancelled_retrospective_job() -> None:
+    """The report's headline decision — cancellation wins over a worker that keeps
+    running and eventually calls fail() — had zero coverage. RetrospectiveCancelled
+    (raised when the worker notices ``is_cancelled()``) is caught by the same
+    broad except in ``_run`` that calls ``fail()`` on any exception, so this is the
+    exact path a real cancel-then-still-fails run takes."""
+    from golavo_server import jobs
+
+    job_id = "rt-cancelfail1"
+    jobs.store()._jobs.pop(job_id, None)
+    jobs.store().start(job_id)
+
+    assert jobs.store().cancel(job_id) is True
+    # The worker's except-path still runs to completion and calls fail(); it must
+    # be refused, not relabel the job "failed".
+    assert jobs.store().fail(job_id, "boom") is False
+
+    job = jobs.store().get(job_id)
+    payload = job.to_dict()
+    assert job.state == "cancelled"
+    assert payload["state"] == "cancelled"
+    assert "error" not in payload
+    jobs.store()._jobs.pop(job_id, None)

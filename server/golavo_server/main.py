@@ -271,6 +271,17 @@ async def start_world_cup_2026_retrospective(
             job = jobs.store().start(job_id)
         except jobs.JobConflict as exc:
             raise HTTPException(status_code=409, detail="job already running") from exc
+        # jobs.Job defaults to the AI lane's own stage ("assembling_evidence",
+        # from jobs.STAGES). Without seeding here, a client polling right after
+        # this 202 — before the first _progress tick — would see that AI-lane
+        # stage on a retrospective job. Stamp this lane's own stage immediately
+        # so the leak window does not exist.
+        jobs.store().update(
+            job.job_id,
+            stage="replaying",
+            detail="Run started; no match scored yet",
+            counts={"completed": 0, "total": 0},
+        )
 
     def _progress(done: int, total: int) -> None:
         if job is not None:
@@ -288,7 +299,11 @@ async def start_world_cup_2026_retrospective(
         try:
             result = retrospective.build(progress=_progress, is_cancelled=_cancelled)
             if job is not None:
-                jobs.store().update(job.job_id, stage="scoring", detail="Scoring model skill")
+                # No separate "scoring" stage: finish() below unconditionally
+                # sets stage to "done" (jobs.JobStore._terminate) with no yield
+                # point in between, so a client can never observe an
+                # intermediate stage here — decorative state a poller would
+                # never see.
                 jobs.store().finish(job.job_id, result=result)
             return result
         except Exception as exc:
@@ -320,6 +335,19 @@ def world_cup_2026_retrospective_job(job_id: str) -> dict[str, Any]:
     if job is None:
         raise HTTPException(status_code=404, detail="job not found")
     return job.to_dict()
+
+
+@app.post("/api/v1/tournaments/worldcup-2026/retrospective/jobs/{job_id}/cancel")
+def world_cup_2026_retrospective_job_cancel(job_id: str) -> dict[str, Any]:
+    """Request cancellation of an in-flight retrospective run. Its own lane's
+    door, so a client never has to reach into the AI job route to stop a
+    ~5-minute backtest it started here."""
+    from golavo_server import jobs
+
+    if not jobs.JOB_ID_RE.match(job_id):
+        raise HTTPException(status_code=400, detail="malformed job_id")
+    cancelled = jobs.store().cancel(job_id)
+    return {"job_id": job_id, "cancelled": bool(cancelled)}
 
 
 @app.get("/api/v1/analytics/competitions/{competition_id}/season-outlook")
