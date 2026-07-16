@@ -100,8 +100,36 @@ Per row: `match_id`, `kickoff_utc`, teams, per-family probabilities, actual resu
 per-match log loss.
 
 - Cutoff is `kickoff − 1s` per match, reusing the existing leak-safe convention in
-  `analysis.py`. This gives each forecast **seal semantics**: exactly what the app would
-  have produced had it been asked at that moment.
+  `analysis.py:421`. This gives each forecast **seal semantics**: exactly what the app
+  would have produced had it been asked at that moment.
+
+- **Use `analysis.py`'s cutoff exactly — do not invent a stricter one.** The story
+  layer's claim is "what the app would have told you". A cutoff that differs from the
+  app's own, even in a safer direction, produces forecasts the app would never have
+  made and silently voids the claim. Fidelity to the real code path *is* the feature.
+
+### The day-proxy caveat (must be disclosed, not silently fixed)
+
+10 of the 102 completed WC2026 matches carry `kickoff_precision: "day"` — a 00:00 UTC
+proxy rather than a real kickoff time. This creates an ordering ambiguity the leak guard
+cannot see: a day-proxy row is stamped 00:00, so it sits *before* a same-day 19:00
+cutoff and survives `training_rows()`, even if it was really played at 21:00 — after the
+match being forecast.
+
+This is a pre-existing property of date-proxy rows, inherited from the app's own replay
+path, not something this surface introduces. The resolution follows the project's
+standing doctrine — *a missing guarantee is a typed state with a reason, never a silent
+assumption*:
+
+- Carry `kickoff_precision` on every retrospective row.
+- Where it is `"day"`, the UI marks the row and says plainly that the kickoff time is a
+  date proxy, so same-day ordering is not provable and the forecast may rest on a result
+  from later that day.
+- Never exclude these matches silently, and never quietly diverge from `analysis.py` to
+  "fix" them. Both would trade a visible caveat for an invisible one.
+
+The training impact is small (at most ~3 same-day rows out of ~49,500), but the honesty
+requirement does not scale with effect size.
 - **Four families, not five.** `bivariate_poisson` is numerically identical to
   `poisson_independent` across every recorded fold; showing both implies two independent
   opinions where there is one.
@@ -110,11 +138,16 @@ per-match log loss.
 ### `server/golavo_server/retrospective.py` (new)
 
 - Orchestrates via `jobs.py` (progress + cancellation, the v0.7.0 pattern).
-- Two-level cache mirroring `analysis.py`: L1 in-memory LRU, L2 disk, content-addressed
-  by `(tournament_id, index fingerprint, schema version)`. Self-invalidates on any index
-  change, including a user refresh.
-- The cache is an **accelerator, never a dependency**: every read/write swallows I/O
-  errors and falls back to recompute.
+- Cache keyed on `(index fingerprint, index epoch, active pack)`, so it self-invalidates on
+  any index change, including a user refresh.
+- **v1 is L1 (in-memory) only.** `analysis.py`'s L2 disk tier is ~80 lines of validation,
+  atomic write, digest check, and pruning, and it is shaped around a per-`match_id`
+  payload; a per-tournament envelope carrying 104 rows is a different shape and a
+  different failure surface. L1-only is correct, just slower across a restart, which
+  re-runs the ~3.2 min compute. Add L2 when a restart-cost complaint justifies its
+  failure surface — not before.
+- The cache is an **accelerator, never a dependency**: a miss recomputes, and no read
+  ever fails the request.
 - Route: `GET /api/v1/tournaments/worldcup-2026/retrospective` → typed job handle;
   poll for progress; result on completion.
 
