@@ -2,8 +2,8 @@
 
 Golavo's own code is licensed Apache-2.0 (see `LICENSE`). This file, generated
 from `data/sources/registry.json` by `scripts/gen_third_party_notices.py`, records
-the data sources Golavo carries, plans, or has rejected. Software dependency
-notices ship as an SPDX/CycloneDX SBOM alongside each release.
+the data sources Golavo carries, plans, or has rejected. It does not inventory
+software dependencies.
 
 > Do not edit by hand — run `python scripts/gen_third_party_notices.py`.
 
@@ -57,7 +57,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: GeoNames.org
 - License: CC-BY-4.0 (https://download.geonames.org/export/dump/readme.txt)
 - Attribution: Data from GeoNames (geonames.org), CC BY 4.0.
-- Notes: Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The legacy compact table resolves 1,828 of 2,215 indexed city-country pairs; 82 exact-name collisions were deterministically selected by population/id and must be rebuilt fail-closed under ADR-0006 before being treated as reviewed identities. Bulk files only, no runtime web-service dependency.
+- Notes: Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact table resolves 1,571 of 2,215 indexed city-country pairs through unique exact GeoNames primary-name matching. All 82 ambiguous pairs remain excluded; 175 alias candidates remain pending, and no manual city resolutions ship. Bulk files only, with no runtime web-service dependency.
 
 ### Natural Earth — **bundled**
 
@@ -73,7 +73,7 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Contributors: Wikidata contributors
 - License: CC0-1.0 (https://www.wikidata.org/wiki/Wikidata:Licensing)
 - Attribution: Structured data from Wikidata (CC0); we credit it voluntarily as 'Data from Wikidata'.
-- Notes: Approved only for a maintainer-reviewed QID allowlist fetched as revision-pinned individual entity JSON. Structured claims are CC0; prose, sitelink text and Commons media are excluded. No installed-app network access and no automatic identity merge from similarity.
+- Notes: The bundled Phase 4 context remains limited to a maintainer-reviewed QID allowlist with no runtime network. Phase 7 separately permits explicit, consent-gated runtime research through the declared API paths; those candidates remain untrusted and never trigger automatic identity merges. Structured claims are CC0; prose, sitelink text and Commons media are excluded.
 
 ## Optional isolated packs — ODbL (share-alike)
 
@@ -95,6 +95,14 @@ notices ship as an SPDX/CycloneDX SBOM alongside each release.
 - Attribution: Fjelstul World Cup Database v1.2.0 © 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.
 - Citation key: `fjelstul2023worldcup` (see CITATIONS.bib)
 - Notes: Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses only the men's 1930–2022 history.
+
+### English Wikipedia — optional download, isolated pack
+
+- Source: https://en.wikipedia.org/
+- Contributors: Wikipedia contributors
+- License: CC-BY-SA-4.0 (https://en.wikipedia.org/wiki/Wikipedia:Copyrights)
+- Attribution: Text from Wikipedia contributors, CC BY-SA 4.0; page URL and revision retained.
+- Notes: Runtime research only, off by default and user-selected. No Wikipedia bytes ship. Captures and local correction candidates remain in a physically isolated, non-exportable BY-SA namespace; media is forbidden.
 
 ## Optional research packs (historical event/tracking data)
 

@@ -309,11 +309,7 @@ pub fn restore_backup<R: Runtime>(app: &AppHandle<R>) -> Result<bool, String> {
         &corrections_dir(app)?,
         "corrections",
     )?;
-    let research = restore_component(
-        &backup.join("research"),
-        &research_dir(app)?,
-        "research",
-    )?;
+    let research = restore_component(&backup.join("research"), &research_dir(app)?, "research")?;
     Ok(ledger || corrections || research)
 }
 
@@ -334,6 +330,18 @@ fn prune_pre_restore(parent: &Path, name: &str) {
     }
 }
 
+fn prune_retired(parent: &Path, keep: &Path) {
+    let Ok(entries) = std::fs::read_dir(parent) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path != keep && entry.file_name().to_string_lossy().starts_with("retired-") {
+            let _ = std::fs::remove_dir_all(path);
+        }
+    }
+}
+
 /// After the first healthy boot on a new version, the pre-update backup has done
 /// its job: move it out of the armed location so it can never be restored over
 /// newer data, keeping exactly one retired generation around for forensics.
@@ -349,7 +357,9 @@ fn retire_backup<R: Runtime>(app: &AppHandle<R>, to_version: &str) {
     if retired.exists() {
         let _ = std::fs::remove_dir_all(&retired);
     }
-    let _ = std::fs::rename(&armed, &retired);
+    if std::fs::rename(&armed, &retired).is_ok() {
+        prune_retired(&parent, &retired);
+    }
 }
 
 fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
@@ -935,4 +945,31 @@ pub async fn updater_install_and_restart<R: Runtime>(app: AppHandle<R>) -> Resul
 #[tauri::command]
 pub fn updater_relaunch<R: Runtime>(app: AppHandle<R>) -> Result<(), UpdateError> {
     app.restart();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::prune_retired;
+
+    #[test]
+    fn retired_backup_pruning_keeps_only_the_current_generation() {
+        let root = std::env::temp_dir().join(format!(
+            "golavo-updater-retired-{}-{}",
+            std::process::id(),
+            super::now_epoch()
+        ));
+        let keep = root.join("retired-0.14.0");
+        std::fs::create_dir_all(root.join("retired-0.2.3")).unwrap();
+        std::fs::create_dir_all(root.join("retired-0.13.0")).unwrap();
+        std::fs::create_dir_all(&keep).unwrap();
+        std::fs::create_dir_all(root.join("unrelated")).unwrap();
+
+        prune_retired(&root, &keep);
+
+        assert!(keep.is_dir());
+        assert!(!root.join("retired-0.2.3").exists());
+        assert!(!root.join("retired-0.13.0").exists());
+        assert!(root.join("unrelated").is_dir());
+        let _ = std::fs::remove_dir_all(root);
+    }
 }

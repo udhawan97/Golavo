@@ -34,6 +34,8 @@ use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
 
+const SOURCE_SHA: &str = env!("GOLAVO_SOURCE_SHA");
+
 /// How long we wait for /health on a FIRST launch (no prior success recorded).
 /// The onefile sidecar self-extracts to a fresh temp dir and antivirus rescans
 /// the new binaries, which on a slow machine can legitimately take past 90s —
@@ -130,6 +132,7 @@ pub fn run() {
                 "apiBase": format!("http://127.0.0.1:{port}"),
                 "token": token,
                 "appVersion": handle.package_info().version.to_string(),
+                "buildSha": SOURCE_SHA,
             });
             let init_script = format!("window.__GOLAVO_RUNTIME__ = {config};");
 
@@ -380,7 +383,8 @@ fn spawn_sidecar(
         // --token CLI argument: argv is readable by any same-user process via
         // `ps`/pgrep. The sidecar's --token defaults to GOLAVO_TOKEN, so this is the
         // exact same per-launch secret, just no longer exposed in the process list.
-        .env("GOLAVO_TOKEN", token);
+        .env("GOLAVO_TOKEN", token)
+        .env("GOLAVO_SOURCE_SHA", SOURCE_SHA);
     let (mut rx, child) = command.spawn().map_err(|e| e.to_string())?;
 
     // Drain the sidecar's output so its pipes never fill and we get diagnostics;

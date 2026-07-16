@@ -77,6 +77,58 @@ simulations. Exact source and derived hashes plus the modification notice live
 in packs/pappalardo-wyscout-research-2019.
 
 --------------------------------------------------------------------------
+PHASE 4 DISPLAY-ONLY GEOGRAPHIC AND VENUE CONTEXT
+--------------------------------------------------------------------------
+
+GeoNames geographical data — CC-BY-4.0.
+Source: https://download.geonames.org/export/dump/
+License and attribution terms: https://download.geonames.org/export/dump/readme.txt
+
+Data from GeoNames (geonames.org), CC BY 4.0. Golavo bundles a compact extract
+pinned to the 2026-07-15 bulk dump and exact file hashes. It resolves 1,571 of
+2,215 indexed city-country pairs through unique exact primary-name matching.
+All 82 ambiguous pairs remain excluded, 175 alias candidates remain pending,
+and no manual city resolutions ship. Context is display-only and never enters
+model training or sealed probabilities.
+
+Natural Earth Admin 0 Countries v5.1.1 — public domain.
+Source: https://www.naturalearthdata.com/
+Terms: https://www.naturalearthdata.com/about/terms-of-use/
+
+Made with Natural Earth. Golavo bundles a compact 1:110m offline GeoJSON
+basemap pinned to release v5.1.1 and exact file hashes. No hosted tile service
+is used.
+
+Wikidata structured data — CC0-1.0.
+Source and license: https://www.wikidata.org/wiki/Wikidata:Licensing
+
+Data from Wikidata. Golavo bundles only revision-pinned structured records for
+16 allowlisted venue entities. Prose, sitelink text and Commons media are
+excluded. Entity identities are explicit; fuzzy similarity never creates an
+automatic merge. This context is display-only and never enters model training
+or sealed probabilities.
+
+--------------------------------------------------------------------------
+PHASE 7 SELECTED WIKIMEDIA RESEARCH (RUNTIME ONLY)
+--------------------------------------------------------------------------
+
+English Wikipedia article text — CC-BY-SA-4.0.
+Source: https://en.wikipedia.org/
+License: https://en.wikipedia.org/wiki/Wikipedia:Copyrights
+
+Text from Wikipedia contributors, CC BY-SA 4.0. No Wikipedia article bytes or
+media ship with Golavo. Optional research is off by default and captures only
+a Wikimedia page the user explicitly selects through the registered API path.
+Captured text, page URL, revision, retrieval time and content hash stay in an
+isolated, non-exportable BY-SA namespace and enter only the untrusted local
+correction-review queue.
+
+Wikidata may also be accessed at runtime through the narrowly registered API
+paths above. Structured claims are CC0. Runtime candidates remain untrusted,
+cannot trigger automatic identity merges, and never alter a pack, model,
+calibration record, settlement, or sealed forecast.
+
+--------------------------------------------------------------------------
 REJECTED DEPENDENCIES
 --------------------------------------------------------------------------
 
@@ -85,9 +137,9 @@ DataHub football mirrors, Understat, FBref, Sofascore, FotMob, unofficial FPL
 endpoints, European Soccer DB, or eatpizzanot. Downstream CC0/PDDL labels do not
 cure upstream ToS or database-provenance problems.
 
-Wikidata, weather sources, Football-Data.org, and API-Football are not current
-dependencies. OpenLigaDB is optional, keyless, ODbL-isolated and off by default;
-its response data is never a bundled dependency.
+Weather sources, Football-Data.org, and API-Football are not current
+dependencies. OpenLigaDB is optional, keyless, ODbL-isolated and off by
+default; its response data is never a bundled dependency.
 
 Golavo is not affiliated with, endorsed by, or sponsored by FIFA, UEFA, any
 league, club, or competition organizer. Competition names are used factually

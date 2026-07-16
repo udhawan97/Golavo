@@ -49,12 +49,20 @@ SPOTS: list[tuple[str, str, int]] = [
     ("docs-site/src/components/Hero.astro", ">v{v} · unsigned pre-alpha · local-first", 1),
     ("docs-site/src/content/docs/index.mdx", "unsigned v{v} pre-alpha", 1),
     ("docs-site/src/content/docs/index.mdx", "Golavo is at **v{v}**", 1),
+    ("README.md", 'alt="version v{v}"', 1),
+    ("README.md", 'src="https://img.shields.io/badge/version-v{v}-6082b8?style=flat-square"', 1),
+    ("README.md", "Golavo is a **v{v} pre-alpha**", 1),
 ]
 
 
 def _template_regex(template: str) -> re.Pattern[str]:
     """Turn a {v} template into a regex capturing the version it holds."""
-    return re.compile(re.escape(template).replace(re.escape("{v}"), f"({SEMVER})"))
+    pattern = re.escape(template).replace(re.escape("{v}"), f"({SEMVER})")
+    # A bare `version =` template must not match inside `rust-version =` or a
+    # similarly suffixed key. Other templates keep the same exact semantics.
+    if template.startswith("version ="):
+        pattern = r"(?<![0-9A-Za-z_-])" + pattern
+    return re.compile(pattern)
 
 
 def read_versions(root: Path) -> list[str]:

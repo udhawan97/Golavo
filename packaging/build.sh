@@ -23,6 +23,18 @@ fi
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# Pin every layer of the packaged app to the exact checkout being built. Cargo
+# can otherwise reuse a prior build-script result after a same-branch commit
+# because .git/HEAD still contains the same symbolic ref. The environment value
+# is tracked by build.rs, forwarded to the sidecar, exposed by /meta, and stored
+# in newly sealed forecast artifacts.
+CHECKOUT_SOURCE_SHA="$(git rev-parse HEAD)"
+if [[ -n "${GOLAVO_SOURCE_SHA:-}" && "$GOLAVO_SOURCE_SHA" != "$CHECKOUT_SOURCE_SHA" ]]; then
+  echo "GOLAVO_SOURCE_SHA does not match the checkout being packaged" >&2
+  exit 2
+fi
+export GOLAVO_SOURCE_SHA="$CHECKOUT_SOURCE_SHA"
+
 # Always freeze the checkout being built. Developer machines can have editable
 # installs pointing at an older worktree; without an explicit front-of-path
 # override PyInstaller's collect_submodules step can silently package that stale

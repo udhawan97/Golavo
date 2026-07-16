@@ -6,6 +6,49 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-07-16
+
+Golavo 0.14.0 completes the source-aware local data loop and makes the deterministic
+Match Cockpit easier to interrogate without changing a model or overstating source truth.
+
+### Added
+- Consent-gated approved-source refresh with immutable raw receipts, parser/schema gates,
+  atomic two-generation activation, source health, cancellation, and last-known-good use.
+- An optional per-user OpenLigaDB ODbL overlay for allowlisted German competitions. It is
+  display-only, physically isolated, attributed, unbundled, removable, and prohibited from
+  core indexes, models, calibration, settlement and exports.
+- Source-backed place, venue, local-kickoff, rest and travel context using a compact
+  unique-exact GeoNames place table, revision-pinned Wikidata venues, and a lightweight
+  offline Natural Earth route map.
+- Local followed matches with targeted while-open refresh, deduplicated change history and
+  optional local notifications; no daemon, Login Item, LaunchAgent, account or cloud sync.
+- A provenance-first correction queue with evidence receipts, immutable event history,
+  fail-closed conflicts, license namespaces, local display annotations and explicit export.
+- Consent-gated selected-source research with immutable captures, deterministic parsing,
+  optional local-AI fallback, cancellation/resume and correction-queue handoff.
+- Deterministic Match Cockpit explanations for history support, exact model-voice gaps,
+  capability coverage, missing evidence and hypothetical change triggers.
+
+### Changed
+- DuckDuckGo HTML discovery is disabled; search discovers candidate Wikimedia pages only
+  and can never make a fact authoritative.
+- Match analysis cache entries are schema-, match-, index- and hash-bound. Invalid or stale
+  entries recompute, while repeat navigation stays fast and Phase 8 adds no model fit.
+- Sparse forward reliability stays hidden until at least 100 seals and three probability bins
+  with 20 or more observations each; seal lead time now comes from immutable timestamps instead
+  of a coarse horizon tag.
+- README and documentation now describe every landed local-data boundary, enlarge the logo,
+  stack the Match Cockpit animation at full width, and repair the architecture SVG label.
+
+### Security and release
+- Research fetches fail closed on unapproved hosts/paths, private IPs, redirect drift, DNS
+  rebinding, oversized/slow responses, hostile markup, prompt injection and quote mismatch.
+- Correction candidates are integrity-checked again at the queue boundary; AI research has no
+  probability, pack, training, calibration, settlement or seal write path.
+- Packaged builds embed and expose their exact source commit. The release workflow now blocks
+  packaging on the complete Python, determinism, provenance, isolation, UI and docs gates.
+- Update recovery prunes obsolete retired ledger generations while retaining the newest one.
+
 ## [0.13.0] - 2026-07-15
 
 Golavo 0.13.0 expands the local match library into a competition intelligence
@@ -1199,7 +1242,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/udhawan97/Golavo/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/udhawan97/Golavo/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/udhawan97/Golavo/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/udhawan97/Golavo/compare/v0.10.3...v0.11.1

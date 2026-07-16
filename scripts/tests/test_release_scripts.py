@@ -42,6 +42,7 @@ def fake_repo(tmp_path: Path) -> Path:
         "desktop/src-tauri/tauri.conf.json": f'{{\n  "version": "{v}",\n  "x": 1\n}}\n',
         "desktop/src-tauri/Cargo.toml": (
             f'[package]\nname = "golavo-desktop"\nversion = "{v}"\n\n'
+            'rust-version = "1.77.2"\n'
             '[dependencies]\ntauri = { version = "2" }\n'
         ),
         "desktop/src-tauri/Cargo.lock": (
@@ -80,6 +81,15 @@ def fake_repo(tmp_path: Path) -> Path:
             f"unsigned v{v} pre-alpha.</p>\n"
             f"Golavo is at **v{v}**, an unsigned pre-release.\n"
         ),
+        "README.md": (
+            f'<img alt="version v{v}" '
+            f'src="https://img.shields.io/badge/version-v{v}-6082b8?style=flat-square">\n'
+            f"> Golavo is a **v{v} pre-alpha** with unsigned installers.\n"
+        ),
+        "docs-site/src/content/docs/installation.md": (
+            "The newest stable desktop build is always available from the "
+            "[latest GitHub release](https://github.com/udhawan97/Golavo/releases/latest).\n"
+        ),
     }
     for rel, content in files.items():
         path = tmp_path / rel
@@ -94,8 +104,12 @@ def test_bump_rewrites_every_spot_and_recheck_passes(fake_repo: Path) -> None:
     assert set(versions) == {"0.2.0"}
     # Dependency pins must be untouched.
     assert 'tauri = { version = "2" }' in (fake_repo / "desktop/src-tauri/Cargo.toml").read_text()
+    assert 'rust-version = "1.77.2"' in (fake_repo / "desktop/src-tauri/Cargo.toml").read_text()
     assert 'version = "2.11.5"' in (fake_repo / "desktop/src-tauri/Cargo.lock").read_text()
     assert "pytest==9.1.1" in (fake_repo / "core/pyproject.toml").read_text()
+    installation = (fake_repo / "docs-site/src/content/docs/installation.md").read_text()
+    assert "releases/latest" in installation
+    assert "0.2.0" not in installation
     # The release date follows the bump.
     assert 'date-released: "2020-01-01"' not in (fake_repo / "CITATION.cff").read_text()
     assert bump_version.main(["--check", "v0.2.0", "--root", str(fake_repo)]) == 0

@@ -4,7 +4,8 @@
 The registry (data/sources/registry.json) is the single source of truth for data
 attribution; this script turns it into a human-readable notices file so the two
 can never silently drift. Run with --check in CI to fail if the committed file is
-stale. Software dependency notices come from the release SBOM (Syft), not here.
+stale. This file records registered data sources; it is not a software-dependency
+inventory.
 """
 
 from __future__ import annotations
@@ -69,8 +70,8 @@ def render() -> str:
         "",
         "Golavo's own code is licensed Apache-2.0 (see `LICENSE`). This file, generated",
         "from `data/sources/registry.json` by `scripts/gen_third_party_notices.py`, records",
-        "the data sources Golavo carries, plans, or has rejected. Software dependency",
-        "notices ship as an SPDX/CycloneDX SBOM alongside each release.",
+        "the data sources Golavo carries, plans, or has rejected. It does not inventory",
+        "software dependencies.",
         "",
         "> Do not edit by hand — run `python scripts/gen_third_party_notices.py`.",
         "",
