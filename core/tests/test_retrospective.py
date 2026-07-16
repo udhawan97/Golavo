@@ -67,6 +67,38 @@ def _frame(wc_rows: list[dict] | None = None) -> pd.DataFrame:
     return pd.DataFrame([*_history(), *rows])
 
 
+def _second_international_source_rows(n: int = 5) -> list[dict]:
+    """A second international ``source_id`` sharing team strings with the first.
+
+    ``source_id``-scoping (correct) must exclude these from any fixture's
+    training frame; ``source_kind``-scoping (a regression) would wrongly admit
+    them, since both sources carry ``source_kind == "international"``. Lopsided
+    scorelines make the resulting shift in every family's forecast obvious
+    rather than lost in rounding.
+    """
+    rows = []
+    for index in range(n):
+        day = pd.Timestamp("2025-06-01", tz="UTC") + pd.Timedelta(days=index)
+        rows.append(
+            {
+                "match_id": f"m_other_source_{index:03d}",
+                "date": day.tz_localize(None),
+                "kickoff_utc": day,
+                "home_team": TEAMS[index % 4],
+                "away_team": TEAMS[(index + 2) % 4],
+                "home_score": 5,
+                "away_score": 0,
+                "is_complete": True,
+                "neutral": True,
+                "competition": "Friendly",
+                "kickoff_precision": "day",
+                "source_id": "second-international-results",
+                "source_kind": "international",
+            }
+        )
+    return rows
+
+
 def test_returns_one_row_per_completed_match_ranked_by_log_loss() -> None:
     result = world_cup_2026_retrospective(_frame())
     assert result["schema_version"] == "0.1.0"
@@ -86,6 +118,18 @@ def test_bivariate_poisson_is_not_offered_as_a_separate_voice() -> None:
     assert "bivariate_poisson" not in RETROSPECTIVE_FAMILIES
     result = world_cup_2026_retrospective(_frame())
     assert "bivariate_poisson" not in result["matches"][0]["families"]
+
+
+def test_four_families_are_exactly_these_four() -> None:
+    """Pin the literal tuple — comparing the constant to itself (as the old
+    ``set(row["families"]) == set(RETROSPECTIVE_FAMILIES)`` check did) is
+    tautological and would not notice a family silently dropped or added."""
+    assert RETROSPECTIVE_FAMILIES == (
+        "climatological",
+        "elo_ordlogit",
+        "poisson_independent",
+        "dixon_coles",
+    )
 
 
 def test_a_later_same_day_result_never_reaches_an_earlier_match() -> None:
@@ -173,9 +217,17 @@ def test_progress_is_reported_and_cancellation_is_honoured() -> None:
 def test_same_day_proxy_exposure_is_disclosed_not_hidden() -> None:
     """A day-precision (00:00 UTC) row sharing a match's calendar day is a real
     exposure inherited from ``training_rows`` (never fixed by a stricter cutoff),
-    so it must be counted and surfaced rather than silently trained on."""
+    so it must be counted and surfaced rather than silently trained on.
+
+    The 01:00 exact-precision row pins the ``!= "exact"`` predicate itself: it
+    is a same-day training row for the 02:00 match, but a *verified* instant,
+    not a proxy. Dropping the predicate (counting every same-day training row)
+    would inflate the 02:00 match's count from 1 to 2."""
     rows = [
         _wc_match("m_wc_day", "2026-06-24T00:00:00Z", "France", "Spain", 1, 2, precision="day"),
+        _wc_match(
+            "m_wc_mid", "2026-06-24T01:00:00Z", "France", "Argentina", 3, 1, precision="exact"
+        ),
         _wc_match(
             "m_wc_exact", "2026-06-24T02:00:00Z", "England", "Argentina", 1, 0, precision="exact"
         ),
@@ -184,23 +236,88 @@ def test_same_day_proxy_exposure_is_disclosed_not_hidden() -> None:
     by_id = {row["match_id"]: row for row in result["matches"]}
 
     # The 00:00 proxy match kicked off (by its own stamp) before the 02:00 exact
-    # match's cutoff, so it lands in that match's training frame.
+    # match's cutoff, so it lands in that match's training frame — but the 01:00
+    # exact match, also same-day and also in that training frame, must NOT be
+    # counted: it is a verified instant, not a day-only proxy.
     assert by_id["m_wc_exact"]["training_same_day_proxy_rows"] == 1
-    # The day-proxy match's own cutoff (23:59:59 the day before) excludes the
-    # 02:00 exact match, which has not "happened" yet at that cutoff.
+    # The day-proxy match's own cutoff (23:59:59 the day before) excludes both
+    # later matches, which have not "happened" yet at that cutoff.
     assert by_id["m_wc_day"]["training_same_day_proxy_rows"] == 0
 
-    assert result["exposure"]["rows_with_same_day_proxies"] == 1
+    assert result["exposure"]["rows_with_same_day_proxies"] == 2
     note = result["exposure"]["note"]
     assert "day-precision" in note
     assert "cannot prove" in note
 
 
+def test_same_day_proxy_count_covers_nat_kickoff_and_na_precision() -> None:
+    """Both under-disclosure gaps in the proxy counter, pinned in one fixture.
+
+    ``training_rows`` admits a row via ``_order_instants``'s date fallback when
+    ``kickoff_utc`` is NaT — the most date-proxy-ish row there is. A counter
+    that reads ``kickoff_utc`` directly instead of mirroring that fallback
+    would silently drop it. Likewise a ``pd.NA`` ``kickoff_precision`` must
+    read as "not exact" (a proxy), not vanish under ``.ne("exact").sum()``'s
+    default NA-skipping."""
+    nat_kickoff_row = {
+        "match_id": "m_nat_kickoff",
+        "date": pd.Timestamp("2026-06-25"),
+        "kickoff_utc": pd.NaT,
+        "home_team": "France",
+        "away_team": "Argentina",
+        "home_score": 1,
+        "away_score": 1,
+        "is_complete": True,
+        "neutral": True,
+        "competition": "Friendly",
+        "kickoff_precision": "day",
+        "source_id": "martj42-international-results",
+        "source_kind": "international",
+    }
+    na_precision_row = {
+        "match_id": "m_na_precision",
+        "date": pd.Timestamp("2026-06-25"),
+        "kickoff_utc": pd.Timestamp("2026-06-25T05:00:00Z"),
+        "home_team": "England",
+        "away_team": "Spain",
+        "home_score": 0,
+        "away_score": 0,
+        "is_complete": True,
+        "neutral": True,
+        "competition": "Friendly",
+        "kickoff_precision": pd.NA,
+        "source_id": "martj42-international-results",
+        "source_kind": "international",
+    }
+    target = _wc_match(
+        "m_wc_target", "2026-06-25T20:00:00Z", "France", "Spain", 2, 0, precision="exact"
+    )
+    frame = pd.DataFrame([*_history(), nat_kickoff_row, na_precision_row, target])
+
+    result = world_cup_2026_retrospective(frame)
+    row = next(r for r in result["matches"] if r["match_id"] == "m_wc_target")
+
+    assert row["training_same_day_proxy_rows"] == 2
+
+
 def test_matches_the_apps_own_build_match_analysis() -> None:
     """The module's whole claim is fidelity to the app's live analysis path —
     pin it directly against ``build_match_analysis`` so a scoping regression
-    (e.g. reverting to source_kind) fails CI instead of shipping silently."""
-    frame = _frame()
+    (e.g. reverting to source_kind) fails CI instead of shipping silently.
+
+    The frame includes a second international ``source_id`` sharing team
+    strings with the first. ``source_id``-scoping (correct) excludes it from
+    training; ``source_kind``-scoping (regressed) would wrongly admit it,
+    shifting every family's forecast — that divergence is what makes this
+    test actually catch the regression instead of passing either way."""
+    frame = pd.DataFrame(
+        [
+            *_history(),
+            *_second_international_source_rows(),
+            _wc_match("m_wc1", "2026-06-20T12:00:00Z", "France", "Spain", 1, 0),
+            _wc_match("m_wc2", "2026-06-20T20:00:00Z", "England", "Argentina", 2, 1),
+        ]
+    )
     result = world_cup_2026_retrospective(frame)
     row = next(r for r in result["matches"] if r["match_id"] == "m_wc1")
 

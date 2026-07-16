@@ -19,6 +19,7 @@ import pandas as pd
 
 from golavo_core.evaluation import FOLDS
 from golavo_core.ingest import training_rows
+from golavo_core.ingest.snapshot import _order_instants
 from golavo_core.models import fit_model
 
 RETROSPECTIVE_SCHEMA_VERSION = "0.1.0"
@@ -74,10 +75,15 @@ def _str_or_none(value: Any) -> str | None:
 def _same_day_proxy_count(train: pd.DataFrame, kickoff: pd.Timestamp) -> int:
     """Training rows that share ``kickoff``'s UTC calendar day via a day-only proxy.
 
-    A ``kickoff_precision`` other than ``"exact"`` is a 00:00 UTC stand-in for an
-    unknown real kickoff time, not a verified instant. Sharing a calendar day with
-    such a row means this match's own ``kickoff - 1s`` cutoff cannot prove the
-    proxy row actually happened first — it may have kicked off later the same day.
+    A ``kickoff_precision`` other than ``"exact"`` — including a missing/``NA``
+    precision, which discloses nothing about accuracy and so cannot be assumed
+    exact — is a 00:00 UTC stand-in for an unknown real kickoff time, not a
+    verified instant. Sharing a calendar day with such a row means this match's
+    own ``kickoff - 1s`` cutoff cannot prove the proxy row actually happened
+    first — it may have kicked off later the same day. Same-day membership is
+    decided by ``_order_instants``, the identical fallback ``training_rows``
+    used to admit the row (kickoff_utc, falling back to ``date`` on NaT), so a
+    NaT-kickoff row admitted via its date is not silently missed here.
     """
     if train.empty:
         return 0
@@ -86,8 +92,9 @@ def _same_day_proxy_count(train: pd.DataFrame, kickoff: pd.Timestamp) -> int:
         if "kickoff_precision" in train.columns
         else pd.Series("day", index=train.index, dtype="string")
     )
-    same_day = pd.to_datetime(train["kickoff_utc"], utc=True).dt.date.eq(kickoff.date())
-    return int((precision.ne("exact") & same_day).sum())
+    is_proxy_precision = precision.ne("exact").fillna(True)
+    same_day = _order_instants(train).dt.date.eq(kickoff.date())
+    return int((is_proxy_precision & same_day).sum())
 
 
 def _outcome(home_score: Any, away_score: Any) -> int:
