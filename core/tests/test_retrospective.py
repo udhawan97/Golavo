@@ -12,6 +12,7 @@ from golavo_core.retrospective import (
     RetrospectiveUnavailable,
     world_cup_2026_retrospective,
 )
+from jsonschema import ValidationError
 
 TEAMS = ("France", "Spain", "England", "Argentina")
 
@@ -362,3 +363,114 @@ def test_output_validates_against_the_published_contract() -> None:
     )
     result = world_cup_2026_retrospective(_frame())
     Draft202012Validator(schema, format_checker=FormatChecker()).validate(result)
+
+
+def _contract_validator():
+    from pathlib import Path
+
+    from jsonschema import Draft202012Validator, FormatChecker
+
+    root = Path(__file__).resolve().parents[2]
+    schema = json.loads(
+        (root / "docs" / "contracts" / "tournament_retrospective.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    return Draft202012Validator(schema, format_checker=FormatChecker())
+
+
+def _trust_card() -> dict:
+    """A realistic WC2026 report card, shaped as ``evaluation._build_report_cards`` emits.
+
+    Deliberately carries all five ``golavo_core.models.FAMILIES`` — including
+    ``bivariate_poisson``, which the story layer's four-voice ``families`` omits —
+    so the contract is pinned against conflating the two family lists. Covers both
+    ``skill_ci_95`` states: a real interval when the sample is available, and
+    ``None`` under ``insufficient_sample``, where the interval is not computed.
+    """
+    families = (
+        "climatological",
+        "elo_ordlogit",
+        "poisson_independent",
+        "dixon_coles",
+        "bivariate_poisson",
+    )
+    models = []
+    for rank, family in enumerate(families, start=1):
+        available = family != "bivariate_poisson"
+        models.append(
+            {
+                "family": family,
+                "n_matches": 104,
+                "n_folds": 1,
+                "log_loss": 1.032,
+                "brier": 0.61,
+                "ece": 0.04,
+                "rps": 0.21,
+                # Negative for a family worse than the climatological baseline.
+                "skill_score": -0.012 if family == "climatological" else 0.058,
+                "skill_ci_95": [0.01, 0.11] if available else None,
+                "sample_status": "available" if available else "insufficient_sample",
+                "mean_rank": float(rank),
+                "best_rank": rank,
+                "worst_rank": rank,
+                "first_place_folds": 1 if rank == 1 else 0,
+            }
+        )
+    return {
+        "competition": "FIFA World Cup",
+        "baseline_family": "climatological",
+        "primary_metric": "log_loss",
+        "minimum_matches": 50,
+        "bootstrap": {
+            "method": "fold-stratified-match-bootstrap",
+            "replicates": 2000,
+            "seed": 20260715,
+        },
+        "window_start": "2026-06-11",
+        "window_end": "2026-07-19",
+        "models": models,
+    }
+
+
+def test_server_shaped_envelope_with_trust_and_provenance_validates() -> None:
+    """The server layer (Task 3) folds a `trust` report card and `provenance` onto
+    the core envelope. Top-level `additionalProperties` is false, so both keys must
+    be declared or every real server response fails validation."""
+    envelope = dict(world_cup_2026_retrospective(_frame()))
+    envelope["trust"] = _trust_card()
+    envelope["provenance"] = {
+        "index_sha256": "a" * 64,
+        "pack": "martj42-internationals-80f408d2c93b",
+    }
+    _contract_validator().validate(envelope)
+
+
+def test_trust_is_nullable_and_optional() -> None:
+    """`trust` is None when no pack resolves, and absent entirely when the core
+    module is called directly — the core module never emits it."""
+    validator = _contract_validator()
+
+    absent = world_cup_2026_retrospective(_frame())
+    assert "trust" not in absent
+    validator.validate(absent)
+
+    validator.validate({**absent, "trust": None})
+
+
+def test_trust_tolerates_evaluation_owned_shape_drift() -> None:
+    """`trust` mirrors a shape owned by evaluation.py, not by this contract. A new
+    metric there must not break this schema — but a wrong-typed known field still
+    must, or the declaration would be decorative."""
+    validator = _contract_validator()
+    envelope = dict(world_cup_2026_retrospective(_frame()))
+
+    drifted = _trust_card()
+    drifted["models"][0]["some_new_metric_2027"] = 0.5
+    drifted["a_new_card_level_field"] = "added upstream"
+    validator.validate({**envelope, "trust": drifted})
+
+    with pytest.raises(ValidationError):
+        broken = _trust_card()
+        broken["models"][0]["log_loss"] = "not a number"
+        validator.validate({**envelope, "trust": broken})

@@ -73,6 +73,10 @@
       "description": "The same rows as matches, ordered by ranking_family's log_loss, worst-surprise first.",
       "items": { "$ref": "#/$defs/Row" }
     },
+    "trust": {
+      "description": "The WC2026 evaluation fold's report card, recomputed on the active pack — expected to be the card for competition \"FIFA World Cup\". Null when no pack resolves. Absent when the core module is called directly, which never emits it. IMPORTANT: this is a DIFFERENT information boundary from the story layer above. A report card is trained once, pre-tournament, and scores the whole fold; the matches rows are each backtested at their own kickoff-1s cutoff. That is the whole reason the two layers are kept separate and never averaged together — do not read a trust metric as if it described any single row. Shape is owned by core/golavo_core/evaluation.py:_build_report_cards, not by this contract, so it is declared permissively here (see also the authoritative ReportCard/ReportCardModel defs in forecast_artifact.schema.json).",
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/TrustReportCard" }]
+    },
     "provenance": {
       "type": "object",
       "additionalProperties": false,
@@ -105,6 +109,72 @@
     }
   ],
   "$defs": {
+    "TrustReportCard": {
+      "type": "object",
+      "description": "Mirrors one entry of golavo_core.evaluation.evaluate()'s report_cards list. Deliberately permissive: additionalProperties is true and only the identifying spine is required, so a change owned by evaluation.py (a new metric, a new family) does not break this contract. Known fields are declared for readers and to catch type regressions, but are not required.",
+      "additionalProperties": true,
+      "required": ["competition", "models"],
+      "properties": {
+        "competition": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Expected to be \"FIFA World Cup\" — the WC2026 fold's competition. Not pinned as a const here because this contract does not own the selection; the producing layer should assert it picked the right card."
+        },
+        "baseline_family": { "const": "climatological" },
+        "primary_metric": { "const": "log_loss" },
+        "minimum_matches": { "type": "integer", "minimum": 1 },
+        "bootstrap": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "method": { "const": "fold-stratified-match-bootstrap" },
+            "replicates": { "type": "integer", "minimum": 1 },
+            "seed": { "type": "integer" }
+          }
+        },
+        "window_start": { "type": "string", "format": "date" },
+        "window_end": { "type": "string", "format": "date" },
+        "models": {
+          "type": "array",
+          "description": "One card per evaluated family. Note this is golavo_core.models.FAMILIES (five, including bivariate_poisson) — NOT the story layer's four-voice `families` enum above, which deliberately omits bivariate_poisson as a duplicate opinion.",
+          "items": { "$ref": "#/$defs/TrustReportCardModel" }
+        }
+      }
+    },
+    "TrustReportCardModel": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "family": { "type": "string", "minLength": 1 },
+        "n_matches": { "type": "integer", "minimum": 0 },
+        "n_folds": { "type": "integer", "minimum": 0 },
+        "log_loss": { "type": "number", "minimum": 0 },
+        "brier": { "type": "number", "minimum": 0 },
+        "ece": { "type": "number", "minimum": 0 },
+        "rps": { "type": "number", "minimum": 0 },
+        "skill_score": {
+          "type": "number",
+          "description": "1 - model_loss/baseline_loss. Negative when the family is worse than the climatological baseline, so it is deliberately unbounded below."
+        },
+        "skill_ci_95": {
+          "description": "Null when sample_status is insufficient_sample — the interval is not computed rather than guessed.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "prefixItems": [{ "type": "number" }, { "type": "number" }],
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
+        },
+        "sample_status": { "enum": ["available", "insufficient_sample"] },
+        "mean_rank": { "type": "number", "minimum": 1 },
+        "best_rank": { "type": "integer", "minimum": 1 },
+        "worst_rank": { "type": "integer", "minimum": 1 },
+        "first_place_folds": { "type": "integer", "minimum": 0 }
+      }
+    },
     "Row": {
       "type": "object",
       "required": [
