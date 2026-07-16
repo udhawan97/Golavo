@@ -90,6 +90,20 @@ def follows_dir() -> Path:
     return data_dir() / "follows"
 
 
+def corrections_dir() -> Path | None:
+    """Writable, license-separated correction root, or ``None`` in source mode.
+
+    Corrections sit beside the ledger and refresh/overlay roots so no proposal
+    bytes can be mistaken for an authoritative artifact or source pack. The
+    desktop shell always supplies ``GOLAVO_DATA_DIR``; source mode is deliberately
+    read-only unless a developer explicitly configures a writable data root.
+    """
+    override = os.environ.get("GOLAVO_DATA_DIR")
+    if not override:
+        return None
+    return Path(override).expanduser().parent / "corrections"
+
+
 def refreshed_pack_dir() -> Path | None:
     """The active generation's pinned international pack, or a legacy fallback.
 
