@@ -39,6 +39,7 @@ def test_unsigned_macos_builds_apply_the_adhoc_bundle_signature_overlay() -> Non
     )
     assert 'BUILD_ARGS+=(--config src-tauri/tauri.adhoc.conf.json)' in build_text
     assert overlay["bundle"]["macOS"]["signingIdentity"] == "-"
+    assert overlay["bundle"]["macOS"]["hardenedRuntime"] is False
 
 
 # --- bump_version ------------------------------------------------------------

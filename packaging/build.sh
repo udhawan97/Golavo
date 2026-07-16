@@ -93,9 +93,11 @@ BUILD_ARGS=(build --target "$TARGET")
 if [ "$ADHOC_MACOS" -eq 1 ]; then
   # Rust's linker adds only an executable-level ad-hoc signature. An unsigned
   # .app needs an outer ad-hoc signature too so Info.plist, resources and the
-  # sidecar are sealed and `codesign --verify --deep --strict` succeeds. Tauri
-  # applies this overlay before it creates the DMG. Real Developer ID builds do
-  # not use the overlay and continue to take their identity from CI secrets.
+  # sidecar are sealed and `codesign --verify --deep --strict` succeeds. The
+  # overlay also disables hardened runtime: PyInstaller one-file sidecars load
+  # extracted third-party dylibs whose signatures cannot satisfy hardened
+  # library validation under an ad-hoc Team ID. Real Developer ID builds skip
+  # this overlay and continue to use Tauri's hardened-runtime default.
   BUILD_ARGS+=(--config src-tauri/tauri.adhoc.conf.json)
 fi
 if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
