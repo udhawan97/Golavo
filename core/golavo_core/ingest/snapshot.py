@@ -242,17 +242,35 @@ def load_match_table(pack_dir: Path) -> pd.DataFrame:
     return matches
 
 
+def _order_instants(matches: pd.DataFrame) -> pd.Series:
+    """The most precise instant each row can be ordered by.
+
+    ``date`` is calendar-day only, so ordering by it treats every fixture on a
+    day as simultaneous and lets a later kickoff sit "before" an earlier one's
+    cutoff. ``kickoff_utc`` carries a real time wherever an overlay supplied
+    one and otherwise holds that same date's midnight, so preferring it is
+    strictly sharper and leaves date-only frames behaving exactly as before.
+    """
+    if "kickoff_utc" not in matches.columns:
+        return pd.to_datetime(matches["date"], utc=True)
+    instants = pd.to_datetime(matches["kickoff_utc"], utc=True)
+    if "date" in matches.columns and instants.isna().any():
+        return instants.fillna(pd.to_datetime(matches["date"], utc=True))
+    return instants
+
+
 def assert_no_future_rows(matches: pd.DataFrame, cutoff_utc: str | pd.Timestamp) -> None:
     """Fail closed if a training frame contains even one row after its cutoff."""
     cutoff = pd.Timestamp(cutoff_utc)
     cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
-    dates = pd.to_datetime(matches["date"], utc=True)
-    offenders = matches.loc[dates > cutoff]
+    instants = _order_instants(matches)
+    offenders = matches.loc[instants > cutoff]
     if not offenders.empty:
-        first = offenders.sort_values("date").iloc[0]
+        first = offenders.loc[instants.loc[offenders.index].idxmin()]
+        stamp = _order_instants(offenders.loc[[first.name]]).iloc[0]
         raise ValueError(
             "training leakage: row "
-            f"{first.get('match_id', '<unknown>')} dated {first['date']} exceeds cutoff "
+            f"{first.get('match_id', '<unknown>')} kicking off {stamp.isoformat()} exceeds cutoff "
             f"{cutoff.isoformat()}"
         )
 
@@ -261,13 +279,13 @@ def training_rows(matches: pd.DataFrame, cutoff_utc: str | pd.Timestamp) -> pd.D
     """Select a chronological training frame and assert the invariant."""
     cutoff = pd.Timestamp(cutoff_utc)
     cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
-    dates = pd.to_datetime(matches["date"], utc=True)
+    instants = _order_instants(matches)
     eligible = (
         matches["training_eligible"].astype("boolean").fillna(False)
         if "training_eligible" in matches.columns
         else matches["is_complete"].astype("boolean").fillna(False)
     )
-    selected = matches.loc[(dates <= cutoff) & matches["is_complete"] & eligible].copy()
+    selected = matches.loc[(instants <= cutoff) & matches["is_complete"] & eligible].copy()
     assert_no_future_rows(selected, cutoff)
     return selected
 

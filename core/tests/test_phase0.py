@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from golavo_core.artifacts import score_forecast, seal_forecast, validate_artifact
-from golavo_core.ingest import assert_no_future_rows, load_match_table
+from golavo_core.ingest import assert_no_future_rows, load_match_table, training_rows
 from golavo_core.models.candidates import EloOrdinalLogitModel
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -53,6 +53,77 @@ def test_future_training_row_fails_loudly() -> None:
     )
     with pytest.raises(ValueError, match="training leakage"):
         assert_no_future_rows(injected, "2030-01-01T23:59:59Z")
+
+
+def _same_day_pair() -> pd.DataFrame:
+    """Two completed matches on one day: 12:00 and 20:00, real kickoff times."""
+    day = pd.Timestamp("2026-06-20")
+    return pd.DataFrame(
+        [
+            {
+                "match_id": "m_noon",
+                "date": day,
+                "kickoff_utc": pd.Timestamp("2026-06-20T12:00:00Z"),
+                "home_team": "A",
+                "away_team": "B",
+                "home_score": 1,
+                "away_score": 0,
+                "is_complete": True,
+                "training_eligible": True,
+            },
+            {
+                "match_id": "m_evening",
+                "date": day,
+                "kickoff_utc": pd.Timestamp("2026-06-20T20:00:00Z"),
+                "home_team": "C",
+                "away_team": "D",
+                "home_score": 2,
+                "away_score": 1,
+                "is_complete": True,
+                "training_eligible": True,
+            },
+        ]
+    )
+
+
+def test_same_day_later_kickoff_never_enters_training() -> None:
+    """A match later the same day is the future, and must not train an earlier one.
+
+    Date-only filtering treats every fixture on a day as simultaneous, so a
+    20:00 result would train a 12:00 forecast. Exact kickoff overlays make this
+    reachable; before them every row sat at midnight and no row was orderable
+    within its day.
+    """
+    frame = _same_day_pair()
+    cutoff = "2026-06-20T11:59:59Z"  # one second before the noon kickoff
+
+    selected = training_rows(frame, cutoff)
+
+    assert "m_evening" not in set(selected["match_id"]), (
+        "a 20:00 result leaked into training for a 12:00 kickoff"
+    )
+    assert "m_noon" not in set(selected["match_id"])
+
+
+def test_leak_guard_sees_a_same_day_later_kickoff() -> None:
+    """The machine-checked guard must compare kickoffs, not calendar days."""
+    frame = _same_day_pair()
+    with pytest.raises(ValueError, match="training leakage"):
+        assert_no_future_rows(frame, "2026-06-20T11:59:59Z")
+
+
+def test_training_rows_still_accepts_earlier_same_day_kickoffs() -> None:
+    """The fix must not over-correct: earlier the same day is legitimately past."""
+    frame = _same_day_pair()
+    selected = training_rows(frame, "2026-06-20T19:59:59Z")
+    assert set(selected["match_id"]) == {"m_noon"}
+
+
+def test_training_rows_falls_back_to_date_without_kickoffs() -> None:
+    """Frames predating the kickoff overlay carry no kickoff_utc; keep them working."""
+    frame = _same_day_pair().drop(columns=["kickoff_utc"])
+    selected = training_rows(frame, "2026-06-20T23:59:59Z")
+    assert set(selected["match_id"]) == {"m_noon", "m_evening"}
 
 
 def test_seal_is_byte_identical_for_same_snapshot_and_seed(tmp_path: Path) -> None:
