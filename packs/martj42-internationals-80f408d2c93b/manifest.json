@@ -1,0 +1,44 @@
+{
+  "co_sources": [
+    {
+      "license": "CC0-1.0",
+      "retrieved_at_utc": "2026-07-16T19:38:58Z",
+      "sha256_file": "kickoffs.csv",
+      "source_id": "openfootball-worldcup-json",
+      "upstream_ref": "5e4bc62f9e711f3ea83d2b150ac3200e7e9c90a0",
+      "url": "https://github.com/openfootball/worldcup.json"
+    }
+  ],
+  "files": [
+    {
+      "name": "CC0-1.0.txt",
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "name": "former_names.csv",
+      "sha256": "2d57f59a3ac13b24c2fcf208ced5a38710529d122da38929838d0980b002677e"
+    },
+    {
+      "name": "goalscorers.csv",
+      "sha256": "fcd8672feb6341f963ab310b1f6841c0edb162fc603be73458867935973208f2"
+    },
+    {
+      "name": "kickoffs.csv",
+      "sha256": "7c091b57582570dd670a6b59c281c3d838971e8243a48d0c576f4539366be2b1"
+    },
+    {
+      "name": "results.csv",
+      "sha256": "9bb7ae6bac69e6d028ecd1a2c3a040d8590671bc430ccf8ac17f4ad3d1a126ee"
+    },
+    {
+      "name": "shootouts.csv",
+      "sha256": "2acdc95fdad14f5f17200150a1a4a5fa6c2ccf57d31c8b4f61a2c7d9c0493113"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-16T19:38:58Z",
+  "source_id": "martj42-international-results",
+  "upstream_committed_at_utc": "2026-07-15T23:39:52Z",
+  "upstream_ref": "80f408d2c93ba4f9e06a2c7cdc5effb05fea9680",
+  "url": "https://github.com/martj42/international_results"
+}

@@ -88,6 +88,14 @@
       "source_id": "openfootball-champions-league",
       "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
       "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
+    },
+    {
+      "manifest_sha256": "1b18bea4d76c5d08a5dc2194aab4baa32794f9bb4516bd48c387b5a921c97dc5",
+      "pack": "packs/martj42-internationals-80f408d2c93b",
+      "retrieved_at_utc": "2026-07-16T19:38:58Z",
+      "source_id": "martj42-international-results",
+      "upstream_committed_at_utc": "2026-07-15T23:39:52Z",
+      "upstream_ref": "80f408d2c93ba4f9e06a2c7cdc5effb05fea9680"
     }
   ]
 }

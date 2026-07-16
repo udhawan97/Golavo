@@ -31,7 +31,11 @@ def test_world_cup_outlook_endpoint_validates_against_contract() -> None:
     ).json()
     Draft202012Validator(SCHEMA, format_checker=FormatChecker()).validate(body)
     assert body["status"] == "available"
-    assert body["snapshot_status"] == "result_refresh_needed"
+    # The committed snapshot carries both semifinal results, so nothing this cutoff can
+    # see is missing one. The later semifinal stays unresolved here because its kickoff
+    # is still ahead at 08:00 — see core/tests/test_outlook.py for both cutoff branches.
+    assert body["snapshot_status"] == "current_for_index"
+    assert [row["status"] for row in body["semifinals"]] == ["complete", "unresolved"]
     assert [voice["voice_id"] for voice in body["voices"]] == [
         "elo_ordlogit",
         "dixon_coles",
