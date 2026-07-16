@@ -50,6 +50,7 @@ import type {
   SettlementReport,
   SourceKind,
   TournamentOutlook,
+  TournamentRetrospective,
   WorldMap,
 } from "./contract";
 import type { AiDepth, AiProvider, NarrativeResponse } from "./ai";
@@ -627,6 +628,58 @@ export async function fetchWorldCupOutlook(): Promise<TournamentOutlook> {
     await getJson("/api/v1/tournaments/worldcup-2026/outlook"),
     "tournaments/worldcup-2026/outlook",
   );
+}
+
+// ---- World Cup retrospective (own job lane, not /api/v1/ai/jobs/...) -------
+// The backtest is minutes long, so progress streams via job_id. The GET below
+// deliberately bypasses getJson(): its 30s read-through cache would freeze a
+// live progress bar mid-run.
+
+export interface RetrospectiveJob {
+  job_id: string;
+  state: "running" | "done" | "failed" | "cancelled";
+  stage: string;
+  detail: string | null;
+  counts: { completed?: number | null; total?: number | null };
+  elapsed_s: number;
+  result?: TournamentRetrospective;
+  error?: string;
+}
+
+/** Start the World Cup backtest. Minutes long, so progress streams via job_id. */
+export async function startWorldCupRetrospective(jobId: string): Promise<string> {
+  if (!API_BASE) throw new Error("The retrospective needs the Golavo engine running locally.");
+  const res = await fetch(`${API_BASE}/api/v1/tournaments/worldcup-2026/retrospective`, {
+    method: "POST",
+    headers: { ...apiHeaders(), "content-type": "application/json" },
+    body: JSON.stringify({ job_id: jobId }),
+  });
+  if (!res.ok) throw new ApiError("The retrospective could not start.", res.status);
+  const body = (await res.json()) as { job_id?: string };
+  if (!body.job_id) throw new Error("The retrospective started without a progress id.");
+  return body.job_id;
+}
+
+/** Poll progress for one retrospective run. Bare fetch, not getJson — see the
+ *  section note above. */
+export async function fetchRetrospectiveJob(jobId: string): Promise<RetrospectiveJob> {
+  if (!API_BASE) throw new Error("The retrospective needs the Golavo engine running locally.");
+  const res = await fetch(
+    `${API_BASE}/api/v1/tournaments/worldcup-2026/retrospective/jobs/${encodeURIComponent(jobId)}`,
+    { headers: apiHeaders() },
+  );
+  if (!res.ok) throw new ApiError("The retrospective progress could not be read.", res.status);
+  return (await res.json()) as RetrospectiveJob;
+}
+
+/** Request cancellation of an in-flight retrospective run. */
+export async function cancelWorldCupRetrospective(jobId: string): Promise<void> {
+  if (!API_BASE) return;
+  const res = await fetch(
+    `${API_BASE}/api/v1/tournaments/worldcup-2026/retrospective/jobs/${encodeURIComponent(jobId)}/cancel`,
+    { method: "POST", headers: apiHeaders() },
+  );
+  if (!res.ok) throw new ApiError("The retrospective could not be cancelled.", res.status);
 }
 
 function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {

@@ -387,6 +387,99 @@ export interface TournamentOutlook {
   };
 }
 
+// ---- Tournament retrospective -----------------------------------------------
+// Mirrors docs/contracts/tournament_retrospective.schema.json. A per-match
+// backtest, never a seal: each row is scored at its own kickoff-1s cutoff, the
+// same conservative boundary the seal and Match Cockpit replay use. `trust` is
+// a DIFFERENT information boundary — the WC2026 evaluation fold, trained once
+// at a single pre-tournament cutoff — so it is never averaged into the rows.
+
+export interface RetrospectiveRow {
+  match_id: string;
+  kickoff_utc: string;
+  kickoff_precision: "exact" | "day";
+  information_cutoff_utc: string;
+  home_team: string;
+  away_team: string;
+  home_score: number;
+  away_score: number;
+  outcome: Outcome;
+  log_loss: number;
+  /** How many rows in this match's training frame are day-precision (00:00 UTC
+   *  proxy) rows sharing this match's UTC calendar day — a nonzero count means
+   *  this forecast may rest on a result really played later the same day. */
+  training_same_day_proxy_rows: number;
+  families: Record<string, { probs: { home: number; draw: number; away: number }; log_loss: number }>;
+}
+
+/** One family's metrics on the single WC2026 fold. Not a ReportCardModel: a
+ *  lone fold has no skill_score, skill_ci_95, or cross-fold ranks. Deliberately
+ *  permissive upstream (additionalProperties: true) — only family/log_loss are
+ *  guaranteed. */
+export interface TrustFoldModel {
+  family: ModelFamily;
+  log_loss: number;
+  brier?: number;
+  ece?: number;
+  rps?: number;
+  params?: Record<string, unknown>;
+  reliability_bins?: ReliabilityBin[];
+}
+
+/** golavo_core.evaluation.evaluate()'s WC2026 `folds` entry, NOT its "FIFA World
+ *  Cup" report_card (that card blends WC2022 and WC2026). fold_id is pinned so a
+ *  reader can never be handed a different tournament's skill verdict. */
+export interface TrustFold {
+  status: "available";
+  fold_id: "WC2026";
+  competition: string;
+  n_matches: number;
+  training_cutoff_utc?: string;
+  window_start?: string;
+  window_end?: string;
+  models: TrustFoldModel[];
+}
+
+/** A missing trust layer is always a typed, machine-readable state — never a
+ *  bare null — so "we could not measure skill" and "skill was measured and is
+ *  poor" can never look alike to a reader. */
+export interface TrustUnavailable {
+  status: "unavailable";
+  cause: "no_pack" | "evaluation_failed" | "fold_absent";
+  reason: string;
+}
+
+export interface TournamentRetrospective {
+  schema_version: "0.1.0";
+  status: "available" | "unavailable";
+  label: string;
+  reason?: string;
+  tournament_id: "worldcup-2026";
+  tournament_name: string;
+  ledger_status?: "never_persisted_or_scored_as_a_seal";
+  ranking_family?: "dixon_coles";
+  ranking_metric?: "log_loss";
+  families?: ModelFamily[];
+  window_start?: string;
+  window_end?: string;
+  coverage?: {
+    status: "complete" | "partial";
+    scored: number;
+    pending: number;
+    note: string;
+  };
+  /** How many backtested matches trained on at least one same-day, day-precision
+   *  proxy row that cannot be proven to have happened first. Required when
+   *  status is available. */
+  exposure?: { rows_with_same_day_proxies: number; note: string };
+  matches: RetrospectiveRow[];
+  biggest_surprises: RetrospectiveRow[];
+  /** null = core called directly (core never emits trust); a typed fold or a
+   *  typed unavailable state = the server layer. */
+  trust?: TrustFold | TrustUnavailable | null;
+  provenance?: { index_sha256?: string; pack?: string };
+}
+
 // ---- Domestic season outlook ----------------------------------------------
 
 export interface SeasonStandingRow {
