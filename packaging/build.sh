@@ -29,6 +29,10 @@ cd "$REPO_ROOT"
 # golavo_core/golavo_server instead of this repository.
 export PYTHONPATH="$REPO_ROOT/server:$REPO_ROOT/core${PYTHONPATH:+:$PYTHONPATH}"
 
+# Fail before freezing if local correction state can reach any authoritative,
+# model, data-pack, or redistributable sink. The spec ships contracts/code only.
+python scripts/validate_correction_isolation.py
+
 # macOS Developer ID signing is optional and gated on APPLE_CERTIFICATE. In CI
 # the env is populated from secrets, so an ABSENT secret arrives as an EMPTY
 # string — and Tauri, seeing APPLE_CERTIFICATE "set", still runs `security

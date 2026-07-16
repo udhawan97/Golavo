@@ -56,6 +56,12 @@ datas = [
     # Optional ODbL overlay contract only. No OpenLigaDB response/database bytes
     # or overlay pack directory are ever included in the frozen sidecar.
     (os.path.join(ROOT, "docs", "contracts", "openligadb_overlay_api.schema.json"), "docs/contracts"),
+    # Phase 6 ships contracts and code only. User proposals/evidence live under
+    # Application Support and are never PyInstaller data inputs.
+    (os.path.join(ROOT, "docs", "contracts", "correction_proposal.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "correction_event.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "correction_export.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "correction_api.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "data", "sources", "registry.json"), "data/sources"),
     (os.path.join(ROOT, "data", "sources", "registry.schema.json"), "data/sources"),
 ]

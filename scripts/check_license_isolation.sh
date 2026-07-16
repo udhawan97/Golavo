@@ -60,6 +60,7 @@ fi
 
 if [ "$fail" -eq 0 ]; then
   python3 scripts/validate_license_isolation.py
+  python3 scripts/validate_correction_isolation.py
   echo "license isolation: OK (CC0 index isolated; enrichment attribution present)."
 fi
 exit "$fail"

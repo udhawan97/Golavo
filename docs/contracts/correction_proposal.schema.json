@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/correction_proposal.schema.json",
+  "title": "Local correction proposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "proposal_id", "license_namespace", "correction_type", "state", "verification_level", "target", "original", "proposed", "source_id", "evidence", "validation", "local_visibility", "head_event_id", "created_at_utc", "updated_at_utc"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "proposal_id": {"type": "string", "pattern": "^cp_[0-9a-f]{32}$"},
+    "license_namespace": {"enum": ["core-cc0", "enrichment-cc0", "enrichment-public-domain", "enrichment-cc-by-4.0", "overlay-odbl-1.0", "quarantine-unknown"]},
+    "correction_type": {"enum": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"]},
+    "state": {"enum": ["draft", "evidence_attached", "validated_candidate", "conflict", "accepted_local", "exported", "submitted", "withdrawn", "superseded"]},
+    "verification_level": {"enum": ["none", "structural_only", "snapshot_verified"]},
+    "target": {"type": "object", "required": ["kind", "match_id", "entity_id", "upstream_record_key", "base_generation_id", "index_fingerprint"], "properties": {"kind": {"enum": ["match", "team", "venue", "fixture_candidate"]}, "match_id": {"type": ["string", "null"]}, "entity_id": {"type": ["string", "null"]}, "upstream_record_key": {"type": ["string", "null"]}, "base_generation_id": {"type": ["string", "null"]}, "index_fingerprint": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}}, "additionalProperties": false},
+    "original": {"type": ["object", "null"]},
+    "proposed": {"type": "object", "minProperties": 1},
+    "source_id": {"type": ["string", "null"], "pattern": "^[a-z0-9][a-z0-9._-]{0,119}$"},
+    "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}, "maxItems": 10},
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason_codes", "conflicts"],
+      "properties": {
+        "reason_codes": {"type": "array", "items": {"type": "string"}},
+        "conflicts": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "local_visibility": {"enum": ["queue_only", "local_annotation"]},
+    "head_event_id": {"type": "string", "pattern": "^ce_[0-9a-f]{64}$"},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "updated_at_utc": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "source_url", "hostname", "source_id", "license_namespace", "source_revision", "raw_sha256", "raw_bytes", "sanitized_text", "sanitized_sha256", "untrusted", "snapshot_verified", "captured_at_utc", "redacted"],
+      "properties": {
+        "evidence_id": {"type": "string", "pattern": "^ev_[0-9a-f]{64}$"},
+        "source_url": {"type": "string", "format": "uri"},
+        "hostname": {"type": "string"},
+        "source_id": {"type": "string"},
+        "license_namespace": {"type": "string"},
+        "source_revision": {"type": ["string", "null"]},
+        "raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "raw_bytes": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "sanitized_text": {"type": "string"},
+        "sanitized_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "untrusted": {"const": true},
+        "snapshot_verified": {"type": "boolean"},
+        "captured_at_utc": {"type": "string", "format": "date-time"},
+        "redacted": {"type": "boolean"}
+      }
+    }
+  }
+}

@@ -26,6 +26,7 @@ validate:  ## Validate provenance and every canonical sample artifact
 	python scripts/validate_sources.py
 	python scripts/validate_context_pack.py
 	python scripts/validate_license_isolation.py
+	python scripts/validate_correction_isolation.py
 	python scripts/validate_artifacts.py
 
 lint:  ## Lint python + ui

@@ -54,3 +54,24 @@ make lint                     # ruff + mypy + eslint
 ## Reporting bugs / proposing features
 
 Open an issue with the relevant template. Security issues: **do not** open a public issue — see [SECURITY.md](SECURITY.md).
+
+## Contributing a data correction
+
+The installed app can create a local, provenance-bearing correction export. It
+never files an issue or sends the export. Before making a public contribution:
+
+1. Review the unchanged source-backed value, your proposed value, source id,
+   license namespace, URL, and sanitized evidence excerpt in the export.
+2. Remove personal information. Do not attach authentication tokens, private
+   correspondence, copyrighted page dumps, or evidence unrelated to the claim.
+3. Use the data-correction issue form and attach the small JSON export only when
+   its `redistributable_export` disclosure is `true`.
+4. Do not submit OpenLigaDB / ODbL correction exports. Golavo intentionally keeps
+   that namespace local and disables export.
+
+A submitted candidate is not an accepted source update. Maintainers must verify
+the registered source, exact entity identity, license class, and conflict state.
+Bundled data changes only through the normal source-pack build, provenance
+validation, review, and release process. Correction proposals must never be
+copied into model-training, calibration, seals, settlement, or the shared match
+warehouse.

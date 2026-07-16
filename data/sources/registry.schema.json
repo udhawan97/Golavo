@@ -63,6 +63,7 @@
         "refresh": {"$ref": "#/$defs/refresh"},
         "overlay": {"$ref": "#/$defs/overlay"},
         "entity_access": {"$ref": "#/$defs/entityAccess"},
+        "corrections": {"$ref": "#/$defs/correctionPolicy"},
         "recheck_by": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
         "verified": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
         "notes": {"type": "string"}
@@ -118,6 +119,40 @@
         "default_interval_seconds": {"type": "integer", "minimum": 900},
         "max_file_bytes": {"type": "integer", "minimum": 1024},
         "max_snapshot_bytes": {"type": "integer", "minimum": 1024}
+      }
+    },
+    "correctionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled", "license_namespace", "allowed_types", "evidence_hosts",
+        "local_annotation", "redistributable_export", "contribution_url"
+      ],
+      "properties": {
+        "enabled": {"const": true},
+        "license_namespace": {
+          "enum": [
+            "core-cc0", "enrichment-cc0", "enrichment-public-domain",
+            "enrichment-cc-by-4.0", "overlay-odbl-1.0"
+          ]
+        },
+        "allowed_types": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"]
+          }
+        },
+        "evidence_hosts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z0-9.-]+$"}
+        },
+        "local_annotation": {"const": true},
+        "redistributable_export": {"type": "boolean"},
+        "contribution_url": {"type": "string", "format": "uri"}
       }
     },
     "entityAccess": {

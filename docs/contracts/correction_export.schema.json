@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/correction_export.schema.json",
+  "title": "Deterministic public correction export",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "export_id", "proposal_id", "proposal_head_event_id", "license_namespace", "correction_type", "target", "original", "proposed", "source", "evidence", "history", "disclosures"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "export_id": {"type": "string", "pattern": "^cx_[0-9a-f]{64}$"},
+    "proposal_id": {"type": "string", "pattern": "^cp_[0-9a-f]{32}$"},
+    "proposal_head_event_id": {"type": "string", "pattern": "^ce_[0-9a-f]{64}$"},
+    "license_namespace": {"type": "string", "not": {"const": "overlay-odbl-1.0"}},
+    "correction_type": {"enum": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"]},
+    "target": {"type": "object", "additionalProperties": false, "required": ["kind", "match_id", "entity_id", "upstream_record_key", "base_generation_id", "index_fingerprint"], "properties": {"kind": {"enum": ["match", "team", "venue", "fixture_candidate"]}, "match_id": {"type": ["string", "null"]}, "entity_id": {"type": ["string", "null"]}, "upstream_record_key": {"type": ["string", "null"]}, "base_generation_id": {"type": ["string", "null"]}, "index_fingerprint": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}}},
+    "original": {"type": ["object", "null"]},
+    "proposed": {"type": "object"},
+    "source": {"$ref": "#/$defs/source"},
+    "evidence": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"$ref": "#/$defs/evidence"}},
+    "history": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/history"}},
+    "disclosures": {"type": "object", "additionalProperties": false, "required": ["untrusted_candidate", "authoritative_override", "model_input", "settlement_input", "raw_evidence_included", "modifications_disclosed"], "properties": {"untrusted_candidate": {"const": true}, "authoritative_override": {"const": false}, "model_input": {"const": false}, "settlement_input": {"const": false}, "raw_evidence_included": {"const": false}, "modifications_disclosed": {"const": true}}}
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "name", "license", "license_url", "attribution", "license_namespace", "allowed_types", "redistributable_export", "contribution_url"],
+      "properties": {
+        "source_id": {"type": "string"}, "name": {"type": "string"}, "license": {"type": "string"},
+        "license_url": {"type": ["string", "null"], "format": "uri"}, "attribution": {"type": ["string", "null"]},
+        "license_namespace": {"type": "string", "not": {"const": "overlay-odbl-1.0"}},
+        "allowed_types": {"type": "array", "items": {"type": "string"}},
+        "redistributable_export": {"const": true}, "contribution_url": {"type": "string", "format": "uri"}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "source_url", "source_revision", "raw_sha256", "sanitized_excerpt", "snapshot_verified"],
+      "properties": {
+        "evidence_id": {"type": "string", "pattern": "^ev_[0-9a-f]{64}$"},
+        "source_url": {"type": "string", "format": "uri"},
+        "source_revision": {"type": ["string", "null"]},
+        "raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "sanitized_excerpt": {"type": "string", "maxLength": 240},
+        "snapshot_verified": {"type": "boolean"}
+      }
+    },
+    "history": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "sequence", "event_type", "event_sha256"],
+      "properties": {
+        "event_id": {"type": "string", "pattern": "^ce_[0-9a-f]{64}$"},
+        "sequence": {"type": "integer", "minimum": 1},
+        "event_type": {"type": "string"},
+        "event_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}
