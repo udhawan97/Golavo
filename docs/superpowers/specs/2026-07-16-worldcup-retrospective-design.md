@@ -21,7 +21,7 @@ One view at `/lab/worldcup-2026` answering two questions that must never be conf
 1. **Story** — "What would the app have told you before each match, and where was it
    most wrong?" Per-match forecasts, each trained only up to its own kickoff.
 2. **Trust** — "Do these models actually have skill?" The existing WC2026 evaluation
-   fold, reused as-is.
+   fold logic, recomputed against the active pack. No new scoring code.
 
 ## Non-goals (v1)
 
@@ -41,7 +41,7 @@ This is the requirement the whole design serves. Two claims sit on one page, and
 | Layer | Claim | Training cutoff | Source |
 |---|---|---|---|
 | Story | "What the app would have told you before this match" | per-match, `kickoff − 1s` | new |
-| Trust | "Could the models have called the tournament from outside?" | once, pre-tournament | existing WC2026 fold |
+| Trust | "Could the models have called the tournament from outside?" | once, pre-tournament | existing WC2026 fold, recomputed on the active pack |
 
 Rules:
 
@@ -67,12 +67,29 @@ Computing from the active pack is consistent by construction. The cost (~2.7 min
 matches × 5 families, measured) is paid once per pack, not once per open, because the
 result is cached against the index fingerprint.
 
+**The same argument applies to the trust layer, and this is a correction to an earlier
+draft of this spec.** The committed `docs/handoff/eval_summary.json` is frozen against the
+*canonical* pack and already reports WC2026 at `n_matches: 97`, while the refreshed pack
+has 102 completed. Reading the frozen fold would put 97 next to the story layer's 102 on
+one page — two numbers disagreeing about the same tournament, which is the staleness this
+design exists to avoid. The trust layer therefore calls `evaluate(active_pack_dir)` and
+caches it on the same fingerprint. Measured at 30.5s, so on-demand is affordable.
+
+Total first-compute budget: ~2.7 min (story) + ~31s (trust) ≈ 3.2 min, once per pack.
+
+Both layers must resolve the **same** pack — the story reads the index frame, the trust
+layer reads the pack directory. The server resolves the active pack via
+`seal.resolve_pack_dir(...)` (runtime-refreshed → greatest-anchor → canonical). The
+response must stamp which pack both layers used, so a reader can audit that they agree.
+
 ## Architecture
 
 ```
-index ──> retrospective.compute(window) ──> per-match rows ──> cache ──> API ──> UI
-                                         ↘ existing WC2026 fold ─────────────> trust panel
+active pack ─┬─> index frame ──> retrospective.compute(window) ──> per-match rows ─┬─> cache ──> API ──> UI
+             └─> evaluate(pack) ──> WC2026 fold report card ──────────────────────┘
 ```
+
+One pack resolves both layers, so their match counts cannot drift apart.
 
 ### `core/golavo_core/retrospective.py` (new, pure)
 
@@ -108,8 +125,8 @@ Route `/lab/worldcup-2026`, reached from Model Lab.
 - **Story**: matches ranked by log loss — "most surprised" descending, "most confident
   and right" ascending. Named plainly as per-match log loss, not dressed up as a
   proprietary "surprise score".
-- **Trust**: the existing fold report card with its bootstrap intervals, labelled as
-  trained once, pre-tournament.
+- **Trust**: the fold report card with its bootstrap intervals, labelled as trained once,
+  pre-tournament, and stamped with the pack it was computed from.
 - Progress UI during first compute, reusing the existing job-polling components.
 
 ### `docs/contracts/tournament_retrospective.schema.json` (new)
