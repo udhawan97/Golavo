@@ -27,6 +27,8 @@ import { PickChip, pickChipLabel } from "../components/PickChip";
 import { nationalFlag, teamMonogram, teamNameDensity } from "../lib/teamIdentity";
 import { TournamentOutlook } from "../components/TournamentOutlook";
 import { useDataGenerationRevision, useDataRefresh } from "../lib/data-refresh-context";
+import { FollowButton } from "../components/FollowButton";
+import { FollowedMatchesPanel } from "../components/FollowedMatchesPanel";
 
 const WELCOME_KEY = "golavo-welcome-dismissed";
 
@@ -101,6 +103,8 @@ export function MatchdayHome() {
       )}
 
       <WelcomeCard />
+
+      <FollowedMatchesPanel />
 
       <a className="search-cta" href="#/matches">
         <SearchIcon />
@@ -331,49 +335,53 @@ export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anc
   const homeDensity = teamNameDensity(match.home_team);
   const awayDensity = teamNameDensity(match.away_team);
   return (
-    <a
-      className="game-card"
-      href={`#/match/${encodeURIComponent(match.match_id)}`}
-      data-tour={anchor ? "match-card" : undefined}
-      aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}.${pickChipLabel(match, pick) ? ` ${pickChipLabel(match, pick)}.` : ""} Open analytics.`}
-    >
-      <div className="game-card__meta">
-        <span className="game-card__state">{match.is_complete ? "Final" : "Upcoming"}</span>
-        <span className="game-card__date">{utcDate(match.kickoff_utc)}</span>
-      </div>
-      <div className="game-card__teams">
-        <span className="game-card__side game-card__side--home">
-          <TeamMark team={match.home_team} international={isInternational} />
-          <span className={`game-card__team game-card__team--${homeDensity}`} title={match.home_team}>
-            {match.home_team}
-          </span>
-        </span>
-        <span className="game-card__mid">
-          {match.is_complete ? (
-            <span className="num game-card__score">
-              {match.home_score}–{match.away_score}
+    <article className="game-card-shell" data-tour={anchor ? "match-card" : undefined}>
+      <a
+        className="game-card"
+        href={`#/match/${encodeURIComponent(match.match_id)}`}
+        aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}.${pickChipLabel(match, pick) ? ` ${pickChipLabel(match, pick)}.` : ""} Open analytics.`}
+      >
+        <div className="game-card__meta">
+          <span className="game-card__state">{match.is_complete ? "Final" : "Upcoming"}</span>
+          <span className="game-card__date">{utcDate(match.kickoff_utc)}</span>
+        </div>
+        <div className="game-card__teams">
+          <span className="game-card__side game-card__side--home">
+            <TeamMark team={match.home_team} international={isInternational} />
+            <span className={`game-card__team game-card__team--${homeDensity}`} title={match.home_team}>
+              {match.home_team}
             </span>
-          ) : (
-            <span className="small muted">v</span>
-          )}
-        </span>
-        <span className="game-card__side game-card__side--away">
-          <TeamMark team={match.away_team} international={isInternational} />
-          <span className={`game-card__team game-card__team--away game-card__team--${awayDensity}`} title={match.away_team}>
-            {match.away_team}
           </span>
-        </span>
+          <span className="game-card__mid">
+            {match.is_complete ? (
+              <span className="num game-card__score">
+                {match.home_score}–{match.away_score}
+              </span>
+            ) : (
+              <span className="small muted">v</span>
+            )}
+          </span>
+          <span className="game-card__side game-card__side--away">
+            <TeamMark team={match.away_team} international={isInternational} />
+            <span className={`game-card__team game-card__team--away game-card__team--${awayDensity}`} title={match.away_team}>
+              {match.away_team}
+            </span>
+          </span>
+        </div>
+        <div className="game-card__foot">
+          <span className="game-card__location">
+            <PinIcon size={13} />
+            <MatchLocation match={match} />
+          </span>
+          <span className="game-card__analyze" aria-hidden>
+            Open analysis <ChevronRight size={13} />
+          </span>
+        </div>
+        <PickChip match={match} pick={pick} />
+      </a>
+      <div className="game-card-shell__follow">
+        <FollowButton matchId={match.match_id} compact />
       </div>
-      <div className="game-card__foot">
-        <span className="game-card__location">
-          <PinIcon size={13} />
-          <MatchLocation match={match} />
-        </span>
-        <span className="game-card__analyze" aria-hidden>
-          Open analysis <ChevronRight size={13} />
-        </span>
-      </div>
-      <PickChip match={match} pick={pick} />
-    </a>
+    </article>
   );
 }

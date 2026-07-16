@@ -10,6 +10,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 class FakeCoordinator:
     def __init__(self) -> None:
+        self.started = None
         self.job = {
             "schema_version": "0.1.0",
             "job_id": "rj_" + "1" * 32,
@@ -27,6 +28,7 @@ class FakeCoordinator:
         }
 
     def start(self, **kwargs):
+        self.started = kwargs
         return self.job, False
 
     def get(self, job_id=None):
@@ -56,6 +58,32 @@ def test_refresh_job_routes(monkeypatch) -> None:
     cancelled = client.post(f"/api/v1/data/refresh/{job_id}/cancel")
     assert cancelled.json()["cancel_requested"] is True
     assert client.get("/api/v1/data/refresh/not-found").status_code == 404
+
+
+def test_refresh_route_passes_followed_scope_without_client_source_ids(monkeypatch) -> None:
+    fake = FakeCoordinator()
+    monkeypatch.setattr(server_main.refresh_jobs, "coordinator", lambda: fake)
+    response = TestClient(server_main.app).post(
+        "/api/v1/data/refresh",
+        json={"mode": "refresh", "trigger": "periodic", "scope": "followed"},
+    )
+    assert response.status_code == 202
+    assert fake.started == {
+        "mode": "refresh",
+        "source_ids": None,
+        "trigger": "periodic",
+        "scope": "followed",
+    }
+
+    invalid = TestClient(server_main.app).post(
+        "/api/v1/data/refresh",
+        json={
+            "mode": "check",
+            "scope": "followed",
+            "source_ids": ["openfootball-worldcup-json"],
+        },
+    )
+    assert invalid.status_code == 422
 
 
 def test_refresh_route_rejects_unapproved_source(monkeypatch) -> None:

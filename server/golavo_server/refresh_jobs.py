@@ -16,7 +16,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from golavo_server import matches, refresh, refresh_sources, refresh_state, runtime
+from golavo_server import follows, matches, refresh, refresh_sources, refresh_state, runtime
 
 JOB_SCHEMA_VERSION = "0.1.0"
 _BACKOFF_SECONDS = (15 * 60, 60 * 60, 6 * 60 * 60, 24 * 60 * 60)
@@ -110,19 +110,34 @@ class RefreshCoordinator:
         mode: str,
         source_ids: list[str] | None,
         trigger: str,
+        scope: str = "all",
         fetcher: refresh_sources.Fetcher | None = None,
     ) -> tuple[dict[str, Any], bool]:
         if mode not in ("check", "refresh"):
             raise ValueError("mode must be check or refresh")
         if trigger not in ("manual", "launch", "periodic"):
             raise ValueError("trigger must be manual, launch, or periodic")
-        selected = list(source_ids or refresh_sources.APPROVED_SOURCE_IDS)
+        if scope not in ("all", "followed"):
+            raise ValueError("scope must be all or followed")
+        if scope == "followed" and source_ids is None:
+            selected = follows.source_ids(ledger=runtime.data_dir())
+        else:
+            selected = list(source_ids or refresh_sources.APPROVED_SOURCE_IDS)
         if not selected or len(selected) != len(set(selected)):
-            raise ValueError("source_ids must be a non-empty unique array")
+            message = (
+                "no followed matches have an approved refresh source"
+                if scope == "followed"
+                else "source_ids must be a non-empty unique array"
+            )
+            raise ValueError(message)
         unknown = sorted(set(selected) - set(refresh_sources.APPROVED_SOURCE_IDS))
         if unknown:
             raise ValueError(f"unapproved source_ids: {unknown}")
-        if mode == "refresh" and set(selected) != set(refresh_sources.APPROVED_SOURCE_IDS):
+        if (
+            mode == "refresh"
+            and scope == "all"
+            and set(selected) != set(refresh_sources.APPROVED_SOURCE_IDS)
+        ):
             raise ValueError("refresh mode requires the complete approved source set")
         if runtime.refresh_dir() is None:
             raise RuntimeError("refresh is unavailable without a writable application data path")
@@ -139,6 +154,7 @@ class RefreshCoordinator:
                 "stage": "queued",
                 "mode": mode,
                 "trigger": trigger,
+                "scope": scope,
                 "source_ids": selected,
                 "created_at_utc": now,
                 "updated_at_utc": now,
@@ -150,7 +166,7 @@ class RefreshCoordinator:
             self._persist_job()
             self._thread = threading.Thread(
                 target=self._run,
-                args=(mode, selected, trigger, fetcher),
+                args=(mode, selected, trigger, scope, fetcher),
                 name=f"golavo-refresh-{job_id[-8:]}",
                 daemon=True,
             )
@@ -241,11 +257,12 @@ class RefreshCoordinator:
         mode: str,
         selected: list[str],
         trigger: str,
+        scope: str,
         fetcher: refresh_sources.Fetcher | None,
     ) -> None:
         try:
             with refresh_state.refresh_job_lock():
-                self._run_locked(mode, selected, trigger, fetcher)
+                self._run_locked(mode, selected, trigger, scope, fetcher)
         except (OSError, RuntimeError) as exc:
             self._fail("refresh_locked", str(exc), retryable=True)
 
@@ -254,6 +271,7 @@ class RefreshCoordinator:
         mode: str,
         selected: list[str],
         trigger: str,
+        scope: str,
         fetcher: refresh_sources.Fetcher | None,
     ) -> None:
         assert self._job is not None and self._cancel is not None
@@ -303,11 +321,47 @@ class RefreshCoordinator:
             if self._cancel.is_set():
                 raise refresh_sources.RefreshCancelled()
             if mode == "check":
+                revision_events = follows.record_source_revisions(
+                    selected,
+                    ledger=runtime.data_dir(),
+                    source_status=state.get("sources", {}),
+                )
+                reconciliation = _reconcile_follows(state)
                 self._finish(
                     {
                         "activated": False,
                         "observed": {key: value.ref for key, value in observations.items()},
                         "failures": sorted(failures),
+                        "follow_event_ids": revision_events,
+                        "follow_reconciliation": reconciliation,
+                    }
+                )
+                refresh_state.clean_staging(staging)
+                return
+
+            # A followed refresh first checks only the distinct relevant
+            # sources. If none moved relative to the active generation, the
+            # complete all-source generation need not be downloaded or rebuilt.
+            active_path, _ = refresh_state.active_generation()
+            active_manifest = refresh_state.verify_generation(active_path) if active_path else None
+            active_refs = {
+                str(item.get("source_id")): str(item.get("upstream_ref"))
+                for item in (active_manifest or {}).get("source_snapshots", [])
+                if isinstance(item, dict)
+            }
+            preflight_changed = active_path is None or any(
+                active_refs.get(source_id) != observation.ref
+                for source_id, observation in observations.items()
+                if source_id != refresh_sources.FOOTBALL or observation.current_paths
+            )
+            if scope == "followed" and not preflight_changed:
+                self._finish(
+                    {
+                        "activated": False,
+                        "reason": "unchanged",
+                        "active_generation_id": active_path.name if active_path else None,
+                        "failures": sorted(failures),
+                        "follow_reconciliation": _reconcile_follows(state),
                     }
                 )
                 refresh_state.clean_staging(staging)
@@ -334,13 +388,6 @@ class RefreshCoordinator:
                     self._source_success(state, observation)
                     refresh_state.save_state(state)
             football = observations.get(refresh_sources.FOOTBALL)
-            active_path, _ = refresh_state.active_generation()
-            active_manifest = refresh_state.verify_generation(active_path) if active_path else None
-            active_refs = {
-                str(item.get("source_id")): str(item.get("upstream_ref"))
-                for item in (active_manifest or {}).get("source_snapshots", [])
-                if isinstance(item, dict)
-            }
             blocked = [
                 source_id
                 for source_id, observation in observations.items()
@@ -354,6 +401,7 @@ class RefreshCoordinator:
                         "reason": "quarantined_ref_unchanged",
                         "sources": sorted(blocked),
                         "active_generation_id": active_path.name if active_path else None,
+                        "follow_reconciliation": _reconcile_follows(state),
                     }
                 )
                 refresh_state.clean_staging(staging)
@@ -370,6 +418,7 @@ class RefreshCoordinator:
                         "reason": "unchanged",
                         "active_generation_id": active_path.name,
                         "failures": sorted(failures),
+                        "follow_reconciliation": _reconcile_follows(state),
                     }
                 )
                 refresh_state.clean_staging(staging)
@@ -500,6 +549,7 @@ class RefreshCoordinator:
                         else "partial"
                     )
             refresh_state.save_state(final_state)
+            reconciliation = _reconcile_follows(final_state)
             self._finish(
                 {
                     "activated": True,
@@ -508,6 +558,7 @@ class RefreshCoordinator:
                     "change_summary": change_summary,
                     "capabilities": capabilities,
                     "failures": sorted(failures),
+                    "follow_reconciliation": reconciliation,
                 }
             )
         except refresh_sources.RefreshCancelled:
@@ -530,7 +581,15 @@ class RefreshCoordinator:
                         "retryable": False,
                     }
             refresh_state.save_state(state)
-            self._fail("source_conflict", str(exc), retryable=False)
+            follows.record_conflicts(
+                exc.details,
+                ledger=runtime.data_dir(),
+                source_status=state.get("sources", {}),
+            )
+            _reconcile_follows(state)
+            self._fail(
+                "source_conflict", str(exc), retryable=False, details=exc.details
+            )
         except refresh_sources.RefreshSourceError as exc:
             refresh_state.clean_staging(staging)
             self._fail(exc.code, str(exc), retryable=exc.retryable)
@@ -546,18 +605,53 @@ class RefreshCoordinator:
     def _finish(self, result: dict[str, Any]) -> None:
         self._update_job(state="done", stage="done", result=result, error=None)
 
-    def _fail(self, code: str, message: str, *, retryable: bool) -> None:
+    def _fail(
+        self,
+        code: str,
+        message: str,
+        *,
+        retryable: bool,
+        details: list[dict[str, Any]] | None = None,
+    ) -> None:
         state = refresh_state.load_state()
-        state["last_error"] = {"code": code, "message": message, "retryable": retryable}
+        error = {"code": code, "message": message, "retryable": retryable}
+        if details:
+            error["details"] = details
+        state["last_error"] = error
         refresh_state.save_state(state)
         self._update_job(
             state="failed",
             stage="done",
-            error={"code": code, "message": message, "retryable": retryable},
+            error=error,
         )
 
 
 _COORDINATOR = RefreshCoordinator()
+
+
+def _reconcile_follows(state: dict[str, Any]) -> dict[str, Any]:
+    """Best-effort follow health reconciliation over the active local index.
+
+    A follow-store problem never rolls back a generation that already passed
+    the independent Phase 1 activation gate; the job reports the isolated error
+    and preserves the store for recovery.
+    """
+    try:
+        active, _ = refresh_state.active_generation()
+        return follows.reconcile(
+            ledger=runtime.data_dir(),
+            frame=matches._load_index(),
+            index_fingerprint=matches.index_fingerprint(),
+            generation_id=active.name if active is not None else None,
+            source_status=state.get("sources", {}),
+        )
+    except (follows.FollowError, matches.MatchIndexUnavailable, OSError, ValueError) as exc:
+        return {
+            "schema_version": follows.SCHEMA_VERSION,
+            "reconciled": 0,
+            "event_ids": [],
+            "error": str(exc),
+        }
 
 
 def coordinator() -> RefreshCoordinator:

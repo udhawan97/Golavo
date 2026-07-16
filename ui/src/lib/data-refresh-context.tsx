@@ -5,6 +5,7 @@ import {
   clearApiCache,
   fetchDataRefreshJob,
   fetchDataRefreshStatus,
+  fetchFollows,
   rollbackDataRefresh,
   startDataRefresh,
 } from "./api";
@@ -23,6 +24,7 @@ export interface DataRefreshController {
   error: Error | null;
   checkNow: () => Promise<void>;
   refreshNow: () => Promise<void>;
+  refreshFollowedNow: () => Promise<void>;
   cancel: () => Promise<void>;
   rollback: () => Promise<void>;
   reloadStatus: () => Promise<void>;
@@ -51,13 +53,19 @@ export function useDataRefreshController(backendReady: boolean): DataRefreshCont
   const run = useCallback(async (
     mode: "check" | "refresh",
     trigger: "manual" | "launch" | "periodic",
+    requestedScope?: "all" | "followed",
   ) => {
     if (!backendReady || running.current) return running.current ?? Promise.resolve();
     const work = (async () => {
       setError(null);
       beginActivity("data-refresh", mode === "check" ? "Checking approved data sources…" : "Refreshing approved data…");
       try {
-        let current = await startDataRefresh(mode, trigger);
+        const scope = requestedScope ?? (
+          trigger === "manual"
+            ? "all"
+            : (await fetchFollows("active", 0)).total > 0 ? "followed" : "all"
+        );
+        let current = await startDataRefresh(mode, trigger, scope);
         setJob(current);
         const deadline = Date.now() + 20 * 60 * 1000;
         while (current.state === "queued" || current.state === "running") {
@@ -99,15 +107,28 @@ export function useDataRefreshController(backendReady: boolean): DataRefreshCont
   useEffect(() => {
     if (!backendReady || policy === "off") return;
     const mode = policy === "auto_refresh" ? "refresh" : "check";
+    let lastWake = Date.now();
+    const wake = (trigger: "launch" | "periodic") => {
+      if (document.visibilityState !== "visible") return;
+      lastWake = Date.now();
+      void run(mode, trigger);
+    };
     const launch = window.setTimeout(() => {
-      if (document.visibilityState === "visible") void run(mode, "launch");
+      wake("launch");
     }, LAUNCH_DELAY_MS);
     const periodic = window.setInterval(() => {
-      if (document.visibilityState === "visible") void run(mode, "periodic");
+      wake("periodic");
     }, PERIODIC_WAKE_MS);
+    const resume = () => {
+      if (Date.now() - lastWake >= PERIODIC_WAKE_MS) wake("periodic");
+    };
+    document.addEventListener("visibilitychange", resume);
+    window.addEventListener("focus", resume);
     return () => {
       window.clearTimeout(launch);
       window.clearInterval(periodic);
+      document.removeEventListener("visibilitychange", resume);
+      window.removeEventListener("focus", resume);
     };
   }, [backendReady, policy, run]);
 
@@ -135,6 +156,7 @@ export function useDataRefreshController(backendReady: boolean): DataRefreshCont
     error,
     checkNow: () => run("check", "manual"),
     refreshNow: () => run("refresh", "manual"),
+    refreshFollowedNow: () => run("refresh", "manual", "followed"),
     cancel,
     rollback,
     reloadStatus,

@@ -38,6 +38,7 @@ import { HOME_TOUR, seedExistingUser, useTour } from "./lib/tour";
 import { useExternalLinks } from "./lib/external-links";
 import { DataRefreshContext, useDataRefreshController } from "./lib/data-refresh-context";
 import { OpenLigaDBContext, useOpenLigaDBController } from "./lib/openligadb-context";
+import { FollowContext, useFollowController } from "./lib/follow-context";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
  *  home's own warming card. A wedged index can never strand the user: search and
@@ -58,6 +59,7 @@ export default function App() {
   // One controller for the whole app: header pill, sheet, settings, toast.
   const updater = useUpdaterController();
   const dataRefresh = useDataRefreshController(backendReady && !holdForIndex);
+  const follows = useFollowController(backendReady && !holdForIndex);
   const openLigaDB = useOpenLigaDBController(backendReady && !holdForIndex);
 
   // First-launch orientation. Seed returning users as "done" once so an update
@@ -106,34 +108,36 @@ export default function App() {
 
   return (
     <DataRefreshContext.Provider value={dataRefresh}>
-      <OpenLigaDBContext.Provider value={openLigaDB}>
-       <UpdaterContext.Provider value={updater}>
-        <Layout
-          path={path}
-          prefs={prefs}
-          onChangePrefs={setPrefs}
-          forecastSource={forecastSource}
-        >
-          <ErrorBoundary resetKey={path}>
-            <Suspense
-              fallback={
-                <>
-                  <Loading label="Loading view" />
-                  <BlockSkeleton />
-                </>
-              }
-            >
-              <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
-            </Suspense>
-          </ErrorBoundary>
-        </Layout>
-        <UpdateSheet />
-        <UpdateConsentCard />
-        <UpdateAvailableToast />
-        <UpdatedToast />
-        <TourOverlay ctrl={homeTour} />
-       </UpdaterContext.Provider>
-      </OpenLigaDBContext.Provider>
+      <FollowContext.Provider value={follows}>
+        <OpenLigaDBContext.Provider value={openLigaDB}>
+         <UpdaterContext.Provider value={updater}>
+          <Layout
+            path={path}
+            prefs={prefs}
+            onChangePrefs={setPrefs}
+            forecastSource={forecastSource}
+          >
+            <ErrorBoundary resetKey={path}>
+              <Suspense
+                fallback={
+                  <>
+                    <Loading label="Loading view" />
+                    <BlockSkeleton />
+                  </>
+                }
+              >
+                <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
+              </Suspense>
+            </ErrorBoundary>
+          </Layout>
+          <UpdateSheet />
+          <UpdateConsentCard />
+          <UpdateAvailableToast />
+          <UpdatedToast />
+          <TourOverlay ctrl={homeTour} />
+         </UpdaterContext.Provider>
+        </OpenLigaDBContext.Provider>
+      </FollowContext.Provider>
     </DataRefreshContext.Provider>
   );
 }

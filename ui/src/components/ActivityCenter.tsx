@@ -14,6 +14,7 @@ import { useActivities } from "../lib/activity";
 import { useUpdater } from "../lib/updater-context";
 import { formatBytes } from "../lib/updater";
 import { PulseIcon } from "./icons";
+import { useFollows } from "../lib/follow-context";
 
 interface Row {
   id: string;
@@ -48,6 +49,7 @@ export function ActivityCenter() {
   const warmup = useWarmupStatus();
   const activities = useActivities();
   const u = useUpdater();
+  const follows = useFollows();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const panelId = useId();
@@ -103,6 +105,21 @@ export function ActivityCenter() {
     rows.push({ id: `act:${a.id}`, label: a.label, pct: null });
   }
 
+  if (follows.list.unread_event_count > 0) {
+    rows.push({
+      id: "follow-events",
+      label: `${follows.list.unread_event_count} followed match ${follows.list.unread_event_count === 1 ? "update" : "updates"}`,
+      detail: "Stored locally with source provenance.",
+      action: {
+        label: "Review followed matches",
+        onClick: () => {
+          window.location.hash = "#/games";
+          setOpen(false);
+        },
+      },
+    });
+  }
+
   const active = rows.length > 0;
   // At rest with the panel closed, add nothing to the header.
   if (!active && !open) return null;
@@ -115,15 +132,15 @@ export function ActivityCenter() {
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        aria-label={active ? `Background activity — ${rows.length} running` : "Background activity"}
-        title="Background activity"
+        aria-label={active ? `Current activity and updates — ${rows.length}` : "Current activity"}
+        title="Current activity"
         onClick={() => setOpen((o) => !o)}
       >
         <PulseIcon />
         {active && <span className="activity__dot" aria-hidden />}
       </button>
       {open && (
-        <div className="rc__panel activity__panel" id={panelId} role="group" aria-label="Background activity">
+        <div className="rc__panel activity__panel" id={panelId} role="group" aria-label="Current activity and updates">
           {rows.length === 0 ? (
             <p className="activity__empty dim">All quiet — nothing running.</p>
           ) : (

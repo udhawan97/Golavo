@@ -28,6 +28,8 @@ import {
   OllamaModelGuide,
 } from "../components/ai/OllamaModelGuide";
 import { OpenLigaDBSettings } from "../components/OpenLigaDBSettings";
+import { useFollows } from "../lib/follow-context";
+import { BellIcon } from "../components/icons";
 
 function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
@@ -123,6 +125,8 @@ export function Settings({
 } = {}) {
   const u = useUpdater();
   const dataRefresh = useDataRefresh();
+  const follows = useFollows();
+  const [confirmRemoveFollows, setConfirmRemoveFollows] = useState(false);
   const [aiProvider, setAiProvider] = useAiProvider();
   const [aiBackground, setAiBackground] = useAiBackground();
   const [aiResearch, setAiResearch] = useAiResearch();
@@ -280,6 +284,82 @@ export function Settings({
                 )}
               </div>
             )}
+          </div>
+          <hr style={{ width: "100%", border: 0, borderTop: "1px solid var(--line)" }} />
+          <div className="settings__field">
+            <div className="settings__row">
+              <div>
+                <label>Followed matches</label>
+                <p className="settings__hint" style={{ margin: ".2rem 0 0" }}>
+                  {follows.list.total === 1 ? "1 match followed locally" : `${follows.list.total} matches followed locally`}
+                </p>
+              </div>
+              {follows.list.total > 0 && (
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => void dataRefresh.refreshFollowedNow()}
+                >
+                  Check followed matches
+                </button>
+              )}
+            </div>
+            <p className="settings__hint">
+              Golavo checks followed matches on launch and periodically only while the app is
+              running. Closing Golavo stops checks. No helper, Login Item, or LaunchAgent is
+              installed. Following never changes a sealed forecast or enables network refresh.
+            </p>
+            <div className="settings__row">
+              <span className="inline-icon"><BellIcon /> Local notifications</span>
+              {follows.settings.notifications_opt_in ? (
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => void follows.disableNotifications()}
+                >
+                  Disable notifications
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  disabled={!follows.settings.notifications_supported}
+                  onClick={() => void follows.enableNotifications()}
+                >
+                  Enable local notifications
+                </button>
+              )}
+            </div>
+            <p className="settings__hint">
+              Notifications are sent only for changes Golavo detects while it is open. They do not
+              monitor matches after you quit. Notification text is generic and never exposes teams,
+              scores, picks, or probabilities on the lock screen.
+              {!follows.settings.notifications_supported && " Notifications are available in the installed desktop app."}
+              {follows.permission === "denied" && " Permission was denied; followed matches and history still work normally."}
+            </p>
+            <div className="settings__row">
+              <span>Local follow history</span>
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => {
+                  if (!confirmRemoveFollows) {
+                    setConfirmRemoveFollows(true);
+                    return;
+                  }
+                  void follows.removeHistory().finally(() => setConfirmRemoveFollows(false));
+                }}
+              >
+                {confirmRemoveFollows ? "Confirm remove follow history" : "Remove follow history"}
+              </button>
+            </div>
+            {confirmRemoveFollows && (
+              <p className="settings__hint" role="alert">
+                This removes followed-match subscriptions and their event history only. Forecasts,
+                picks, refresh generations, OpenLigaDB data, and user artifacts are not touched.
+              </p>
+            )}
+            {follows.error && <p className="settings__hint" role="alert">{follows.error.message}</p>}
           </div>
           <div className="settings__row">
             <span>Map &amp; place data</span>

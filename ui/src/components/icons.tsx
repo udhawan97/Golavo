@@ -31,6 +31,19 @@ export const CheckIcon = ({ size = 15, ...p }: IconProps) => (
   <svg {...base(size, p)}><path d="M4 12l5 5L20 6" /></svg>
 );
 
+export const BookmarkIcon = ({ size = 17, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M6.5 3.5h11v17L12 17l-5.5 3.5z" />
+  </svg>
+);
+
+export const BellIcon = ({ size = 17, ...p }: IconProps) => (
+  <svg {...base(size, p)}>
+    <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" />
+    <path d="M10 19h4" />
+  </svg>
+);
+
 /** A calm activity/pulse glyph — a dot with a heartbeat trace. Used for the
  *  header activity center trigger, and the "form" fact category. */
 export const PulseIcon = ({ size = 18, ...p }: IconProps) => (
