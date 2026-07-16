@@ -115,11 +115,22 @@ else
 fi
 ( cd desktop && npx tauri "${BUILD_ARGS[@]}" )
 
+# Tauri re-signs bundled external binaries after the standalone PyInstaller
+# smoke job has run. Verify the final macOS bundle itself: a signature can be
+# structurally valid yet fail at launch if hardened library validation rejects
+# PyInstaller's extracted dylibs. `--version` exercises the frozen Python
+# runtime without mutating user data or starting the server.
+BUNDLE_DIR="desktop/src-tauri/target/${TARGET}/release/bundle"
+[ -d "$BUNDLE_DIR" ] || BUNDLE_DIR="desktop/src-tauri/target/release/bundle"
+if [[ "$TARGET" == *apple-darwin* ]]; then
+  APP_BUNDLE="$BUNDLE_DIR/macos/Golavo.app"
+  codesign --verify --deep --strict --verbose=2 "$APP_BUNDLE"
+  "$APP_BUNDLE/Contents/MacOS/golavo-sidecar" --version
+fi
+
 echo "==> [4/4] Collecting artifacts + checksums"
 OUT="packaging/out"
 # Tauri may namespace the bundle dir by target; handle both layouts.
-BUNDLE_DIR="desktop/src-tauri/target/${TARGET}/release/bundle"
-[ -d "$BUNDLE_DIR" ] || BUNDLE_DIR="desktop/src-tauri/target/release/bundle"
 mkdir -p "$OUT"
 # Copy only the installer/update artifacts (NOT the raw ~73MB sidecar that
 # PyInstaller left in $OUT — it is already staged under desktop/.../binaries/).
