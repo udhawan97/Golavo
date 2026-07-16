@@ -98,7 +98,7 @@ def _location(city: Any, country: Any) -> dict[str, Any]:
     if place is None:
         return {
             **base,
-            "reason": "city-not-resolved-in-reviewed-context-pack",
+            "reason": "city-not-resolved-in-unique-exact-context-pack",
             "city": str(city),
             "country": str(country),
         }

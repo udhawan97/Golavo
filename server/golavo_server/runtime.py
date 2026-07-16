@@ -169,3 +169,11 @@ def launch_token() -> str | None:
     """The required launch token, or None when the API should stay open."""
     token = os.environ.get("GOLAVO_TOKEN")
     return token or None
+
+
+def source_sha() -> str | None:
+    """Build commit injected by the desktop supervisor, or None in source mode."""
+    value = os.environ.get("GOLAVO_SOURCE_SHA", "").strip().casefold()
+    if len(value) == 40 and all(character in "0123456789abcdef" for character in value):
+        return value
+    return None

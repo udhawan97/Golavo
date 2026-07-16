@@ -18,6 +18,7 @@ interface Window {
     apiBase?: string;
     token?: string;
     appVersion?: string;
+    buildSha?: string;
   };
   /** Global Tauri bridge (withGlobalTauri) — desktop shell only. Typed to the
    *  two surfaces the updater uses; absent in browser/source mode. */

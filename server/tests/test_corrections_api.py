@@ -48,7 +48,15 @@ def client(
     monkeypatch.setattr(
         server_main,
         "_match_for_correction",
-        lambda match_id: match if match_id == "match-1" else None,
+        lambda match_id, snapshot=None: match if match_id == "match-1" else None,
+    )
+    snapshot = server_main.matches.IndexSnapshot(object(), "f" * 64, 1)
+    monkeypatch.setattr(server_main.matches, "index_snapshot", lambda: snapshot)
+    monkeypatch.setattr(server_main.matches, "snapshot_is_current", lambda value: True)
+    monkeypatch.setattr(
+        server_main.matches,
+        "apply_if_snapshot_current",
+        lambda value, operation: (operation() or True),
     )
     monkeypatch.setattr(server_main.matches, "index_fingerprint", lambda: "f" * 64)
     monkeypatch.setattr(

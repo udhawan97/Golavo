@@ -240,6 +240,17 @@ def test_phase8_explanation_is_descriptive_exact_and_provenanced() -> None:
         assert disagreement["outcome_gap_percentage_points"][outcome] == expected
     assert explanation["provenance"]["formula_version"] == "analysis-explanation-1"
     assert explanation["provenance"]["source_ids"] == ["test-source"]
+    index_trigger = next(
+        trigger
+        for trigger in explanation["change_triggers"]
+        if trigger["id"] == "verified_index_generation"
+    )
+    assert "Local annotations" in index_trigger["description"]
+    assert "do not change the analysis" in index_trigger["description"]
+    assert all(
+        trigger["id"] != "reviewed_identity_correction"
+        for trigger in explanation["change_triggers"]
+    )
     assert set(explanation["missing_evidence"]) == {
         "verified_lineups",
         "verified_injuries",

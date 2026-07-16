@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
 from golavo_server import follows
 from golavo_server import main as server_main
@@ -87,6 +88,33 @@ def test_follow_is_idempotent_and_refollow_preserves_history(tmp_path: Path) -> 
         "unfollowed",
         "followed",
     ]
+
+
+def test_generation_commit_rolls_back_follow_and_reconciliation(tmp_path: Path) -> None:
+    ledger = tmp_path / "ledger"
+    with pytest.raises(follows.FollowError, match="index changed") as caught:
+        follows.follow_match(
+            _match(), ledger=ledger, generation_commit=lambda operation: False
+        )
+    assert caught.value.reason_code == "index_generation_changed"
+    assert follows.list_follows(ledger=ledger)["total"] == 0
+
+    followed, _ = follows.follow_match(_match(), ledger=ledger)
+    changed = _match(city="Houston")
+    with pytest.raises(follows.FollowError, match="index changed") as caught:
+        follows.reconcile(
+            ledger=ledger,
+            frame=_frame(changed),
+            index_fingerprint="f" * 64,
+            generation_id="g_" + "1" * 64,
+            source_status=_status(),
+            generation_commit=lambda operation: False,
+        )
+    assert caught.value.reason_code == "index_generation_changed"
+    current = follows.list_follows(ledger=ledger)["items"][0]
+    assert current["follow_id"] == followed["follow_id"]
+    assert current["current"]["city"] == "Dallas"
+    assert [event["event_type"] for event in current["events"]] == ["followed"]
 
 
 def test_reconcile_records_changes_once_and_repoints_exact_stable_key(tmp_path: Path) -> None:

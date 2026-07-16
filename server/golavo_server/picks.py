@@ -9,6 +9,7 @@ import os
 import re
 import tempfile
 import threading
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -31,7 +32,13 @@ _PICKS_LOCK = threading.Lock()
 _SAFE_MATCH_ID = re.compile(r"^[A-Za-z0-9_.-]+$")
 
 
-def _atomic_write_bytes(path: Path, data: bytes) -> None:
+def _atomic_write_bytes(
+    path: Path,
+    data: bytes,
+    *,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
+    after_replace: Callable[[], None] | None = None,
+) -> None:
     """Replace ``path`` atomically without importing the forecasting stack."""
     fd, tmp_name = tempfile.mkstemp(dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp")
     tmp = Path(tmp_name)
@@ -40,7 +47,20 @@ def _atomic_write_bytes(path: Path, data: bytes) -> None:
             stream.write(data)
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(tmp, path)
+        def replace() -> None:
+            os.replace(tmp, path)
+            if after_replace is not None:
+                after_replace()
+
+        if generation_commit is not None:
+            if not generation_commit(replace):
+                raise PickError(
+                    409,
+                    "index_generation_changed",
+                    "verified match index changed before the pick was saved; retry",
+                )
+        else:
+            replace()
     except BaseException:
         tmp.unlink(missing_ok=True)
         raise
@@ -104,11 +124,20 @@ def _append_audit(ledger: Path, *, event: str, record: dict[str, Any], at_utc: s
         os.fsync(stream.fileno())
 
 
-def _write_draft(ledger: Path, record: dict[str, Any]) -> None:
+def _write_draft(
+    ledger: Path,
+    record: dict[str, Any],
+    *,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
+) -> None:
     validate_user_pick(record)
     path = _draft_path(ledger, record["match"]["match_id"])
     path.parent.mkdir(parents=True, exist_ok=True)
-    _atomic_write_bytes(path, canonical_pick_bytes(record) + b"\n")
+    _atomic_write_bytes(
+        path,
+        canonical_pick_bytes(record) + b"\n",
+        generation_commit=generation_commit,
+    )
 
 
 def _load_draft(ledger: Path, match_id: str) -> dict[str, Any] | None:
@@ -148,17 +177,21 @@ def _row_value(row: Any, key: str) -> Any:
 def _find_row(match_id: str) -> Any | None:
     from golavo_server import matches
 
-    frame = matches._load_index()
+    return _find_row_in_frame(matches._load_index(), match_id)
+
+
+def _find_row_in_frame(frame: Any, match_id: str) -> Any | None:
     rows = frame.loc[frame["match_id"].astype("string") == str(match_id)]
     return None if rows.empty else rows.iloc[0]
 
 
-def _fallback_row(record: dict[str, Any]) -> Any | None:
+def _fallback_row(record: dict[str, Any], frame: Any | None = None) -> Any | None:
     import pandas as pd
 
-    from golavo_server import matches
+    if frame is None:
+        from golavo_server import matches
 
-    frame = matches._load_index()
+        frame = matches._load_index()
     date, home_norm, away_norm = _fixture_key_from_record(record)
     dates = pd.to_datetime(frame["kickoff_utc"], utc=True).dt.date.astype("string")
     rows = frame.loc[
@@ -171,9 +204,13 @@ def _fallback_row(record: dict[str, Any]) -> Any | None:
     return rows.sort_values("match_id", kind="mergesort").iloc[0]
 
 
-def _current_row(record: dict[str, Any]) -> Any | None:
-    row = _find_row(record["match"]["match_id"])
-    return row if row is not None else _fallback_row(record)
+def _current_row(record: dict[str, Any], frame: Any | None = None) -> Any | None:
+    row = (
+        _find_row(record["match"]["match_id"])
+        if frame is None
+        else _find_row_in_frame(frame, record["match"]["match_id"])
+    )
+    return row if row is not None else _fallback_row(record, frame)
 
 
 def _row_iso(row: Any) -> str:
@@ -215,9 +252,14 @@ def _match_snapshot(row: Any) -> dict[str, Any]:
     }
 
 
-def _find_locked(ledger: Path, match_id: str) -> tuple[Path, dict[str, Any]] | None:
+_ROW_UNSET = object()
+
+
+def _find_locked(
+    ledger: Path, match_id: str, *, current_row: Any = _ROW_UNSET
+) -> tuple[Path, dict[str, Any]] | None:
     fallback: tuple[Path, dict[str, Any]] | None = None
-    row = _find_row(match_id)
+    row = _find_row(match_id) if current_row is _ROW_UNSET else current_row
     row_key = None
     if row is not None:
         row_key = (_row_iso(row)[:10], str(row["home_norm"]), str(row["away_norm"]))
@@ -269,7 +311,13 @@ def _sealed_record(draft: dict[str, Any], lock_at: datetime) -> dict[str, Any]:
     return record
 
 
-def _write_locked(ledger: Path, record: dict[str, Any]) -> Path:
+def _write_locked(
+    ledger: Path,
+    record: dict[str, Any],
+    *,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
+    after_replace: Callable[[], None] | None = None,
+) -> Path:
     verify_pick_integrity(record)
     root = _root(ledger)
     root.mkdir(parents=True, exist_ok=True)
@@ -286,7 +334,12 @@ def _write_locked(ledger: Path, record: dict[str, Any]) -> Path:
                 pass
             else:
                 raise PickError(409, "pick_collision", f"immutable pick collision at {path}")
-    _atomic_write_bytes(path, data)
+    _atomic_write_bytes(
+        path,
+        data,
+        generation_commit=generation_commit,
+        after_replace=after_replace,
+    )
     return path
 
 
@@ -296,20 +349,27 @@ def _freeze(
     *,
     row: Any | None,
     virtual_on_error: bool,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
 ) -> dict[str, Any]:
     record = _sealed_record(draft, _effective_lock(draft, row))
     try:
-        _write_locked(ledger, record)
+        _write_locked(
+            ledger,
+            record,
+            generation_commit=generation_commit,
+            after_replace=lambda: _draft_path(
+                ledger, draft["match"]["match_id"]
+            ).unlink(missing_ok=True),
+        )
         _append_audit(ledger, event="pick_locked", record=record, at_utc=record["locked_at_utc"])
-        _draft_path(ledger, draft["match"]["match_id"]).unlink(missing_ok=True)
     except OSError:
         if not virtual_on_error:
             raise
     return record
 
 
-def _view(record: dict[str, Any]) -> dict[str, Any]:
-    row = _current_row(record)
+def _view(record: dict[str, Any], *, row: Any = _ROW_UNSET) -> dict[str, Any]:
+    row = _current_row(record) if row is _ROW_UNSET else row
     if record["status"] == "draft":
         return {
             "schema_version": PICK_SCHEMA_VERSION,
@@ -361,10 +421,16 @@ def _validate_goals(home_goals: Any, away_goals: Any) -> tuple[int, int]:
     return home_goals, away_goals
 
 
-def _analysis_snapshot(match_id: str) -> dict[str, Any]:
+def _analysis_snapshot(match_id: str, snapshot: Any) -> dict[str, Any]:
     from golavo_server import analysis, matches
 
     envelope = analysis.match_analysis(match_id)
+    if not matches.snapshot_is_current(snapshot):
+        raise PickError(
+            409,
+            "index_generation_changed",
+            "verified match index changed while the model council was running; retry",
+        )
     payload = envelope.get("analysis") if envelope else None
     if not envelope or not envelope.get("available") or not isinstance(payload, dict):
         raise PickError(
@@ -373,7 +439,7 @@ def _analysis_snapshot(match_id: str) -> dict[str, Any]:
             "the model council is unavailable, so this pick was not saved",
         )
     payload = copy.deepcopy(payload)
-    payload["index_fingerprint"] = matches.index_fingerprint()
+    payload["index_fingerprint"] = snapshot.fingerprint
     derived = derive_rival_picks(payload)
     if not derived["rivals"]:
         raise PickError(
@@ -389,18 +455,48 @@ def get_pick(
 ) -> dict[str, Any] | None:
     resolved_now = _now(now_utc)
     with _PICKS_LOCK:
-        draft = _load_draft(ledger, match_id)
-        locked = _find_locked(ledger, match_id)
-        if locked is not None:
-            # Crash repair: the immutable write won but draft deletion did not.
-            _draft_path(ledger, match_id).unlink(missing_ok=True)
-            return _view(locked[1])
-        if draft is None:
-            return None
-        row = _current_row(draft)
-        if resolved_now >= _effective_lock(draft, row):
-            return _view(_freeze(ledger, draft, row=row, virtual_on_error=True))
-        return _view(draft)
+        from golavo_server import matches
+
+        for _attempt in range(3):
+            snapshot = matches.index_snapshot()
+            draft = _load_draft(ledger, match_id)
+            request_row = _find_row_in_frame(snapshot.frame, match_id)
+            row = _current_row(draft, snapshot.frame) if draft is not None else None
+            locked = _find_locked(ledger, match_id, current_row=request_row)
+            if locked is not None:
+                # Crash repair: the immutable write won but draft deletion did not.
+                _draft_path(ledger, match_id).unlink(missing_ok=True)
+                if matches.snapshot_is_current(snapshot):
+                    locked_row = _current_row(locked[1], snapshot.frame)
+                    return _view(locked[1], row=locked_row)
+                continue
+            if draft is None:
+                if matches.snapshot_is_current(snapshot):
+                    return None
+                continue
+            if resolved_now >= _effective_lock(draft, row):
+                try:
+                    frozen = _freeze(
+                        ledger,
+                        draft,
+                        row=row,
+                        virtual_on_error=True,
+                        generation_commit=lambda operation, snapshot=snapshot: (
+                            matches.apply_if_snapshot_current(snapshot, operation)
+                        ),
+                    )
+                except PickError as exc:
+                    if exc.reason_code == "index_generation_changed":
+                        continue
+                    raise
+                return _view(frozen, row=row)
+            if matches.snapshot_is_current(snapshot):
+                return _view(draft, row=row)
+        raise PickError(
+            409,
+            "index_generation_changed",
+            "verified match index kept changing; retry this pick",
+        )
 
 
 def save_pick(
@@ -414,64 +510,140 @@ def save_pick(
     home, away = _validate_goals(home_goals, away_goals)
     resolved_now = _now(now_utc)
     with _PICKS_LOCK:
-        row = _find_row(match_id)
-        if row is None:
-            raise PickError(404, "match_not_found", "no indexed match with that id")
-        if bool(row["is_complete"]):
-            raise PickError(422, "fixture_complete", "this fixture already has a final result")
-        if _find_locked(ledger, match_id) is not None:
-            raise PickError(409, "pick_locked", "this pick locked at kickoff")
+        from golavo_server import matches
 
-        existing = _load_draft(ledger, match_id)
-        current_lock = _parse(_row_iso(row))
-        effective_lock = (
-            min(_parse(existing["lock_at_utc"]), current_lock) if existing else current_lock
+        for _attempt in range(3):
+            snapshot = matches.index_snapshot()
+            row = _find_row_in_frame(snapshot.frame, match_id)
+            if row is None:
+                if matches.snapshot_is_current(snapshot):
+                    raise PickError(404, "match_not_found", "no indexed match with that id")
+                continue
+            if bool(row["is_complete"]):
+                if matches.snapshot_is_current(snapshot):
+                    raise PickError(
+                        422, "fixture_complete", "this fixture already has a final result"
+                    )
+                continue
+            if _find_locked(ledger, match_id, current_row=row) is not None:
+                raise PickError(409, "pick_locked", "this pick locked at kickoff")
+
+            existing = _load_draft(ledger, match_id)
+            current_lock = _parse(_row_iso(row))
+            effective_lock = (
+                min(_parse(existing["lock_at_utc"]), current_lock) if existing else current_lock
+            )
+            if resolved_now >= effective_lock:
+                if existing is not None:
+                    try:
+                        _freeze(
+                            ledger,
+                            existing,
+                            row=row,
+                            virtual_on_error=True,
+                            generation_commit=lambda operation, snapshot=snapshot: (
+                                matches.apply_if_snapshot_current(snapshot, operation)
+                            ),
+                        )
+                    except PickError as exc:
+                        if exc.reason_code == "index_generation_changed":
+                            continue
+                        raise
+                raise PickError(409, "pick_locked", "this pick locked at kickoff")
+
+            try:
+                derived = _analysis_snapshot(match_id, snapshot)
+            except PickError as exc:
+                if exc.reason_code == "index_generation_changed":
+                    continue
+                raise
+            now_iso = _iso(resolved_now)
+            record = {
+                "schema_version": PICK_SCHEMA_VERSION,
+                "pick_id": None,
+                "status": "draft",
+                "match": existing["match"] if existing else _match_snapshot(row),
+                "user_pick": {
+                    "home_goals": home,
+                    "away_goals": away,
+                    "outcome": outcome_of(home, away),
+                },
+                "rivals": derived["rivals"],
+                "analysis_fingerprint": derived["analysis_fingerprint"],
+                "created_at_utc": existing["created_at_utc"] if existing else now_iso,
+                "updated_at_utc": now_iso,
+                "lock_at_utc": _iso(effective_lock),
+                "locked_at_utc": None,
+                "payload_sha256": None,
+            }
+            try:
+                _write_draft(
+                    ledger,
+                    record,
+                    generation_commit=lambda operation, snapshot=snapshot: (
+                        matches.apply_if_snapshot_current(snapshot, operation)
+                    ),
+                )
+            except PickError as exc:
+                if exc.reason_code == "index_generation_changed":
+                    continue
+                raise
+            _append_audit(ledger, event="pick_saved", record=record, at_utc=now_iso)
+            return _view(record, row=row)
+
+        raise PickError(
+            409,
+            "index_generation_changed",
+            "verified match index kept changing; reload before saving this pick",
         )
-        if resolved_now >= effective_lock:
-            if existing is not None:
-                _freeze(ledger, existing, row=row, virtual_on_error=True)
-            raise PickError(409, "pick_locked", "this pick locked at kickoff")
-
-        derived = _analysis_snapshot(match_id)
-        now_iso = _iso(resolved_now)
-        record = {
-            "schema_version": PICK_SCHEMA_VERSION,
-            "pick_id": None,
-            "status": "draft",
-            "match": existing["match"] if existing else _match_snapshot(row),
-            "user_pick": {
-                "home_goals": home,
-                "away_goals": away,
-                "outcome": outcome_of(home, away),
-            },
-            "rivals": derived["rivals"],
-            "analysis_fingerprint": derived["analysis_fingerprint"],
-            "created_at_utc": existing["created_at_utc"] if existing else now_iso,
-            "updated_at_utc": now_iso,
-            "lock_at_utc": _iso(effective_lock),
-            "locked_at_utc": None,
-            "payload_sha256": None,
-        }
-        _write_draft(ledger, record)
-        _append_audit(ledger, event="pick_saved", record=record, at_utc=now_iso)
-        return _view(record)
 
 
 def delete_pick(match_id: str, *, ledger: Path, now_utc: datetime | None = None) -> bool:
     resolved_now = _now(now_utc)
     with _PICKS_LOCK:
-        if _find_locked(ledger, match_id) is not None:
-            raise PickError(409, "pick_locked", "this pick locked at kickoff")
-        draft = _load_draft(ledger, match_id)
-        if draft is None:
-            return False
-        row = _current_row(draft)
-        if resolved_now >= _effective_lock(draft, row):
-            _freeze(ledger, draft, row=row, virtual_on_error=True)
-            raise PickError(409, "pick_locked", "this pick locked at kickoff")
-        _draft_path(ledger, match_id).unlink(missing_ok=True)
-        _append_audit(ledger, event="pick_deleted", record=draft, at_utc=_iso(resolved_now))
-        return True
+        from golavo_server import matches
+
+        for _attempt in range(3):
+            snapshot = matches.index_snapshot()
+            draft = _load_draft(ledger, match_id)
+            row = _current_row(draft, snapshot.frame) if draft is not None else None
+            if _find_locked(ledger, match_id, current_row=row) is not None:
+                raise PickError(409, "pick_locked", "this pick locked at kickoff")
+            if draft is None:
+                if matches.snapshot_is_current(snapshot):
+                    return False
+                continue
+            if resolved_now >= _effective_lock(draft, row):
+                try:
+                    _freeze(
+                        ledger,
+                        draft,
+                        row=row,
+                        virtual_on_error=True,
+                        generation_commit=lambda operation, snapshot=snapshot: (
+                            matches.apply_if_snapshot_current(snapshot, operation)
+                        ),
+                    )
+                except PickError as exc:
+                    if exc.reason_code == "index_generation_changed":
+                        continue
+                    raise
+                raise PickError(409, "pick_locked", "this pick locked at kickoff")
+            deleted = matches.apply_if_snapshot_current(
+                snapshot,
+                lambda: _draft_path(ledger, match_id).unlink(missing_ok=True),
+            )
+            if not deleted:
+                continue
+            _append_audit(
+                ledger, event="pick_deleted", record=draft, at_utc=_iso(resolved_now)
+            )
+            return True
+        raise PickError(
+            409,
+            "index_generation_changed",
+            "verified match index kept changing; retry deleting this pick",
+        )
 
 
 def _all_match_ids(ledger: Path) -> list[str]:

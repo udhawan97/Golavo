@@ -127,6 +127,10 @@ export class CorrectionApiError extends Error {
   }
 }
 
+export function correctionLoadFailureState(cause: unknown): "not_found" | "error" {
+  return cause instanceof CorrectionApiError && cause.status === 404 ? "not_found" : "error";
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!base) throw new CorrectionApiError("Corrections require the installed Golavo app.", 0, "desktop_required");
   const headers = new Headers(init.headers);
@@ -158,8 +162,9 @@ export function fetchCorrectionCapabilities(): Promise<CorrectionCapabilities> {
   return request("/api/v1/corrections/capabilities");
 }
 
-export function fetchCorrections(): Promise<CorrectionList> {
-  return request("/api/v1/corrections?limit=100");
+export function fetchCorrections(limit = 100, offset = 0): Promise<CorrectionList> {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  return request(`/api/v1/corrections?${params}`);
 }
 
 export function fetchCorrection(proposalId: string): Promise<CorrectionProposal> {

@@ -13,10 +13,15 @@ def get_competition_analytics(
     # Lazy core import preserves the sidecar's fast health/readiness startup.
     from golavo_core.analytics import competition_analytics
 
-    result = competition_analytics(
-        matches._load_index(),  # noqa: SLF001 - shared immutable in-process index cache
-        competition_id,
-        as_of_utc=as_of_utc,
-    )
-    result["provenance"]["index_sha256"] = matches.index_fingerprint()
-    return result
+    for _attempt in range(3):
+        snapshot = matches.index_snapshot()
+        result = competition_analytics(
+            snapshot.frame,
+            competition_id,
+            as_of_utc=as_of_utc,
+        )
+        if not matches.snapshot_is_current(snapshot):
+            continue
+        result["provenance"]["index_sha256"] = snapshot.fingerprint
+        return result
+    raise matches.MatchIndexUnavailable("verified match index changed during analytics; retry")

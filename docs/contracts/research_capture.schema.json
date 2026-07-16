@@ -4,7 +4,7 @@
   "title": "Immutable research capture",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "capture_id", "run_id", "source_id", "license_namespace", "license", "license_url", "attribution", "modifications", "canonical_url", "retrieved_at_utc", "content_type", "http_status", "raw_sha256", "raw_bytes", "canonical_text_sha256", "canonical_text", "parser_id", "parser_version", "untrusted"],
+  "required": ["schema_version", "capture_id", "run_id", "source_id", "license_namespace", "license", "license_url", "attribution", "modifications", "canonical_url", "document_url", "entity_id", "retrieved_at_utc", "content_type", "http_status", "raw_sha256", "raw_bytes", "canonical_text_sha256", "canonical_text", "parser_id", "parser_version", "untrusted"],
   "properties": {
     "schema_version": {"const": "0.1.0"},
     "capture_id": {"type": "string", "pattern": "^rc_[0-9a-f]{64}$"},
@@ -16,6 +16,8 @@
     "attribution": {"type": "string", "minLength": 1},
     "modifications": {"const": "normalized plaintext excerpt"},
     "canonical_url": {"type": "string", "format": "uri"},
+    "document_url": {"type": "string", "format": "uri"},
+    "entity_id": {"type": ["string", "null"], "pattern": "^Q[1-9][0-9]*$"},
     "retrieved_at_utc": {"type": "string", "format": "date-time"},
     "revision_id": {"type": ["string", "null"], "maxLength": 200},
     "etag": {"type": ["string", "null"], "maxLength": 500},

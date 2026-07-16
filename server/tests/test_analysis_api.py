@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 from pathlib import Path
 
 import pandas as pd
@@ -284,6 +285,104 @@ def test_disk_cache_invalidates_when_the_fingerprint_changes(cached_client, monk
     # proving the stale-fingerprint file was NOT served.
     body = client.get("/api/v1/matches/m_target/analysis").json()
     assert body["available"] is False
+
+
+def test_analysis_retries_when_repoint_happens_after_snapshot(
+    tmp_path, monkeypatch
+) -> None:
+    """An old frame can never be cached under the newly activated fingerprint."""
+    import golavo_core.analysis as core_analysis
+    from golavo_server import runtime
+
+    old_rows = _rows()
+    new_rows = _rows()
+    for row in old_rows:
+        row["city"] = "old-generation"
+    for row in new_rows:
+        row["city"] = "new-generation"
+        if row["match_id"].startswith("m_h"):
+            row["home_score"], row["away_score"] = row["away_score"], row["home_score"]
+
+    old_index = tmp_path / "old.parquet"
+    new_index = tmp_path / "new.parquet"
+    old_meta = tmp_path / "old.meta.json"
+    new_meta = tmp_path / "new.meta.json"
+    _build_index(old_index, old_rows)
+    _build_index(new_index, new_rows)
+    old_meta.write_text('{"generation":"old"}', encoding="utf-8")
+    new_meta.write_text('{"generation":"new"}', encoding="utf-8")
+    cache_dir = tmp_path / "analysis-cache"
+    monkeypatch.setattr(runtime, "analysis_cache_dir", lambda: cache_dir)
+    monkeypatch.setattr(matches, "INDEX_PATH", old_index)
+    monkeypatch.setattr(matches, "INDEX_META_PATH", old_meta)
+    monkeypatch.setattr(matches, "GOALSCORERS_PATH", matches.GOALSCORERS_PATH)
+    monkeypatch.setattr(matches, "SHOOTOUTS_PATH", matches.SHOOTOUTS_PATH)
+    monkeypatch.setattr(matches, "ALIASES_PATH", matches.ALIASES_PATH)
+    matches.reset_cache()
+
+    snapshot_taken = threading.Event()
+    allow_analysis_to_continue = threading.Event()
+    real_snapshot = matches.index_snapshot
+    first = True
+
+    def blocked_snapshot() -> matches.IndexSnapshot:
+        nonlocal first
+        snapshot = real_snapshot()
+        if first:
+            first = False
+            snapshot_taken.set()
+            assert allow_analysis_to_continue.wait(5), "test barrier timed out"
+        return snapshot
+
+    seen_generations: list[str] = []
+    real_build = core_analysis.build_match_analysis
+
+    def recording_build(*, matches: pd.DataFrame, match_row: dict) -> dict:
+        seen_generations.append(str(matches.iloc[0]["city"]))
+        return real_build(matches=matches, match_row=match_row)
+
+    monkeypatch.setattr(matches, "index_snapshot", blocked_snapshot)
+    monkeypatch.setattr(core_analysis, "build_match_analysis", recording_build)
+    monkeypatch.setattr(
+        matches,
+        "_resolve_index_paths",
+        lambda: {
+            "index": new_index,
+            "meta": new_meta,
+            "goalscorers": tmp_path / "new-goalscorers.parquet",
+            "shootouts": tmp_path / "new-shootouts.parquet",
+            "aliases": tmp_path / "new-aliases.json",
+        },
+    )
+
+    result: list[dict | None] = []
+    worker = threading.Thread(
+        target=lambda: result.append(server_analysis.match_analysis("m_target")),
+        daemon=True,
+    )
+    worker.start()
+    try:
+        assert snapshot_taken.wait(5), "analysis never captured the old generation"
+        matches.repoint_to_refreshed()
+    finally:
+        allow_analysis_to_continue.set()
+        worker.join(15)
+
+    assert not worker.is_alive()
+    assert result and result[0] is not None and result[0]["available"] is True
+    assert seen_generations == ["old-generation", "new-generation"]
+    assert result[0]["analysis"]["models"] != []
+
+    # After L1 is cleared, the active-generation disk entry must still be the
+    # new analysis. A refit would prove that publication missed the right key.
+    server_analysis.reset_cache()
+
+    def fail_build(*_args, **_kwargs):
+        raise AssertionError("new-generation analysis should be served from L2")
+
+    monkeypatch.setattr(core_analysis, "build_match_analysis", fail_build)
+    again = server_analysis.match_analysis("m_target")
+    assert again == result[0]
 
 
 def test_corrupt_cache_file_is_ignored_and_recomputed(cached_client):

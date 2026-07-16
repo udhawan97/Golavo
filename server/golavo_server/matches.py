@@ -21,6 +21,9 @@ pandas/pyarrow are imported INSIDE functions to keep the frozen sidecar's boot
 from __future__ import annotations
 
 import json
+import threading
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -91,14 +94,78 @@ ALIASES_PATH = _paths["aliases"]
 
 _CACHE: Any = None  # the loaded index DataFrame; reset_cache() clears it
 _FINGERPRINT: str | None = None  # content hash of the index, for the analysis cache
+_GENERATION_EPOCH = 0
+_CACHE_LOCK = threading.RLock()
 
-# Advisory warm-up state for the UI's staged splash / warming card. Written only
-# from _load_index(); dict-key writes are atomic under the GIL, so no lock is
-# needed for this coarse, read-mostly hint. index_status() reports it and NEVER
+# Advisory warm-up state for the UI's staged splash / warming card. Mutated with
+# the generation state under _CACHE_LOCK. index_status() reports it and NEVER
 # triggers the (slow) load itself, so /api/v1/status answers in microseconds even
 # mid-warmup.
 _WARM: dict[str, Any] = {"state": "cold", "since_utc": None, "error": None}
 _META_ROWS: Any = "unread"  # memoized row_count from meta.json: "unread" | int | None
+
+
+@dataclass(frozen=True)
+class IndexSnapshot:
+    """One immutable association between an index frame and its provenance key.
+
+    The DataFrame is treated as read-only after publication.  ``epoch`` prevents
+    work that began on an older runtime generation from publishing into caches
+    after a refresh repoints the module globals.
+    """
+
+    frame: Any
+    fingerprint: str
+    epoch: int
+    goalscorers_path: Path | None = None
+    shootouts_path: Path | None = None
+    aliases_path: Path | None = None
+
+
+def _paths_are_current(epoch: int, index_path: Path, meta_path: Path) -> bool:
+    return (
+        epoch == _GENERATION_EPOCH
+        and index_path == Path(INDEX_PATH)
+        and meta_path == Path(INDEX_META_PATH)
+    )
+
+
+def _fingerprint_for(index_path: Path, meta_path: Path) -> str:
+    import hashlib
+
+    try:
+        data = meta_path.read_bytes()
+    except OSError:
+        try:
+            data = index_path.read_bytes()
+        except OSError:
+            data = b"unknown"
+    return hashlib.sha256(data).hexdigest()
+
+
+def _invalidate_cache_locked() -> None:
+    global _CACHE, _META_ROWS, _FINGERPRINT, _GENERATION_EPOCH
+    _GENERATION_EPOCH += 1
+    _CACHE = None
+    _META_ROWS = "unread"
+    _FINGERPRINT = None
+    _WARM["state"] = "cold"
+    _WARM["since_utc"] = None
+    _WARM["error"] = None
+
+
+def _reset_derivative_caches() -> None:
+    # Import outside _CACHE_LOCK: derivative modules may call back into this
+    # module during initialization. Their reset functions are intentionally
+    # cheap and idempotent.
+    for module_name in ("outlook", "conditions", "analysis"):
+        try:
+            module = __import__(f"golavo_server.{module_name}", fromlist=["reset_cache"])
+            reset = getattr(module, "reset_cache", None)
+            if callable(reset):
+                reset()
+        except ImportError:
+            pass
 
 
 def repoint_to_refreshed() -> None:
@@ -109,11 +176,13 @@ def repoint_to_refreshed() -> None:
     """
     global INDEX_PATH, INDEX_META_PATH, GOALSCORERS_PATH, SHOOTOUTS_PATH, ALIASES_PATH
     p = _resolve_index_paths()
-    INDEX_PATH, INDEX_META_PATH = p["index"], p["meta"]
-    GOALSCORERS_PATH = p["goalscorers"]
-    SHOOTOUTS_PATH = p["shootouts"]
-    ALIASES_PATH = p["aliases"]
-    reset_cache()
+    with _CACHE_LOCK:
+        INDEX_PATH, INDEX_META_PATH = p["index"], p["meta"]
+        GOALSCORERS_PATH = p["goalscorers"]
+        SHOOTOUTS_PATH = p["shootouts"]
+        ALIASES_PATH = p["aliases"]
+        _invalidate_cache_locked()
+    _reset_derivative_caches()
 
 
 class MatchIndexUnavailable(Exception):
@@ -126,73 +195,144 @@ class MatchIndexUnavailable(Exception):
 
 def reset_cache() -> None:
     """Drop the cached index frame (tests call this after repointing INDEX_PATH)."""
-    global _CACHE, _META_ROWS, _FINGERPRINT
-    _CACHE = None
-    _META_ROWS = "unread"
-    _FINGERPRINT = None
-    _WARM["state"] = "cold"
-    _WARM["since_utc"] = None
-    _WARM["error"] = None
+    with _CACHE_LOCK:
+        _invalidate_cache_locked()
     # Every in-process derivative must move with the index cache. The analysis
-    # disk cache remains safe because it is keyed by the index fingerprint.
-    for module_name in ("outlook", "conditions", "analysis"):
-        try:
-            module = __import__(f"golavo_server.{module_name}", fromlist=["reset_cache"])
-            reset = getattr(module, "reset_cache", None)
-            if callable(reset):
-                reset()
-        except ImportError:
-            pass
+    # disk cache remains safe because it is keyed by the snapshot fingerprint.
+    _reset_derivative_caches()
 
 
-def _load_index() -> Any:
-    """Load and cache the frozen match index, or raise MatchIndexUnavailable.
+def index_snapshot() -> IndexSnapshot:
+    """Load one epoch-bound frame + fingerprint pair, retrying across repoints.
 
     Lazy on purpose: pandas/pyarrow cost ~25s to import from the frozen bundle,
     so the first search pays it (the sidecar warms it in the background) while
     /health and the forecast surface stay light. Drives the advisory ``_WARM``
     state machine (cold -> warming -> ready|error) so the UI splash can show
     honest, real-stage progress instead of a pure fake curve.
+
+    The expensive Parquet read is deliberately outside ``_CACHE_LOCK``. Before
+    publishing, the captured epoch and paths are rechecked. A read that started
+    before refresh activation is discarded and retried against the new paths,
+    so it can never repopulate ``_CACHE`` with the retired generation.
     """
-    global _CACHE
-    if _CACHE is not None:
-        return _CACHE
-    if _WARM["state"] == "cold":
-        _WARM["state"] = "warming"
-        _WARM["since_utc"] = datetime.now(UTC).isoformat()
+    global _CACHE, _FINGERPRINT
     import pandas as pd
 
-    path = Path(INDEX_PATH)
-    if not path.exists():
-        _WARM["state"] = "error"
-        _WARM["error"] = f"match index not found at {path}"
-        raise MatchIndexUnavailable(f"match index not found at {path}")
-    try:
-        frame = pd.read_parquet(path)
-    except Exception as exc:  # noqa: BLE001 (any read/parse failure => unavailable)
-        _WARM["state"] = "error"
-        _WARM["error"] = f"match index unreadable: {exc}"
-        raise MatchIndexUnavailable(f"match index unreadable: {exc}") from exc
-    _CACHE = frame
-    _WARM["state"] = "ready"
-    return frame
+    while True:
+        with _CACHE_LOCK:
+            if _CACHE is not None and _FINGERPRINT is not None:
+                return IndexSnapshot(
+                    _CACHE,
+                    _FINGERPRINT,
+                    _GENERATION_EPOCH,
+                    Path(GOALSCORERS_PATH),
+                    Path(SHOOTOUTS_PATH),
+                    Path(ALIASES_PATH),
+                )
+            epoch = _GENERATION_EPOCH
+            index_path = Path(INDEX_PATH)
+            meta_path = Path(INDEX_META_PATH)
+            cached_frame = _CACHE
+            if _WARM["state"] == "cold":
+                _WARM["state"] = "warming"
+                _WARM["since_utc"] = datetime.now(UTC).isoformat()
+
+        if cached_frame is None:
+            if not index_path.exists():
+                with _CACHE_LOCK:
+                    if not _paths_are_current(epoch, index_path, meta_path):
+                        continue
+                    _WARM["state"] = "error"
+                    _WARM["error"] = f"match index not found at {index_path}"
+                raise MatchIndexUnavailable(f"match index not found at {index_path}")
+            try:
+                frame = pd.read_parquet(index_path)
+            except Exception as exc:  # noqa: BLE001 (any read/parse failure => unavailable)
+                with _CACHE_LOCK:
+                    if not _paths_are_current(epoch, index_path, meta_path):
+                        continue
+                    _WARM["state"] = "error"
+                    _WARM["error"] = f"match index unreadable: {exc}"
+                raise MatchIndexUnavailable(f"match index unreadable: {exc}") from exc
+        else:
+            # Compatibility with tests that inject a preloaded frame directly.
+            frame = cached_frame
+
+        fingerprint = _fingerprint_for(index_path, meta_path)
+        with _CACHE_LOCK:
+            if not _paths_are_current(epoch, index_path, meta_path):
+                continue
+            if _CACHE is None:
+                _CACHE = frame
+                _FINGERPRINT = fingerprint
+            elif _CACHE is cached_frame and _FINGERPRINT is None:
+                _FINGERPRINT = fingerprint
+            # Another loader may have won publication for this same epoch. Use
+            # its frame and fingerprint rather than replacing an equal-generation
+            # object while callers are already reading it.
+            assert _CACHE is not None and _FINGERPRINT is not None
+            _WARM["state"] = "ready"
+            _WARM["error"] = None
+            return IndexSnapshot(
+                _CACHE,
+                _FINGERPRINT,
+                _GENERATION_EPOCH,
+                Path(GOALSCORERS_PATH),
+                Path(SHOOTOUTS_PATH),
+                Path(ALIASES_PATH),
+            )
+
+
+def _load_index() -> Any:
+    """Compatibility view of :func:`index_snapshot` for read-only consumers."""
+    return index_snapshot().frame
+
+
+def snapshot_is_current(snapshot: IndexSnapshot) -> bool:
+    """Whether ``snapshot`` still names the published active generation."""
+    with _CACHE_LOCK:
+        return (
+            snapshot.epoch == _GENERATION_EPOCH
+            and snapshot.frame is _CACHE
+            and snapshot.fingerprint == _FINGERPRINT
+        )
+
+
+def apply_if_snapshot_current(snapshot: IndexSnapshot, operation: Callable[[], None]) -> bool:
+    """Run a small cache-publication operation only for the active generation."""
+    with _CACHE_LOCK:
+        if not (
+            snapshot.epoch == _GENERATION_EPOCH
+            and snapshot.frame is _CACHE
+            and snapshot.fingerprint == _FINGERPRINT
+        ):
+            return False
+        operation()
+        return True
 
 
 def _meta_row_count() -> int | None:
     """Row count from the index meta.json, memoized. Cheap: a small JSON read, no
     pandas/pyarrow — safe to call during warmup. Any failure -> None."""
     global _META_ROWS
-    if _META_ROWS != "unread":
-        return _META_ROWS
-    import json
-
-    try:
-        meta = json.loads(Path(INDEX_META_PATH).read_text(encoding="utf-8"))
-        value = meta.get("row_count")
-        _META_ROWS = int(value) if value is not None else None
-    except Exception:  # noqa: BLE001 (missing/corrupt meta -> unknown count)
-        _META_ROWS = None
-    return _META_ROWS
+    while True:
+        with _CACHE_LOCK:
+            if _META_ROWS != "unread":
+                return _META_ROWS
+            epoch = _GENERATION_EPOCH
+            meta_path = Path(INDEX_META_PATH)
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            value = meta.get("row_count")
+            rows = int(value) if value is not None else None
+        except Exception:  # noqa: BLE001 (missing/corrupt meta -> unknown count)
+            rows = None
+        with _CACHE_LOCK:
+            if epoch != _GENERATION_EPOCH or meta_path != Path(INDEX_META_PATH):
+                continue
+            _META_ROWS = rows
+            return _META_ROWS
 
 
 def index_fingerprint() -> str:
@@ -205,29 +345,33 @@ def index_fingerprint() -> str:
     frame in ``reset_cache``/``repoint_to_refreshed``.
     """
     global _FINGERPRINT
-    if _FINGERPRINT is not None:
-        return _FINGERPRINT
-    import hashlib
-
-    try:
-        data = Path(INDEX_META_PATH).read_bytes()
-    except OSError:
-        try:
-            data = Path(INDEX_PATH).read_bytes()
-        except OSError:
-            data = b"unknown"
-    _FINGERPRINT = hashlib.sha256(data).hexdigest()
-    return _FINGERPRINT
+    while True:
+        with _CACHE_LOCK:
+            if _FINGERPRINT is not None:
+                return _FINGERPRINT
+            epoch = _GENERATION_EPOCH
+            index_path = Path(INDEX_PATH)
+            meta_path = Path(INDEX_META_PATH)
+        fingerprint = _fingerprint_for(index_path, meta_path)
+        with _CACHE_LOCK:
+            if not _paths_are_current(epoch, index_path, meta_path):
+                continue
+            if _FINGERPRINT is None:
+                _FINGERPRINT = fingerprint
+            return _FINGERPRINT
 
 
 def index_status() -> dict[str, Any]:
     """Live warm-up status for the UI. Reports only; never triggers the load."""
-    ready = _CACHE is not None
+    with _CACHE_LOCK:
+        ready = _CACHE is not None
+        warm_state = _WARM["state"]
+        warming_since = _WARM["since_utc"]
     return {
         "index_ready": ready,
-        "index_state": "ready" if ready else _WARM["state"],
+        "index_state": "ready" if ready else warm_state,
         "index_rows": _meta_row_count(),
-        "warming_since": _WARM["since_utc"],
+        "warming_since": warming_since,
     }
 
 
@@ -244,12 +388,12 @@ def _normalize(text: Any) -> str:
     return without_marks.casefold().strip()
 
 
-def _load_aliases() -> dict[str, list[str]]:
+def _load_aliases(path: Path | None = None) -> dict[str, list[str]]:
     """Former-name -> canonical display names map (keys already normalized)."""
     import json
 
     try:
-        raw = json.loads(Path(ALIASES_PATH).read_text(encoding="utf-8"))
+        raw = json.loads(Path(path or ALIASES_PATH).read_text(encoding="utf-8"))
     except (ValueError, OSError):
         return {}
     return raw if isinstance(raw, dict) else {}
@@ -435,7 +579,8 @@ def search_matches(
     """
     import pandas as pd
 
-    frame = _load_index()
+    snapshot = index_snapshot()
+    frame = snapshot.frame
     nq = _normalize(q)
     limit = max(1, min(int(limit), 100))
     offset = max(0, int(offset))
@@ -444,7 +589,7 @@ def search_matches(
     away_norm = frame["away_norm"].fillna("")
     comp_norm = frame["competition"].fillna("").str.casefold()
 
-    aliases = _load_aliases()
+    aliases = _load_aliases(snapshot.aliases_path)
 
     def _token_mask(token: str) -> Any:
         submask = (
@@ -523,9 +668,14 @@ def search_matches(
     }
 
 
-def get_match(match_id: str, *, forecasts_dir: Path) -> dict[str, Any] | None:
+def get_match(
+    match_id: str,
+    *,
+    forecasts_dir: Path,
+    snapshot: IndexSnapshot | None = None,
+) -> dict[str, Any] | None:
     """One match by id -> MatchDetailResponse, or None if absent (route -> 404)."""
-    frame = _load_index()
+    frame = snapshot.frame if snapshot is not None else _load_index()
     sel = frame.loc[frame["match_id"].astype("string") == str(match_id)]
     if sel.empty:
         return None
@@ -712,7 +862,10 @@ def list_competitions() -> dict[str, Any]:
     return {"schema_version": SCHEMA_VERSION, "competitions": competitions}
 
 
-def _load_side_tables() -> tuple[Any, Any]:
+def _load_side_tables(
+    goalscorers_path: Path | None = None,
+    shootouts_path: Path | None = None,
+) -> tuple[Any, Any]:
     """(goalscorers, shootouts) parquet frames for the internationals notebook.
 
     Best-effort: a missing or unreadable side table becomes None, so the
@@ -726,7 +879,9 @@ def _load_side_tables() -> tuple[Any, Any]:
         except Exception:  # noqa: BLE001 (missing side table => templates skip)
             return None
 
-    return _read(GOALSCORERS_PATH), _read(SHOOTOUTS_PATH)
+    return _read(goalscorers_path or GOALSCORERS_PATH), _read(
+        shootouts_path or SHOOTOUTS_PATH
+    )
 
 
 def _load_worldcup_history() -> Any:
@@ -739,7 +894,13 @@ def _load_worldcup_history() -> Any:
         return None
 
 
-def _compute_notebook_on_demand(row: Any, frame: Any) -> dict[str, Any]:
+def _compute_notebook_on_demand(
+    row: Any,
+    frame: Any,
+    *,
+    goalscorers_path: Path | None = None,
+    shootouts_path: Path | None = None,
+) -> dict[str, Any]:
     """Build the notebook for one index row at ``kickoff - 1s`` (leak-safe cutoff)."""
     import pandas as pd
     from golavo_core.facts import build_notebook
@@ -750,7 +911,10 @@ def _compute_notebook_on_demand(row: Any, frame: Any) -> dict[str, Any]:
 
     goalscorers = shootouts = wc_history = None
     if _str_or_none(row["source_kind"]) == "international":
-        goalscorers, shootouts = _load_side_tables()
+        if goalscorers_path is None and shootouts_path is None:
+            goalscorers, shootouts = _load_side_tables()
+        else:
+            goalscorers, shootouts = _load_side_tables(goalscorers_path, shootouts_path)
         if _str_or_none(row["competition"]) == "FIFA World Cup":
             wc_history = _load_worldcup_history()
 
@@ -801,7 +965,8 @@ def match_notebook(match_id: str, *, forecasts_dir: Path) -> dict[str, Any] | No
     """
     import json
 
-    frame = _load_index()
+    snapshot = index_snapshot()
+    frame = snapshot.frame
     sel = frame.loc[frame["match_id"].astype("string") == str(match_id)]
     if sel.empty:
         return None
@@ -825,7 +990,12 @@ def match_notebook(match_id: str, *, forecasts_dir: Path) -> dict[str, Any] | No
             }
 
     try:
-        return _compute_notebook_on_demand(row, frame)
+        return _compute_notebook_on_demand(
+            row,
+            frame,
+            goalscorers_path=snapshot.goalscorers_path,
+            shootouts_path=snapshot.shootouts_path,
+        )
     except Exception:  # noqa: BLE001 (fail closed; never 500 the page)
         return {
             "available": False,

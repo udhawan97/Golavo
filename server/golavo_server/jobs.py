@@ -48,6 +48,11 @@ class Job:
     # job lets the UI collect a slow local-model result without holding one HTTP
     # request open for 5–8 minutes (WebViews may abandon such requests earlier).
     result: dict[str, Any] | None = None
+    # Cancellation is cooperative: the public state becomes ``cancelled``
+    # immediately, while the worker may still be unwinding.  Destructive
+    # callers (notably research-history purge) must be able to distinguish
+    # that interval from a worker that has actually returned.
+    worker_active: bool = True
 
     def to_dict(self) -> dict[str, Any]:
         payload = {
@@ -75,14 +80,14 @@ class JobStore:
         stale = [
             jid
             for jid, job in self._jobs.items()
-            if job.state != "running" and now - job.updated_at > _TTL_SECONDS
+            if not job.worker_active and now - job.updated_at > _TTL_SECONDS
         ]
         for jid in stale:
             self._jobs.pop(jid, None)
         # Hard cap: drop the oldest finished jobs first.
         if len(self._jobs) > _MAX_JOBS:
             finished = sorted(
-                (j for j in self._jobs.values() if j.state != "running"),
+                (j for j in self._jobs.values() if not j.worker_active),
                 key=lambda j: j.updated_at,
             )
             for job in finished[: len(self._jobs) - _MAX_JOBS]:
@@ -93,7 +98,11 @@ class JobStore:
         with self._lock:
             self._prune_locked()
             existing = self._jobs.get(job_id)
-            if existing is not None and existing.state == "running":
+            # A cancelled job stays active until its cooperative worker returns.
+            # Reusing the id during that unwind would let the old worker finish
+            # the replacement job, so active ownership—not public state—is the
+            # conflict boundary.
+            if existing is not None and existing.worker_active:
                 raise JobConflict(job_id)
             job = Job(job_id=job_id, created_at=now, updated_at=now)
             self._jobs[job_id] = job
@@ -128,9 +137,19 @@ class JobStore:
     ) -> bool:
         with self._lock:
             job = self._jobs.get(job_id)
-            if job is None or job.state != "running":
+            if job is None:
+                return False
+            if job.state == "cancelled":
+                # Preserve cancellation as the terminal public result, but
+                # record that the cooperative worker has now exited.
+                job.worker_active = False
+                job.stage = "done"
+                job.updated_at = time.monotonic()
+                return False
+            if job.state != "running":
                 return False
             job.state = state
+            job.worker_active = False
             job.stage = "done"
             job.error = error
             job.result = result
@@ -163,12 +182,13 @@ class JobStore:
             return self._jobs.get(job_id)
 
     def running_ids(self, *, prefix: str = "") -> list[str]:
+        """Return worker-active ids, including cooperative cancellation unwind."""
         with self._lock:
             self._prune_locked()
             return sorted(
                 job_id
                 for job_id, job in self._jobs.items()
-                if job.state == "running" and job_id.startswith(prefix)
+                if job.worker_active and job_id.startswith(prefix)
             )
 
 

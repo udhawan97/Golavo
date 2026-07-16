@@ -60,6 +60,9 @@ describe("AnalysisExplainer", () => {
     }));
 
     expect(html).toContain("Depth without false certainty");
+    expect(html).toContain("Show evidence limits and change triggers");
+    expect(html).toContain("<details");
+    expect(html).not.toContain("<details open");
     expect(html).toContain("Moderate history");
     expect(html).toContain("27");
     expect(html).toContain("8.4 percentage points on France");
@@ -69,5 +72,21 @@ describe("AnalysisExplainer", () => {
     expect(html).toContain("no verified lineup, injury, or observed-xG feed");
     expect(html).toContain("analysis-explanation-1");
     expect(html).not.toContain("confidence score");
+  });
+
+  it("does not claim a voice comparison when fewer than two voices are available", () => {
+    const unavailable = structuredClone(analysis) as MatchAnalysis;
+    unavailable.explanation!.disagreement.status = "not_comparable";
+    unavailable.explanation!.disagreement.voices = [];
+    unavailable.explanation!.disagreement.outcome_gap_percentage_points = null;
+    unavailable.explanation!.disagreement.largest_gap = null;
+
+    const html = renderToStaticMarkup(createElement(AnalysisExplainer, {
+      analysis: unavailable,
+      home: "France",
+      away: "Spain",
+    }));
+    expect(html).toContain("voice comparison unavailable");
+    expect(html).not.toContain("voice comparison available");
   });
 });

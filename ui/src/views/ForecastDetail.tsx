@@ -4,12 +4,13 @@ import type { ForecastMode } from "../lib/hooks";
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
 import { fetchForecast, fetchForecasts } from "../lib/api";
 import { deriveMarkets } from "../lib/markets";
+import { legacyHistorySupport } from "../lib/analysisPresentation";
 import { num, pct, pctWhole, inWords, largestRemainder, sealLeadTime, utc, utcDate } from "../lib/format";
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { verdictSummary } from "../lib/summary";
 import { leadingOutcomeFromProbs } from "../lib/aiPresentation";
 import { AlertIcon, ChevronDown, ChevronRight, InfoIcon, LinkIcon, ScaleIcon, SealIcon, ShieldCheckIcon, SparkIcon, VoidIcon } from "../components/icons";
-import { Hash, ProbabilityBar, SealLeadChip, StatTile, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
+import { Hash, HistorySupportTag, ProbabilityBar, SealLeadChip, StatTile, StatusChip, TrustStrip } from "../components/primitives";
 import { MatchHeader } from "../components/MatchHeader";
 import { ModeToggle } from "../components/ModeToggle";
 import { Drawer } from "../components/disclosure";
@@ -128,7 +129,7 @@ function Detail({
         context={{
           homeTeam: match.home_team,
           awayTeam: match.away_team,
-          uncertainty: forecast.uncertainty,
+          historySupport: legacyHistorySupport(forecast.uncertainty),
           leadingOutcome: leadingOutcomeFromProbs(forecast.probs),
         }}
       />
@@ -212,8 +213,9 @@ function ForecastTrustStrip({ artifact }: { artifact: ForecastArtifact }) {
 
 /** The verdict bar + one plain-language headline. Identical in both modes — the
  *  sealed certainty never changes when the depth toggle flips. */
-function VerdictPanel({ artifact, showBar, dim }: { artifact: ForecastArtifact; showBar: boolean; dim: boolean }) {
+export function VerdictPanel({ artifact, showBar, dim }: { artifact: ForecastArtifact; showBar: boolean; dim: boolean }) {
   const { forecast, match, model, provenance } = artifact;
+  const lead = sealLeadTime(match.kickoff_utc, forecast.sealed_at_utc);
   const summary = verdictSummary(artifact);
   const probs = forecast.probs;
   const [homeWhole, drawWhole, awayWhole] = probs
@@ -303,8 +305,8 @@ function VerdictPanel({ artifact, showBar, dim }: { artifact: ForecastArtifact; 
             <strong className="num">{utc(forecast.sealed_at_utc)}</strong>
           </div>
           <div className="forecast-seal__meta-item">
-            <span>Horizon</span>
-            <strong>{HORIZON_LABELS[forecast.horizon]} before kickoff</strong>
+            <span>Lead time</span>
+            <strong>{lead ? `${lead} before recorded kickoff` : "Unavailable from recorded timestamps"}</strong>
           </div>
           <div className="forecast-seal__meta-item">
             <span>Model</span>
@@ -329,6 +331,9 @@ function VerdictPanel({ artifact, showBar, dim }: { artifact: ForecastArtifact; 
 
               <dt>Seed</dt>
               <dd className="mono num">{model.seed}</dd>
+
+              <dt>Legacy horizon tag</dt>
+              <dd>{HORIZON_LABELS[forecast.horizon]} <span className="muted small">audit label only</span></dd>
 
               <dt>Code git sha</dt>
               <dd><Hash value={model.code_git_sha} /></dd>
@@ -376,6 +381,7 @@ function PlainTerms({ artifact }: { artifact: ForecastArtifact }) {
       ].sort((a, b) => b.p - a.p)
     : [];
   const leader = ranked[0] ?? null;
+  const historySupport = legacyHistorySupport(forecast.uncertainty);
   return (
     <section className="panel" aria-labelledby="cas-h">
       <div className="panel__head">
@@ -406,7 +412,10 @@ function PlainTerms({ artifact }: { artifact: ForecastArtifact }) {
                 <b className="num">{num(xg.away, 1)}</b> {match.away_team}
               </li>
             )}
-            <li>How uncertain the model is here: <b>{forecast.uncertainty}</b></li>
+            <li>
+              Training-history support: <b>{historySupport}</b>{" "}
+              <span className="dim">(coverage only, not confidence or accuracy)</span>
+            </li>
           </ul>
         </div>
       </div>
@@ -424,9 +433,10 @@ function ExpertDrawers({ artifact, mode }: { artifact: ForecastArtifact; mode: F
   const xg = forecast.expected_goals;
   const markets = deriveMarkets(forecast);
   const hasMarkets = !!(markets.doubleChance || markets.thresholds);
+  const historySupport = legacyHistorySupport(forecast.uncertainty);
   return (
     <div className="stack" style={{ ["--gap" as string]: ".7rem" }}>
-      <Drawer title="Exact-score distribution" defaultOpen={open} chip={<UncertaintyTag level={forecast.uncertainty} />}>
+      <Drawer title="Exact-score distribution" defaultOpen={open} chip={<HistorySupportTag level={historySupport} />}>
         {sm ? (
           <div className="stack" style={{ ["--gap" as string]: ".9rem" }}>
             <ScoreMatrixHeatmap matrix={sm} home={match.home_team} away={match.away_team} />
@@ -480,9 +490,10 @@ function ExpertDrawers({ artifact, mode }: { artifact: ForecastArtifact; mode: F
 
       <Drawer title="Calibration context" defaultOpen={open}>
         <p className="measure" style={{ margin: 0 }}>
-          The model flags <b>{forecast.uncertainty}</b> uncertainty for this fixture. How well this
-          engine's sealed probabilities have matched reality — across every scored seal — is tracked
-          in the <a href="#/lab/track-record">prediction track record ›</a>
+          Training-history support is <b>{historySupport}</b>. That is a coverage bucket, not model
+          confidence or forecast accuracy. How well this engine's sealed probabilities have matched
+          reality — across every scored seal — is tracked in the{" "}
+          <a href="#/lab/track-record">prediction track record ›</a>
         </p>
       </Drawer>
     </div>

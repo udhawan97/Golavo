@@ -103,14 +103,20 @@ def payload_sha256(artifact: dict[str, Any]) -> str:
 
 
 def _code_sha() -> str:
+    injected = os.environ.get("GOLAVO_SOURCE_SHA", "").strip().casefold()
+    if len(injected) == 40 and all(character in "0123456789abcdef" for character in injected):
+        return injected
     try:
-        return subprocess.run(
+        value = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             cwd=Path(__file__).resolve().parents[2],
             check=True,
             capture_output=True,
             text=True,
-        ).stdout.strip()
+        ).stdout.strip().casefold()
+        if len(value) == 40 and all(character in "0123456789abcdef" for character in value):
+            return value
+        return "0000000"
     except (OSError, subprocess.CalledProcessError):
         return "0000000"
 

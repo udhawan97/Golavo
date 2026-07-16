@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchCorrectionCapabilities,
   fetchCorrections,
@@ -22,13 +22,27 @@ export interface CorrectionController {
   capabilities: CorrectionCapabilities | null;
   list: CorrectionList;
   loading: boolean;
+  loadingMore: boolean;
   error: Error | null;
   acceptedByMatch: ReadonlyMap<string, CorrectionProposal[]>;
   reload: () => Promise<void>;
+  loadMore: () => Promise<void>;
   removeAll: () => Promise<void>;
 }
 
 export const CorrectionContext = createContext<CorrectionController | null>(null);
+
+export function mergeCorrectionLists(
+  current: CorrectionList,
+  page: CorrectionList,
+): CorrectionList {
+  const seen = new Set(current.items.map((item) => item.proposal_id));
+  const items = [
+    ...current.items,
+    ...page.items.filter((item) => !seen.has(item.proposal_id)),
+  ];
+  return { ...current, items, total: page.total, offset: 0 };
+}
 
 export function annotationIsCurrent(
   proposal: CorrectionProposal,
@@ -45,7 +59,9 @@ export function useCorrectionController(backendReady: boolean): CorrectionContro
   const [capabilities, setCapabilities] = useState<CorrectionCapabilities | null>(null);
   const [list, setList] = useState<CorrectionList>(EMPTY_LIST);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const loadingMoreRef = useRef(false);
 
   const reload = useCallback(async () => {
     if (!backendReady) return;
@@ -64,6 +80,22 @@ export function useCorrectionController(backendReady: boolean): CorrectionContro
       setLoading(false);
     }
   }, [backendReady]);
+
+  const loadMore = useCallback(async () => {
+    if (!backendReady || loadingMoreRef.current || list.items.length >= list.total) return;
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+    setError(null);
+    try {
+      const page = await fetchCorrections(100, list.items.length);
+      setList((current) => mergeCorrectionLists(current, page));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause : new Error(String(cause)));
+    } finally {
+      loadingMoreRef.current = false;
+      setLoadingMore(false);
+    }
+  }, [backendReady, list.items.length, list.total]);
 
   useEffect(() => {
     void reload();
@@ -103,9 +135,11 @@ export function useCorrectionController(backendReady: boolean): CorrectionContro
     capabilities,
     list,
     loading,
+    loadingMore,
     error,
     acceptedByMatch,
     reload,
+    loadMore,
     removeAll,
   };
 }

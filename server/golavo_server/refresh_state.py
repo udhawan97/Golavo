@@ -185,6 +185,7 @@ def verify_generation(path: Path) -> dict[str, Any]:
     if not isinstance(artifacts, list) or not artifacts:
         raise ValueError(f"generation has no artifacts at {path}")
     declared: set[str] = set()
+    actual_hashes: dict[str, str] = {}
     for entry in artifacts:
         if not isinstance(entry, dict):
             raise ValueError("invalid generation artifact entry")
@@ -195,14 +196,37 @@ def verify_generation(path: Path) -> dict[str, Any]:
         if target.is_symlink() or not target.is_file():
             raise ValueError(f"generation artifact missing: {relative}")
         expected = str(entry.get("sha256", ""))
-        if _sha256(target) != expected:
+        actual = _sha256(target)
+        if actual != expected:
             raise ValueError(f"generation artifact hash mismatch: {relative}")
-        declared.add(relative.as_posix())
+        relative_name = relative.as_posix()
+        declared.add(relative_name)
+        actual_hashes[relative_name] = actual
     required = {"index/matches_index.parquet", "index/matches_index.meta.json"}
     if not required.issubset(declared):
         raise ValueError(
             f"generation is missing required index files: {sorted(required - declared)}"
         )
+    # Cross-bind the independently written index metadata to the actual parquet
+    # bytes. The parquet hash above is reused, so this adds no second large-file
+    # read and never enters the per-match request path.
+    try:
+        index_meta = json.loads(
+            (path / "index" / "matches_index.meta.json").read_text(encoding="utf-8")
+        )
+    except (OSError, ValueError, TypeError) as exc:
+        raise ValueError("generation index metadata is invalid") from exc
+    expected_parquet = (
+        index_meta.get("parquet_sha256") if isinstance(index_meta, dict) else None
+    )
+    actual_parquet = actual_hashes["index/matches_index.parquet"]
+    if (
+        not isinstance(expected_parquet, str)
+        or len(expected_parquet) != 64
+        or any(character not in "0123456789abcdef" for character in expected_parquet)
+        or expected_parquet != actual_parquet
+    ):
+        raise ValueError("generation parquet hash does not match index metadata")
     present = {
         file.relative_to(path).as_posix()
         for file in path.rglob("*")

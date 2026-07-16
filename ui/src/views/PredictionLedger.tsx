@@ -10,12 +10,13 @@ import type {
   CalibrationChain,
   CalibrationSummary,
   Probs,
+  ReliabilityBin,
   SettlementPendingReason,
   SettlementReport,
 } from "../lib/contract";
-import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
+import { FAMILY_LABELS } from "../lib/contract";
 import { DATA_SOURCE, fetchCalibration, settleForecasts } from "../lib/api";
-import { num, pct, utc, utcDate } from "../lib/format";
+import { num, pct, sealLeadTime, utc, utcDate } from "../lib/format";
 import { METRIC_GLOSS } from "../lib/glossary";
 import { useAsync } from "../lib/hooks";
 import { useDataRefreshPolicy } from "../lib/fixtures";
@@ -348,6 +349,7 @@ function ChainRow({
   pendingReason?: SettlementPendingReason;
 }) {
   const { match, resolution } = chain;
+  const lead = sealLeadTime(match.kickoff_utc, chain.sealed_at_utc);
   return (
     <tr>
       <th scope="row" style={{ fontWeight: 550 }}>
@@ -355,7 +357,8 @@ function ChainRow({
           {match.home_team} v {match.away_team}
         </a>
         <div className="small dim">
-          {match.competition} · {FAMILY_LABELS[chain.family]} · {HORIZON_LABELS[chain.horizon]}
+          {match.competition} · {FAMILY_LABELS[chain.family]} ·{" "}
+          {lead ? `${lead} before recorded kickoff` : "lead time unavailable"}
         </div>
       </th>
       <td>{utcDate(match.kickoff_utc)}</td>
@@ -410,10 +413,15 @@ function Resolution({
   return <span className="chip chip--neutral">{pendingResolutionLabel(chain, Date.now(), pendingReason)}</span>;
 }
 
+export function reliabilityReadiness(nScored: number, bins: ReliabilityBin[]) {
+  const qualifyingBins = bins.filter((bin) => bin.count >= 20 && bin.accuracy != null).length;
+  return { ready: nScored >= 100 && qualifyingBins >= 3, qualifyingBins };
+}
+
 function RunningCalibration({ data }: { data: CalibrationSummary }) {
   const { running } = data;
-  const populatedBins = data.reliability_bins.filter((b) => b.count > 0 && b.accuracy != null).length;
-  const reliabilityReady = Boolean(running && running.n_scored >= 30 && populatedBins >= 3);
+  const readiness = reliabilityReadiness(running?.n_scored ?? 0, data.reliability_bins);
+  const reliabilityReady = Boolean(running && readiness.ready);
   return (
     <section className="stack" style={{ ["--gap" as string]: "1rem" }} aria-labelledby="running-h">
       <h2 id="running-h" className="upper muted">Running calibration</h2>
@@ -442,10 +450,12 @@ function RunningCalibration({ data }: { data: CalibrationSummary }) {
               <InfoIcon size={18} />
               <div>
                 <div className="callout__title">Reliability diagram held back</div>
-                Golavo waits for at least <span className="num">30</span> scored seals across
-                at least <span className="num">3</span> populated probability bins. Current:
+                Golavo waits for at least <span className="num">100</span> scored seals and at
+                least <span className="num">3</span> probability bins with{" "}
+                <span className="num">20</span> or more seals each. Current:
                 {" "}<span className="num">{running.n_scored}</span> seals and{" "}
-                <span className="num">{populatedBins}</span> bins. Proper scores remain visible.
+                <span className="num">{readiness.qualifyingBins}</span> qualifying bins. Proper
+                scores remain visible.
               </div>
             </div>
           )}

@@ -170,6 +170,14 @@ def execute_run(
             receipt = capture.capture_payload(
                 run_id=run["run_id"], response=response, policy=policy, document=document
             )
+            if cancel and cancel():
+                return store.update_run(
+                    root,
+                    run["run_id"],
+                    state="cancelled",
+                    counts=counts,
+                    reason_codes=[*reasons, "cancelled"],
+                )
             store.add_capture(root, receipt, response.body)
             counts["captured"] += 1
             current = store.update_run(
@@ -228,6 +236,14 @@ def execute_run(
                     reasons.append(exc.reason_code)
             seen: set[str] = set()
             for candidate in candidates:
+                if cancel and cancel():
+                    return store.update_run(
+                        root,
+                        run["run_id"],
+                        state="cancelled",
+                        counts=counts,
+                        reason_codes=[*reasons, "cancelled"],
+                    )
                 if candidate["candidate_id"] in seen:
                     continue
                 seen.add(candidate["candidate_id"])

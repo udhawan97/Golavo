@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { BlockSkeleton, EmptyState } from "../components/states";
+import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
 import { fetchMatch } from "../lib/api";
 import { useCorrections } from "../lib/correction-context";
 import {
   acceptLocalCorrection,
   attachCorrectionEvidence,
   createCorrection,
+  correctionLoadFailureState,
   exportCorrection,
   fetchCorrection,
   markCorrectionSubmitted,
@@ -118,15 +119,21 @@ export function CorrectionsQueue() {
         <b>No central moderation service.</b> Golavo can validate format, exact identity and local
         snapshot evidence. External contribution always requires your final action.
       </div>
-      {corrections.loading ? (
+      {corrections.loading && corrections.list.items.length === 0 ? (
         <BlockSkeleton lines={4} />
-      ) : corrections.error ? (
-        <p role="alert">{corrections.error.message}</p>
       ) : corrections.list.items.length === 0 ? (
-        <EmptyState title="No local proposals">
-          Use <b>Propose correction</b> on Matchday or a match page. A source URL and captured
-          evidence are required before validation.
-        </EmptyState>
+        corrections.error ? (
+          <ErrorState
+            title="Correction queue unavailable"
+            error={new Error(`Nothing was removed or changed. ${corrections.error.message}`)}
+            onRetry={() => void corrections.reload()}
+          />
+        ) : (
+          <EmptyState title="No local proposals">
+            Use <b>Propose correction</b> on Matchday or a match page. A source URL and captured
+            evidence are required before validation.
+          </EmptyState>
+        )
       ) : (
         <div className="correction-grid">
           {corrections.list.items.map((item) => (
@@ -136,6 +143,44 @@ export function CorrectionsQueue() {
               currentIndexFingerprint={corrections.capabilities?.current_index_fingerprint}
             />
           ))}
+        </div>
+      )}
+      {corrections.error && corrections.list.items.length > 0 && (
+        <div className="stack" style={{ ["--gap" as string]: ".45rem" }}>
+          <p className="correction-error" role="alert" style={{ margin: 0 }}>
+            The correction queue could not finish loading: {corrections.error.message}
+          </p>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            style={{ justifySelf: "start" }}
+            onClick={() => void (
+              corrections.list.items.length < corrections.list.total
+                ? corrections.loadMore()
+                : corrections.reload()
+            )}
+          >
+            Try again
+          </button>
+        </div>
+      )}
+      {!corrections.loading && !corrections.error && corrections.list.items.length > 0 && (
+        <div className="stack" style={{ ["--gap" as string]: ".45rem" }}>
+          <p className="small dim" role="status" aria-live="polite" style={{ margin: 0 }}>
+            Showing {corrections.list.items.length} of {corrections.list.total} local proposals.
+          </p>
+          {corrections.list.items.length < corrections.list.total && (
+            <button
+              type="button"
+              className="btn btn--ghost"
+              style={{ justifySelf: "start" }}
+              disabled={corrections.loadingMore}
+              aria-busy={corrections.loadingMore}
+              onClick={() => void corrections.loadMore()}
+            >
+              {corrections.loadingMore ? "Loading more proposals…" : "Load more proposals"}
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -169,6 +214,8 @@ export function CorrectionEditor({ matchId }: { matchId?: string }) {
   const missing = !matchId;
   const [detail, setDetail] = useState<MatchDetailResponse | null>(null);
   const [loadingMatch, setLoadingMatch] = useState(Boolean(matchId));
+  const [matchLoadError, setMatchLoadError] = useState<Error | null>(null);
+  const [matchRetry, setMatchRetry] = useState(0);
   const [type, setType] = useState<CorrectionType>(missing ? "missing_fixture" : "kickoff_time");
   const [sourceId, setSourceId] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
@@ -196,6 +243,8 @@ export function CorrectionEditor({ matchId }: { matchId?: string }) {
     if (!matchId) return;
     let live = true;
     setLoadingMatch(true);
+    setMatchLoadError(null);
+    setDetail(null);
     void fetchMatch(matchId)
       .then((value) => {
         if (!live) return;
@@ -207,9 +256,13 @@ export function CorrectionEditor({ matchId }: { matchId?: string }) {
           setCountry(value.match.country ?? "");
         }
       })
+      .catch((cause) => {
+        if (!live) return;
+        setMatchLoadError(cause instanceof Error ? cause : new Error(String(cause)));
+      })
       .finally(() => live && setLoadingMatch(false));
     return () => { live = false; };
-  }, [matchId]);
+  }, [matchId, matchRetry]);
 
   const sources = corrections.capabilities?.sources ?? [];
   const allowedSources = useMemo(
@@ -334,6 +387,15 @@ export function CorrectionEditor({ matchId }: { matchId?: string }) {
       </EmptyState>
     );
   }
+  if (matchLoadError) {
+    return (
+      <ErrorState
+        title="Match details unavailable"
+        error={new Error(`Golavo could not load the exact source-backed match needed for this proposal. No correction was created. ${matchLoadError.message}`)}
+        onRetry={() => setMatchRetry((value) => value + 1)}
+      />
+    );
+  }
   if (matchId && !detail) return <EmptyState title="Match not found">The exact match identity is unavailable.</EmptyState>;
 
   return (
@@ -433,14 +495,59 @@ export function CorrectionEditor({ matchId }: { matchId?: string }) {
 
 export function CorrectionReview({ proposalId }: { proposalId: string }) {
   const corrections = useCorrections();
-  const proposal = corrections.list.items.find((item) => item.proposal_id === proposalId);
+  const cachedProposal = corrections.list.items.find((item) => item.proposal_id === proposalId);
+  const [proposal, setProposal] = useState<CorrectionProposal | null>(cachedProposal ?? null);
+  const [proposalLoadState, setProposalLoadState] = useState<"loading" | "ready" | "not_found" | "error">(
+    cachedProposal ? "ready" : "loading",
+  );
+  const [proposalLoadError, setProposalLoadError] = useState<Error | null>(null);
+  const [proposalRetry, setProposalRetry] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [redactId, setRedactId] = useState<string | null>(null);
   const [reviewedExport, setReviewedExport] = useState(false);
   const [exportId, setExportId] = useState<string | null>(null);
-  if (corrections.loading) return <BlockSkeleton lines={4} />;
-  if (!proposal) return <EmptyState title="Proposal not found">It may have been removed from this Mac.</EmptyState>;
+
+  useEffect(() => {
+    if (cachedProposal) {
+      setProposal(cachedProposal);
+      setProposalLoadError(null);
+      setProposalLoadState("ready");
+      return;
+    }
+    let live = true;
+    setProposal(null);
+    setProposalLoadError(null);
+    setProposalLoadState("loading");
+    void fetchCorrection(proposalId).then(
+      (value) => {
+        if (!live) return;
+        setProposal(value);
+        setProposalLoadState("ready");
+      },
+      (cause) => {
+        if (!live) return;
+        const next = cause instanceof Error ? cause : new Error(String(cause));
+        setProposalLoadError(next);
+        setProposalLoadState(correctionLoadFailureState(cause));
+      },
+    );
+    return () => { live = false; };
+  }, [cachedProposal, proposalId, proposalRetry]);
+
+  if (proposalLoadState === "loading") return <BlockSkeleton lines={4} />;
+  if (proposalLoadState === "error") {
+    return (
+      <ErrorState
+        title="Correction record unavailable"
+        error={new Error(`Golavo could not read this local proposal. It has not been removed or changed.${proposalLoadError ? ` ${proposalLoadError.message}` : ""}`)}
+        onRetry={() => setProposalRetry((value) => value + 1)}
+      />
+    );
+  }
+  if (proposalLoadState === "not_found" || !proposal) {
+    return <EmptyState title="Proposal not found">No local proposal has this exact id.</EmptyState>;
+  }
   const needsRevalidation =
     proposal.target.index_fingerprint !==
     corrections.capabilities?.current_index_fingerprint;
@@ -452,7 +559,7 @@ export function CorrectionReview({ proposalId }: { proposalId: string }) {
     setBusy(true);
     setError(null);
     try {
-      await validateCorrection(proposal.proposal_id);
+      setProposal(await validateCorrection(proposal.proposal_id));
       await corrections.reload();
     } catch (cause) {
       setError(cause instanceof Error ? cause : new Error(String(cause)));
@@ -465,7 +572,7 @@ export function CorrectionReview({ proposalId }: { proposalId: string }) {
     setBusy(true);
     setError(null);
     try {
-      await acceptLocalCorrection(proposal);
+      setProposal(await acceptLocalCorrection(proposal));
       await corrections.reload();
     } catch (cause) {
       setError(cause instanceof Error ? cause : new Error(String(cause)));
@@ -482,7 +589,7 @@ export function CorrectionReview({ proposalId }: { proposalId: string }) {
     setBusy(true);
     setError(null);
     try {
-      await redactCorrectionEvidence(proposal, evidenceId);
+      setProposal(await redactCorrectionEvidence(proposal, evidenceId));
       setRedactId(null);
       await corrections.reload();
     } catch (cause) {
@@ -500,6 +607,7 @@ export function CorrectionReview({ proposalId }: { proposalId: string }) {
       const receipt = await exportCorrection(proposal);
       setExportId(receipt.export_id);
       await saveCorrectionExport(receipt.export_id);
+      setProposal(await fetchCorrection(proposal.proposal_id));
       await corrections.reload();
     } catch (cause) {
       setError(cause instanceof Error ? cause : new Error(String(cause)));
@@ -512,7 +620,7 @@ export function CorrectionReview({ proposalId }: { proposalId: string }) {
     setBusy(true);
     setError(null);
     try {
-      await markCorrectionSubmitted(proposal);
+      setProposal(await markCorrectionSubmitted(proposal));
       await corrections.reload();
     } catch (cause) {
       setError(cause instanceof Error ? cause : new Error(String(cause)));

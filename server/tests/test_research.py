@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import socket
 import sqlite3
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -18,6 +19,7 @@ from golavo_server.research import capture, extract, policy, settings, store, wi
 from golavo_server.research import fetch as fetchmod
 from golavo_server.research.fetch import FetchResponse, ResearchFetchError
 from golavo_server.research.orchestrator import discover, plan_queries, run_capture, run_research
+from jsonschema import Draft202012Validator, FormatChecker
 
 FINGERPRINT = "f" * 64
 MATCH = {
@@ -219,8 +221,137 @@ def test_wikidata_capture_builds_exact_quote_candidates(tmp_path: Path) -> None:
     assert all(candidate["authority"] == "untrusted_candidate" for candidate in candidates)
     assert all(candidate["effects"]["model_input"] is False for candidate in candidates)
     assert all(candidate["validation"]["quote_match"] is True for candidate in candidates)
+    namespace, stored_candidate = store.get_candidate_record(
+        tmp_path, candidates[0]["candidate_id"]
+    )
+    receipt, _raw = store.load_capture(
+        tmp_path, namespace, stored_candidate["evidence"]["capture_id"]
+    )
+    assert receipt["document_url"] == "https://www.wikidata.org/wiki/Q142"
+    assert receipt["entity_id"] == "Q142"
+    schema = json.loads(
+        (
+            Path(__file__).resolve().parents[2]
+            / "docs/contracts/research_capture.schema.json"
+        ).read_text(encoding="utf-8")
+    )
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(receipt)
     assert (tmp_path / "enrichment-cc0" / "research.sqlite3").is_file()
     assert not (tmp_path / "core-cc0" / "research.sqlite3").exists()
+
+
+def test_wikidata_capture_rejects_cross_entity_response() -> None:
+    response = _wikidata_response(
+        "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q38"
+    )
+    with pytest.raises(capture.CaptureError) as exc:
+        capture.canonical_document(response, policy.source_policies()["wikidata"])
+    assert exc.value.reason_code == "wikidata_entity_mismatch"
+
+
+def _wikipedia_capture_response(title: str, payload: dict) -> FetchResponse:
+    return FetchResponse(
+        canonical_url=wikipedia.extract_url(title),
+        source_id="wikipedia-en",
+        status=200,
+        content_type="application/json",
+        body=json.dumps(payload).encode(),
+        etag='"revision-123"',
+        last_modified=None,
+    )
+
+
+def test_wikipedia_capture_binds_selected_title_through_declared_redirect() -> None:
+    response = _wikipedia_capture_response(
+        "Les Bleus",
+        {
+            "query": {
+                "redirects": [
+                    {"from": "Les Bleus", "to": "France national football team"}
+                ],
+                "pages": [
+                    {
+                        "title": "France national football team",
+                        "extract": "France are a national team.",
+                        "revisions": [{"revid": 123}],
+                    }
+                ],
+            }
+        },
+    )
+    document = capture.canonical_document(
+        response, policy.source_policies()["wikipedia-en"]
+    )
+    assert document.parsed["requested_title"] == "Les Bleus"
+    assert document.parsed["title"] == "France national football team"
+    assert document.document_url.endswith("/France_national_football_team")
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {
+            "query": {
+                "pages": [
+                    {
+                        "title": "France national football team",
+                        "extract": "Unrelated returned article.",
+                    }
+                ]
+            }
+        },
+        {
+            "query": {
+                "redirects": [{"from": "Portugal", "to": "France national football team"}],
+                "pages": [
+                    {
+                        "title": "France national football team",
+                        "extract": "Disconnected redirect must not authorize this page.",
+                    }
+                ],
+            }
+        },
+        {
+            "query": {
+                "pages": [
+                    {"title": "Spain", "extract": "Selected page."},
+                    {"title": "France", "extract": "Injected second page."},
+                ]
+            }
+        },
+    ],
+    ids=("different-page", "disconnected-redirect", "multiple-pages"),
+)
+def test_wikipedia_capture_rejects_mismatched_page_identity(payload: dict) -> None:
+    response = _wikipedia_capture_response("Spain", payload)
+    with pytest.raises(capture.CaptureError) as caught:
+        capture.canonical_document(response, policy.source_policies()["wikipedia-en"])
+    assert caught.value.reason_code == "wikipedia_page_mismatch"
+
+
+def test_candidate_source_url_cannot_be_substituted_across_entities(tmp_path: Path) -> None:
+    url = "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q142"
+    result = run_capture(
+        tmp_path,
+        match=MATCH,
+        index_fingerprint=FINGERPRINT,
+        selected_urls=[url],
+        fetcher=lambda value, **_kwargs: _wikidata_response(value),
+    )
+    original = store.list_candidates(tmp_path, result["run_id"])[0]
+    namespace, candidate = store.get_candidate_record(tmp_path, original["candidate_id"])
+    receipt, _raw = store.load_capture(
+        tmp_path, namespace, candidate["evidence"]["capture_id"]
+    )
+    candidate["source"]["canonical_url"] = "https://www.wikidata.org/wiki/Q38"
+    candidate["candidate_id"] = "cf_" + extract.candidate_digest(candidate)
+    with pytest.raises(ValueError, match="source policy mismatch"):
+        extract.validate_stored_candidate(
+            candidate,
+            policy=policy.source_policies()["wikidata"],
+            namespace=namespace,
+            capture=receipt,
+        )
 
 
 def test_ai_candidate_fails_closed_when_quote_or_value_is_missing() -> None:
@@ -286,6 +417,49 @@ def test_cancelled_run_stops_before_fetch(tmp_path: Path) -> None:
     )
     assert result["state"] == "cancelled"
     assert result["reason_codes"] == ["cancelled"]
+
+
+def test_cancelled_run_stops_before_capture_write(tmp_path: Path) -> None:
+    url = "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q142"
+    checks = 0
+
+    def cancel() -> bool:
+        nonlocal checks
+        checks += 1
+        return checks >= 3
+
+    result = run_capture(
+        tmp_path,
+        match=MATCH,
+        index_fingerprint=FINGERPRINT,
+        selected_urls=[url],
+        cancel=cancel,
+        fetcher=lambda value, **_kwargs: _wikidata_response(value),
+    )
+    assert result["state"] == "cancelled"
+    assert not (tmp_path / "enrichment-cc0" / "research.sqlite3").exists()
+
+
+def test_cancelled_run_stops_before_candidate_write(tmp_path: Path) -> None:
+    url = "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q142"
+    checks = 0
+
+    def cancel() -> bool:
+        nonlocal checks
+        checks += 1
+        return checks >= 5
+
+    result = run_capture(
+        tmp_path,
+        match=MATCH,
+        index_fingerprint=FINGERPRINT,
+        selected_urls=[url],
+        cancel=cancel,
+        fetcher=lambda value, **_kwargs: _wikidata_response(value),
+    )
+    assert result["state"] == "cancelled"
+    assert result["counts"]["captured"] == 1
+    assert store.list_candidates(tmp_path, result["run_id"]) == []
 
 
 def test_identical_repeat_run_keeps_distinct_reviewable_candidates(tmp_path: Path) -> None:
@@ -397,6 +571,88 @@ def test_retention_prunes_only_expired_unqueued_runs(tmp_path: Path) -> None:
 
 
 # ---- consent settings and deletion -----------------------------------------
+
+
+def test_only_one_active_research_run_per_match_under_concurrency(tmp_path: Path) -> None:
+    bootstrap = store.create_run(
+        tmp_path,
+        match_id="bootstrap-match",
+        index_fingerprint=FINGERPRINT,
+        selected_urls=["https://example.invalid/bootstrap"],
+        allow_local_ai=False,
+    )
+    store.update_run(tmp_path, bootstrap["run_id"], state="cancelled")
+
+    def create() -> tuple[str, str]:
+        try:
+            run = store.create_run(
+                tmp_path,
+                match_id=MATCH["match_id"],
+                index_fingerprint=FINGERPRINT,
+                selected_urls=["https://example.invalid/research"],
+                allow_local_ai=False,
+            )
+            return ("created", run["run_id"])
+        except store.ResearchStoreError as exc:
+            return ("rejected", exc.reason_code)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(lambda _index: create(), range(2)))
+
+    assert sorted(result[0] for result in results) == ["created", "rejected"]
+    assert next(result[1] for result in results if result[0] == "rejected") == (
+        "research_run_active"
+    )
+    active_run_id = next(result[1] for result in results if result[0] == "created")
+    assert [run["run_id"] for run in store.list_runs(tmp_path, match_id=MATCH["match_id"])] == [
+        active_run_id
+    ]
+
+    store.update_run(tmp_path, active_run_id, state="failed")
+    rerun = store.create_run(
+        tmp_path,
+        match_id=MATCH["match_id"],
+        index_fingerprint=FINGERPRINT,
+        selected_urls=["https://example.invalid/retry"],
+        allow_local_ai=False,
+    )
+    assert rerun["state"] == "planned"
+
+
+def test_generation_commit_rolls_back_new_research_run(tmp_path: Path) -> None:
+    with pytest.raises(store.ResearchStoreError) as caught:
+        store.create_run(
+            tmp_path,
+            match_id=MATCH["match_id"],
+            index_fingerprint=FINGERPRINT,
+            selected_urls=["https://example.invalid/research"],
+            allow_local_ai=False,
+            generation_commit=lambda operation: False,
+        )
+    assert caught.value.reason_code == "index_generation_changed"
+    assert store.list_runs(tmp_path, match_id=MATCH["match_id"]) == []
+
+    active = store.create_run(
+        tmp_path,
+        match_id=MATCH["match_id"],
+        index_fingerprint=FINGERPRINT,
+        selected_urls=["https://example.invalid/active"],
+        allow_local_ai=False,
+    )
+    with pytest.raises(store.ResearchStoreError) as stale_active:
+        store.create_run(
+            tmp_path,
+            match_id=MATCH["match_id"],
+            index_fingerprint=FINGERPRINT,
+            selected_urls=["https://example.invalid/retry"],
+            allow_local_ai=False,
+            generation_commit=lambda operation: False,
+        )
+    assert stale_active.value.reason_code == "index_generation_changed"
+    assert [item["run_id"] for item in store.list_runs(tmp_path, match_id=MATCH["match_id"])] == [
+        active["run_id"]
+    ]
+
 
 
 def test_settings_default_off_and_tampering_fails_safe(tmp_path: Path) -> None:

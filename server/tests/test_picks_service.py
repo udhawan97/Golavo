@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
@@ -277,13 +279,81 @@ def test_concurrent_saves_serialize_to_one_valid_draft(service: tuple[Path, Path
     assert len(list((ledger / "picks" / "drafts").glob("*.json"))) == 1
 
 
+def test_auto_freeze_replace_is_linearized_before_repoint(
+    service: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    ledger, old_index = service
+    old_meta = tmp_path / "old.meta.json"
+    new_meta = tmp_path / "new.meta.json"
+    old_meta.write_text('{"generation":"old"}', encoding="utf-8")
+    new_meta.write_text('{"generation":"new"}', encoding="utf-8")
+    new_index = tmp_path / "new.parquet"
+    _write_index(new_index, [_row()])
+    monkeypatch.setattr(matches, "INDEX_PATH", old_index)
+    monkeypatch.setattr(matches, "INDEX_META_PATH", old_meta)
+    monkeypatch.setattr(matches, "GOALSCORERS_PATH", matches.GOALSCORERS_PATH)
+    monkeypatch.setattr(matches, "SHOOTOUTS_PATH", matches.SHOOTOUTS_PATH)
+    monkeypatch.setattr(matches, "ALIASES_PATH", matches.ALIASES_PATH)
+    matches.reset_cache()
+    picks.save_pick("m_up", 2, 1, ledger=ledger, now_utc=_dt("2026-08-01T10:00:00Z"))
+    monkeypatch.setattr(
+        matches,
+        "_resolve_index_paths",
+        lambda: {
+            "index": new_index,
+            "meta": new_meta,
+            "goalscorers": tmp_path / "new-goals.parquet",
+            "shootouts": tmp_path / "new-shootouts.parquet",
+            "aliases": tmp_path / "new-aliases.json",
+        },
+    )
+
+    replace_started = threading.Event()
+    allow_replace = threading.Event()
+    repoint_done = threading.Event()
+    real_replace = os.replace
+
+    def blocked_replace(source: Path, destination: Path) -> None:
+        if Path(destination).name.startswith("pk_"):
+            replace_started.set()
+            assert allow_replace.wait(5), "pick replace barrier timed out"
+        real_replace(source, destination)
+
+    monkeypatch.setattr(os, "replace", blocked_replace)
+    result: list[dict | None] = []
+    freezer = threading.Thread(
+        target=lambda: result.append(
+            picks.get_pick(
+                "m_up", ledger=ledger, now_utc=_dt("2026-08-01T12:00:00Z")
+            )
+        ),
+        daemon=True,
+    )
+    freezer.start()
+    assert replace_started.wait(5), "auto-freeze never reached atomic replace"
+    repointer = threading.Thread(
+        target=lambda: (matches.repoint_to_refreshed(), repoint_done.set()),
+        daemon=True,
+    )
+    repointer.start()
+    assert not repoint_done.wait(0.1), "repoint crossed an in-progress pick commit"
+    allow_replace.set()
+    freezer.join(5)
+    repointer.join(5)
+    assert not freezer.is_alive() and not repointer.is_alive()
+    assert result[0] is not None and result[0]["status"] == "locked"
+    assert not (ledger / "picks" / "drafts" / "m_up.json").exists()
+    assert len(list((ledger / "picks").glob("pk_*.json"))) == 1
+    assert repoint_done.is_set()
+
+
 def test_read_degrades_to_virtual_lock_when_ledger_is_unwritable(
     service: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     ledger, _ = service
     picks.save_pick("m_up", 1, 0, ledger=ledger, now_utc=_dt("2026-08-01T10:00:00Z"))
 
-    def unwritable(ledger: Path, record: dict) -> Path:
+    def unwritable(ledger: Path, record: dict, **_kwargs: object) -> Path:
         raise OSError
 
     monkeypatch.setattr(picks, "_write_locked", unwritable)

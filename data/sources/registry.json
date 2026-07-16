@@ -160,7 +160,7 @@
       },
       "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
       "verified": "2026-07-15",
-      "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The legacy compact table resolves 1,828 of 2,215 indexed city-country pairs; 82 exact-name collisions were deterministically selected by population/id and must be rebuilt fail-closed under ADR-0006 before being treated as reviewed identities. Bulk files only, no runtime web-service dependency."
+      "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact table resolves 1,571 of 2,215 indexed city-country pairs through unique exact GeoNames primary-name matching. All 82 ambiguous pairs remain excluded; 175 alias candidates remain pending, and no manual city resolutions ship. Bulk files only, with no runtime web-service dependency."
     },
     {
       "source_id": "natural-earth",

@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from golavo_server import main as server_main
-from golavo_server import outlook
+from golavo_server import matches, outlook
 from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,6 +15,13 @@ SCHEMA = json.loads(
         encoding="utf-8"
     )
 )
+
+
+@pytest.fixture(autouse=True)
+def _reset_shared_index_and_outlook_caches():
+    matches.reset_cache()
+    yield
+    matches.reset_cache()
 
 
 def test_world_cup_outlook_endpoint_validates_against_contract() -> None:

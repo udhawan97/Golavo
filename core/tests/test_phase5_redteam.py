@@ -289,7 +289,10 @@ def test_a_clean_narration_survives(bundle: dict, refs: dict) -> None:
                 [refs["engine"], refs["snapshot"]],
                 ["prob_home"],
             ),
-            _claim("The engine flags model uncertainty as high here.", [refs["engine"]]),
+            _claim(
+                "Training-history support is limited here; it is not confidence.",
+                [refs["engine"]],
+            ),
         ],
         scenarios=[
             _claim(

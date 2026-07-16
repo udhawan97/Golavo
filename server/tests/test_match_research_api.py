@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -57,7 +58,15 @@ def client(
     monkeypatch.setattr(
         server_main,
         "_match_for_correction",
-        lambda match_id: MATCH if match_id == "match-1" else None,
+        lambda match_id, snapshot=None: MATCH if match_id == "match-1" else None,
+    )
+    snapshot = server_main.matches.IndexSnapshot(object(), FINGERPRINT, 1)
+    monkeypatch.setattr(server_main.matches, "index_snapshot", lambda: snapshot)
+    monkeypatch.setattr(server_main.matches, "snapshot_is_current", lambda value: True)
+    monkeypatch.setattr(
+        server_main.matches,
+        "apply_if_snapshot_current",
+        lambda value, operation: (operation() or True),
     )
     monkeypatch.setattr(server_main.matches, "index_fingerprint", lambda: FINGERPRINT)
     return TestClient(server_main.app), {"x-golavo-token": "test-token"}, seal, research
@@ -219,6 +228,63 @@ def test_candidate_queues_as_untrusted_draft_without_mutating_seal(
     assert repeated.json()["proposal"]["proposal_id"] == body["proposal"]["proposal_id"]
 
 
+def test_candidate_queue_generation_commit_rolls_back_state(
+    client: tuple[TestClient, dict[str, str], Path, Path],
+) -> None:
+    _api, _headers, _seal, research = client
+    candidate = _candidate(research)
+    with pytest.raises(store.ResearchStoreError) as caught:
+        store.mark_queued(
+            research,
+            candidate["candidate_id"],
+            "cp_" + "a" * 32,
+            generation_commit=lambda operation: False,
+        )
+    assert caught.value.reason_code == "index_generation_changed"
+    stored = store.list_candidates(research, candidate["run_id"])[0]
+    assert stored["state"] == "review_required"
+    assert stored.get("queued_proposal_id") is None
+
+
+def test_concurrent_candidate_queue_is_idempotent(
+    client: tuple[TestClient, dict[str, str], Path, Path],
+) -> None:
+    api, headers, _seal, research = client
+    candidate = _candidate(research)
+    payload = {
+        "expected_candidate_sha256": candidate["candidate_id"][3:],
+        "expected_index_fingerprint": FINGERPRINT,
+        "confirm": "add_to_correction_queue",
+    }
+
+    def queue() -> object:
+        return api.post(
+            f"/api/v1/research/candidates/{candidate['candidate_id']}/queue",
+            headers=headers,
+            json=payload,
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        responses = list(executor.map(lambda _index: queue(), range(2)))
+    assert {response.status_code for response in responses} <= {200, 201}, [
+        response.text for response in responses
+    ]
+    proposal_ids = {response.json()["proposal"]["proposal_id"] for response in responses}
+    assert len(proposal_ids) == 1
+    proposals = correction_store.list_proposals(Path(server_main.CORRECTIONS_DIR))
+    assert proposals["total"] == 1
+    detailed = correction_store.get_proposal(
+        Path(server_main.CORRECTIONS_DIR), next(iter(proposal_ids)), include_events=True
+    )
+    assert [event["event_type"] for event in detailed["events"]].count("created") == 1
+    assert (
+        [event["event_type"] for event in detailed["events"]].count(
+            "evidence_imported_from_research"
+        )
+        == 1
+    )
+
+
 def test_stale_candidate_fails_closed(
     client: tuple[TestClient, dict[str, str], Path, Path],
 ) -> None:
@@ -305,6 +371,38 @@ def test_history_delete_refuses_an_active_run(
         assert (research / "control.sqlite3").is_file()
     finally:
         jobs.store().cancel(run["run_id"])
+        jobs.store().finish(run["run_id"])
+
+
+def test_history_delete_refuses_cancelled_worker_until_it_exits(
+    client: tuple[TestClient, dict[str, str], Path, Path],
+) -> None:
+    api, headers, _seal, research = client
+    run = store.create_run(
+        research,
+        match_id="match-1",
+        index_fingerprint=FINGERPRINT,
+        selected_urls=[URL],
+        allow_local_ai=False,
+    )
+    jobs.store().start(run["run_id"])
+    assert jobs.store().cancel(run["run_id"]) is True
+    blocked = api.request(
+        "DELETE",
+        "/api/v1/research/history",
+        headers=headers,
+        json={"confirm": "remove_local_research_history"},
+    )
+    assert blocked.status_code == 409
+    assert blocked.json()["detail"]["reason_code"] == "research_run_active"
+    assert jobs.store().finish(run["run_id"]) is False
+    removed = api.request(
+        "DELETE",
+        "/api/v1/research/history",
+        headers=headers,
+        json={"confirm": "remove_local_research_history"},
+    )
+    assert removed.status_code == 200
 
 
 def test_tampered_candidate_cannot_enter_correction_queue(

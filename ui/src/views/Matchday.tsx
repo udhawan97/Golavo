@@ -29,6 +29,7 @@ import { TournamentOutlook } from "../components/TournamentOutlook";
 import { useDataGenerationRevision, useDataRefresh } from "../lib/data-refresh-context";
 import { FollowButton } from "../components/FollowButton";
 import { FollowedMatchesPanel } from "../components/FollowedMatchesPanel";
+import { useFollows } from "../lib/follow-context";
 import { CorrectionButton } from "../components/CorrectionButton";
 import { annotationIsCurrent, useCorrections } from "../lib/correction-context";
 
@@ -82,6 +83,7 @@ const WINDOWS: { value: MatchWindow; label: string }[] = [
 export function MatchdayHome() {
   const warmup = useWarmupStatus();
   const dataRefresh = useDataRefresh();
+  const follows = useFollows();
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.5rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
@@ -101,6 +103,12 @@ export function MatchdayHome() {
           {dataRefresh.status.sources.find((source) => source.source_id === "openfootball-football-json")?.capability === "absent" &&
             "The approved club source has not published current-season files."}{" "}
           <a href="#/settings">Data source health ›</a>
+        </p>
+      )}
+
+      {follows.error && (
+        <p className="small correction-error" role="alert" style={{ margin: 0 }}>
+          Follow state could not update: {follows.error.message}
         </p>
       )}
 

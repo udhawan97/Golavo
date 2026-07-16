@@ -637,13 +637,31 @@ def _reconcile_follows(state: dict[str, Any]) -> dict[str, Any]:
     and preserves the store for recovery.
     """
     try:
-        active, _ = refresh_state.active_generation()
-        return follows.reconcile(
-            ledger=runtime.data_dir(),
-            frame=matches._load_index(),
-            index_fingerprint=matches.index_fingerprint(),
-            generation_id=active.name if active is not None else None,
-            source_status=state.get("sources", {}),
+        for _attempt in range(3):
+            active_before, _ = refresh_state.active_generation()
+            snapshot = matches.index_snapshot()
+            active_after, _ = refresh_state.active_generation()
+            generation_before = active_before.name if active_before is not None else None
+            generation_after = active_after.name if active_after is not None else None
+            if generation_before != generation_after or not matches.snapshot_is_current(snapshot):
+                continue
+            try:
+                return follows.reconcile(
+                    ledger=runtime.data_dir(),
+                    frame=snapshot.frame,
+                    index_fingerprint=snapshot.fingerprint,
+                    generation_id=generation_after,
+                    source_status=state.get("sources", {}),
+                    generation_commit=lambda operation, snapshot=snapshot: (
+                        matches.apply_if_snapshot_current(snapshot, operation)
+                    ),
+                )
+            except follows.FollowError as exc:
+                if exc.reason_code == "index_generation_changed":
+                    continue
+                raise
+        raise matches.MatchIndexUnavailable(
+            "verified match index changed during follow reconciliation; retry"
         )
     except (follows.FollowError, matches.MatchIndexUnavailable, OSError, ValueError) as exc:
         return {

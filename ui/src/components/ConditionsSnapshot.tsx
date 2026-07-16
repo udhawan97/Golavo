@@ -242,7 +242,7 @@ export function SnapshotBody({ snapshot }: { snapshot: Snapshot }) {
       {snapshot.travel_map.routes.length > 0 ? (
         <TravelMap routes={snapshot.travel_map.routes} />
       ) : (
-        <p className="conditions-map-empty small muted">Travel map unavailable until both current and previous match locations resolve in the reviewed GeoNames pack.</p>
+        <p className="conditions-map-empty small muted">Travel map unavailable until both current and previous match locations resolve in the fail-closed unique-exact GeoNames pack.</p>
       )}
 
       <div className="callout callout--info conditions-weather" role="note">

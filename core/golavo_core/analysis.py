@@ -301,11 +301,12 @@ def _analysis_explanation(
             ),
         },
         {
-            "id": "reviewed_identity_correction",
-            "label": "A reviewed identity correction lands",
+            "id": "verified_index_generation",
+            "label": "A verified source/index generation is activated",
             "description": (
-                "A team or fixture identity correction changes which pre-cutoff rows belong to "
-                "this analysis. Unverified candidates do nothing."
+                "A verified upstream source update changes which pre-cutoff rows belong to this "
+                "analysis after a validated index generation is activated. Local annotations and "
+                "unverified candidates do not change the analysis."
             ),
         },
         {

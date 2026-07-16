@@ -151,7 +151,7 @@ export function SealingGuide() {
         </div>
         <ul className="guide-example__notes small">
           <li><b>Sealed at</b> is stamped before kickoff — proof the call came first, not after.</li>
-          <li><b>Horizon</b> is how long before kickoff it was sealed.</li>
+          <li><b>Horizon</b> is a legacy audit label, not elapsed time. The exact lead time comes from the immutable sealed-at and kickoff timestamps.</li>
           <li><b>Payload sha256</b> is a fingerprint of every input. Change one byte and Golavo refuses to show the artifact — that’s the tamper-evidence.</li>
         </ul>
       </section>

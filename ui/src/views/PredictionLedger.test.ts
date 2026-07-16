@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { CalibrationChain } from "../lib/contract";
-import { pendingResolutionLabel } from "./PredictionLedger";
+import type { CalibrationChain, ReliabilityBin } from "../lib/contract";
+import { pendingResolutionLabel, reliabilityReadiness } from "./PredictionLedger";
 
 const chain: CalibrationChain = {
   sealed_artifact_id: "fa_test",
@@ -52,5 +52,26 @@ describe("pendingResolutionLabel", () => {
     expect(pendingResolutionLabel(chain, Date.now(), "scoring_refused")).toBe(
       "review needed",
     );
+  });
+});
+
+const bin = (count: number): ReliabilityBin => ({
+  lower: 0,
+  upper: 0.1,
+  count,
+  mean_confidence: count ? 0.05 : null,
+  accuracy: count ? 0.05 : null,
+  wilson_low: count ? 0.01 : null,
+  wilson_high: count ? 0.1 : null,
+});
+
+describe("reliabilityReadiness", () => {
+  it("requires 100 scored seals and three bins with at least 20 observations", () => {
+    expect(reliabilityReadiness(99, [bin(20), bin(20), bin(20)]).ready).toBe(false);
+    expect(reliabilityReadiness(100, [bin(20), bin(20), bin(19)]).ready).toBe(false);
+    expect(reliabilityReadiness(100, [bin(20), bin(21), bin(22)])).toEqual({
+      ready: true,
+      qualifyingBins: 3,
+    });
   });
 });

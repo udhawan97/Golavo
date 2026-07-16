@@ -58,6 +58,25 @@ def test_bundle_is_a_deterministic_pure_function() -> None:
     assert first["bundle_hash"] == second["bundle_hash"]
 
 
+def test_legacy_horizon_and_match_count_bucket_are_labelled_honestly() -> None:
+    # This fixture deliberately carries a T-60m audit tag despite a 24-hour
+    # timestamp delta, proving the tag must never be presented as elapsed time.
+    artifact = next(
+        _load(path)
+        for path in FIXTURES
+        if _load(path)["forecast"]["horizon"] == "T-60m"
+    )
+    bundle = build_evidence_bundle(artifact)
+    facts = {fact["fact_id"]: fact["text"] for fact in bundle["facts"]}
+    features = {feature["feature_id"]: feature for feature in bundle["features"]}
+
+    assert "T-60m is a legacy audit tag, not elapsed lead time" in facts["seal_immutability"]
+    assert "model confidence" in facts["history_support"]
+    assert "model uncertainty" not in facts["history_support"].lower()
+    assert features["horizon"]["name"].startswith("Legacy horizon audit tag")
+    assert features["history_support"]["value"] in {"limited", "moderate", "strong"}
+
+
 def test_allowed_numbers_cover_exactly_the_engine_numbers(tmp_path: Path) -> None:
     sealed = build_evidence_bundle(_load(_seal(tmp_path)))
     ids = {n["id"] for n in sealed["allowed_numbers"]}

@@ -18,6 +18,27 @@ import type {
 import { handleExternalLinkClick } from "../lib/external-links";
 
 const terminal = new Set(["candidates_ready", "partial", "cancelled", "offline", "failed"]);
+export const MAX_RESEARCH_PAGES = 4;
+export const RESEARCH_POLL_FAILURE_LIMIT = 3;
+
+export function claimResearchCreation(lock: { current: boolean }): boolean {
+  if (lock.current) return false;
+  lock.current = true;
+  return true;
+}
+
+export function nextResearchPollFailure(consecutiveFailures: number) {
+  const count = consecutiveFailures + 1;
+  return { count, paused: count >= RESEARCH_POLL_FAILURE_LIMIT };
+}
+
+export function researchSelectionState(selectedCount: number, selected: boolean) {
+  const atLimit = selectedCount >= MAX_RESEARCH_PAGES;
+  return {
+    disabled: atLimit && !selected,
+    message: `${selectedCount} of ${MAX_RESEARCH_PAGES} pages selected.${atLimit ? " Selection limit reached; remove one to choose another." : ""}`,
+  };
+}
 
 export function MatchResearch({
   matchId,
@@ -38,9 +59,15 @@ export function MatchResearch({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [run, setRun] = useState<ResearchRun | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [pollingIssue, setPollingIssue] = useState<string | null>(null);
   const [queued, setQueued] = useState<Set<string>>(new Set());
+  const [queueing, setQueueing] = useState<Set<string>>(new Set());
   const [useLocalAi, setUseLocalAi] = useState(false);
   const discoveryAbort = useRef<AbortController | null>(null);
+  const createAbort = useRef<AbortController | null>(null);
+  const creatingRef = useRef(false);
+  const queueingRef = useRef<Set<string>>(new Set());
   const [provider] = useAiProvider();
   const { fastModel } = useAiModels();
   const localProvider = provider === "ollama" || provider === "llama_server" ? provider : null;
@@ -61,20 +88,52 @@ export function MatchResearch({
       },
       () => { if (live) setCapabilities(null); },
     );
-    return () => { live = false; discoveryAbort.current?.abort(); };
+    return () => {
+      live = false;
+      discoveryAbort.current?.abort();
+      createAbort.current?.abort();
+      createAbort.current = null;
+      creatingRef.current = false;
+    };
   }, [matchId]);
 
   useEffect(() => {
-    if (!run || terminal.has(run.state)) return;
+    if (!run || terminal.has(run.state) || pollingIssue) return;
     let live = true;
-    const timer = window.setInterval(() => {
-      fetchResearchRun(run.run_id).then(
-        (value) => { if (live) setRun(value); },
-        () => { /* keep the last honest state */ },
+    let timer: number | undefined;
+    let requestController: AbortController | null = null;
+    let consecutiveFailures = 0;
+    const schedule = () => { timer = window.setTimeout(poll, 800); };
+    const poll = () => {
+      requestController = new AbortController();
+      fetchResearchRun(run.run_id, requestController.signal).then(
+        (value) => {
+          if (!live) return;
+          consecutiveFailures = 0;
+          setRun(value);
+          if (!terminal.has(value.state)) schedule();
+        },
+        (cause) => {
+          if (!live || (cause instanceof DOMException && cause.name === "AbortError")) return;
+          const next = nextResearchPollFailure(consecutiveFailures);
+          consecutiveFailures = next.count;
+          if (next.paused) {
+            setPollingIssue(
+              "Golavo lost contact with the local research worker and stopped checking automatically. The run remains stored locally; its status is not being guessed.",
+            );
+          } else {
+            schedule();
+          }
+        },
       );
-    }, 800);
-    return () => { live = false; window.clearInterval(timer); };
-  }, [run]);
+    };
+    schedule();
+    return () => {
+      live = false;
+      if (timer !== undefined) window.clearTimeout(timer);
+      requestController?.abort();
+    };
+  }, [run?.run_id, run?.state, pollingIssue]);
 
   const fail = (reason: unknown) => {
     if (reason instanceof DOMException && reason.name === "AbortError") return;
@@ -83,6 +142,9 @@ export function MatchResearch({
 
   const reset = () => {
     discoveryAbort.current?.abort();
+    createAbort.current?.abort();
+    createAbort.current = null;
+    creatingRef.current = false;
     setPreflight(false);
     setDiscovering(false);
     setDiscoveryComplete(false);
@@ -90,7 +152,11 @@ export function MatchResearch({
     setSelected(new Set());
     setRun(null);
     setError(null);
+    setCreating(false);
+    setPollingIssue(null);
     setQueued(new Set());
+    queueingRef.current.clear();
+    setQueueing(new Set());
   };
 
   if (!capabilities) return null;
@@ -169,26 +235,40 @@ export function MatchResearch({
         {items.length > 0 && !run && (
           <div className="stack">
             <h3>Select pages to capture</h3>
+            <p
+              id="research-selection-status"
+              className="small dim"
+              role="status"
+              aria-live="polite"
+            >
+              {researchSelectionState(selected.size, false).message}
+            </p>
             <div className="research-results">
-              {items.map((item) => (
-                <label key={item.url} className="research-result">
-                  <input
-                    type="checkbox"
-                    checked={selected.has(item.url)}
-                    onChange={(event) => setSelected((current) => {
-                      const next = new Set(current);
-                      if (event.target.checked && next.size < 4) next.add(item.url);
-                      else next.delete(item.url);
-                      return next;
-                    })}
-                  />
-                  <span>
-                    <b>{item.title}</b>
-                    {item.description && <small>{item.description}</small>}
-                    <small>{item.provider} · {item.license_namespace} · {new URL(item.url).host}</small>
-                  </span>
-                </label>
-              ))}
+              {items.map((item) => {
+                const isSelected = selected.has(item.url);
+                const selectionState = researchSelectionState(selected.size, isSelected);
+                return (
+                  <label key={item.url} className="research-result">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      disabled={selectionState.disabled}
+                      aria-describedby="research-selection-status"
+                      onChange={(event) => setSelected((current) => {
+                        const next = new Set(current);
+                        if (event.target.checked && next.size < MAX_RESEARCH_PAGES) next.add(item.url);
+                        else next.delete(item.url);
+                        return next;
+                      })}
+                    />
+                    <span>
+                      <b>{item.title}</b>
+                      {item.description && <small>{item.description}</small>}
+                      <small>{item.provider} · {item.license_namespace} · {new URL(item.url).host}</small>
+                    </span>
+                  </label>
+                );
+              })}
             </div>
             {localProvider && (
               <label className="research-local-ai">
@@ -199,9 +279,15 @@ export function MatchResearch({
             <button
               type="button"
               className="btn btn--primary"
-              disabled={selected.size === 0 || !capabilities.current_index_fingerprint}
+              disabled={creating || selected.size === 0 || !capabilities.current_index_fingerprint}
+              aria-busy={creating}
               onClick={() => {
+                if (!claimResearchCreation(creatingRef)) return;
                 setError(null);
+                setPollingIssue(null);
+                setCreating(true);
+                const controller = new AbortController();
+                createAbort.current = controller;
                 createResearchRun({
                   matchId,
                   indexFingerprint: capabilities.current_index_fingerprint ?? "",
@@ -209,21 +295,45 @@ export function MatchResearch({
                   localAi: useLocalAi && localProvider
                     ? { provider: localProvider, ...(fastModel ? { model: fastModel } : {}) }
                     : undefined,
-                }).then(setRun, fail);
+                }, controller.signal).then(setRun, fail).finally(() => {
+                  if (createAbort.current !== controller) return;
+                  createAbort.current = null;
+                  creatingRef.current = false;
+                  if (!controller.signal.aborted) setCreating(false);
+                });
               }}
-            >Capture selected sources</button>
+            >{creating ? "Starting research…" : "Capture selected sources"}</button>
           </div>
         )}
 
         {run && !terminal.has(run.state) && (
           <div className="research-progress">
             <div role="status" aria-live="polite">
-              <b>Researching selected sources…</b>
-              <span>{run.counts.captured} of {run.counts.selected} captured</span>
+              <b>{pollingIssue ? "Research status unavailable" : "Researching selected sources…"}</b>
+              <span>
+                {pollingIssue
+                  ? "Automatic status checks are paused."
+                  : `${run.counts.captured} of ${run.counts.selected} captured`}
+              </span>
             </div>
-            <button type="button" className="btn btn--quiet" onClick={() => void cancelResearchRun(run.run_id).then(({ run: value }) => setRun(value), fail)}>Cancel</button>
+            {pollingIssue && (
+              <button type="button" className="btn btn--quiet" onClick={() => setPollingIssue(null)}>
+                Retry status check
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn btn--quiet"
+              onClick={() => void cancelResearchRun(run.run_id).then(({ run: value }) => {
+                setPollingIssue(null);
+                setRun(value);
+              }, fail)}
+            >
+              Cancel
+            </button>
           </div>
         )}
+        {pollingIssue && <p role="alert" className="small dim">{pollingIssue}</p>}
 
         {run && terminal.has(run.state) && (
           <div className="stack">
@@ -241,11 +351,22 @@ export function MatchResearch({
                 key={candidate.candidate_id}
                 candidate={candidate}
                 queued={queued.has(candidate.candidate_id) || Boolean(candidate.queued_proposal_id)}
+                pending={queueing.has(candidate.candidate_id)}
                 onQueue={() => {
+                  if (queueingRef.current.has(candidate.candidate_id)) return;
+                  queueingRef.current.add(candidate.candidate_id);
+                  setQueueing((current) => new Set(current).add(candidate.candidate_id));
                   setError(null);
                   queueResearchCandidate(candidate).then(() => {
                     setQueued((current) => new Set(current).add(candidate.candidate_id));
-                  }, fail);
+                  }, fail).finally(() => {
+                    queueingRef.current.delete(candidate.candidate_id);
+                    setQueueing((current) => {
+                      const next = new Set(current);
+                      next.delete(candidate.candidate_id);
+                      return next;
+                    });
+                  });
                 }}
               />
             ))}
@@ -258,7 +379,7 @@ export function MatchResearch({
   );
 }
 
-function CandidateCard({ candidate, queued, onQueue }: { candidate: ResearchCandidate; queued: boolean; onQueue: () => void }) {
+export function CandidateCard({ candidate, queued, pending, onQueue }: { candidate: ResearchCandidate; queued: boolean; pending: boolean; onQueue: () => void }) {
   const value = candidate.correction_type === "team_alias"
     ? String(candidate.proposed.alias ?? "")
     : String(candidate.proposed.venue_name ?? "");
@@ -281,7 +402,9 @@ function CandidateCard({ candidate, queued, onQueue }: { candidate: ResearchCand
       {queued ? (
         <p className="small"><b>Added as a correction draft.</b> It still requires Phase 6 validation and review. <a href="#/corrections">Open queue ›</a></p>
       ) : (
-        <button type="button" className="btn btn--primary" onClick={onQueue}>Add to correction queue</button>
+        <button type="button" className="btn btn--primary" disabled={pending} aria-busy={pending} onClick={onQueue}>
+          {pending ? "Adding to correction queue…" : "Add to correction queue"}
+        </button>
       )}
     </article>
   );

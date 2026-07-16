@@ -9,9 +9,11 @@ import shutil
 import sqlite3
 import tempfile
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 SCHEMA_VERSION = "0.1.0"
 KNOWN_NAMESPACES = (
@@ -49,6 +51,48 @@ def now_z() -> str:
 
 def canonical(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def capture_id_for(
+    *,
+    run_id: str,
+    source_id: str,
+    canonical_url: str,
+    document_url: str,
+    entity_id: str | None,
+    raw_sha256: str,
+) -> str:
+    """Content-address a capture together with its parsed document identity."""
+    material = canonical(
+        {
+            "run_id": run_id,
+            "source_id": source_id,
+            "canonical_url": canonical_url,
+            "document_url": document_url,
+            "entity_id": entity_id,
+            "raw_sha256": raw_sha256,
+        }
+    )
+    return "rc_" + hashlib.sha256(material.encode("utf-8")).hexdigest()
+
+
+def _capture_identity_matches(payload: dict[str, Any], raw: bytes) -> bool:
+    """Re-bind source-specific raw identity when a receipt is loaded for review."""
+    if payload.get("source_id") != "wikidata":
+        return True
+    try:
+        raw_payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        return False
+    canonical_url = payload.get("canonical_url")
+    if not isinstance(canonical_url, str) or not isinstance(raw_payload, dict):
+        return False
+    qid = urlsplit(canonical_url).path.rstrip("/").rsplit("/", 1)[-1]
+    return (
+        raw_payload.get("id") == qid
+        and payload.get("entity_id") == qid
+        and payload.get("document_url") == f"https://www.wikidata.org/wiki/{qid}"
+    )
 
 
 def _secure_dir(path: Path) -> None:
@@ -127,6 +171,7 @@ def create_run(
     index_fingerprint: str,
     selected_urls: list[str],
     allow_local_ai: bool,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
 ) -> dict[str, Any]:
     if not 1 <= len(selected_urls) <= 4 or len(set(selected_urls)) != len(selected_urls):
         raise ResearchStoreError("invalid_selected_urls", "select one to four unique URLs")
@@ -135,22 +180,60 @@ def create_run(
     counts = {"selected": len(selected_urls), "captured": 0, "candidates": 0, "failed": 0}
     connection = _control(root)
     try:
-        with connection:
-            connection.execute(
-                "INSERT INTO runs VALUES(?,?,?,?,?,?,?,?,?,?)",
-                (
-                    run_id,
-                    match_id,
-                    index_fingerprint,
-                    "planned",
-                    canonical(selected_urls),
-                    int(allow_local_ai),
-                    canonical(counts),
-                    "[]",
-                    recorded,
-                    recorded,
-                ),
+        # One match owns at most one non-terminal research run. The UI carries
+        # its own immediate click lock, but the local API is still a trust
+        # boundary: two concurrent POSTs must not create two workers and two
+        # sets of immutable captures. BEGIN IMMEDIATE serializes the active-run
+        # check and insert without preventing a later explicit rerun once the
+        # first reaches a terminal state.
+        connection.execute("BEGIN IMMEDIATE")
+        terminals = sorted(TERMINAL_RUN_STATES)
+        placeholders = ",".join("?" for _ in terminals)
+        active = connection.execute(
+            f"SELECT run_id FROM runs WHERE match_id=? AND state NOT IN ({placeholders}) "
+            "ORDER BY created_at_utc, run_id LIMIT 1",
+            (match_id, *terminals),
+        ).fetchone()
+        if active is not None:
+            if generation_commit is not None and not generation_commit(connection.commit):
+                raise ResearchStoreError(
+                    "index_generation_changed",
+                    "verified match index changed before the active run was returned; retry",
+                    409,
+                )
+            if generation_commit is None:
+                connection.commit()
+            raise ResearchStoreError(
+                "research_run_active",
+                f"a research run is already active for this match ({active['run_id']})",
+                409,
             )
+        connection.execute(
+            "INSERT INTO runs VALUES(?,?,?,?,?,?,?,?,?,?)",
+            (
+                run_id,
+                match_id,
+                index_fingerprint,
+                "planned",
+                canonical(selected_urls),
+                int(allow_local_ai),
+                canonical(counts),
+                "[]",
+                recorded,
+                recorded,
+            ),
+        )
+        if generation_commit is not None and not generation_commit(connection.commit):
+            raise ResearchStoreError(
+                "index_generation_changed",
+                "verified match index changed before the research run was committed; retry",
+                409,
+            )
+        if generation_commit is None:
+            connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
     finally:
         connection.close()
     return get_run(root, run_id)
@@ -350,24 +433,29 @@ def load_capture(root: Path, namespace: str, capture_id: str) -> tuple[dict[str,
     raw = raw_path.read_bytes()
     raw_sha = hashlib.sha256(raw).hexdigest()
     text = payload.get("canonical_text")
+    document_url = payload.get("document_url")
+    entity_id = payload.get("entity_id")
     if (
         raw_sha != row["raw_sha256"]
         or payload.get("raw_sha256") != raw_sha
         or payload.get("raw_bytes") != len(raw)
         or not isinstance(text, str)
+        or not isinstance(document_url, str)
+        or not document_url
+        or (entity_id is not None and not isinstance(entity_id, str))
         or payload.get("canonical_text_sha256") != hashlib.sha256(text.encode("utf-8")).hexdigest()
+        or not _capture_identity_matches(payload, raw)
     ):
         raise ResearchStoreError(
             "capture_hash_mismatch", "research capture failed verification", 503
         )
-    expected_id = (
-        "rc_"
-        + hashlib.sha256(
-            (
-                f"{payload.get('run_id')}\n{payload.get('source_id')}\n"
-                f"{payload.get('canonical_url')}\n{raw_sha}"
-            ).encode()
-        ).hexdigest()
+    expected_id = capture_id_for(
+        run_id=str(payload.get("run_id") or ""),
+        source_id=str(payload.get("source_id") or ""),
+        canonical_url=str(payload.get("canonical_url") or ""),
+        document_url=document_url,
+        entity_id=entity_id,
+        raw_sha256=raw_sha,
     )
     if payload.get("capture_id") != expected_id or capture_id != expected_id:
         raise ResearchStoreError("capture_id_mismatch", "research capture identity mismatch", 503)
@@ -393,9 +481,20 @@ def list_candidates(root: Path, run_id: str) -> list[dict[str, Any]]:
     return sorted(result, key=lambda value: (value["created_at_utc"], value["candidate_id"]))
 
 
-def mark_queued(root: Path, candidate_id: str, proposal_id: str) -> dict[str, Any]:
+def mark_queued(
+    root: Path,
+    candidate_id: str,
+    proposal_id: str,
+    *,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
+) -> dict[str, Any]:
     _namespace_name, connection, row = _candidate_row(root, candidate_id)
     try:
+        connection.execute("BEGIN IMMEDIATE")
+        row = connection.execute(
+            "SELECT * FROM candidates WHERE candidate_id=?", (candidate_id,)
+        ).fetchone()
+        assert row is not None
         payload = json.loads(row["payload_json"])
         existing = payload.get("queued_proposal_id")
         if existing and existing != proposal_id:
@@ -404,14 +503,24 @@ def mark_queued(root: Path, candidate_id: str, proposal_id: str) -> dict[str, An
             )
         payload["state"] = "queued_as_draft"
         payload["queued_proposal_id"] = proposal_id
-        with connection:
-            connection.execute(
-                """UPDATE candidates
-                   SET state='queued_as_draft', queued_proposal_id=?, payload_json=?
-                   WHERE candidate_id=?""",
-                (proposal_id, canonical(payload), candidate_id),
+        connection.execute(
+            """UPDATE candidates
+               SET state='queued_as_draft', queued_proposal_id=?, payload_json=?
+               WHERE candidate_id=?""",
+            (proposal_id, canonical(payload), candidate_id),
+        )
+        if generation_commit is not None and not generation_commit(connection.commit):
+            raise ResearchStoreError(
+                "index_generation_changed",
+                "verified match index changed before the candidate was queued; retry",
+                409,
             )
+        if generation_commit is None:
+            connection.commit()
         return payload
+    except Exception:
+        connection.rollback()
+        raise
     finally:
         connection.close()
 

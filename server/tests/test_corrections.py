@@ -95,6 +95,17 @@ def test_append_only_history_duplicate_and_redaction(tmp_path: Path) -> None:
     )
     assert created is False
     assert duplicate["proposal_id"] == proposal["proposal_id"]
+    with pytest.raises(correction_store.CorrectionStoreError) as stale_duplicate:
+        correction_store.create_proposal(
+            root,
+            correction_type="kickoff_time",
+            target=_target(),
+            original=proposal["original"],
+            proposed=proposal["proposed"],
+            source_id=proposal["source_id"],
+            generation_commit=lambda operation: False,
+        )
+    assert stale_duplicate.value.reason_code == "index_generation_changed"
 
     attached = _attach(root, proposal)
     validated = correction_validation.validate(
@@ -113,6 +124,22 @@ def test_append_only_history_duplicate_and_redaction(tmp_path: Path) -> None:
     )
     assert redacted["state"] == "draft"
     assert redacted["evidence"][0]["sanitized_text"] == "[evidence redacted]"
+
+
+def test_generation_commit_rolls_back_new_proposal(tmp_path: Path) -> None:
+    root = tmp_path / "corrections"
+    with pytest.raises(correction_store.CorrectionStoreError) as caught:
+        correction_store.create_proposal(
+            root,
+            correction_type="kickoff_time",
+            target=_target(),
+            original=correction_validation.derive_original("kickoff_time", _match()),
+            proposed={"kickoff_utc": "2026-07-20T19:00:00Z", "kickoff_precision": "exact"},
+            source_id="openfootball-worldcup-json",
+            generation_commit=lambda operation: False,
+        )
+    assert caught.value.reason_code == "index_generation_changed"
+    assert correction_store.list_proposals(root)["total"] == 0
     assert not list((root / "core-cc0" / "evidence").glob("*.txt"))
 
 

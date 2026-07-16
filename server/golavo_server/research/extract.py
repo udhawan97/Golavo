@@ -68,6 +68,7 @@ def validate_stored_candidate(
         raise ValueError("candidate license namespace mismatch")
     if (
         source["source_id"] != policy.source_id
+        or source["canonical_url"] != capture.get("document_url")
         or source["license"] != policy.license
         or source["license_url"] != policy.license_url
         or source["attribution"] != policy.attribution
@@ -76,6 +77,8 @@ def validate_stored_candidate(
         or source["revision_id"] != capture.get("revision_id")
     ):
         raise ValueError("candidate source policy mismatch")
+    if candidate["target"].get("entity_id") != capture.get("entity_id"):
+        raise ValueError("candidate entity identity mismatch")
     if (
         capture["capture_id"] != evidence["capture_id"]
         or capture["source_id"] != policy.source_id

@@ -2178,12 +2178,13 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 .score-hero__dash { color: var(--text-dim); margin: 0 .12em; font-weight: 400; }
 
-/* Header at narrow widths: brand + tools on row 1, primary nav wraps full-width
-   below (scrollable if ever needed) — the row previously overflowed at 375px. */
+/* Header at narrow widths: brand + tools on row 1, then four equal navigation
+   targets. Keeping every destination visible is clearer than a clipped,
+   horizontally scrollable row with no affordance that more items exist. */
 @media (max-width: 640px) {
   .site-header__inner { flex-wrap: wrap; min-height: 0; padding-block: var(--space-2); row-gap: var(--space-1); }
-  .nav { order: 3; width: 100%; margin-left: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .nav a { white-space: nowrap; }
+  .nav { order: 3; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; margin-left: 0; gap: .15rem; }
+  .nav a { min-width: 0; padding: .45rem .2rem; text-align: center; white-space: nowrap; font-size: .8rem; }
 }
 
 /* ============================================================ pivot: Games,
@@ -3328,6 +3329,33 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .analysis-depth__head > span:first-child { display: grid; gap: .16rem; min-width: 0; }
 .analysis-depth__head .upper { color: var(--gold); }
 .analysis-depth__head strong { font-size: var(--text-lg); letter-spacing: -.02em; }
+.analysis-depth__glance {
+  margin: 0;
+  padding: .8rem 1rem;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+.analysis-depth__disclosure { border-top: 1px solid var(--border); }
+.analysis-depth__disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: .8rem 1rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  cursor: pointer;
+  list-style: none;
+  background: color-mix(in srgb, var(--surface-2) 52%, transparent);
+}
+.analysis-depth__disclosure > summary::-webkit-details-marker { display: none; }
+.analysis-depth__disclosure > summary:hover { background: color-mix(in srgb, var(--surface-3) 56%, transparent); }
+.analysis-depth__disclosure > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.analysis-depth__disclosure > summary svg { flex: none; transition: transform 150ms ease; }
+.analysis-depth__disclosure[open] > summary svg { transform: rotate(180deg); }
+.analysis-depth__disclosure-body { border-top: 1px solid var(--border); }
 .analysis-depth__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .analysis-depth__metric {
   display: grid;
@@ -3409,7 +3437,8 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   .analysis-depth__metric:last-child { border-bottom: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .analysis-depth__details summary svg { transition: none; }
+  .analysis-depth__details summary svg,
+  .analysis-depth__disclosure > summary svg { transition: none; }
 }
 .council-more__summary {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center;

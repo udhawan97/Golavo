@@ -238,7 +238,7 @@ def capabilities(index_fingerprint: str) -> dict[str, Any]:
             "weather": "blocked",
         },
         "reason_codes": [
-            "place-resolution-is-reviewed-subset",
+            "place-resolution-is-unique-exact-subset",
             "venue-coverage-is-world-cup-2026-only",
             "schedule-coverage-is-index-only",
         ],

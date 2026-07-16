@@ -94,6 +94,12 @@ def test_meta_always_reports_ledger_source(monkeypatch, tmp_path) -> None:
     assert client.get("/api/v1/meta").json()["forecast_source"] == "ledger"
 
 
+def test_meta_reports_the_injected_release_commit(monkeypatch) -> None:
+    monkeypatch.setenv("GOLAVO_SOURCE_SHA", "b" * 40)
+    body = TestClient(server_main.app).get("/api/v1/meta").json()
+    assert body["source_sha"] == "b" * 40
+
+
 def test_health_remains_available() -> None:
     response = TestClient(server_main.app).get("/health")
     assert response.status_code == 200

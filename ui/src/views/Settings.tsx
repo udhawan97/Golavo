@@ -134,6 +134,7 @@ export function Settings({
   const [aiProvider, setAiProvider] = useAiProvider();
   const [aiBackground, setAiBackground] = useAiBackground();
   const version = appVersionLabel(u.status?.appVersion);
+  const buildSha = window.__GOLAVO_RUNTIME__?.buildSha;
   // From the persisted skip, not the live phase — so it's manageable even on a
   // fresh boot with auto-check off, where no check has run this session.
   const skipped = u.skippedVersion;
@@ -151,6 +152,12 @@ export function Settings({
           <div className="settings__row">
             <span>Version</span>
             <span className="chip chip--neutral">Golavo {version}</span>
+          </div>
+          <div className="settings__row">
+            <span>Build</span>
+            <span className="mono dim" title={buildSha}>
+              {buildSha ? buildSha.slice(0, 12) : "source build"}
+            </span>
           </div>
           <div className="settings__row">
             <span>Data source</span>

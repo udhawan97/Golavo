@@ -36,12 +36,17 @@ def test_cancel_flags_and_update_is_noop_after() -> None:
     store.start("cl-abcdef12")
     assert store.cancel("cl-abcdef12") is True
     assert store.is_cancelled("cl-abcdef12") is True
+    assert store.running_ids(prefix="cl-") == ["cl-abcdef12"]
+    with pytest.raises(jobs.JobConflict):
+        store.start("cl-abcdef12")
     # Updates after cancellation are dropped (terminal state).
     store.update("cl-abcdef12", stage="writing")
     assert store.get("cl-abcdef12").stage != "writing"
     # A worker returning after cancellation must not overwrite the terminal state.
     assert store.finish("cl-abcdef12", result={"status": "ok"}) is False
     assert store.get("cl-abcdef12").state == "cancelled"
+    assert store.running_ids(prefix="cl-") == []
+    assert store.start("cl-abcdef12").state == "running"
 
 
 def test_id_regex() -> None:

@@ -12,7 +12,7 @@ import hashlib
 import json
 import sqlite3
 import uuid
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -442,6 +442,7 @@ def follow_match(
     generation_id: str | None = None,
     index_fingerprint: str | None = None,
     now: datetime | None = None,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
 ) -> tuple[dict[str, Any], bool]:
     snapshot = _snapshot(match)
     timestamp = _now_z(now)
@@ -458,6 +459,12 @@ def follow_match(
                 (NAMESPACE, snapshot["match_id"]),
             ).fetchone()
             if existing is not None and existing["subscription_state"] == "active":
+                if generation_commit is not None and not generation_commit(connection.commit):
+                    raise FollowError(
+                        "index_generation_changed",
+                        "verified match index changed before the follow was returned; retry",
+                        409,
+                    )
                 return _follow_view(connection, existing, event_limit=20), False
             if existing is not None:
                 follow_id = existing["follow_id"]
@@ -542,7 +549,14 @@ def follow_match(
             row = connection.execute(
                 "SELECT * FROM followed_matches WHERE follow_id=?", (follow_id,)
             ).fetchone()
-            return _follow_view(connection, row, event_limit=20), True
+            view = _follow_view(connection, row, event_limit=20)
+            if generation_commit is not None and not generation_commit(connection.commit):
+                raise FollowError(
+                    "index_generation_changed",
+                    "verified match index changed before the follow was committed; retry",
+                    409,
+                )
+            return view, True
     finally:
         connection.close()
 
@@ -855,6 +869,7 @@ def reconcile(
     generation_id: str | None,
     source_status: dict[str, dict[str, Any]],
     now: datetime | None = None,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
 ) -> dict[str, Any]:
     """Compare active follows with one already-activated immutable index."""
     timestamp = _now_z(now)
@@ -1063,6 +1078,12 @@ def reconcile(
                         timestamp,
                         row["follow_id"],
                     ),
+                )
+            if generation_commit is not None and not generation_commit(connection.commit):
+                raise FollowError(
+                    "index_generation_changed",
+                    "verified match index changed before reconciliation was committed; retry",
+                    409,
                 )
         return {
             "schema_version": SCHEMA_VERSION,

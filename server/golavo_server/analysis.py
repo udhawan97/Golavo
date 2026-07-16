@@ -4,13 +4,13 @@ Wraps ``golavo_core.analysis.build_match_analysis`` for the API: it resolves a
 match id in the committed index, scopes history to the fixture's own source (so a
 shared team string cannot merge a club's form into an international fixture — the
 same discipline the on-demand notebook uses), and returns a Replay (completed) or
-Preview (scheduled) envelope. It never writes and never seals; the leak-safe
-``kickoff - 1s`` cutoff lives in the core engine.
+Preview (scheduled) envelope. It never seals; its only write is an optional,
+validated accelerator cache. The leak-safe ``kickoff - 1s`` cutoff lives in the
+core engine.
 
-Results are memoised per ``(match_id, index-object-identity)``. The index frame is
-immutable within a process (``matches._load_index`` caches it), so keying on its
-object id means a runtime refresh — which rebuilds the frame — transparently
-invalidates every cached analysis with no explicit cache-busting.
+Results are memoised per ``(match_id, index-generation-epoch)``. Frame,
+fingerprint, and epoch come from one immutable ``matches.IndexSnapshot``; a
+runtime refresh invalidates old work before either memory or disk publication.
 """
 
 from __future__ import annotations
@@ -72,11 +72,11 @@ def _analysis_validator() -> Any:
     return Draft202012Validator(schema, format_checker=FormatChecker())
 
 
-def _disk_path(match_id: str) -> Path | None:
+def _disk_path(match_id: str, index_fingerprint: str) -> Path | None:
     root = runtime.analysis_cache_dir()
     if root is None:
         return None
-    token = f"{match_id}|{matches.index_fingerprint()}|{_analysis_schema_version()}"
+    token = f"{match_id}|{index_fingerprint}|{_analysis_schema_version()}"
     key = hashlib.sha256(token.encode("utf-8")).hexdigest()[:20]
     return root / f"an_{key}.json"
 
@@ -94,7 +94,9 @@ def _discard(path: Path) -> None:
         pass
 
 
-def _disk_read(path: Path, match_id: str) -> dict[str, Any] | None:
+def _disk_read(
+    path: Path, match_id: str, index_fingerprint: str
+) -> dict[str, Any] | None:
     try:
         obj = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -107,7 +109,7 @@ def _disk_read(path: Path, match_id: str) -> dict[str, Any] | None:
     expected = {
         "cache_schema_version": _CACHE_SCHEMA_VERSION,
         "match_id": match_id,
-        "index_fingerprint": matches.index_fingerprint(),
+        "index_fingerprint": index_fingerprint,
         "analysis_schema_version": want,
     }
     if any(obj.get(key) != value for key, value in expected.items()) or not isinstance(
@@ -138,14 +140,19 @@ def _disk_read(path: Path, match_id: str) -> dict[str, Any] | None:
     return envelope
 
 
-def _disk_write(path: Path, match_id: str, envelope: dict[str, Any]) -> None:
+def _disk_write(
+    path: Path,
+    match_id: str,
+    index_fingerprint: str,
+    envelope: dict[str, Any],
+) -> None:
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_suffix(".json.tmp")
         record = {
             "cache_schema_version": _CACHE_SCHEMA_VERSION,
             "match_id": match_id,
-            "index_fingerprint": matches.index_fingerprint(),
+            "index_fingerprint": index_fingerprint,
             "analysis_schema_version": _analysis_schema_version(),
             "payload_sha256": hashlib.sha256(_canonical_bytes(envelope)).hexdigest(),
             "envelope": envelope,
@@ -178,66 +185,98 @@ def match_analysis(match_id: str) -> dict[str, Any] | None:
     """
     from golavo_core.analysis import AnalysisUnavailable, build_match_analysis
 
-    frame = matches._load_index()
-    key = (str(match_id), id(frame))
-    cached = _CACHE.get(key)
-    if cached is not None:
-        return cached
+    # Refresh activation is infrequent and serialized, so three generation
+    # retries are ample while keeping a pathological repoint loop fail-closed.
+    for _attempt in range(3):
+        snapshot = matches.index_snapshot()
+        frame = snapshot.frame
+        key = (str(match_id), snapshot.epoch)
+        cached = _CACHE.get(key)
+        if cached is not None:
+            if matches.snapshot_is_current(snapshot):
+                return cached
+            continue
 
-    # L2: content-addressed disk cache (desktop only). A hit skips five model fits.
-    disk_path = _disk_path(str(match_id))
-    if disk_path is not None:
-        disk = _disk_read(disk_path, str(match_id))
-        if disk is not None:
-            _remember(key, disk)
-            return disk
-
-    sel = frame.loc[frame["match_id"].astype("string") == str(match_id)]
-    if sel.empty:
-        return None
-    row = sel.iloc[0]
-
-    source_id = matches._str_or_none(row["source_id"])
-    source_kind = matches._str_or_none(row["source_kind"])
-    competition = matches._str_or_none(row["competition"])
-    scoped = frame
-    if source_id is not None:
-        scoped = frame.loc[frame["source_id"].astype("string") == source_id]
-    if source_kind == "club" and competition is not None:
-        scoped = scoped.loc[scoped["competition"].astype("string") == competition]
-
-    match_row = {
-        "match_id": str(row["match_id"]),
-        "kickoff_utc": row["kickoff_utc"],
-        "home_team": matches._str_or_none(row["home_team"]),
-        "away_team": matches._str_or_none(row["away_team"]),
-        "home_score": matches._int_or_none(row["home_score"]),
-        "away_score": matches._int_or_none(row["away_score"]),
-        "is_complete": bool(row["is_complete"]),
-        "neutral": bool(matches._bool_or_none(row["neutral"])),
-        "competition": competition,
-        "source_id": source_id,
-    }
-
-    try:
-        analysis = build_match_analysis(matches=scoped, match_row=match_row)
-    except AnalysisUnavailable as exc:
-        # A stable "no kickoff" verdict is safe to cache (memo + disk); a fixture
-        # doesn't grow a kickoff mid-session.
-        envelope: dict[str, Any] = {"available": False, "reason": str(exc), "analysis": None}
-        _remember(key, envelope)
+        # L2: content-addressed disk cache (desktop only). The captured
+        # fingerprint is passed end-to-end; no mutable global provenance is read
+        # after the frame has been selected.
+        disk_path = _disk_path(str(match_id), snapshot.fingerprint)
         if disk_path is not None:
-            _disk_write(disk_path, str(match_id), envelope)
-        return envelope
-    except Exception as exc:  # noqa: BLE001 (fail closed; never 500 the cockpit)
-        # A transient fit failure is NOT cached — retrying may succeed.
-        return {"available": False, "reason": f"analysis failed: {exc}", "analysis": None}
+            disk = _disk_read(disk_path, str(match_id), snapshot.fingerprint)
+            if disk is not None:
+                if matches.apply_if_snapshot_current(
+                    snapshot, lambda key=key, disk=disk: _remember(key, disk)
+                ):
+                    return disk
+                continue
 
-    envelope = {"available": True, "reason": None, "analysis": analysis}
-    _remember(key, envelope)
-    if disk_path is not None:
-        _disk_write(disk_path, str(match_id), envelope)
-    return envelope
+        sel = frame.loc[frame["match_id"].astype("string") == str(match_id)]
+        if sel.empty:
+            if matches.snapshot_is_current(snapshot):
+                return None
+            continue
+        row = sel.iloc[0]
+
+        source_id = matches._str_or_none(row["source_id"])
+        source_kind = matches._str_or_none(row["source_kind"])
+        competition = matches._str_or_none(row["competition"])
+        scoped = frame
+        if source_id is not None:
+            scoped = frame.loc[frame["source_id"].astype("string") == source_id]
+        if source_kind == "club" and competition is not None:
+            scoped = scoped.loc[scoped["competition"].astype("string") == competition]
+
+        match_row = {
+            "match_id": str(row["match_id"]),
+            "kickoff_utc": row["kickoff_utc"],
+            "home_team": matches._str_or_none(row["home_team"]),
+            "away_team": matches._str_or_none(row["away_team"]),
+            "home_score": matches._int_or_none(row["home_score"]),
+            "away_score": matches._int_or_none(row["away_score"]),
+            "is_complete": bool(row["is_complete"]),
+            "neutral": bool(matches._bool_or_none(row["neutral"])),
+            "competition": competition,
+            "source_id": source_id,
+        }
+
+        try:
+            analysis = build_match_analysis(matches=scoped, match_row=match_row)
+        except AnalysisUnavailable as exc:
+            # A stable "no kickoff" verdict is safe to cache for this exact
+            # generation; a source refresh may add one, so stale work retries.
+            envelope: dict[str, Any] = {
+                "available": False,
+                "reason": str(exc),
+                "analysis": None,
+            }
+        except Exception as exc:  # noqa: BLE001 (fail closed; never 500 the cockpit)
+            if not matches.snapshot_is_current(snapshot):
+                continue
+            # A transient fit failure is NOT cached — retrying may succeed.
+            return {
+                "available": False,
+                "reason": f"analysis failed: {exc}",
+                "analysis": None,
+            }
+        else:
+            envelope = {"available": True, "reason": None, "analysis": analysis}
+
+        # An old generation may safely leave an old-fingerprint disk entry, but
+        # it must never enter L1 after repoint. Publish under the matches lock so
+        # reset/repoint either happens before this check or clears it afterward.
+        if disk_path is not None:
+            _disk_write(disk_path, str(match_id), snapshot.fingerprint, envelope)
+        if matches.apply_if_snapshot_current(
+            snapshot,
+            lambda key=key, envelope=envelope: _remember(key, envelope),
+        ):
+            return envelope
+
+    return {
+        "available": False,
+        "reason": "analysis paused because the verified match index changed; retry",
+        "analysis": None,
+    }
 
 
 def warm_home_window(limit: int = 12) -> None:

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://udhawan97.github.io/Golavo/contracts/match-analysis-0.5.0.schema.json",
   "title": "MatchAnalysis",
-  "description": "The on-demand Match Cockpit read for one indexed fixture (a Replay for a played match, a Preview for a scheduled one). Computed leak-safe at the seal's own kickoff-1s cutoff and NEVER persisted: this is a live view, not a sealed forecast. A council of candidate families is shown side by side WITHOUT averaging — the two voices (ratings, goals) plus a climatology baseline, with the goal variants disclosed but not counted as extra opinions. Derived from core/golavo_core/analysis.py:build_match_analysis (ANALYSIS_SCHEMA_VERSION).",
+  "description": "The on-demand Match Cockpit read for one indexed fixture (a Replay for a played match, a Preview for a scheduled one). Computed leak-safe at the seal's own kickoff-1s cutoff and never persisted as an authoritative forecast artifact; an optional validated, content-addressed local cache may accelerate this live view. A council of candidate families is shown side by side WITHOUT averaging — the two voices (ratings, goals) plus a climatology baseline, with the goal variants disclosed but not counted as extra opinions. Derived from core/golavo_core/analysis.py:build_match_analysis (ANALYSIS_SCHEMA_VERSION).",
   "type": "object",
   "additionalProperties": false,
   "required": [

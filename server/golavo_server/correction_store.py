@@ -8,7 +8,9 @@ import os
 import shutil
 import sqlite3
 import tempfile
+import threading
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -18,6 +20,7 @@ from golavo_server import correction_policy
 SCHEMA_VERSION = "0.1.0"
 DATABASE_VERSION = 1
 DATABASE_NAME = "queue.sqlite3"
+_DATABASE_INIT_LOCK = threading.Lock()
 ACTIVE_STATES = {
     "draft",
     "evidence_attached",
@@ -67,8 +70,12 @@ def _connect(root: Path, namespace: str, *, create: bool) -> sqlite3.Connection 
         connection.execute("PRAGMA foreign_keys = ON")
         connection.execute("PRAGMA journal_mode = DELETE")
         connection.execute("PRAGMA synchronous = FULL")
-        _migrate(connection)
-        check = connection.execute("PRAGMA quick_check").fetchone()
+        # Two UI submissions can be the first users of a namespace.  Keep the
+        # one-time schema setup and integrity check from racing before SQLite's
+        # proposal-level transaction has a chance to serialize them.
+        with _DATABASE_INIT_LOCK:
+            _migrate(connection)
+            check = connection.execute("PRAGMA quick_check").fetchone()
         if check is None or check[0] != "ok":
             connection.close()
             raise CorrectionStoreError(
@@ -303,12 +310,19 @@ def create_proposal(
     original: dict[str, Any] | None,
     proposed: dict[str, Any],
     source_id: str | None,
+    generation_commit: Callable[[Callable[[], None]], bool] | None = None,
 ) -> tuple[dict[str, Any], bool]:
     namespace = correction_policy.namespace_for(source_id)
     fingerprint = _fingerprint(namespace, correction_type, target, proposed)
     connection = _connect(root, namespace, create=True)
     assert connection is not None
     try:
+        # Serialize the read-before-create decision inside SQLite.  A plain
+        # SELECT followed by INSERT lets two foreground requests both observe
+        # "missing" and permanently append duplicate proposals.  IMMEDIATE
+        # takes the write reservation before the lookup without rewriting or
+        # deleting any existing immutable history.
+        connection.execute("BEGIN IMMEDIATE")
         existing = connection.execute(
             """SELECT * FROM proposals
                WHERE fingerprint=? AND state NOT IN ('withdrawn','superseded')
@@ -316,49 +330,67 @@ def create_proposal(
             (fingerprint,),
         ).fetchone()
         if existing:
+            if generation_commit is not None and not generation_commit(connection.commit):
+                raise CorrectionStoreError(
+                    "index_generation_changed",
+                    "verified match index changed before the correction was returned; retry",
+                    409,
+                )
+            if generation_commit is None:
+                connection.commit()
             return _proposal(connection, existing), False
         proposal_id = "cp_" + uuid.uuid4().hex
         recorded_at = now_z()
-        with connection:
-            connection.execute(
-                "INSERT INTO proposals VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (
-                    proposal_id,
-                    namespace,
-                    correction_type,
-                    "draft",
-                    "none",
-                    canonical(target),
-                    canonical(original) if original is not None else None,
-                    canonical(proposed),
-                    source_id,
-                    canonical({"reason_codes": [], "conflicts": []}),
-                    "queue_only",
-                    fingerprint,
-                    recorded_at,
-                    recorded_at,
-                    None,
-                ),
-            )
-            _append_event(
-                connection,
+        connection.execute(
+            "INSERT INTO proposals VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
                 proposal_id,
-                "created",
-                {
-                    "correction_type": correction_type,
-                    "target": target,
-                    "original": original,
-                    "proposed": proposed,
-                    "source_id": source_id,
-                    "license_namespace": namespace,
-                },
-                recorded_at=recorded_at,
+                namespace,
+                correction_type,
+                "draft",
+                "none",
+                canonical(target),
+                canonical(original) if original is not None else None,
+                canonical(proposed),
+                source_id,
+                canonical({"reason_codes": [], "conflicts": []}),
+                "queue_only",
+                fingerprint,
+                recorded_at,
+                recorded_at,
+                None,
+            ),
+        )
+        _append_event(
+            connection,
+            proposal_id,
+            "created",
+            {
+                "correction_type": correction_type,
+                "target": target,
+                "original": original,
+                "proposed": proposed,
+                "source_id": source_id,
+                "license_namespace": namespace,
+            },
+            recorded_at=recorded_at,
+        )
+        if generation_commit is not None and not generation_commit(connection.commit):
+            raise CorrectionStoreError(
+                "index_generation_changed",
+                "verified match index changed before the correction was committed; retry",
+                409,
             )
+        if generation_commit is None:
+            connection.commit()
         row = connection.execute(
             "SELECT * FROM proposals WHERE proposal_id=?", (proposal_id,)
         ).fetchone()
         assert row is not None
         return _proposal(connection, row), True
+    except Exception:
+        connection.rollback()
+        raise
     finally:
         connection.close()
 
@@ -547,6 +579,15 @@ def attach_evidence(
 ) -> tuple[dict[str, Any], bool]:
     namespace, connection, row = _locate(root, proposal_id)
     try:
+        # Evidence import is also part of queue idempotency.  Competing imports
+        # must re-check the UNIQUE tuple after obtaining the write reservation,
+        # otherwise one request surfaces a constraint error after the shared
+        # proposal was correctly deduplicated.
+        connection.execute("BEGIN IMMEDIATE")
+        row = connection.execute(
+            "SELECT * FROM proposals WHERE proposal_id=?", (proposal_id,)
+        ).fetchone()
+        assert row is not None
         if row["state"] in {"withdrawn", "superseded", "submitted"}:
             raise CorrectionStoreError(
                 "proposal_not_editable", "this proposal cannot receive evidence"
@@ -567,66 +608,70 @@ def attach_evidence(
             (proposal_id, digest, source_url),
         ).fetchone()
         if existing:
+            connection.commit()
             return _proposal(connection, row), False
         _atomic_raw(root, namespace, digest, raw)
         evidence_id = (
             "ev_" + hashlib.sha256(f"{proposal_id}\n{source_url}\n{digest}".encode()).hexdigest()
         )
         recorded_at = now_z()
-        with connection:
-            connection.execute(
-                """INSERT INTO evidence(
-                    evidence_id, proposal_id, source_url, hostname, source_id,
-                    license_namespace, source_revision, raw_sha256, raw_bytes,
-                    sanitized_text, sanitized_sha256, snapshot_verified,
-                    captured_at_utc, redacted
-                ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,0)""",
-                (
-                    evidence_id,
-                    proposal_id,
-                    source_url,
-                    hostname,
-                    row["source_id"] or "unregistered",
-                    namespace,
-                    source_revision,
-                    digest,
-                    evidence_receipt["raw_bytes"],
-                    evidence_receipt["sanitized_text"],
-                    evidence_receipt["sanitized_sha256"],
-                    0,
-                    recorded_at,
-                ),
-            )
-            connection.execute(
-                """UPDATE proposals
-                   SET state='evidence_attached', verification_level='none',
-                       validation_json=?, local_visibility='queue_only'
-                   WHERE proposal_id=?""",
-                (canonical({"reason_codes": [], "conflicts": []}), proposal_id),
-            )
-            event_payload = {
-                "evidence_id": evidence_id,
-                "source_url": source_url,
-                "raw_sha256": digest,
-                "raw_bytes": evidence_receipt["raw_bytes"],
-                "untrusted": True,
-            }
-            if research_origin is not None:
-                event_payload["research_origin"] = research_origin
-            _append_event(
-                connection,
+        connection.execute(
+            """INSERT INTO evidence(
+                evidence_id, proposal_id, source_url, hostname, source_id,
+                license_namespace, source_revision, raw_sha256, raw_bytes,
+                sanitized_text, sanitized_sha256, snapshot_verified,
+                captured_at_utc, redacted
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,0)""",
+            (
+                evidence_id,
                 proposal_id,
-                "evidence_imported_from_research"
-                if research_origin is not None
-                else "evidence_attached",
-                event_payload,
-                recorded_at=recorded_at,
-            )
+                source_url,
+                hostname,
+                row["source_id"] or "unregistered",
+                namespace,
+                source_revision,
+                digest,
+                evidence_receipt["raw_bytes"],
+                evidence_receipt["sanitized_text"],
+                evidence_receipt["sanitized_sha256"],
+                0,
+                recorded_at,
+            ),
+        )
+        connection.execute(
+            """UPDATE proposals
+               SET state='evidence_attached', verification_level='none',
+                   validation_json=?, local_visibility='queue_only'
+               WHERE proposal_id=?""",
+            (canonical({"reason_codes": [], "conflicts": []}), proposal_id),
+        )
+        event_payload = {
+            "evidence_id": evidence_id,
+            "source_url": source_url,
+            "raw_sha256": digest,
+            "raw_bytes": evidence_receipt["raw_bytes"],
+            "untrusted": True,
+        }
+        if research_origin is not None:
+            event_payload["research_origin"] = research_origin
+        _append_event(
+            connection,
+            proposal_id,
+            "evidence_imported_from_research"
+            if research_origin is not None
+            else "evidence_attached",
+            event_payload,
+            recorded_at=recorded_at,
+        )
+        connection.commit()
         fresh = connection.execute(
             "SELECT * FROM proposals WHERE proposal_id=?", (proposal_id,)
         ).fetchone()
         assert fresh is not None
         return _proposal(connection, fresh), True
+    except Exception:
+        connection.rollback()
+        raise
     finally:
         connection.close()
 

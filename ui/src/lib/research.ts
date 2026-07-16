@@ -138,9 +138,10 @@ export function createResearchRun(input: {
   indexFingerprint: string;
   selectedUrls: string[];
   localAi?: { provider: "ollama" | "llama_server"; model?: string };
-}): Promise<ResearchRun> {
+}, signal?: AbortSignal): Promise<ResearchRun> {
   return request("/api/v1/research/runs", {
     method: "POST",
+    signal,
     body: JSON.stringify({
       match_id: input.matchId,
       expected_index_fingerprint: input.indexFingerprint,
@@ -152,8 +153,8 @@ export function createResearchRun(input: {
   });
 }
 
-export function fetchResearchRun(runId: string): Promise<ResearchRun> {
-  return request(`/api/v1/research/runs/${encodeURIComponent(runId)}`);
+export function fetchResearchRun(runId: string, signal?: AbortSignal): Promise<ResearchRun> {
+  return request(`/api/v1/research/runs/${encodeURIComponent(runId)}`, { signal });
 }
 
 export async function fetchResearchRuns(matchId: string, limit = 10): Promise<ResearchRun[]> {

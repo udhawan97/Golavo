@@ -64,8 +64,17 @@ def test_outlook_cache_changes_with_index_fingerprint(monkeypatch) -> None:
 
     state = {"fingerprint": "a" * 64, "marker": "first"}
     frame = object()
-    monkeypatch.setattr(matches, "_load_index", lambda: frame)
-    monkeypatch.setattr(matches, "index_fingerprint", lambda: state["fingerprint"])
+    monkeypatch.setattr(
+        matches,
+        "index_snapshot",
+        lambda: matches.IndexSnapshot(frame, state["fingerprint"], 1),
+    )
+    monkeypatch.setattr(matches, "snapshot_is_current", lambda snapshot: True)
+    monkeypatch.setattr(
+        matches,
+        "apply_if_snapshot_current",
+        lambda snapshot, operation: (operation() or True),
+    )
     monkeypatch.setattr(
         core_season,
         "season_outlook",

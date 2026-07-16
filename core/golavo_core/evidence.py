@@ -59,6 +59,11 @@ def _fmt_metric(value: float) -> str:
     return f"{float(value):.3f}"
 
 
+def _history_support(legacy_uncertainty: str) -> str:
+    """Present the legacy match-count bucket without claiming model uncertainty."""
+    return {"high": "limited", "medium": "moderate", "low": "strong"}[legacy_uncertainty]
+
+
 def _leading_outcome(probs: dict[str, float] | None) -> str | None:
     if not probs:
         return None
@@ -409,7 +414,9 @@ def _facts(
         {
             "fact_id": "seal_immutability",
             "text": (
-                f"This forecast was sealed at horizon {forecast['horizon']} before kickoff. "
+                "This forecast was sealed before its recorded kickoff; exact lead time is derived "
+                "from the immutable seal and kickoff timestamps. "
+                f"{forecast['horizon']} is a legacy audit tag, not elapsed lead time. "
                 "Its probabilities are immutable and were produced entirely by the deterministic "
                 "engine — no AI produced, changed, or reviewed any number here."
             ),
@@ -420,10 +427,11 @@ def _facts(
     )
     facts.append(
         {
-            "fact_id": "uncertainty",
+            "fact_id": "history_support",
             "text": (
-                "The engine flags its model uncertainty for this fixture as "
-                f"{forecast['uncertainty']}."
+                "Training-history support for this fixture is "
+                f"{_history_support(forecast['uncertainty'])}. This is a match-count coverage "
+                "bucket, not model confidence, forecast accuracy, or an uncertainty interval."
             ),
             "kind": "context",
             "source_ids": [engine_id],
@@ -499,7 +507,7 @@ def _features(artifact: dict[str, Any], engine_id: str) -> list[dict[str, Any]]:
         },
         {
             "feature_id": "horizon",
-            "name": "Seal horizon before kickoff",
+            "name": "Legacy horizon audit tag (not elapsed lead time)",
             "kind": "categorical",
             "value": forecast["horizon"],
             "value_ref": None,
@@ -514,10 +522,10 @@ def _features(artifact: dict[str, Any], engine_id: str) -> list[dict[str, Any]]:
             "source_ids": [engine_id],
         },
         {
-            "feature_id": "uncertainty",
-            "name": "Model uncertainty",
+            "feature_id": "history_support",
+            "name": "Training-history support (legacy uncertainty field)",
             "kind": "categorical",
-            "value": forecast["uncertainty"],
+            "value": _history_support(forecast["uncertainty"]),
             "value_ref": None,
             "source_ids": [engine_id],
         },
@@ -855,6 +863,22 @@ def _council_facts(analysis: dict[str, Any], data_sources: list[str]) -> list[di
             "number_refs": [],
         }
     ]
+    support = (analysis.get("explanation") or {}).get("history_support", {}).get("level")
+    if support is None:
+        support = _history_support(analysis["uncertainty"])
+    facts.append(
+        {
+            "fact_id": "history_support",
+            "text": (
+                f"Training-history support for this analysis is {support}. This is a match-count "
+                "coverage bucket, not model confidence, forecast accuracy, or an uncertainty "
+                "interval."
+            ),
+            "kind": "context",
+            "source_ids": [_MATCH_ENGINE_SOURCE_ID],
+            "number_refs": [],
+        }
+    )
     by_family = {entry["family"]: entry for entry in analysis["models"]}
     for family in ("elo_ordlogit", "dixon_coles", "climatological"):
         entry = by_family.get(family)
@@ -981,6 +1005,16 @@ def build_match_evidence_bundle(
                 "name": "Information cutoff (UTC)",
                 "kind": "timestamp",
                 "value": analysis["information_cutoff_utc"],
+                "value_ref": None,
+                "source_ids": [_MATCH_ENGINE_SOURCE_ID],
+            },
+            {
+                "feature_id": "history_support",
+                "name": "Training-history support (legacy uncertainty field)",
+                "kind": "categorical",
+                "value": (analysis.get("explanation") or {})
+                .get("history_support", {})
+                .get("level", _history_support(analysis["uncertainty"])),
                 "value_ref": None,
                 "source_ids": [_MATCH_ENGINE_SOURCE_ID],
             },

@@ -10,6 +10,7 @@ function stateLabel(state: string): string {
 export function FollowedMatchesPanel() {
   const follows = useFollows();
   const refresh = useDataRefresh();
+  const refreshing = refresh.job?.state === "queued" || refresh.job?.state === "running";
   if (!follows.list.items.length) return null;
   return (
     <section className="followed-panel stack" aria-labelledby="followed-matches-heading">
@@ -22,14 +23,30 @@ export function FollowedMatchesPanel() {
           type="button"
           className="btn btn--ghost"
           onClick={() => void refresh.refreshFollowedNow()}
-          disabled={refresh.job?.state === "queued" || refresh.job?.state === "running"}
+          disabled={refreshing}
+          aria-busy={refreshing}
         >
-          Check followed matches now
+          {refreshing ? "Checking followed matches…" : "Check followed matches now"}
         </button>
       </div>
       <p className="small dim" style={{ margin: 0 }}>
         Checks use approved sources only while Golavo is running. Closing the app stops checks.
       </p>
+      {refresh.error && (
+        <div className="stack" style={{ ["--gap" as string]: ".45rem" }}>
+          <p className="small correction-error" role="alert" style={{ margin: 0 }}>
+            Followed-match check could not complete: {refresh.error.message}
+          </p>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            style={{ justifySelf: "start" }}
+            onClick={() => void refresh.refreshFollowedNow()}
+          >
+            Try followed-match check again
+          </button>
+        </div>
+      )}
       <div className="followed-panel__grid">
         {follows.list.items.map((item) => (
           <article className="followed-panel__item" key={item.follow_id}>
