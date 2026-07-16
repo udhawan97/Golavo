@@ -4,6 +4,7 @@ import json
 
 import pandas as pd
 import pytest
+from golavo_core.analysis import build_match_analysis
 from golavo_core.retrospective import (
     RANKING_FAMILY,
     RETROSPECTIVE_FAMILIES,
@@ -167,3 +168,65 @@ def test_progress_is_reported_and_cancellation_is_honoured() -> None:
 
     with pytest.raises(RetrospectiveCancelled):
         world_cup_2026_retrospective(_frame(), is_cancelled=lambda: True)
+
+
+def test_same_day_proxy_exposure_is_disclosed_not_hidden() -> None:
+    """A day-precision (00:00 UTC) row sharing a match's calendar day is a real
+    exposure inherited from ``training_rows`` (never fixed by a stricter cutoff),
+    so it must be counted and surfaced rather than silently trained on."""
+    rows = [
+        _wc_match("m_wc_day", "2026-06-24T00:00:00Z", "France", "Spain", 1, 2, precision="day"),
+        _wc_match(
+            "m_wc_exact", "2026-06-24T02:00:00Z", "England", "Argentina", 1, 0, precision="exact"
+        ),
+    ]
+    result = world_cup_2026_retrospective(_frame(rows))
+    by_id = {row["match_id"]: row for row in result["matches"]}
+
+    # The 00:00 proxy match kicked off (by its own stamp) before the 02:00 exact
+    # match's cutoff, so it lands in that match's training frame.
+    assert by_id["m_wc_exact"]["training_same_day_proxy_rows"] == 1
+    # The day-proxy match's own cutoff (23:59:59 the day before) excludes the
+    # 02:00 exact match, which has not "happened" yet at that cutoff.
+    assert by_id["m_wc_day"]["training_same_day_proxy_rows"] == 0
+
+    assert result["exposure"]["rows_with_same_day_proxies"] == 1
+    note = result["exposure"]["note"]
+    assert "day-precision" in note
+    assert "cannot prove" in note
+
+
+def test_matches_the_apps_own_build_match_analysis() -> None:
+    """The module's whole claim is fidelity to the app's live analysis path —
+    pin it directly against ``build_match_analysis`` so a scoping regression
+    (e.g. reverting to source_kind) fails CI instead of shipping silently."""
+    frame = _frame()
+    result = world_cup_2026_retrospective(frame)
+    row = next(r for r in result["matches"] if r["match_id"] == "m_wc1")
+
+    fixture = frame.loc[frame["match_id"] == "m_wc1"].iloc[0]
+    match_row = {
+        "match_id": str(fixture["match_id"]),
+        "kickoff_utc": fixture["kickoff_utc"],
+        "home_team": fixture["home_team"],
+        "away_team": fixture["away_team"],
+        "home_score": int(fixture["home_score"]),
+        "away_score": int(fixture["away_score"]),
+        "is_complete": bool(fixture["is_complete"]),
+        "neutral": bool(fixture["neutral"]),
+        "competition": fixture["competition"],
+        "source_id": fixture["source_id"],
+    }
+    scoped = frame.loc[frame["source_id"].astype("string") == str(fixture["source_id"])]
+
+    analysis = build_match_analysis(
+        matches=scoped, match_row=match_row, families=RETROSPECTIVE_FAMILIES
+    )
+
+    assert analysis["information_cutoff_utc"] == row["information_cutoff_utc"]
+    entries = {entry["family"]: entry for entry in analysis["models"]}
+    for family in RETROSPECTIVE_FAMILIES:
+        for outcome in ("home", "draw", "away"):
+            assert round(row["families"][family]["probs"][outcome], 6) == pytest.approx(
+                entries[family]["probs"][outcome], abs=1e-9
+            )

@@ -43,7 +43,6 @@ RETROSPECTIVE_LABEL = (
     "A backtest, not a sealed record."
 )
 
-_WORLD_CUP = "FIFA World Cup"
 _WC2026 = next(fold for fold in FOLDS if fold["fold_id"] == "WC2026")
 
 
@@ -68,6 +67,29 @@ def _iso(value: pd.Timestamp) -> str:
     return value.isoformat().replace("+00:00", "Z")
 
 
+def _str_or_none(value: Any) -> str | None:
+    return None if value is None or pd.isna(value) else str(value)
+
+
+def _same_day_proxy_count(train: pd.DataFrame, kickoff: pd.Timestamp) -> int:
+    """Training rows that share ``kickoff``'s UTC calendar day via a day-only proxy.
+
+    A ``kickoff_precision`` other than ``"exact"`` is a 00:00 UTC stand-in for an
+    unknown real kickoff time, not a verified instant. Sharing a calendar day with
+    such a row means this match's own ``kickoff - 1s`` cutoff cannot prove the
+    proxy row actually happened first — it may have kicked off later the same day.
+    """
+    if train.empty:
+        return 0
+    precision = (
+        train["kickoff_precision"].astype("string")
+        if "kickoff_precision" in train.columns
+        else pd.Series("day", index=train.index, dtype="string")
+    )
+    same_day = pd.to_datetime(train["kickoff_utc"], utc=True).dt.date.eq(kickoff.date())
+    return int((precision.ne("exact") & same_day).sum())
+
+
 def _outcome(home_score: Any, away_score: Any) -> int:
     """0 = home win, 1 = draw, 2 = away win — matching Prediction.probs order."""
     home, away = int(home_score), int(away_score)
@@ -81,7 +103,7 @@ def _tournament_rows(frame: pd.DataFrame) -> pd.DataFrame:
     start = _utc(_WC2026["window_start"])
     end = _utc(_WC2026["window_end"]) + pd.Timedelta(days=1)
     selected = frame.loc[
-        frame["competition"].astype("string").eq(_WORLD_CUP)
+        frame["competition"].astype("string").eq(_WC2026["competition"])
         & (kickoff >= start)
         & (kickoff < end)
     ].copy()
@@ -96,9 +118,6 @@ def world_cup_2026_retrospective(
     is_cancelled: Callable[[], bool] | None = None,
 ) -> dict[str, Any]:
     """Replay every completed 2026 World Cup match at its own pre-kickoff cutoff."""
-    # Scope to the fixture's own source kind so a shared team string cannot merge
-    # club history into an international fixture.
-    international = frame.loc[frame["source_kind"].astype("string").eq("international")].copy()
     tournament = _tournament_rows(frame)
     complete = tournament.loc[tournament["is_complete"].astype("boolean").fillna(False)]
     pending = int(len(tournament) - len(complete))
@@ -119,10 +138,29 @@ def world_cup_2026_retrospective(
         cutoff_iso = _iso(cutoff)
         match_id = str(match["match_id"])
 
-        train = training_rows(international, cutoff_iso)
+        # Scope by the fixture's own source_id, exactly as the app's own on-demand
+        # path does (server/golavo_server/analysis.py) — never by source_kind,
+        # which would silently merge a second international source in were one
+        # ever added.
+        source_id = _str_or_none(match.get("source_id"))
+        source_kind = _str_or_none(match.get("source_kind"))
+        competition = _str_or_none(match.get("competition"))
+        scoped = frame
+        if source_id is not None:
+            scoped = frame.loc[frame["source_id"].astype("string").eq(source_id)]
+        if source_kind == "club" and competition is not None:
+            scoped = scoped.loc[scoped["competition"].astype("string").eq(competition)]
+
+        train = training_rows(scoped, cutoff_iso)
         # Belt-and-braces: never let the fixture's own row train its own forecast,
         # even if a malformed snapshot dated it before the cutoff.
         train = train.loc[~train["match_id"].astype("string").eq(match_id)].copy()
+        # This cutoff is the app's own kickoff-1s boundary and stays exactly as
+        # inherited from training_rows() — never tightened here. A day-precision
+        # (00:00 UTC) row sharing this match's calendar day cannot be proven to
+        # have kicked off first, so the exposure is disclosed below rather than
+        # hidden by a stricter, non-app cutoff.
+        same_day_proxy_rows = _same_day_proxy_count(train, kickoff)
 
         home = str(match["home_team"])
         away = str(match["away_team"])
@@ -156,6 +194,7 @@ def world_cup_2026_retrospective(
                 "outcome": ("home", "draw", "away")[outcome],
                 "families": families,
                 "log_loss": families[RANKING_FAMILY]["log_loss"],
+                "training_same_day_proxy_rows": same_day_proxy_rows,
             }
         )
         if progress is not None:
@@ -167,6 +206,9 @@ def world_cup_2026_retrospective(
         "Every 2026 World Cup match in this snapshot has been played and backtested."
         if pending == 0
         else f"{pending} match(es) in this snapshot are not yet played and are not scored here."
+    )
+    rows_with_same_day_proxies = sum(
+        1 for row in rows if row["training_same_day_proxy_rows"] > 0
     )
 
     return {
@@ -186,6 +228,16 @@ def world_cup_2026_retrospective(
             "scored": total,
             "pending": pending,
             "note": note,
+        },
+        "exposure": {
+            "rows_with_same_day_proxies": rows_with_same_day_proxies,
+            "note": (
+                "A day-precision kickoff is a 00:00 UTC calendar-day stand-in, not a "
+                "verified kickoff time. This backtest still cuts off at kickoff - 1s "
+                "for every match, exactly as the app does, so it cannot prove a "
+                "same-day proxy row actually happened first — a flagged match's "
+                "forecast may rest on a result that was really played later that day."
+            ),
         },
         "matches": rows,
         "biggest_surprises": ranked,
