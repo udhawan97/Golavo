@@ -494,3 +494,148 @@ def test_exhausted_retries_return_a_typed_paused_envelope(monkeypatch) -> None:
     assert "provenance" not in result
     assert "trust" not in result
     _contract_validator().validate(result)
+
+
+# --- HTTP routes -------------------------------------------------------------
+
+
+def test_retrospective_route_validates_against_contract(monkeypatch) -> None:
+    import json
+    from pathlib import Path
+
+    from fastapi.testclient import TestClient
+    from golavo_server import main as server_main
+    from jsonschema import Draft202012Validator, FormatChecker
+
+    root = Path(__file__).resolve().parents[2]
+    schema = json.loads(
+        (root / "docs" / "contracts" / "tournament_retrospective.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    # A minimal but conformant "available" envelope — the contract requires
+    # "exposure" and at least one row once status is "available", which the
+    # task brief's stub (written before Task 3's schema tightening) predates.
+    row = {
+        "match_id": "m1",
+        "kickoff_utc": "2026-06-11T20:00:00Z",
+        "kickoff_precision": "exact",
+        "information_cutoff_utc": "2026-06-11T19:59:59Z",
+        "home_team": "Home",
+        "away_team": "Away",
+        "home_score": 1,
+        "away_score": 0,
+        "outcome": "home",
+        "families": {
+            "dixon_coles": {"probs": {"home": 0.5, "draw": 0.3, "away": 0.2}, "log_loss": 0.69}
+        },
+        "log_loss": 0.69,
+        "training_same_day_proxy_rows": 0,
+    }
+    stub = {
+        "schema_version": "0.1.0",
+        "status": "available",
+        "label": "Tournament retrospective — a backtest, not a sealed record.",
+        "tournament_id": "worldcup-2026",
+        "tournament_name": "2026 FIFA World Cup",
+        "ledger_status": "never_persisted_or_scored_as_a_seal",
+        "ranking_family": "dixon_coles",
+        "ranking_metric": "log_loss",
+        "families": ["dixon_coles"],
+        "window_start": "2026-06-11",
+        "window_end": "2026-07-19",
+        "coverage": {"status": "complete", "scored": 1, "pending": 0, "note": "n"},
+        "exposure": {"rows_with_same_day_proxies": 0, "note": "n"},
+        "matches": [row],
+        "biggest_surprises": [row],
+    }
+    monkeypatch.setattr(server_retrospective, "build", lambda **_: stub)
+    body = TestClient(server_main.app).post(
+        "/api/v1/tournaments/worldcup-2026/retrospective", json={}
+    ).json()
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(body)
+
+
+def test_malformed_job_id_is_rejected() -> None:
+    from fastapi.testclient import TestClient
+    from golavo_server import main as server_main
+
+    client = TestClient(server_main.app)
+    assert client.get(
+        "/api/v1/tournaments/worldcup-2026/retrospective/jobs/bad"
+    ).status_code == 400
+    assert client.get(
+        "/api/v1/tournaments/worldcup-2026/retrospective/jobs/rt-doesnotexist1"
+    ).status_code == 404
+
+
+def test_retrospective_route_runs_async_with_a_job_id(monkeypatch) -> None:
+    """A job_id request returns 202 immediately, and the background task drives
+    the same job through to a stamped "done" result — never the AI job route."""
+    from fastapi.testclient import TestClient
+    from golavo_server import jobs
+    from golavo_server import main as server_main
+
+    stub = {
+        "schema_version": "0.1.0",
+        "status": "available",
+        "label": "n",
+        "tournament_id": "worldcup-2026",
+        "tournament_name": "2026 FIFA World Cup",
+        "matches": [],
+        "biggest_surprises": [],
+    }
+    monkeypatch.setattr(server_retrospective, "build", lambda **_: stub)
+    job_id = "rt-job-0001"
+    jobs.store()._jobs.pop(job_id, None)
+
+    client = TestClient(server_main.app)
+    response = client.post(
+        "/api/v1/tournaments/worldcup-2026/retrospective", json={"job_id": job_id}
+    )
+
+    assert response.status_code == 202
+    assert response.json() == {"job_id": job_id, "state": "running"}
+
+    polled = client.get(
+        f"/api/v1/tournaments/worldcup-2026/retrospective/jobs/{job_id}"
+    ).json()
+    assert polled["job_id"] == job_id
+    assert polled["state"] == "done"
+    assert polled["result"] == stub
+
+
+def test_retrospective_route_rejects_a_conflicting_job_id(monkeypatch) -> None:
+    """Reusing an id already active is a 409, not a silently dropped second run."""
+    from fastapi.testclient import TestClient
+    from golavo_server import jobs
+    from golavo_server import main as server_main
+
+    monkeypatch.setattr(server_retrospective, "build", lambda **_: {"status": "available"})
+    job_id = "rt-conflict1"
+    jobs.store()._jobs.pop(job_id, None)
+    jobs.store().start(job_id)
+
+    client = TestClient(server_main.app)
+    response = client.post(
+        "/api/v1/tournaments/worldcup-2026/retrospective", json={"job_id": job_id}
+    )
+
+    assert response.status_code == 409
+    jobs.store()._jobs.pop(job_id, None)
+
+
+def test_retrospective_route_maps_match_index_unavailable_to_503(monkeypatch) -> None:
+    from fastapi.testclient import TestClient
+    from golavo_server import main as server_main
+
+    def boom(**_: object) -> dict[str, Any]:
+        raise matches.MatchIndexUnavailable("no index on disk")
+
+    monkeypatch.setattr(server_retrospective, "build", boom)
+
+    response = TestClient(server_main.app).post(
+        "/api/v1/tournaments/worldcup-2026/retrospective", json={}
+    )
+
+    assert response.status_code == 503

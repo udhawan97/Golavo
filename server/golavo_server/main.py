@@ -33,6 +33,7 @@ from golavo_server import (
     outlook,
     refresh_jobs,
     research_pack,
+    retrospective,
     runtime,
     seal,
 )
@@ -242,6 +243,83 @@ def get_world_cup_2026_outlook(as_of_utc: str | None = None) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/tournaments/worldcup-2026/retrospective")
+async def start_world_cup_2026_retrospective(
+    request: Request, background_tasks: BackgroundTasks
+) -> Any:
+    """Backtest every played 2026 World Cup match at its own pre-kickoff cutoff.
+
+    A backtest, never a seal: nothing here is persisted or scored as a record.
+    The fit is minutes long, so a job_id streams progress; without one the work
+    still runs off the event loop.
+    """
+    from golavo_server import jobs
+
+    try:
+        body = await request.json()
+    except Exception:  # noqa: BLE001 -- an empty body is a valid synchronous request
+        body = {}
+    job_id = body.get("job_id") if isinstance(body, dict) else None
+
+    job = None
+    if isinstance(job_id, str) and job_id:
+        if not jobs.JOB_ID_RE.match(job_id):
+            raise HTTPException(status_code=400, detail="malformed job_id")
+        try:
+            job = jobs.store().start(job_id)
+        except jobs.JobConflict as exc:
+            raise HTTPException(status_code=409, detail="job already running") from exc
+
+    def _progress(done: int, total: int) -> None:
+        if job is not None:
+            jobs.store().update(
+                job.job_id,
+                stage="replaying",
+                detail=f"Backtesting match {done} of {total}",
+                counts={"completed": done, "total": total},
+            )
+
+    def _cancelled() -> bool:
+        return job is not None and jobs.store().is_cancelled(job.job_id)
+
+    def _run() -> dict[str, Any]:
+        try:
+            result = retrospective.build(progress=_progress, is_cancelled=_cancelled)
+            if job is not None:
+                jobs.store().update(job.job_id, stage="scoring", detail="Scoring model skill")
+                jobs.store().finish(job.job_id, result=result)
+            return result
+        except Exception as exc:
+            # RetrospectiveCancelled lands here too: fail() is a no-op on a job
+            # whose state is already "cancelled" (jobs.JobStore._terminate keeps
+            # cancellation as the terminal public state), so a cancelled run
+            # never gets relabelled "failed".
+            if job is not None:
+                jobs.store().fail(job.job_id, str(exc)[:240])
+            raise
+
+    if job is not None:
+        background_tasks.add_task(_run)
+        return JSONResponse({"job_id": job.job_id, "state": "running"}, status_code=202)
+    try:
+        return await run_in_threadpool(_run)
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/tournaments/worldcup-2026/retrospective/jobs/{job_id}")
+def world_cup_2026_retrospective_job(job_id: str) -> dict[str, Any]:
+    """Progress for one retrospective run. Its own lane, not the AI job route."""
+    from golavo_server import jobs
+
+    if not jobs.JOB_ID_RE.match(job_id):
+        raise HTTPException(status_code=400, detail="malformed job_id")
+    job = jobs.store().get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    return job.to_dict()
 
 
 @app.get("/api/v1/analytics/competitions/{competition_id}/season-outlook")
