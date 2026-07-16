@@ -27,6 +27,9 @@ const CorrectionEditor = lazy(() =>
 const CorrectionReview = lazy(() =>
   import("./views/Corrections").then((m) => ({ default: m.CorrectionReview })),
 );
+const WorldCupRetrospective = lazy(() =>
+  import("./views/WorldCupRetrospective").then((m) => ({ default: m.WorldCupRetrospective })),
+);
 const SealingGuide = lazy(() => import("./views/SealingGuide").then((m) => ({ default: m.SealingGuide })));
 const PicksGuide = lazy(() => import("./views/PicksGuide").then((m) => ({ default: m.PicksGuide })));
 const MySeason = lazy(() => import("./views/MySeason").then((m) => ({ default: m.MySeason })));
@@ -223,6 +226,7 @@ function Route({
   if (path === "/lab/backtests") return <EvaluationSummary />;
   if (path === "/lab/methods") return <Methodologies />;
   if (path === "/lab/forecasts") return <MatchdayList />;
+  if (path === "/lab/worldcup-2026") return <WorldCupRetrospective />;
 
   // Legacy routes kept alive for old links/exports.
   if (path === "/eval") return <Redirect to="/lab/backtests" />;

@@ -26,6 +26,11 @@ export function ModelLabHub() {
       note: "Every model over held-out seasons: log loss, Brier, RPS, ECE. No permanent champion.",
     },
     {
+      href: "#/lab/worldcup-2026",
+      title: "World Cup 2026 retrospective",
+      note: "Every match replayed at its own pre-kickoff cutoff, and — kept separate — whether the models had skill. A backtest, never a record.",
+    },
+    {
       href: "#/lab/methods",
       title: "Methodologies",
       note: "What the five families are, why three of them are one voice, and how abstention works.",
