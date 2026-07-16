@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/followed_match.schema.json",
+  "title": "Golavo local followed-match API",
+  "oneOf": [
+    {"$ref": "#/$defs/FollowedMatch"},
+    {"$ref": "#/$defs/FollowEvent"},
+    {"$ref": "#/$defs/FollowList"},
+    {"$ref": "#/$defs/FollowSettings"}
+  ],
+  "$defs": {
+    "NullableTimestamp": {"type": ["string", "null"], "format": "date-time"},
+    "SourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "source_ref", "checked_at_utc"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "source_ref": {"type": ["string", "null"]},
+        "checked_at_utc": {"$ref": "#/$defs/NullableTimestamp"}
+      }
+    },
+    "MatchSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "match_id", "kickoff_utc", "kickoff_precision", "home_team", "away_team",
+        "home_score", "away_score", "competition", "country", "city", "neutral",
+        "is_complete", "source_kind", "source_id", "upstream_fixture_key", "provenance"
+      ],
+      "properties": {
+        "match_id": {"type": "string", "minLength": 1},
+        "kickoff_utc": {"type": ["string", "null"], "format": "date-time"},
+        "kickoff_precision": {"type": ["string", "null"]},
+        "home_team": {"type": ["string", "null"]},
+        "away_team": {"type": ["string", "null"]},
+        "home_score": {"type": ["integer", "null"], "minimum": 0},
+        "away_score": {"type": ["integer", "null"], "minimum": 0},
+        "competition": {"type": ["string", "null"]},
+        "country": {"type": ["string", "null"]},
+        "city": {"type": ["string", "null"]},
+        "neutral": {"type": ["boolean", "null"]},
+        "is_complete": {"type": "boolean"},
+        "source_kind": {"type": ["string", "null"]},
+        "source_id": {"type": "string", "minLength": 1},
+        "upstream_fixture_key": {"type": ["string", "null"]},
+        "provenance": {
+          "type": "object",
+          "additionalProperties": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "FollowEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "event_id", "follow_id", "event_type", "detected_at_utc",
+        "effective_at_utc", "source", "generation_id", "before", "after", "conflict",
+        "read_at_utc", "notification_status"
+      ],
+      "properties": {
+        "schema_version": {"const": "0.1.0"},
+        "event_id": {"type": "string", "pattern": "^fe_[0-9a-f]{64}$"},
+        "follow_id": {"type": "string", "pattern": "^fm_[0-9a-f]{32}$"},
+        "event_type": {
+          "enum": [
+            "followed", "unfollowed", "refollowed", "match_repointed",
+            "identity_unresolved", "kickoff_changed", "venue_changed",
+            "score_published", "settlement_available", "settlement_recorded",
+            "source_revision_available", "source_conflict", "source_unavailable",
+            "source_recovered"
+          ]
+        },
+        "detected_at_utc": {"type": "string", "format": "date-time"},
+        "effective_at_utc": {"$ref": "#/$defs/NullableTimestamp"},
+        "source": {"$ref": "#/$defs/SourceRef"},
+        "generation_id": {"type": ["string", "null"]},
+        "before": {"type": ["object", "null"]},
+        "after": {"type": ["object", "null"]},
+        "conflict": {"type": ["object", "null"]},
+        "read_at_utc": {"$ref": "#/$defs/NullableTimestamp"},
+        "notification_status": {
+          "enum": [
+            "not_eligible", "pending", "claimed", "submitted", "suppressed_visible",
+            "permission_denied", "failed"
+          ]
+        }
+      }
+    },
+    "FollowedMatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "follow_id", "namespace", "subscription_state",
+        "resolution_state", "data_state", "canonical_match_id", "identity_source_id",
+        "upstream_fixture_key", "created_at_utc", "updated_at_utc", "unfollowed_at_utc",
+        "last_observed_at_utc", "current", "unread_event_count", "events"
+      ],
+      "properties": {
+        "schema_version": {"const": "0.1.0"},
+        "follow_id": {"type": "string", "pattern": "^fm_[0-9a-f]{32}$"},
+        "namespace": {"const": "core-cc0"},
+        "subscription_state": {"enum": ["active", "unfollowed"]},
+        "resolution_state": {"enum": ["resolved", "identity_unresolved"]},
+        "data_state": {
+          "enum": ["current", "stale", "source_conflict", "source_unavailable", "completed"]
+        },
+        "canonical_match_id": {"type": "string", "minLength": 1},
+        "identity_source_id": {"type": "string", "minLength": 1},
+        "upstream_fixture_key": {"type": ["string", "null"]},
+        "created_at_utc": {"type": "string", "format": "date-time"},
+        "updated_at_utc": {"type": "string", "format": "date-time"},
+        "unfollowed_at_utc": {"$ref": "#/$defs/NullableTimestamp"},
+        "last_observed_at_utc": {"$ref": "#/$defs/NullableTimestamp"},
+        "current": {"$ref": "#/$defs/MatchSnapshot"},
+        "unread_event_count": {"type": "integer", "minimum": 0},
+        "events": {"type": "array", "items": {"$ref": "#/$defs/FollowEvent"}}
+      }
+    },
+    "FollowList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "items", "total", "unread_event_count"],
+      "properties": {
+        "schema_version": {"const": "0.1.0"},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/FollowedMatch"}},
+        "total": {"type": "integer", "minimum": 0},
+        "unread_event_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "FollowSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "notifications_opt_in", "notifications_supported"],
+      "properties": {
+        "schema_version": {"const": "0.1.0"},
+        "notifications_opt_in": {"type": "boolean"},
+        "notifications_supported": {"type": "boolean"}
+      }
+    }
+  }
+}
