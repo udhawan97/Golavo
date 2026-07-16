@@ -29,6 +29,19 @@ from golavo_core.ingest.match_index import (
 
 _CLUB_KIND = "club"
 _INTERNATIONAL_KIND = "international"
+_REKEY_PRESERVED_FIELDS = (
+    "date",
+    "home_team",
+    "away_team",
+    "home_norm",
+    "away_norm",
+    "tournament",
+    "competition",
+    "city",
+    "country",
+    "neutral",
+    "venue_source_id",
+)
 
 
 class RefreshError(Exception):
@@ -457,6 +470,66 @@ def _upgrade_legacy_columns(frame: Any) -> Any:
     return result
 
 
+def _fixture_keys(frame: Any) -> Any:
+    """Stable fixture identity used to bridge source-driven match-id rekeys."""
+    import pandas as pd
+
+    dates = pd.to_datetime(frame["date"]).dt.strftime("%Y-%m-%d").astype("string")
+    return (
+        dates
+        + "\x1f"
+        + frame["home_norm"].astype("string")
+        + "\x1f"
+        + frame["away_norm"].astype("string")
+    )
+
+
+def _reconcile_international_history(fresh: Any, base: Any) -> tuple[Any, Any]:
+    """Keep local identities/evidence append-only across upstream corrections.
+
+    Venue spelling is part of the historical match-id hash, so a harmless source
+    cleanup (for example ``Dallas (Arlington)`` -> ``Arlington``) can otherwise
+    mint a new id for the same dated teams.  Reuse the old id and immutable
+    identity fields only when that dated pairing is unique in both generations.
+    Completed rows that genuinely disappear upstream are retained from the
+    verified base index, whose content hash is recorded in the new index metadata.
+    """
+    base_intl = base.loc[base["source_kind"] == _INTERNATIONAL_KIND].copy()
+    fresh_intl = fresh.loc[fresh["source_kind"] == _INTERNATIONAL_KIND].copy()
+    base_intl["_fixture_key"] = _fixture_keys(base_intl)
+    fresh_intl["_fixture_key"] = _fixture_keys(fresh_intl)
+
+    base_counts = base_intl["_fixture_key"].value_counts()
+    fresh_counts = fresh_intl["_fixture_key"].value_counts()
+    unique_keys = {
+        str(key)
+        for key, count in base_counts.items()
+        if count == 1 and fresh_counts.get(key, 0) == 1
+    }
+    base_by_key = base_intl.set_index("_fixture_key", drop=False)
+    result = fresh.copy()
+    for index, row in fresh_intl.iterrows():
+        key = str(row["_fixture_key"])
+        if key not in unique_keys:
+            continue
+        previous = base_by_key.loc[key]
+        if str(previous["match_id"]) == str(row["match_id"]):
+            continue
+        result.at[index, "match_id"] = previous["match_id"]
+        for column in _REKEY_PRESERVED_FIELDS:
+            result.at[index, column] = previous[column]
+
+    represented_ids = set(result["match_id"].astype(str))
+    fresh_keys = set(fresh_intl["_fixture_key"].astype(str))
+    completed = base_intl["is_complete"].astype("boolean").fillna(False)
+    retained = base_intl.loc[
+        completed
+        & ~base_intl["match_id"].astype(str).isin(represented_ids)
+        & ~base_intl["_fixture_key"].astype(str).isin(fresh_keys)
+    ].drop(columns="_fixture_key")
+    return result, retained
+
+
 def merge_refresh_generation(
     fresh_intl_pack: Path,
     club_packs: list[Path],
@@ -465,7 +538,7 @@ def merge_refresh_generation(
     *,
     season_start: str,
 ) -> Path:
-    """Build a whole candidate, replacing only refresh-owned source slices."""
+    """Build a whole candidate without deleting already-verified evidence."""
     import pandas as pd
 
     target_dir = Path(target_dir)
@@ -474,7 +547,11 @@ def merge_refresh_generation(
     build_match_index([Path(fresh_intl_pack), *map(Path, club_packs)], target_index)
     fresh = pd.read_parquet(target_index)
     base = _upgrade_legacy_columns(pd.read_parquet(base_index_path))
-    carry = base[base["source_kind"] != _INTERNATIONAL_KIND].copy()
+    fresh, retained_completed = _reconcile_international_history(fresh, base)
+    carry = pd.concat(
+        [base[base["source_kind"] != _INTERNATIONAL_KIND], retained_completed],
+        ignore_index=True,
+    )
     for pack in club_packs:
         manifest = json.loads((Path(pack) / "manifest.json").read_text(encoding="utf-8"))
         competition = str(manifest["competition"])
@@ -498,6 +575,8 @@ def merge_refresh_generation(
         "parquet_sha256": _sha256(target_index),
         "refreshed": True,
         "sources": sorted(set(str(value) for value in merged["source_id"].dropna().unique())),
+        "base_index_sha256": _sha256(base_index_path),
+        "retained_completed_match_ids": sorted(retained_completed["match_id"].astype(str)),
     }
     _write_json(target_dir / "matches_index.meta.json", meta)
     return target_index
@@ -513,11 +592,27 @@ def assert_safe_change(
     candidate = pd.read_parquet(candidate_index_path)
     current = candidate.set_index("match_id", drop=False)
     completed = base[base["is_complete"].astype("boolean").fillna(False)]
+    completed_keys = _fixture_keys(completed)
+    candidate_keys = _fixture_keys(candidate)
     removed_completed: list[str] = []
     changed_scores: list[str] = []
-    for row in completed.itertuples(index=False):
+    for row, fixture_key in zip(completed.itertuples(index=False), completed_keys, strict=True):
         match_id = str(row.match_id)
         if match_id not in current.index:
+            replacements = candidate.loc[candidate_keys.eq(fixture_key)]
+            if len(replacements) == 1:
+                replacement = replacements.iloc[0]
+                replacement_complete = bool(
+                    pd.Series([replacement["is_complete"]], dtype="boolean").fillna(False).iloc[0]
+                )
+                if replacement_complete and (int(row.home_score), int(row.away_score)) == (
+                    int(replacement["home_score"]),
+                    int(replacement["away_score"]),
+                ):
+                    # The base can contain two source rows for the same completed
+                    # fixture under venue-derived ids. Dropping one is a dedupe,
+                    # not a deletion of the observed result.
+                    continue
             removed_completed.append(match_id)
             continue
         after = current.loc[match_id]
@@ -540,10 +635,7 @@ def assert_safe_change(
                     {"kind": "removed_completed", "match_id": match_id}
                     for match_id in removed_completed
                 ),
-                *(
-                    {"kind": "changed_score", "match_id": match_id}
-                    for match_id in changed_scores
-                ),
+                *({"kind": "changed_score", "match_id": match_id} for match_id in changed_scores),
             ],
         )
     sealed_matches: dict[str, dict[str, Any]] = {}
@@ -617,13 +709,20 @@ def assert_safe_change(
 
     base_ids = set(base["match_id"].astype(str))
     candidate_ids = set(candidate["match_id"].astype(str))
+    base_incomplete_ids = set(
+        base.loc[~base["is_complete"].astype("boolean").fillna(False), "match_id"].astype(str)
+    )
+    base_complete = base.set_index("match_id")["is_complete"].astype("boolean").fillna(False)
+    candidate_complete = (
+        candidate.set_index("match_id")["is_complete"]
+        .astype("boolean")
+        .reindex(base_complete.index)
+        .fillna(False)
+    )
     return {
         "added_matches": len(candidate_ids - base_ids),
-        "removed_incomplete_matches": len(base_ids - candidate_ids),
-        "new_results": int(
-            candidate.set_index("match_id")["is_complete"].reindex(base_ids).fillna(False).sum()
-            - base.set_index("match_id")["is_complete"].fillna(False).sum()
-        ),
+        "removed_incomplete_matches": len(base_incomplete_ids - candidate_ids),
+        "new_results": int((~base_complete & candidate_complete).sum()),
     }
 
 

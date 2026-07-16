@@ -59,6 +59,7 @@ test("first boot: consent card, Enable checks finds GitHub release and notifies"
   await expect(page.getByRole("button", { name: /Update available/ })).toBeVisible();
   const notice = page.getByRole("status").filter({ hasText: "Golavo 9.9.9 is available" });
   await expect(notice).toContainText("update without leaving the app");
+  await expect(page.getByRole("dialog", { name: "Open any match" })).toHaveCount(0);
   await notice.getByRole("button", { name: "View update" }).click();
   await expect(sheet(page)).toContainText("Golavo 9.9.9 is available");
   const invoked = await page.evaluate(() => window.__TAURI_MOCK__.invoked);

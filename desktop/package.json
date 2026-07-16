@@ -1,7 +1,7 @@
 {
   "name": "golavo-desktop",
   "private": true,
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "Golavo desktop shell (Tauri 2) — spawns the FastAPI/PyInstaller sidecar.",
   "scripts": {
     "tauri": "tauri",

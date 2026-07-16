@@ -21,7 +21,7 @@ from golavo_server import runtime, sidecar
 # for every later test: run this file before ``test_ai_gateway`` and its
 # unauthenticated endpoint requests all 401. (CI's alphabetical order hides it —
 # ``test_ai_gateway`` runs first there.) See golavo_server.sidecar._serve.
-_SIDECAR_ENV_VARS = ("GOLAVO_TOKEN", "GOLAVO_DATA_DIR")
+_SIDECAR_ENV_VARS = ("GOLAVO_TOKEN", "GOLAVO_DATA_DIR", "SSL_CERT_FILE")
 
 
 @pytest.fixture(autouse=True)
@@ -91,6 +91,19 @@ def test_serve_refuses_a_non_loopback_host() -> None:
     for host in ("0.0.0.0", "192.168.1.10", "::"):
         with pytest.raises(SystemExit):
             sidecar._assert_loopback(host)
+
+
+def test_sidecar_configures_bundled_tls_trust_without_overriding_operator(
+    monkeypatch,
+) -> None:
+    monkeypatch.delenv("SSL_CERT_FILE", raising=False)
+    monkeypatch.setattr(sidecar.certifi, "where", lambda: "/bundle/certifi/cacert.pem")
+    sidecar._configure_tls_trust()
+    assert os.environ["SSL_CERT_FILE"] == "/bundle/certifi/cacert.pem"
+
+    monkeypatch.setenv("SSL_CERT_FILE", "/operator/custom-ca.pem")
+    sidecar._configure_tls_trust()
+    assert os.environ["SSL_CERT_FILE"] == "/operator/custom-ca.pem"
 
 
 def test_free_loopback_port_ipv4_default() -> None:
@@ -170,6 +183,12 @@ def test_pyinstaller_spec_bundles_display_context_runtime_files() -> None:
     spec_text = spec.read_text(encoding="utf-8")
     for name in ("manifest.json", "venue_entities.json", "venue_assignments.json"):
         assert name in spec_text, f"data/context/{name} missing from sidecar datas"
+
+
+def test_pyinstaller_spec_bundles_certifi_ca_store() -> None:
+    spec = Path(__file__).resolve().parents[2] / "packaging" / "golavo-sidecar.spec"
+    spec_text = spec.read_text(encoding="utf-8")
+    assert 'collect_data_files("certifi")' in spec_text
 
 
 # --- parent-pid watchdog -----------------------------------------------------

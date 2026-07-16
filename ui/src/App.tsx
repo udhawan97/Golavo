@@ -72,13 +72,22 @@ export default function App() {
   const follows = useFollowController(backendReady && !holdForIndex);
   const corrections = useCorrectionController(backendReady && !holdForIndex);
   const openLigaDB = useOpenLigaDBController(backendReady && !holdForIndex);
+  const [updateNoticeVisible, setUpdateNoticeVisible] = useState(false);
 
   // First-launch orientation. Seed returning users as "done" once so an update
   // never replays the newcomer tour. The home tour yields to the update-consent
   // card and only fires once a real match card exists (see useTour).
   useEffect(() => { seedExistingUser(); }, []);
   const onHome = path === "/" || path === "" || path === "/games";
-  const homeTour = useTour(HOME_TOUR, onHome && backendReady && !updater.consentNeeded);
+  const homeTour = useTour(
+    HOME_TOUR,
+    onHome
+      && backendReady
+      && !updater.consentNeeded
+      && !updater.sheetOpen
+      && !updateNoticeVisible
+      && !updater.freshUpdateToast,
+  );
 
   // Once /health answers, start the shared status poll (drives the stage-2 splash,
   // the home warming card, and the activity center from one place).
@@ -144,7 +153,7 @@ export default function App() {
               </Layout>
               <UpdateSheet />
               <UpdateConsentCard />
-              <UpdateAvailableToast />
+              <UpdateAvailableToast onVisibilityChange={setUpdateNoticeVisible} />
               <UpdatedToast />
               <TourOverlay ctrl={homeTour} />
             </UpdaterContext.Provider>

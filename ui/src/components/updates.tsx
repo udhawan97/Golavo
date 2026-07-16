@@ -54,10 +54,15 @@ const AVAILABLE_TOAST_MS = 10_000;
 /** A newly discovered GitHub release gets a visible, accessible notification.
  *  Dismissing it never hides the persistent header pill, so the update remains
  *  easy to find without repeatedly interrupting the user. */
-export function UpdateAvailableToast() {
+export function UpdateAvailableToast({
+  onVisibilityChange,
+}: {
+  onVisibilityChange: (visible: boolean) => void;
+}) {
   const u = useUpdater();
   const offered = u.phase.kind === "available" && !u.phase.skipped ? u.phase.info : null;
   const [dismissedVersion, setDismissedVersion] = useState<string | null>(null);
+  const visible = Boolean(offered && !u.sheetOpen && dismissedVersion !== offered.version);
 
   useEffect(() => {
     if (!offered || dismissedVersion === offered.version) return;
@@ -68,7 +73,12 @@ export function UpdateAvailableToast() {
     return () => window.clearTimeout(timer);
   }, [dismissedVersion, offered]);
 
-  if (!offered || u.sheetOpen || dismissedVersion === offered.version) return null;
+  useEffect(() => {
+    onVisibilityChange(visible);
+    return () => onVisibilityChange(false);
+  }, [onVisibilityChange, visible]);
+
+  if (!offered || !visible) return null;
   return (
     <div className="update-toast update-available-toast card" role="status" aria-live="polite">
       <span>

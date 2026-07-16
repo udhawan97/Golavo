@@ -6,6 +6,28 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-07-16
+
+Golavo 0.14.1 repairs installed-app result refresh and gives match conditions a
+clearer, more visual structure without changing forecasts or source boundaries.
+
+### Fixed
+- Packaged approved-source refresh now uses a bundled CA trust store instead of a
+  build-machine OpenSSL path, so HTTPS refresh works from an installed app.
+- Refresh generations retain previously verified completed evidence across upstream
+  removals, preserve stable fixture ids across venue-label corrections, and accept
+  equivalent completed-row deduplication without weakening score-change guards.
+- My Season and Pick History reload scores, totals, and settled picks immediately
+  after a refreshed data generation is activated.
+- First-launch tours now yield to update notifications and update sheets, so enabling
+  update checks cannot place a modal tour over the newly available release action.
+
+### Changed
+- Conditions Snapshot now uses icon-led fact cards, explicit coverage status, aligned
+  recovery timelines, structured travel details, subtle pitch-grid texture, and an
+  intentional route-map empty state. Provenance and the display-only model boundary
+  remain visible and unchanged.
+
 ## [0.14.0] - 2026-07-16
 
 Golavo 0.14.0 completes the source-aware local data loop and makes the deterministic
@@ -1242,7 +1264,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.14.1...HEAD
+[0.14.1]: https://github.com/udhawan97/Golavo/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/udhawan97/Golavo/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/udhawan97/Golavo/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/udhawan97/Golavo/compare/v0.11.1...v0.12.0

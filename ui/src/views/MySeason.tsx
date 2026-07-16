@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { DATA_SOURCE, fetchPicksSummary } from "../lib/api";
 import type { PickView, PicksSummary } from "../lib/contract";
+import { useDataGenerationRevision } from "../lib/data-refresh-context";
 import { cumulativeSeries, seasonTable, streaks, usePicks } from "../lib/picks";
 import { useAsync } from "../lib/hooks";
 import { PointsChart } from "../components/PointsChart";
@@ -12,7 +13,8 @@ import { utcDate } from "../lib/format";
 type WindowFilter = "all" | "month" | "week";
 
 export function MySeason() {
-  const summaryState = useAsync(() => fetchPicksSummary(), []);
+  const generationRevision = useDataGenerationRevision();
+  const summaryState = useAsync(() => fetchPicksSummary(), [generationRevision]);
   const picks = usePicks();
   const [window, setWindow] = useState<WindowFilter>("all");
   const [competition, setCompetition] = useState("all");

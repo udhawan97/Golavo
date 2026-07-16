@@ -12,6 +12,7 @@ import type {
   UserPick,
 } from "./contract";
 import { deletePick, fetchPick, fetchPicks, savePick } from "./api";
+import { useDataGenerationRevision } from "./data-refresh-context";
 import type { AsyncState } from "./hooks";
 
 export const RIVAL_LABELS: Record<ModelFamily, string> = {
@@ -194,6 +195,7 @@ export function usePick(matchId: string) {
 }
 
 export function usePicks() {
+  const generationRevision = useDataGenerationRevision();
   const [state, setState] = useState<AsyncState<PickView[]>>({ status: "loading" });
   const load = useCallback(async () => {
     try {
@@ -214,7 +216,7 @@ export function usePicks() {
       window.removeEventListener("golavo-picks-changed", onChange);
       window.removeEventListener("storage", onStorage);
     };
-  }, [load]);
+  }, [generationRevision, load]);
   const byMatch = useMemo(
     () =>
       new Map(

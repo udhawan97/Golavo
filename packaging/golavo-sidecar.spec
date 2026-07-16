@@ -15,7 +15,7 @@ Build (from the repo root):
 import glob
 import os
 
-from PyInstaller.utils.hooks import collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 # SPECPATH is injected by PyInstaller and points at packaging/; its parent is the
 # repo root. This is robust regardless of the invoking working directory.
@@ -72,6 +72,10 @@ datas = [
     (os.path.join(ROOT, "data", "sources", "registry.json"), "data/sources"),
     (os.path.join(ROOT, "data", "sources", "registry.schema.json"), "data/sources"),
 ]
+# Python/OpenSSL paths from the build runner are not valid on an installed app.
+# Bundle certifi's maintained CA file so sidecar startup can set SSL_CERT_FILE to
+# a path under sys._MEIPASS before any approved-source HTTPS request is made.
+datas += collect_data_files("certifi")
 datas += [
     (os.path.join(ROOT, "docs", "handoff", name), "docs/handoff") for name in _EVAL_SUMMARIES
 ]

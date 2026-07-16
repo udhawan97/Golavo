@@ -138,6 +138,104 @@ def test_completed_score_rewrite_is_quarantined(tmp_path: Path) -> None:
         refresh.assert_safe_change(old_index, candidate, tmp_path / "ledger")
 
 
+def test_refresh_retains_removed_results_and_stabilizes_fixture_rekeys(tmp_path: Path) -> None:
+    old_ref, new_ref, worldcup_ref = "1" * 40, "3" * 40, "2" * 40
+    _raw_snapshot(tmp_path / "old-raw", old_ref, worldcup_ref)
+    old_pack = tmp_path / "old-pack"
+    refresh.build_international_runtime_pack(
+        tmp_path / "old-raw",
+        martj_ref=old_ref,
+        martj_committed_at="2026-07-15T00:00:00Z",
+        worldcup_ref=worldcup_ref,
+        worldcup_committed_at="2026-07-15T00:00:00Z",
+        retrieved_at_utc="2026-07-15T01:00:00Z",
+        output_dir=old_pack,
+    )
+    old_index = tmp_path / "old-index" / "matches_index.parquet"
+    build_match_index([old_pack], old_index)
+    before = pd.read_parquet(old_index)
+    old_result = before.loc[before["home_team"] == "Alpha"].iloc[0]
+    old_fixture = before.loc[before["home_team"] == "France"].iloc[0]
+
+    _raw_snapshot(tmp_path / "new-raw", new_ref, worldcup_ref)
+    results = tmp_path / "new-raw" / MARTJ42 / new_ref / "results.csv"
+    results.write_text(
+        "date,home_team,away_team,home_score,away_score,tournament,city,country,neutral\n"
+        "2026-08-01,France,Spain,0,2,FIFA World Cup,Arlington,United States,TRUE\n",
+        encoding="utf-8",
+    )
+    new_pack = tmp_path / "new-pack"
+    refresh.build_international_runtime_pack(
+        tmp_path / "new-raw",
+        martj_ref=new_ref,
+        martj_committed_at="2026-07-15T02:00:00Z",
+        worldcup_ref=worldcup_ref,
+        worldcup_committed_at="2026-07-15T00:00:00Z",
+        retrieved_at_utc="2026-07-15T03:00:00Z",
+        output_dir=new_pack,
+    )
+    target = tmp_path / "candidate"
+    candidate = refresh.merge_refresh_generation(
+        new_pack, [], old_index, target, season_start="9999-07-01"
+    )
+    after = pd.read_parquet(candidate)
+
+    retained = after.loc[after["match_id"] == old_result["match_id"]].iloc[0]
+    assert (int(retained["home_score"]), int(retained["away_score"])) == (2, 1)
+    scored = after.loc[after["match_id"] == old_fixture["match_id"]].iloc[0]
+    assert (int(scored["home_score"]), int(scored["away_score"])) == (0, 2)
+    assert scored["city"] == old_fixture["city"]
+    assert refresh.assert_safe_change(old_index, candidate, tmp_path / "ledger") == {
+        "added_matches": 0,
+        "removed_incomplete_matches": 0,
+        "new_results": 1,
+    }
+    meta = json.loads((target / "matches_index.meta.json").read_text(encoding="utf-8"))
+    assert meta["retained_completed_match_ids"] == [old_result["match_id"]]
+    assert len(meta["base_index_sha256"]) == 64
+
+
+def test_refresh_allows_equivalent_completed_duplicate_to_disappear(tmp_path: Path) -> None:
+    old_ref, new_ref, worldcup_ref = "1" * 40, "3" * 40, "2" * 40
+    _raw_snapshot(tmp_path / "old-raw", old_ref, worldcup_ref)
+    old_results = tmp_path / "old-raw" / MARTJ42 / old_ref / "results.csv"
+    with old_results.open("a", encoding="utf-8") as handle:
+        handle.write("2020-01-01,Alpha,Beta,2,1,Friendly,Other City,Aland,FALSE\n")
+    old_pack = tmp_path / "old-pack"
+    refresh.build_international_runtime_pack(
+        tmp_path / "old-raw",
+        martj_ref=old_ref,
+        martj_committed_at="2026-07-15T00:00:00Z",
+        worldcup_ref=worldcup_ref,
+        worldcup_committed_at="2026-07-15T00:00:00Z",
+        retrieved_at_utc="2026-07-15T01:00:00Z",
+        output_dir=old_pack,
+    )
+    old_index = tmp_path / "old-index" / "matches_index.parquet"
+    build_match_index([old_pack], old_index)
+
+    _raw_snapshot(tmp_path / "new-raw", new_ref, worldcup_ref)
+    new_pack = tmp_path / "new-pack"
+    refresh.build_international_runtime_pack(
+        tmp_path / "new-raw",
+        martj_ref=new_ref,
+        martj_committed_at="2026-07-15T02:00:00Z",
+        worldcup_ref=worldcup_ref,
+        worldcup_committed_at="2026-07-15T00:00:00Z",
+        retrieved_at_utc="2026-07-15T03:00:00Z",
+        output_dir=new_pack,
+    )
+    candidate = refresh.merge_refresh_generation(
+        new_pack, [], old_index, tmp_path / "candidate", season_start="9999-07-01"
+    )
+    summary = refresh.assert_safe_change(old_index, candidate, tmp_path / "ledger")
+    assert summary == {
+        "added_matches": 0,
+        "removed_incomplete_matches": 0,
+        "new_results": 0,
+    }
+
+
 def test_sealed_fixture_kickoff_rewrite_is_quarantined(tmp_path: Path) -> None:
     martj_ref, worldcup_ref = "1" * 40, "2" * 40
     _raw_snapshot(tmp_path / "raw", martj_ref, worldcup_ref)

@@ -212,6 +212,15 @@ describe("Conditions Snapshot honesty", () => {
     expect(html).toContain("Display only. These facts and calculations are not model inputs");
   });
 
+  it("renders the conditions as scannable fact cards, timelines, and an intentional map state", () => {
+    const html = renderToStaticMarkup(createElement(SnapshotBody, { snapshot: snapshot("exact") }));
+    expect(html.match(/conditions-fact-card(?: |&quot;)/g)).toHaveLength(4);
+    expect(html.match(/class="conditions-team__timeline /g)).toHaveLength(2);
+    expect(html).toContain("conditions-coverage-strip");
+    expect(html).toContain("Map waiting for location coverage");
+    expect(html).toContain("conditions-map-empty__art");
+  });
+
   it("shows weather as blocked context and never as a value", () => {
     const html = renderToStaticMarkup(createElement(SnapshotBody, { snapshot: snapshot("exact") }));
     expect(html).toContain("Weather context unavailable");

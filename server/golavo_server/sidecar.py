@@ -28,7 +28,21 @@ import time
 import urllib.request
 from typing import Any
 
+import certifi
+
 SMOKE_TIMEOUT_S = 30.0
+
+
+def _configure_tls_trust() -> None:
+    """Point frozen Python at a CA bundle that ships inside the sidecar.
+
+    PyInstaller's Python/OpenSSL build can retain the build machine's absolute CA
+    path, which does not exist on an installed Mac.  ``urllib`` then rejects every
+    approved HTTPS source even though the host system has a valid trust store.
+    Certifi gives every packaged platform one explicit, bundled path; an operator
+    supplied override still wins.
+    """
+    os.environ.setdefault("SSL_CERT_FILE", certifi.where())
 
 
 def _free_loopback_port(host: str = "127.0.0.1") -> int:
@@ -212,6 +226,7 @@ def _serve(
     """Run uvicorn (blocking). Env is set BEFORE importing the app so its
     module-level config (ledger dir) and the token gate see the right values."""
     _assert_loopback(host)
+    _configure_tls_trust()
     if token:
         os.environ["GOLAVO_TOKEN"] = token
     if data_dir:
@@ -399,14 +414,11 @@ def _smoke_running(timeout: float, stop_event: threading.Event) -> int:
 
     try:
         context_capability = context_get("/api/v1/context/capabilities")
-        context_match = context_get(
-            "/api/v1/matches/m_dd0b23e04619d47d/conditions"
-        )
+        context_match = context_get("/api/v1/matches/m_dd0b23e04619d47d/conditions")
         context_map = context_get("/api/v1/maps/world")
     except Exception as exc:  # noqa: BLE001 (any failure => packaged context is broken)
         print(
-            f"golavo-sidecar {__version__}: smoke FAILED — display context probe error "
-            f"({exc})",
+            f"golavo-sidecar {__version__}: smoke FAILED — display context probe error ({exc})",
             file=sys.stderr,
         )
         return 1
