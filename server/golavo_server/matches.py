@@ -158,7 +158,7 @@ def _reset_derivative_caches() -> None:
     # Import outside _CACHE_LOCK: derivative modules may call back into this
     # module during initialization. Their reset functions are intentionally
     # cheap and idempotent.
-    for module_name in ("outlook", "conditions", "analysis"):
+    for module_name in ("outlook", "conditions", "analysis", "retrospective"):
         try:
             module = __import__(f"golavo_server.{module_name}", fromlist=["reset_cache"])
             reset = getattr(module, "reset_cache", None)
