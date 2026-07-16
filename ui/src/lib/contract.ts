@@ -18,6 +18,7 @@ export const SCHEMA_VERSION = "0.2.0" as const;
 export const ACCEPTED_SCHEMA_VERSIONS = ["0.1.0", "0.2.0"] as const;
 export const ANALYSIS_SCHEMA_VERSION = "0.4.1" as const;
 export const PICK_SCHEMA_VERSION = "0.1.0" as const;
+export const FOLLOW_SCHEMA_VERSION = "0.1.0" as const;
 export type SchemaVersion = (typeof ACCEPTED_SCHEMA_VERSIONS)[number];
 
 export type ArtifactStatus = "sealed" | "scored" | "abstained" | "voided";
@@ -807,6 +808,101 @@ export interface MatchDetailResponse {
   linked_by: "match_id" | "fixture" | null;
   seal_eligibility?: SealEligibility;
   pick?: { id: string | null; status: PickStatus } | null;
+  follow?: FollowedMatch | null;
+}
+
+// ---- Local followed-match monitoring (display/audit only) -----------------
+
+export type FollowSubscriptionState = "active" | "unfollowed";
+export type FollowResolutionState = "resolved" | "identity_unresolved";
+export type FollowDataState =
+  | "current"
+  | "stale"
+  | "source_conflict"
+  | "source_unavailable"
+  | "completed";
+export type FollowEventType =
+  | "followed"
+  | "unfollowed"
+  | "refollowed"
+  | "match_repointed"
+  | "identity_unresolved"
+  | "kickoff_changed"
+  | "venue_changed"
+  | "score_published"
+  | "settlement_available"
+  | "settlement_recorded"
+  | "source_revision_available"
+  | "source_conflict"
+  | "source_unavailable"
+  | "source_recovered";
+export type FollowNotificationStatus =
+  | "not_eligible"
+  | "pending"
+  | "claimed"
+  | "submitted"
+  | "suppressed_visible"
+  | "permission_denied"
+  | "failed";
+
+export type FollowMatchSnapshot = Omit<MatchRow, "forecasts">;
+
+export interface FollowEvent {
+  schema_version: typeof FOLLOW_SCHEMA_VERSION;
+  event_id: string;
+  follow_id: string;
+  event_type: FollowEventType;
+  detected_at_utc: string;
+  effective_at_utc: string | null;
+  source: {
+    source_id: string;
+    source_ref: string | null;
+    checked_at_utc: string | null;
+  };
+  generation_id: string | null;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  conflict: Record<string, unknown> | null;
+  read_at_utc: string | null;
+  notification_status: FollowNotificationStatus;
+}
+
+export interface FollowedMatch {
+  schema_version: typeof FOLLOW_SCHEMA_VERSION;
+  follow_id: string;
+  namespace: "core-cc0";
+  subscription_state: FollowSubscriptionState;
+  resolution_state: FollowResolutionState;
+  data_state: FollowDataState;
+  canonical_match_id: string;
+  identity_source_id: string;
+  upstream_fixture_key: string | null;
+  created_at_utc: string;
+  updated_at_utc: string;
+  unfollowed_at_utc: string | null;
+  last_observed_at_utc: string | null;
+  current: FollowMatchSnapshot;
+  unread_event_count: number;
+  events: FollowEvent[];
+}
+
+export interface FollowListResponse {
+  schema_version: typeof FOLLOW_SCHEMA_VERSION;
+  items: FollowedMatch[];
+  total: number;
+  unread_event_count: number;
+}
+
+export interface FollowSettings {
+  schema_version: typeof FOLLOW_SCHEMA_VERSION;
+  notifications_opt_in: boolean;
+  notifications_supported: boolean;
+}
+
+export interface FollowNotificationClaim {
+  schema_version: typeof FOLLOW_SCHEMA_VERSION;
+  batch_id: string | null;
+  events: FollowEvent[];
 }
 
 // ---- Conditions Snapshot (display-only contract 0.3.0) --------------------
@@ -1020,6 +1116,7 @@ export interface RefreshErrorDetail {
   code: string;
   message: string;
   retryable: boolean;
+  details?: Array<Record<string, unknown>>;
 }
 
 export interface RefreshSourceStatus {
@@ -1053,6 +1150,7 @@ export interface DataRefreshJob {
   stage: "queued" | "checking" | "downloading" | "validating" | "building" | "activating" | "done";
   mode: "check" | "refresh";
   trigger: "manual" | "launch" | "periodic";
+  scope?: "all" | "followed";
   source_ids: string[];
   created_at_utc: string;
   updated_at_utc: string;

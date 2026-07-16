@@ -44,6 +44,9 @@ import { chapterPullNumber } from "../lib/insights";
 import { ProgrammePullNumber } from "../components/ProgrammePullNumber";
 import { factKey } from "../components/CommentatorsNotebook";
 import { ConditionsSnapshot } from "../components/ConditionsSnapshot";
+import { FollowButton } from "../components/FollowButton";
+import { FollowEventHistory } from "../components/FollowEventHistory";
+import { useFollows } from "../lib/follow-context";
 
 export function MatchDetail({ id }: { id: string }) {
   const state = useAsync(() => fetchMatch(id), [id]);
@@ -82,6 +85,8 @@ export function MatchDetail({ id }: { id: string }) {
 
 function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
   const { match, linked_by } = detail;
+  const follows = useFollows();
+  const followed = follows.byMatchId.get(id) ?? (follows.loading ? detail.follow : null);
   const hasForecast = match.forecasts.length > 0;
   const future = new Date(match.kickoff_utc).getTime() > Date.now();
   const location = match.city
@@ -167,7 +172,12 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
               {hasForecast && <span className="chip chip--sealed">Sealed forecast</span>}
             </>
           }
-          right={<ModeToggle mode={mode} setMode={setMode} tour="cockpit-mode" />}
+          right={
+            <span className="match-header-actions">
+              <FollowButton matchId={id} />
+              <ModeToggle mode={mode} setMode={setMode} tour="cockpit-mode" />
+            </span>
+          }
           footer={
             <div className="programme-teaser__footer">
               <span className="programme-mode-context" aria-live="polite">
@@ -181,6 +191,11 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
           }
         />
       </div>
+
+      {followed && <FollowEventHistory followed={followed} />}
+      {follows.error && (
+        <p className="small dim" role="alert">Follow state could not update: {follows.error.message}</p>
+      )}
 
       <ProgrammeContents />
 

@@ -23,6 +23,12 @@ import type {
   DataRefreshStatus,
   EvalSummary,
   FixturesCheckResponse,
+  FollowEvent,
+  FollowListResponse,
+  FollowNotificationClaim,
+  FollowNotificationStatus,
+  FollowSettings,
+  FollowedMatch,
   ForecastArtifact,
   CompetitionCount,
   MatchAnalysisResponse,
@@ -1110,16 +1116,134 @@ export async function fetchDataRefreshStatus(): Promise<DataRefreshStatus | null
 export async function startDataRefresh(
   mode: "check" | "refresh",
   trigger: "manual" | "launch" | "periodic",
+  scope: "all" | "followed" = "all",
 ): Promise<DataRefreshJob> {
   if (!API_BASE) throw new Error("Data refresh needs the local Golavo engine");
   const headers = { ...apiHeaders(), "content-type": "application/json" };
   const res = await fetch(`${API_BASE}/api/v1/data/refresh`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ schema_version: "0.1.0", mode, trigger }),
+    body: JSON.stringify({ schema_version: "0.1.0", mode, trigger, scope }),
   });
   if (!res.ok) throw new ApiError("Could not start data refresh", res.status);
   return (await res.json()) as DataRefreshJob;
+}
+
+export async function fetchFollows(
+  state: "active" | "unfollowed" | "all" = "active",
+  eventLimit = 20,
+): Promise<FollowListResponse> {
+  if (!API_BASE) {
+    return { schema_version: "0.1.0", items: [], total: 0, unread_event_count: 0 };
+  }
+  const query = new URLSearchParams({ state, event_limit: String(eventLimit) });
+  const res = await fetch(`${API_BASE}/api/v1/follows?${query}`, { headers: apiHeaders() });
+  if (!res.ok) throw new ApiError("Could not read followed matches", res.status);
+  return (await res.json()) as FollowListResponse;
+}
+
+export async function followMatch(matchId: string): Promise<FollowedMatch> {
+  if (!API_BASE) throw new Error("Following needs the local Golavo engine");
+  const res = await fetch(
+    `${API_BASE}/api/v1/matches/${encodeURIComponent(matchId)}/follow`,
+    { method: "PUT", headers: apiHeaders() },
+  );
+  if (!res.ok) throw new ApiError("Could not follow this match", res.status);
+  return (await res.json()) as FollowedMatch;
+}
+
+export async function unfollowMatch(followId: string): Promise<FollowedMatch> {
+  if (!API_BASE) throw new Error("Following needs the local Golavo engine");
+  const res = await fetch(
+    `${API_BASE}/api/v1/follows/${encodeURIComponent(followId)}`,
+    { method: "DELETE", headers: apiHeaders() },
+  );
+  if (!res.ok) throw new ApiError("Could not unfollow this match", res.status);
+  return (await res.json()) as FollowedMatch;
+}
+
+export async function reconcileFollows(): Promise<{ event_ids: string[]; reconciled: number }> {
+  if (!API_BASE) return { event_ids: [], reconciled: 0 };
+  const res = await fetch(`${API_BASE}/api/v1/follows/reconcile`, {
+    method: "POST",
+    headers: apiHeaders(),
+  });
+  if (!res.ok) throw new ApiError("Could not reconcile followed matches", res.status);
+  return (await res.json()) as { event_ids: string[]; reconciled: number };
+}
+
+export async function fetchFollowSettings(): Promise<FollowSettings> {
+  if (!API_BASE) {
+    return {
+      schema_version: "0.1.0",
+      notifications_opt_in: false,
+      notifications_supported: false,
+    };
+  }
+  const res = await fetch(`${API_BASE}/api/v1/follows/settings`, { headers: apiHeaders() });
+  if (!res.ok) throw new ApiError("Could not read follow settings", res.status);
+  return (await res.json()) as FollowSettings;
+}
+
+export async function updateFollowSettings(
+  notificationsOptIn: boolean,
+): Promise<FollowSettings> {
+  if (!API_BASE) throw new Error("Notifications need the desktop Golavo app");
+  const res = await fetch(`${API_BASE}/api/v1/follows/settings`, {
+    method: "PUT",
+    headers: { ...apiHeaders(), "content-type": "application/json" },
+    body: JSON.stringify({ notifications_opt_in: notificationsOptIn }),
+  });
+  if (!res.ok) throw new ApiError("Could not save notification preference", res.status);
+  return (await res.json()) as FollowSettings;
+}
+
+export async function markFollowEventsRead(eventIds?: string[]): Promise<void> {
+  if (!API_BASE) return;
+  const res = await fetch(`${API_BASE}/api/v1/follows/events/read`, {
+    method: "POST",
+    headers: { ...apiHeaders(), "content-type": "application/json" },
+    body: JSON.stringify(eventIds ? { event_ids: eventIds } : { all: true }),
+  });
+  if (!res.ok) throw new ApiError("Could not mark follow events read", res.status);
+}
+
+export async function removeFollowHistory(): Promise<void> {
+  if (!API_BASE) return;
+  const res = await fetch(`${API_BASE}/api/v1/follows/history`, {
+    method: "DELETE",
+    headers: { ...apiHeaders(), "content-type": "application/json" },
+    body: JSON.stringify({ confirm: "remove_follow_history" }),
+  });
+  if (!res.ok) throw new ApiError("Could not remove follow history", res.status);
+}
+
+export async function claimFollowNotifications(): Promise<FollowNotificationClaim> {
+  if (!API_BASE) return { schema_version: "0.1.0", batch_id: null, events: [] };
+  const res = await fetch(`${API_BASE}/api/v1/follows/notification-claims`, {
+    method: "POST",
+    headers: apiHeaders(),
+  });
+  if (!res.ok) throw new ApiError("Could not claim follow notifications", res.status);
+  return (await res.json()) as FollowNotificationClaim;
+}
+
+export async function updateFollowNotification(
+  eventId: string,
+  status: Exclude<FollowNotificationStatus, "pending" | "claimed" | "not_eligible">,
+  error?: string,
+): Promise<FollowEvent> {
+  if (!API_BASE) throw new Error("Notifications need the desktop Golavo app");
+  const res = await fetch(
+    `${API_BASE}/api/v1/follows/events/${encodeURIComponent(eventId)}/notification`,
+    {
+      method: "POST",
+      headers: { ...apiHeaders(), "content-type": "application/json" },
+      body: JSON.stringify({ status, error }),
+    },
+  );
+  if (!res.ok) throw new ApiError("Could not record notification outcome", res.status);
+  return (await res.json()) as FollowEvent;
 }
 
 export async function fetchDataRefreshJob(jobId: string): Promise<DataRefreshJob> {
