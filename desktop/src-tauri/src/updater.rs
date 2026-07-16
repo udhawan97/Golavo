@@ -19,7 +19,8 @@
 //!   updater_install_and_restart  stops the sidecar FIRST (Windows installers
 //!                              cannot replace a running exe and NSIS only kills
 //!                              the main binary), snapshots the ledger, writes a
-//!                              pending-update marker, installs, restarts.
+//!                              ledger + correction stores, writes a pending-
+//!                              update marker, installs, restarts.
 //!                              On Windows install() never returns — the
 //!                              installer exits us, updates, and relaunches.
 //!
@@ -27,10 +28,10 @@
 //!   * healthy first boot after an install  -> backup retired, success recorded
 //!     (feeds the UI's one-time "Updated to X" toast — honestly: no marker, no
 //!     toast, so a manual reinstall never claims a backup that was never taken);
-//!   * failed first boot after an install   -> ledger restored from the backup
+//!   * failed first boot after an install   -> mutable user state restored from the backup
 //!     (staged copy + rename, never delete-then-copy), marker consumed;
 //!   * failed boot with NO marker           -> NEVER restores. A transient
-//!     sidecar failure months later must not overwrite newer ledger data.
+//!     sidecar failure months later must not overwrite newer user data.
 //!
 //! What is NOT gated behind the feature is the data-protection half: markers,
 //! backups and restore are always compiled — a default build must still finish
@@ -153,6 +154,15 @@ pub fn ledger_dir<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
         .join("ledger"))
 }
 
+/// Sibling local correction stores are user-authored state, never source packs.
+pub fn corrections_dir<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
+    Ok(app
+        .path()
+        .app_local_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("corrections"))
+}
+
 fn backup_root<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
     Ok(app
         .path()
@@ -217,7 +227,7 @@ pub fn read_just_updated<R: Runtime>(app: &AppHandle<R>) -> Option<JustUpdated> 
 // Backup lifecycle (always compiled)
 // ---------------------------------------------------------------------------
 
-/// Copy the ledger (the only mutable user state today) into a fresh backup dir,
+/// Copy the ledger and isolated local correction stores into a fresh backup dir,
 /// returning that dir. Called immediately before an update is installed.
 ///
 /// On ANY failure the half-written backup dir is removed, so a partial backup
@@ -244,43 +254,53 @@ fn backup_user_state_inner<R: Runtime>(app: &AppHandle<R>, backup: &Path) -> Res
     if ledger.exists() {
         copy_dir(&ledger, &backup.join("ledger")).map_err(|e| e.to_string())?;
     }
+    let corrections = corrections_dir(app)?;
+    if corrections.exists() {
+        copy_dir(&corrections, &backup.join("corrections")).map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
 
-/// Restore the pre-update backup over the live ledger — staged: copy the backup
-/// beside the live dir, move the live dir aside (kept, never deleted), then
-/// rename the staged copy into place. A failed copy can no longer lose BOTH the
-/// live ledger and the backup.
-pub fn restore_backup<R: Runtime>(app: &AppHandle<R>) -> Result<bool, String> {
-    let backup_ledger = backup_root(app)?.join("ledger");
-    if !backup_ledger.exists() {
+fn restore_component(backup: &Path, live: &Path, name: &str) -> Result<bool, String> {
+    if !backup.exists() {
         return Ok(false);
     }
-    let live = ledger_dir(app)?;
     let parent = live
         .parent()
-        .ok_or_else(|| "ledger dir has no parent".to_string())?
+        .ok_or_else(|| format!("{name} dir has no parent"))?
         .to_path_buf();
-    let staging = parent.join("ledger.restoring");
+    let staging = parent.join(format!("{name}.restoring"));
     if staging.exists() {
         std::fs::remove_dir_all(&staging).map_err(|e| e.to_string())?;
     }
-    copy_dir(&backup_ledger, &staging).map_err(|e| e.to_string())?;
+    copy_dir(backup, &staging).map_err(|e| e.to_string())?;
     if live.exists() {
         // Keep only the newest displaced copy: prune older pre-restore dirs
         // before creating this one so repeated failed updates can't accumulate
-        // full ledger copies without bound.
-        prune_pre_restore(&parent);
-        let aside = parent.join(format!("ledger.pre-restore-{}", now_epoch()));
-        std::fs::rename(&live, &aside).map_err(|e| e.to_string())?;
+        // full user-state copies without bound.
+        prune_pre_restore(&parent, name);
+        let aside = parent.join(format!("{name}.pre-restore-{}", now_epoch()));
+        std::fs::rename(live, &aside).map_err(|e| e.to_string())?;
     }
-    std::fs::rename(&staging, &live).map_err(|e| e.to_string())?;
+    std::fs::rename(&staging, live).map_err(|e| e.to_string())?;
     Ok(true)
 }
 
-/// Remove every `ledger.pre-restore-*` under `parent`. Called right before a new
-/// one is minted, so at most one displaced generation survives at a time.
-fn prune_pre_restore(parent: &Path) {
+/// Restore every backed-up user-state component with copy-then-rename swaps.
+pub fn restore_backup<R: Runtime>(app: &AppHandle<R>) -> Result<bool, String> {
+    let backup = backup_root(app)?;
+    let ledger = restore_component(&backup.join("ledger"), &ledger_dir(app)?, "ledger")?;
+    let corrections = restore_component(
+        &backup.join("corrections"),
+        &corrections_dir(app)?,
+        "corrections",
+    )?;
+    Ok(ledger || corrections)
+}
+
+/// Remove every `<name>.pre-restore-*` under `parent`. Called right before a
+/// new one is minted, so at most one displaced generation survives at a time.
+fn prune_pre_restore(parent: &Path, name: &str) {
     let Ok(entries) = std::fs::read_dir(parent) else {
         return;
     };
@@ -288,7 +308,7 @@ fn prune_pre_restore(parent: &Path) {
         if entry
             .file_name()
             .to_string_lossy()
-            .starts_with("ledger.pre-restore-")
+            .starts_with(&format!("{name}.pre-restore-"))
         {
             let _ = std::fs::remove_dir_all(entry.path());
         }
@@ -344,18 +364,17 @@ fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
 /// marker-less orphan (e.g. a `ledger.restoring` left by a crash whose retry
 /// boot already succeeded) if the live ledger is later lost by external means.
 /// No-op when a canonical ledger already exists (the common case).
-pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) {
-    let Ok(live) = ledger_dir(app) else { return };
+fn recover_component<R: Runtime>(app: &AppHandle<R>, live: PathBuf, name: &str) {
     if live.exists() {
-        return; // canonical ledger present — nothing was interrupted
+        return;
     }
     if read_pending(app).is_none() {
-        return; // no restore was in flight — never resurrect a stale orphan
+        return;
     }
     let Some(parent) = live.parent().map(Path::to_path_buf) else {
         return;
     };
-    let staging = parent.join("ledger.restoring");
+    let staging = parent.join(format!("{name}.restoring"));
     if !staging.exists() {
         return;
     }
@@ -365,16 +384,25 @@ pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) {
     // than let the caller's create_dir_all mask the staged data with an empty
     // ledger — the whole point of this function.
     if std::fs::rename(&staging, &live).is_ok() {
-        eprintln!("[golavo] completed an interrupted ledger restore (rename)");
+        eprintln!("[golavo] completed an interrupted {name} restore (rename)");
     } else if copy_dir(&staging, &live).is_ok() {
         let _ = std::fs::remove_dir_all(&staging);
-        eprintln!("[golavo] completed an interrupted ledger restore (copy fallback)");
+        eprintln!("[golavo] completed an interrupted {name} restore (copy fallback)");
     } else {
         eprintln!(
             "[golavo] WARNING: could not complete an interrupted restore; your data is safe at \
              {}",
             staging.display()
         );
+    }
+}
+
+pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) {
+    if let Ok(ledger) = ledger_dir(app) {
+        recover_component(app, ledger, "ledger");
+    }
+    if let Ok(corrections) = corrections_dir(app) {
+        recover_component(app, corrections, "corrections");
     }
 }
 
@@ -433,7 +461,7 @@ pub fn repair_failed_launch<R: Runtime>(app: &AppHandle<R>, health_err: &str) ->
             // so restoring a half-copy would trade good data for bad. Leave it.
             let data_note = if pending.backup_taken {
                 match restore_backup(app) {
-                    Ok(true) => "Your ledger was restored from the pre-update backup.",
+                    Ok(true) => "Your local user data was restored from the pre-update backup.",
                     _ => {
                         "The pre-update backup could not be restored automatically; \
                          it is preserved on disk under backups/pre-update."

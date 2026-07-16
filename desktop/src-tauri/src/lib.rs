@@ -20,6 +20,7 @@
 //!      installer path exits the process without firing those events, and the
 //!      NSIS template only kills the main exe — never a live sidecar.
 
+mod correction_export;
 mod fallback_update;
 mod health;
 mod updater;
@@ -152,6 +153,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             open_external_url,
+            correction_export::save_correction_export,
             restart_sidecar,
             updater::updater_status,
             updater::updater_check,

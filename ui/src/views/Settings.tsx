@@ -30,6 +30,7 @@ import {
 import { OpenLigaDBSettings } from "../components/OpenLigaDBSettings";
 import { useFollows } from "../lib/follow-context";
 import { BellIcon } from "../components/icons";
+import { useCorrections } from "../lib/correction-context";
 
 function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
@@ -126,7 +127,9 @@ export function Settings({
   const u = useUpdater();
   const dataRefresh = useDataRefresh();
   const follows = useFollows();
+  const corrections = useCorrections();
   const [confirmRemoveFollows, setConfirmRemoveFollows] = useState(false);
+  const [confirmRemoveCorrections, setConfirmRemoveCorrections] = useState(false);
   const [aiProvider, setAiProvider] = useAiProvider();
   const [aiBackground, setAiBackground] = useAiBackground();
   const [aiResearch, setAiResearch] = useAiResearch();
@@ -370,6 +373,44 @@ export function Settings({
           </div>
           <hr style={{ width: "100%", border: 0, borderTop: "1px solid var(--line)" }} />
           <OpenLigaDBSettings />
+          <hr style={{ width: "100%", border: 0, borderTop: "1px solid var(--line)" }} />
+          <div className="settings__field">
+            <div className="settings__row">
+              <span>
+                <b>Correction proposals</b>
+                <span className="dim"> · {corrections.list.total} stored locally</span>
+              </span>
+              <a className="btn btn--ghost" href="#/corrections">Review queue</a>
+            </div>
+            <p className="settings__hint">
+              No account or moderation service. Proposals and captured evidence stay on this Mac,
+              separated by source license. They never change bundled packs, verified indexes,
+              forecasts, settlement, calibration, or model inputs.
+            </p>
+            <div className="settings__row">
+              <span>Local proposal data</span>
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => {
+                  if (!confirmRemoveCorrections) {
+                    setConfirmRemoveCorrections(true);
+                    return;
+                  }
+                  void corrections.removeAll().finally(() => setConfirmRemoveCorrections(false));
+                }}
+              >
+                {confirmRemoveCorrections ? "Confirm remove all proposals" : "Remove all proposals"}
+              </button>
+            </div>
+            {confirmRemoveCorrections && (
+              <p className="settings__hint" role="alert">
+                This removes every local proposal, evidence capture and staged export. It does not
+                touch source packs, forecasts, followed matches, picks, or OpenLigaDB data.
+              </p>
+            )}
+            {corrections.error && <p className="settings__hint" role="alert">{corrections.error.message}</p>}
+          </div>
         </div>
       </section>
 

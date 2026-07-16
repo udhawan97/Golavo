@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/correction_event.schema.json",
+  "title": "Append-only correction event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "proposal_id", "sequence", "event_type", "recorded_at_utc", "previous_event_hash", "payload", "payload_sha256", "event_sha256"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "event_id": {"type": "string", "pattern": "^ce_[0-9a-f]{64}$"},
+    "proposal_id": {"type": "string", "pattern": "^cp_[0-9a-f]{32}$"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "event_type": {"enum": ["created", "draft_revised", "evidence_attached", "validation_passed", "validation_failed", "conflict_detected", "accepted_local", "acceptance_revoked", "exported", "marked_submitted", "withdrawn", "superseded", "evidence_redacted"]},
+    "recorded_at_utc": {"type": "string", "format": "date-time"},
+    "previous_event_hash": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "payload": {"type": "object"},
+    "payload_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "event_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

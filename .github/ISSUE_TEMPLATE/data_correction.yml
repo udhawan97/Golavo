@@ -1,0 +1,61 @@
+name: Data correction candidate
+description: Manually submit a source-backed correction export for maintainer review.
+labels: ["data", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is a manual contribution step. A proposal is not authoritative until the registered upstream source, identity, license, and conflict state are independently reviewed. Never submit OpenLigaDB / ODbL exports, secrets, personal data, or full copyrighted pages.
+  - type: dropdown
+    id: correction-type
+    attributes:
+      label: Correction type
+      options:
+        - Missing fixture
+        - Kickoff time
+        - Team alias
+        - Venue
+        - Final score
+    validations:
+      required: true
+  - type: input
+    id: source-id
+    attributes:
+      label: Registered Golavo source id
+      placeholder: e.g. openfootball-worldcup-json
+    validations:
+      required: true
+  - type: input
+    id: source-url
+    attributes:
+      label: Evidence URL
+      description: Use the exact HTTPS page or repository record supporting the proposed value.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed change
+      description: State the existing value and proposed value. Do not paste a full webpage.
+    validations:
+      required: true
+  - type: textarea
+    id: export
+    attributes:
+      label: Golavo correction export
+      description: Attach the small .golavo-correction.json file created by Golavo, or explain why it is unavailable.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I took an explicit action to submit this; Golavo did not submit it automatically.
+          required: true
+        - label: The export says redistributable_export is true and is not from the OpenLigaDB / ODbL namespace.
+          required: true
+        - label: I removed secrets, personal information, private correspondence, and unrelated evidence.
+          required: true
+        - label: I understand this candidate does not alter source packs, forecasts, seals, settlement, calibration, or model inputs.
+          required: true

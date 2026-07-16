@@ -32,6 +32,15 @@
         "max_snapshot_bytes": 67108864
       },
       "fields": "men's senior international results 1872-present, date-only (00:00 UTC kickoff proxy), goalscorers, shootouts, former-name aliases",
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "core-cc0",
+        "allowed_types": ["missing_fixture", "team_alias", "final_score"],
+        "evidence_hosts": ["github.com", "raw.githubusercontent.com"],
+        "local_annotation": true,
+        "redistributable_export": true,
+        "contribution_url": "https://github.com/martj42/international_results"
+      },
       "attribution": "International football results from martj42/international_results (Mart Jürisoo), CC0-1.0.",
       "verified": "2026-07-12",
       "notes": "Bundled and seal-eligible. Sole forward-seal training source. Date-only; exact kickoff requires the worldcup-json overlay."
@@ -56,6 +65,15 @@
         "max_snapshot_bytes": 67108864
       },
       "fields": "top-five European league files published through 2025-26; season completeness is certified per league and 2025-26 is incomplete in the audited snapshot (no 2026-27 files published as of verified date)",
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "core-cc0",
+        "allowed_types": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"],
+        "evidence_hosts": ["github.com", "raw.githubusercontent.com"],
+        "local_annotation": true,
+        "redistributable_export": true,
+        "contribution_url": "https://github.com/openfootball/football.json"
+      },
       "attribution": "Club football results from openfootball/football.json (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-12",
       "notes": "Bundled, search/backtest only (five leagues share one source_id, so not seal-eligible). Naive local kickoff time; club rows carry kickoff_precision=day."
@@ -80,6 +98,15 @@
         "max_snapshot_bytes": 67108864
       },
       "fields": "World Cup fixtures/results with exact kickoff time + UTC offset, round, venue city, stadium timezone/coords (separate stadiums file); knockout placeholders W###/L### before teams resolve",
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "core-cc0",
+        "allowed_types": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"],
+        "evidence_hosts": ["github.com", "raw.githubusercontent.com"],
+        "local_annotation": true,
+        "redistributable_export": true,
+        "contribution_url": "https://github.com/openfootball/worldcup.json"
+      },
       "attribution": "World Cup fixtures and kickoff times from openfootball/worldcup.json (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-12",
       "notes": "Bundled as a fixture/kickoff co-source inside the refreshed internationals pack: supplies the World Cup fixtures martj42 has not published yet plus exact kickoff times. Excluded from model training (martj42 remains the sole training source). A user-authorized post-match check may also use its pinned, hashed final score to settle a World Cup seal when martj42 still reports NA/NA; if both sources publish and disagree, settlement fails closed. W###/L### placeholder fixtures are rejected until the bracket resolves."
@@ -122,6 +149,15 @@
       "classification": "enrichment",
       "pin_strategy": "dump-date",
       "fields": "city coordinates, country, timezone, altitude — bulk dumps (cities15000, countryInfo, timeZones)",
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "enrichment-cc-by-4.0",
+        "allowed_types": ["venue"],
+        "evidence_hosts": ["geonames.org", "www.geonames.org", "download.geonames.org"],
+        "local_annotation": true,
+        "redistributable_export": true,
+        "contribution_url": "https://www.geonames.org/manual.html"
+      },
       "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
       "verified": "2026-07-15",
       "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The legacy compact table resolves 1,828 of 2,215 indexed city-country pairs; 82 exact-name collisions were deterministically selected by population/id and must be rebuilt fail-closed under ADR-0006 before being treated as reviewed identities. Bulk files only, no runtime web-service dependency."
@@ -150,6 +186,15 @@
       "classification": "enrichment",
       "pin_strategy": "entity-revisions",
       "fields": "structured data only — stable entity ids, multilingual aliases, country/confederation, venue metadata",
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "enrichment-cc0",
+        "allowed_types": ["team_alias", "venue"],
+        "evidence_hosts": ["wikidata.org", "www.wikidata.org"],
+        "local_annotation": true,
+        "redistributable_export": true,
+        "contribution_url": "https://www.wikidata.org/"
+      },
       "entity_access": {
         "mode": "revision-pinned-individual-entities",
         "runtime_network": false,
@@ -191,6 +236,15 @@
         "storage_boundary": "overlays/openligadb"
       },
       "fields": "Current-season Bundesliga 1/2/3 and DFB-Pokal fixture/result context with matchDateTimeUTC; community-entered",
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "overlay-odbl-1.0",
+        "allowed_types": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"],
+        "evidence_hosts": ["openligadb.de", "www.openligadb.de", "api.openligadb.de"],
+        "local_annotation": true,
+        "redistributable_export": false,
+        "contribution_url": "https://www.openligadb.de/"
+      },
       "attribution": "Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0.",
       "share_alike": true,
       "verified": "2026-07-15",

@@ -59,6 +59,24 @@ def validate_registry() -> dict[str, dict[str, Any]]:
             raise ValueError(
                 f"{sid}: classification {entry['classification']!r} requires an attribution string"
             )
+        correction = entry.get("corrections")
+        if isinstance(correction, dict):
+            expected_namespace = {
+                ("core", "CC0-1.0"): "core-cc0",
+                ("enrichment", "CC0-1.0"): "enrichment-cc0",
+                ("enrichment", "PUBLIC-DOMAIN"): "enrichment-public-domain",
+                ("enrichment", "CC-BY-4.0"): "enrichment-cc-by-4.0",
+                ("odbl-pack", "ODbL-1.0"): "overlay-odbl-1.0",
+            }.get((entry["classification"], entry["license"]))
+            if correction["license_namespace"] != expected_namespace:
+                raise ValueError(f"{sid}: correction namespace disagrees with source class/license")
+            if expected_namespace == "overlay-odbl-1.0" and correction["redistributable_export"]:
+                raise ValueError(f"{sid}: ODbL corrections cannot be redistributable exports")
+            if (
+                expected_namespace != "overlay-odbl-1.0"
+                and not correction["redistributable_export"]
+            ):
+                raise ValueError(f"{sid}: free/open correction policy unexpectedly blocks export")
         by_id[sid] = entry
     return by_id
 

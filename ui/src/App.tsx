@@ -18,6 +18,15 @@ const ForecastDetail = lazy(() => import("./views/ForecastDetail").then((m) => (
 const EvaluationSummary = lazy(() => import("./views/EvaluationSummary").then((m) => ({ default: m.EvaluationSummary })));
 const PredictionLedger = lazy(() => import("./views/PredictionLedger").then((m) => ({ default: m.PredictionLedger })));
 const Settings = lazy(() => import("./views/Settings").then((m) => ({ default: m.Settings })));
+const CorrectionsQueue = lazy(() =>
+  import("./views/Corrections").then((m) => ({ default: m.CorrectionsQueue })),
+);
+const CorrectionEditor = lazy(() =>
+  import("./views/Corrections").then((m) => ({ default: m.CorrectionEditor })),
+);
+const CorrectionReview = lazy(() =>
+  import("./views/Corrections").then((m) => ({ default: m.CorrectionReview })),
+);
 const SealingGuide = lazy(() => import("./views/SealingGuide").then((m) => ({ default: m.SealingGuide })));
 const PicksGuide = lazy(() => import("./views/PicksGuide").then((m) => ({ default: m.PicksGuide })));
 const MySeason = lazy(() => import("./views/MySeason").then((m) => ({ default: m.MySeason })));
@@ -39,6 +48,7 @@ import { useExternalLinks } from "./lib/external-links";
 import { DataRefreshContext, useDataRefreshController } from "./lib/data-refresh-context";
 import { OpenLigaDBContext, useOpenLigaDBController } from "./lib/openligadb-context";
 import { FollowContext, useFollowController } from "./lib/follow-context";
+import { CorrectionContext, useCorrectionController } from "./lib/correction-context";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
  *  home's own warming card. A wedged index can never strand the user: search and
@@ -60,6 +70,7 @@ export default function App() {
   const updater = useUpdaterController();
   const dataRefresh = useDataRefreshController(backendReady && !holdForIndex);
   const follows = useFollowController(backendReady && !holdForIndex);
+  const corrections = useCorrectionController(backendReady && !holdForIndex);
   const openLigaDB = useOpenLigaDBController(backendReady && !holdForIndex);
 
   // First-launch orientation. Seed returning users as "done" once so an update
@@ -108,36 +119,38 @@ export default function App() {
 
   return (
     <DataRefreshContext.Provider value={dataRefresh}>
-      <FollowContext.Provider value={follows}>
-        <OpenLigaDBContext.Provider value={openLigaDB}>
-         <UpdaterContext.Provider value={updater}>
-          <Layout
-            path={path}
-            prefs={prefs}
-            onChangePrefs={setPrefs}
-            forecastSource={forecastSource}
-          >
-            <ErrorBoundary resetKey={path}>
-              <Suspense
-                fallback={
-                  <>
-                    <Loading label="Loading view" />
-                    <BlockSkeleton />
-                  </>
-                }
+      <CorrectionContext.Provider value={corrections}>
+        <FollowContext.Provider value={follows}>
+          <OpenLigaDBContext.Provider value={openLigaDB}>
+            <UpdaterContext.Provider value={updater}>
+              <Layout
+                path={path}
+                prefs={prefs}
+                onChangePrefs={setPrefs}
+                forecastSource={forecastSource}
               >
-                <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
-              </Suspense>
-            </ErrorBoundary>
-          </Layout>
-          <UpdateSheet />
-          <UpdateConsentCard />
-          <UpdateAvailableToast />
-          <UpdatedToast />
-          <TourOverlay ctrl={homeTour} />
-         </UpdaterContext.Provider>
-        </OpenLigaDBContext.Provider>
-      </FollowContext.Provider>
+                <ErrorBoundary resetKey={path}>
+                  <Suspense
+                    fallback={
+                      <>
+                        <Loading label="Loading view" />
+                        <BlockSkeleton />
+                      </>
+                    }
+                  >
+                    <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
+                  </Suspense>
+                </ErrorBoundary>
+              </Layout>
+              <UpdateSheet />
+              <UpdateConsentCard />
+              <UpdateAvailableToast />
+              <UpdatedToast />
+              <TourOverlay ctrl={homeTour} />
+            </UpdaterContext.Provider>
+          </OpenLigaDBContext.Provider>
+        </FollowContext.Provider>
+      </CorrectionContext.Provider>
     </DataRefreshContext.Provider>
   );
 }
@@ -178,6 +191,14 @@ function Route({
 
   const match = path.match(/^\/match\/(.+)$/);
   if (match) return <MatchDetail id={safeDecode(match[1])} />;
+
+  if (path === "/corrections") return <CorrectionsQueue />;
+  if (path === "/corrections/new-fixture") return <CorrectionEditor />;
+  const correctionNew = path.match(/^\/corrections\/new\/(.+)$/);
+  if (correctionNew) return <CorrectionEditor matchId={safeDecode(correctionNew[1])} />;
+  const correctionReview = path.match(/^\/corrections\/review\/(.+)$/);
+  if (correctionReview)
+    return <CorrectionReview proposalId={safeDecode(correctionReview[1])} />;
 
   const forecast = path.match(/^\/forecast\/(.+)$/);
   if (forecast) return <ForecastDetail id={safeDecode(forecast[1])} />;

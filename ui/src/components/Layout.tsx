@@ -23,7 +23,12 @@ function isActive(path: string, section: "games" | "leagues" | "season" | "lab")
       path.startsWith("/eval")
     );
   // Games owns the home, the match directory, and any match cockpit.
-  return path === "/" || path === "/matches" || path.startsWith("/match/");
+  return (
+    path === "/" ||
+    path === "/matches" ||
+    path.startsWith("/match/") ||
+    path.startsWith("/corrections")
+  );
 }
 
 /** One-click AI mode from anywhere — but only once a provider has been chosen.

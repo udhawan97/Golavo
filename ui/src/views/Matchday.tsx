@@ -29,6 +29,8 @@ import { TournamentOutlook } from "../components/TournamentOutlook";
 import { useDataGenerationRevision, useDataRefresh } from "../lib/data-refresh-context";
 import { FollowButton } from "../components/FollowButton";
 import { FollowedMatchesPanel } from "../components/FollowedMatchesPanel";
+import { CorrectionButton } from "../components/CorrectionButton";
+import { annotationIsCurrent, useCorrections } from "../lib/correction-context";
 
 const WELCOME_KEY = "golavo-welcome-dismissed";
 
@@ -105,6 +107,8 @@ export function MatchdayHome() {
       <WelcomeCard />
 
       <FollowedMatchesPanel />
+
+      <LocalMissingFixturesPanel />
 
       <a className="search-cta" href="#/matches">
         <SearchIcon />
@@ -207,6 +211,7 @@ function WindowBody({
           in <a href="#/settings">Settings</a>. Club fixtures are shown only when the approved source
           actually publishes a current-season file; no publication is inferred. Switch to <b>Last week</b>
           for recent results.
+          <span className="empty-state__actions"><a className="btn btn--ghost" href="#/corrections/new-fixture">Propose a missing fixture</a></span>
         </EmptyState>
       );
     }
@@ -381,7 +386,39 @@ export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anc
       </a>
       <div className="game-card-shell__follow">
         <FollowButton matchId={match.match_id} compact />
+        <CorrectionButton matchId={match.match_id} compact />
       </div>
     </article>
+  );
+}
+
+function LocalMissingFixturesPanel() {
+  const corrections = useCorrections();
+  const items = corrections.list.items.filter(
+    (item) =>
+      item.correction_type === "missing_fixture" &&
+      annotationIsCurrent(item, corrections.capabilities?.current_index_fingerprint),
+  );
+  if (!items.length) return null;
+  return (
+    <section className="panel local-fixtures" aria-labelledby="local-fixtures-title">
+      <div className="panel__head">
+        <h2 id="local-fixtures-title">Your proposed fixtures</h2>
+        <a href="#/corrections">Review queue ›</a>
+      </div>
+      <div className="panel__body stack">
+        <p className="small dim">
+          Local annotations only. These are not official or current fixtures and are excluded from
+          forecasts and settlement.
+        </p>
+        {items.map((item) => (
+          <div className="local-fixture" key={item.proposal_id}>
+            <b>{String(item.proposed.home_team)} v {String(item.proposed.away_team)}</b>
+            <span>{String(item.proposed.competition)} · {String(item.proposed.kickoff_utc)}</span>
+            <span className="small dim">Proposed from {item.source_id}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

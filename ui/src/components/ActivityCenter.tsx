@@ -15,6 +15,7 @@ import { useUpdater } from "../lib/updater-context";
 import { formatBytes } from "../lib/updater";
 import { PulseIcon } from "./icons";
 import { useFollows } from "../lib/follow-context";
+import { useCorrections } from "../lib/correction-context";
 
 interface Row {
   id: string;
@@ -50,6 +51,7 @@ export function ActivityCenter() {
   const activities = useActivities();
   const u = useUpdater();
   const follows = useFollows();
+  const corrections = useCorrections();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const panelId = useId();
@@ -114,6 +116,24 @@ export function ActivityCenter() {
         label: "Review followed matches",
         onClick: () => {
           window.location.hash = "#/games";
+          setOpen(false);
+        },
+      },
+    });
+  }
+
+  const correctionConflicts = corrections.list.items.filter(
+    (item) => item.state === "conflict",
+  ).length;
+  if (correctionConflicts > 0) {
+    rows.push({
+      id: "correction-conflicts",
+      label: `${correctionConflicts} correction ${correctionConflicts === 1 ? "conflict" : "conflicts"}`,
+      detail: "Conflicts stay closed and cannot alter match data.",
+      action: {
+        label: "Review corrections",
+        onClick: () => {
+          window.location.hash = "#/corrections";
           setOpen(false);
         },
       },

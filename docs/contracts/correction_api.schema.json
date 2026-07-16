@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/correction_api.schema.json",
+  "title": "Correction API capability envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "supported", "write_enabled", "central_service", "accounts", "telemetry", "network_evidence_fetch", "automatic_submission", "authoritative_override", "max_evidence_bytes", "max_evidence_items", "namespaces", "sources", "current_index_fingerprint"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "supported": {"type": "boolean"},
+    "write_enabled": {"type": "boolean"},
+    "central_service": {"const": false},
+    "accounts": {"const": false},
+    "telemetry": {"const": false},
+    "network_evidence_fetch": {"const": false},
+    "automatic_submission": {"const": false},
+    "authoritative_override": {"const": false},
+    "max_evidence_bytes": {"const": 65536},
+    "max_evidence_items": {"const": 10},
+    "namespaces": {"type": "array", "items": {"type": "string"}},
+    "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+    "current_index_fingerprint": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "name", "license", "license_url", "attribution", "license_namespace", "allowed_types", "redistributable_export", "contribution_url"],
+      "properties": {
+        "source_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,119}$"},
+        "name": {"type": "string", "minLength": 1},
+        "license": {"type": "string", "minLength": 1},
+        "license_url": {"type": ["string", "null"], "format": "uri"},
+        "attribution": {"type": ["string", "null"]},
+        "license_namespace": {"type": "string"},
+        "allowed_types": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"]}},
+        "redistributable_export": {"type": "boolean"},
+        "contribution_url": {"type": "string", "format": "uri"}
+      }
+    }
+  }
+}

@@ -47,6 +47,8 @@ import { ConditionsSnapshot } from "../components/ConditionsSnapshot";
 import { FollowButton } from "../components/FollowButton";
 import { FollowEventHistory } from "../components/FollowEventHistory";
 import { useFollows } from "../lib/follow-context";
+import { CorrectionButton } from "../components/CorrectionButton";
+import { CorrectionAnnotations } from "../components/CorrectionAnnotations";
 
 export function MatchDetail({ id }: { id: string }) {
   const state = useAsync(() => fetchMatch(id), [id]);
@@ -175,6 +177,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
           right={
             <span className="match-header-actions">
               <FollowButton matchId={id} />
+              <CorrectionButton matchId={id} />
               <ModeToggle mode={mode} setMode={setMode} tour="cockpit-mode" />
             </span>
           }
@@ -196,6 +199,8 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       {follows.error && (
         <p className="small dim" role="alert">Follow state could not update: {follows.error.message}</p>
       )}
+
+      <CorrectionAnnotations matchId={id} />
 
       <ProgrammeContents />
 

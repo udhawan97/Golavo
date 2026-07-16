@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,11 @@ from golavo_server import (
     capabilities,
     conditions,
     context_registry,
+    correction_exports,
+    correction_policy,
+    correction_sanitize,
+    correction_store,
+    correction_validation,
     follows,
     matches,
     openligadb_jobs,
@@ -54,6 +60,22 @@ app = FastAPI(title="Golavo", version=__version__)
 @app.middleware("http")
 async def _require_launch_token(request: Request, call_next: Any) -> Any:
     token = runtime.launch_token()
+    path = request.url.path
+    correction_path = path.startswith("/api/v1/corrections") or (
+        path.startswith("/api/v1/matches/") and path.endswith("/corrections")
+    )
+    if correction_path and token is None:
+        return JSONResponse(
+            {"detail": "correction routes require the private desktop launch token"},
+            status_code=403,
+        )
+    if correction_path and request.method not in {"GET", "OPTIONS"}:
+        try:
+            content_length = int(request.headers.get("content-length", "0"))
+        except ValueError:
+            content_length = 0
+        if content_length > 131072:
+            return JSONResponse({"detail": "correction request exceeds 128 KiB"}, status_code=413)
     if token is not None and request.method != "OPTIONS" and request.url.path.startswith("/api/"):
         if request.headers.get(runtime.TOKEN_HEADER) != token:
             return JSONResponse({"detail": "missing or invalid launch token"}, status_code=401)
@@ -85,6 +107,7 @@ app.add_middleware(
 # under sys._MEIPASS. Kept as module globals because the API tests monkeypatch
 # them directly; the request handlers read the globals on each call.
 ARTIFACT_DIR = runtime.data_dir()
+CORRECTIONS_DIR = runtime.corrections_dir()
 SAMPLE_DIR = runtime.sample_artifacts_dir()
 EVAL_SUMMARY_PATHS = runtime.eval_summary_paths()
 
@@ -705,6 +728,460 @@ async def unfollow_match(follow_id: str) -> dict[str, Any]:
         raise _follow_error(exc) from exc
 
 
+def _correction_root() -> Path:
+    if CORRECTIONS_DIR is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "reason_code": "correction_store_unavailable",
+                "message": "correction proposals require a writable desktop data directory",
+            },
+        )
+    return Path(CORRECTIONS_DIR)
+
+
+def _correction_error(exc: Exception) -> HTTPException:
+    if isinstance(exc, correction_store.CorrectionStoreError):
+        return HTTPException(
+            status_code=exc.status_code,
+            detail={"reason_code": exc.reason_code, "message": exc.detail},
+        )
+    if isinstance(exc, correction_policy.CorrectionPolicyError):
+        return HTTPException(
+            status_code=422,
+            detail={"reason_code": exc.reason_code, "message": exc.detail},
+        )
+    if isinstance(exc, correction_sanitize.EvidenceError):
+        return HTTPException(
+            status_code=422,
+            detail={"reason_code": exc.reason_code, "message": exc.detail},
+        )
+    return HTTPException(status_code=500, detail="correction operation failed")
+
+
+async def _correction_body(request: Request) -> dict[str, Any]:
+    try:
+        raw = await request.body()
+        if len(raw) > 131072:
+            raise HTTPException(status_code=413, detail="correction request exceeds 128 KiB")
+        body = json.loads(raw)
+    except HTTPException:
+        raise
+    except (UnicodeDecodeError, ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail="request body must be valid JSON") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="request body must be an object")
+    return body
+
+
+def _match_for_correction(match_id: str | None) -> dict[str, Any] | None:
+    if not match_id:
+        return None
+    detail = matches.get_match(match_id, forecasts_dir=ARTIFACT_DIR)
+    return detail["match"] if detail is not None else None
+
+
+def _missing_fixture_match(proposal: dict[str, Any]) -> dict[str, Any] | None:
+    key = proposal["proposed"].get("upstream_record_key")
+    if not isinstance(key, str) or not key:
+        return None
+    frame = matches._load_index()
+    if "upstream_fixture_key" not in frame.columns:
+        return None
+    selected = frame.loc[frame["upstream_fixture_key"].astype("string") == key]
+    if selected.empty:
+        return None
+    detail = matches.get_match(str(selected.iloc[0]["match_id"]), forecasts_dir=ARTIFACT_DIR)
+    return detail["match"] if detail is not None else None
+
+
+@app.get("/api/v1/corrections/capabilities")
+def correction_capabilities() -> dict[str, Any]:
+    try:
+        fingerprint = matches.index_fingerprint()
+    except matches.MatchIndexUnavailable:
+        fingerprint = None
+    return {
+        **correction_policy.capabilities(write_enabled=CORRECTIONS_DIR is not None),
+        "current_index_fingerprint": fingerprint,
+    }
+
+
+@app.get("/api/v1/corrections")
+def list_corrections(state: str | None = None, limit: int = 100, offset: int = 0) -> dict[str, Any]:
+    try:
+        return correction_store.list_proposals(
+            _correction_root(), state=state, limit=limit, offset=offset
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.post("/api/v1/corrections")
+async def create_correction(request: Request) -> JSONResponse:
+    body = await _correction_body(request)
+    correction_type = body.get("correction_type")
+    source_id = body.get("source_id")
+    target_input = body.get("target")
+    proposed_input = body.get("proposed")
+    if correction_type not in correction_policy.CORRECTION_TYPES:
+        raise HTTPException(status_code=422, detail="unsupported correction_type")
+    if (
+        not isinstance(source_id, str)
+        or re.fullmatch(r"[a-z0-9][a-z0-9._-]{0,119}", source_id) is None
+    ):
+        raise HTTPException(status_code=422, detail="source_id is required")
+    if not isinstance(target_input, dict) or not isinstance(proposed_input, dict):
+        raise HTTPException(status_code=422, detail="target and proposed must be objects")
+    policy = correction_policy.policy_for(source_id)
+    if policy is not None:
+        try:
+            correction_policy.validate_type(source_id, str(correction_type))
+        except correction_policy.CorrectionPolicyError as exc:
+            raise _correction_error(exc) from exc
+    match_id = target_input.get("match_id")
+    if correction_type != "missing_fixture" and not isinstance(match_id, str):
+        raise HTTPException(status_code=422, detail="an exact match_id is required")
+    try:
+        match = _match_for_correction(match_id if isinstance(match_id, str) else None)
+        if correction_type != "missing_fixture" and match is None:
+            raise HTTPException(status_code=404, detail="match not found")
+        proposed = correction_validation.normalize_proposed(proposed_input)
+        assert isinstance(proposed, dict)
+        original = correction_validation.derive_original(str(correction_type), match)
+        status = refresh_jobs.status()
+        active = status.get("active_generation") or {}
+        kind = {
+            "missing_fixture": "fixture_candidate",
+            "team_alias": "team",
+            "venue": "venue",
+        }.get(str(correction_type), "match")
+        target = {
+            "kind": kind,
+            "match_id": match_id if isinstance(match_id, str) else None,
+            # Entity identities are never accepted from the client. Phase 6
+            # anchors aliases/venues to the exact indexed match; a later
+            # reviewed registry workflow may derive a stable entity id.
+            "entity_id": None,
+            "upstream_record_key": (
+                proposed.get("upstream_record_key")
+                if correction_type == "missing_fixture"
+                else match.get("upstream_fixture_key")
+                if match
+                else None
+            ),
+            "base_generation_id": active.get("generation_id"),
+            "index_fingerprint": matches.index_fingerprint(),
+        }
+        proposal, created = await run_in_threadpool(
+            correction_store.create_proposal,
+            _correction_root(),
+            correction_type=str(correction_type),
+            target=target,
+            original=original,
+            proposed=proposed,
+            source_id=source_id,
+        )
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    except (correction_store.CorrectionStoreError, correction_policy.CorrectionPolicyError) as exc:
+        raise _correction_error(exc) from exc
+    return JSONResponse(status_code=201 if created else 200, content=proposal)
+
+
+@app.get("/api/v1/corrections/missing-fixtures")
+def local_missing_fixtures() -> dict[str, Any]:
+    try:
+        result = correction_store.list_proposals(
+            _correction_root(), accepted_only=True, limit=100, offset=0
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+    result["items"] = [
+        item for item in result["items"] if item["correction_type"] == "missing_fixture"
+    ]
+    result["total"] = len(result["items"])
+    return result
+
+
+@app.get("/api/v1/corrections/{proposal_id}")
+def get_correction(proposal_id: str) -> dict[str, Any]:
+    try:
+        return correction_store.get_proposal(_correction_root(), proposal_id, include_events=True)
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.put("/api/v1/corrections/{proposal_id}/draft")
+async def revise_correction(proposal_id: str, request: Request) -> dict[str, Any]:
+    body = await _correction_body(request)
+    if not isinstance(body.get("proposed"), dict) or not isinstance(
+        body.get("expected_head_event_id"), str
+    ):
+        raise HTTPException(
+            status_code=422, detail="proposed and expected_head_event_id are required"
+        )
+    try:
+        proposed = correction_validation.normalize_proposed(body["proposed"])
+        assert isinstance(proposed, dict)
+        return await run_in_threadpool(
+            correction_store.revise_draft,
+            _correction_root(),
+            proposal_id,
+            proposed,
+            str(body["expected_head_event_id"]),
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.post("/api/v1/corrections/{proposal_id}/evidence")
+async def attach_correction_evidence(proposal_id: str, request: Request) -> JSONResponse:
+    body = await _correction_body(request)
+    source_url = body.get("source_url")
+    captured_text = body.get("captured_text")
+    revision = body.get("source_revision")
+    if not isinstance(source_url, str) or not isinstance(captured_text, str):
+        raise HTTPException(status_code=422, detail="source_url and captured_text are required")
+    if revision is not None and (not isinstance(revision, str) or len(revision) > 200):
+        raise HTTPException(status_code=422, detail="source_revision must be a short string")
+    try:
+        proposal = correction_store.get_proposal(_correction_root(), proposal_id)
+        canonical_url, hostname = correction_policy.canonical_evidence_url(
+            proposal.get("source_id"), source_url
+        )
+        raw, display = correction_sanitize.sanitize(captured_text)
+        result, created = await run_in_threadpool(
+            correction_store.attach_evidence,
+            _correction_root(),
+            proposal_id,
+            source_url=canonical_url,
+            hostname=hostname,
+            source_revision=(
+                correction_validation.normalize_proposed(revision)
+                if isinstance(revision, str)
+                else None
+            ),
+            raw=raw,
+            evidence_receipt=correction_sanitize.receipt(raw, display),
+        )
+    except (
+        correction_store.CorrectionStoreError,
+        correction_policy.CorrectionPolicyError,
+        correction_sanitize.EvidenceError,
+    ) as exc:
+        raise _correction_error(exc) from exc
+    return JSONResponse(status_code=201 if created else 200, content=result)
+
+
+@app.post("/api/v1/corrections/{proposal_id}/validate")
+async def validate_correction(proposal_id: str) -> dict[str, Any]:
+    try:
+        proposal = correction_store.get_proposal(_correction_root(), proposal_id)
+        current = (
+            _missing_fixture_match(proposal)
+            if proposal["correction_type"] == "missing_fixture"
+            else _match_for_correction(proposal["target"].get("match_id"))
+        )
+        return await run_in_threadpool(
+            correction_validation.validate,
+            _correction_root(),
+            proposal_id,
+            current_match=current,
+        )
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    except (correction_store.CorrectionStoreError, correction_policy.CorrectionPolicyError) as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.post("/api/v1/corrections/{proposal_id}/accept-local")
+async def accept_local_correction(proposal_id: str, request: Request) -> dict[str, Any]:
+    body = await _correction_body(request)
+    if body.get("confirm") != "local_annotation_only" or not isinstance(
+        body.get("expected_head_event_id"), str
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "confirm must equal local_annotation_only and expected_head_event_id is required"
+            ),
+        )
+    try:
+        proposal = correction_store.get_proposal(_correction_root(), proposal_id)
+        state = (
+            "accepted_local" if proposal["state"] == "validated_candidate" else proposal["state"]
+        )
+        return await run_in_threadpool(
+            correction_store.transition,
+            _correction_root(),
+            proposal_id,
+            allowed={"validated_candidate", "exported"},
+            state=state,
+            event_type="accepted_local",
+            payload={
+                "scope": "local_annotation_only",
+                "authoritative_override": False,
+                "verification_level": proposal["verification_level"],
+            },
+            local_visibility="local_annotation",
+            expected_head_event_id=body["expected_head_event_id"],
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.post("/api/v1/corrections/{proposal_id}/revoke-local")
+async def revoke_local_correction(proposal_id: str, request: Request) -> dict[str, Any]:
+    body = await _correction_body(request)
+    if not isinstance(body.get("expected_head_event_id"), str):
+        raise HTTPException(status_code=422, detail="proposal version is required")
+    try:
+        proposal = correction_store.get_proposal(_correction_root(), proposal_id)
+        state = (
+            "validated_candidate" if proposal["state"] == "accepted_local" else proposal["state"]
+        )
+        return await run_in_threadpool(
+            correction_store.transition,
+            _correction_root(),
+            proposal_id,
+            allowed={"accepted_local", "exported", "submitted"},
+            state=state,
+            event_type="acceptance_revoked",
+            payload={"local_annotation_removed": True},
+            local_visibility="queue_only",
+            expected_head_event_id=body.get("expected_head_event_id"),
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.post("/api/v1/corrections/{proposal_id}/withdraw")
+async def withdraw_correction(proposal_id: str, request: Request) -> dict[str, Any]:
+    body = await _correction_body(request)
+    if not isinstance(body.get("expected_head_event_id"), str):
+        raise HTTPException(status_code=422, detail="proposal version is required")
+    try:
+        return await run_in_threadpool(
+            correction_store.transition,
+            _correction_root(),
+            proposal_id,
+            allowed=correction_store.ACTIVE_STATES,
+            state="withdrawn",
+            event_type="withdrawn",
+            payload={"reason": body.get("reason") if isinstance(body.get("reason"), str) else None},
+            local_visibility="queue_only",
+            expected_head_event_id=body.get("expected_head_event_id"),
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.post("/api/v1/corrections/{proposal_id}/exports")
+async def export_correction(proposal_id: str, request: Request) -> dict[str, Any]:
+    body = await _correction_body(request)
+    if body.get("confirm") != "reviewed_for_public_export" or not isinstance(
+        body.get("expected_head_event_id"), str
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail="public export review confirmation and proposal version are required",
+        )
+    try:
+        return await run_in_threadpool(
+            correction_exports.export_proposal,
+            _correction_root(),
+            proposal_id,
+            expected_head_event_id=body["expected_head_event_id"],
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.post("/api/v1/corrections/{proposal_id}/mark-submitted")
+async def mark_correction_submitted(proposal_id: str, request: Request) -> dict[str, Any]:
+    body = await _correction_body(request)
+    if body.get("confirm") != "submitted_externally" or not isinstance(
+        body.get("expected_head_event_id"), str
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail="external submission confirmation and proposal version are required",
+        )
+    try:
+        current = correction_store.get_proposal(_correction_root(), proposal_id)
+        if current["head_event_id"] != body["expected_head_event_id"]:
+            raise correction_store.CorrectionStoreError(
+                "proposal_changed", "proposal changed in another view"
+            )
+        if current["state"] == "submitted":
+            return current
+        return await run_in_threadpool(
+            correction_store.transition,
+            _correction_root(),
+            proposal_id,
+            allowed={"exported"},
+            state="submitted",
+            event_type="marked_submitted",
+            payload={
+                "self_attested": True,
+                "external_reference": body.get("external_reference")
+                if isinstance(body.get("external_reference"), str)
+                else None,
+            },
+            expected_head_event_id=body.get("expected_head_event_id"),
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.post("/api/v1/corrections/{proposal_id}/evidence/{evidence_id}/redact")
+async def redact_correction_evidence(
+    proposal_id: str, evidence_id: str, request: Request
+) -> dict[str, Any]:
+    body = await _correction_body(request)
+    if body.get("confirm") != "redact_local_evidence" or not isinstance(
+        body.get("expected_head_event_id"), str
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail="evidence redaction confirmation and proposal version are required",
+        )
+    try:
+        return await run_in_threadpool(
+            correction_store.redact_evidence,
+            _correction_root(),
+            proposal_id,
+            evidence_id,
+            expected_head_event_id=body["expected_head_event_id"],
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.delete("/api/v1/corrections")
+async def purge_corrections(request: Request) -> dict[str, Any]:
+    body = await _correction_body(request)
+    if body.get("confirm") != "remove_all_local_corrections":
+        raise HTTPException(
+            status_code=422, detail="full correction removal confirmation is required"
+        )
+    try:
+        return await run_in_threadpool(correction_store.purge, _correction_root())
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
+@app.get("/api/v1/matches/{match_id}/corrections")
+def match_corrections(match_id: str) -> dict[str, Any]:
+    try:
+        return correction_store.list_proposals(
+            _correction_root(), match_id=match_id, accepted_only=True, limit=100, offset=0
+        )
+    except correction_store.CorrectionStoreError as exc:
+        raise _correction_error(exc) from exc
+
+
 @app.get("/api/v1/maps/world")
 def get_world_map() -> dict[str, Any]:
     """Committed Natural Earth 1:110m basemap; offline and public domain."""
@@ -772,9 +1249,7 @@ def get_match(match_id: str) -> dict[str, Any]:
 @app.put("/api/v1/matches/{match_id}/follow")
 async def follow_match(match_id: str) -> JSONResponse:
     try:
-        detail = await run_in_threadpool(
-            matches.get_match, match_id, forecasts_dir=ARTIFACT_DIR
-        )
+        detail = await run_in_threadpool(matches.get_match, match_id, forecasts_dir=ARTIFACT_DIR)
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
     if detail is None:
