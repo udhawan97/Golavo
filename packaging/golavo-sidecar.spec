@@ -174,6 +174,39 @@ a = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
+        # Golavo's optional AI path talks to a user-selected local provider over
+        # HTTP; it never embeds an ML inference runtime. Pandas/SciPy probe many
+        # installed optional ecosystems, and PyInstaller otherwise follows those
+        # guarded imports into hundreds of megabytes of unrelated libraries.
+        # Keep the frozen app limited to Golavo's declared runtime dependencies.
+        "torch",
+        "torchvision",
+        "torchaudio",
+        "torchgen",
+        "functorch",
+        "transformers",
+        "datasets",
+        "sklearn",
+        "cv2",
+        "onnxruntime",
+        "nltk",
+        "sympy",
+        "networkx",
+        "tokenizers",
+        "huggingface_hub",
+        "safetensors",
+        "sentencepiece",
+        "tiktoken",
+        "hf_xet",
+        # Optional dataframe/markup/image engines are not used by the API. The
+        # product reads Parquet through the declared pyarrow dependency only.
+        "openpyxl",
+        "lxml",
+        "sqlalchemy",
+        "PIL",
+        # Test-only dependency that can be discovered through optional imports.
+        "hypothesis",
+        "_pytest",
         "matplotlib",
         "tkinter",
         "PyQt5",

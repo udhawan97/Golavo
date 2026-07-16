@@ -44,6 +44,28 @@ def test_unsigned_macos_builds_apply_the_adhoc_bundle_signature_overlay() -> Non
     assert '"$APP_BUNDLE/Contents/MacOS/golavo-sidecar" --version' in build_text
 
 
+def test_frozen_sidecar_excludes_unused_optional_ml_and_dataframe_stacks() -> None:
+    spec = (SCRIPTS.parent / "packaging/golavo-sidecar.spec").read_text(encoding="utf-8")
+    for package in (
+        "torch",
+        "torchgen",
+        "functorch",
+        "transformers",
+        "datasets",
+        "sklearn",
+        "cv2",
+        "onnxruntime",
+        "nltk",
+        "openpyxl",
+        "lxml",
+        "sqlalchemy",
+        "PIL",
+        "hypothesis",
+        "_pytest",
+    ):
+        assert f'"{package}"' in spec
+
+
 # --- bump_version ------------------------------------------------------------
 
 
