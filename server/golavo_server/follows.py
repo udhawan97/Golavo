@@ -302,7 +302,14 @@ def _insert_event(
         after,
         conflict,
     )
-    notification = "pending" if event_type in NOTIFIABLE_EVENTS else "not_eligible"
+    opted = connection.execute(
+        "SELECT notifications_opt_in FROM follow_settings WHERE settings_id=1"
+    ).fetchone()
+    notification = (
+        "pending"
+        if event_type in NOTIFIABLE_EVENTS and opted is not None and bool(opted[0])
+        else "not_eligible"
+    )
     cursor = connection.execute(
         """
         INSERT OR IGNORE INTO follow_events(

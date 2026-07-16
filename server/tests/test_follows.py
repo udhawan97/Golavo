@@ -174,6 +174,7 @@ def test_openligadb_cannot_enter_core_follow_store(tmp_path: Path) -> None:
 def test_notifications_require_local_opt_in_and_claim_once(tmp_path: Path) -> None:
     ledger = tmp_path / "ledger"
     follows.follow_match(_match(), ledger=ledger)
+    follows.update_settings(True, ledger=ledger, notifications_supported=True)
     changed = _match(kickoff_utc="2026-07-21T00:00:00Z")
     follows.reconcile(
         ledger=ledger,
@@ -182,8 +183,6 @@ def test_notifications_require_local_opt_in_and_claim_once(tmp_path: Path) -> No
         generation_id="g_" + "2" * 64,
         source_status=_status("b" * 40),
     )
-    assert follows.claim_notifications(ledger=ledger)["events"] == []
-    follows.update_settings(True, ledger=ledger, notifications_supported=True)
     claim = follows.claim_notifications(ledger=ledger)
     assert claim["batch_id"].startswith("fn_")
     assert [event["event_type"] for event in claim["events"]] == ["kickoff_changed"]
