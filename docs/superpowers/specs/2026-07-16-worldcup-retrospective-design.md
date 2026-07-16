@@ -63,9 +63,13 @@ in-app approved-source refresh: their index moves, the artifact does not, and th
 would quietly describe a different dataset than the one they hold. That is the precise
 failure mode this app refuses.
 
-Computing from the active pack is consistent by construction. The cost (~2.7 min for 104
-matches × 5 families, measured) is paid once per pack, not once per open, because the
-result is cached against the index fingerprint.
+Computing from the active pack is consistent by construction. The cost is paid once per
+pack, not once per open, because the result is cached against the index fingerprint.
+
+**Measured cost, corrected.** The estimate in this spec's first draft (~2.7 min) was
+extrapolated from raw fit time and was wrong: the built module takes **327s** on the real
+index. The extrapolation missed that every match re-filters a ~49,500-row training frame
+in addition to its four fits. Do not re-derive this number from fit timings; measure it.
 
 **The same argument applies to the trust layer, and this is a correction to an earlier
 draft of this spec.** The committed `docs/handoff/eval_summary.json` is frozen against the
@@ -75,7 +79,13 @@ one page — two numbers disagreeing about the same tournament, which is the sta
 design exists to avoid. The trust layer therefore calls `evaluate(active_pack_dir)` and
 caches it on the same fingerprint. Measured at 30.5s, so on-demand is affordable.
 
-Total first-compute budget: ~2.7 min (story) + ~31s (trust) ≈ 3.2 min, once per pack.
+Total first-compute budget: **327s (story) + ~31s (trust) ≈ 6 min**, once per pack.
+
+Six minutes is long enough that the progress UI is load-bearing, not decoration: it must
+show real per-match counts from the start, and it must be cancellable. If that proves too
+long to live with, the lever is the per-match training-frame rebuild (the same ~49,500
+rows are re-filtered 102 times), not the fit itself — but measure before optimising, and
+never buy speed by widening a cutoff.
 
 Both layers must resolve the **same** pack — the story reads the index frame, the trust
 layer reads the pack directory. The server resolves the active pack via
