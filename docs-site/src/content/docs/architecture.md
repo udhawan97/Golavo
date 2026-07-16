@@ -251,7 +251,7 @@ response becomes `local_only`; the app continues with the unchanged forecast.
 
 Casual and Expert modes are two reads of the same artifact. Casual mode uses
 plain language; Expert mode exposes the seal, provenance, score matrix, and
-uncertainty. The Model Lab's Track record presents the real forward record. AI
+training-history support. The Model Lab's Track record presents the real forward record. AI
 Deep Read optionally adds cited narrative. None of these surfaces recomputes or
 overrides the seal.
 

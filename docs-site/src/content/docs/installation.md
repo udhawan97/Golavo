@@ -5,8 +5,9 @@ description: How to run Golavo — desktop installers with in-app updates, or so
 
 Choose the path that fits your machine on [Download & run](/Golavo/download/):
 
-The current stable release is **[v0.13.0](https://github.com/udhawan97/Golavo/releases/tag/v0.13.0)**.
-The website and the **latest release** link below always follow the newest stable build.
+The newest stable desktop build is always available from the
+[latest GitHub release](https://github.com/udhawan97/Golavo/releases/latest). The website
+buttons below follow that same published release.
 
 - **Browser UI** — source mode on macOS, Windows, or Linux.
 - **macOS app** — Apple Silicon DMG, with no Python or terminal required.
@@ -113,8 +114,8 @@ packaging/build.sh aarch64-apple-darwin      # or x86_64-pc-windows-msvc, etc.
 
 The bundle and a per-target `SHA256SUMS-<target>` land in `packaging/out/`:
 
-- **macOS** — a `.dmg` (and `.app`; plus the `.app.tar.gz` updater artifact
-  when the signing key is present).
+- **macOS** — a `.dmg`, plus the `.app.tar.gz` updater artifact when the
+  updater-signing key is present. The unpacked `.app` remains under Tauri's target bundle tree.
 - **Windows** — an `.msi` (WiX) and an `-setup.exe` (NSIS) installer.
 
 CI (`.github/workflows/release.yml`) builds these on native macOS and Windows

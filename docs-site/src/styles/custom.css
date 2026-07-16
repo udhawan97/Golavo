@@ -305,9 +305,15 @@ html:has(.gv-home-story) {
   align-items: center;
 }
 .gv-chapter--lifecycle,
-.gv-chapter--architecture {
+.gv-chapter--architecture,
+.gv-chapter--programme {
   grid-template-columns: 1fr;
   min-height: auto;
+}
+.gv-chapter--programme .gv-chapter-copy {
+  max-width: 56rem;
+  margin-inline: auto;
+  text-align: center;
 }
 .gv-chapter--intelligence {
   grid-template-columns: minmax(23rem, 0.86fr) minmax(0, 1.5fr);
@@ -386,7 +392,7 @@ html:has(.gv-home-story) {
 .gv-visual:hover::after { transform: translateX(120%); }
 .gv-visual img { height: auto; }
 .gv-visual--wide {
-  width: min(1080px, 100%);
+  width: min(1180px, 100%);
   margin: 1rem auto 0;
 }
 .gv-visual-label {
@@ -491,6 +497,15 @@ html:has(.gv-home-story) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
+}
+.gv-programme-media {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+}
+.gv-programme-media .gv-shot--product img {
+  width: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
 }
 .gv-shot--product img {
   aspect-ratio: 16 / 10;

@@ -21,13 +21,13 @@ The page reads top-to-bottom as: a calm **match header** (teams, competition, da
 | Score Outlook | headline score/goal tiles, key split bars, and one quick market takeaway | adds double chance, all goal thresholds, clean-sheet comparison, goal distribution, beyond-grid outcome split, and exact-score matrix |
 | Match evidence | guarded facts and visual summaries | adds source/sample/freshness proof where the payload provides it |
 | Verdict | verdict bar + plain-language headline | verdict bar + plain-language headline |
-| Reading | *In plain terms* — most-likely outcome/score with a natural-frequency gloss ("about 3 in 5"), expected goals, uncertainty | same |
+| Reading | *In plain terms* — most-likely outcome/score with a natural-frequency gloss ("about 3 in 5"), expected goals, and training-history support | same |
 | Three things to know | 3 fixed-rule picks from the notebook | same |
 | Score matrix | in a **collapsed** drawer | drawer **opened** — full exact-score **heatmap** with the `N+` tail bucket |
 | Goal/outcome summaries | collapsed drawer | opened drawer |
 | Model & versions | collapsed drawer | opened — model id, engine version, seed, params hash, code sha, training cutoff |
 | Provenance & inputs | collapsed drawer | opened — per-snapshot source, sha256, retrieved-at, plus the demoted match/artifact ids |
-| Calibration | collapsed drawer | opened — uncertainty flag + link to the prediction ledger |
+| Calibration | collapsed drawer | opened — history-support coverage (not confidence) + link to the prediction ledger |
 
 On sealed forecast pages, expert drawers remain native `<details>` accordions: **collapsed** in
 Casual and **opened** in Expert. In the Match Cockpit, the deepest model and market blocks are

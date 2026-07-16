@@ -17,7 +17,7 @@ The AI layer **explains and cites** the forecast. It **does not improve forecast
 |---|---|---|
 | **0 — Deterministic** | forecast + templated facts | nothing; always on, fully local |
 | **1 — Local AI** | narrative & scenario text | [Ollama](https://docs.ollama.com/api/openai-compatibility) or [llama.cpp `llama-server`](https://github.com/ggml-org/llama.cpp/tree/master/tools/server); no key |
-| **2 — Cloud AI (BYOK)** | narrative & research | your own OpenAI or Anthropic key |
+| **2 — Cloud AI (BYOK)** | guarded narrative | your own OpenAI or Anthropic key |
 
 Local endpoints are OpenAI-compatible: Ollama at `http://localhost:11434/v1`, llama-server at `http://127.0.0.1:8080/v1`. llama-server is preferred where hard schema-constrained JSON is needed (it supports GBNF grammars and `json_schema`/`response_format`).
 
@@ -62,9 +62,21 @@ the same status and controls. No download begins until you click. Ollama fetches
 layers from its registry and stores them locally; Golavo does not upload the evidence
 bundle or match data during installation.
 
-### Web research (opt-in)
+### Match research (separate opt-in)
 
-Off by default, and the **only** setting that lets Golavo reach the general web. With "Let the AI research on the web" enabled in Settings, a read fetches a few **Wikipedia** pages and a **web search** for the fixture and adds a clearly-separated **"Analyst research"** section. That lane is badged **not engine-verified**: each finding must quote its fetched page **verbatim** (checked after fetching), its `source_url` must be one of the URLs actually fetched, and any number in it is checked against that quote — never rescued by an engine number. A failed or paraphrased note is dropped; a bad research lane can never void the grounded read. Fetches are https-only against a fixed host allowlist (`en.wikipedia.org`, DuckDuckGo's keyless HTML endpoints) with a proper User-Agent; web search is best-effort and falls back to Wikipedia-only when it is unavailable. The `GOLAVO_NO_RESEARCH=1` kill switch disables all of it (set in CI).
+Research is not an authoritative AI feed. Wikimedia discovery may suggest candidate pages
+or entities. Golavo shows the source before fetching; capture begins only after you select
+it. Permission is declared per host/path/method/content type in the source
+registry. DuckDuckGo HTML scraping is disabled because it is too fragile and is not an
+acceptable ingestion dependency.
+
+Every extracted field must retain captured source text, URL, retrieval time and content
+hash. A source-specific deterministic parser runs before optional **local** AI fallback.
+AI cannot fill a missing value, and quote matching is exact. The result remains an untrusted
+candidate and can only move into the local correction queue for your review. It never edits
+the analysis, a source pack, a seal, training data, calibration, or settlement. HTTPS/DNS/IP,
+redirect, size, time and hostile-markup guards fail closed. `GOLAVO_NO_RESEARCH=1` disables
+the lane entirely.
 
 Assign which installed model runs each mode in **Settings → Local intelligence** (auto-set to your smallest for Fast and largest for Deep). An "advanced" control on the panel lets you run any specific installed model for a single read.
 
@@ -82,7 +94,7 @@ Under the hood, the Ollama path uses the native `/api/chat` structured-output en
 
 ## The evidence bundle is all AI ever sees
 
-AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed features, source records, data-quality flags, and an explicit `allowed_numbers` list. It has no write path to probabilities, and no access to the internet unless you turn on web research (above) — in which case fetched pages are fed to it strictly as fenced *untrusted data* that can never change a number. The bundle is built deterministically from a sealed artifact (`golavo_core.evidence`) — the same artifact in yields the same bundle, byte-for-byte. Facts derived from the goalscorer or shootout data now carry a per-file source id (`<pack>#goalscorers` / `#shootouts`) so the read's citations are attributed distinctly rather than all resolving to one "data pack".
+AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed features, source records, data-quality flags, and an explicit `allowed_numbers` list. It has no write path to probabilities. Selected research excerpts, when present, are fenced as untrusted source material and remain outside the engine evidence. The bundle is built deterministically from a sealed artifact (`golavo_core.evidence`) — the same artifact in yields the same bundle, byte-for-byte. Facts derived from goalscorer or shootout files carry per-file source ids (`<pack>#goalscorers` / `#shootouts`) rather than resolving to one generic pack.
 
 ## Hard rules
 
@@ -90,13 +102,15 @@ AI receives a **MatchEvidenceBundle**: the sealed forecast, cited facts, typed f
 2. **Numeric whitelist** — every numeric token must exactly match the trusted display of an `allowed_numbers` id referenced by that same claim. Units and references cannot be swapped; spelled, fractional, compound, and scientific notation fail closed. Any mismatch rejects the output (one retry, then Local-only fallback). Harmless extra keys a small model adds are pruned rather than failing the whole answer; the betting and credential scanners fold Unicode look-alikes and strip zero-width characters so obfuscated terms are still caught.
 3. Claims without `source_ids` are dropped; numbered claims must cite one of the number's own trusted sources.
 4. A betting-lexicon filter rejects "locks," "units," and odds formats.
-5. Chain-of-thought is never exposed. The progress animation shows factual pipeline stages only (assembling evidence → researching the web → the model writing → verifying every number), reported by the sidecar rather than guessed.
+5. Chain-of-thought is never exposed. Progress shows factual pipeline stages only (assembling evidence → model writing → verifying every number), reported by the sidecar rather than guessed.
 
-## Confirmed facts become typed features (planned)
+## Research candidates enter correction review
 
-The intended design: if AI research confirms a fact (allowlisted sources only, with quote-match verification and **your** confirmation), it becomes a typed feature, the statistical model **reruns**, and the UI shows the delta. Silent adjustment is structurally impossible — and even here, the AI never writes a number; it proposes a fact you must confirm.
-
-The default-off *guard* already exists: a model may emit `candidate_facts`, and any number they assert must be grounded verbatim in the cited quote or it is rejected. The full ingestion loop (confirm → typed feature → rerun → delta) is not yet built.
+Candidate facts are routed into the provenance-first correction queue with their source
+receipt and immutable history. Local acceptance is a display annotation only. It does not
+promote a value into a bundled source, verified match index, model feature, seal, calibration
+row or settlement result. Upstream export is a separate user-triggered action and preserves
+the source license namespace.
 
 ## Caching & privacy
 

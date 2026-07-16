@@ -1,27 +1,51 @@
 ---
 title: Privacy & security
-description: What Golavo does and does not do with your data, and how the local app is secured.
+description: What Golavo stores locally, which optional actions use the network, and how trust boundaries fail closed.
 ---
 
-Golavo runs from local files and has no accounts, telemetry, or ads. The one optional network path — the AI Deep Read layer — is **off by default**.
+Golavo runs from local files and has no accounts, telemetry, ads, crash reporter, or
+hosted forecasting backend. Core match exploration and deterministic analysis work offline.
 
 ## Privacy
 
-- **No account.** No sign-up, no cloud profile.
-- **No telemetry, no ads.** Nothing about your usage is collected or sold.
-- **No runtime network call unless you opt in.** Rebuilding the pinned sourcepack is an explicit network action. The AI layer is off by default; enabling it contacts either a local model (Ollama / llama.cpp) or a BYOK cloud provider you choose. **AI web research** is a further, separate opt-in: when on, a read fetches a few pages from a fixed allowlist (`en.wikipedia.org` and DuckDuckGo's keyless HTML search) over https with a proper User-Agent, and never posts your data anywhere; it is disabled entirely by `GOLAVO_NO_RESEARCH=1`. Update checks (desktop app) follow the same rule: off until you answer the one-time consent card, and even then only a once-a-day "is there a newer version?" request to GitHub — downloads start only when you click.
-- **BYOK keys stay yours.** A cloud provider key is read from your environment or the OS keychain, sent only in the request header, and never logged or written into an artifact. Golavo ships with the AI layer disabled.
-- **No crash reporting.** No crash reporter exists — nothing about your usage, forecasts, or keys is collected or sent anywhere.
+- **No account or telemetry.** No sign-up, cloud profile, analytics, advertising ID, or
+  usage upload exists.
+- **Network use is feature-specific and consent-gated.** Approved-source refresh,
+  OpenLigaDB, match research, cloud AI and update checks are separate choices. Enabling one
+  does not enable the others.
+- **Following stays local.** Follow state and event history live in Application Support.
+  Checks run on launch and periodically only while Golavo is open. No daemon, Login Item,
+  LaunchAgent, cloud push, or closed-app monitoring is installed.
+- **Research captures only selected sources.** Wikimedia discovery can suggest a page or
+  entity. A fetch starts only after explicit selection and retains source text, URL,
+  retrieval time and hash for local review. `GOLAVO_NO_RESEARCH=1` disables the lane.
+- **BYOK keys stay yours.** Cloud-provider keys are read from the OS keychain or an
+  environment variable, sent only in the selected provider request header, and excluded
+  from artifacts, logs, caches and exports. Local models stay on loopback.
+- **Update checks are separate.** Until you answer the one-time consent card, no update
+  check occurs. Enabled checks ask GitHub for release metadata at most once a day; an
+  installer downloads only after you click.
 
 ## Security model
 
 | Surface | Protection |
 |---|---|
-| Source API | Read-only routes; CORS allows only the local dev origins and the Tauri webview; source mode is unauthenticated, the desktop sidecar adds an `x-golavo-token` gate on `/api/*`. |
-| Source pack | Upstream commit pinned; every vendored byte is **SHA-256 checked** against its manifest, so today's check catches corruption. Minisign **signature** verification against a pinned public key (authenticity, plus an unsigned-pack override) is **planned (ADR-0001), not yet implemented**. |
-| Forecast artifacts | Canonical payload hash; scoring creates a new artifact rather than mutating a seal. |
-| Desktop sidecar | Binds a private `127.0.0.1` port with a per-launch token; the AI gateway strips chain-of-thought, rejects unsupported numbers, and never logs keys. |
-| Signed auto-update | **Active** (desktop, v0.2.1+): consent-first checks; every update is signature-verified against the public key compiled into the app before install, with a ledger backup + health-checked first boot (see [Updates & rollback](/Golavo/updates-rollback/)). The installers themselves are **not yet OS code-signed/notarized**. |
-| Update safety | On update the ledger is backed up and the new build is health-checked; a build that fails to launch is rolled back to the previous version. There is **no database or migration layer** today. |
+| Desktop API | Private `127.0.0.1` port, random per-launch token, narrow CORS policy, request-size limits, and token-gated mutation/research routes. Source/browser mode disables desktop-only writes. |
+| Core refresh | Fixed source and path allowlists, bounded downloads, immutable raw receipts and hashes, parser/schema checks, atomic activation, previous-generation rollback, and last-known-good operation on failure. |
+| OpenLigaDB | Separate Application Support root and SQLite schema, ODbL-only source IDs, no bundled response bytes, display-only read model, explicit attribution, and deletion independent of core data. |
+| Research fetch | HTTPS host/path/method allowlists, DNS/IP checks, pinned connection target, redirect validation, response/time limits, hostile-markup sanitization, prompt fencing, exact quote matching, cancellation and a global kill switch. |
+| Corrections | User input begins untrusted; source URL and captured evidence are required before validation. Text is sanitized, history is append-only, conflicts fail closed, and external export requires a separate explicit action. |
+| Source packs | Upstream revisions and every vendored byte are SHA-256 checked against manifests. Minisign authenticity verification remains planned under ADR-0001 and must not be implied today. |
+| Forecast artifacts | Canonical payload hash and source/build identity; scoring appends a successor rather than mutating a sealed forecast. Research, follows, overlays and corrections have no probability write path. |
+| Optional AI | Numeric whitelist, schema/citation/quote guards, betting-language filter, loopback-only local endpoints, fixed cloud providers, no chain-of-thought exposure, and deterministic-only fallback. |
+| Signed auto-update | Update payloads are verified against the public key embedded in the app before install. Installers themselves are not yet OS code-signed/notarized. |
 
-To report a vulnerability, see the repository's `SECURITY.md`. Please do not open a public issue for security problems.
+## Update and data recovery
+
+Before an in-app update, Golavo backs up the local ledger. The first launch of the new
+build health-checks the sidecar. If it is unhealthy, the ledger restore is staged and the
+app links to the previous release; reverting the **binary** is manual. Golavo keeps only
+the latest retired live-ledger generation so recovery does not grow without bound. See
+[Updates & rollback](/Golavo/updates-rollback/).
+
+To report a vulnerability, follow `SECURITY.md`; do not open a public issue.

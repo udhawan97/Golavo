@@ -58,7 +58,9 @@ The pre-update backup is **armed only between install and the first healthy
 launch** of the new version. A restore can never fire twice, and an unrelated
 sidecar hiccup months later can never overwrite newer ledger data with an old
 snapshot. Restores are staged (copy, move the live ledger aside, rename into
-place) — the previous live state is kept on disk, never deleted.
+place) — the immediately previous live state is retained as the current retired
+generation. Older retired generations are pruned so repeated updates do not grow
+Application Support without bound.
 
 Reverting the **binary** to a previous version remains a manual download from
 the releases page — the failure dialog links straight to it. The updater
@@ -88,7 +90,8 @@ make release-bump VERSION=0.2.0   # sync all version spots
 git commit -am "release: v0.2.0" && git tag v0.2.0 && git push --tags
 ```
 
-CI builds both platforms, assembles and validates `latest.json`
+CI first runs the full Python, determinism, provenance, license-isolation, UI and
+docs gates. Only then does it build both platforms, assemble and validate `latest.json`
 (`scripts/make_update_manifest.py`), publishes everything as a **draft**, and
 only then flips it live — the update endpoint never sees a half-uploaded
 release. Stable tags publish as real (non-pre-) releases; `workflow_dispatch`

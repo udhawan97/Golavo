@@ -16,7 +16,8 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
       Golavo opens on games, not an audit form. Pick a past or upcoming match to
       compare the ratings model with the goal model, read source-backed context,
       and see exactly where uncertainty remains. Make your own score call, race five
-      transparent model rivals, or seal an expert forecast for the audit record.
+      transparent model rivals, follow the fixture while Golavo is open, or seal an
+      expert forecast for the audit record.
     </div>
     <div class="gv-proof-rail" aria-label="Golavo principles">
       <span><b>01</b> 77,000+ matches</span>
@@ -38,7 +39,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
       <a class="gv-text-link" href="/Golavo/picks-and-points/">Learn picks and points <span aria-hidden="true">↗</span></a>
     </div>
     <figure class="gv-shot">
-      <img src="/Golavo/screenshots/my-season.png" alt="Golavo My Season standings and pick history against five model rivals" loading="lazy" decoding="async"/>
+      <img src="/Golavo/screenshots/my-season.jpg" alt="Golavo My Season standings and pick history against five model rivals" width="1280" height="720" loading="lazy" decoding="async"/>
       <figcaption><span>My Season</span> Only the matches you call; no money, odds, account, or upload.</figcaption>
     </figure>
   </section>
@@ -58,11 +59,11 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
     </div>
     <div class="gv-product-grid">
       <figure class="gv-shot gv-shot--product">
-        <img src="/Golavo/screenshots/games-home.png" alt="Golavo Games home with match search, league shortcuts and recent World Cup results" loading="eager" decoding="async"/>
+        <img src="/Golavo/screenshots/games-home.jpg" alt="Golavo Games home with match search, league shortcuts and recent World Cup results" width="1440" height="1000" loading="eager" decoding="async"/>
         <figcaption><span>Games</span> Search, browse, and open football immediately.</figcaption>
       </figure>
       <figure class="gv-shot gv-shot--product">
-        <img src="/Golavo/screenshots/match-cockpit.png" alt="Golavo Match Cockpit presented as a six-chapter matchday programme in Casual mode" loading="eager" decoding="async"/>
+        <img src="/Golavo/screenshots/match-cockpit.jpg" alt="Golavo Match Cockpit presented as a six-chapter matchday programme in Casual mode" width="1440" height="900" loading="eager" decoding="async"/>
         <figcaption><span>Match Cockpit</span> Six chapters, one source-backed read.</figcaption>
       </figure>
     </div>
@@ -82,7 +83,27 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
     </div>
   </section>
 
-  <section class="gv-chapter gv-chapter--match gv-snap" data-reveal aria-labelledby="gv-programme-title">
+  <section class="gv-chapter gv-chapter--architecture gv-snap" data-reveal aria-labelledby="gv-local-data-title">
+    <div class="gv-chapter-copy gv-chapter-copy--wide">
+      <p class="gv-kicker">Fresh when verified. Useful when offline.</p>
+      <h2 id="gv-local-data-title" class="gv-chapter-title">Local data that keeps<br/><em>its receipts and its boundaries.</em></h2>
+      <div class="gv-body">
+        Refresh approved CC0 sources manually or with launch/while-open consent. Followed
+        matches get targeted checks and deduplicated change history. OpenLigaDB stays an
+        optional, display-only ODbL overlay; corrections and researched facts begin as
+        untrusted local candidates. None of these paths can rewrite a sealed forecast.
+      </div>
+      <div class="gv-mini-steps" aria-label="Local data workflow summary">
+        <span><b>Refresh</b> raw hashes, schema gates, atomic last-known-good activation</span>
+        <span><b>Follow</b> kickoff, venue, score and settlement checks while the app is open</span>
+        <span><b>Review</b> evidence-backed candidates; conflicts stay closed</span>
+        <span><b>Isolate</b> OpenLigaDB ODbL bytes never join CC0 or model data</span>
+      </div>
+      <a class="gv-text-link" href="/Golavo/data/sources/">Inspect sources and licenses <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+
+  <section class="gv-chapter gv-chapter--programme gv-snap" data-reveal aria-labelledby="gv-programme-title">
     <div class="gv-chapter-copy">
       <p class="gv-kicker">The matchday programme</p>
       <h2 id="gv-programme-title" class="gv-chapter-title">The story first.<br/><em>The workings when you want them.</em></h2>
@@ -91,16 +112,22 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
         optional analyst column. Fixed-rule pull numbers lead each chapter without
         inventing a headline. Switch to Expert and the same page reveals fitted Elo
         and Dixon–Coles values, every market row, source proof, and the full score matrix.
+        A deterministic explainer names history support, the exact voice gap, capability
+        coverage, missing evidence, and hypothetical changes without calling any of them
+        confidence or altering the model.
       </div>
       <a class="gv-text-link" href="/Golavo/casual-vs-expert/">Compare Casual and Expert <span aria-hidden="true">↗</span></a>
     </div>
-    <div class="gv-product-grid">
+    <div class="gv-product-grid gv-programme-media">
       <figure class="gv-shot gv-shot--product">
-        <img src="/Golavo/screenshots/match-programme.gif" alt="Animated tour through the six Match Cockpit chapters" loading="lazy" decoding="async"/>
+        <picture>
+          <source media="(prefers-reduced-motion: reduce)" srcSet="/Golavo/screenshots/match-cockpit.jpg"/>
+          <img src="/Golavo/screenshots/match-programme.gif" alt="Animated tour through the six Match Cockpit chapters" width="1120" height="622" loading="lazy" decoding="async"/>
+        </picture>
         <figcaption><span>Casual read</span> A polished programme with the technical depth kept out of the way.</figcaption>
       </figure>
       <figure class="gv-shot gv-shot--product">
-        <img src="/Golavo/screenshots/match-cockpit-expert.png" alt="Expert mode showing fitted Elo and Dixon–Coles values under the hood" loading="lazy" decoding="async"/>
+        <img src="/Golavo/screenshots/match-cockpit-expert.png" alt="Expert mode showing fitted Elo and Dixon–Coles values under the hood" width="1440" height="800" loading="lazy" decoding="async"/>
         <figcaption><span>Expert read</span> Full model values, markets, sources, and audit context.</figcaption>
       </figure>
     </div>
@@ -159,7 +186,8 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
         Commentator’s Notebook turns fixed, source-backed facts into a glanceable
         briefing with detail behind disclosure. Optional local or BYOK AI receives
         a guarded read-only bundle and can disappear without changing the match
-        analysis by a single digit.
+        analysis by a single digit. Selected-source research captures exact text and hashes,
+        then routes untrusted candidates into local correction review.
       </div>
       <div class="gv-mini-steps" aria-label="AI read choices">
         <span><b>Fast</b> small local model, short grounded read</span>
@@ -169,7 +197,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
       <ul class="gv-check-list">
         <li>Every displayed number is engine-owned</li>
         <li>Model voices stay separate instead of being averaged</li>
-        <li>Web research is visible, optional, and separately badged</li>
+        <li>Research fetches only a source you selected and never makes it authoritative</li>
         <li>Unsupported AI output fails back to deterministic analysis only</li>
       </ul>
       <a class="gv-text-link" href="/Golavo/ai/providers/#set-up-ollama-inside-golavo">Set up local AI <span aria-hidden="true">↗</span></a>
@@ -194,11 +222,11 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
     </div>
     <div class="gv-bento">
       <figure class="gv-shot">
-        <img src="/Golavo/screenshots/model-lab.png" alt="Golavo Model Lab with Track record, Backtests, Methodologies and Sealed forecasts" loading="lazy" decoding="async"/>
+        <img src="/Golavo/screenshots/model-lab.jpg" alt="Golavo Model Lab with Track record, Backtests, Methodologies and Sealed forecasts" width="1440" height="1000" loading="lazy" decoding="async"/>
         <figcaption><span>Model Lab</span> The audit machinery, organized rather than hidden.</figcaption>
       </figure>
       <figure class="gv-shot">
-        <img src="/Golavo/screenshots/backtests.png" alt="Golavo chronological backtests comparing model log loss, Brier, ECE and RPS" loading="lazy" decoding="async"/>
+        <img src="/Golavo/screenshots/backtests.jpg" alt="Golavo chronological backtests comparing model log loss, Brier, ECE and RPS" width="1280" height="720" loading="lazy" decoding="async"/>
         <figcaption><span>Backtests</span> Held-out scores; leadership can flip by league and season.</figcaption>
       </figure>
     </div>
@@ -231,7 +259,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
   <section class="gv-closing gv-snap" data-reveal aria-labelledby="gv-closing-title">
     <p class="gv-kicker">No odds. No oracle. No moving the goalposts.</p>
     <h2 id="gv-closing-title" class="gv-display">Let the model speak once.<br/><em>Then keep the tape running.</em></h2>
-    <p>Golavo is free, open source, local-first, and currently an unsigned v0.13.0 pre-alpha.</p>
+    <p>Golavo is free, open source, local-first, and currently an unsigned v0.14.0 pre-alpha.</p>
     <div class="gv-closing-actions">
       <a class="gv-action gv-action--primary" href="#gv-install-title">Choose how to run Golavo <span aria-hidden="true">→</span></a>
       <a class="gv-action" href="/Golavo/methodology/prediction/">Read the methodology</a>
@@ -241,7 +269,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
 </div>
 
 :::caution[Unsigned pre-alpha]
-Golavo is at **v0.13.0**, an OS-unsigned pre-alpha release. macOS Gatekeeper and Windows
+Golavo is at **v0.14.0**, an OS-unsigned pre-alpha release. macOS Gatekeeper and Windows
 SmartScreen will warn on first launch. In-app update verification is shipped;
 OS signing and notarization remain gated on real credentials. See
 [Installation](/Golavo/installation/) and the [Roadmap](/Golavo/roadmap/).

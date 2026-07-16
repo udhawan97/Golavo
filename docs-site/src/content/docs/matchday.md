@@ -24,12 +24,13 @@ and a Settings gear.
 ## Match Cockpit
 
 Open **any** indexed match — past or upcoming, club or international — and Golavo computes a
-leak-safe multi-model read **on demand**, at the seal's own `kickoff − 1s` cutoff. Nothing is
-precomputed and nothing is stored: the cockpit is a live read, never a sealed artifact. It is
-presented as a six-chapter matchday programme: **form**, **fitted style**, **history**, **model
-deliberation**, **verdict and your pick**, then the optional **analyst's column**.
+leak-safe multi-model read **on demand**, at the seal's own `kickoff − 1s` cutoff. A validated,
+content-addressed local cache makes repeat exploration immediate; it is still a live read,
+never a sealed artifact. It is presented as a six-chapter matchday programme: **form**,
+**fitted style**, **history**, **model deliberation**, **verdict and your pick**, then the
+optional **analyst's column**.
 
-![Match Cockpit in Casual mode, opening with the form chapter](/Golavo/screenshots/match-cockpit.png)
+![Match Cockpit in Casual mode, opening with the form chapter](/Golavo/screenshots/match-cockpit.jpg)
 
 - **Replay** — a played match, reconstructed using only data available before kickoff. It is
   **not** a forecast that existed at the time and never enters the track record; it just shows
@@ -54,6 +55,10 @@ Either way you get:
   they **agree or disagree**. The Poisson variants are disclosed but never counted as extra
   opinions, and a **climatology baseline** is shown for reference. Nothing is averaged into a
   fake consensus — honest disagreement is the point.
+- an **Analysis explainer** that names history support, the exact percentage-point gap between
+  the two voices, known capability coverage, missing evidence, and hypothetical changes worth
+  exploring. History support is not confidence, capability coverage is not accuracy, and the
+  hypothetical list never changes a seal or quantifies missing lineups/injuries;
 - A glanceable **Score Outlook** with the balanced over/under line, clean-sheet edge,
   and goal peak. Expert adds double chance, every total-goal threshold, clean-sheet
   comparisons, the total-goal distribution, the coherent **exact-score grid**, and the exact
@@ -94,8 +99,33 @@ dead button. After full time, the seal is **scored** against the actual result a
 successor; the original seal's bytes never change. Golavo **never** shows a retro-forecast for a
 match that already kicked off — a forecast is only honest if it was sealed *before* kickoff.
 
-> The vendored packs are historical, so the upcoming rail and the seal window depend on the
-> snapshot's freshness. There is no user-facing data-refresh control yet.
+> Upcoming rails and seal windows depend on what approved sources genuinely publish. Settings
+> exposes each source's freshness and a manual refresh. With consent, Golavo can check on launch
+> and periodically while it is open. It does not monitor after the app closes, and current club
+> fixtures remain unavailable when OpenFootball has no complete current-season file.
+
+## Follow this match
+
+Use **Follow** on Games or Match Cockpit to keep a fixture in a local watchlist. Golavo targets
+approved-source checks at followed matches and records deduplicated kickoff, venue, score and
+settlement-availability changes without changing the match identity. Conflicting or unverified
+results cannot settle a forecast. Optional local notifications require explicit OS permission.
+
+The exact product promise is: **“Golavo checks followed matches on launch and periodically only
+while the app is open.”** Closing Golavo stops checks. No daemon, Login Item or LaunchAgent is
+silently installed. Offline mode keeps the watchlist and event history available and shows the
+last verified source freshness.
+
+## Corrections and selected-source research
+
+From a match, you can propose a fixture, kickoff, alias, venue or final-score correction. A source
+URL and captured evidence are required before validation. Proposals are append-only untrusted
+candidates; conflicts fail closed, and local acceptance is display context only. An explicit
+export action is required before anything leaves the Mac.
+
+Optional research can discover a Wikimedia page or entity for you to select. Exact source
+text, retrieval time and hash are retained, deterministic parsers run before optional local AI, and
+candidate facts route into the same correction queue. Search never makes a fact authoritative.
 
 ## Leagues
 

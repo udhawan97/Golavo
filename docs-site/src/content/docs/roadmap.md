@@ -8,18 +8,22 @@ top-5 league backtests, international forward loop, desktop distribution, signed
 updater, optional guarded AI, facts, exact scores, Match Cockpit, Model Lab, My Season,
 competition-local analytics, verified standings rules, the World Cup outlook, Conditions
 Snapshot, and historical team research are already implemented. They are documented as
-current product behavior instead of being carried forward as future roadmap items.
+current product behavior instead of being carried forward as future roadmap items. The same is
+true of approved-source refresh, the optional ODbL-isolated OpenLigaDB display overlay, local
+followed-match checks, provenance-first corrections, selected-source research, and deterministic
+history-support/model-gap/capability explanations.
 
 ## Remaining work
 
 | Workstream | What remains | Entry / kill criterion |
 |---|---|---|
-| **Live club forecasting** | User-initiated live fixture refresh and a club seal→score loop | Enter only after a lawful source proves its license, cadence, fixture identity, and cutoff semantics. Kill if those cannot be verified without redistributing restricted data. |
+| **Live club forecasting** | An authoritative, complete current fixture source and a club seal→score loop | Approved refresh plumbing already exists. Enter forecasting only after a source proves its license, coverage, cadence, fixture identity, and cutoff semantics. Kill if those cannot be verified. |
 | **Current league state** | Acquire and certify a complete live fixture/result feed so the shipped season engine can run | The engine and UI gate exist. No complete, gap-free schedule means no probabilities. |
 | **Observed match data** | Optional lineups, injuries, xG, scorers, corners, and cups as typed features | Every field needs a lawful licensed source, retrieval timestamp, provenance record, and evidence that it improves forward metrics. Otherwise defer it. |
 | **Ledger longevity** | Cross-artifact hash chaining, verification, and migration tooling | Must preserve and recover every existing local ledger before the format changes. |
 | **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | Requires real credentials plus a green install/update/rollback matrix on both platforms. |
-| **Product reach** | Team/player/manager dossiers, signed community packs, i18n, and opt-in license-isolated overlays | Each source and pack format needs its own license review, isolation boundary, and failure tests. |
+| **Product reach** | Team/player/manager dossiers, signed community packs, and i18n | Each source and pack format needs its own license review, isolation boundary, and failure tests. |
+| **Closed-app monitoring** | Optional, user-visible helper architecture, if users actually want it | Separate approval, explicit install/remove UX, power/network budgets, OS permission review, and no impact on the honest while-open v1. |
 
 Each remaining workstream needs explicit entry/exit criteria, tests, a defer list, and a
 kill switch before implementation. No fabricated capabilities ship: live club fixtures,
