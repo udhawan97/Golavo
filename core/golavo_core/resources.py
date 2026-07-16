@@ -55,6 +55,11 @@ def user_pick_schema_path() -> Path:
     return resource("docs", "contracts", "user_pick.schema.json")
 
 
+def followed_match_schema_path() -> Path:
+    """Absolute path to the local followed-match API contract."""
+    return resource("docs", "contracts", "followed_match.schema.json")
+
+
 def evidence_bundle_schema_path() -> Path:
     """Absolute path to the MatchEvidenceBundle JSON schema (Phase 5, additive)."""
     return resource("docs", "contracts", "evidence_bundle.schema.json")

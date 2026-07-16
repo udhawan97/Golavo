@@ -19,6 +19,7 @@ from golavo_server import (
     capabilities,
     conditions,
     context_registry,
+    follows,
     matches,
     openligadb_jobs,
     openligadb_overlay,
@@ -530,6 +531,180 @@ def matches_window(window: str, limit: int = 200) -> dict[str, Any]:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
 
 
+def _follow_error(exc: follows.FollowError) -> HTTPException:
+    return HTTPException(
+        status_code=exc.status_code,
+        detail={"reason_code": exc.reason_code, "message": exc.detail},
+    )
+
+
+def _notifications_supported() -> bool:
+    """The packaged desktop always supplies a launch token; source/browser mode does not."""
+    return runtime.launch_token() is not None
+
+
+def _follow_source_context(source_id: str) -> tuple[str | None, str | None, str | None]:
+    status = refresh_jobs.status()
+    source = next(
+        (item for item in status.get("sources", []) if item.get("source_id") == source_id),
+        {},
+    )
+    generation = status.get("active_generation") or {}
+    return (
+        source.get("active_ref"),
+        source.get("last_checked_at_utc"),
+        generation.get("generation_id"),
+    )
+
+
+@app.get("/api/v1/follows")
+def list_followed_matches(
+    state: str = "active", limit: int = 100, offset: int = 0, event_limit: int = 20
+) -> dict[str, Any]:
+    try:
+        return follows.list_follows(
+            ledger=ARTIFACT_DIR,
+            state=state,
+            limit=limit,
+            offset=offset,
+            event_limit=event_limit,
+        )
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
+@app.get("/api/v1/follows/settings")
+def get_follow_settings() -> dict[str, Any]:
+    try:
+        return follows.settings(
+            ledger=ARTIFACT_DIR, notifications_supported=_notifications_supported()
+        )
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
+@app.put("/api/v1/follows/settings")
+async def put_follow_settings(request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail="request body must be valid JSON") from exc
+    value = body.get("notifications_opt_in") if isinstance(body, dict) else None
+    if not isinstance(value, bool):
+        raise HTTPException(status_code=422, detail="notifications_opt_in must be boolean")
+    try:
+        return await run_in_threadpool(
+            follows.update_settings,
+            value,
+            ledger=ARTIFACT_DIR,
+            notifications_supported=_notifications_supported(),
+        )
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
+@app.post("/api/v1/follows/reconcile")
+async def reconcile_followed_matches() -> dict[str, Any]:
+    """Reconcile against already-active local bytes; this route never reaches the network."""
+    try:
+        frame = await run_in_threadpool(matches._load_index)
+        status = refresh_jobs.status()
+        active = status.get("active_generation") or {}
+        source_status = {item["source_id"]: item for item in status.get("sources", [])}
+        return await run_in_threadpool(
+            follows.reconcile,
+            ledger=ARTIFACT_DIR,
+            frame=frame,
+            index_fingerprint=matches.index_fingerprint(),
+            generation_id=active.get("generation_id"),
+            source_status=source_status,
+        )
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
+@app.post("/api/v1/follows/events/read")
+async def read_follow_events(request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail="request body must be valid JSON") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="request body must be an object")
+    event_ids = body.get("event_ids")
+    if event_ids is not None and not (
+        isinstance(event_ids, list) and all(isinstance(item, str) for item in event_ids)
+    ):
+        raise HTTPException(status_code=422, detail="event_ids must be an array of strings")
+    try:
+        return await run_in_threadpool(
+            follows.mark_read,
+            event_ids,
+            ledger=ARTIFACT_DIR,
+            all_events=body.get("all") is True,
+        )
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
+@app.post("/api/v1/follows/notification-claims")
+async def claim_follow_notifications() -> dict[str, Any]:
+    try:
+        return await run_in_threadpool(follows.claim_notifications, ledger=ARTIFACT_DIR)
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
+@app.post("/api/v1/follows/events/{event_id}/notification")
+async def update_follow_notification(event_id: str, request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail="request body must be valid JSON") from exc
+    if not isinstance(body, dict) or not isinstance(body.get("status"), str):
+        raise HTTPException(status_code=422, detail="status is required")
+    try:
+        return await run_in_threadpool(
+            follows.update_notification,
+            event_id,
+            str(body["status"]),
+            ledger=ARTIFACT_DIR,
+            error=str(body["error"]) if body.get("error") else None,
+        )
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
+@app.delete("/api/v1/follows/history")
+async def delete_follow_history(request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        body = {}
+    if not isinstance(body, dict) or body.get("confirm") != "remove_follow_history":
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "reason_code": "confirmation_required",
+                "message": "confirm must equal remove_follow_history",
+            },
+        )
+    try:
+        return await run_in_threadpool(follows.remove_history, ledger=ARTIFACT_DIR)
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
+@app.delete("/api/v1/follows/{follow_id}")
+async def unfollow_match(follow_id: str) -> dict[str, Any]:
+    try:
+        return await run_in_threadpool(follows.unfollow, follow_id, ledger=ARTIFACT_DIR)
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+
+
 @app.get("/api/v1/maps/world")
 def get_world_map() -> dict[str, Any]:
     """Committed Natural Earth 1:110m basemap; offline and public domain."""
@@ -586,7 +761,39 @@ def get_match(match_id: str) -> dict[str, Any]:
         if pick is not None
         else None
     )
+    try:
+        detail["follow"] = follows.get_follow_for_match(match_id, ledger=ARTIFACT_DIR)
+    except follows.FollowError:
+        # A damaged optional follow store must not hide an otherwise valid match.
+        detail["follow"] = None
     return detail
+
+
+@app.put("/api/v1/matches/{match_id}/follow")
+async def follow_match(match_id: str) -> JSONResponse:
+    try:
+        detail = await run_in_threadpool(
+            matches.get_match, match_id, forecasts_dir=ARTIFACT_DIR
+        )
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if detail is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    source_id = str(detail["match"].get("source_id") or "")
+    source_ref, checked_at, generation_id = _follow_source_context(source_id)
+    try:
+        followed, created = await run_in_threadpool(
+            follows.follow_match,
+            detail["match"],
+            ledger=ARTIFACT_DIR,
+            source_ref=source_ref,
+            source_checked_at_utc=checked_at,
+            generation_id=generation_id,
+            index_fingerprint=matches.index_fingerprint(),
+        )
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+    return JSONResponse(status_code=201 if created else 200, content=followed)
 
 
 def _pick_error(exc: pick_service.PickError) -> HTTPException:
@@ -826,14 +1033,20 @@ async def start_data_refresh(request: Request) -> JSONResponse:
         raise HTTPException(status_code=422, detail="request body must be an object")
     mode = body.get("mode", "check")
     trigger = body.get("trigger", "manual")
+    scope = body.get("scope", "all")
     source_ids = body.get("source_ids")
     if source_ids is not None and not (
         isinstance(source_ids, list) and all(isinstance(item, str) for item in source_ids)
     ):
         raise HTTPException(status_code=422, detail="source_ids must be an array of strings")
+    if scope == "followed" and source_ids is not None:
+        raise HTTPException(
+            status_code=422,
+            detail="scope followed derives source_ids from local follows",
+        )
     try:
         job, deduplicated = refresh_jobs.coordinator().start(
-            mode=str(mode), source_ids=source_ids, trigger=str(trigger)
+            mode=str(mode), source_ids=source_ids, trigger=str(trigger), scope=str(scope)
         )
     except (ValueError, RuntimeError) as exc:
         raise HTTPException(
@@ -1076,7 +1289,9 @@ async def settle_forecasts() -> dict[str, Any]:
     from golavo_server import settlement
 
     try:
-        return await run_in_threadpool(settlement.settle_pending_forecasts, ARTIFACT_DIR)
+        report = await run_in_threadpool(settlement.settle_pending_forecasts, ARTIFACT_DIR)
+        await run_in_threadpool(follows.record_settlement_report, report, ledger=ARTIFACT_DIR)
+        return report
     except (OSError, ValueError, ValidationError) as exc:
         raise HTTPException(
             status_code=409,

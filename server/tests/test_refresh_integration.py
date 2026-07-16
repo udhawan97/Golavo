@@ -170,6 +170,29 @@ def test_refresh_mode_rejects_partial_source_selection(tmp_path: Path, monkeypat
         raise AssertionError("partial refresh selection must fail before starting a job")
 
 
+def test_followed_refresh_derives_a_narrow_preflight_source_set(
+    tmp_path: Path, monkeypatch
+) -> None:
+    ledger = tmp_path / "ledger"
+    ledger.mkdir()
+    monkeypatch.setenv("GOLAVO_DATA_DIR", str(ledger))
+    monkeypatch.setattr(
+        refresh_jobs.follows,
+        "source_ids",
+        lambda **_kwargs: [refresh_sources.WORLDCUP],
+    )
+    coordinator = refresh_jobs.RefreshCoordinator()
+    monkeypatch.setattr(coordinator, "_run", lambda *_args: None)
+    job, deduplicated = coordinator.start(
+        mode="refresh", source_ids=None, trigger="periodic", scope="followed"
+    )
+    assert deduplicated is False
+    assert job["scope"] == "followed"
+    assert job["source_ids"] == [refresh_sources.WORLDCUP]
+    assert coordinator._thread is not None
+    coordinator._thread.join(timeout=2)
+
+
 def test_active_manifest_reconciles_interrupted_or_rolled_back_state() -> None:
     state = {
         "sources": {

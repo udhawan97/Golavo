@@ -80,6 +80,16 @@ def openligadb_dir() -> Path | None:
     return Path(override).expanduser().parent / "overlays" / "openligadb"
 
 
+def follows_dir() -> Path:
+    """Local followed-match state under the mutable forecast ledger.
+
+    The desktop updater already backs up the ledger recursively. Keeping this
+    CC0-only user state beneath it makes follow history survive app updates while
+    remaining physically separate from the sibling ODbL overlay.
+    """
+    return data_dir() / "follows"
+
+
 def refreshed_pack_dir() -> Path | None:
     """The active generation's pinned international pack, or a legacy fallback.
 

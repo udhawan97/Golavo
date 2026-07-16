@@ -38,6 +38,10 @@ class RefreshError(Exception):
 class RefreshConflict(RefreshError):
     """A valid candidate would rewrite or remove already-observed evidence."""
 
+    def __init__(self, message: str, *, details: list[dict[str, Any]] | None = None) -> None:
+        super().__init__(message)
+        self.details = details or []
+
 
 def merge_refreshed_index(
     fresh_intl_pack: Path, bundled_index_path: Path, target_dir: Path
@@ -518,7 +522,10 @@ def assert_safe_change(
             continue
         after = current.loc[match_id]
         if isinstance(after, pd.DataFrame):
-            raise RefreshConflict(f"candidate duplicates completed match {match_id}")
+            raise RefreshConflict(
+                f"candidate duplicates completed match {match_id}",
+                details=[{"kind": "duplicate_completed", "match_id": match_id}],
+            )
         if (int(row.home_score), int(row.away_score)) != (
             int(after["home_score"]),
             int(after["away_score"]),
@@ -527,7 +534,17 @@ def assert_safe_change(
     if removed_completed or changed_scores:
         raise RefreshConflict(
             "candidate rewrites completed evidence "
-            f"(removed={removed_completed[:5]}, scores={changed_scores[:5]})"
+            f"(removed={removed_completed[:5]}, scores={changed_scores[:5]})",
+            details=[
+                *(
+                    {"kind": "removed_completed", "match_id": match_id}
+                    for match_id in removed_completed
+                ),
+                *(
+                    {"kind": "changed_score", "match_id": match_id}
+                    for match_id in changed_scores
+                ),
+            ],
         )
     sealed_matches: dict[str, dict[str, Any]] = {}
     for artifact in sorted(Path(ledger_dir).glob("fa_*.json")):
@@ -541,7 +558,13 @@ def assert_safe_change(
             sealed_matches[str(match_id)] = sealed_match
     missing_sealed = sorted(set(sealed_matches) - set(candidate["match_id"].astype(str)))
     if missing_sealed:
-        raise RefreshConflict(f"candidate removes sealed fixtures: {missing_sealed[:5]}")
+        raise RefreshConflict(
+            f"candidate removes sealed fixtures: {missing_sealed[:5]}",
+            details=[
+                {"kind": "removed_sealed_fixture", "match_id": match_id}
+                for match_id in missing_sealed
+            ],
+        )
 
     sealed_field_map = {
         "home_team": "home_team",
@@ -552,13 +575,16 @@ def assert_safe_change(
         "country": "country",
         "neutral_venue": "neutral",
     }
-    changed_seals: list[str] = []
+    changed_seals: list[dict[str, Any]] = []
     for match_id, sealed_match in sealed_matches.items():
         if match_id not in current.index:
             continue
         row = current.loc[match_id]
         if isinstance(row, pd.DataFrame):
-            raise RefreshConflict(f"candidate duplicates sealed fixture {match_id}")
+            raise RefreshConflict(
+                f"candidate duplicates sealed fixture {match_id}",
+                details=[{"kind": "duplicate_sealed_fixture", "match_id": match_id}],
+            )
         for artifact_field, index_field in sealed_field_map.items():
             if artifact_field not in sealed_match:
                 continue
@@ -573,10 +599,21 @@ def assert_safe_change(
                 observed_value = None if pd.isna(observed) else str(observed)
                 same = expected_value == observed_value
             if not same:
-                changed_seals.append(f"{match_id}:{artifact_field}")
+                changed_seals.append(
+                    {
+                        "kind": "changed_sealed_fixture",
+                        "match_id": match_id,
+                        "field": artifact_field,
+                        "before": str(expected) if expected is not None else None,
+                        "candidate": str(observed) if not pd.isna(observed) else None,
+                    }
+                )
                 break
     if changed_seals:
-        raise RefreshConflict(f"candidate changes sealed fixture fields: {changed_seals[:5]}")
+        labels = [f"{item['match_id']}:{item['field']}" for item in changed_seals[:5]]
+        raise RefreshConflict(
+            f"candidate changes sealed fixture fields: {labels}", details=changed_seals
+        )
 
     base_ids = set(base["match_id"].astype(str))
     candidate_ids = set(candidate["match_id"].astype(str))
