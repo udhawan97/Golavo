@@ -1,6 +1,6 @@
 # ADR 0007: Local-first followed-match monitoring
 
-**Status:** Accepted  
+**Status:** Accepted
 **Date:** 2026-07-15
 
 ## Context
