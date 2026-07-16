@@ -137,3 +137,99 @@ def test_world_cup_outlook_is_deterministic_leak_safe_and_rule_stamped(
     for voice in first["voices"]:
         assert voice["totals"]["champion"] == pytest.approx(1.0, abs=1e-8)
         assert voice["totals"]["third"] == pytest.approx(1.0, abs=1e-8)
+
+
+def _played_bracket_frame(*, second_semifinal: tuple[int, int] | None = (1, 2)) -> pd.DataFrame:
+    """Enough history to fit, plus both semifinals carrying their real results.
+
+    ``second_semifinal=None`` leaves the later semifinal unscored, standing in for a
+    snapshot whose upstream has not published the result yet.
+    """
+    teams = ("France", "Spain", "England", "Argentina")
+    history = [
+        {
+            "match_id": f"m_hist_{index:03d}",
+            "date": pd.Timestamp("2025-01-01", tz="UTC") + pd.Timedelta(days=index),
+            "kickoff_utc": pd.Timestamp("2025-01-01", tz="UTC") + pd.Timedelta(days=index),
+            "home_team": teams[index % 4],
+            "away_team": teams[(index + 1) % 4],
+            "home_score": index % 3,
+            "away_score": (index + 1) % 2,
+            "is_complete": True,
+            "neutral": True,
+            "competition": "Friendly",
+            "source_id": "martj42-international-results",
+            "source_kind": "international",
+        }
+        for index in range(80)
+    ]
+    semifinals = [
+        {
+            "match_id": "m_semi_1",
+            "date": pd.Timestamp("2026-07-14", tz="UTC"),
+            "kickoff_utc": pd.Timestamp("2026-07-14T19:00:00Z"),
+            "home_team": "France",
+            "away_team": "Spain",
+            "home_score": 0,
+            "away_score": 2,
+            "is_complete": True,
+            "neutral": True,
+            "competition": "FIFA World Cup",
+            "source_id": "martj42-international-results",
+            "source_kind": "international",
+        },
+        {
+            "match_id": "m_semi_2",
+            "date": pd.Timestamp("2026-07-15", tz="UTC"),
+            "kickoff_utc": pd.Timestamp("2026-07-15T19:00:00Z"),
+            "home_team": "England",
+            "away_team": "Argentina",
+            "home_score": second_semifinal[0] if second_semifinal else None,
+            "away_score": second_semifinal[1] if second_semifinal else None,
+            "is_complete": second_semifinal is not None,
+            "neutral": True,
+            "competition": "FIFA World Cup",
+            "source_id": "martj42-international-results",
+            "source_kind": "international",
+        },
+    ]
+    return pd.DataFrame([*history, *semifinals])
+
+
+def test_semifinal_result_after_the_cutoff_never_pins_the_bracket() -> None:
+    """A semifinal that has not kicked off at ``as_of`` stays a probability.
+
+    Once the index carries real results, every past-cutoff query can see them.
+    Reading one back would report a future result as settled fact.
+    """
+    outlook = world_cup_2026_outlook(_played_bracket_frame(), as_of_utc="2026-07-15T08:00:00Z")
+    reported = {row["match_id"]: row["status"] for row in outlook["semifinals"]}
+    assert reported["m_semi_1"] == "complete"
+    assert reported["m_semi_2"] == "unresolved"
+
+    for voice in outlook["voices"]:
+        reach = {row["team"]: row["reach_final"] for row in voice["teams"]}
+        assert reach["Spain"] == 1.0
+        assert reach["France"] == 0.0
+        for team in ("England", "Argentina"):
+            assert 0.0 < reach[team] < 1.0, f"{voice['voice_id']} leaked the {team} semifinal"
+        assert voice["totals"]["champion"] == pytest.approx(1.0, abs=1e-8)
+
+
+def test_both_semifinals_played_before_the_cutoff_pin_the_finalists() -> None:
+    outlook = world_cup_2026_outlook(_played_bracket_frame(), as_of_utc="2026-07-16T00:00:00Z")
+    assert outlook["snapshot_status"] == "current_for_index"
+    assert [row["status"] for row in outlook["semifinals"]] == ["complete", "complete"]
+
+    for voice in outlook["voices"]:
+        reach = {row["team"]: row["reach_final"] for row in voice["teams"]}
+        assert reach == {"Spain": 1.0, "Argentina": 1.0, "France": 0.0, "England": 0.0}
+
+
+def test_passed_kickoff_without_a_result_reports_a_stale_snapshot() -> None:
+    """A kicked-off semifinal the snapshot cannot score is refresh-needed, not 50/50."""
+    frame = _played_bracket_frame(second_semifinal=None)
+    outlook = world_cup_2026_outlook(frame, as_of_utc="2026-07-16T00:00:00Z")
+    assert outlook["snapshot_status"] == "result_refresh_needed"
+    assert [row["status"] for row in outlook["semifinals"]] == ["complete", "unresolved"]
+    assert "not a live result" in outlook["snapshot_note"]

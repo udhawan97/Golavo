@@ -146,8 +146,18 @@ def enumerate_four_team_bracket(
     return rows
 
 
-def _fixed_semifinal_probability(row: Any) -> float | None:
-    if not bool(row.get("is_complete") or False):
+def _resolved_at(row: Any, as_of: pd.Timestamp) -> bool:
+    """Whether a semifinal is both played and knowable at ``as_of``.
+
+    The index carries results for matches later than a past cutoff, so completion
+    alone cannot pin a bracket: the kickoff must also have passed. Mirrors the
+    training-row guard, which already refuses post-cutoff semifinals.
+    """
+    return bool(row.get("is_complete") or False) and _utc(row["kickoff_utc"]) <= as_of
+
+
+def _fixed_semifinal_probability(row: Any, as_of: pd.Timestamp) -> float | None:
+    if not _resolved_at(row, as_of):
         return None
     home = row.get("home_score")
     away = row.get("away_score")
@@ -193,9 +203,10 @@ def _voice(
     training: pd.DataFrame,
     cutoff_utc: str,
     semifinal_rows: list[Any],
+    as_of: pd.Timestamp,
 ) -> dict[str, Any]:
     model = fit_model(family, training, cutoff_utc)
-    fixed = [_fixed_semifinal_probability(row) for row in semifinal_rows]
+    fixed = [_fixed_semifinal_probability(row, as_of) for row in semifinal_rows]
 
     def advance(home_team: str, away_team: str) -> float:
         for index, row in enumerate(semifinal_rows):
@@ -224,8 +235,8 @@ def _voice(
     }
 
 
-def _baseline(semifinal_rows: list[Any]) -> dict[str, Any]:
-    fixed = [_fixed_semifinal_probability(row) for row in semifinal_rows]
+def _baseline(semifinal_rows: list[Any], as_of: pd.Timestamp) -> dict[str, Any]:
+    fixed = [_fixed_semifinal_probability(row, as_of) for row in semifinal_rows]
 
     def advance(home_team: str, away_team: str) -> float:
         for index, row in enumerate(semifinal_rows):
@@ -283,15 +294,15 @@ def world_cup_2026_outlook(
 
     cutoff = _iso(as_of)
     voices = [
-        _voice("elo_ordlogit", "Ratings voice", training, cutoff, semifinal_rows),
-        _voice("dixon_coles", "Goal-model voice", training, cutoff, semifinal_rows),
-        _baseline(semifinal_rows),
+        _voice("elo_ordlogit", "Ratings voice", training, cutoff, semifinal_rows, as_of),
+        _voice("dixon_coles", "Goal-model voice", training, cutoff, semifinal_rows, as_of),
+        _baseline(semifinal_rows, as_of),
     ]
     semifinal_payload = []
     stale = False
     for row in semifinal_rows:
         kickoff = _utc(row["kickoff_utc"])
-        complete = bool(row["is_complete"])
+        complete = _resolved_at(row, as_of)
         stale = stale or (not complete and kickoff < as_of)
         semifinal_payload.append(
             {
