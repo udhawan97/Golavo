@@ -191,9 +191,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       padding: 0 0.5rem 0 0.7rem;
       border: 1px solid var(--sl-color-hairline-light);
       border-radius: 999px;
-      background: color-mix(in srgb, var(--sl-color-bg) 55%, transparent);
-      -webkit-backdrop-filter: blur(8px);
-      backdrop-filter: blur(8px);
+      background: var(--gv-paper-2);
       color: var(--sl-color-gray-2);
       cursor: pointer;
       transition:
@@ -205,11 +203,11 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
     }
     .gv-search__toggle:hover {
       color: var(--sl-color-white);
-      border-color: color-mix(in srgb, var(--golavo-gold) 55%, var(--sl-color-hairline-light));
+      border-color: color-mix(in srgb, var(--gv-engine) 55%, var(--sl-color-hairline-light));
       transform: translateY(-1px);
     }
     .gv-search__toggle:focus-visible {
-      outline: 2px solid var(--golavo-gold);
+      outline: 2px solid var(--gv-engine);
       outline-offset: 2px;
     }
     .gv-search__glyph {
@@ -255,9 +253,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       padding: 0 0.35rem 0 0.85rem;
       border: 1px solid transparent;
       border-radius: 999px;
-      background: color-mix(in srgb, var(--sl-color-bg) 94%, var(--sl-color-gray-6));
-      -webkit-backdrop-filter: blur(14px) saturate(1.3);
-      backdrop-filter: blur(14px) saturate(1.3);
+      background: var(--gv-paper-2);
       box-shadow: 0 12px 34px -18px rgba(0, 0, 0, 0.7);
       opacity: 0;
       visibility: hidden;
@@ -274,7 +270,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
-      border-color: color-mix(in srgb, var(--golavo-gold) 42%, var(--sl-color-hairline-light));
+      border-color: color-mix(in srgb, var(--gv-engine) 42%, var(--sl-color-hairline-light));
       transition:
         width 0.5s var(--gv-ease, cubic-bezier(0.16, 0.7, 0.3, 1)),
         opacity 0.28s ease,
@@ -283,10 +279,10 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
         visibility 0s;
     }
     .gv-search.is-open .gv-search__field:focus-within {
-      border-color: var(--golavo-gold);
+      border-color: var(--gv-engine);
       box-shadow:
         0 12px 34px -18px rgba(0, 0, 0, 0.7),
-        0 0 0 3px color-mix(in srgb, var(--golavo-gold) 22%, transparent);
+        0 0 0 3px color-mix(in srgb, var(--gv-engine) 22%, transparent);
     }
     /* Fade the toggle out as the pill takes over its spot. */
     .gv-search.is-open .gv-search__toggle {
@@ -422,7 +418,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
     }
     .gv-search .pagefind-ui__result:hover,
     .gv-search .pagefind-ui__result:focus-within {
-      background: color-mix(in srgb, var(--golavo-gold) 11%, transparent) !important;
+      background: color-mix(in srgb, var(--gv-engine) 11%, transparent) !important;
     }
     .gv-search .pagefind-ui__result-inner {
       gap: 0.15rem !important;
@@ -450,7 +446,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       font-size: 0.82rem;
     }
     .gv-search .pagefind-ui__result mark {
-      color: var(--golavo-gold);
+      color: var(--gv-engine);
       background: transparent;
       font-weight: 700;
     }
