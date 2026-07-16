@@ -8,7 +8,7 @@
   "properties": {
     "schema_version": {"const": "0.1.0"},
     "proposal_id": {"type": "string", "pattern": "^cp_[0-9a-f]{32}$"},
-    "license_namespace": {"enum": ["core-cc0", "enrichment-cc0", "enrichment-public-domain", "enrichment-cc-by-4.0", "overlay-odbl-1.0", "quarantine-unknown"]},
+    "license_namespace": {"enum": ["core-cc0", "enrichment-cc0", "enrichment-public-domain", "enrichment-cc-by-4.0", "research-cc-by-sa-4.0", "overlay-odbl-1.0", "quarantine-unknown"]},
     "correction_type": {"enum": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"]},
     "state": {"enum": ["draft", "evidence_attached", "validated_candidate", "conflict", "accepted_local", "exported", "submitted", "withdrawn", "superseded"]},
     "verification_level": {"enum": ["none", "structural_only", "snapshot_verified"]},

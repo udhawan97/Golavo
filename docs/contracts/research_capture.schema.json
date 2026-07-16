@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/research_capture.schema.json",
+  "title": "Immutable research capture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "capture_id", "run_id", "source_id", "license_namespace", "license", "license_url", "attribution", "modifications", "canonical_url", "retrieved_at_utc", "content_type", "http_status", "raw_sha256", "raw_bytes", "canonical_text_sha256", "canonical_text", "parser_id", "parser_version", "untrusted"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "capture_id": {"type": "string", "pattern": "^rc_[0-9a-f]{64}$"},
+    "run_id": {"type": "string", "pattern": "^rr_[0-9a-f]{32}$"},
+    "source_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,119}$"},
+    "license_namespace": {"enum": ["core-cc0", "enrichment-cc0", "enrichment-public-domain", "enrichment-cc-by-4.0", "research-cc-by-sa-4.0"]},
+    "license": {"type": "string", "minLength": 1},
+    "license_url": {"type": "string", "format": "uri"},
+    "attribution": {"type": "string", "minLength": 1},
+    "modifications": {"const": "normalized plaintext excerpt"},
+    "canonical_url": {"type": "string", "format": "uri"},
+    "retrieved_at_utc": {"type": "string", "format": "date-time"},
+    "revision_id": {"type": ["string", "null"], "maxLength": 200},
+    "etag": {"type": ["string", "null"], "maxLength": 500},
+    "last_modified": {"type": ["string", "null"], "maxLength": 200},
+    "content_type": {"enum": ["application/json", "text/plain", "text/html", "text/csv"]},
+    "http_status": {"const": 200},
+    "raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "raw_bytes": {"type": "integer", "minimum": 1, "maximum": 2097152},
+    "canonical_text_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "canonical_text": {"type": "string", "minLength": 1, "maxLength": 12000},
+    "parser_id": {"type": "string", "minLength": 1},
+    "parser_version": {"type": "string", "minLength": 1},
+    "untrusted": {"const": true}
+  }
+}

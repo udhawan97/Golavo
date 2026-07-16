@@ -66,14 +66,16 @@ def validate_registry() -> dict[str, dict[str, Any]]:
                 ("enrichment", "CC0-1.0"): "enrichment-cc0",
                 ("enrichment", "PUBLIC-DOMAIN"): "enrichment-public-domain",
                 ("enrichment", "CC-BY-4.0"): "enrichment-cc-by-4.0",
+                ("by-sa-pack", "CC-BY-SA-4.0"): "research-cc-by-sa-4.0",
                 ("odbl-pack", "ODbL-1.0"): "overlay-odbl-1.0",
             }.get((entry["classification"], entry["license"]))
             if correction["license_namespace"] != expected_namespace:
                 raise ValueError(f"{sid}: correction namespace disagrees with source class/license")
-            if expected_namespace == "overlay-odbl-1.0" and correction["redistributable_export"]:
-                raise ValueError(f"{sid}: ODbL corrections cannot be redistributable exports")
+            isolated_local = {"overlay-odbl-1.0", "research-cc-by-sa-4.0"}
+            if expected_namespace in isolated_local and correction["redistributable_export"]:
+                raise ValueError(f"{sid}: isolated corrections cannot be redistributable exports")
             if (
-                expected_namespace != "overlay-odbl-1.0"
+                expected_namespace not in isolated_local
                 and not correction["redistributable_export"]
             ):
                 raise ValueError(f"{sid}: free/open correction policy unexpectedly blocks export")

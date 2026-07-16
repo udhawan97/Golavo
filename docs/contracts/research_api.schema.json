@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/research_api.schema.json",
+  "title": "Match research capability envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "supported", "write_enabled", "enabled", "foreground_only", "automatic_fetch", "built_in_general_search", "cloud_ai_extraction", "authoritative_output", "max_pages_per_run", "max_raw_bytes_per_page", "searxng_supported", "current_index_fingerprint", "sources"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "supported": {"const": true},
+    "write_enabled": {"type": "boolean"},
+    "enabled": {"type": "boolean"},
+    "foreground_only": {"const": true},
+    "automatic_fetch": {"const": false},
+    "built_in_general_search": {"const": false},
+    "cloud_ai_extraction": {"const": false},
+    "authoritative_output": {"const": false},
+    "max_pages_per_run": {"const": 4},
+    "max_raw_bytes_per_page": {"const": 524288},
+    "searxng_supported": {"const": false},
+    "current_index_fingerprint": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "sources": {"type": "array", "items": {"type": "object"}}
+  }
+}

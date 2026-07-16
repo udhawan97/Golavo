@@ -15,6 +15,7 @@ KNOWN_NAMESPACES = (
     "enrichment-cc0",
     "enrichment-public-domain",
     "enrichment-cc-by-4.0",
+    "research-cc-by-sa-4.0",
     "overlay-odbl-1.0",
     "quarantine-unknown",
 )
@@ -161,6 +162,7 @@ def capabilities(*, write_enabled: bool) -> dict[str, Any]:
         "accounts": False,
         "telemetry": False,
         "network_evidence_fetch": False,
+        "research_capture_import": True,
         "automatic_submission": False,
         "authoritative_override": False,
         "max_evidence_bytes": 65536,

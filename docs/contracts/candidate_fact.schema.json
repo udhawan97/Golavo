@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/candidate_fact.schema.json",
+  "title": "Evidence-bound candidate fact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "candidate_id", "run_id", "authority", "state", "correction_type", "target", "proposed", "source", "evidence", "extractor", "validation", "effects", "queued_proposal_id", "created_at_utc"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "candidate_id": {"type": "string", "pattern": "^cf_[0-9a-f]{64}$"},
+    "run_id": {"type": "string", "pattern": "^rr_[0-9a-f]{32}$"},
+    "authority": {"const": "untrusted_candidate"},
+    "state": {"enum": ["review_required", "queued_as_draft", "rejected", "conflict", "stale"]},
+    "correction_type": {"enum": ["team_alias", "venue"]},
+    "target": {
+      "type": "object", "additionalProperties": false,
+      "required": ["match_id", "entity_id", "upstream_record_key", "index_fingerprint"],
+      "properties": {
+        "match_id": {"type": "string", "minLength": 1},
+        "entity_id": {"type": ["string", "null"]},
+        "upstream_record_key": {"type": ["string", "null"]},
+        "index_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "proposed": {"type": "object", "minProperties": 1},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_id", "canonical_url", "retrieved_at_utc", "revision_id", "license", "license_url", "attribution", "modifications", "license_namespace"],
+      "properties": {
+        "source_id": {"type": "string"},
+        "canonical_url": {"type": "string", "format": "uri"},
+        "retrieved_at_utc": {"type": "string", "format": "date-time"},
+        "revision_id": {"type": ["string", "null"]},
+        "license": {"type": "string"},
+        "license_url": {"type": "string", "format": "uri"},
+        "attribution": {"type": "string", "minLength": 1},
+        "modifications": {"const": "normalized plaintext excerpt"},
+        "license_namespace": {"type": "string"}
+      }
+    },
+    "evidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["capture_id", "raw_sha256", "canonical_text_sha256", "exact_quote", "quote_start", "quote_end", "parser_locator"],
+      "properties": {
+        "capture_id": {"type": "string", "pattern": "^rc_[0-9a-f]{64}$"},
+        "raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "canonical_text_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "exact_quote": {"type": "string", "minLength": 1, "maxLength": 4000},
+        "quote_start": {"type": "integer", "minimum": 0},
+        "quote_end": {"type": "integer", "minimum": 1},
+        "parser_locator": {"type": ["string", "null"], "maxLength": 500}
+      }
+    },
+    "extractor": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "id", "version", "model", "prompt_version", "output_sha256"],
+      "properties": {
+        "kind": {"enum": ["deterministic", "local_ai"]},
+        "id": {"type": "string"},
+        "version": {"type": "string"},
+        "model": {"type": ["string", "null"]},
+        "prompt_version": {"type": ["string", "null"]},
+        "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "validation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["quote_match", "value_match", "identity_match", "policy_match", "conflict_state", "reason_codes"],
+      "properties": {
+        "quote_match": {"type": "boolean"},
+        "value_match": {"type": "boolean"},
+        "identity_match": {"type": "boolean"},
+        "policy_match": {"type": "boolean"},
+        "conflict_state": {"enum": ["none", "conflict", "unknown"]},
+        "reason_codes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "effects": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authoritative_override", "forecast_input", "model_input", "settlement_input", "calibration_input"],
+      "properties": {
+        "authoritative_override": {"const": false},
+        "forecast_input": {"const": false},
+        "model_input": {"const": false},
+        "settlement_input": {"const": false},
+        "calibration_input": {"const": false}
+      }
+    },
+    "queued_proposal_id": {"type": ["string", "null"], "pattern": "^cp_[0-9a-f]{32}$"},
+    "created_at_utc": {"type": "string", "format": "date-time"}
+  }
+}

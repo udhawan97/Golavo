@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.dev/schemas/research_run.schema.json",
+  "title": "Consent-gated match research run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "match_id", "index_fingerprint", "state", "selected_urls", "allow_local_ai", "counts", "reason_codes", "created_at_utc", "updated_at_utc"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "run_id": {"type": "string", "pattern": "^rr_[0-9a-f]{32}$"},
+    "match_id": {"type": "string", "minLength": 1},
+    "index_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state": {"enum": ["planned", "fetching", "captured", "extracting", "candidates_ready", "partial", "cancelled", "offline", "failed"]},
+    "selected_urls": {"type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true, "items": {"type": "string", "format": "uri"}},
+    "allow_local_ai": {"type": "boolean"},
+    "counts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["selected", "captured", "candidates", "failed"],
+      "properties": {
+        "selected": {"type": "integer", "minimum": 1, "maximum": 4},
+        "captured": {"type": "integer", "minimum": 0, "maximum": 4},
+        "candidates": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0, "maximum": 4}
+      }
+    },
+    "reason_codes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "updated_at_utc": {"type": "string", "format": "date-time"}
+  }
+}

@@ -543,6 +543,7 @@ def attach_evidence(
     source_revision: str | None,
     raw: bytes,
     evidence_receipt: dict[str, Any],
+    research_origin: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool]:
     namespace, connection, row = _locate(root, proposal_id)
     try:
@@ -603,17 +604,22 @@ def attach_evidence(
                    WHERE proposal_id=?""",
                 (canonical({"reason_codes": [], "conflicts": []}), proposal_id),
             )
+            event_payload = {
+                "evidence_id": evidence_id,
+                "source_url": source_url,
+                "raw_sha256": digest,
+                "raw_bytes": evidence_receipt["raw_bytes"],
+                "untrusted": True,
+            }
+            if research_origin is not None:
+                event_payload["research_origin"] = research_origin
             _append_event(
                 connection,
                 proposal_id,
-                "evidence_attached",
-                {
-                    "evidence_id": evidence_id,
-                    "source_url": source_url,
-                    "raw_sha256": digest,
-                    "raw_bytes": evidence_receipt["raw_bytes"],
-                    "untrusted": True,
-                },
+                "evidence_imported_from_research"
+                if research_origin is not None
+                else "evidence_attached",
+                event_payload,
                 recorded_at=recorded_at,
             )
         fresh = connection.execute(
@@ -662,10 +668,7 @@ def apply_validation(
 ) -> dict[str, Any]:
     _namespace, connection, row = _locate(root, proposal_id)
     try:
-        if (
-            expected_head_event_id is not None
-            and row["head_event_id"] != expected_head_event_id
-        ):
+        if expected_head_event_id is not None and row["head_event_id"] != expected_head_event_id:
             raise CorrectionStoreError("proposal_changed", "proposal changed in another view")
         if row["state"] in {"withdrawn", "superseded", "submitted"}:
             raise CorrectionStoreError(
@@ -842,7 +845,16 @@ def latest_export(root: Path, proposal_id: str) -> dict[str, Any] | None:
             "SELECT * FROM exports WHERE proposal_id=? ORDER BY created_at_utc DESC LIMIT 1",
             (proposal_id,),
         ).fetchone()
-        return dict(record) if record else None
+        if record is None:
+            return None
+        return {
+            "export_id": record["export_id"],
+            "proposal_id": record["proposal_id"],
+            "proposal_head_event_id": record["proposal_head_event_id"],
+            "relative_path": record["relative_path"],
+            "sha256": record["sha256"],
+            "bytes": record["bytes"],
+        }
     finally:
         connection.close()
 
@@ -856,10 +868,7 @@ def redact_evidence(
 ) -> dict[str, Any]:
     namespace, connection, row = _locate(root, proposal_id)
     try:
-        if (
-            expected_head_event_id is not None
-            and row["head_event_id"] != expected_head_event_id
-        ):
+        if expected_head_event_id is not None and row["head_event_id"] != expected_head_event_id:
             raise CorrectionStoreError("proposal_changed", "proposal changed in another view")
         evidence = connection.execute(
             "SELECT * FROM evidence WHERE proposal_id=? AND evidence_id=?",

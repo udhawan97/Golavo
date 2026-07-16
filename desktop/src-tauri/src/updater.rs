@@ -163,6 +163,15 @@ pub fn corrections_dir<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String
         .join("corrections"))
 }
 
+/// Foreground match-research history is user-reviewed state, not bundled data.
+pub fn research_dir<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
+    Ok(app
+        .path()
+        .app_local_data_dir()
+        .map_err(|e| e.to_string())?
+        .join("research"))
+}
+
 fn backup_root<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
     Ok(app
         .path()
@@ -258,6 +267,11 @@ fn backup_user_state_inner<R: Runtime>(app: &AppHandle<R>, backup: &Path) -> Res
     if corrections.exists() {
         copy_dir(&corrections, &backup.join("corrections")).map_err(|e| e.to_string())?;
     }
+    let research = research_dir(app)?;
+    if research.exists() {
+        copy_dir(&research, &backup.join("research")).map_err(|e| e.to_string())?;
+        let _ = std::fs::remove_dir_all(backup.join("research").join("tmp"));
+    }
     Ok(())
 }
 
@@ -295,7 +309,12 @@ pub fn restore_backup<R: Runtime>(app: &AppHandle<R>) -> Result<bool, String> {
         &corrections_dir(app)?,
         "corrections",
     )?;
-    Ok(ledger || corrections)
+    let research = restore_component(
+        &backup.join("research"),
+        &research_dir(app)?,
+        "research",
+    )?;
+    Ok(ledger || corrections || research)
 }
 
 /// Remove every `<name>.pre-restore-*` under `parent`. Called right before a
@@ -403,6 +422,9 @@ pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) {
     }
     if let Ok(corrections) = corrections_dir(app) {
         recover_component(app, corrections, "corrections");
+    }
+    if let Ok(research) = research_dir(app) {
+        recover_component(app, research, "research");
     }
 }
 

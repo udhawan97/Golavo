@@ -4,7 +4,7 @@
   "title": "Correction API capability envelope",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "supported", "write_enabled", "central_service", "accounts", "telemetry", "network_evidence_fetch", "automatic_submission", "authoritative_override", "max_evidence_bytes", "max_evidence_items", "namespaces", "sources", "current_index_fingerprint"],
+  "required": ["schema_version", "supported", "write_enabled", "central_service", "accounts", "telemetry", "network_evidence_fetch", "research_capture_import", "automatic_submission", "authoritative_override", "max_evidence_bytes", "max_evidence_items", "namespaces", "sources", "current_index_fingerprint"],
   "properties": {
     "schema_version": {"const": "0.1.0"},
     "supported": {"type": "boolean"},
@@ -13,6 +13,7 @@
     "accounts": {"const": false},
     "telemetry": {"const": false},
     "network_evidence_fetch": {"const": false},
+    "research_capture_import": {"const": true},
     "automatic_submission": {"const": false},
     "authoritative_override": {"const": false},
     "max_evidence_bytes": {"const": 65536},

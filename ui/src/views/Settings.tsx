@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { SCHEMA_VERSION } from "../lib/contract";
 import { defaultModelAssignment, fetchLocalModels, sourceDescription } from "../lib/api";
 import type { LocalModelInfo } from "../lib/api";
-import { AI_PROVIDERS, useAiBackground, useAiModels, useAiProvider, useAiResearch } from "../lib/ai";
+import { AI_PROVIDERS, useAiBackground, useAiModels, useAiProvider } from "../lib/ai";
 import type { AiProvider } from "../lib/ai";
 import { useDataRefresh } from "../lib/data-refresh-context";
 import type { DataRefreshPolicy } from "../lib/fixtures";
@@ -31,6 +31,7 @@ import { OpenLigaDBSettings } from "../components/OpenLigaDBSettings";
 import { useFollows } from "../lib/follow-context";
 import { BellIcon } from "../components/icons";
 import { useCorrections } from "../lib/correction-context";
+import { ResearchSettingsPanel } from "../components/ResearchSettings";
 
 function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
@@ -132,7 +133,6 @@ export function Settings({
   const [confirmRemoveCorrections, setConfirmRemoveCorrections] = useState(false);
   const [aiProvider, setAiProvider] = useAiProvider();
   const [aiBackground, setAiBackground] = useAiBackground();
-  const [aiResearch, setAiResearch] = useAiResearch();
   const version = appVersionLabel(u.status?.appVersion);
   // From the persisted skip, not the live phase — so it's manageable even on a
   // fresh boot with auto-check off, where no check has run this session.
@@ -466,23 +466,7 @@ export function Settings({
               above it is unchanged.
             </p>
 
-            <div className="settings__row">
-              <label htmlFor="ai-research">Let the AI research on the web</label>
-              <input
-                id="ai-research"
-                type="checkbox"
-                checked={aiResearch}
-                onChange={(e) => setAiResearch(e.target.checked)}
-              />
-            </div>
-            <p className="settings__hint">
-              Off by default — this is the <b>only</b> setting that lets the app reach the general web.
-              When on, a read fetches a few <b>Wikipedia</b> pages and a <b>web search</b> for the
-              fixture and adds an <b>“Analyst research”</b> section. Those findings are clearly badged
-              <b> not engine-verified</b>: their numbers are checked against the quoted page, never
-              against Golavo’s engine, and the grounded read above is unchanged. Web search is
-              best-effort — it quietly falls back to Wikipedia-only when unavailable.
-            </p>
+            <ResearchSettingsPanel />
           </div>
         </div>
       </section>

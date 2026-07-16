@@ -14,11 +14,10 @@ import {
   useAiBackground,
   useAiModels,
   useAiProvider,
-  useAiResearch,
 } from "../../lib/ai";
 import type { AiDepth, AiProvider, NarrativeResponse } from "../../lib/ai";
 import { newJobId, usePolledProgress } from "../../lib/aiProgress";
-import { ClockIcon, GlobeIcon, InfoIcon, SearchIcon } from "../icons";
+import { ClockIcon, InfoIcon, SearchIcon } from "../icons";
 import { Pipeline } from "./AiPipeline";
 import { Result } from "./AiResult";
 import type { AiDisplayContext } from "./AiResult";
@@ -64,7 +63,6 @@ export function AiDeepRead({
 }) {
   const [provider, setProvider] = useAiProvider();
   const [allowBackground, setAllowBackground] = useAiBackground();
-  const [allowResearch, setAllowResearch] = useAiResearch();
   const { fastModel, deepModel, setFastModel, setDeepModel } = useAiModels();
   // Depth is per-panel (resets to Fast each session); the model assignments live
   // in Settings. `override` is the advanced "run this exact model" choice.
@@ -140,7 +138,7 @@ export function AiDeepRead({
     if (skipInvalidate.current) { skipInvalidate.current = false; return; }
     runId.current += 1;
     setState({ status: "idle" });
-  }, [provider, sourceKey, depth, override, allowResearch]);
+  }, [provider, sourceKey, depth, override]);
 
   const run = (refresh = false, depthArg: AiDepth = depth) => {
     void startRun(refresh, depthArg);
@@ -166,7 +164,7 @@ export function AiDeepRead({
     const opts = {
       refresh,
       allowBackground,
-      allowResearch,
+      allowResearch: false,
       depth: depthArg,
       model,
       timeoutS: depthArg === "deep" ? DEEP_TIMEOUT_S : FAST_TIMEOUT_S,
@@ -273,24 +271,6 @@ export function AiDeepRead({
           <OllamaModelGuide compact onModelsChanged={refreshLocalStatus} />
         )}
 
-        {provider !== "off" && (
-          <label className={`ai-web-toggle${allowResearch ? " is-on" : ""}`}>
-            <input
-              type="checkbox"
-              checked={allowResearch}
-              disabled={state.status === "loading"}
-              onChange={(e) => setAllowResearch(e.target.checked)}
-            />
-            <span className="ai-web-toggle__icon" aria-hidden><GlobeIcon size={16} /></span>
-            <span className="ai-web-toggle__copy">
-              <b>Search the web for this read</b>
-              <small>
-                Optional. Adds clearly labeled web findings; they never change the engine forecast.
-              </small>
-            </span>
-          </label>
-        )}
-
         {provider === "off" && <OffCard />}
         {provider !== "off" && state.status === "idle" && (
           <IdleCard
@@ -310,7 +290,7 @@ export function AiDeepRead({
             provider={provider}
             refresh={state.refresh}
             depth={depth}
-            research={allowResearch}
+            research={false}
             progress={progress}
           />
         )}

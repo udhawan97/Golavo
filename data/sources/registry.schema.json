@@ -63,6 +63,7 @@
         "refresh": {"$ref": "#/$defs/refresh"},
         "overlay": {"$ref": "#/$defs/overlay"},
         "entity_access": {"$ref": "#/$defs/entityAccess"},
+        "research_access": {"$ref": "#/$defs/researchAccess"},
         "corrections": {"$ref": "#/$defs/correctionPolicy"},
         "recheck_by": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
         "verified": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
@@ -133,7 +134,7 @@
         "license_namespace": {
           "enum": [
             "core-cc0", "enrichment-cc0", "enrichment-public-domain",
-            "enrichment-cc-by-4.0", "overlay-odbl-1.0"
+            "enrichment-cc-by-4.0", "research-cc-by-sa-4.0", "overlay-odbl-1.0"
           ]
         },
         "allowed_types": {
@@ -180,6 +181,68 @@
         },
         "max_entities": {"type": "integer", "minimum": 1, "maximum": 300},
         "retain_revision_evidence": {"const": true}
+      }
+    },
+    "researchAccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled", "roles", "hosts", "schemes", "ports", "methods",
+        "path_patterns", "redirect_hosts", "content_types", "max_raw_bytes",
+        "license_namespace", "permitted_fact_types", "parser_id", "parser_version",
+        "ai_fallback", "attribution_required", "terms_url", "terms_verified_at",
+        "recheck_by"
+      ],
+      "properties": {
+        "enabled": {"const": true},
+        "roles": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"enum": ["discovery", "capture", "structured"]}
+        },
+        "hosts": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z0-9.-]+$"}
+        },
+        "schemes": {"const": ["https"]},
+        "ports": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "integer", "minimum": 1, "maximum": 65535}
+        },
+        "methods": {"const": ["GET"]},
+        "path_patterns": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "redirect_hosts": {
+          "type": "array", "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z0-9.-]+$"}
+        },
+        "allowed_query_keys": {
+          "type": "array", "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z0-9_]+$"}
+        },
+        "content_types": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"enum": ["application/json", "text/plain", "text/html", "text/csv"]}
+        },
+        "max_raw_bytes": {"type": "integer", "minimum": 1024, "maximum": 2097152},
+        "license_namespace": {
+          "enum": [
+            "core-cc0", "enrichment-cc0", "enrichment-public-domain",
+            "enrichment-cc-by-4.0", "research-cc-by-sa-4.0"
+          ]
+        },
+        "permitted_fact_types": {
+          "type": "array", "uniqueItems": true,
+          "items": {"enum": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"]}
+        },
+        "parser_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]+$"},
+        "parser_version": {"type": "string", "minLength": 1},
+        "ai_fallback": {"type": "boolean"},
+        "attribution_required": {"type": "boolean"},
+        "terms_url": {"type": "string", "format": "uri"},
+        "terms_verified_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "recheck_by": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
       }
     },
     "overlay": {

@@ -73,7 +73,7 @@ _OLLAMA_CONTEXT_STEP = 2048
 _OLLAMA_MAX_CONTEXT = 32768
 
 _DEFAULT_BASE_URLS = {
-    "ollama": "http://localhost:11434/v1",
+    "ollama": "http://127.0.0.1:11434/v1",
     "llama_server": "http://127.0.0.1:8080/v1",
     "openai": "https://api.openai.com/v1",
 }
@@ -275,6 +275,7 @@ class NarrationEnvelope:
 
 # --- API key loading ---------------------------------------------------------
 
+
 def load_api_key(provider: str) -> str | None:
     """Return the BYOK key for a cloud provider, or None. Never logged.
 
@@ -299,6 +300,7 @@ def load_api_key(provider: str) -> str | None:
 
 
 # --- Transports (real network calls; injectable for tests) -------------------
+
 
 def _grounded_output_schema(
     allow_background: bool,
@@ -352,9 +354,7 @@ def _grounded_output_schema(
     required = ["verdict", "claims", "scenarios", "candidate_facts"]
     if allow_research:
         url_item = (
-            {"type": "string", "enum": list(research_urls)}
-            if research_urls
-            else {"type": "string"}
+            {"type": "string", "enum": list(research_urls)} if research_urls else {"type": "string"}
         )
         properties["research_notes"] = {
             "type": "array",
@@ -543,6 +543,7 @@ def make_transport(config: ProviderConfig) -> Transport | None:
         return None
 
     if config.provider == "anthropic":
+
         def transport(system: str, user: str) -> str:
             url, headers, body = build_anthropic_payload(config, key, system, user)
             payload = _post_json(url, headers, body, config.timeout_s)
@@ -565,6 +566,7 @@ def make_transport(config: ProviderConfig) -> Transport | None:
                     raise
             return payload["message"]["content"]
     else:
+
         def transport(system: str, user: str) -> str:
             url, headers, body = build_openai_payload(config, key, system, user)
             try:
@@ -794,17 +796,17 @@ def inspect_local_models(config: ProviderConfig) -> dict[str, Any]:
 def recommended_ollama_models(installed: list[str]) -> list[dict[str, Any]]:
     """Curated Golavo models annotated with their current install state."""
     normalized = {
-        name[:-len(":latest")] if name.endswith(":latest") else name
-        for name in installed
+        name[: -len(":latest")] if name.endswith(":latest") else name for name in installed
     }
     return [
         {
             **model,
             "installed": (
-                model["name"][:-len(":latest")]
+                model["name"][: -len(":latest")]
                 if model["name"].endswith(":latest")
                 else model["name"]
-            ) in normalized,
+            )
+            in normalized,
         }
         for model in RECOMMENDED_OLLAMA_MODELS
     ]
@@ -853,9 +855,7 @@ def pull_ollama_model(
                 status = str(update.get("status") or "Downloading model")[:120]
                 total = update.get("total") if isinstance(update.get("total"), int) else None
                 completed = (
-                    update.get("completed")
-                    if isinstance(update.get("completed"), int)
-                    else None
+                    update.get("completed") if isinstance(update.get("completed"), int) else None
                 )
                 if progress:
                     progress(status, completed, total)
@@ -898,6 +898,7 @@ def pick_local_model(requested: str, installed: list[str]) -> str:
 
 
 # --- JSON extraction ---------------------------------------------------------
+
 
 def extract_json_object(text: str) -> dict[str, Any] | None:
     """Best-effort extraction of a balanced JSON object from model text.
@@ -986,9 +987,7 @@ def extract_json_object(text: str) -> dict[str, Any] | None:
         start = space.find("{")
         if start == -1:
             continue
-        candidate = re.search(
-            r'(?m)(?:^|,)\s*"candidate_facts"\s*:', space[start:]
-        )
+        candidate = re.search(r'(?m)(?:^|,)\s*"candidate_facts"\s*:', space[start:])
         if candidate:
             prefix = space[start : start + candidate.start()].rstrip().rstrip(",")
             repaired = prefix + ',\n"candidate_facts": []\n}'
@@ -1003,9 +1002,7 @@ def extract_json_object(text: str) -> dict[str, Any] | None:
     return fallback
 
 
-def normalize_narration_shape(
-    raw: dict[str, Any], bundle: dict[str, Any]
-) -> dict[str, Any]:
+def normalize_narration_shape(raw: dict[str, Any], bundle: dict[str, Any]) -> dict[str, Any]:
     """Conform common local-model JSON variants before the strict review.
 
     Gemma sometimes returns useful, grounded prose as ``{"AiNarration":
@@ -1024,8 +1021,12 @@ def normalize_narration_shape(
     remain fail-closed.
     """
     known_top = {
-        "verdict", "claims", "scenarios", "candidate_facts",
-        "background", "research_notes",
+        "verdict",
+        "claims",
+        "scenarios",
+        "candidate_facts",
+        "background",
+        "research_notes",
     }
     current: Any = raw
     # Only unwrap a single-object envelope when it contains no canonical key.
@@ -1067,9 +1068,7 @@ def normalize_narration_shape(
         # Do not let a short display such as "1" match inside "10", "1.2", or
         # an identifier. This mirrors the verifier's token boundary closely while
         # retaining the exact trusted display string (including % or units).
-        return bool(re.search(
-            rf"(?<![\w.+-]){re.escape(display)}(?!\w)(?!\.\d)", text
-        ))
+        return bool(re.search(rf"(?<![\w.+-]){re.escape(display)}(?!\w)(?!\.\d)", text))
 
     def _label_score(number: dict[str, Any], text: str) -> tuple[int, int]:
         words = set(re.findall(r"[a-z]{4,}", text.casefold()))
@@ -1090,9 +1089,7 @@ def normalize_narration_shape(
         if scenario:
             text = _SCENARIO_PREFIX_RE.sub("", text)
 
-        cited_sources = [
-            str(sid) for sid in (provided_sources or ()) if str(sid) in source_set
-        ]
+        cited_sources = [str(sid) for sid in (provided_sources or ()) if str(sid) in source_set]
         cited_sources.extend(sid for sid in sources if sid in text)
         cited_sources = list(dict.fromkeys(cited_sources))
         # Gemma commonly appends ``[source_a, source_b].``. Remove that display
@@ -1107,9 +1104,7 @@ def normalize_narration_shape(
 
         # Explicit ``(nb_...)`` references are metadata, not prose. Recover and
         # remove them only when the id is genuinely in this bundle.
-        explicit_refs = [
-            str(ref) for ref in (provided_refs or ()) if str(ref) in number_by_id
-        ]
+        explicit_refs = [str(ref) for ref in (provided_refs or ()) if str(ref) in number_by_id]
         for ref in number_by_id:
             marker = f"({ref})"
             if marker in text:
@@ -1123,14 +1118,17 @@ def normalize_narration_shape(
         # misleading chips. Prefer an explicit inline id, then the label whose
         # words best match the sentence, with bundle order as a stable tie-break.
         refs: list[str] = []
-        displays = list(dict.fromkeys(
-            str(number["display"])
-            for number in numbers
-            if _display_in_text(str(number["display"]), text)
-        ))
+        displays = list(
+            dict.fromkeys(
+                str(number["display"])
+                for number in numbers
+                if _display_in_text(str(number["display"]), text)
+            )
+        )
         for display in displays:
             candidates = [
-                number for number in numbers
+                number
+                for number in numbers
                 if str(number["display"]) == display
                 and (
                     not cited_sources
@@ -1138,12 +1136,12 @@ def normalize_narration_shape(
                 )
             ]
             explicit = [
-                number_by_id[ref]
-                for ref in explicit_refs
-                if number_by_id[ref] in candidates
+                number_by_id[ref] for ref in explicit_refs if number_by_id[ref] in candidates
             ]
-            chosen = explicit[0] if explicit else max(
-                candidates, key=lambda n: _label_score(n, text), default=None
+            chosen = (
+                explicit[0]
+                if explicit
+                else max(candidates, key=lambda n: _label_score(n, text), default=None)
             )
             if chosen is not None:
                 refs.append(str(chosen["id"]))
@@ -1174,12 +1172,16 @@ def normalize_narration_shape(
                     out.append(repaired)
             elif key in {"claims", "scenarios"} and isinstance(value, dict):
                 text = value.get("text")
-                repaired = _string_item(
-                    text,
-                    scenario=key == "scenarios",
-                    provided_sources=value.get("source_ids"),
-                    provided_refs=value.get("number_refs"),
-                ) if isinstance(text, str) else None
+                repaired = (
+                    _string_item(
+                        text,
+                        scenario=key == "scenarios",
+                        provided_sources=value.get("source_ids"),
+                        provided_refs=value.get("number_refs"),
+                    )
+                    if isinstance(text, str)
+                    else None
+                )
                 if repaired is not None:
                     out.append(repaired)
             else:
@@ -1205,6 +1207,7 @@ def normalize_narration_shape(
 
 
 # --- Caching -----------------------------------------------------------------
+
 
 class NarrationCache:
     """In-memory cache keyed by every input that can affect a narration.
@@ -1483,13 +1486,16 @@ def generate_narration(
             # used for malformed JSON retries.
             if run_config.provider in LOCAL_PROVIDERS and attempt + 1 < MAX_ATTEMPTS:
                 _emit("writing", "Retrying with a compact evidence set")
-                attempt_user = build_user_prompt(
-                    bundle,
-                    run_config.untrusted_context,
-                    depth=run_config.depth,
-                    research_sources=research_prompt_sources or None,
-                    compact_retry=True,
-                ) + JSON_RETRY_INSTRUCTION
+                attempt_user = (
+                    build_user_prompt(
+                        bundle,
+                        run_config.untrusted_context,
+                        depth=run_config.depth,
+                        research_sources=research_prompt_sources or None,
+                        compact_retry=True,
+                    )
+                    + JSON_RETRY_INSTRUCTION
+                )
             continue
         reached_provider = True
         raw = extract_json_object(raw_text)
@@ -1499,13 +1505,16 @@ def generate_narration(
             # evidence/web payload twice. Keep deep-mode synthesis instructions,
             # but retry with the compact evidence slice; the full bundle remains
             # authoritative in the strict review below.
-            attempt_user = build_user_prompt(
-                bundle,
-                run_config.untrusted_context,
-                depth=run_config.depth,
-                research_sources=research_prompt_sources or None,
-                compact_retry=True,
-            ) + JSON_RETRY_INSTRUCTION
+            attempt_user = (
+                build_user_prompt(
+                    bundle,
+                    run_config.untrusted_context,
+                    depth=run_config.depth,
+                    research_sources=research_prompt_sources or None,
+                    compact_retry=True,
+                )
+                + JSON_RETRY_INSTRUCTION
+            )
             continue
         raw = normalize_narration_shape(raw, bundle)
         _emit("verifying", "Verifying every number against the engine")
@@ -1519,12 +1528,19 @@ def generate_narration(
         )
         if review.accepted and review.narration is not None:
             cache.set(
-                bundle_hash, config, review.narration, model=run_config.model,
+                bundle_hash,
+                config,
+                review.narration,
+                model=run_config.model,
                 web_sources=web_sources,
             )
             return envelope(
-                "ok", model=run_config.model, narration=review.narration,
-                notes=review.dropped, web_sources=web_sources, research=research_meta,
+                "ok",
+                model=run_config.model,
+                narration=review.narration,
+                notes=review.dropped,
+                web_sources=web_sources,
+                research=research_meta,
             )
         reasons.append("; ".join(review.rejections) or "narration failed review")
 
@@ -1537,10 +1553,13 @@ def generate_narration(
         )
     else:
         reason = (
-            "The AI provider could not be reached or timed out; "
-            "showing the local forecast only."
+            "The AI provider could not be reached or timed out; showing the local forecast only."
         )
     return envelope(
-        "local_only", model=run_config.model, reason=reason, notes=reasons,
-        web_sources=web_sources, research=research_meta,
+        "local_only",
+        model=run_config.model,
+        reason=reason,
+        notes=reasons,
+        web_sources=web_sources,
+        research=research_meta,
     )

@@ -104,6 +104,14 @@ def corrections_dir() -> Path | None:
     return Path(override).expanduser().parent / "corrections"
 
 
+def research_dir() -> Path | None:
+    """Writable evidence-research root, isolated from every authoritative store."""
+    override = os.environ.get("GOLAVO_DATA_DIR")
+    if not override:
+        return None
+    return Path(override).expanduser().parent / "research"
+
+
 def refreshed_pack_dir() -> Path | None:
     """The active generation's pinned international pack, or a legacy fallback.
 

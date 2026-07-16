@@ -37,6 +37,11 @@ from golavo_server import (
     seal,
 )
 from golavo_server import picks as pick_service
+from golavo_server import research as match_research
+from golavo_server.research import extract as research_extract
+from golavo_server.research import policy as research_policy
+from golavo_server.research import settings as research_settings
+from golavo_server.research import store as research_store
 
 # Every way a stored artifact can be untrustworthy: hash/id mismatch or bad value
 # (ValueError), missing field (KeyError), unreadable file (OSError), or a broken
@@ -64,9 +69,17 @@ async def _require_launch_token(request: Request, call_next: Any) -> Any:
     correction_path = path.startswith("/api/v1/corrections") or (
         path.startswith("/api/v1/matches/") and path.endswith("/corrections")
     )
+    match_research_path = path.startswith("/api/v1/research/") and not path.startswith(
+        "/api/v1/research/competitions/"
+    )
     if correction_path and token is None:
         return JSONResponse(
             {"detail": "correction routes require the private desktop launch token"},
+            status_code=403,
+        )
+    if match_research_path and token is None:
+        return JSONResponse(
+            {"detail": "match research requires the private desktop launch token"},
             status_code=403,
         )
     if correction_path and request.method not in {"GET", "OPTIONS"}:
@@ -76,6 +89,13 @@ async def _require_launch_token(request: Request, call_next: Any) -> Any:
             content_length = 0
         if content_length > 131072:
             return JSONResponse({"detail": "correction request exceeds 128 KiB"}, status_code=413)
+    if match_research_path and request.method not in {"GET", "OPTIONS"}:
+        try:
+            content_length = int(request.headers.get("content-length", "0"))
+        except ValueError:
+            content_length = 0
+        if content_length > 65536:
+            return JSONResponse({"detail": "research request exceeds 64 KiB"}, status_code=413)
     if token is not None and request.method != "OPTIONS" and request.url.path.startswith("/api/"):
         if request.headers.get(runtime.TOKEN_HEADER) != token:
             return JSONResponse({"detail": "missing or invalid launch token"}, status_code=401)
@@ -108,6 +128,7 @@ app.add_middleware(
 # them directly; the request handlers read the globals on each call.
 ARTIFACT_DIR = runtime.data_dir()
 CORRECTIONS_DIR = runtime.corrections_dir()
+RESEARCH_DIR = runtime.research_dir()
 SAMPLE_DIR = runtime.sample_artifacts_dir()
 EVAL_SUMMARY_PATHS = runtime.eval_summary_paths()
 
@@ -740,6 +761,53 @@ def _correction_root() -> Path:
     return Path(CORRECTIONS_DIR)
 
 
+def _research_root() -> Path:
+    if RESEARCH_DIR is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "reason_code": "research_store_unavailable",
+                "message": "match research requires a writable desktop data directory",
+            },
+        )
+    return Path(RESEARCH_DIR)
+
+
+async def _research_body(request: Request) -> dict[str, Any]:
+    try:
+        raw = await request.body()
+        if len(raw) > 65536:
+            raise HTTPException(status_code=413, detail="research request exceeds 64 KiB")
+        body = json.loads(raw)
+    except HTTPException:
+        raise
+    except (UnicodeDecodeError, ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail="request body must be valid JSON") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="request body must be an object")
+    return body
+
+
+def _research_error(exc: Exception) -> HTTPException:
+    if isinstance(exc, research_store.ResearchStoreError):
+        return HTTPException(
+            status_code=exc.status,
+            detail={"reason_code": exc.reason_code, "message": exc.detail},
+        )
+    if isinstance(exc, research_policy.ResearchPolicyError):
+        return HTTPException(
+            status_code=422,
+            detail={"reason_code": exc.reason_code, "message": exc.detail},
+        )
+    if isinstance(exc, match_research.ResearchFetchError):
+        status = 429 if exc.reason_code == "source_busy" else 503
+        return HTTPException(
+            status_code=status,
+            detail={"reason_code": exc.reason_code, "message": exc.detail},
+        )
+    return HTTPException(status_code=500, detail="research operation failed")
+
+
 def _correction_error(exc: Exception) -> HTTPException:
     if isinstance(exc, correction_store.CorrectionStoreError):
         return HTTPException(
@@ -1180,6 +1248,363 @@ def match_corrections(match_id: str) -> dict[str, Any]:
         )
     except correction_store.CorrectionStoreError as exc:
         raise _correction_error(exc) from exc
+
+
+@app.get("/api/v1/research/capabilities")
+def match_research_capabilities() -> dict[str, Any]:
+    settings = research_settings.read(_research_root())
+    try:
+        fingerprint = matches.index_fingerprint()
+    except matches.MatchIndexUnavailable:
+        fingerprint = None
+    return {
+        "schema_version": "0.1.0",
+        "supported": True,
+        "write_enabled": RESEARCH_DIR is not None,
+        "enabled": bool(settings["enabled"]),
+        "foreground_only": True,
+        "automatic_fetch": False,
+        "built_in_general_search": False,
+        "cloud_ai_extraction": False,
+        "authoritative_output": False,
+        "max_pages_per_run": 4,
+        "max_raw_bytes_per_page": 524288,
+        "searxng_supported": False,
+        "current_index_fingerprint": fingerprint,
+        "sources": [
+            policy.public()
+            for policy in sorted(
+                research_policy.source_policies().values(), key=lambda value: value.source_id
+            )
+        ],
+    }
+
+
+@app.get("/api/v1/research/settings")
+def get_match_research_settings() -> dict[str, Any]:
+    return research_settings.read(_research_root())
+
+
+@app.put("/api/v1/research/settings")
+async def put_match_research_settings(request: Request) -> dict[str, Any]:
+    body = await _research_body(request)
+    try:
+        return await run_in_threadpool(research_settings.write, _research_root(), body)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/research/discoveries")
+async def discover_match_sources(request: Request) -> dict[str, Any]:
+    body = await _research_body(request)
+    if body.get("confirm") != "discover_sources":
+        raise HTTPException(status_code=422, detail="discovery confirmation is required")
+    settings = research_settings.read(_research_root())
+    if settings["enabled"] is not True:
+        raise HTTPException(status_code=409, detail="match research is disabled")
+    query = body.get("query")
+    provider = body.get("provider", "wikimedia")
+    if not isinstance(query, str) or not query.strip() or len(query) > 240:
+        raise HTTPException(status_code=422, detail="a short discovery query is required")
+    if provider != "wikimedia":
+        raise HTTPException(status_code=422, detail="unsupported discovery provider")
+    try:
+        items = await run_in_threadpool(match_research.discover, query, provider=provider, limit=6)
+    except (research_policy.ResearchPolicyError, match_research.ResearchFetchError) as exc:
+        raise _research_error(exc) from exc
+    return {
+        "schema_version": "0.1.0",
+        "provider": provider,
+        "query": " ".join(query.split()),
+        "items": items,
+        "disclosure": "Discovery results are candidate URLs only; no snippet is evidence.",
+    }
+
+
+@app.post("/api/v1/research/runs")
+async def create_match_research_run(
+    request: Request, background_tasks: BackgroundTasks
+) -> JSONResponse:
+    from golavo_server import ai_gateway, jobs
+
+    body = await _research_body(request)
+    if body.get("confirm") != "fetch_selected_sources":
+        raise HTTPException(status_code=422, detail="source-fetch confirmation is required")
+    settings = research_settings.read(_research_root())
+    if settings["enabled"] is not True:
+        raise HTTPException(status_code=409, detail="match research is disabled")
+    match_id = body.get("match_id")
+    selected_urls = body.get("selected_urls")
+    if (
+        not isinstance(match_id, str)
+        or not isinstance(selected_urls, list)
+        or not all(isinstance(value, str) for value in selected_urls)
+    ):
+        raise HTTPException(status_code=422, detail="match_id and selected_urls are required")
+    match = _match_for_correction(match_id)
+    if match is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    try:
+        fingerprint = matches.index_fingerprint()
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    expected = body.get("expected_index_fingerprint")
+    if not isinstance(expected, str) or expected != fingerprint:
+        raise HTTPException(
+            status_code=409, detail="match index changed; reload before researching"
+        )
+    canonical_urls: list[str] = []
+    try:
+        for value in selected_urls:
+            canonical_urls.append(research_policy.canonicalize_url(value)[0])
+    except research_policy.ResearchPolicyError as exc:
+        raise _research_error(exc) from exc
+    provider_config: dict[str, Any] | None = None
+    if body.get("allow_local_ai") is True:
+        requested = body.get("local_ai")
+        if not isinstance(requested, dict):
+            raise HTTPException(status_code=422, detail="local_ai configuration is required")
+        try:
+            resolved = ai_gateway.resolve_provider(requested)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        if resolved.provider not in ai_gateway.LOCAL_PROVIDERS:
+            raise HTTPException(status_code=422, detail="research extraction accepts local AI only")
+        provider_config = requested
+    try:
+        await run_in_threadpool(
+            research_store.prune, _research_root(), int(settings["retention_days"])
+        )
+        run = await run_in_threadpool(
+            research_store.create_run,
+            _research_root(),
+            match_id=match_id,
+            index_fingerprint=fingerprint,
+            selected_urls=canonical_urls,
+            allow_local_ai=provider_config is not None,
+        )
+        jobs.store().start(run["run_id"])
+    except (research_store.ResearchStoreError, jobs.JobConflict) as exc:
+        if isinstance(exc, research_store.ResearchStoreError):
+            raise _research_error(exc) from exc
+        raise HTTPException(status_code=409, detail="research run already active") from exc
+
+    def _run() -> None:
+        try:
+            result = match_research.execute_run(
+                _research_root(),
+                run=run,
+                match=match,
+                provider_config=provider_config,
+                cancel=lambda: jobs.store().is_cancelled(run["run_id"]),
+            )
+            jobs.store().finish(run["run_id"], result=result)
+        except Exception:
+            try:
+                research_store.update_run(
+                    _research_root(),
+                    run["run_id"],
+                    state="failed",
+                    reason_codes=["unexpected_research_failure"],
+                )
+            finally:
+                jobs.store().fail(run["run_id"], "research run failed")
+
+    background_tasks.add_task(_run)
+    return JSONResponse(status_code=202, content=run)
+
+
+@app.get("/api/v1/research/runs")
+def list_match_research_runs(match_id: str, limit: int = 10) -> dict[str, Any]:
+    from golavo_server import jobs
+
+    if not match_id or len(match_id) > 200:
+        raise HTTPException(status_code=422, detail="a match_id is required")
+    try:
+        runs = research_store.list_runs(_research_root(), match_id=match_id, limit=limit)
+        recovered: list[dict[str, Any]] = []
+        for run in runs:
+            if run["state"] not in research_store.TERMINAL_RUN_STATES:
+                job = jobs.store().get(run["run_id"])
+                if job is None or job.state != "running":
+                    run = research_store.update_run(
+                        _research_root(),
+                        run["run_id"],
+                        state="cancelled",
+                        reason_codes=[*run["reason_codes"], "app_interrupted"],
+                    )
+            recovered.append(
+                {
+                    **run,
+                    "candidates": research_store.list_candidates(_research_root(), run["run_id"]),
+                }
+            )
+        return {"schema_version": "0.1.0", "items": recovered, "total": len(recovered)}
+    except research_store.ResearchStoreError as exc:
+        raise _research_error(exc) from exc
+
+
+@app.get("/api/v1/research/runs/{run_id}")
+def get_match_research_run(run_id: str) -> dict[str, Any]:
+    try:
+        run = research_store.get_run(_research_root(), run_id)
+        return {**run, "candidates": research_store.list_candidates(_research_root(), run_id)}
+    except research_store.ResearchStoreError as exc:
+        raise _research_error(exc) from exc
+
+
+@app.post("/api/v1/research/runs/{run_id}/cancel")
+def cancel_match_research_run(run_id: str) -> dict[str, Any]:
+    from golavo_server import jobs
+
+    try:
+        run = research_store.get_run(_research_root(), run_id)
+    except research_store.ResearchStoreError as exc:
+        raise _research_error(exc) from exc
+    cancelled = jobs.store().cancel(run_id)
+    if cancelled:
+        run = research_store.update_run(
+            _research_root(), run_id, state="cancelled", reason_codes=["cancelled"]
+        )
+    return {"run_id": run_id, "cancelled": cancelled, "run": run}
+
+
+@app.post("/api/v1/research/candidates/{candidate_id}/queue")
+async def queue_research_candidate(candidate_id: str, request: Request) -> JSONResponse:
+    body = await _research_body(request)
+    if body.get("confirm") != "add_to_correction_queue":
+        raise HTTPException(status_code=422, detail="correction-queue confirmation is required")
+    try:
+        namespace, candidate = research_store.get_candidate_record(_research_root(), candidate_id)
+        if candidate.get("candidate_id") != candidate_id:
+            raise research_store.ResearchStoreError(
+                "candidate_id_mismatch", "research candidate identity mismatch", 503
+            )
+        source_id = str(candidate.get("source", {}).get("source_id") or "")
+        source_policy = research_policy.source_policies().get(source_id)
+        if source_policy is None:
+            raise research_store.ResearchStoreError(
+                "candidate_source_unavailable", "research candidate source is unavailable", 409
+            )
+        receipt, _raw_capture = research_store.load_capture(
+            _research_root(), namespace, str(candidate["evidence"]["capture_id"])
+        )
+        research_extract.validate_stored_candidate(
+            candidate, policy=source_policy, namespace=namespace, capture=receipt
+        )
+    except research_store.ResearchStoreError as exc:
+        raise _research_error(exc) from exc
+    except (KeyError, TypeError, ValueError, ValidationError) as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "reason_code": "candidate_verification_failed",
+                "message": "research candidate failed evidence verification",
+            },
+        ) from exc
+    if body.get("expected_candidate_sha256") != candidate_id.removeprefix("cf_"):
+        raise HTTPException(status_code=409, detail="research candidate changed")
+    try:
+        fingerprint = matches.index_fingerprint()
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if (
+        body.get("expected_index_fingerprint") != fingerprint
+        or candidate["target"]["index_fingerprint"] != fingerprint
+    ):
+        raise HTTPException(
+            status_code=409, detail="match index changed; research candidate is stale"
+        )
+    if candidate.get("queued_proposal_id"):
+        proposal = correction_store.get_proposal(
+            _correction_root(), str(candidate["queued_proposal_id"]), include_events=True
+        )
+        return JSONResponse(status_code=200, content={"candidate": candidate, "proposal": proposal})
+    match = _match_for_correction(candidate["target"]["match_id"])
+    if match is None:
+        raise HTTPException(status_code=409, detail="target match is no longer available")
+    source_id = str(candidate["source"]["source_id"])
+    correction_type = str(candidate["correction_type"])
+    try:
+        correction_policy.validate_type(source_id, correction_type)
+        proposed = correction_validation.normalize_proposed(candidate["proposed"])
+        original = correction_validation.derive_original(correction_type, match)
+        target = {
+            "kind": "team" if correction_type == "team_alias" else "venue",
+            "match_id": match["match_id"],
+            "entity_id": candidate["target"].get("entity_id"),
+            "upstream_record_key": match.get("upstream_fixture_key"),
+            "base_generation_id": None,
+            "index_fingerprint": fingerprint,
+        }
+        proposal, created = await run_in_threadpool(
+            correction_store.create_proposal,
+            _correction_root(),
+            correction_type=correction_type,
+            target=target,
+            original=original,
+            proposed=proposed,
+            source_id=source_id,
+        )
+        source_url, hostname = correction_policy.canonical_evidence_url(
+            source_id, candidate["source"]["canonical_url"]
+        )
+        raw, display = correction_sanitize.sanitize(candidate["evidence"]["exact_quote"])
+        proposal, _evidence_created = await run_in_threadpool(
+            correction_store.attach_evidence,
+            _correction_root(),
+            proposal["proposal_id"],
+            source_url=source_url,
+            hostname=hostname,
+            source_revision=candidate["source"].get("revision_id"),
+            raw=raw,
+            evidence_receipt=correction_sanitize.receipt(raw, display),
+            research_origin={
+                "run_id": candidate["run_id"],
+                "candidate_id": candidate_id,
+                "capture_id": candidate["evidence"]["capture_id"],
+                "capture_raw_sha256": candidate["evidence"]["raw_sha256"],
+                "extractor_id": candidate["extractor"]["id"],
+                "extractor_version": candidate["extractor"]["version"],
+            },
+        )
+        candidate = research_store.mark_queued(
+            _research_root(), candidate_id, proposal["proposal_id"]
+        )
+    except (
+        correction_store.CorrectionStoreError,
+        correction_policy.CorrectionPolicyError,
+        correction_sanitize.EvidenceError,
+        research_store.ResearchStoreError,
+    ) as exc:
+        if isinstance(exc, research_store.ResearchStoreError):
+            raise _research_error(exc) from exc
+        raise _correction_error(exc) from exc
+    return JSONResponse(
+        status_code=201 if created else 200,
+        content={"candidate": candidate, "proposal": proposal},
+    )
+
+
+@app.delete("/api/v1/research/history")
+async def purge_match_research(request: Request) -> dict[str, Any]:
+    from golavo_server import jobs
+
+    body = await _research_body(request)
+    if body.get("confirm") != "remove_local_research_history":
+        raise HTTPException(status_code=422, detail="research-history confirmation is required")
+    if jobs.store().running_ids(prefix="rr_"):
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "reason_code": "research_run_active",
+                "message": "cancel the active match research run before clearing history",
+            },
+        )
+    try:
+        return await run_in_threadpool(research_store.purge, _research_root())
+    except research_store.ResearchStoreError as exc:
+        raise _research_error(exc) from exc
 
 
 @app.get("/api/v1/maps/world")

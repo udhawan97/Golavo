@@ -10,7 +10,7 @@
     "event_id": {"type": "string", "pattern": "^ce_[0-9a-f]{64}$"},
     "proposal_id": {"type": "string", "pattern": "^cp_[0-9a-f]{32}$"},
     "sequence": {"type": "integer", "minimum": 1},
-    "event_type": {"enum": ["created", "draft_revised", "evidence_attached", "validation_passed", "validation_failed", "conflict_detected", "accepted_local", "acceptance_revoked", "exported", "marked_submitted", "withdrawn", "superseded", "evidence_redacted"]},
+    "event_type": {"enum": ["created", "draft_revised", "evidence_attached", "evidence_imported_from_research", "validation_passed", "validation_failed", "conflict_detected", "accepted_local", "acceptance_revoked", "exported", "marked_submitted", "withdrawn", "superseded", "evidence_redacted"]},
     "recorded_at_utc": {"type": "string", "format": "date-time"},
     "previous_event_hash": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
     "payload": {"type": "object"},

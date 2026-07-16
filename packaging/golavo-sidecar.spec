@@ -62,6 +62,12 @@ datas = [
     (os.path.join(ROOT, "docs", "contracts", "correction_event.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "docs", "contracts", "correction_export.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "docs", "contracts", "correction_api.schema.json"), "docs/contracts"),
+    # Phase 7 contracts only. Captured source bytes and candidate databases are
+    # user-owned Application Support state and are never bundled.
+    (os.path.join(ROOT, "docs", "contracts", "research_run.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "research_capture.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "candidate_fact.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "research_api.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "data", "sources", "registry.json"), "data/sources"),
     (os.path.join(ROOT, "data", "sources", "registry.schema.json"), "data/sources"),
 ]

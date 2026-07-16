@@ -1,13 +1,4 @@
-"""Plan and run the web-research lane for one match bundle.
-
-Pure orchestration over the fetchers: it plans a few queries from the fixture,
-gathers Wikipedia extracts and web-search snippets, sanitizes and caps every
-page, and returns a :class:`ResearchResult` the gateway feeds to the model (as
-fenced UNTRUSTED data) and the guard checks quotes against. Every fetcher is
-injectable so CI/unit tests never open a socket, and every failure is caught and
-folded into honest ``notes`` — a fully-failed run yields zero sources and the
-read proceeds engine-only.
-"""
+"""Foreground-only discovery, capture and extraction orchestration."""
 
 from __future__ import annotations
 
@@ -15,24 +6,18 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from golavo_core.ai.sanitize import sanitize_untrusted
+from . import ai_extract, capture, extract, store, wikidata, wikipedia
+from .fetch import Fetch, FetchResponse, ResearchFetchError, fetch_response, research_disabled
+from .policy import ResearchPolicyError, canonicalize_url
 
-from . import websearch, wikipedia
-from .fetch import Fetch, research_disabled
-
-# Per-depth budget: how many pages to gather and how much of each the model sees.
-_PLAN = {
-    "fast": {"fetches": 3, "chars": 1500, "wiki_searches": 1, "web_searches": 1},
-    "deep": {"fetches": 8, "chars": 2200, "wiki_searches": 2, "web_searches": 2},
-}
-
-Progress = Callable[[str, str, dict[str, Any]], None]
+Cancel = Callable[[], bool]
+Fetcher = Callable[..., FetchResponse]
 
 
 @dataclass(frozen=True)
 class ResearchSource:
-    source_id: str  # "web_1", "web_2", ...
-    provider: str  # "wikipedia" | "websearch"
+    source_id: str
+    provider: str
     title: str
     url: str
     text: str
@@ -40,139 +25,244 @@ class ResearchSource:
 
 @dataclass
 class ResearchResult:
+    """Legacy narration envelope. Phase 7 never performs acquisition through it."""
+
     sources: list[ResearchSource] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     planned: int = 0
 
     def corpus(self) -> dict[str, str]:
-        """url -> fetched text, for the guard's verbatim-quote check."""
-        return {s.url: s.text for s in self.sources}
+        return {source.url: source.text for source in self.sources}
 
     def prompt_sources(self) -> list[dict[str, Any]]:
-        return [
-            {"source_id": s.source_id, "url": s.url, "title": s.title, "text": s.text}
-            for s in self.sources
-        ]
+        return []
 
     def envelope_sources(self) -> list[dict[str, Any]]:
-        """kind:"web" source entries for the response (never enter the bundle)."""
-        return [
-            {"source_id": s.source_id, "kind": "web", "title": s.title, "url": s.url}
-            for s in self.sources
-        ]
+        return []
 
 
-def plan_queries(bundle: dict[str, Any], depth: str) -> list[str]:
-    """Heuristic query plan from the fixture — no extra model round-trip."""
+def plan_queries(bundle: dict[str, Any], depth: str = "fast") -> list[str]:
     match = bundle.get("match", {})
     home = str(match.get("home_team") or "").strip()
     away = str(match.get("away_team") or "").strip()
-    comp = str(match.get("competition") or "").strip()
-    queries: list[str] = []
-    if home and away:
-        queries.append(f"{home} {away} {comp} match".strip())
-    if home:
-        queries.append(f"{home} national football team")
-    if away:
-        queries.append(f"{away} national football team")
-    if depth == "deep":
-        if home and away:
-            queries.append(f"{home} vs {away} head to head")
-        if comp:
-            queries.append(f"{comp}")
-    # De-dup, preserve order.
-    seen: set[str] = set()
-    out: list[str] = []
-    for q in queries:
-        if q and q not in seen:
-            seen.add(q)
-            out.append(q)
-    return out
+    competition = str(match.get("competition") or "").strip()
+    values = [f"{home} {away} {competition}".strip(), home, away]
+    return list(dict.fromkeys(value for value in values if value))[: (3 if depth == "deep" else 1)]
 
 
-def run_research(
-    bundle: dict[str, Any],
-    depth: str,
+def run_research(*_args: Any, **_kwargs: Any) -> ResearchResult:
+    """Compatibility path: AI narration no longer initiates network research."""
+    return ResearchResult(
+        notes=[
+            "Start a Match research run and select sources before asking AI to use web evidence."
+        ],
+        planned=0,
+    )
+
+
+def discover(
+    query: str,
     *,
-    wiki_search: Callable[..., list[str]] | None = None,
-    wiki_extract: Callable[..., dict | None] | None = None,
-    web_search: Callable[..., list[dict[str, str]]] | None = None,
+    provider: str = "wikimedia",
+    limit: int = 6,
     fetch: Fetch | None = None,
-    progress: Progress | None = None,
-) -> ResearchResult:
-    """Gather web research for ``bundle``. Never raises — failures become notes."""
-    result = ResearchResult()
+) -> list[dict[str, Any]]:
     if research_disabled():
-        result.notes.append("web research is disabled in this environment")
-        return result
-
-    plan = _PLAN.get(depth, _PLAN["fast"])
-    chars = plan["chars"]
-    _wiki_search = wiki_search or (lambda q, **k: wikipedia.search(q, fetch=fetch, **k))
-    _wiki_extract = wiki_extract or (lambda t, **k: wikipedia.extract(t, fetch=fetch, **k))
-    _web_search = web_search or (lambda q, **k: websearch.search_snippets(q, fetch=fetch, **k))
-
-    queries = plan_queries(bundle, depth)
-    result.planned = plan["fetches"]
-
-    def _emit(stage: str) -> None:
-        if progress:
-            progress(
-                "researching",
-                stage,
-                {"fetched": len(result.sources), "planned": plan["fetches"]},
+        return []
+    cleaned = " ".join(query.split())[:240]
+    if not cleaned:
+        return []
+    rows: list[dict[str, Any]] = []
+    failures: list[ResearchFetchError] = []
+    if provider == "wikimedia":
+        try:
+            rows.extend(
+                wikipedia.discovery(cleaned, limit=min(limit, 3), fetch=fetch, fail_soft=False)
             )
-
-    seen_urls: set[str] = set()
-
-    def _add(provider: str, title: str, url: str, text: str) -> bool:
-        cleaned = sanitize_untrusted(text or "", max_chars=chars)
-        if not cleaned or url in seen_urls or not url.startswith("http"):
-            return False
-        seen_urls.add(url)
-        idx = len(result.sources) + 1
-        result.sources.append(
-            ResearchSource(f"web_{idx}", provider, title.strip() or url, url, cleaned)
-        )
-        _emit(f"Reading: {title.strip() or url}")
-        return True
-
-    # 1) Wikipedia extracts — the reliable, license-clean backbone.
-    wiki_titles: list[str] = []
-    for q in queries[: plan["wiki_searches"]]:
+        except ResearchFetchError as exc:
+            failures.append(exc)
         try:
-            wiki_titles.extend(_wiki_search(q, limit=2))
-        except Exception:
-            result.notes.append("a Wikipedia search failed; continued")
-    for title in dict.fromkeys(wiki_titles):  # de-dup, keep order
-        if len(result.sources) >= plan["fetches"]:
-            break
+            rows.extend(wikidata.search(cleaned, limit=min(limit, 3), fetch=fetch, fail_soft=False))
+        except ResearchFetchError as exc:
+            failures.append(exc)
+    else:
+        raise ResearchPolicyError("discovery_provider_not_allowed", "unknown discovery provider")
+    result = []
+    for row in rows:
         try:
-            page = _wiki_extract(title, max_chars=chars)
-        except Exception:
-            page = None
-        if page:
-            _add("wikipedia", page["title"], page["url"], page["text"])
-
-    # 2) Web-search snippets — richer but fragile (see websearch.py).
-    web_hits = 0
-    for q in queries[: plan["web_searches"]]:
-        if len(result.sources) >= plan["fetches"]:
-            break
-        try:
-            hits = _web_search(q, limit=3)
-        except Exception:
-            hits = []
-        if not hits:
+            url, policy = canonicalize_url(str(row["url"]), source_id=str(row["source_id"]))
+        except ResearchPolicyError:
             continue
-        for hit in hits:
-            if len(result.sources) >= plan["fetches"]:
-                break
-            if _add("websearch", hit.get("title", ""), hit.get("url", ""), hit.get("snippet", "")):
-                web_hits += 1
-    if web_hits == 0:
-        result.notes.append("web search returned nothing usable; used Wikipedia only")
+        result.append(
+            {**row, "url": url, "permitted": True, "license_namespace": policy.license_namespace}
+        )
+    if not result and failures:
+        raise failures[0]
+    return result[:limit]
 
-    if not result.sources:
-        result.notes.append("no web sources could be fetched; the read is engine-only")
-    return result
+
+def run_capture(
+    root: Any,
+    *,
+    match: dict[str, Any],
+    index_fingerprint: str,
+    selected_urls: list[str],
+    provider_config: dict[str, Any] | None = None,
+    cancel: Cancel | None = None,
+    fetcher: Fetcher = fetch_response,
+) -> dict[str, Any]:
+    canonical_urls: list[str] = []
+    for url in selected_urls:
+        canonical_url, _policy = canonicalize_url(url)
+        canonical_urls.append(canonical_url)
+    run = store.create_run(
+        root,
+        match_id=str(match["match_id"]),
+        index_fingerprint=index_fingerprint,
+        selected_urls=canonical_urls,
+        allow_local_ai=provider_config is not None,
+    )
+    return execute_run(
+        root,
+        run=run,
+        match=match,
+        provider_config=provider_config,
+        cancel=cancel,
+        fetcher=fetcher,
+    )
+
+
+def execute_run(
+    root: Any,
+    *,
+    run: dict[str, Any],
+    match: dict[str, Any],
+    provider_config: dict[str, Any] | None = None,
+    cancel: Cancel | None = None,
+    fetcher: Fetcher = fetch_response,
+) -> dict[str, Any]:
+    canonical_urls = list(run["selected_urls"])
+    index_fingerprint = str(run["index_fingerprint"])
+    counts = dict(run["counts"])
+    reasons: list[str] = []
+    store.update_run(root, run["run_id"], state="fetching", counts=counts)
+    for url in canonical_urls:
+        if cancel and cancel():
+            return store.update_run(
+                root,
+                run["run_id"],
+                state="cancelled",
+                counts=counts,
+                reason_codes=[*reasons, "cancelled"],
+            )
+        try:
+            canonical_url, policy = canonicalize_url(url)
+            response = fetcher(canonical_url, source_id=policy.source_id, cancel=cancel)
+            document = capture.canonical_document(response, policy)
+            if cancel and cancel():
+                return store.update_run(
+                    root,
+                    run["run_id"],
+                    state="cancelled",
+                    counts=counts,
+                    reason_codes=[*reasons, "cancelled"],
+                )
+            receipt = capture.capture_payload(
+                run_id=run["run_id"], response=response, policy=policy, document=document
+            )
+            store.add_capture(root, receipt, response.body)
+            counts["captured"] += 1
+            current = store.update_run(
+                root, run["run_id"], state="captured", counts=counts, reason_codes=reasons
+            )
+            if current["state"] == "cancelled" or (cancel and cancel()):
+                return store.update_run(
+                    root,
+                    run["run_id"],
+                    state="cancelled",
+                    counts=counts,
+                    reason_codes=[*reasons, "cancelled"],
+                )
+            store.update_run(
+                root, run["run_id"], state="extracting", counts=counts, reason_codes=reasons
+            )
+            candidates = extract.deterministic_candidates(
+                run_id=run["run_id"],
+                match=match,
+                index_fingerprint=index_fingerprint,
+                capture=receipt,
+                policy=policy,
+                document=document,
+            )
+            if provider_config is not None and policy.ai_fallback and not candidates:
+                try:
+                    items, model, prompt_version = ai_extract.extract(
+                        provider_config=provider_config,
+                        match=match,
+                        canonical_text=document.text,
+                        cancel=cancel,
+                    )
+                    for item in items:
+                        candidate = extract.ai_candidate(
+                            item=item,
+                            run_id=run["run_id"],
+                            match=match,
+                            index_fingerprint=index_fingerprint,
+                            capture=receipt,
+                            policy=policy,
+                            document=document,
+                            model=model,
+                            prompt_version=prompt_version,
+                        )
+                        if candidate is not None:
+                            candidates.append(candidate)
+                except ai_extract.LocalExtractionError as exc:
+                    if exc.reason_code == "cancelled":
+                        return store.update_run(
+                            root,
+                            run["run_id"],
+                            state="cancelled",
+                            counts=counts,
+                            reason_codes=[*reasons, "cancelled"],
+                        )
+                    reasons.append(exc.reason_code)
+            seen: set[str] = set()
+            for candidate in candidates:
+                if candidate["candidate_id"] in seen:
+                    continue
+                seen.add(candidate["candidate_id"])
+                _saved, created = store.add_candidate(root, policy.license_namespace, candidate)
+                if created:
+                    counts["candidates"] += 1
+            store.update_run(
+                root, run["run_id"], state="fetching", counts=counts, reason_codes=reasons
+            )
+        except (ResearchFetchError, ResearchPolicyError, capture.CaptureError) as exc:
+            if getattr(exc, "reason_code", None) == "cancelled":
+                return store.update_run(
+                    root,
+                    run["run_id"],
+                    state="cancelled",
+                    counts=counts,
+                    reason_codes=[*reasons, "cancelled"],
+                )
+            counts["failed"] += 1
+            reasons.append(getattr(exc, "reason_code", "capture_failed"))
+    if cancel and cancel():
+        return store.update_run(
+            root,
+            run["run_id"],
+            state="cancelled",
+            counts=counts,
+            reason_codes=[*reasons, "cancelled"],
+        )
+    offline_reasons = {"dns_failed", "dns_empty", "network_failed", "unsafe_address"}
+    if counts["captured"] == 0 and reasons and set(reasons).issubset(offline_reasons):
+        state = "offline"
+    elif counts["captured"] == 0:
+        state = "failed"
+    elif counts["failed"]:
+        state = "partial"
+    else:
+        state = "candidates_ready"
+    return store.update_run(root, run["run_id"], state=state, counts=counts, reason_codes=reasons)

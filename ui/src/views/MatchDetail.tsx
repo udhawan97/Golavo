@@ -49,6 +49,7 @@ import { FollowEventHistory } from "../components/FollowEventHistory";
 import { useFollows } from "../lib/follow-context";
 import { CorrectionButton } from "../components/CorrectionButton";
 import { CorrectionAnnotations } from "../components/CorrectionAnnotations";
+import { MatchResearch } from "../components/MatchResearch";
 
 export function MatchDetail({ id }: { id: string }) {
   const state = useAsync(() => fetchMatch(id), [id]);
@@ -205,6 +206,13 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       <ProgrammeContents />
 
       <ConditionsSnapshot matchId={id} />
+
+      <MatchResearch
+        matchId={id}
+        home={match.home_team}
+        away={match.away_team}
+        competition={match.competition}
+      />
 
       <ProgrammeChapter
         number="01"

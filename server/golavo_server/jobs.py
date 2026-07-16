@@ -73,7 +73,8 @@ class JobStore:
     def _prune_locked(self) -> None:
         now = time.monotonic()
         stale = [
-            jid for jid, job in self._jobs.items()
+            jid
+            for jid, job in self._jobs.items()
             if job.state != "running" and now - job.updated_at > _TTL_SECONDS
         ]
         for jid in stale:
@@ -99,8 +100,12 @@ class JobStore:
             return job
 
     def update(
-        self, job_id: str, *, stage: str | None = None,
-        detail: str | None = None, counts: dict[str, Any] | None = None,
+        self,
+        job_id: str,
+        *,
+        stage: str | None = None,
+        detail: str | None = None,
+        counts: dict[str, Any] | None = None,
     ) -> None:
         with self._lock:
             job = self._jobs.get(job_id)
@@ -156,6 +161,15 @@ class JobStore:
         with self._lock:
             self._prune_locked()
             return self._jobs.get(job_id)
+
+    def running_ids(self, *, prefix: str = "") -> list[str]:
+        with self._lock:
+            self._prune_locked()
+            return sorted(
+                job_id
+                for job_id, job in self._jobs.items()
+                if job.state == "running" and job_id.startswith(prefix)
+            )
 
 
 # Process-local singleton.
