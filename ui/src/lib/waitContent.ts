@@ -43,7 +43,7 @@ export const WAIT_WHY: readonly string[] = [
 
 /** Hidden features — the wait doubles as a guided tour. */
 export const APP_GEMS: readonly string[] = [
-  "Opening any match — even one from 1950 — convenes a five-model council in the Match Cockpit.",
+  "Opening any match — even one from 1950 — compares two voices, a baseline, and disclosed goal-model variants.",
   "Expert mode reveals the full exact-score grid: every scoreline the models weigh, the most likely one ringed in gold.",
   "Seal a forecast before kickoff and it becomes immutable — scored after full time in Model Lab, misses included.",
   "The Commentator's Notebook gathers source-backed facts for a match — and labels coincidences as coincidences.",

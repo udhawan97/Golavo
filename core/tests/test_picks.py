@@ -24,7 +24,7 @@ from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 def _analysis() -> dict:
     goal_matrix = {"most_likely": {"home": 2, "away": 1, "probability": 0.14}}
     return {
-        "schema_version": "0.4.1",
+        "schema_version": "0.5.0",
         "index_fingerprint": "index-abc",
         "information_cutoff_utc": "2025-08-01T14:59:59Z",
         "models": [
@@ -164,7 +164,7 @@ def test_rival_derivation_preserves_score_and_capability() -> None:
     assert rivals["climatological"]["outcome_pick"] is None
     assert derived["analysis_fingerprint"] == {
         "index_fingerprint": "index-abc",
-        "analysis_schema_version": "0.4.1",
+        "analysis_schema_version": "0.5.0",
         "information_cutoff_utc": "2025-08-01T14:59:59Z",
     }
     assert derived == derive_rival_picks(copy.deepcopy(_analysis()))

@@ -21,6 +21,7 @@ import { useAsync } from "../lib/hooks";
 import { useDataRefreshPolicy } from "../lib/fixtures";
 import { beginActivity, endActivity } from "../lib/activity";
 import { ReliabilityDiagram } from "../components/ReliabilityDiagram";
+import { InfoIcon } from "../components/icons";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
 type SettlementState =
@@ -411,7 +412,8 @@ function Resolution({
 
 function RunningCalibration({ data }: { data: CalibrationSummary }) {
   const { running } = data;
-  const populated = data.reliability_bins.some((b) => b.count > 0 && b.accuracy != null);
+  const populatedBins = data.reliability_bins.filter((b) => b.count > 0 && b.accuracy != null).length;
+  const reliabilityReady = Boolean(running && running.n_scored >= 30 && populatedBins >= 3);
   return (
     <section className="stack" style={{ ["--gap" as string]: "1rem" }} aria-labelledby="running-h">
       <h2 id="running-h" className="upper muted">Running calibration</h2>
@@ -427,7 +429,7 @@ function RunningCalibration({ data }: { data: CalibrationSummary }) {
             Log loss near <span className="num">1.10</span> is the guess-nothing baseline; lower is better.
             Both figures update as each sealed forecast is scored.
           </p>
-          {populated && (
+          {reliabilityReady && (
             <div className="reliability">
               <ReliabilityDiagram
                 bins={data.reliability_bins}
@@ -435,12 +437,24 @@ function RunningCalibration({ data }: { data: CalibrationSummary }) {
               />
             </div>
           )}
+          {!reliabilityReady && (
+            <div className="callout callout--info">
+              <InfoIcon size={18} />
+              <div>
+                <div className="callout__title">Reliability diagram held back</div>
+                Golavo waits for at least <span className="num">30</span> scored seals across
+                at least <span className="num">3</span> populated probability bins. Current:
+                {" "}<span className="num">{running.n_scored}</span> seals and{" "}
+                <span className="num">{populatedBins}</span> bins. Proper scores remain visible.
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="card card--pad">
           <EmptyState title="No scored seals yet">
-            Running log loss and the reliability diagram appear after the first sealed
-            forecast is scored from a newer snapshot.
+            Running proper scores appear after the first seal is scored. The reliability diagram
+            waits for a minimally interpretable sample.
           </EmptyState>
         </div>
       )}

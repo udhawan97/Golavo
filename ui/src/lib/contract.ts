@@ -16,7 +16,7 @@ export const SCHEMA_VERSION = "0.2.0" as const;
 // the Games-home recent rails. The sealed ForecastArtifact contract is unchanged
 // at 0.2.0, so the artifact/eval/calibration guards keep their existing set.
 export const ACCEPTED_SCHEMA_VERSIONS = ["0.1.0", "0.2.0"] as const;
-export const ANALYSIS_SCHEMA_VERSION = "0.4.1" as const;
+export const ANALYSIS_SCHEMA_VERSION = "0.5.0" as const;
 export const PICK_SCHEMA_VERSION = "0.1.0" as const;
 export const FOLLOW_SCHEMA_VERSION = "0.1.0" as const;
 export type SchemaVersion = (typeof ACCEPTED_SCHEMA_VERSIONS)[number];
@@ -1269,10 +1269,13 @@ export interface MatchAnalysis {
     away_team: string;
     neutral_venue: boolean;
     is_complete: boolean;
+    source_id?: string | null;
   };
   information_cutoff_utc: string;
   abstained: boolean;
   abstain_reason: string | null;
+  /** Legacy compatibility tag. UI must present explanation.history_support,
+   *  never relabel this match-count heuristic as confidence. */
   uncertainty: Uncertainty;
   team_history: Record<string, number>;
   min_team_matches: number;
@@ -1284,9 +1287,51 @@ export interface MatchAnalysis {
   models: CouncilModel[];
   score_matrix: ScoreMatrix | null;
   score_matrix_family: ModelFamily | null;
-  /** Exact BTTS + clean-sheet marginals (0.4.1+); optional so a 0.4.0 backend
-   *  degrades gracefully. Null when the goal voice abstained. */
+  /** Exact BTTS + clean-sheet marginals (0.4.1+). Null when the goal voice abstained. */
   derived_markets?: DerivedMarkets | null;
+  /** Phase 8 descriptive explanation over the existing outputs. No new fit. */
+  explanation?: AnalysisExplanation;
+}
+
+export type HistorySupportLevel = "limited" | "moderate" | "strong";
+export type DisagreementStatus = "modal_agreement" | "modal_split" | "not_comparable";
+
+export interface AnalysisExplanation {
+  schema_version: "0.1.0";
+  descriptive_only: true;
+  hypothetical_only: true;
+  averaged_consensus: false;
+  calibrated_confidence: false;
+  causal_claims: false;
+  sealed_forecast_immutable: true;
+  analysis_kind: AnalysisKind;
+  history_support: {
+    level: HistorySupportLevel;
+    minimum_qualifying_matches: number;
+    model_floor: number;
+    meaning: string;
+  };
+  disagreement: {
+    status: DisagreementStatus;
+    voices: Array<{ family: string; method: string; modal_outcome: Outcome }>;
+    outcome_gap_percentage_points: Record<Outcome, number> | null;
+    largest_gap: { outcome: Outcome; percentage_points: number } | null;
+    meaning: string;
+  };
+  change_triggers: Array<{ id: string; label: string; description: string }>;
+  capability_coverage: {
+    available_count: number;
+    assessed_count: number;
+    meaning: string;
+    items: Array<{ id: string; label: string; available: boolean; source_ids: string[] }>;
+  };
+  missing_evidence: Array<"verified_lineups" | "verified_injuries" | "observed_xg">;
+  provenance: {
+    source_ids: string[];
+    engine_source_id: "engine:match_analysis";
+    formula_version: "analysis-explanation-1";
+    input_fields: string[];
+  };
 }
 
 /** Both-teams-to-score and clean-sheet marginals, computed exactly from the goal

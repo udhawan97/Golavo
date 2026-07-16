@@ -87,6 +87,22 @@ export function utcDate(iso: string): string {
   });
 }
 
+/** Exact display derived from the immutable kickoff and seal timestamps. The
+ * legacy horizon enum is intentionally not used: old artifacts treated it as a
+ * coarse audit tag rather than the actual elapsed duration. */
+export function sealLeadTime(kickoffUtc: string, sealedAtUtc: string): string | null {
+  const kickoff = Date.parse(kickoffUtc);
+  const sealed = Date.parse(sealedAtUtc);
+  if (!Number.isFinite(kickoff) || !Number.isFinite(sealed) || sealed > kickoff) return null;
+  const totalMinutes = Math.max(0, Math.floor((kickoff - sealed) / 60_000));
+  const days = Math.floor(totalMinutes / (24 * 60));
+  const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+  const minutes = totalMinutes % 60;
+  if (days > 0) return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+  if (hours > 0) return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  return `${minutes}m`;
+}
+
 /** Relative label anchored to a reference instant: "in 2 days" / "4 days ago". */
 export function relative(iso: string, now: Date = new Date()): string {
   const d = new Date(iso);

@@ -5,7 +5,7 @@ import type { MatchAnalysis } from "../lib/contract";
 import { ScoreOutlook } from "./ScoreOutlook";
 
 const analysis: MatchAnalysis = {
-  schema_version: "0.4.1",
+  schema_version: "0.5.0",
   analysis_kind: "preview",
   match: {
     match_id: "m_design_test",

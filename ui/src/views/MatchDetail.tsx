@@ -22,10 +22,11 @@ import type {
 import { FAMILY_LABELS } from "../lib/contract";
 import { fetchMatch, fetchMatchAnalysis, fetchMatchNotebook, sealMatch, SealApiError } from "../lib/api";
 import { pct, utc } from "../lib/format";
+import { analysisHistorySupport } from "../lib/analysisPresentation";
 import type { AsyncState } from "../lib/hooks";
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { BookIcon, ChevronRight, DistributionIcon, InfoIcon, QuillIcon, ScaleIcon, SealIcon, ShieldCheckIcon, TrophyIcon } from "../components/icons";
-import { HorizonChip, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
+import { HistorySupportTag, HorizonChip, StatusChip, TrustStrip } from "../components/primitives";
 import { AiDeepRead } from "../components/ai/AiDeepRead";
 import { MatchHeader } from "../components/MatchHeader";
 import { ModelCouncil } from "../components/ModelCouncil";
@@ -190,7 +191,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
                   ? "Full model values, market detail, sources and audit context."
                   : "The essential story, with technical depth kept out of the way."}
               </span>
-              {analysis && <UncertaintyTag level={analysis.uncertainty} />}
+              {analysis && <HistorySupportTag level={analysisHistorySupport(analysis)} />}
             </div>
           }
         />
@@ -315,7 +316,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
           context={{
             homeTeam: match.home_team,
             awayTeam: match.away_team,
-            uncertainty: analysis?.uncertainty,
+            historySupport: analysis ? analysisHistorySupport(analysis) : null,
             leadingOutcome: analysis?.council.leading_outcome,
           }}
         />
@@ -434,8 +435,8 @@ function MatchVerdict({
         <span className="small muted">{pct(score.probability)} for this exact score</span>
       </div>
       <div className="programme-verdict__confidence">
-        <span className="upper">Confidence</span>
-        <UncertaintyTag level={analysis.uncertainty} />
+        <span className="upper">History support</span>
+        <HistorySupportTag level={analysisHistorySupport(analysis)} />
       </div>
     </section>
   );

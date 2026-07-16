@@ -61,7 +61,7 @@ function WelcomeCard() {
       <div className="welcome__body">
         <p className="welcome__title">New here? What Golavo does</p>
         <ul className="welcome__list">
-          <li><b>Open any match</b> — past or upcoming — for a deep analytics read: a five-model council, team style, and source-backed facts.</li>
+          <li><b>Open any match</b> — past or upcoming — for a deep analytics read: two deterministic voices, team style, and source-backed facts.</li>
           <li><b>See where the methods agree</b>, and where they don’t — no averaging into false certainty.</li>
           <li><b>Make your own call</b> before kickoff, then race five transparent model rivals. <a href="#/guide/picks">How picks work ›</a></li>
         </ul>
@@ -87,7 +87,7 @@ export function MatchdayHome() {
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
         <h1>Matchday</h1>
         <p className="measure dim" style={{ margin: 0 }}>
-          Every game gets the full treatment — a five-model council, how each side attacks and
+          Every game gets the full treatment — two deterministic voices plus disclosed references, how each side attacks and
           defends, and the facts worth knowing. Open any match for its deep analytics read. No
           account, offline by default, no invented certainty.
         </p>

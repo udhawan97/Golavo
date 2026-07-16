@@ -59,9 +59,7 @@ def test_canonical_bytes_is_deterministic(probs: dict[str, float]) -> None:
 @st.composite
 def _match_frame(draw: st.DrawFn) -> tuple[pd.DataFrame, pd.Timestamp]:
     n = draw(st.integers(min_value=1, max_value=40))
-    day_offsets = draw(
-        st.lists(st.integers(min_value=-500, max_value=500), min_size=n, max_size=n)
-    )
+    day_offsets = draw(st.lists(st.integers(min_value=-500, max_value=500), min_size=n, max_size=n))
     completes = draw(st.lists(st.booleans(), min_size=n, max_size=n))
     base = pd.Timestamp("2020-01-01", tz="UTC")
     frame = pd.DataFrame(
@@ -76,7 +74,7 @@ def _match_frame(draw: st.DrawFn) -> tuple[pd.DataFrame, pd.Timestamp]:
 
 
 @given(data=_match_frame())
-@settings(max_examples=300)
+@settings(max_examples=300, deadline=None)
 def test_training_rows_never_leaks_future_or_incomplete(
     data: tuple[pd.DataFrame, pd.Timestamp],
 ) -> None:

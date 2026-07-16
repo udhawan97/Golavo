@@ -45,6 +45,7 @@ datas = [
     (os.path.join(ROOT, "docs", "contracts", "competition_catalog.schema.json"), "docs/contracts"),
     # Phase 3 display-only location/rest/travel contract.
     (os.path.join(ROOT, "docs", "contracts", "conditions_snapshot.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "match_analysis.schema.json"), "docs/contracts"),
     # Historical team-only event research contract.
     (os.path.join(ROOT, "docs", "contracts", "research_team_analytics.schema.json"), "docs/contracts"),
     # Consent-first approved-source refresh: the frozen sidecar validates the

@@ -2,8 +2,8 @@ import { memo } from "react";
 import type { ReliabilityBin } from "../lib/contract";
 import { pct } from "../lib/format";
 
-/** Hand-rolled reliability (calibration) diagram. No chart library: mean model
- *  confidence on x, observed accuracy on y, point area ∝ sample count, the Wilson
+/** Hand-rolled reliability (calibration) diagram. No chart library: mean stated
+ *  probability on x, observed outcome frequency on y, point area ∝ sample count, the Wilson
  *  95% interval as a vertical whisker, and a dashed diagonal marking perfect
  *  calibration. Points on the line = confidence matched accuracy. */
 function ReliabilityDiagramImpl({
@@ -44,7 +44,7 @@ function ReliabilityDiagramImpl({
 
   const summary =
     `Reliability diagram: ${pts.length} populated bins. ` +
-    pts.map((p) => `confidence ${pct(p.conf, 0)}, accuracy ${pct(p.acc, 0)} over ${p.n}`).join("; ") +
+    pts.map((p) => `mean stated probability ${pct(p.conf, 0)}, observed frequency ${pct(p.acc, 0)} over ${p.n}`).join("; ") +
     ".";
 
   return (
@@ -85,11 +85,11 @@ function ReliabilityDiagramImpl({
         <polyline className="rd-pt-line" points={poly} />
         {pts.map((p, i) => (
           <circle key={i} className="rd-pt" cx={x(p.conf)} cy={y(p.acc)} r={radius(p.n)}>
-            <title>{`Confidence ${pct(p.conf, 0)} · accuracy ${pct(p.acc, 1)} · n=${p.n}`}</title>
+            <title>{`Mean stated probability ${pct(p.conf, 0)} · observed frequency ${pct(p.acc, 1)} · n=${p.n}`}</title>
           </circle>
         ))}
         <text className="rd-label" x={padL + plotW / 2} y={H - 6} textAnchor="middle">
-          Mean confidence
+          Mean stated probability
         </text>
         <text
           className="rd-label"
@@ -98,7 +98,7 @@ function ReliabilityDiagramImpl({
           y={padT + plotH / 2}
           textAnchor="middle"
         >
-          Observed accuracy
+          Observed outcome frequency
         </text>
       </svg>
       <figcaption

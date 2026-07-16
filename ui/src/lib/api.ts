@@ -13,7 +13,7 @@
  *   GET {base}/api/v1/analytics/competitions/{id} -> CompetitionAnalytics
  *   POST {base}/api/v1/forecasts/settle   -> SettlementReport
  */
-import { ACCEPTED_SCHEMA_VERSIONS } from "./contract";
+import { ACCEPTED_SCHEMA_VERSIONS, ANALYSIS_SCHEMA_VERSION } from "./contract";
 import type {
   CalibrationSummary,
   ConditionsSnapshot,
@@ -1638,6 +1638,8 @@ function assertMatchAnalysis(x: unknown, ctx: string): MatchAnalysisResponse {
   if (r.available) {
     const a = r.analysis;
     if (!a || typeof a !== "object") throw new ContractError(`${ctx}: available but no analysis`);
+    if (a.schema_version !== ANALYSIS_SCHEMA_VERSION)
+      throw new ContractError(`${ctx}: unsupported analysis schema ${String(a.schema_version)}`);
     if (a.analysis_kind !== "replay" && a.analysis_kind !== "preview")
       throw new ContractError(`${ctx}: bad analysis_kind ${String(a.analysis_kind)}`);
     if (!Array.isArray(a.models)) throw new ContractError(`${ctx}: models is not an array`);
@@ -1668,6 +1670,15 @@ function assertMatchAnalysis(x: unknown, ctx: string): MatchAnalysisResponse {
           throw new ContractError(`${ctx}: team_style[${team}] multiplier out of clip band`);
       }
     }
+    if (!a.explanation || a.explanation.schema_version !== "0.1.0")
+      throw new ContractError(`${ctx}: missing Phase 8 explanation receipt`);
+    if (
+      a.explanation.averaged_consensus !== false ||
+      a.explanation.calibrated_confidence !== false ||
+      a.explanation.causal_claims !== false ||
+      a.explanation.sealed_forecast_immutable !== true
+    )
+      throw new ContractError(`${ctx}: invalid explanation authority flags`);
     assertScoreMatrix(a.score_matrix, ctx);
   }
   return r;

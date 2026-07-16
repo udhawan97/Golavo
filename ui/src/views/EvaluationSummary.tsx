@@ -286,8 +286,8 @@ function Calibration({ folds }: { folds: Fold[] }) {
         ) : (
           <EmptyState title="No calibration data for this selection">
             {model ? FAMILY_LABELS[model.family] : ""} has no populated reliability bins for{" "}
-            {fold.fold_id}. On the diagram, points on the dashed line mean the model’s confidence
-            matched its observed accuracy.
+            {fold.fold_id}. On the diagram, points on the dashed line mean the model’s stated probability
+            matched its observed outcome frequency.
           </EmptyState>
         )}
       </div>

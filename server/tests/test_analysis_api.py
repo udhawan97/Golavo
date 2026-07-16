@@ -8,6 +8,8 @@ Replay/Preview split, leak-safe cutoff, and the empty-upcoming rail state.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -18,9 +20,23 @@ from golavo_server import main as server_main
 from golavo_server import matches
 
 COLUMNS = [
-    "match_id", "date", "kickoff_utc", "home_team", "away_team", "home_norm",
-    "away_norm", "home_score", "away_score", "is_complete", "tournament",
-    "competition", "city", "country", "neutral", "source_id", "source_kind",
+    "match_id",
+    "date",
+    "kickoff_utc",
+    "home_team",
+    "away_team",
+    "home_norm",
+    "away_norm",
+    "home_score",
+    "away_score",
+    "is_complete",
+    "tournament",
+    "competition",
+    "city",
+    "country",
+    "neutral",
+    "source_id",
+    "source_kind",
 ]
 _INTL = "martj42-international-results"
 TEAMS = ["Alpha", "Beta", "Gamma", "Delta"]
@@ -28,11 +44,22 @@ TEAMS = ["Alpha", "Beta", "Gamma", "Delta"]
 
 def _row(match_id, date, home, away, hs, aws, complete):
     return {
-        "match_id": match_id, "date": date, "kickoff_utc": f"{date}T00:00:00Z",
-        "home_team": home, "away_team": away, "home_norm": home.lower(),
-        "away_norm": away.lower(), "home_score": hs, "away_score": aws,
-        "is_complete": complete, "tournament": "Friendly", "competition": "Friendly",
-        "city": "City", "country": "Country", "neutral": False, "source_id": _INTL,
+        "match_id": match_id,
+        "date": date,
+        "kickoff_utc": f"{date}T00:00:00Z",
+        "home_team": home,
+        "away_team": away,
+        "home_norm": home.lower(),
+        "away_norm": away.lower(),
+        "home_score": hs,
+        "away_score": aws,
+        "is_complete": complete,
+        "tournament": "Friendly",
+        "competition": "Friendly",
+        "city": "City",
+        "country": "Country",
+        "neutral": False,
+        "source_id": _INTL,
         "source_kind": "international",
     }
 
@@ -48,8 +75,15 @@ def _rows() -> list[dict]:
                 n += 1
                 month = 1 + round_no
                 rows.append(
-                    _row(f"m_h{n:04d}", f"2024-{month:02d}-{(n % 27) + 1:02d}",
-                         TEAMS[i], TEAMS[j], (n % 3), (n % 2), True)
+                    _row(
+                        f"m_h{n:04d}",
+                        f"2024-{month:02d}-{(n % 27) + 1:02d}",
+                        TEAMS[i],
+                        TEAMS[j],
+                        (n % 3),
+                        (n % 2),
+                        True,
+                    )
                 )
     # A completed target fixture (replay) and a far-future one (preview).
     rows.append(_row("m_target", "2025-01-15", "Alpha", "Beta", 2, 1, True))
@@ -65,8 +99,19 @@ def _build_index(path: Path, rows: list[dict]) -> None:
     df["away_score"] = pd.array(list(df["away_score"]), dtype="Int16")
     df["is_complete"] = df["is_complete"].astype(bool)
     df["neutral"] = pd.array(list(df["neutral"]), dtype="boolean")
-    for col in ("match_id", "home_team", "away_team", "home_norm", "away_norm",
-                "tournament", "competition", "city", "country", "source_id", "source_kind"):
+    for col in (
+        "match_id",
+        "home_team",
+        "away_team",
+        "home_norm",
+        "away_norm",
+        "tournament",
+        "competition",
+        "city",
+        "country",
+        "source_id",
+        "source_kind",
+    ):
         df[col] = df[col].astype("string")
     df[COLUMNS].to_parquet(path)
 
@@ -95,7 +140,7 @@ def test_replay_analysis_shape_and_leak_safe_cutoff(client):
     body = client.get("/api/v1/matches/m_target/analysis").json()
     assert body["available"] is True
     a = body["analysis"]
-    assert a["schema_version"] == "0.4.1"
+    assert a["schema_version"] == "0.5.0"
     assert a["analysis_kind"] == "replay"
     # 0.4.x additions present on a modelled fixture.
     assert set(a["team_form"]) == {"Alpha", "Beta"}
@@ -128,9 +173,7 @@ def test_unknown_match_is_404(client):
     assert client.get("/api/v1/matches/m_nope/analysis").status_code == 404
 
 
-def test_club_analysis_never_mixes_competitions_with_a_shared_source(
-    tmp_path, monkeypatch
-):
+def test_club_analysis_never_mixes_competitions_with_a_shared_source(tmp_path, monkeypatch):
     rows = _rows()
     for row in rows:
         row["source_id"] = "openfootball-shared"
@@ -154,7 +197,7 @@ def test_club_analysis_never_mixes_competitions_with_a_shared_source(
 
     def _capture(*, matches, match_row):
         captured["matches"] = matches
-        return {"schema_version": "0.4.1", "match": match_row}
+        return {"schema_version": "0.5.0", "match": match_row}
 
     monkeypatch.setattr(core_analysis, "build_match_analysis", _capture)
     body = server_analysis.match_analysis("m_target")
@@ -218,7 +261,7 @@ def test_disk_cache_survives_an_l1_reset(cached_client, monkeypatch):
     monkeypatch.setattr(core_analysis, "build_match_analysis", _boom)
     second = client.get("/api/v1/matches/m_target/analysis").json()
     assert second["available"] is True
-    assert second["analysis"]["schema_version"] == "0.4.1"
+    assert second["analysis"]["schema_version"] == "0.5.0"
 
 
 def test_disk_cache_invalidates_when_the_fingerprint_changes(cached_client, monkeypatch):
@@ -233,7 +276,8 @@ def test_disk_cache_invalidates_when_the_fingerprint_changes(cached_client, monk
     import golavo_core.analysis as core_analysis
 
     monkeypatch.setattr(
-        core_analysis, "build_match_analysis",
+        core_analysis,
+        "build_match_analysis",
         lambda *a, **k: (_ for _ in ()).throw(AssertionError("miss expected")),
     )
     # A miss now hits the (raising) recompute → fails closed to available:false,
@@ -254,7 +298,29 @@ def test_corrupt_cache_file_is_ignored_and_recomputed(cached_client):
     server_analysis.reset_cache()
     body = client.get("/api/v1/matches/m_target/analysis").json()
     assert body["available"] is True  # recomputed despite the corrupt file
-    assert body["analysis"]["schema_version"] == "0.4.1"
+    assert body["analysis"]["schema_version"] == "0.5.0"
+
+
+def test_schema_invalid_cache_is_rejected_even_with_a_matching_hash(cached_client):
+    client, cache_dir, _ = cached_client
+    client.get("/api/v1/matches/m_target/analysis")
+    path = next(cache_dir.glob("an_*.json"))
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["envelope"]["analysis"]["explanation"]["averaged_consensus"] = True
+    payload = json.dumps(
+        record["envelope"], sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+    record["payload_sha256"] = hashlib.sha256(payload).hexdigest()
+    path.write_text(
+        json.dumps(record, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    matches.reset_cache()
+    server_analysis.reset_cache()
+    body = client.get("/api/v1/matches/m_target/analysis").json()
+    assert body["available"] is True
+    assert body["analysis"]["explanation"]["averaged_consensus"] is False
 
 
 def test_source_mode_writes_no_disk_cache(client, monkeypatch):

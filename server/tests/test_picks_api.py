@@ -62,7 +62,7 @@ def _analysis() -> dict:
         "available": True,
         "reason": None,
         "analysis": {
-            "schema_version": "0.4.1",
+            "schema_version": "0.5.0",
             "information_cutoff_utc": "2026-08-01T11:59:59Z",
             "models": [
                 {

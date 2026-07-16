@@ -49,7 +49,7 @@ function notebook(facts: NotebookFact[]): CommentatorsNotebook {
 
 function analysis(overrides: Partial<MatchAnalysis> = {}): MatchAnalysis {
   return {
-    schema_version: "0.4.1",
+    schema_version: "0.5.0",
     analysis_kind: "preview",
     match: {
       match_id: "m1",

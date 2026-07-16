@@ -29,7 +29,9 @@ outcome.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
+from functools import lru_cache
 from typing import Any
 
 import pandas as pd
@@ -42,7 +44,8 @@ from golavo_core.ingest import training_rows
 from golavo_core.models import fit_model
 from golavo_core.score_matrix import assert_model_coherent, build_score_matrix
 
-ANALYSIS_SCHEMA_VERSION = "0.4.1"
+ANALYSIS_SCHEMA_VERSION = "0.5.0"
+EXPLANATION_FORMULA_VERSION = "analysis-explanation-1"
 
 # The fitted attack/defence multipliers are clipped to this band (mirrors
 # PoissonModel); a baseline of 1.0 is league-average.
@@ -83,6 +86,16 @@ class AnalysisUnavailable(Exception):
     """The fixture cannot be analysed (e.g. no kickoff timestamp)."""
 
 
+@lru_cache(maxsize=1)
+def _analysis_validator() -> Any:
+    from jsonschema import Draft202012Validator, FormatChecker
+
+    from golavo_core.resources import match_analysis_schema_path
+
+    schema = json.loads(match_analysis_schema_path().read_text(encoding="utf-8"))
+    return Draft202012Validator(schema, format_checker=FormatChecker())
+
+
 def _to_utc(value: Any) -> pd.Timestamp:
     ts = pd.Timestamp(value)
     return ts.tz_localize("UTC") if ts.tzinfo is None else ts.tz_convert("UTC")
@@ -113,6 +126,11 @@ def _uncertainty(minimum_count: int) -> str:
     return "high" if minimum_count < 20 else "medium" if minimum_count < 40 else "low"
 
 
+def _history_support(minimum_count: int) -> str:
+    """Describe training coverage without turning it into confidence or accuracy."""
+    return "limited" if minimum_count < 20 else "moderate" if minimum_count < 40 else "strong"
+
+
 def _recent_form(train: pd.DataFrame, team: str, n: int = 5) -> list[dict[str, Any]]:
     """The team's last ``n`` completed results BEFORE the cutoff, oldest-first.
 
@@ -134,15 +152,17 @@ def _recent_form(train: pd.DataFrame, team: str, n: int = 5) -> list[dict[str, A
         gf = int(r["home_score"]) if is_home else int(r["away_score"])
         ga = int(r["away_score"]) if is_home else int(r["home_score"])
         result = "W" if gf > ga else "D" if gf == ga else "L"
-        out.append({
-            "result": result,
-            "opponent": str(r["away_team"]) if is_home else str(r["home_team"]),
-            "gf": gf,
-            "ga": ga,
-            "date": pd.Timestamp(r["date"]).date().isoformat(),
-            "is_home": bool(is_home),
-            "neutral": bool(r.get("neutral") or False),
-        })
+        out.append(
+            {
+                "result": result,
+                "opponent": str(r["away_team"]) if is_home else str(r["home_team"]),
+                "gf": gf,
+                "ga": ga,
+                "date": pd.Timestamp(r["date"]).date().isoformat(),
+                "is_home": bool(is_home),
+                "neutral": bool(r.get("neutral") or False),
+            }
+        )
     return out
 
 
@@ -187,6 +207,165 @@ def _council_summary(voice_entries: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _analysis_explanation(
+    *,
+    voice_entries: list[dict[str, Any]],
+    minimum_count: int,
+    abstained: bool,
+    score_matrix_available: bool,
+    analysis_kind: str,
+    source_id: str | None,
+) -> dict[str, Any]:
+    """Deterministic, descriptive explanation over already-computed outputs.
+
+    This performs no fit, averaging, counterfactual estimate, or causal
+    attribution. Percentage-point gaps are exact re-expressions of the two
+    voice probabilities already present in the response.
+    """
+    comparable = [entry for entry in voice_entries if entry.get("probs") is not None]
+    outcomes = ("home", "draw", "away")
+    voices = [
+        {
+            "family": str(entry["family"]),
+            "method": str(entry["method"]),
+            "modal_outcome": _modal_outcome(entry["probs"]),
+        }
+        for entry in comparable
+    ]
+    gaps: dict[str, float] | None = None
+    largest_gap: dict[str, Any] | None = None
+    status = "not_comparable"
+    if len(comparable) >= 2:
+        gaps = {
+            outcome: round(
+                abs(float(comparable[0]["probs"][outcome]) - float(comparable[1]["probs"][outcome]))
+                * 100,
+                1,
+            )
+            for outcome in outcomes
+        }
+        largest = max(outcomes, key=lambda outcome: (gaps[outcome], -outcomes.index(outcome)))
+        largest_gap = {"outcome": largest, "percentage_points": gaps[largest]}
+        status = (
+            "modal_agreement"
+            if len({voice["modal_outcome"] for voice in voices}) == 1
+            else "modal_split"
+        )
+
+    capabilities = [
+        {
+            "id": "result_history",
+            "label": "Verified result history",
+            "available": minimum_count > 0,
+            "source_ids": [source_id] if source_id else [],
+        },
+        {
+            "id": "model_council",
+            "label": "Deterministic model council",
+            "available": not abstained,
+            "source_ids": ["engine:match_analysis"],
+        },
+        {
+            "id": "score_distribution",
+            "label": "Goal-model score distribution",
+            "available": score_matrix_available,
+            "source_ids": ["engine:match_analysis"],
+        },
+        {
+            "id": "verified_lineups",
+            "label": "Verified lineups",
+            "available": False,
+            "source_ids": [],
+        },
+        {
+            "id": "verified_injuries",
+            "label": "Verified injuries",
+            "available": False,
+            "source_ids": [],
+        },
+        {
+            "id": "observed_xg",
+            "label": "Observed xG",
+            "available": False,
+            "source_ids": [],
+        },
+    ]
+    available_count = sum(1 for item in capabilities if item["available"])
+    change_triggers = [
+        {
+            "id": "verified_source_refresh",
+            "label": "Verified source data changes",
+            "description": (
+                "A refreshed source adds or corrects a completed result before the recorded "
+                "kickoff cutoff; the live analysis is then recomputed."
+            ),
+        },
+        {
+            "id": "reviewed_identity_correction",
+            "label": "A reviewed identity correction lands",
+            "description": (
+                "A team or fixture identity correction changes which pre-cutoff rows belong to "
+                "this analysis. Unverified candidates do nothing."
+            ),
+        },
+        {
+            "id": "engine_version_change",
+            "label": "A later deterministic engine version",
+            "description": (
+                "A future Golavo version may produce a different live read; existing sealed "
+                "forecasts remain byte-for-byte unchanged."
+            ),
+        },
+    ]
+    return {
+        "schema_version": "0.1.0",
+        "descriptive_only": True,
+        "hypothetical_only": True,
+        "averaged_consensus": False,
+        "calibrated_confidence": False,
+        "causal_claims": False,
+        "sealed_forecast_immutable": True,
+        "history_support": {
+            "level": _history_support(minimum_count),
+            "minimum_qualifying_matches": minimum_count,
+            "model_floor": MIN_TEAM_MATCHES,
+            "meaning": "training coverage only; not forecast confidence or accuracy",
+        },
+        "disagreement": {
+            "status": status,
+            "voices": voices,
+            "outcome_gap_percentage_points": gaps,
+            "largest_gap": largest_gap,
+            "meaning": "descriptive probability gaps between the ratings and goals voices",
+        },
+        "change_triggers": change_triggers,
+        "capability_coverage": {
+            "available_count": available_count,
+            "assessed_count": len(capabilities),
+            "items": capabilities,
+            "meaning": "known data and product capabilities only; not model quality or accuracy",
+        },
+        "missing_evidence": [
+            "verified_lineups",
+            "verified_injuries",
+            "observed_xg",
+        ],
+        "provenance": {
+            "source_ids": [source_id] if source_id else [],
+            "engine_source_id": "engine:match_analysis",
+            "formula_version": EXPLANATION_FORMULA_VERSION,
+            "input_fields": [
+                "team_history",
+                "models[].family",
+                "models[].method",
+                "models[].probs",
+                "score_matrix",
+            ],
+        },
+        "analysis_kind": analysis_kind,
+    }
+
+
 def _derived_markets(matrix: Any) -> dict[str, Any]:
     """Exact both-teams-to-score and clean-sheet marginals from the FULL joint
     matrix (not the display-truncated grid, whose tail is decomposed only by
@@ -198,8 +377,8 @@ def _derived_markets(matrix: Any) -> dict[str, Any]:
     import numpy as np
 
     m = np.asarray(matrix, dtype=float)
-    p_home_zero = float(m[0, :].sum())   # home scores 0
-    p_away_zero = float(m[:, 0].sum())   # away scores 0
+    p_home_zero = float(m[0, :].sum())  # home scores 0
+    p_away_zero = float(m[:, 0].sum())  # away scores 0
     p_nil_nil = float(m[0, 0])
     btts_yes = 1.0 - p_home_zero - p_away_zero + p_nil_nil
     btts_yes = min(1.0, max(0.0, btts_yes))
@@ -246,6 +425,7 @@ def build_match_analysis(
     away_team = str(match_row["away_team"])
     neutral = bool(match_row.get("neutral") or False)
     is_complete = bool(match_row.get("is_complete") or False)
+    source_id = str(match_row.get("source_id") or "") or None
     kind = "replay" if is_complete else "preview"
 
     train = training_rows(matches, cutoff_iso)
@@ -353,7 +533,7 @@ def build_match_analysis(
             "matches per side"
         )
 
-    return {
+    result = {
         "schema_version": ANALYSIS_SCHEMA_VERSION,
         "analysis_kind": kind,
         "match": {
@@ -364,6 +544,7 @@ def build_match_analysis(
             "away_team": away_team,
             "neutral_venue": neutral,
             "is_complete": is_complete,
+            "source_id": source_id,
         },
         "information_cutoff_utc": cutoff_iso,
         "abstained": abstained,
@@ -378,4 +559,14 @@ def build_match_analysis(
         "score_matrix": score_matrix,
         "score_matrix_family": GOAL_VOICE if score_matrix is not None else None,
         "derived_markets": derived_markets,
+        "explanation": _analysis_explanation(
+            voice_entries=voice_entries,
+            minimum_count=minimum_count,
+            abstained=abstained,
+            score_matrix_available=score_matrix is not None,
+            analysis_kind=kind,
+            source_id=source_id,
+        ),
     }
+    _analysis_validator().validate(result)
+    return result

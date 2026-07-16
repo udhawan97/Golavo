@@ -85,6 +85,11 @@ def conditions_snapshot_schema_path() -> Path:
     return resource("docs", "contracts", "conditions_snapshot.schema.json")
 
 
+def match_analysis_schema_path() -> Path:
+    """Absolute path to the on-demand MatchAnalysis read-model contract."""
+    return resource("docs", "contracts", "match_analysis.schema.json")
+
+
 def research_team_analytics_schema_path() -> Path:
     """Absolute path to the historical team-only research artifact contract."""
     return resource("docs", "contracts", "research_team_analytics.schema.json")

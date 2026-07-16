@@ -26,7 +26,7 @@ export function RivalPicks({
         <h3 id="rivals-title">You vs the machines</h3>
         <span className="small muted">
           {!revealed
-            ? "Five AI rivals have made their calls. Save yours to see theirs."
+            ? "Five deterministic model rivals have made their calls. Save yours to see theirs."
             : frozen
               ? "Calls frozen at kickoff."
               : "Rival picks can still shift until kickoff — like yours."}

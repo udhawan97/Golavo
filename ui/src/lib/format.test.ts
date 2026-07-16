@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { inWords, kickoffRelative, largestRemainder, pctWhole, sinceYear, yearSpan } from "./format";
+import { inWords, kickoffRelative, largestRemainder, pctWhole, sealLeadTime, sinceYear, yearSpan } from "./format";
 
 describe("pctWhole", () => {
   it("rounds to a whole percent", () => {
@@ -76,5 +76,20 @@ describe("sinceYear / yearSpan", () => {
     expect(yearSpan(["1930-07-18", "2026-07-06"])).toBe("1930–2026");
     expect(yearSpan(["2024-01-01", "2024-12-31"])).toBe("2024");
     expect(yearSpan(["bad", "2026-01-01"])).toBe("");
+  });
+});
+
+describe("sealLeadTime", () => {
+  const kickoff = "2026-07-20T18:00:00Z";
+
+  it("uses immutable timestamps instead of the legacy horizon tag", () => {
+    expect(sealLeadTime(kickoff, "2026-07-19T02:00:00Z")).toBe("1d 16h");
+    expect(sealLeadTime(kickoff, "2026-07-20T01:00:00Z")).toBe("17h");
+    expect(sealLeadTime(kickoff, "2026-07-20T17:35:00Z")).toBe("25m");
+  });
+
+  it("fails closed for invalid or post-kickoff seals", () => {
+    expect(sealLeadTime("bad", "2026-07-20T17:35:00Z")).toBeNull();
+    expect(sealLeadTime(kickoff, "2026-07-20T19:00:00Z")).toBeNull();
   });
 });

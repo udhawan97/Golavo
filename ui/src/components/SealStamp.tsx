@@ -1,6 +1,7 @@
 import type { ForecastArtifact } from "../lib/contract";
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
 import { utc } from "../lib/format";
+import { sealLeadTime } from "../lib/format";
 import { SealIcon } from "./icons";
 import { Hash } from "./primitives";
 
@@ -8,6 +9,7 @@ import { Hash } from "./primitives";
  *  is part of what payload_sha256 covers — change any input and the hash changes. */
 export function SealStamp({ artifact }: { artifact: ForecastArtifact }) {
   const { forecast, model, provenance } = artifact;
+  const lead = sealLeadTime(artifact.match.kickoff_utc, forecast.sealed_at_utc);
   return (
     <section className="panel seal" aria-labelledby="seal-h">
       <SealEmblem />
@@ -20,8 +22,11 @@ export function SealStamp({ artifact }: { artifact: ForecastArtifact }) {
           <dt>Sealed at</dt>
           <dd className="num">{utc(forecast.sealed_at_utc)}</dd>
 
-          <dt>Horizon</dt>
-          <dd>{HORIZON_LABELS[forecast.horizon]} <span className="muted small">before kickoff</span></dd>
+          <dt>Lead time</dt>
+          <dd>{lead ? `${lead} before recorded kickoff` : "Unavailable from recorded timestamps"}</dd>
+
+          <dt>Audit tag</dt>
+          <dd>{HORIZON_LABELS[forecast.horizon]} <span className="muted small">legacy label</span></dd>
 
           <dt>Model</dt>
           <dd>

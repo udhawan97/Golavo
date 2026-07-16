@@ -171,7 +171,7 @@ export function PickPanel({
           {error && <div className="pick-ticket__error" role="alert">{error}</div>}
           {welcome && (
             <div className="pick-welcome">
-              <span>Your first call. No account, no stakes — pick the score you believe and see how you stack up against five AI rivals.</span>
+              <span>Your first call. No account, no stakes — pick the score you believe and compare it with five deterministic model families.</span>
               <button type="button" onClick={dismissWelcome}>Got it</button>
             </div>
           )}

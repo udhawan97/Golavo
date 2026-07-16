@@ -35,7 +35,7 @@ export function MySeason() {
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <header className="season-head">
-        <div><div className="eyebrow"><PitchIcon /> MY SEASON</div><h1>You vs the machines</h1><p className="dim">You against five AI rivals — scored only on the matches you call.</p></div>
+        <div><div className="eyebrow"><PitchIcon /> MY SEASON</div><h1>You vs the models</h1><p className="dim">You against five deterministic model families — scored only on the matches you call.</p></div>
         <TrophyIcon size={34} />
       </header>
       {preview && <div className="callout callout--info">Practice mode — picks are stored on this device and never count.</div>}

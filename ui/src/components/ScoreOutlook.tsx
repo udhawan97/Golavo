@@ -9,9 +9,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { MatchAnalysis } from "../lib/contract";
 import { pct } from "../lib/format";
+import { analysisHistorySupport } from "../lib/analysisPresentation";
 import { doubleChanceMarkets, goalThresholds, totalGoalBands } from "../lib/markets";
 import { ChevronDown, DistributionIcon, MatrixIcon, ScaleIcon, ShieldCheckIcon } from "./icons";
-import { StatTile, UncertaintyTag } from "./primitives";
+import { HistorySupportTag, StatTile } from "./primitives";
 import { ScoreMatrixHeatmap } from "./ScoreMatrixHeatmap";
 
 /** A quiet two-segment "over vs under / yes vs no" mini bar with mono labels. */
@@ -161,7 +162,10 @@ export function ScoreOutlook({
             label={`Model goals · ${away}`}
             hint="expected, not predicted"
           />
-          <StatTile value={<UncertaintyTag level={analysis.uncertainty} />} label="Confidence" />
+          <StatTile
+            value={<HistorySupportTag level={analysisHistorySupport(analysis)} />}
+            label="Training coverage"
+          />
         </div>
 
         {/* Markets — re-bucketed from the same score grid (over/under) and the

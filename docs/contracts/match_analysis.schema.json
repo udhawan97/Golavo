@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://udhawan97.github.io/Golavo/contracts/match-analysis-0.4.1.schema.json",
+  "$id": "https://udhawan97.github.io/Golavo/contracts/match-analysis-0.5.0.schema.json",
   "title": "MatchAnalysis",
   "description": "The on-demand Match Cockpit read for one indexed fixture (a Replay for a played match, a Preview for a scheduled one). Computed leak-safe at the seal's own kickoff-1s cutoff and NEVER persisted: this is a live view, not a sealed forecast. A council of candidate families is shown side by side WITHOUT averaging — the two voices (ratings, goals) plus a climatology baseline, with the goal variants disclosed but not counted as extra opinions. Derived from core/golavo_core/analysis.py:build_match_analysis (ANALYSIS_SCHEMA_VERSION).",
   "type": "object",
@@ -21,10 +21,11 @@
     "models",
     "score_matrix",
     "score_matrix_family",
-    "derived_markets"
+    "derived_markets",
+    "explanation"
   ],
   "properties": {
-    "schema_version": {"const": "0.4.1"},
+    "schema_version": {"const": "0.5.0"},
     "analysis_kind": {
       "enum": ["replay", "preview"],
       "description": "replay = a completed fixture reconstructed with pre-kickoff data only (not a forecast that existed at the time; never enters the track record); preview = a scheduled fixture."
@@ -80,6 +81,10 @@
     "derived_markets": {
       "description": "Exact both-teams-to-score and clean-sheet marginals computed from the goal voice's FULL joint matrix at build time (not recoverable from the outcome-decomposed score grid). Null when the goal voice abstained or is absent.",
       "oneOf": [{"$ref": "#/$defs/DerivedMarkets"}, {"type": "null"}]
+    },
+    "explanation": {
+      "$ref": "#/$defs/Explanation",
+      "description": "Descriptive Phase 8 readout derived from the already-computed voices. It performs no additional fit, averaging, causal attribution or confidence calibration."
     }
   },
   "$defs": {
@@ -167,7 +172,8 @@
         "home_team",
         "away_team",
         "neutral_venue",
-        "is_complete"
+        "is_complete",
+        "source_id"
       ],
       "properties": {
         "match_id": {"type": "string", "minLength": 1},
@@ -176,7 +182,140 @@
         "home_team": {"type": "string", "minLength": 1},
         "away_team": {"type": "string", "minLength": 1},
         "neutral_venue": {"type": "boolean"},
-        "is_complete": {"type": "boolean"}
+        "is_complete": {"type": "boolean"},
+        "source_id": {"type": ["string", "null"]}
+      }
+    },
+    "Explanation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "descriptive_only", "hypothetical_only", "averaged_consensus", "calibrated_confidence", "causal_claims", "sealed_forecast_immutable", "history_support", "disagreement", "change_triggers", "capability_coverage", "missing_evidence", "provenance", "analysis_kind"],
+      "properties": {
+        "schema_version": {"const": "0.1.0"},
+        "descriptive_only": {"const": true},
+        "hypothetical_only": {"const": true},
+        "averaged_consensus": {"const": false},
+        "calibrated_confidence": {"const": false},
+        "causal_claims": {"const": false},
+        "sealed_forecast_immutable": {"const": true},
+        "analysis_kind": {"enum": ["replay", "preview"]},
+        "history_support": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "minimum_qualifying_matches", "model_floor", "meaning"],
+          "properties": {
+            "level": {"enum": ["limited", "moderate", "strong"]},
+            "minimum_qualifying_matches": {"type": "integer", "minimum": 0},
+            "model_floor": {"type": "integer", "minimum": 1},
+            "meaning": {"const": "training coverage only; not forecast confidence or accuracy"}
+          }
+        },
+        "disagreement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "voices", "outcome_gap_percentage_points", "largest_gap", "meaning"],
+          "properties": {
+            "status": {"enum": ["modal_agreement", "modal_split", "not_comparable"]},
+            "voices": {
+              "type": "array",
+              "maxItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["family", "method", "modal_outcome"],
+                "properties": {
+                  "family": {"type": "string"},
+                  "method": {"type": "string"},
+                  "modal_outcome": {"enum": ["home", "draw", "away"]}
+                }
+              }
+            },
+            "outcome_gap_percentage_points": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["home", "draw", "away"],
+                  "properties": {
+                    "home": {"type": "number", "minimum": 0, "maximum": 100},
+                    "draw": {"type": "number", "minimum": 0, "maximum": 100},
+                    "away": {"type": "number", "minimum": 0, "maximum": 100}
+                  }
+                },
+                {"type": "null"}
+              ]
+            },
+            "largest_gap": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["outcome", "percentage_points"],
+                  "properties": {
+                    "outcome": {"enum": ["home", "draw", "away"]},
+                    "percentage_points": {"type": "number", "minimum": 0, "maximum": 100}
+                  }
+                },
+                {"type": "null"}
+              ]
+            },
+            "meaning": {"type": "string"}
+          }
+        },
+        "change_triggers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label", "description"],
+            "properties": {
+              "id": {"type": "string"},
+              "label": {"type": "string"},
+              "description": {"type": "string"}
+            }
+          }
+        },
+        "capability_coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["available_count", "assessed_count", "items", "meaning"],
+          "properties": {
+            "available_count": {"type": "integer", "minimum": 0},
+            "assessed_count": {"type": "integer", "minimum": 1},
+            "meaning": {"const": "known data and product capabilities only; not model quality or accuracy"},
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "label", "available", "source_ids"],
+                "properties": {
+                  "id": {"type": "string"},
+                  "label": {"type": "string"},
+                  "available": {"type": "boolean"},
+                  "source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+                }
+              }
+            }
+          }
+        },
+        "missing_evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["verified_lineups", "verified_injuries", "observed_xg"]}
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_ids", "engine_source_id", "formula_version", "input_fields"],
+          "properties": {
+            "source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+            "engine_source_id": {"const": "engine:match_analysis"},
+            "formula_version": {"const": "analysis-explanation-1"},
+            "input_fields": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+          }
+        }
       }
     },
     "Council": {

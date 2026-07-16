@@ -4,12 +4,12 @@ import type { ForecastMode } from "../lib/hooks";
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
 import { fetchForecast, fetchForecasts } from "../lib/api";
 import { deriveMarkets } from "../lib/markets";
-import { num, pct, pctWhole, inWords, largestRemainder, utc, utcDate } from "../lib/format";
+import { num, pct, pctWhole, inWords, largestRemainder, sealLeadTime, utc, utcDate } from "../lib/format";
 import { useAsync, useForecastMode } from "../lib/hooks";
 import { verdictSummary } from "../lib/summary";
 import { leadingOutcomeFromProbs } from "../lib/aiPresentation";
 import { AlertIcon, ChevronDown, ChevronRight, InfoIcon, LinkIcon, ScaleIcon, SealIcon, ShieldCheckIcon, SparkIcon, VoidIcon } from "../components/icons";
-import { Hash, HorizonChip, ProbabilityBar, StatTile, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
+import { Hash, ProbabilityBar, SealLeadChip, StatTile, StatusChip, TrustStrip, UncertaintyTag } from "../components/primitives";
 import { MatchHeader } from "../components/MatchHeader";
 import { ModeToggle } from "../components/ModeToggle";
 import { Drawer } from "../components/disclosure";
@@ -66,7 +66,7 @@ function Detail({
         chips={
           <>
             <StatusChip status={status} />
-            <HorizonChip horizon={forecast.horizon} />
+            <SealLeadChip kickoffUtc={match.kickoff_utc} sealedAtUtc={forecast.sealed_at_utc} />
             {match.neutral_venue
               ? <span className="chip chip--neutral">Neutral venue</span>
               : <span className="chip chip--neutral">Home · {match.home_team}</span>}
@@ -179,6 +179,7 @@ function WhatChanged({ current, previous }: { current: ForecastArtifact; previou
  *  and "AI never changes the numbers" are always visible, never hidden. */
 function ForecastTrustStrip({ artifact }: { artifact: ForecastArtifact }) {
   const { forecast } = artifact;
+  const lead = sealLeadTime(artifact.match.kickoff_utc, forecast.sealed_at_utc);
   return (
     <TrustStrip
       items={[
@@ -186,11 +187,11 @@ function ForecastTrustStrip({ artifact }: { artifact: ForecastArtifact }) {
           icon: <ShieldCheckIcon />,
           label: (
             <>
-              Sealed {utcDate(forecast.sealed_at_utc)} · {HORIZON_LABELS[forecast.horizon]} before kickoff
+              Sealed {utcDate(forecast.sealed_at_utc)} · {lead ? `${lead} before recorded kickoff` : "lead time unavailable"}
             </>
           ),
           tipLabel: "How sealing works",
-          tip: "A forecast is only honest if it was sealed before kickoff. These probabilities were locked at the seal and are scored, unchanged, against the result — Golavo never retro-forecasts a played match.",
+          tip: `A forecast is only honest if it was sealed before kickoff. The displayed lead time is derived from the immutable timestamps. ${HORIZON_LABELS[forecast.horizon]} is preserved only as a legacy audit tag. These probabilities were locked at the seal and are scored unchanged against the result.`,
         },
         {
           icon: <ScaleIcon />,

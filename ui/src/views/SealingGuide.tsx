@@ -49,7 +49,7 @@ const STEPS: Step[] = [
     title: "2 · Read the council",
     body: (
       <>
-        The Match Cockpit fits five models and shows where they agree and where they don’t. Golavo
+        The Match Cockpit compares two deterministic voices, a baseline and disclosed goal-model variants. Golavo
         never averages them into one confident-looking number — disagreement is information.
       </>
     ),

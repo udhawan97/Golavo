@@ -162,11 +162,20 @@ def test_derived_markets_null_when_abstained() -> None:
     )
     ko = pd.Timestamp("2025-06-01", tz="UTC")
     fixture = {
-        "match_id": "m_dmfix", "date": ko, "kickoff_utc": ko,
-        "home_team": "Xerus", "away_team": "Yak", "home_score": None, "away_score": None,
-        "is_complete": False, "neutral": False, "competition": "Test League",
-        "source_id": "test-source", "source_kind": "international",
-        "home_norm": "xerus", "away_norm": "yak",
+        "match_id": "m_dmfix",
+        "date": ko,
+        "kickoff_utc": ko,
+        "home_team": "Xerus",
+        "away_team": "Yak",
+        "home_score": None,
+        "away_score": None,
+        "is_complete": False,
+        "neutral": False,
+        "competition": "Test League",
+        "source_id": "test-source",
+        "source_kind": "international",
+        "home_norm": "xerus",
+        "away_norm": "yak",
     }
     analysis = build_match_analysis(matches=thin, match_row=fixture)
     assert analysis["abstained"] is True
@@ -214,6 +223,45 @@ def test_analysis_is_deterministic() -> None:
     )
 
 
+def test_phase8_explanation_is_descriptive_exact_and_provenanced() -> None:
+    analysis = build_match_analysis(matches=_history(), match_row=_fixture(is_complete=False))
+    explanation = analysis["explanation"]
+    disagreement = explanation["disagreement"]
+    voices = [model for model in analysis["models"] if model["role"] == "voice"]
+
+    assert explanation["averaged_consensus"] is False
+    assert explanation["calibrated_confidence"] is False
+    assert explanation["causal_claims"] is False
+    assert explanation["sealed_forecast_immutable"] is True
+    assert explanation["history_support"]["meaning"].endswith("not forecast confidence or accuracy")
+    assert explanation["capability_coverage"]["meaning"].endswith("not model quality or accuracy")
+    for outcome in ("home", "draw", "away"):
+        expected = round(abs(voices[0]["probs"][outcome] - voices[1]["probs"][outcome]) * 100, 1)
+        assert disagreement["outcome_gap_percentage_points"][outcome] == expected
+    assert explanation["provenance"]["formula_version"] == "analysis-explanation-1"
+    assert explanation["provenance"]["source_ids"] == ["test-source"]
+    assert set(explanation["missing_evidence"]) == {
+        "verified_lineups",
+        "verified_injuries",
+        "observed_xg",
+    }
+
+
+def test_phase8_explanation_performs_no_additional_fit(monkeypatch: pytest.MonkeyPatch) -> None:
+    import golavo_core.analysis as analysis_module
+
+    original = analysis_module.fit_model
+    calls: list[str] = []
+
+    def counted(family: str, *args: object, **kwargs: object):
+        calls.append(family)
+        return original(family, *args, **kwargs)
+
+    monkeypatch.setattr(analysis_module, "fit_model", counted)
+    build_match_analysis(matches=_history(), match_row=_fixture(is_complete=False))
+    assert calls == list(analysis_module.COUNCIL_FAMILIES)
+
+
 def test_missing_kickoff_is_refused_not_guessed() -> None:
     fixture = _fixture(is_complete=False)
     fixture["kickoff_utc"] = None
@@ -241,10 +289,15 @@ def test_team_form_is_last_five_pre_cutoff_and_leak_safe() -> None:
     # Poisoning the frame with the fixture result + a later match must not change
     # the form (same leak guard as the council).
     poisoned = pd.concat(
-        [history, pd.DataFrame([
-            _match("m_fixture0001", "2025-06-01", "Aland", "Borda", 3, 0),
-            _match("m_future0001", "2025-07-01", "Aland", "Borda", 5, 0),
-        ])],
+        [
+            history,
+            pd.DataFrame(
+                [
+                    _match("m_fixture0001", "2025-06-01", "Aland", "Borda", 3, 0),
+                    _match("m_future0001", "2025-07-01", "Aland", "Borda", 5, 0),
+                ]
+            ),
+        ],
         ignore_index=True,
     )
     reanalysis = build_match_analysis(matches=poisoned, match_row=fixture)
@@ -252,22 +305,33 @@ def test_team_form_is_last_five_pre_cutoff_and_leak_safe() -> None:
 
 
 def test_team_form_present_even_when_the_council_abstains() -> None:
-    thin = pd.DataFrame([
-        _match("m_thin1", "2024-02-01", "Xerus", "Yak", 1, 0),
-        _match("m_thin2", "2024-03-01", "Xerus", "Yak", 0, 0),
-    ])
+    thin = pd.DataFrame(
+        [
+            _match("m_thin1", "2024-02-01", "Xerus", "Yak", 1, 0),
+            _match("m_thin2", "2024-03-01", "Xerus", "Yak", 0, 0),
+        ]
+    )
     ko = pd.Timestamp("2025-06-01", tz="UTC")
     fixture = {
-        "match_id": "m_thinfix", "date": ko, "kickoff_utc": ko,
-        "home_team": "Xerus", "away_team": "Yak", "home_score": None, "away_score": None,
-        "is_complete": False, "neutral": False, "competition": "Test League",
-        "source_id": "test-source", "source_kind": "international",
-        "home_norm": "xerus", "away_norm": "yak",
+        "match_id": "m_thinfix",
+        "date": ko,
+        "kickoff_utc": ko,
+        "home_team": "Xerus",
+        "away_team": "Yak",
+        "home_score": None,
+        "away_score": None,
+        "is_complete": False,
+        "neutral": False,
+        "competition": "Test League",
+        "source_id": "test-source",
+        "source_kind": "international",
+        "home_norm": "xerus",
+        "away_norm": "yak",
     }
     analysis = build_match_analysis(matches=thin, match_row=fixture)
     assert analysis["abstained"] is True
-    assert analysis["team_style"] is None                 # nothing fitted
-    assert len(analysis["team_form"]["Xerus"]) == 2       # but history still renders
+    assert analysis["team_style"] is None  # nothing fitted
+    assert len(analysis["team_form"]["Xerus"]) == 2  # but history still renders
     assert len(analysis["team_form"]["Yak"]) == 2
 
 

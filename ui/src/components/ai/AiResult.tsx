@@ -15,7 +15,8 @@ import type { AiDepth } from "../../lib/ai";
 import { buildEvidenceIndex, hostnameOf, sourceKindLine } from "../../lib/aiEvidence";
 import type { EvidenceIndex } from "../../lib/aiEvidence";
 import { presentAiClaims, presentOutcome, presentVerdictText } from "../../lib/aiPresentation";
-import type { Outcome, Uncertainty } from "../../lib/contract";
+import type { HistorySupportLevel, Outcome, Uncertainty } from "../../lib/contract";
+import { legacyHistorySupport } from "../../lib/analysisPresentation";
 import {
   ChecklistIcon,
   ExternalLinkIcon,
@@ -32,6 +33,7 @@ export interface AiDisplayContext {
   homeTeam: string;
   awayTeam: string;
   uncertainty?: Uncertainty | null;
+  historySupport?: HistorySupportLevel | null;
   /** Deterministic engine result used only when the local model omits verdict. */
   leadingOutcome?: Outcome | null;
 }
@@ -257,9 +259,9 @@ function VerdictHero({
           </span>
           <h3 id="ai-verdict-h">At a glance</h3>
         </div>
-        {context?.uncertainty && (
-          <span className={`ai-uncertainty ai-uncertainty--${context.uncertainty}`}>
-            {context.uncertainty} uncertainty
+        {(context?.historySupport || context?.uncertainty) && (
+          <span className={`ai-uncertainty ai-uncertainty--${context.historySupport ?? legacyHistorySupport(context.uncertainty!)}`}>
+            {context.historySupport ?? legacyHistorySupport(context.uncertainty!)} history support
           </span>
         )}
       </div>

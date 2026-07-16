@@ -36,12 +36,12 @@ export const HOME_TOUR: TourDef = {
     {
       target: "match-card",
       title: "Open any match",
-      body: "Past or upcoming — every match opens a deep analytics read: a five-model council, team style, and source-backed facts. No averaging into false certainty.",
+      body: "Past or upcoming — every match opens a deep analytics read: two deterministic voices, disclosed references, team style, and source-backed facts. No averaging into false certainty.",
     },
     {
       target: "nav-season",
       title: "Your season vs the machines",
-      body: "Pick a score on any upcoming match — it locks at kickoff — and watch your points race five AI rivals here.",
+      body: "Pick a score on any upcoming match — it locks at kickoff — and compare your points with five deterministic model families here.",
     },
     {
       target: "nav-lab",

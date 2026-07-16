@@ -1,8 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import type { ArtifactStatus, Horizon, Probs, Uncertainty } from "../lib/contract";
+import type { ArtifactStatus, HistorySupportLevel, Horizon, Probs, Uncertainty } from "../lib/contract";
 import { HORIZON_LABELS, STATUS_LABELS } from "../lib/contract";
-import { largestRemainder, shortHash } from "../lib/format";
+import { largestRemainder, sealLeadTime, shortHash } from "../lib/format";
 import { useCopy } from "../lib/hooks";
 import { CheckIcon, ClockIcon, CopyIcon, InfoIcon, SealIcon, VoidIcon } from "./icons";
 
@@ -27,9 +27,26 @@ export function StatusChip({ status }: { status: ArtifactStatus }) {
 
 export function HorizonChip({ horizon }: { horizon: Horizon }) {
   return (
-    <span className="chip chip--horizon" title="Seal horizon before kickoff">
+    <span className="chip chip--horizon" title="Legacy horizon audit tag; not the exact seal lead time">
       {HORIZON_LABELS[horizon]}
     </span>
+  );
+}
+
+export function SealLeadChip({
+  kickoffUtc,
+  sealedAtUtc,
+}: {
+  kickoffUtc: string;
+  sealedAtUtc: string;
+}) {
+  const lead = sealLeadTime(kickoffUtc, sealedAtUtc);
+  return lead ? (
+    <span className="chip chip--horizon" title="Derived from the immutable seal and recorded kickoff timestamps">
+      {lead} before kickoff
+    </span>
+  ) : (
+    <span className="chip chip--neutral">Lead time unavailable</span>
   );
 }
 
@@ -43,6 +60,24 @@ export function UncertaintyTag({ level }: { level: Uncertainty }) {
         {[1, 2, 3].map((i) => <i key={i} className={i <= fill ? "on" : ""} />)}
       </span>
       <span><span className="muted">Uncertainty</span> {level}</span>
+    </span>
+  );
+}
+
+const SUPPORT_FILL: Record<HistorySupportLevel, number> = {
+  limited: 1,
+  moderate: 2,
+  strong: 3,
+};
+
+export function HistorySupportTag({ level }: { level: HistorySupportLevel }) {
+  const fill = SUPPORT_FILL[level];
+  return (
+    <span className={`uncert history-support history-support--${level}`}>
+      <span className="uncert__bars" aria-hidden>
+        {[1, 2, 3].map((i) => <i key={i} className={i <= fill ? "on" : ""} />)}
+      </span>
+      <span><span className="muted">History support</span> {level}</span>
     </span>
   );
 }

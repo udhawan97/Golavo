@@ -34,6 +34,7 @@ import {
   ShieldCheckIcon,
 } from "./icons";
 import { ModelInternals } from "./ModelInternals";
+import { AnalysisExplainer } from "./AnalysisExplainer";
 
 const VOICE_LABEL: Record<string, string> = {
   elo_ordlogit: "Elo · ratings",
@@ -227,6 +228,8 @@ function Council({
           </div>
         </div>
       )}
+
+      <AnalysisExplainer analysis={analysis} home={home} away={away} />
 
       {expert && <ModelInternals analysis={analysis} home={home} away={away} />}
 
@@ -484,15 +487,15 @@ function ObjectTypeTrust({ analysis }: { analysis: MatchAnalysis }) {
           icon: <ShieldCheckIcon />,
           label: replay
             ? "Replay — reconstructed with pre-kickoff data only"
-            : "Preview — computed now, not sealed",
+            : "Preview — kickoff-cutoff projection, not sealed",
           tipLabel: "What this analysis is",
           tip: replay
             ? `Every model was fit using only matches before kickoff (cutoff ${utc(
                 analysis.information_cutoff_utc,
               )}). This is what the methods WOULD have said — it is not a forecast that existed at the time, and it never enters the track record.`
-            : `Computed from everything known so far (up to ${utc(
+            : `This live projection is anchored to the fixture's recorded kickoff cutoff (${utc(
                 analysis.information_cutoff_utc,
-              )}). It will move as new results arrive and is not sealed. To put a forecast on the record, seal it before kickoff.`,
+              )}), not the current clock. It may change when verified pre-kickoff source data or the deterministic engine changes. It is not sealed and never rewrites a sealed forecast.`,
         },
       ]}
     />
