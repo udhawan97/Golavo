@@ -6,8 +6,9 @@
 #   packaging/build.sh <target-triple>     e.g. aarch64-apple-darwin
 #                                               x86_64-pc-windows-msvc
 #
-# Signing & the updater are GATED on secrets — absent, an UNSIGNED bundle is
-# produced (Gatekeeper/SmartScreen will warn) and no update artifacts are made:
+# Distribution signing & the updater are GATED on secrets. Without an Apple
+# certificate, macOS receives only a local ad-hoc bundle seal (Gatekeeper will
+# still warn); without the updater key, no update artifacts are made:
 #   TAURI_SIGNING_PRIVATE_KEY (+ _PASSWORD)  -> sign + emit updater artifacts
 #   APPLE_CERTIFICATE / APPLE_SIGNING_IDENTITY / APPLE_ID / APPLE_PASSWORD /
 #   APPLE_TEAM_ID                            -> macOS Developer ID + notarization
@@ -51,11 +52,16 @@ python scripts/validate_research_isolation.py
 # string — and Tauri, seeing APPLE_CERTIFICATE "set", still runs `security
 # import` on the empty cert and fails the whole build ("failed to import
 # keychain certificate"). Unset the entire Apple group when the cert is empty so
-# Tauri skips Apple signing cleanly and produces an honest OS-unsigned bundle
-# (the updater signature is independent and still applied when its key is set).
+# Tauri skips Developer ID signing cleanly. For macOS targets we then select a
+# separate ad-hoc overlay so the bundle is internally sealed while remaining
+# honestly undistributed/unnotarized (the updater signature is independent).
+ADHOC_MACOS=0
 if [ -z "${APPLE_CERTIFICATE:-}" ]; then
   unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
     APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID 2>/dev/null || true
+  case "$TARGET" in
+    *apple-darwin*) ADHOC_MACOS=1 ;;
+  esac
 fi
 
 EXT=""
@@ -84,6 +90,14 @@ npm --prefix ui run build
 echo "==> [3/4] Building Tauri bundle"
 npm --prefix desktop ci
 BUILD_ARGS=(build --target "$TARGET")
+if [ "$ADHOC_MACOS" -eq 1 ]; then
+  # Rust's linker adds only an executable-level ad-hoc signature. An unsigned
+  # .app needs an outer ad-hoc signature too so Info.plist, resources and the
+  # sidecar are sealed and `codesign --verify --deep --strict` succeeds. Tauri
+  # applies this overlay before it creates the DMG. Real Developer ID builds do
+  # not use the overlay and continue to take their identity from CI secrets.
+  BUILD_ARGS+=(--config src-tauri/tauri.adhoc.conf.json)
+fi
 if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
   echo "    updater signing key present -> building signed updater artifacts"
   BUILD_ARGS+=(--features updater --config src-tauri/tauri.updater.conf.json)
@@ -95,7 +109,7 @@ if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
     BUILD_ARGS+=(--config "$GOLAVO_UPDATER_ENDPOINT_OVERLAY")
   fi
 else
-  echo "    no updater signing key -> UNSIGNED bundle, no updater artifacts"
+  echo "    no updater signing key -> no updater artifacts"
 fi
 ( cd desktop && npx tauri "${BUILD_ARGS[@]}" )
 

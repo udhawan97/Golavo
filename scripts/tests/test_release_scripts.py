@@ -31,6 +31,16 @@ def test_desktop_collector_excludes_temporary_and_stale_local_dmgs() -> None:
     assert "files=( *.dmg" not in text
 
 
+def test_unsigned_macos_builds_apply_the_adhoc_bundle_signature_overlay() -> None:
+    root = SCRIPTS.parent
+    build_text = (root / "packaging/build.sh").read_text(encoding="utf-8")
+    overlay = json.loads(
+        (root / "desktop/src-tauri/tauri.adhoc.conf.json").read_text(encoding="utf-8")
+    )
+    assert 'BUILD_ARGS+=(--config src-tauri/tauri.adhoc.conf.json)' in build_text
+    assert overlay["bundle"]["macOS"]["signingIdentity"] == "-"
+
+
 # --- bump_version ------------------------------------------------------------
 
 
