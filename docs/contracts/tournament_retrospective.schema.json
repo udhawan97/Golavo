@@ -74,8 +74,12 @@
       "items": { "$ref": "#/$defs/Row" }
     },
     "trust": {
-      "description": "The WC2026 evaluation fold's report card, recomputed on the active pack — expected to be the card for competition \"FIFA World Cup\". Null when no pack resolves. Absent when the core module is called directly, which never emits it. IMPORTANT: this is a DIFFERENT information boundary from the story layer above. A report card is trained once, pre-tournament, and scores the whole fold; the matches rows are each backtested at their own kickoff-1s cutoff. That is the whole reason the two layers are kept separate and never averaged together — do not read a trust metric as if it described any single row. Shape is owned by core/golavo_core/evaluation.py:_build_report_cards, not by this contract, so it is declared permissively here (see also the authoritative ReportCard/ReportCardModel defs in forecast_artifact.schema.json).",
-      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/TrustReportCard" }]
+      "description": "The WC2026 evaluation fold, recomputed on the same active pack the story layer used — one entry of golavo_core.evaluation.evaluate()'s `folds`, NOT an entry of its `report_cards`. That distinction is the point: report_cards are grouped per COMPETITION and evaluation.FOLDS holds two World Cup folds, so the \"FIFA World Cup\" card blends WC2022 and WC2026 into a single 161-match, 2022-11-20..2026-07-19 verdict. This page is exclusively about 2026, and a trust layer describing a tournament the story layer never mentions is exactly the overclaim these two layers are kept separate to refuse. IMPORTANT: this is still a DIFFERENT information boundary from the story layer above. The fold is trained ONCE, at a single pre-tournament cutoff (its training_cutoff_utc), and scores the whole window; the matches rows are each backtested at their own kickoff-1s cutoff. So the two are never averaged together — do not read a trust metric as if it described any single row. The fold's n_matches is the reconciliation handle: it should agree with coverage.scored above, and a reader who sees them disagree is looking at two snapshots, not one. Emitted only by the server layer; the core module never emits it, so it is absent when core is called directly. Every failure to produce it is a typed unavailable state carrying a machine-readable cause — never a bare null, which cannot say which of three different things went wrong.",
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/TrustFold" },
+        { "$ref": "#/$defs/TrustUnavailable" }
+      ]
     },
     "provenance": {
       "type": "object",
@@ -109,70 +113,71 @@
     }
   ],
   "$defs": {
-    "TrustReportCard": {
+    "TrustFold": {
       "type": "object",
-      "description": "Mirrors one entry of golavo_core.evaluation.evaluate()'s report_cards list. Deliberately permissive: additionalProperties is true and only the identifying spine is required, so a change owned by evaluation.py (a new metric, a new family) does not break this contract. Known fields are declared for readers and to catch type regressions, but are not required.",
+      "description": "One entry of golavo_core.evaluation.evaluate()'s `folds` list — the WC2026 fold — plus the server's `status` discriminator. Deliberately permissive: additionalProperties is true and only the identifying spine is required, so a change owned by evaluation.py (a new metric, a new family) does not break this contract. fold_id IS pinned, because the identity of the fold is the one thing this contract does own: selecting the wrong entry silently re-describes a different tournament, and no other field would give a reader a way to notice.",
       "additionalProperties": true,
-      "required": ["competition", "models"],
+      "required": ["status", "fold_id", "competition", "n_matches", "models"],
       "properties": {
+        "status": { "const": "available" },
+        "fold_id": {
+          "const": "WC2026",
+          "description": "Pinned. The story layer backtests the 2026 World Cup and nothing else, so any other fold — WC2022 above all — attaches a skill verdict earned on matches this page does not contain."
+        },
         "competition": {
           "type": "string",
           "minLength": 1,
-          "description": "Expected to be \"FIFA World Cup\" — the WC2026 fold's competition. Not pinned as a const here because this contract does not own the selection; the producing layer should assert it picked the right card."
+          "description": "Expected to be \"FIFA World Cup\". Not pinned as a const: evaluation.py owns the competition label, and it does NOT identify this fold — two World Cup folds share it, which is precisely how a report card selected by competition ends up spanning 2022 and 2026."
         },
-        "baseline_family": { "const": "climatological" },
-        "primary_metric": { "const": "log_loss" },
-        "minimum_matches": { "type": "integer", "minimum": 1 },
-        "bootstrap": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "method": { "const": "fold-stratified-match-bootstrap" },
-            "replicates": { "type": "integer", "minimum": 1 },
-            "seed": { "type": "integer" }
-          }
+        "n_matches": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Completed WC2026 rows this fold scored. Should reconcile with coverage.scored above; a disagreement means the trust and story layers read different snapshots."
+        },
+        "training_cutoff_utc": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The single pre-tournament instant the fold's models were trained at — NOT any row's cutoff. This is the whole reason trust is not averaged into the story."
         },
         "window_start": { "type": "string", "format": "date" },
         "window_end": { "type": "string", "format": "date" },
         "models": {
           "type": "array",
-          "description": "One card per evaluated family. Note this is golavo_core.models.FAMILIES (five, including bivariate_poisson) — NOT the story layer's four-voice `families` enum above, which deliberately omits bivariate_poisson as a duplicate opinion.",
-          "items": { "$ref": "#/$defs/TrustReportCardModel" }
+          "description": "One entry per evaluated family. Note this is golavo_core.models.FAMILIES (five, including bivariate_poisson) — NOT the story layer's four-voice `families` enum above, which deliberately omits bivariate_poisson as a duplicate opinion.",
+          "items": { "$ref": "#/$defs/TrustFoldModel" }
         }
       }
     },
-    "TrustReportCardModel": {
+    "TrustFoldModel": {
       "type": "object",
+      "description": "One family's metrics on this single fold. A FOLD model is not a REPORT CARD model (see the ReportCard/ReportCardModel defs in forecast_artifact.schema.json): it carries the fitted params and reliability bins for this one window and has no skill_score, skill_ci_95 or cross-fold ranks — a lone fold has nothing to rank against and no bootstrap is run over it. Known fields are declared for readers and to catch type regressions, but only the spine is required.",
       "additionalProperties": true,
+      "required": ["family", "log_loss"],
       "properties": {
         "family": { "type": "string", "minLength": 1 },
-        "n_matches": { "type": "integer", "minimum": 0 },
-        "n_folds": { "type": "integer", "minimum": 0 },
         "log_loss": { "type": "number", "minimum": 0 },
         "brier": { "type": "number", "minimum": 0 },
         "ece": { "type": "number", "minimum": 0 },
         "rps": { "type": "number", "minimum": 0 },
-        "skill_score": {
-          "type": "number",
-          "description": "1 - model_loss/baseline_loss. Negative when the family is worse than the climatological baseline, so it is deliberately unbounded below."
+        "params": {
+          "type": "object",
+          "description": "The fitted family's own parameters; shape owned by golavo_core.models."
         },
-        "skill_ci_95": {
-          "description": "Null when sample_status is insufficient_sample — the interval is not computed rather than guessed.",
-          "oneOf": [
-            { "type": "null" },
-            {
-              "type": "array",
-              "prefixItems": [{ "type": "number" }, { "type": "number" }],
-              "minItems": 2,
-              "maxItems": 2
-            }
-          ]
+        "reliability_bins": { "type": "array" }
+      }
+    },
+    "TrustUnavailable": {
+      "type": "object",
+      "description": "Why no WC2026 fold could be attached. A missing guarantee is a typed state with a reason, never an empty object and never a bare null: \"we could not measure skill\" and \"skill was measured and it is poor\" must never look alike to a reader, and the three ways this can go missing must stay distinguishable without parsing prose.",
+      "additionalProperties": false,
+      "required": ["status", "cause", "reason"],
+      "properties": {
+        "status": { "const": "unavailable" },
+        "cause": {
+          "enum": ["no_pack", "evaluation_failed", "fold_absent"],
+          "description": "no_pack = no sourcepack resolved for the active index, so there was nothing to evaluate against. evaluation_failed = the fold could not be recomputed on the pack — most often a pre-tournament snapshot, whose WC2026 window has no completed rows, which is the same condition that makes the story layer unavailable. fold_absent = the evaluation ran but carried no WC2026 fold at all."
         },
-        "sample_status": { "enum": ["available", "insufficient_sample"] },
-        "mean_rank": { "type": "number", "minimum": 1 },
-        "best_rank": { "type": "integer", "minimum": 1 },
-        "worst_rank": { "type": "integer", "minimum": 1 },
-        "first_place_folds": { "type": "integer", "minimum": 0 }
+        "reason": { "type": "string", "minLength": 1 }
       }
     },
     "Row": {

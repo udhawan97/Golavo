@@ -379,14 +379,13 @@ def _contract_validator():
     return Draft202012Validator(schema, format_checker=FormatChecker())
 
 
-def _trust_card() -> dict:
-    """A realistic WC2026 report card, shaped as ``evaluation._build_report_cards`` emits.
+def _trust_fold() -> dict:
+    """A realistic WC2026 fold, shaped as ``evaluation._evaluate_folds`` emits one,
+    plus the server layer's ``status`` discriminator.
 
     Deliberately carries all five ``golavo_core.models.FAMILIES`` — including
     ``bivariate_poisson``, which the story layer's four-voice ``families`` omits —
-    so the contract is pinned against conflating the two family lists. Covers both
-    ``skill_ci_95`` states: a real interval when the sample is available, and
-    ``None`` under ``insufficient_sample``, where the interval is not computed.
+    so the contract is pinned against conflating the two family lists.
     """
     families = (
         "climatological",
@@ -395,60 +394,95 @@ def _trust_card() -> dict:
         "dixon_coles",
         "bivariate_poisson",
     )
-    models = []
-    for rank, family in enumerate(families, start=1):
-        available = family != "bivariate_poisson"
-        models.append(
-            {
-                "family": family,
-                "n_matches": 104,
-                "n_folds": 1,
-                "log_loss": 1.032,
-                "brier": 0.61,
-                "ece": 0.04,
-                "rps": 0.21,
-                # Negative for a family worse than the climatological baseline.
-                "skill_score": -0.012 if family == "climatological" else 0.058,
-                "skill_ci_95": [0.01, 0.11] if available else None,
-                "sample_status": "available" if available else "insufficient_sample",
-                "mean_rank": float(rank),
-                "best_rank": rank,
-                "worst_rank": rank,
-                "first_place_folds": 1 if rank == 1 else 0,
-            }
-        )
+    models = [
+        {
+            "family": family,
+            "params": {"laplace_alpha": 1.0},
+            "log_loss": 1.032,
+            "brier": 0.61,
+            "ece": 0.04,
+            "rps": 0.21,
+            "reliability_bins": [],
+        }
+        for family in families
+    ]
     return {
+        "status": "available",
+        "fold_id": "WC2026",
         "competition": "FIFA World Cup",
-        "baseline_family": "climatological",
-        "primary_metric": "log_loss",
-        "minimum_matches": 50,
-        "bootstrap": {
-            "method": "fold-stratified-match-bootstrap",
-            "replicates": 2000,
-            "seed": 20260715,
-        },
         "window_start": "2026-06-11",
         "window_end": "2026-07-19",
+        "training_cutoff_utc": "2026-06-10T23:59:59Z",
+        "n_matches": 97,
         "models": models,
     }
 
 
 def test_server_shaped_envelope_with_trust_and_provenance_validates() -> None:
-    """The server layer (Task 3) folds a `trust` report card and `provenance` onto
-    the core envelope. Top-level `additionalProperties` is false, so both keys must
-    be declared or every real server response fails validation."""
+    """The server layer (Task 3) folds the `trust` fold and `provenance` onto the
+    core envelope. Top-level `additionalProperties` is false, so both keys must be
+    declared or every real server response fails validation."""
     envelope = dict(world_cup_2026_retrospective(_frame()))
-    envelope["trust"] = _trust_card()
+    envelope["trust"] = _trust_fold()
     envelope["provenance"] = {
         "index_sha256": "a" * 64,
-        "pack": "martj42-internationals-80f408d2c93b",
+        "pack": "sp_80f408d2c93b@" + "b" * 64,
     }
     _contract_validator().validate(envelope)
 
 
+def test_trust_rejects_the_two_tournament_world_cup_report_card() -> None:
+    """`evaluate()` groups report_cards per COMPETITION and FOLDS holds two World
+    Cup folds, so the "FIFA World Cup" card is a 161-match blend of WC2022 and
+    WC2026. This page is exclusively 2026 — the contract pins `fold_id` so that
+    card cannot be attached to it, whatever its competition says."""
+    validator = _contract_validator()
+    envelope = dict(world_cup_2026_retrospective(_frame()))
+
+    blended = {
+        "competition": "FIFA World Cup",
+        "baseline_family": "climatological",
+        "primary_metric": "log_loss",
+        "window_start": "2022-11-20",
+        "window_end": "2026-07-19",
+        "models": [{"family": "dixon_coles", "n_matches": 161, "log_loss": 1.03}],
+    }
+    with pytest.raises(ValidationError):
+        validator.validate({**envelope, "trust": blended})
+
+    wrong_fold = {**_trust_fold(), "fold_id": "WC2022", "n_matches": 64}
+    with pytest.raises(ValidationError):
+        validator.validate({**envelope, "trust": wrong_fold})
+
+
+def test_trust_unavailable_is_a_typed_state_with_a_cause() -> None:
+    """A missing trust layer is never an empty object: the three ways it can go
+    missing stay distinguishable without parsing prose."""
+    validator = _contract_validator()
+    envelope = dict(world_cup_2026_retrospective(_frame()))
+
+    for cause in ("no_pack", "evaluation_failed", "fold_absent"):
+        validator.validate(
+            {
+                **envelope,
+                "trust": {"status": "unavailable", "cause": cause, "reason": "why"},
+            }
+        )
+
+    with pytest.raises(ValidationError):
+        validator.validate({**envelope, "trust": {}})
+    with pytest.raises(ValidationError):
+        validator.validate({**envelope, "trust": {"status": "unavailable", "reason": "why"}})
+    with pytest.raises(ValidationError):
+        validator.validate(
+            {**envelope, "trust": {"status": "unavailable", "cause": "vibes", "reason": "why"}}
+        )
+
+
 def test_trust_is_nullable_and_optional() -> None:
-    """`trust` is None when no pack resolves, and absent entirely when the core
-    module is called directly — the core module never emits it."""
+    """`trust` is absent when the core module is called directly — it never emits
+    it. Null stays permitted for a producer with no trust layer at all; the server
+    layer never emits it, because every failure there is a typed state instead."""
     validator = _contract_validator()
 
     absent = world_cup_2026_retrospective(_frame())
@@ -465,12 +499,12 @@ def test_trust_tolerates_evaluation_owned_shape_drift() -> None:
     validator = _contract_validator()
     envelope = dict(world_cup_2026_retrospective(_frame()))
 
-    drifted = _trust_card()
+    drifted = _trust_fold()
     drifted["models"][0]["some_new_metric_2027"] = 0.5
-    drifted["a_new_card_level_field"] = "added upstream"
+    drifted["a_new_fold_level_field"] = "added upstream"
     validator.validate({**envelope, "trust": drifted})
 
     with pytest.raises(ValidationError):
-        broken = _trust_card()
+        broken = _trust_fold()
         broken["models"][0]["log_loss"] = "not a number"
         validator.validate({**envelope, "trust": broken})
