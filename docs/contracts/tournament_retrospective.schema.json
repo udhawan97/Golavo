@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.local/schemas/tournament_retrospective.schema.json",
+  "title": "Golavo Tournament Retrospective",
+  "description": "A per-match backtest of a finished tournament. Every row is a backtest computed at that match's own kickoff-1s cutoff — the same conservative information boundary the seal and the Match Cockpit replay use — so a row is exactly what the app would have said had it been asked that moment. Nothing here is a sealed record or a ledger artifact. Some matches carry a day-precision (00:00 UTC) kickoff stand-in rather than a verified time; when such a row shares its calendar day with a later match, it can train that later match's forecast even though it may really have been played afterwards. The module does not tighten its cutoff to hide this — the `exposure` envelope field and each row's `training_same_day_proxy_rows` disclose it. Derived from core/golavo_core/retrospective.py:world_cup_2026_retrospective (RETROSPECTIVE_SCHEMA_VERSION).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "label",
+    "tournament_id",
+    "tournament_name",
+    "matches",
+    "biggest_surprises"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.1.0" },
+    "status": { "enum": ["available", "unavailable"] },
+    "label": { "type": "string", "minLength": 1 },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Why no retrospective could be produced, e.g. no completed matches in this snapshot's tournament window. Present only when status is unavailable."
+    },
+    "tournament_id": { "const": "worldcup-2026" },
+    "tournament_name": { "type": "string", "minLength": 1 },
+    "ledger_status": { "const": "never_persisted_or_scored_as_a_seal" },
+    "ranking_family": {
+      "const": "dixon_coles",
+      "description": "The single family biggest_surprises is ranked by — the app's own DEFAULT_FAMILY. A cross-family average would describe a forecast the app never makes."
+    },
+    "ranking_metric": { "const": "log_loss" },
+    "families": {
+      "type": "array",
+      "description": "Four voices, not five: bivariate_poisson is numerically identical to poisson_independent on every recorded fold, so it is not offered as a separate opinion.",
+      "items": {
+        "enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "window_start": { "type": "string", "format": "date" },
+    "window_end": { "type": "string", "format": "date" },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "scored", "pending", "note"],
+      "properties": {
+        "status": { "enum": ["complete", "partial"] },
+        "scored": { "type": "integer", "minimum": 0 },
+        "pending": { "type": "integer", "minimum": 0 },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "exposure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rows_with_same_day_proxies", "note"],
+      "description": "How many backtested matches trained on at least one same-day, day-precision (00:00 UTC) proxy row that cannot be proven to have happened first. Disclosed, not hidden — the app's own kickoff-1s cutoff is never tightened to paper over this.",
+      "properties": {
+        "rows_with_same_day_proxies": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of rows in matches whose training_same_day_proxy_rows is greater than zero."
+        },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "matches": { "type": "array", "items": { "$ref": "#/$defs/Row" } },
+    "biggest_surprises": {
+      "type": "array",
+      "description": "The same rows as matches, ordered by ranking_family's log_loss, worst-surprise first.",
+      "items": { "$ref": "#/$defs/Row" }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "index_sha256": { "type": "string" },
+        "pack": { "type": "string" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "available" } } },
+      "then": {
+        "required": [
+          "ledger_status",
+          "ranking_family",
+          "ranking_metric",
+          "families",
+          "window_start",
+          "window_end",
+          "coverage",
+          "exposure"
+        ],
+        "properties": {
+          "matches": { "minItems": 1 },
+          "biggest_surprises": { "minItems": 1 }
+        }
+      },
+      "else": { "required": ["reason"] }
+    }
+  ],
+  "$defs": {
+    "Row": {
+      "type": "object",
+      "required": [
+        "match_id",
+        "kickoff_utc",
+        "kickoff_precision",
+        "information_cutoff_utc",
+        "home_team",
+        "away_team",
+        "home_score",
+        "away_score",
+        "outcome",
+        "families",
+        "log_loss",
+        "training_same_day_proxy_rows"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "match_id": { "type": "string" },
+        "kickoff_utc": { "type": "string", "format": "date-time" },
+        "kickoff_precision": {
+          "enum": ["exact", "day"],
+          "description": "exact = a verified kickoff instant. day = a 00:00 UTC calendar-day stand-in for an unknown real kickoff time, not a verified instant."
+        },
+        "information_cutoff_utc": { "type": "string", "format": "date-time" },
+        "home_team": { "type": "string" },
+        "away_team": { "type": "string" },
+        "home_score": { "type": "integer", "minimum": 0 },
+        "away_score": { "type": "integer", "minimum": 0 },
+        "outcome": { "enum": ["home", "draw", "away"] },
+        "log_loss": { "type": "number", "minimum": 0 },
+        "training_same_day_proxy_rows": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How many rows in this match's training frame are day-precision (00:00 UTC proxy) rows sharing this match's UTC calendar day. This match's own kickoff-1s cutoff cannot prove any of them actually happened first — a nonzero count means this forecast may rest on a result really played later the same day."
+        },
+        "families": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "required": ["probs", "log_loss"],
+            "additionalProperties": false,
+            "properties": {
+              "log_loss": { "type": "number", "minimum": 0 },
+              "probs": {
+                "type": "object",
+                "required": ["home", "draw", "away"],
+                "additionalProperties": false,
+                "properties": {
+                  "home": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "draw": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "away": { "type": "number", "minimum": 0, "maximum": 1 }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

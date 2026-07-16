@@ -347,3 +347,18 @@ def test_matches_the_apps_own_build_match_analysis() -> None:
             assert round(row["families"][family]["probs"][outcome], 6) == pytest.approx(
                 entries[family]["probs"][outcome], abs=1e-9
             )
+
+
+def test_output_validates_against_the_published_contract() -> None:
+    from pathlib import Path
+
+    from jsonschema import Draft202012Validator, FormatChecker
+
+    root = Path(__file__).resolve().parents[2]
+    schema = json.loads(
+        (root / "docs" / "contracts" / "tournament_retrospective.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    result = world_cup_2026_retrospective(_frame())
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(result)
