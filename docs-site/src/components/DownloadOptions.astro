@@ -7,15 +7,14 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
 ---
 
 <section
-  class="gv-install gv-snap"
+  class="gv-install"
   data-reveal
   data-release-api={releaseApi}
   data-latest-release={latestRelease}
   aria-labelledby="gv-install-title"
 >
   <div class="gv-install-head">
-    <p class="gv-kicker">Download &amp; run</p>
-    <h2 id="gv-install-title" class="gv-chapter-title">Three ways in.<br/><em>Everything stays local.</em></h2>
+    <h2 id="gv-install-title" class="gv-stage-title">Three ways in. Everything stays local.</h2>
     <p>
       Use the browser UI from source, or install the desktop app with no Python
       or terminal required. The desktop buttons resolve directly to the newest
@@ -140,135 +139,143 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
 </script>
 
 <style>
+  /* Paper surfaces and named tokens only — no raw --golavo-gold on text
+     (it measures 2.26 on the light ground and fails). See design.md. */
   .gv-install {
     position: relative;
-    padding: clamp(4.5rem, 10vw, 8.5rem) clamp(0rem, 3vw, 2.5rem);
-    border-top: 1px solid var(--sl-color-hairline);
+    padding-block: clamp(var(--gv-space-2xl), 9vw, var(--gv-space-3xl));
+    border-top: var(--gv-rule-stage) solid var(--sl-color-white);
   }
-  .gv-install-head { max-width: 52rem; }
   .gv-install-head > p:last-child {
-    max-width: 46rem;
-    margin-top: 1.5rem;
+    max-width: 58ch;
+    margin-top: var(--gv-space-md);
     color: var(--sl-color-gray-2);
-    font-size: clamp(1rem, 1.65vw, 1.18rem);
-    line-height: 1.7;
+    font-size: var(--gv-text-lg);
+    line-height: 1.65;
   }
   .gv-install-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
-    margin-top: clamp(2.25rem, 5vw, 4rem);
+    grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+    gap: var(--gv-space-sm);
+    margin-top: var(--gv-space-xl);
   }
   .gv-install-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 25rem;
-    padding: clamp(1.35rem, 3vw, 2rem);
+    padding: clamp(var(--gv-space-md), 3vw, var(--gv-space-lg));
     overflow: hidden;
-    border: 1px solid var(--sl-color-hairline);
-    border-radius: 1.25rem;
-    background:
-      radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--golavo-wave) 20%, transparent), transparent 42%),
-      color-mix(in srgb, var(--sl-color-bg-sidebar) 88%, transparent);
-    transition: transform 0.3s var(--gv-ease), border-color 0.3s ease, box-shadow 0.3s ease;
+    border: var(--gv-rule-hair) solid var(--sl-color-hairline);
+    border-radius: var(--gv-radius-surface);
+    background: var(--gv-paper-2);
+    transition: transform var(--gv-dur-short) var(--gv-ease-out),
+      border-color var(--gv-dur-short) var(--gv-ease-out);
   }
   .gv-install-card:hover,
   .gv-install-card.is-preferred {
     transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--golavo-gold) 58%, var(--sl-color-hairline));
-    box-shadow: 0 22px 54px -36px color-mix(in srgb, var(--golavo-gold) 70%, transparent);
+    border-color: color-mix(in srgb, var(--gv-engine) 58%, var(--sl-color-hairline));
   }
   .gv-install-recommended {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    padding: 0.28rem 0.55rem;
-    border: 1px solid color-mix(in srgb, var(--golavo-gold) 55%, transparent);
-    border-radius: 999px;
-    color: var(--golavo-gold);
-    font-family: var(--gv-mono);
-    font-size: 0.61rem;
+    top: var(--gv-space-sm);
+    right: var(--gv-space-sm);
+    padding: var(--gv-space-3xs) var(--gv-space-2xs);
+    border: var(--gv-rule-hair) solid
+      color-mix(in srgb, var(--gv-engine) 55%, transparent);
+    border-radius: var(--gv-radius-cta);
+    color: var(--gv-engine);
+    font-family: var(--gv-font-mono);
+    font-size: var(--gv-text-xs);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
   .gv-install-icon {
     display: grid;
-    width: 3rem;
-    height: 3rem;
+    width: 2.75rem;
+    height: 2.75rem;
     place-items: center;
-    border: 1px solid var(--sl-color-hairline);
-    border-radius: 0.9rem;
-    color: var(--golavo-gold);
-    background: color-mix(in srgb, var(--sl-color-bg) 75%, transparent);
-    font-family: var(--gv-mono);
+    border: var(--gv-rule-hair) solid var(--sl-color-hairline);
+    border-radius: var(--gv-radius-cta);
+    color: var(--gv-engine);
+    background: var(--gv-ground);
+    font-family: var(--gv-font-mono);
     font-size: 1.3rem;
   }
   .gv-install-platform {
-    margin-top: 1.7rem !important;
-    color: var(--golavo-wave) !important;
-    font-family: var(--gv-mono);
-    font-size: 0.7rem;
+    margin-top: var(--gv-space-md) !important;
+    color: var(--sl-color-gray-3) !important;
+    font-family: var(--gv-font-mono);
+    font-size: var(--gv-text-xs);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
   .gv-install-card h3 {
-    margin-top: 0.45rem;
+    margin-top: var(--gv-space-3xs);
     color: var(--sl-color-white);
-    font-family: var(--gv-serif);
-    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    font-family: var(--gv-font-display);
+    font-weight: 600;
+    font-size: var(--gv-text-lg);
   }
   .gv-install-card > p:not(.gv-install-platform) {
-    margin-top: 0.9rem;
+    margin-top: var(--gv-space-2xs);
     color: var(--sl-color-gray-2);
-    line-height: 1.62;
+    font-size: var(--gv-text-md);
+    line-height: 1.6;
   }
   .gv-install-button {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
+    gap: var(--gv-space-2xs);
     width: 100%;
     min-height: 48px;
     margin-top: auto;
-    padding: 0.75rem 0.9rem;
-    border: 1px solid color-mix(in srgb, var(--golavo-gold) 42%, var(--sl-color-hairline));
-    border-radius: 0.8rem;
+    padding: var(--gv-space-xs) var(--gv-space-sm);
+    border: var(--gv-rule-hair) solid var(--sl-color-hairline);
+    border-radius: var(--gv-radius-cta);
     color: var(--sl-color-white) !important;
-    background: color-mix(in srgb, var(--golavo-gold) 10%, var(--sl-color-bg));
-    font-weight: 700;
+    background: var(--gv-ground);
+    font-weight: 600;
+    transition: border-color var(--gv-dur-short) var(--gv-ease-out);
   }
-  .gv-install-button:hover { border-color: var(--golavo-gold); background: color-mix(in srgb, var(--golavo-gold) 17%, var(--sl-color-bg)); }
+  .gv-install-button:hover {
+    border-color: var(--gv-engine);
+  }
+  .gv-install-button:focus-visible {
+    outline: 3px solid var(--gv-focus);
+    outline-offset: 4px;
+  }
   .gv-install-meta {
     min-height: 1.2rem;
-    margin-top: 0.7rem;
+    margin-top: var(--gv-space-2xs);
     color: var(--sl-color-gray-3);
-    font-family: var(--gv-mono);
-    font-size: 0.68rem;
+    font-family: var(--gv-font-mono);
+    font-size: var(--gv-text-xs);
   }
   .gv-install-foot {
     display: grid;
-    grid-template-columns: 0.8fr 1.6fr auto;
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+    gap: var(--gv-space-sm);
     align-items: center;
-    margin-top: 1.25rem;
-    padding: 1.1rem 1.25rem;
-    border-block: 1px solid var(--sl-color-hairline);
+    margin-top: var(--gv-space-md);
+    padding: var(--gv-space-sm) var(--gv-space-md);
+    border-block: var(--gv-rule-hair) solid var(--sl-color-hairline);
     color: var(--sl-color-gray-3);
-    font-size: 0.78rem;
+    font-size: var(--gv-text-sm);
     line-height: 1.55;
   }
   .gv-install-foot p { margin: 0; }
-  .gv-install-foot > p:first-child { color: var(--sl-color-gray-1); font-family: var(--gv-mono); }
-  .gv-install-foot > a { color: var(--golavo-gold); font-weight: 600; white-space: nowrap; }
-  @media (max-width: 64rem) {
-    .gv-install-grid { grid-template-columns: 1fr; }
-    .gv-install-card { min-height: 21rem; }
-    .gv-install-foot { grid-template-columns: 1fr; }
+  .gv-install-foot > p:first-child {
+    color: var(--sl-color-gray-1);
+    font-family: var(--gv-font-mono);
+  }
+  .gv-install-foot > a {
+    color: var(--sl-color-white);
+    font-weight: 600;
   }
   @media (max-width: 46rem) {
-    .gv-install { padding: 4.5rem 0.5rem; }
-    .gv-install-card { min-height: 22rem; }
+    .gv-install-button { white-space: normal; }
   }
   @media (prefers-reduced-motion: reduce) {
     .gv-install-card { transition: none; }

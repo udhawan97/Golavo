@@ -1,0 +1,125 @@
+/* Hallmark · genre: editorial · design-system: design.md · designed-as-app
+ * Golavo token system. Loaded before custom.css (see astro.config.mjs customCss).
+ *
+ * Colour has two jobs here, split by what the material physically does:
+ *   engine (gold) — numbers, data, the deterministic core. Gold leaf on lacquer.
+ *   seal (hanko)  — commitment, the immutable record. Vermilion ink on washi.
+ * Each carries one value per ground so both clear WCAG AA. See design.md.
+ */
+
+:root {
+  /* ---- Brand constants (unchanged; drawn from the logo) ---- */
+  --golavo-ink: #101312;
+  --golavo-paper: #f4efe6;
+  --golavo-gold: #c9a227;
+  --golavo-red: #bc002d;
+  --golavo-orange: #d9622b;
+  --golavo-green: #0b6e4f;
+  --golavo-wave: #6082b8;
+
+  /* ---- Type ---- */
+  --gv-font-display: "Shippori Mincho", Georgia, "Times New Roman", serif;
+  --gv-font-body: "Zen Kaku Gothic New", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", sans-serif;
+  --gv-font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo,
+    monospace;
+
+  /* Legacy aliases — kept so existing rules keep resolving. */
+  --gv-serif: var(--gv-font-display);
+  --gv-sans: var(--gv-font-body);
+  --gv-mono: var(--gv-font-mono);
+
+  --sl-font: var(--gv-font-body);
+  --sl-font-mono: var(--gv-font-mono);
+
+  /* ---- Type scale ---- */
+  --gv-text-xs: 0.72rem;
+  --gv-text-sm: 0.85rem;
+  --gv-text-md: 1rem;
+  --gv-text-lg: 1.18rem;
+  --gv-text-stage: clamp(1.9rem, 4.2vw, 3.4rem);
+  --gv-text-heading: clamp(2rem, 4.4vw, 3.6rem);
+  --gv-text-display: clamp(2.45rem, 7vw, 5.8rem);
+
+  /* ---- 4-point spacing scale ---- */
+  --gv-space-3xs: 0.25rem;
+  --gv-space-2xs: 0.5rem;
+  --gv-space-xs: 0.75rem;
+  --gv-space-sm: 1rem;
+  --gv-space-md: 1.5rem;
+  --gv-space-lg: 2rem;
+  --gv-space-xl: 3rem;
+  --gv-space-2xl: 4.5rem;
+  --gv-space-3xl: 7rem;
+
+  /* ---- Motion ---- */
+  --gv-ease-out: cubic-bezier(0.16, 0.7, 0.3, 1);
+  --gv-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --gv-dur-short: 220ms;
+  --gv-dur-mid: 420ms;
+  --gv-dur-long: 850ms;
+
+  /* Legacy alias. */
+  --gv-ease: var(--gv-ease-out);
+
+  /* ---- Shape ---- */
+  --gv-radius-cta: 4px;
+  --gv-radius-surface: 6px;
+  --gv-rule-hair: 1px;
+  --gv-rule-stage: 3px;
+}
+
+/* ---- Dark ground (default) — sumi ink ---- */
+:root {
+  --gv-ground: #101312;
+  --gv-paper-2: #171a19;
+  --gv-ink-1: #f6f3ec;
+  --gv-ink-2: #bdb9b0;
+  --gv-ink-3: #928f88;
+  --gv-rule: #232522;
+  --gv-rule-strong: #3a3a36;
+
+  /* Engine: 7.72 on the ground, 7.24 on paper-2 */
+  --gv-engine: #c9a227;
+  --gv-engine-quiet: color-mix(in srgb, var(--gv-engine) 16%, transparent);
+
+  /* Seal: 5.33 on the ground, 5.00 on paper-2 — hinomaru lightened for ink.
+     The brand #bc002d measures 2.83 here and cannot carry text. */
+  --gv-seal: #ea5566;
+  --gv-seal-ink: #16090c;
+  --gv-seal-quiet: color-mix(in srgb, var(--gv-seal) 14%, transparent);
+
+  /* Seigaiha wave ink. Motif only — the wave is never a text colour. */
+  --gv-wave-ink: var(--golavo-wave);
+
+  --gv-focus: #e7c34e;
+}
+
+/* ---- Light ground — washi paper ---- */
+:root[data-theme="light"] {
+  --gv-ground: #faf7f0;
+  --gv-paper-2: #f3eee2;
+  --gv-ink-1: #171614;
+  --gv-ink-2: #46443f;
+  /* 5.03 on the inline-code surface (#eee7d6), the darkest small ground in this
+     theme. The previous #6c6a62 measured 4.40 there and missed the AA floor. */
+  --gv-ink-3: #636159;
+  --gv-rule: #e3dccb;
+  --gv-rule-strong: #cfcabc;
+
+  /* Engine: 5.32 on the ground, 4.92 on paper-2. Raw #c9a227 measures 2.26 here
+     and failed every kicker; Starlight's own #9a6b12 measures 4.38 — still short
+     of the 4.5 AA floor for normal text, so the gold is darkened further. */
+  --gv-engine: #8a5e0d;
+  --gv-engine-quiet: color-mix(in srgb, var(--gv-engine) 12%, transparent);
+
+  /* Seal: 6.18 on the ground, 5.71 on paper-2 — the brand hinomaru, unmodified */
+  --gv-seal: #bc002d;
+  --gv-seal-ink: #fff6f2;
+  --gv-seal-quiet: color-mix(in srgb, var(--gv-seal) 10%, transparent);
+
+  /* Deep navy: the wave motif needs to darken, not lighten, on paper. */
+  --gv-wave-ink: #223a5e;
+
+  --gv-focus: #8a5e0d;
+}

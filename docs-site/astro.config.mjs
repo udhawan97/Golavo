@@ -20,7 +20,8 @@ export default defineConfig({
         dark: "./src/assets/golavo-lockup-dark.svg",
         replacesTitle: true,
       },
-      customCss: ["./src/styles/custom.css"],
+      // tokens.css must load first — custom.css resolves against its variables.
+      customCss: ["./src/styles/tokens.css", "./src/styles/custom.css"],
       // Bespoke animated landing hero (soccer · japan · zen) + expanding search.
       components: {
         Hero: "./src/components/Hero.astro",

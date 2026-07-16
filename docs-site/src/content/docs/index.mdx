@@ -8,219 +8,120 @@ hero:
 
 import DownloadOptions from '../../components/DownloadOptions.astro';
 
+{/*
+  Hallmark · macrostructure: Narrative Workflow · design-system: design.md
+  Three numbered stages, because a forecast is sealed before kickoff and scored
+  after full time — that order is real and irreversible. Everything that is
+  always true (architecture, the AI boundary, local data) lives in the
+  unnumbered substrate. Numbering anywhere else is decoration.
+*/}
+
 <div class="gv-home-story">
-  <section class="gv-intro gv-snap" data-reveal aria-labelledby="gv-intro-title">
-    <p class="gv-kicker">Football first. Receipts underneath.</p>
-    <h2 id="gv-intro-title" class="gv-display">Open the match.<br/><em>See every honest disagreement.</em></h2>
-    <div class="gv-intro-copy">
+  <section id="gv-stage-1" class="gv-stage" data-reveal aria-labelledby="gv-stage-1-title">
+    <p class="gv-stage-label"><b>1.0</b> Before kickoff <span>· exploratory</span></p>
+    <h2 id="gv-stage-1-title" class="gv-stage-title">Open any match. Read both voices.</h2>
+    <div class="gv-body">
       Golavo opens on games, not an audit form. Pick a past or upcoming match to
       compare the ratings model with the goal model, read source-backed context,
-      and see exactly where uncertainty remains. Make your own score call, race five
-      transparent model rivals, follow the fixture while Golavo is open, or seal an
-      expert forecast for the audit record.
+      and see exactly where uncertainty remains. Browse internationals, the
+      big-five leagues, and UEFA club competitions, then follow a six-chapter
+      matchday programme from form and style to the verdict. Casual keeps the
+      story moving; Expert adds full markets, fitted values, sources, seals, and
+      provenance in the same order. Nothing here is on the record yet.
     </div>
-    <div class="gv-proof-rail" aria-label="Golavo principles">
-      <span><b>01</b> 77,000+ matches</span>
-      <span><b>02</b> Two model voices</span>
-      <span><b>03</b> Local & private</span>
-      <span><b>04</b> No odds or telemetry</span>
-    </div>
-  </section>
 
-  <section class="gv-chapter gv-snap" data-reveal aria-labelledby="gv-season-title">
-    <div class="gv-chapter-copy">
-      <p class="gv-kicker">Your call, kept honest</p>
-      <h2 id="gv-season-title" class="gv-chapter-title">Pick the score.<br/><em>Race the machines.</em></h2>
-      <div class="gv-body">
-        Your call locks at kickoff with a SHA-256 fingerprint. After full time,
-        exact scores, right outcomes, and a strict beat-the-models bonus build a
-        private season against five disclosed deterministic rivals.
-      </div>
-      <a class="gv-text-link" href="/Golavo/picks-and-points/">Learn picks and points <span aria-hidden="true">↗</span></a>
-    </div>
-    <figure class="gv-shot">
-      <img src="/Golavo/screenshots/my-season.jpg" alt="Golavo My Season standings and pick history against five model rivals" width="1280" height="720" loading="lazy" decoding="async"/>
-      <figcaption><span>My Season</span> Only the matches you call; no money, odds, account, or upload.</figcaption>
-    </figure>
-  </section>
-
-  <section class="gv-product gv-snap" data-reveal aria-labelledby="gv-product-title">
-    <div class="gv-workbench-head">
-      <div>
-        <p class="gv-kicker">The product in ten seconds</p>
-        <h2 id="gv-product-title" class="gv-chapter-title">Games up front.<br/><em>Audit depth on demand.</em></h2>
-      </div>
-      <div class="gv-body">
-        Browse internationals, the big-five leagues, and UEFA club competitions; open any indexed fixture,
-        then follow a six-chapter matchday programme from form and style to the verdict.
-        Casual keeps the story moving; Expert adds full markets, fitted values, sources,
-        seals, and provenance in the same order.
-      </div>
-    </div>
-    <div class="gv-product-grid">
-      <figure class="gv-shot gv-shot--product">
+    <div class="gv-stage-grid gv-stage-grid--even">
+      <figure class="gv-shot">
         <img src="/Golavo/screenshots/games-home.jpg" alt="Golavo Games home with match search, league shortcuts and recent World Cup results" width="1440" height="1000" loading="eager" decoding="async"/>
         <figcaption><span>Games</span> Search, browse, and open football immediately.</figcaption>
       </figure>
-      <figure class="gv-shot gv-shot--product">
+      <figure class="gv-shot">
         <img src="/Golavo/screenshots/match-cockpit.jpg" alt="Golavo Match Cockpit presented as a six-chapter matchday programme in Casual mode" width="1440" height="900" loading="eager" decoding="async"/>
         <figcaption><span>Match Cockpit</span> Six chapters, one source-backed read.</figcaption>
       </figure>
-    </div>
-    <div class="gv-audience-grid" aria-label="Quick paths for readers and developers">
-      <article class="gv-audience-card">
-        <p class="gv-kicker">Just show me the football</p>
-        <h3>For a casual read</h3>
-        <p>Games, model disagreement, three useful facts, the likely scoreline, and a clear “we don’t know” when data is thin.</p>
-        <a class="gv-text-link" href="/Golavo/matchday/">Learn the Match Cockpit <span aria-hidden="true">↗</span></a>
-      </article>
-      <article class="gv-audience-card">
-        <p class="gv-kicker">Show me the receipts</p>
-        <h3>For developers and researchers</h3>
-        <p>Chronological backtests, immutable JSON artifacts, source hashes, cutoff gates, calibration, and a single numeric authority.</p>
-        <a class="gv-text-link" href="/Golavo/architecture/">Inspect the architecture <span aria-hidden="true">↗</span></a>
-      </article>
-    </div>
-  </section>
-
-  <section class="gv-chapter gv-chapter--architecture gv-snap" data-reveal aria-labelledby="gv-local-data-title">
-    <div class="gv-chapter-copy gv-chapter-copy--wide">
-      <p class="gv-kicker">Fresh when verified. Useful when offline.</p>
-      <h2 id="gv-local-data-title" class="gv-chapter-title">Local data that keeps<br/><em>its receipts and its boundaries.</em></h2>
-      <div class="gv-body">
-        Refresh approved CC0 sources manually or with launch/while-open consent. Followed
-        matches get targeted checks and deduplicated change history. OpenLigaDB stays an
-        optional, display-only ODbL overlay; corrections and researched facts begin as
-        untrusted local candidates. None of these paths can rewrite a sealed forecast.
-      </div>
-      <div class="gv-mini-steps" aria-label="Local data workflow summary">
-        <span><b>Refresh</b> raw hashes, schema gates, atomic last-known-good activation</span>
-        <span><b>Follow</b> kickoff, venue, score and settlement checks while the app is open</span>
-        <span><b>Review</b> evidence-backed candidates; conflicts stay closed</span>
-        <span><b>Isolate</b> OpenLigaDB ODbL bytes never join CC0 or model data</span>
-      </div>
-      <a class="gv-text-link" href="/Golavo/data/sources/">Inspect sources and licenses <span aria-hidden="true">↗</span></a>
-    </div>
-  </section>
-
-  <section class="gv-chapter gv-chapter--programme gv-snap" data-reveal aria-labelledby="gv-programme-title">
-    <div class="gv-chapter-copy">
-      <p class="gv-kicker">The matchday programme</p>
-      <h2 id="gv-programme-title" class="gv-chapter-title">The story first.<br/><em>The workings when you want them.</em></h2>
-      <div class="gv-body">
-        Form, fitted style, history, model deliberation, verdict and pick, then the
-        optional analyst column. Fixed-rule pull numbers lead each chapter without
-        inventing a headline. Switch to Expert and the same page reveals fitted Elo
-        and Dixon–Coles values, every market row, source proof, and the full score matrix.
-        A deterministic explainer names history support, the exact voice gap, capability
-        coverage, missing evidence, and hypothetical changes without calling any of them
-        confidence or altering the model.
-      </div>
-      <a class="gv-text-link" href="/Golavo/casual-vs-expert/">Compare Casual and Expert <span aria-hidden="true">↗</span></a>
-    </div>
-    <div class="gv-product-grid gv-programme-media">
-      <figure class="gv-shot gv-shot--product">
+      <figure class="gv-shot gv-shot--contain">
         <picture>
           <source media="(prefers-reduced-motion: reduce)" srcSet="/Golavo/screenshots/match-cockpit.jpg"/>
           <img src="/Golavo/screenshots/match-programme.gif" alt="Animated tour through the six Match Cockpit chapters" width="1120" height="622" loading="lazy" decoding="async"/>
         </picture>
         <figcaption><span>Casual read</span> A polished programme with the technical depth kept out of the way.</figcaption>
       </figure>
-      <figure class="gv-shot gv-shot--product">
+      <figure class="gv-shot">
         <img src="/Golavo/screenshots/match-cockpit-expert.png" alt="Expert mode showing fitted Elo and Dixon–Coles values under the hood" width="1440" height="800" loading="lazy" decoding="async"/>
         <figcaption><span>Expert read</span> Full model values, markets, sources, and audit context.</figcaption>
       </figure>
     </div>
-  </section>
 
-  <section class="gv-chapter gv-chapter--architecture gv-snap" data-reveal aria-labelledby="gv-competition-title">
-    <div class="gv-chapter-copy gv-chapter-copy--wide">
-      <p class="gv-kicker">Leagues, Europe, and tournaments</p>
-      <h2 id="gv-competition-title" class="gv-chapter-title">More context.<br/><em>Hard boundaries between eras.</em></h2>
-      <div class="gv-body">
-        Follow competition-local strength and workload, inspect a domestic season's
-        fixture gate, or switch between separate World Cup model voices. Historical
-        event research stays collapsed behind its exact competition and era; weather
-        stays blocked until an issued-before-kickoff source can pass the license and
-        leakage gates.
-      </div>
-      <div class="gv-mini-steps" aria-label="Competition analytics summary">
-        <span><b>Domestic</b> verified standings, no fake current projection</span>
-        <span><b>UEFA</b> Champions, Europa, and Conference history</span>
-        <span><b>Research</b> team-only, era-badged, never a model input</span>
-      </div>
-      <a class="gv-text-link" href="/Golavo/competition-analytics/">Explore competition analytics <span aria-hidden="true">↗</span></a>
+    <div class="gv-audience-grid" aria-label="Quick paths for readers and developers">
+      <article class="gv-audience-card">
+        <h3>For a casual read</h3>
+        <p>Games, model disagreement, three useful facts, the likely scoreline, and a clear “we don’t know” when data is thin.</p>
+        <a class="gv-text-link" href="/Golavo/matchday/">Learn the Match Cockpit <span aria-hidden="true">↗</span></a>
+      </article>
+      <article class="gv-audience-card">
+        <h3>For developers and researchers</h3>
+        <p>Chronological backtests, immutable JSON artifacts, source hashes, cutoff gates, calibration, and a single numeric authority.</p>
+        <a class="gv-text-link" href="/Golavo/casual-vs-expert/">Compare Casual and Expert <span aria-hidden="true">↗</span></a>
+      </article>
     </div>
   </section>
 
-  <section class="gv-chapter gv-chapter--match gv-snap" data-reveal aria-labelledby="gv-match-title">
-    <div class="gv-chapter-copy">
-      <p class="gv-kicker">When a preview becomes a promise</p>
-      <h2 id="gv-match-title" class="gv-chapter-title">One claim.<br/>Two receipts.<br/><em>No convenient amnesia.</em></h2>
-      <div class="gv-body">
-        A cockpit preview is exploratory until you seal it. The seal freezes the
-        model, inputs, cutoff, source snapshot, probabilities, and digest. After
-        full time, a newer snapshot writes a scored or voided successor. The first
-        record is never edited.
-      </div>
-      <div class="gv-mini-steps" aria-label="Forecast lifecycle summary">
-        <span><b>Preview</b> compare model voices</span>
-        <span><b>Seal</b> lock the claim before kickoff</span>
-        <span><b>Score</b> append the result, never rewrite</span>
-      </div>
-      <a class="gv-text-link" href="/Golavo/prediction-ledger/">Explore Model Lab and the track record <span aria-hidden="true">↗</span></a>
-    </div>
-    <a class="gv-visual gv-visual--hero" href="/Golavo/assets/golavo-match-story.svg" aria-label="Open the full-size animated seal walkthrough">
-      <img src="/Golavo/assets/golavo-match-story.svg" alt="Animated walkthrough from an exploratory model council to an immutable sealed forecast and a separate scored result" width="1200" height="620" loading="lazy" decoding="async"/>
-      <span class="gv-visual-label"><i></i> Animated seal walkthrough</span>
-      <span class="gv-open-visual">Open full size ↗</span>
-    </a>
-  </section>
+  <section id="gv-stage-2" class="gv-stage gv-stage--seal" data-reveal aria-labelledby="gv-stage-2-title">
+    <p class="gv-stage-label"><b>2.0</b> At kickoff <span>· on the record</span></p>
+    <h2 id="gv-stage-2-title" class="gv-stage-title">The claim stops moving.</h2>
 
-  <section class="gv-chapter gv-chapter--intelligence gv-snap" data-reveal aria-labelledby="gv-ai-title">
-    <div class="gv-chapter-copy">
-      <p class="gv-kicker">A clear authority line</p>
-      <h2 id="gv-ai-title" class="gv-chapter-title">The engine decides.<br/><em>AI may explain.</em></h2>
-      <div class="gv-body">
-        Deterministic code produces the probabilities and score matrix. The
-        Commentator’s Notebook turns fixed, source-backed facts into a glanceable
-        briefing with detail behind disclosure. Optional local or BYOK AI receives
-        a guarded read-only bundle and can disappear without changing the match
-        analysis by a single digit. Selected-source research captures exact text and hashes,
-        then routes untrusted candidates into local correction review.
-      </div>
-      <div class="gv-mini-steps" aria-label="AI read choices">
-        <span><b>Fast</b> small local model, short grounded read</span>
-        <span><b>Deep</b> larger model, connected scenarios, usually 5–8 minutes</span>
-        <span><b>Ollama setup</b> install models in-app with progress and cancel</span>
-      </div>
-      <ul class="gv-check-list">
-        <li>Every displayed number is engine-owned</li>
-        <li>Model voices stay separate instead of being averaged</li>
-        <li>Research fetches only a source you selected and never makes it authoritative</li>
-        <li>Unsupported AI output fails back to deterministic analysis only</li>
-      </ul>
-      <a class="gv-text-link" href="/Golavo/ai/providers/#set-up-ollama-inside-golavo">Set up local AI <span aria-hidden="true">↗</span></a>
-    </div>
-    <a class="gv-visual gv-visual--portrait" href="/Golavo/assets/golavo-intelligence-boundary.svg" aria-label="Open the full-size intelligence boundary diagram">
-      <img src="/Golavo/assets/golavo-intelligence-boundary.svg" alt="The deterministic engine owns every number, facts add source-backed context, and optional AI receives a read-only guarded bundle" width="1280" height="800" loading="lazy" decoding="async"/>
-      <span class="gv-open-visual">Open full size ↗</span>
-    </a>
-  </section>
-
-  <section class="gv-workbench gv-snap" data-reveal aria-labelledby="gv-lab-title">
-    <div class="gv-workbench-head">
+    <div class="gv-seal-moment">
       <div>
-        <p class="gv-kicker">Model Lab</p>
-        <h2 id="gv-lab-title" class="gv-chapter-title">Credibility lives<br/><em>one level deeper.</em></h2>
+        <div class="gv-body">
+          A cockpit preview is exploratory until you seal it. The seal freezes the
+          model, inputs, cutoff, source snapshot, probabilities, and digest. Your own
+          score call locks at kickoff with a SHA-256 fingerprint alongside it. From
+          this moment the record is append-only: no path in the app — not a refresh,
+          not a correction, not the AI layer — can rewrite it.
+        </div>
+        <div class="gv-mini-steps" aria-label="Forecast lifecycle summary">
+          <span><b>Preview</b> compare model voices</span>
+          <span><b>Seal</b> lock the claim before kickoff</span>
+          <span><b>Score</b> append the result, never rewrite</span>
+        </div>
+        <a class="gv-text-link" href="/Golavo/prediction-ledger/">Open Model Lab <span aria-hidden="true">↗</span></a>
       </div>
-      <div class="gv-body">
-        The product stays about matches. Track record, held-out backtests,
-        methodologies, and immutable seals stay together in Model Lab for anyone
-        who wants to challenge the result.
-      </div>
+
+      <figure class="gv-hanko-figure" data-reveal>
+        <svg class="gv-hanko" viewBox="0 0 120 120" role="img" aria-labelledby="gv-hanko-title">
+          <title id="gv-hanko-title">A vermilion seal carrying an example forecast digest</title>
+          <circle class="gv-hanko-ink" cx="60" cy="60" r="58"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--gv-seal-ink)" stroke-width="2.5"/>
+          <text class="gv-hanko-cut" x="60" y="53" text-anchor="middle" font-size="12" letter-spacing="2.5">SEALED</text>
+          <line x1="32" y1="61" x2="88" y2="61" stroke="var(--gv-seal-ink)" stroke-width="1.5"/>
+          <text class="gv-hanko-cut" x="60" y="79" text-anchor="middle" font-size="11">a3f0…9c21</text>
+        </svg>
+        <figcaption>Example digest. Every sealed forecast carries its own SHA-256 fingerprint.</figcaption>
+      </figure>
     </div>
-    <div class="gv-bento">
+
+    <a class="gv-visual" href="/Golavo/assets/golavo-match-story.svg" aria-label="Open the full-size animated seal walkthrough">
+      <img src="/Golavo/assets/golavo-match-story.svg" alt="Animated walkthrough from an exploratory model council to an immutable sealed forecast and a separate scored result" width="1200" height="620" loading="lazy" decoding="async"/>
+      <span class="gv-open-visual">Open full size ↗</span>
+    </a>
+  </section>
+
+  <section id="gv-stage-3" class="gv-stage" data-reveal aria-labelledby="gv-stage-3-title">
+    <p class="gv-stage-label"><b>3.0</b> After full time <span>· scored</span></p>
+    <h2 id="gv-stage-3-title" class="gv-stage-title">The result scores it. Nobody gets to forget.</h2>
+    <div class="gv-body">
+      A newer snapshot writes a scored or voided successor; the first record is
+      never edited. Exact scores, right outcomes, and a strict beat-the-models
+      bonus build a private season against five disclosed deterministic rivals.
+      Track record, held-out backtests, methodologies, and immutable seals stay
+      together in Model Lab for anyone who wants to challenge the result.
+    </div>
+
+    <div class="gv-stage-grid gv-stage-grid--even">
+      <figure class="gv-shot">
+        <img src="/Golavo/screenshots/my-season.jpg" alt="Golavo My Season standings and pick history against five model rivals" width="1280" height="720" loading="lazy" decoding="async"/>
+        <figcaption><span>My Season</span> Only the matches you call; no money, odds, account, or upload.</figcaption>
+      </figure>
       <figure class="gv-shot">
         <img src="/Golavo/screenshots/model-lab.jpg" alt="Golavo Model Lab with Track record, Backtests, Methodologies and Sealed forecasts" width="1440" height="1000" loading="lazy" decoding="async"/>
         <figcaption><span>Model Lab</span> The audit machinery, organized rather than hidden.</figcaption>
@@ -229,36 +130,87 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
         <img src="/Golavo/screenshots/backtests.jpg" alt="Golavo chronological backtests comparing model log loss, Brier, ECE and RPS" width="1280" height="720" loading="lazy" decoding="async"/>
         <figcaption><span>Backtests</span> Held-out scores; leadership can flip by league and season.</figcaption>
       </figure>
+      <div>
+        <a class="gv-text-link" href="/Golavo/picks-and-points/">Learn picks and points <span aria-hidden="true">↗</span></a>
+      </div>
     </div>
   </section>
 
-  <section class="gv-chapter gv-chapter--architecture gv-snap" data-reveal aria-labelledby="gv-architecture-title">
-    <div class="gv-chapter-copy gv-chapter-copy--wide">
-      <p class="gv-kicker">Private by architecture, not by promise</p>
-      <h2 id="gv-architecture-title" class="gv-chapter-title">A local app with<br/><em>one numeric authority.</em></h2>
-      <div class="gv-body">
-        Tauri supervises a token-protected loopback service. React presents
-        validated views. FastAPI serves typed contracts. The deterministic Python
-        core is the only place a forecast can be made; optional narration stays
-        outside that write path.
+  {/* Unnumbered on purpose: the substrate is always true, not a step in the sequence. */}
+  <section class="gv-substrate" data-reveal aria-labelledby="gv-substrate-title">
+    <p class="gv-substrate-head" id="gv-substrate-title">Underneath every stage · always true, never a step</p>
+
+    <div class="gv-stage-grid">
+      <div>
+        <h3>The engine decides. AI may explain.</h3>
+        <p>
+          Deterministic code produces the probabilities and score matrix. The
+          Commentator’s Notebook turns fixed, source-backed facts into a glanceable
+          briefing with detail behind disclosure. Optional local or BYOK AI receives
+          a guarded read-only bundle and can disappear without changing the match
+          analysis by a single digit.
+        </p>
+        <ul class="gv-check-list">
+          <li>Every displayed number is engine-owned</li>
+          <li>Model voices stay separate instead of being averaged</li>
+          <li>Research fetches only a source you selected and never makes it authoritative</li>
+          <li>Unsupported AI output fails back to deterministic analysis only</li>
+        </ul>
+        <a class="gv-text-link" href="/Golavo/ai/providers/#set-up-ollama-inside-golavo">Set up local AI <span aria-hidden="true">↗</span></a>
+      </div>
+      <a class="gv-visual" href="/Golavo/assets/golavo-intelligence-boundary.svg" aria-label="Open the full-size intelligence boundary diagram">
+        <img src="/Golavo/assets/golavo-intelligence-boundary.svg" alt="The deterministic engine owns every number, facts add source-backed context, and optional AI receives a read-only guarded bundle" width="1280" height="800" loading="lazy" decoding="async"/>
+        <span class="gv-open-visual">Open full size ↗</span>
+      </a>
+    </div>
+
+    <div class="gv-substrate-grid">
+      <div>
+        <h3>Local data, with receipts</h3>
+        <p>
+          Refresh approved CC0 sources manually or with consent. Followed matches get
+          targeted checks and deduplicated change history. OpenLigaDB stays an
+          optional, display-only ODbL overlay whose bytes never join CC0 or model data.
+        </p>
+        <a class="gv-text-link" href="/Golavo/data/sources/">See the sources <span aria-hidden="true">↗</span></a>
+      </div>
+      <div>
+        <h3>Leagues, Europe, and eras</h3>
+        <p>
+          Follow competition-local strength and workload, inspect a domestic season’s
+          fixture gate, or switch between separate World Cup model voices. Historical
+          research stays collapsed behind its exact competition and era, and is never
+          a model input.
+        </p>
+        <a class="gv-text-link" href="/Golavo/competition-analytics/">See the competitions <span aria-hidden="true">↗</span></a>
+      </div>
+      <div>
+        <h3>Private by architecture</h3>
+        <p>
+          Tauri supervises a token-protected loopback service. React presents validated
+          views. FastAPI serves typed contracts. The deterministic Python core is the
+          only place a forecast can be made; optional narration stays outside that
+          write path.
+        </p>
+        <a class="gv-text-link" href="/Golavo/architecture/">Inspect the architecture <span aria-hidden="true">↗</span></a>
       </div>
     </div>
-    <a class="gv-visual gv-visual--wide" href="/Golavo/assets/golavo-system-architecture.svg" aria-label="Open the full-size system architecture diagram">
-      <img src="/Golavo/assets/golavo-system-architecture.svg" alt="Golavo architecture from the desktop shell and Match Cockpit through the local API to the deterministic Python core" width="1280" height="900" loading="lazy" decoding="async"/>
-      <span class="gv-open-visual">Open full size ↗</span>
-    </a>
+
     <dl class="gv-fact-row" aria-label="Runtime architecture summary">
+      <div><dt>Matches indexed</dt><dd>77,000+</dd></div>
+      <div><dt>Model voices</dt><dd>Two, never averaged</dd></div>
       <div><dt>Runtime</dt><dd>Local loopback</dd></div>
       <div><dt>Authentication</dt><dd>Per-launch token</dd></div>
       <div><dt>Cloud AI</dt><dd>Off by default</dd></div>
+      <div><dt>Odds &amp; telemetry</dt><dd>None</dd></div>
     </dl>
   </section>
 
   <DownloadOptions />
 
-  <section class="gv-closing gv-snap" data-reveal aria-labelledby="gv-closing-title">
+  <section class="gv-closing" data-reveal aria-labelledby="gv-closing-title">
     <p class="gv-kicker">No odds. No oracle. No moving the goalposts.</p>
-    <h2 id="gv-closing-title" class="gv-display">Let the model speak once.<br/><em>Then keep the tape running.</em></h2>
+    <h2 id="gv-closing-title" class="gv-display">Let the model speak once, then keep the tape running.</h2>
     <p>Golavo is free, open source, local-first, and currently an unsigned v0.14.1 pre-alpha.</p>
     <div class="gv-closing-actions">
       <a class="gv-action gv-action--primary" href="#gv-install-title">Choose how to run Golavo <span aria-hidden="true">→</span></a>
