@@ -20,8 +20,20 @@
 > Golavo Ratings, `GET /ratings/international`). The Elo update is extracted into a shared
 > `elo_match_delta` used by both the model and the table (byte-identical, 19 model tests
 > confirm). Leak-safe proved as a Hypothesis property. Verified in the running app
-> (Argentina #1, 40 sparklines, era-correct rewind to 2018).
-> **Phases 4–10: not started.**
+> (Argentina #1, 40 sparklines, era-correct rewind to 2018). A review caught a real leak
+> (cutoff on `date` not `kickoff_utc`) — fixed via `_order_instants`.
+> **Phase 7 (The Long Memory): SHIPPED** — deep pre-2010 league history from the CC0
+> footballcsv archive (England 1992-93, Bundesliga 1963-64), 21,410 rows, index 79k→100k.
+> New parser (`core/golavo_core/ingest/footballcsv.py`), trimmed to never overlap the
+> football.json 2010+ rows, namespaced ids, its own source so it never trains a forecast
+> and is seal-ineligible. Fragmentation gate + byte-identical rebuild + all validators pass.
+> **Phase 4 (Club Seals): DEFERRED to the user** — it modifies the immutable seal→score
+> write + settlement paths (the app's core honesty guarantee); settlement is entirely
+> network-loader-based, so extending it to clubs needs a design decision (trusted club
+> result source + post-seal snapshot boundary for openfootball) that warrants owner input.
+> **Phases 5, 6, 8, 9, 10: not started** — each needs live external network or large
+> downloads (Open-Meteo per-user fetch; Wikidata SPARQL; Wyscout 77MB / SkillCorner ~1GB
+> LFS / StatsBomb) that this offline session cannot fully exercise end-to-end.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan phase-by-phase. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
