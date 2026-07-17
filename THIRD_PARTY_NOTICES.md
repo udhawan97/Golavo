@@ -222,13 +222,6 @@ software dependencies.
 - License: PROPRIETARY-API-TERMS (https://www.football-data.org/about)
 - Notes: REJECTED: proprietary API service with a post-cancellation data restriction. Free access is not openly licensed redistributable data.
 
-### Open-Meteo (hosted free API)
-
-- Source: https://open-meteo.com/
-- Contributors: Open-Meteo
-- License: CC-BY-4.0-data-AGPL-3.0-source (https://open-meteo.com/en/terms)
-- Notes: REJECTED as a default dependency: the hosted free API tier is non-commercial only. Only ever a user-supplied optional adapter with disclosed terms.
-
 ### StatsBomb Open Data
 
 - Source: https://github.com/statsbomb/open-data

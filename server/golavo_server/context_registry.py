@@ -235,11 +235,12 @@ def capabilities(index_fingerprint: str) -> dict[str, Any]:
             "kickoff_gap": "partial",
             "travel": "partial",
             "map": "available",
-            "weather": "blocked",
+            "weather": "partial",
         },
         "reason_codes": [
             "place-resolution-is-unique-exact-subset",
             "venue-coverage-is-world-cup-2026-only",
             "schedule-coverage-is-index-only",
+            "weather-is-per-user-open-meteo-fetch-shown-only-if-captured-before-kickoff",
         ],
     }

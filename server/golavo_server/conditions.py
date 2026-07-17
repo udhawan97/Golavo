@@ -93,6 +93,17 @@ def _place_source_ref(place: dict[str, Any], field: str) -> dict[str, Any] | Non
     }
 
 
+def resolve_coords(city: Any, country: Any) -> tuple[float, float] | None:
+    """(latitude, longitude) for a city/country from the bundled GeoNames pack, or None.
+
+    The single coordinate source a weather fetch may use — no runtime geocoder.
+    """
+    location = _location(city, country)
+    if location["latitude"] is None or location["longitude"] is None:
+        return None
+    return float(location["latitude"]), float(location["longitude"])
+
+
 def _location(city: Any, country: Any) -> dict[str, Any]:
     base = {
         "status": "unknown",
@@ -428,18 +439,86 @@ def _local_kickoff(target: Any, location: dict[str, Any], precision: str) -> dic
     }
 
 
+_BLOCKED_WEATHER_REASONS = {
+    "no_leakage_safe_historical_forecast_source": (
+        "Weather is context-only and unavailable until a licensed source preserves "
+        "the forecast issued before kickoff. Observed weather is not substituted."
+    ),
+    "no_pre_kickoff_capture": (
+        "No forecast was captured before kickoff, so none is shown. A weather card is "
+        "only honest if the forecast was fetched before the match started."
+    ),
+}
+
+
+def _blocked_weather(reason_code: str) -> dict[str, Any]:
+    return {
+        "status": "blocked",
+        "reason_code": reason_code,
+        "reason": _BLOCKED_WEATHER_REASONS[reason_code],
+        "model_input": False,
+        "source_id": None,
+    }
+
+
+def _forecast_weather(reading: dict[str, Any]) -> dict[str, Any]:
+    """Project a stored Open-Meteo capture onto the display-only forecast variant."""
+    return {
+        "status": "forecast",
+        "provider": "open-meteo",
+        "fetched_at_utc": str(reading["fetched_at_utc"]),
+        "kickoff_utc": str(reading["kickoff_utc"]),
+        "temperature_2m_c": float(reading["temperature_2m_c"]),
+        "precipitation_mm": float(reading["precipitation_mm"]),
+        "precipitation_probability_pct": int(reading["precipitation_probability_pct"]),
+        "wind_speed_10m_kmh": float(reading["wind_speed_10m_kmh"]),
+        "weather_code": int(reading["weather_code"]),
+        "attribution_url": str(reading["attribution_url"]),
+        "model_input": False,
+        "source_id": "open-meteo",
+    }
+
+
+def weather_context_for(match_id: str) -> dict[str, Any]:
+    """The weather block for a match, read fresh from the per-user store.
+
+    Kept out of the cached snapshot so a just-fetched capture appears at once.
+    A capture only shows when it was fetched BEFORE kickoff (a forecast a user
+    could actually have seen ahead of the match); a post-kickoff-only capture, or
+    a malformed/absent one, falls back to a typed blocked state.
+    """
+    from golavo_server import runtime, weather_store
+
+    try:
+        reading = weather_store.load_latest(runtime.weather_dir(), match_id)
+    except OSError:
+        reading = None
+    if reading is None:
+        return _blocked_weather("no_leakage_safe_historical_forecast_source")
+    try:
+        if str(reading["fetched_at_utc"]) >= str(reading["kickoff_utc"]):
+            return _blocked_weather("no_pre_kickoff_capture")
+        return _forecast_weather(reading)
+    except (KeyError, TypeError, ValueError):
+        return _blocked_weather("no_pre_kickoff_capture")
+
+
 def match_conditions(match_id: str) -> dict[str, Any] | None:
     """Display-only context for one indexed match; None if the id is unknown.
 
     Raises ``matches.MatchIndexUnavailable`` if a repoint outruns every attempt,
     and ``OSError`` if the context pack is unavailable.
     """
-    return _CONDITIONS.read(
+    snapshot = _CONDITIONS.read(
         lambda snapshot: conditions_snapshot(
             match_id, snapshot.frame, index_fingerprint=snapshot.fingerprint
         ),
         key=(str(match_id),),
     )
+    if snapshot is None:
+        return None
+    # Overlay per-user weather fresh (never cached with the index-derived context).
+    return {**snapshot, "weather_context": weather_context_for(match_id)}
 
 
 def conditions_snapshot(
@@ -505,16 +584,7 @@ def conditions_snapshot(
             "attribution": NATURAL_EARTH_ATTRIBUTION,
             "routes": routes,
         },
-        "weather_context": {
-            "status": "blocked",
-            "reason_code": "no_leakage_safe_historical_forecast_source",
-            "reason": (
-                "Weather is context-only and unavailable until a licensed source preserves "
-                "the forecast issued before kickoff. Observed weather is not substituted."
-            ),
-            "model_input": False,
-            "source_id": None,
-        },
+        "weather_context": _blocked_weather("no_leakage_safe_historical_forecast_source"),
         "sources": sources,
     }
 

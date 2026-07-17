@@ -2038,6 +2038,12 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 .conditions-weather strong { font-size: var(--text-sm); }
 .conditions-weather p { margin: .1rem 0 0; color: var(--text-dim); font-size: var(--text-xs); }
+.conditions-weather--forecast { background: color-mix(in srgb, var(--gold-soft) 30%, var(--surface-1)); }
+.conditions-weather__grid { display: flex; flex-wrap: wrap; gap: .1rem 1.1rem; margin: .35rem 0 0; }
+.conditions-weather__grid > div { display: flex; gap: .35rem; align-items: baseline; }
+.conditions-weather__grid dt { color: var(--text-dim); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .04em; }
+.conditions-weather__grid dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.conditions-weather__action { margin-top: .4rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
 .context-provenance {
   border-top: 1px solid var(--border); color: var(--text-muted);
 }

@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.17.1"
+CATALOG_VERSION = "2026.07.17.2"
 
 
 def _capability(
@@ -71,8 +71,10 @@ def _base_capabilities() -> dict[str, dict[str, Any]]:
             "unavailable", "No competition-and-era-compatible research pack is installed."
         ),
         "weather_context": _capability(
-            "blocked",
-            "No provider has passed the license and issued-at provenance gate.",
+            "partial",
+            "A per-user Open-Meteo forecast can be fetched for an upcoming match and is "
+            "shown only when it was captured before kickoff; it is display-only context.",
+            "open-meteo",
         ),
     }
 

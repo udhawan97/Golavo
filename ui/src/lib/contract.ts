@@ -1238,13 +1238,28 @@ export interface ConditionsSnapshot {
     attribution: string;
     routes: TravelRoute[];
   };
-  weather_context: {
-    status: "blocked";
-    reason_code: "no_leakage_safe_historical_forecast_source";
-    reason: string;
-    model_input: false;
-    source_id: null;
-  };
+  weather_context:
+    | {
+        status: "blocked";
+        reason_code: "no_leakage_safe_historical_forecast_source" | "no_pre_kickoff_capture";
+        reason: string;
+        model_input: false;
+        source_id: null;
+      }
+    | {
+        status: "forecast";
+        provider: "open-meteo";
+        fetched_at_utc: string;
+        kickoff_utc: string;
+        temperature_2m_c: number;
+        precipitation_mm: number;
+        precipitation_probability_pct: number;
+        wind_speed_10m_kmh: number;
+        weather_code: number;
+        attribution_url: string;
+        model_input: false;
+        source_id: "open-meteo";
+      };
   sources: Array<{
     source_id: "geonames" | "natural-earth" | "openfootball-worldcup-json" | "wikidata";
     attribution: string;

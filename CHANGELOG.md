@@ -41,6 +41,23 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   matchday. Fixtures are a co-source: they supply identity and the local kickoff clock
   only, they are never training-eligible, and every league's own results remain the sole
   training truth.
+- **Club predictions on the record.** Forward sealing now covers the bundled domestic
+  leagues, not just internationals: an upcoming club fixture resolves to exactly one CC0
+  pack by its competition, trains only on that league through the same leak-safe view, and
+  seals with the identical immutable, idempotent, integrity-checked path. Grading holds a
+  higher bar than internationals — a club prediction is scored only once **two independent
+  sources agree** on the result, so with a single open club-result source today it stays
+  honestly *pending* rather than being graded against one unverified score. A club fixture
+  with no bundled league pack reports that plainly instead of a blanket "unsupported".
+- **Pre-kickoff weather (Open-Meteo).** A match page can now show a weather forecast for an
+  upcoming fixture, fetched per-user and keyless from Open-Meteo on your own machine
+  (`POST /api/v1/matches/{id}/weather/refresh`, consent is the explicit click). It is
+  display-only context — never a model input — and appears **only when the forecast was
+  captured before kickoff**, so a reading can never be one nobody could have seen in time;
+  a capture taken after kickoff falls back to a typed blocked state. Every reading shows a
+  visible "Weather data by Open-Meteo.com" credit (CC-BY 4.0). Open-Meteo returns no
+  issue-time, so the fetch instant is recorded client-side and is what the pre-kickoff gate
+  compares against.
 
 ### Fixed
 - Troyes no longer arrives as a club with no history. The 2026-27 fixture list prints

@@ -222,16 +222,48 @@
       }
     },
     "weather": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["status", "reason_code", "reason", "model_input", "source_id"],
-      "properties": {
-        "status": {"const": "blocked"},
-        "reason_code": {"const": "no_leakage_safe_historical_forecast_source"},
-        "reason": {"type": "string", "minLength": 1},
-        "model_input": {"const": false},
-        "source_id": {"type": "null"}
-      }
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "reason_code", "reason", "model_input", "source_id"],
+          "properties": {
+            "status": {"const": "blocked"},
+            "reason_code": {
+              "enum": [
+                "no_leakage_safe_historical_forecast_source",
+                "no_pre_kickoff_capture"
+              ]
+            },
+            "reason": {"type": "string", "minLength": 1},
+            "model_input": {"const": false},
+            "source_id": {"type": "null"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status", "provider", "fetched_at_utc", "kickoff_utc",
+            "temperature_2m_c", "precipitation_mm", "precipitation_probability_pct",
+            "wind_speed_10m_kmh", "weather_code", "attribution_url", "model_input", "source_id"
+          ],
+          "properties": {
+            "status": {"const": "forecast"},
+            "provider": {"const": "open-meteo"},
+            "fetched_at_utc": {"type": "string", "format": "date-time"},
+            "kickoff_utc": {"type": "string", "format": "date-time"},
+            "temperature_2m_c": {"type": "number"},
+            "precipitation_mm": {"type": "number"},
+            "precipitation_probability_pct": {"type": "integer"},
+            "wind_speed_10m_kmh": {"type": "number"},
+            "weather_code": {"type": "integer"},
+            "attribution_url": {"type": "string", "minLength": 1},
+            "model_input": {"const": false},
+            "source_id": {"const": "open-meteo"}
+          }
+        }
+      ]
     },
     "sourceCatalogEntry": {
       "type": "object",

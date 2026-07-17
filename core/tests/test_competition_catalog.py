@@ -77,8 +77,9 @@ def test_capabilities_never_claim_blocked_features_are_available() -> None:
             "available" if item["competition_id"] in simulating else "blocked"
         )
         assert item["capabilities"]["simulation"]["status"] == expected_simulation
-        assert item["capabilities"]["weather_context"]["status"] == "blocked"
-        assert item["capabilities"]["weather_context"]["source_ids"] == []
+        # Weather is a per-user Open-Meteo fetch, shown only if captured before kickoff.
+        assert item["capabilities"]["weather_context"]["status"] == "partial"
+        assert item["capabilities"]["weather_context"]["source_ids"] == ["open-meteo"]
         assert item["capabilities"]["conditions"]["status"] == "partial"
         assert item["capabilities"]["conditions"]["source_ids"] == [
             "geonames",

@@ -6,7 +6,8 @@ import type {
   WorldMapFeature,
 } from "../lib/contract";
 import type { ReactNode } from "react";
-import { fetchMatchConditions, fetchWorldMap } from "../lib/api";
+import { useState } from "react";
+import { fetchMatchConditions, fetchWorldMap, refreshMatchWeather } from "../lib/api";
 import { useAsync } from "../lib/hooks";
 import {
   claimSourceId,
@@ -340,7 +341,15 @@ function EmptyTravelMap() {
   );
 }
 
-export function SnapshotBody({ snapshot }: { snapshot: Snapshot }) {
+export function SnapshotBody({
+  snapshot,
+  matchId,
+  onRefreshed,
+}: {
+  snapshot: Snapshot;
+  matchId?: string;
+  onRefreshed?: () => void;
+}) {
   const location = snapshot.match.location;
   const venue = snapshot.match.venue;
   const localKickoffAvailable = snapshot.match.local_kickoff.status === "available";
@@ -410,22 +419,95 @@ export function SnapshotBody({ snapshot }: { snapshot: Snapshot }) {
         <EmptyTravelMap />
       )}
 
-      <div className="conditions-weather" role="note">
-        <span className="conditions-weather__icon"><SunIcon size={18} /></span>
-        <div>
-          <strong>Weather context unavailable</strong>
-          <p>{snapshot.weather_context.reason}</p>
-        </div>
-        <span className="chip chip--neutral">No substitution</span>
-      </div>
+      <WeatherCard weather={snapshot.weather_context} matchId={matchId} onRefreshed={onRefreshed} />
 
       <ContextProvenance snapshot={snapshot} />
     </>
   );
 }
 
+type WeatherContext = Snapshot["weather_context"];
+
+/** The explicit click IS the consent — nothing fetches until the user acts. */
+function WeatherFetchButton({ matchId, onRefreshed }: { matchId: string; onRefreshed: () => void }) {
+  const [state, setState] = useState<{ status: "idle" | "loading"; error?: string }>({
+    status: "idle",
+  });
+  async function fetchWeather() {
+    setState({ status: "loading" });
+    try {
+      await refreshMatchWeather(matchId);
+      onRefreshed();
+    } catch (error) {
+      setState({ status: "idle", error: error instanceof Error ? error.message : "fetch failed" });
+    }
+  }
+  return (
+    <div className="conditions-weather__action">
+      <button
+        type="button"
+        className="btn btn--ghost btn--sm"
+        onClick={fetchWeather}
+        disabled={state.status === "loading"}
+      >
+        {state.status === "loading" ? "Fetching…" : "Fetch pre-kickoff weather"}
+      </button>
+      {state.error && <span className="small dim">{state.error}</span>}
+    </div>
+  );
+}
+
+/** A weather value is only shown when it was captured before kickoff. The card
+ * is context-only and always attributes Open-Meteo (CC-BY) with a visible link. */
+function WeatherCard({
+  weather,
+  matchId,
+  onRefreshed,
+}: {
+  weather: WeatherContext;
+  matchId?: string;
+  onRefreshed?: () => void;
+}) {
+  if (weather.status !== "forecast") {
+    return (
+      <div className="conditions-weather" role="note">
+        <span className="conditions-weather__icon"><SunIcon size={18} /></span>
+        <div>
+          <strong>Weather context unavailable</strong>
+          <p>{weather.reason}</p>
+          {matchId && onRefreshed && (
+            <WeatherFetchButton matchId={matchId} onRefreshed={onRefreshed} />
+          )}
+        </div>
+        <span className="chip chip--neutral">No substitution</span>
+      </div>
+    );
+  }
+  return (
+    <div className="conditions-weather conditions-weather--forecast" role="note">
+      <span className="conditions-weather__icon"><SunIcon size={18} /></span>
+      <div className="conditions-weather__body">
+        <strong>Pre-kickoff forecast</strong>
+        <dl className="conditions-weather__grid">
+          <div><dt>Temp</dt><dd>{Math.round(weather.temperature_2m_c)}°C</dd></div>
+          <div><dt>Rain</dt><dd>{weather.precipitation_probability_pct}%</dd></div>
+          <div><dt>Precip</dt><dd>{weather.precipitation_mm} mm</dd></div>
+          <div><dt>Wind</dt><dd>{Math.round(weather.wind_speed_10m_kmh)} km/h</dd></div>
+        </dl>
+        <p className="small dim">
+          Context, not a model input · captured {weather.fetched_at_utc.slice(0, 10)} before kickoff ·{" "}
+          <a href={weather.attribution_url} target="_blank" rel="noopener noreferrer">
+            Weather data by Open-Meteo.com
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function ConditionsSnapshot({ matchId }: { matchId: string }) {
-  const state = useAsync(() => fetchMatchConditions(matchId), [matchId]);
+  const [refreshNonce, setRefreshNonce] = useState(0);
+  const state = useAsync(() => fetchMatchConditions(matchId), [matchId, refreshNonce]);
   return (
     <section className="conditions-snapshot" aria-labelledby="conditions-title">
       <header className="conditions-snapshot__head">
@@ -447,7 +529,11 @@ export function ConditionsSnapshot({ matchId }: { matchId: string }) {
       {state.status === "loading" ? <BlockSkeleton lines={4} /> : state.status === "error" ? (
         <p className="muted">Conditions are unavailable from the local data bundle.</p>
       ) : state.data ? (
-        <SnapshotBody snapshot={state.data} />
+        <SnapshotBody
+          snapshot={state.data}
+          matchId={matchId}
+          onRefreshed={() => setRefreshNonce((n) => n + 1)}
+        />
       ) : (
         <p className="muted">Conditions are available in the connected Golavo app; this preview does not fabricate location data.</p>
       )}

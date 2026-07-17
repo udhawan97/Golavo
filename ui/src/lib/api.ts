@@ -1596,6 +1596,49 @@ export async function fetchMatchConditions(matchId: string): Promise<ConditionsS
   }
 }
 
+export class WeatherRefreshError extends Error {
+  constructor(message: string, readonly status: number, readonly reasonCode: string) {
+    super(message);
+    this.name = "WeatherRefreshError";
+  }
+}
+
+/** Consent-gated per-user Open-Meteo fetch for one match. The call itself is the
+ *  consent (nothing fetches until the user clicks); the body carries the token. */
+export async function refreshMatchWeather(
+  matchId: string,
+): Promise<ConditionsSnapshot["weather_context"]> {
+  if (!API_BASE) {
+    throw new WeatherRefreshError(
+      "Weather is fetched by the connected Golavo app on your own machine.",
+      0,
+      "preview_only",
+    );
+  }
+  const headers: Record<string, string> = {
+    accept: "application/json",
+    "content-type": "application/json",
+  };
+  if (API_TOKEN) headers["x-golavo-token"] = API_TOKEN;
+  const res = await fetch(
+    `${API_BASE}/api/v1/matches/${encodeURIComponent(matchId)}/weather/refresh`,
+    { method: "POST", headers, body: JSON.stringify({ confirm: "fetch_weather" }) },
+  );
+  if (!res.ok) {
+    let reason = "fetch_failed";
+    let message = `weather fetch failed (HTTP ${res.status})`;
+    try {
+      const err = (await res.json()) as { detail?: { reason_code?: string; message?: string } };
+      if (err.detail?.reason_code) reason = err.detail.reason_code;
+      if (err.detail?.message) message = err.detail.message;
+    } catch {
+      /* keep the generic defaults */
+    }
+    throw new WeatherRefreshError(message, res.status, reason);
+  }
+  return (await res.json()) as ConditionsSnapshot["weather_context"];
+}
+
 function assertWorldMap(x: unknown): WorldMap {
   const value = x as WorldMap;
   if (!value || value.type !== "FeatureCollection" || value.source_id !== "natural-earth")

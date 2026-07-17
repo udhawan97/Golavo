@@ -1863,6 +1863,40 @@ def get_match_conditions(match_id: str) -> dict[str, Any]:
     return result
 
 
+@app.post("/api/v1/matches/{match_id}/weather/refresh")
+async def refresh_match_weather(match_id: str, request: Request) -> dict[str, Any]:
+    """Consent-gated per-user Open-Meteo fetch of a pre-kickoff forecast for a match.
+
+    Requires an explicit ``{"confirm": "fetch_weather"}`` body: the fetch reaches
+    api.open-meteo.com from the user's own machine (keyless, CC-BY, display-only).
+    """
+    from datetime import UTC, datetime
+
+    from golavo_server import weather
+
+    try:
+        body = await request.json()
+    except Exception:  # noqa: BLE001 -- a missing/invalid body is a missing consent
+        body = {}
+    if not isinstance(body, dict) or body.get("confirm") != "fetch_weather":
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "reason_code": "consent_required",
+                "message": "confirm must equal fetch_weather",
+            },
+        )
+    try:
+        return weather.refresh(match_id, now_utc=datetime.now(UTC))
+    except weather.WeatherRefreshError as exc:
+        raise HTTPException(
+            status_code=exc.status,
+            detail={"reason_code": exc.reason_code, "message": exc.detail},
+        ) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+
+
 @app.get("/api/v1/matches/{match_id}")
 def get_match(match_id: str) -> dict[str, Any]:
     """Return one indexed match by id, with any forecasts linked from the ledger and

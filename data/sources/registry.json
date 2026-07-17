@@ -244,18 +244,20 @@
       "notes": "Bundled as a separately registered public-domain enrichment pack pinned to Admin-0 Countries v5.1.1 at commit 9380cca and exact file hashes. The compact 1:110m GeoJSON basemap is offline; no tile service is required."
     },
     {
-      "source_id": "open-meteo-hosted",
+      "source_id": "open-meteo",
       "name": "Open-Meteo (hosted free API)",
       "contributors": [
         "Open-Meteo"
       ],
       "url": "https://open-meteo.com/",
-      "license": "CC-BY-4.0-data-AGPL-3.0-source",
-      "license_url": "https://open-meteo.com/en/terms",
-      "classification": "rejected",
-      "fields": "weather forecast/history API",
-      "verified": "2026-07-12",
-      "notes": "REJECTED as a default dependency: the hosted free API tier is non-commercial only. Only ever a user-supplied optional adapter with disclosed terms."
+      "license": "CC-BY-4.0",
+      "license_url": "https://open-meteo.com/en/license",
+      "attribution": "Weather data by Open-Meteo.com",
+      "classification": "per-user-context",
+      "fields": "pre-kickoff weather forecast (temperature, precipitation, wind, weather code)",
+      "verified": "2026-07-17",
+      "recheck_by": "2027-01-17",
+      "notes": "Per-user, consent-gated, keyless fetch from the user's own machine; display-only context (model_input:false), never bundled, exported, or fed to a model. The free API tier is non-commercial and its output is CC-BY 4.0; a visible 'Weather data by Open-Meteo.com' link is shown wherever a reading appears. Shown only when captured before kickoff."
     },
     {
       "source_id": "openfootball-champions-league",

@@ -90,6 +90,16 @@ def follows_dir() -> Path:
     return data_dir() / "follows"
 
 
+def weather_dir() -> Path:
+    """Per-user fetched weather captures, beside the ledger and follow state.
+
+    Weather is CC-BY context a user fetched onto their own machine (never bundled
+    or exported), so it lives under the writable data dir, physically separate
+    from every source pack.
+    """
+    return data_dir() / "weather"
+
+
 def corrections_dir() -> Path | None:
     """Writable, license-separated correction root, or ``None`` in source mode.
 
