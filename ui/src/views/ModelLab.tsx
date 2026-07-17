@@ -31,6 +31,11 @@ export function ModelLabHub() {
       note: "Every match replayed at its own pre-kickoff cutoff, and — kept separate — whether the models had skill. A backtest, never a record.",
     },
     {
+      href: "#/lab/ratings",
+      title: "Golavo Ratings",
+      note: "An in-house national-team Elo table from public results — leak-safe, with each team's trend. Not the FIFA ranking.",
+    },
+    {
       href: "#/lab/methods",
       title: "Methodologies",
       note: "What the five families are, why three of them are one voice, and how abstention works.",

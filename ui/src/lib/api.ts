@@ -20,6 +20,7 @@ import type {
   CompetitionAnalytics,
   CompetitionScorers,
   CompetitionsResponse,
+  InternationalRatings,
   DataRefreshJob,
   DataRefreshStatus,
   EvalSummary,
@@ -797,6 +798,35 @@ export async function fetchCompetitionScorers(
   return assertCompetitionScorers(
     await getJson(`/api/v1/competitions/${encodeURIComponent(competitionId)}/scorers${query}`),
     `competitions/${competitionId}/scorers`,
+  );
+}
+
+function assertInternationalRatings(x: unknown, ctx: string): InternationalRatings {
+  const data = x as InternationalRatings;
+  if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (data.schema_version !== "0.1.0") throw new ContractError(`${ctx}: unsupported contract`);
+  if (!Array.isArray(data.teams)) throw new ContractError(`${ctx}: teams must be an array`);
+  return data;
+}
+
+export async function fetchInternationalRatings(
+  options: { topN?: number } = {},
+): Promise<InternationalRatings> {
+  if (!API_BASE) {
+    return {
+      schema_version: "0.1.0",
+      method: "elo-goal-weighted-v1",
+      label: "Golavo Ratings — connect the engine to read the national-team table.",
+      as_of_utc: new Date().toISOString(),
+      scope: "internationals",
+      matches_counted: 0,
+      teams: [],
+    };
+  }
+  const query = options.topN ? `?top_n=${encodeURIComponent(options.topN)}` : "";
+  return assertInternationalRatings(
+    await getJson(`/api/v1/ratings/international${query}`),
+    "ratings/international",
   );
 }
 

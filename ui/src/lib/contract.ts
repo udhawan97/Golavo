@@ -628,6 +628,36 @@ export interface CompetitionScorers {
   teams: ShootoutTeamRow[];
 }
 
+// ---- Golavo Ratings (in-house national-team Elo, v0.1.0) --------------------
+// A leak-safe Elo table computed from the same CC0 results the models train on.
+// It is explicitly NOT the FIFA ranking; a rating as of an instant is a pure
+// replay of the past, so it never changes when later matches are appended.
+
+export interface RatingCheckpoint {
+  as_of_utc: string;
+  rating: number;
+}
+
+export interface RatingRow {
+  rank: number;
+  team: string;
+  rating: number;
+  matches: number;
+  last_match_date: string;
+  history: RatingCheckpoint[];
+}
+
+export interface InternationalRatings {
+  schema_version: "0.1.0";
+  method: string;
+  label: string;
+  as_of_utc: string;
+  scope: "internationals";
+  matches_counted: number;
+  data_through_utc?: string;
+  teams: RatingRow[];
+}
+
 // ---- Calibration record (v0.2.0) --------------------------------------------
 // The REAL prediction ledger: sealed→scored/voided chains aggregated from
 // immutable artifacts. Entirely distinct from the backtest eval folds above.

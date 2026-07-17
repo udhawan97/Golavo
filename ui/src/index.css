@@ -2449,6 +2449,8 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .scorers-panel h2 { margin: .16rem 0; }
 .scorers-panel .hgroup { align-items: flex-start; }
 .scorers-table { min-width: 420px; }
+.ratings-table { min-width: 460px; }
+.rating-trend { display: block; overflow: visible; }
 .research-analytics {
   border: 1px solid var(--border); border-radius: var(--radius-lg);
   background: var(--surface-1); box-shadow: var(--shadow-sm); overflow: hidden;
