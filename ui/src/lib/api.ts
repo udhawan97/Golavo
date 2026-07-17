@@ -18,6 +18,7 @@ import type {
   CalibrationSummary,
   ConditionsSnapshot,
   CompetitionAnalytics,
+  CompetitionScorers,
   CompetitionsResponse,
   DataRefreshJob,
   DataRefreshStatus,
@@ -759,6 +760,43 @@ export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonO
       `/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}/season-outlook`,
     ),
     `analytics/competitions/${competitionId}/season-outlook`,
+  );
+}
+
+function assertCompetitionScorers(x: unknown, ctx: string): CompetitionScorers {
+  const data = x as CompetitionScorers;
+  if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
+  if (data.schema_version !== "0.1.0") throw new ContractError(`${ctx}: unsupported contract`);
+  if (!["internationals", "unavailable"].includes(data.scope))
+    throw new ContractError(`${ctx}: invalid scope`);
+  if (!Array.isArray(data.scorers) || !Array.isArray(data.teams))
+    throw new ContractError(`${ctx}: scorers and teams arrays are required`);
+  return data;
+}
+
+export async function fetchCompetitionScorers(
+  competitionId: string,
+  options: { minGoals?: number } = {},
+): Promise<CompetitionScorers> {
+  if (!API_BASE) {
+    // No backend wired: an honest empty board, never invented scorers.
+    return {
+      schema_version: "0.1.0",
+      competition_id: competitionId,
+      competition_name: competitionId,
+      as_of_utc: new Date().toISOString(),
+      scope: "unavailable",
+      reason: "Connect the Golavo engine to read the internationals scorer data.",
+      matches_counted: 0,
+      scorers: [],
+      shootouts_counted: 0,
+      teams: [],
+    };
+  }
+  const query = options.minGoals ? `?min_goals=${encodeURIComponent(options.minGoals)}` : "";
+  return assertCompetitionScorers(
+    await getJson(`/api/v1/competitions/${encodeURIComponent(competitionId)}/scorers${query}`),
+    `competitions/${competitionId}/scorers`,
   );
 }
 

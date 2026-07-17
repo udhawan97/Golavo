@@ -24,6 +24,8 @@ export interface League {
   seasonOutlook?: boolean;
   /** A bundled historical event-research aggregate exists for one named era. */
   researchAnalytics?: boolean;
+  /** Internationals-only scorer/shootout side tables cover this competition. */
+  scorers?: boolean;
   note: string;
 }
 
@@ -45,6 +47,7 @@ export const LEAGUES: League[] = [
     note: "Men’s senior internationals — the one surface that refreshes on demand." },
   { slug: "world-cup-2026", name: "World Cup 2026", competition: "FIFA World Cup",
     competitionId: "fifa-world-cup", sourceKind: "international", researchAnalytics: true,
+    scorers: true,
     note: "Men’s World Cup · exact semifinal bracket and model outlook." },
   { slug: "premier-league", name: "Premier League", competition: "English Premier League",
     competitionId: "england-premier-league", seasonOutlook: true, researchAnalytics: true,

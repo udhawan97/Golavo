@@ -16,6 +16,7 @@ import { ChevronRight } from "../components/icons";
 import { Rail } from "./Matchday";
 import { TournamentOutlook } from "../components/TournamentOutlook";
 import { SeasonOutlook } from "../components/SeasonOutlook";
+import { ScorersPanel } from "../components/ScorersPanel";
 import { ResearchTeamAnalytics } from "../components/ResearchTeamAnalytics";
 
 export { LEAGUES } from "../lib/leagues";
@@ -113,6 +114,9 @@ export function LeagueView({ slug }: { slug: string }) {
         <p className="small dim" style={{ margin: 0 }}>{league.note}</p>
       </header>
       {league.slug === "world-cup-2026" && <TournamentOutlook />}
+      {league.scorers && league.competitionId && (
+        <ScorersPanel competitionId={league.competitionId} />
+      )}
       {league.seasonOutlook && league.competitionId && (
         <SeasonOutlook competitionId={league.competitionId} />
       )}

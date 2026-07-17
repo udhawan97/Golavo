@@ -591,6 +591,43 @@ export interface SeasonOutlook {
   };
 }
 
+// ---- Competition scorers (Golden Boot, v0.1.0) ------------------------------
+// A leak-safe leading-scorers table and penalty-shootout ledger for one
+// competition, cut off at an instant. Internationals-only: the goalscorers and
+// shootouts side tables ship only with the martj42 pack, so a club competition
+// is a typed "unavailable" board rather than an empty one.
+
+export interface ScorerRow {
+  rank: number;
+  scorer: string;
+  team: string;
+  goals: number;
+  penalties: number;
+  matches_scored_in: number;
+  first_date: string;
+  last_date: string;
+}
+
+export interface ShootoutTeamRow {
+  team: string;
+  won: number;
+  lost: number;
+}
+
+export interface CompetitionScorers {
+  schema_version: "0.1.0";
+  competition_id: string;
+  competition_name: string;
+  as_of_utc: string;
+  scope: "internationals" | "unavailable";
+  reason?: string;
+  min_goals?: number;
+  matches_counted: number;
+  scorers: ScorerRow[];
+  shootouts_counted: number;
+  teams: ShootoutTeamRow[];
+}
+
 // ---- Calibration record (v0.2.0) --------------------------------------------
 // The REAL prediction ledger: sealed→scored/voided chains aggregated from
 // immutable artifacts. Entirely distinct from the backtest eval folds above.
