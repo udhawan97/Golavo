@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -288,6 +290,97 @@ def training_rows(matches: pd.DataFrame, cutoff_utc: str | pd.Timestamp) -> pd.D
     selected = matches.loc[(instants <= cutoff) & matches["is_complete"] & eligible].copy()
     assert_no_future_rows(selected, cutoff)
     return selected
+
+
+class NoKickoffAnchor(ValueError):
+    """The fixture carries no kickoff instant to anchor a leak-safe cutoff."""
+
+
+@dataclass(frozen=True)
+class TrainingView:
+    """One fixture's training history, and the instant it was cut off at.
+
+    ``rows`` has already passed ``assert_no_future_rows`` and excludes the
+    fixture's own row. ``cutoff_utc`` is the ISO instant every model fitted on
+    ``rows`` must be told, so a caller cannot fit on this frame while quoting a
+    different boundary.
+    """
+
+    rows: pd.DataFrame
+    cutoff_utc: str
+    kickoff_utc: pd.Timestamp
+
+
+def _to_utc(value: Any) -> pd.Timestamp:
+    stamp = pd.Timestamp(value)
+    return stamp.tz_localize("UTC") if stamp.tzinfo is None else stamp.tz_convert("UTC")
+
+
+def _str_or_none(value: Any) -> str | None:
+    return None if value is None or pd.isna(value) else str(value)
+
+
+def _scope_to_fixture_source(matches: pd.DataFrame, match_row: Mapping[str, Any]) -> pd.DataFrame:
+    """Narrow history to the fixture's own source — never by ``source_kind``.
+
+    Scoping by kind would silently merge a second international source in were one
+    ever added, so a shared team string could pull another dataset's results into
+    this fixture's history. A club fixture narrows once more, to its own
+    competition; an international fixture must not, because its history is
+    legitimately cross-competition (a World Cup fit learns from friendlies).
+    """
+    source_id = _str_or_none(match_row.get("source_id"))
+    if source_id is not None and "source_id" in matches.columns:
+        matches = matches.loc[matches["source_id"].astype("string").eq(source_id)]
+    competition = _str_or_none(match_row.get("competition"))
+    if (
+        _str_or_none(match_row.get("source_kind")) == "club"
+        and competition is not None
+        and "competition" in matches.columns
+    ):
+        matches = matches.loc[matches["competition"].astype("string").eq(competition)]
+    return matches
+
+
+def leak_safe_training_view(
+    matches: pd.DataFrame,
+    match_row: Mapping[str, Any],
+    *,
+    as_of_utc: str | pd.Timestamp | None = None,
+) -> TrainingView:
+    """Everything one fixture may honestly learn from, and nothing else.
+
+    This is the single owner of the app's central invariant. Four facts that were
+    previously re-derived per caller are inseparable here:
+
+    * the cutoff is ``kickoff - 1s`` — the conservative boundary the seal, the
+      cockpit replay and the retrospective all claim to share;
+    * ``as_of_utc`` may only ever *tighten* it (``min(as_of, kickoff - 1s)``), so a
+      forward seal can know less than kickoff but never more;
+    * history is scoped to the fixture's own source (and, for a club fixture, its
+      own competition);
+    * the fixture's own row can never train its own forecast, and
+      ``assert_no_future_rows`` has run.
+
+    The cutoff is deliberately not tightened further. A day-precision (00:00 UTC)
+    row sharing the fixture's calendar day cannot be proven to have kicked off
+    first; that exposure is disclosed by callers rather than hidden behind a
+    stricter, non-app boundary.
+    """
+    kickoff_raw = match_row.get("kickoff_utc")
+    if kickoff_raw is None or pd.isna(kickoff_raw):
+        raise NoKickoffAnchor("fixture has no kickoff timestamp to anchor a leak-safe cutoff")
+    kickoff = _to_utc(kickoff_raw)
+
+    cutoff = kickoff - pd.Timedelta(seconds=1)
+    if as_of_utc is not None:
+        cutoff = min(_to_utc(as_of_utc), cutoff)
+    cutoff_utc = cutoff.isoformat().replace("+00:00", "Z")
+
+    rows = training_rows(_scope_to_fixture_source(matches, match_row), cutoff_utc)
+    match_id = str(match_row["match_id"])
+    rows = rows.loc[~rows["match_id"].astype("string").eq(match_id)].copy()
+    return TrainingView(rows=rows, cutoff_utc=cutoff_utc, kickoff_utc=kickoff)
 
 
 def write_parquet(pack_dir: Path, output_path: Path) -> Path:

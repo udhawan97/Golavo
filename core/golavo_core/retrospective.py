@@ -18,7 +18,7 @@ from typing import Any
 import pandas as pd
 
 from golavo_core.evaluation import FOLDS
-from golavo_core.ingest import training_rows
+from golavo_core.ingest import leak_safe_training_view
 from golavo_core.ingest.snapshot import _order_instants
 from golavo_core.models import fit_model
 
@@ -140,33 +140,17 @@ def world_cup_2026_retrospective(
         if is_cancelled is not None and is_cancelled():
             raise RetrospectiveCancelled()
 
-        kickoff = _utc(match["kickoff_utc"])
-        cutoff = kickoff - pd.Timedelta(seconds=1)
-        cutoff_iso = _iso(cutoff)
         match_id = str(match["match_id"])
-
-        # Scope by the fixture's own source_id, exactly as the app's own on-demand
-        # path does (server/golavo_server/analysis.py) — never by source_kind,
-        # which would silently merge a second international source in were one
-        # ever added.
-        source_id = _str_or_none(match.get("source_id"))
-        source_kind = _str_or_none(match.get("source_kind"))
-        competition = _str_or_none(match.get("competition"))
-        scoped = frame
-        if source_id is not None:
-            scoped = frame.loc[frame["source_id"].astype("string").eq(source_id)]
-        if source_kind == "club" and competition is not None:
-            scoped = scoped.loc[scoped["competition"].astype("string").eq(competition)]
-
-        train = training_rows(scoped, cutoff_iso)
-        # Belt-and-braces: never let the fixture's own row train its own forecast,
-        # even if a malformed snapshot dated it before the cutoff.
-        train = train.loc[~train["match_id"].astype("string").eq(match_id)].copy()
-        # This cutoff is the app's own kickoff-1s boundary and stays exactly as
-        # inherited from training_rows() — never tightened here. A day-precision
+        # The app's own leak-safe view — the identical call the live cockpit path
+        # makes, so cutoff and source scoping cannot drift between the two.
+        view = leak_safe_training_view(frame, match)
+        kickoff = view.kickoff_utc
+        cutoff_iso = view.cutoff_utc
+        train = view.rows
+        # The exposure the shared cutoff deliberately leaves: a day-precision
         # (00:00 UTC) row sharing this match's calendar day cannot be proven to
-        # have kicked off first, so the exposure is disclosed below rather than
-        # hidden by a stricter, non-app cutoff.
+        # have kicked off first, so it is disclosed below rather than hidden by a
+        # stricter, non-app cutoff.
         same_day_proxy_rows = _same_day_proxy_count(train, kickoff)
 
         home = str(match["home_team"])

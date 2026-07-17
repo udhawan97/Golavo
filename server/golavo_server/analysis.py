@@ -1,12 +1,13 @@
 """On-demand MatchAnalysis over the frozen index (read-only, leak-safe).
 
 Wraps ``golavo_core.analysis.build_match_analysis`` for the API: it resolves a
-match id in the committed index, scopes history to the fixture's own source (so a
-shared team string cannot merge a club's form into an international fixture — the
-same discipline the on-demand notebook uses), and returns a Replay (completed) or
-Preview (scheduled) envelope. It never seals; its only write is an optional,
-validated accelerator cache. The leak-safe ``kickoff - 1s`` cutoff lives in the
-core engine.
+match id in the committed index and returns a Replay (completed) or Preview
+(scheduled) envelope. It never seals; its only write is an optional, validated
+accelerator cache. Leak-safety is entirely the core's: ``leak_safe_training_view``
+owns the ``kickoff - 1s`` cutoff AND the source scoping that keeps a shared team
+string from merging a club's form into an international fixture, so this module
+hands the core the whole frame and cannot drift from the retrospective's copy of
+the same rule (it no longer has one).
 
 Results are memoised per ``(match_id, index-generation-epoch)``. Frame,
 fingerprint, and epoch come from one immutable ``matches.IndexSnapshot``; a
@@ -24,11 +25,9 @@ from typing import Any
 
 from golavo_server import matches, runtime
 
-# Bounded per-process memo (L1). ~64 fits is plenty for a session's cockpit
-# browsing; the FIFO bound keeps a long session from growing without limit.
-_CACHE: dict[tuple[str, int], dict[str, Any]] = {}
-_CACHE_ORDER: list[tuple[str, int]] = []
-_CACHE_MAX = 128
+# L1 is the shared snapshot reader's memo: ~128 fits is plenty for a session's
+# cockpit browsing, and the bound keeps a long session from growing without limit.
+_ANALYSIS = matches.SnapshotReader("match analysis", max_entries=128)
 
 # L2 disk cache: content-addressed by (match_id, index fingerprint, schema
 # version), so it survives restarts and self-invalidates on any index change. It
@@ -38,12 +37,17 @@ _DISK_MAX = 512
 _CACHE_SCHEMA_VERSION = "0.1.0"
 
 
-def _remember(key: tuple[str, int], value: dict[str, Any]) -> None:
-    _CACHE[key] = value
-    _CACHE_ORDER.append(key)
-    while len(_CACHE_ORDER) > _CACHE_MAX:
-        stale = _CACHE_ORDER.pop(0)
-        _CACHE.pop(stale, None)
+class _TransientFailure(Exception):
+    """A fit that failed for a reason retrying might fix — never memoized.
+
+    Carried out through the reader as an exception precisely because the reader
+    publishes every value a compute returns; a transient failure must not become
+    this generation's cached answer.
+    """
+
+    def __init__(self, envelope: dict[str, Any]) -> None:
+        super().__init__(envelope.get("reason", "analysis failed"))
+        self.envelope = envelope
 
 
 def reset_cache() -> None:
@@ -53,8 +57,7 @@ def reset_cache() -> None:
     so a repointed index simply lands on different keys and never serves stale
     bytes.
     """
-    _CACHE.clear()
-    _CACHE_ORDER.clear()
+    _ANALYSIS.reset()
 
 
 def _analysis_schema_version() -> str:
@@ -185,17 +188,8 @@ def match_analysis(match_id: str) -> dict[str, Any] | None:
     """
     from golavo_core.analysis import AnalysisUnavailable, build_match_analysis
 
-    # Refresh activation is infrequent and serialized, so three generation
-    # retries are ample while keeping a pathological repoint loop fail-closed.
-    for _attempt in range(3):
-        snapshot = matches.index_snapshot()
+    def compute(snapshot: matches.IndexSnapshot) -> dict[str, Any] | None:
         frame = snapshot.frame
-        key = (str(match_id), snapshot.epoch)
-        cached = _CACHE.get(key)
-        if cached is not None:
-            if matches.snapshot_is_current(snapshot):
-                return cached
-            continue
 
         # L2: content-addressed disk cache (desktop only). The captured
         # fingerprint is passed end-to-end; no mutable global provenance is read
@@ -204,27 +198,12 @@ def match_analysis(match_id: str) -> dict[str, Any] | None:
         if disk_path is not None:
             disk = _disk_read(disk_path, str(match_id), snapshot.fingerprint)
             if disk is not None:
-                if matches.apply_if_snapshot_current(
-                    snapshot, lambda key=key, disk=disk: _remember(key, disk)
-                ):
-                    return disk
-                continue
+                return disk
 
         sel = frame.loc[frame["match_id"].astype("string") == str(match_id)]
         if sel.empty:
-            if matches.snapshot_is_current(snapshot):
-                return None
-            continue
+            return None
         row = sel.iloc[0]
-
-        source_id = matches._str_or_none(row["source_id"])
-        source_kind = matches._str_or_none(row["source_kind"])
-        competition = matches._str_or_none(row["competition"])
-        scoped = frame
-        if source_id is not None:
-            scoped = frame.loc[frame["source_id"].astype("string") == source_id]
-        if source_kind == "club" and competition is not None:
-            scoped = scoped.loc[scoped["competition"].astype("string") == competition]
 
         match_row = {
             "match_id": str(row["match_id"]),
@@ -235,12 +214,15 @@ def match_analysis(match_id: str) -> dict[str, Any] | None:
             "away_score": matches._int_or_none(row["away_score"]),
             "is_complete": bool(row["is_complete"]),
             "neutral": bool(matches._bool_or_none(row["neutral"])),
-            "competition": competition,
-            "source_id": source_id,
+            "competition": matches._str_or_none(row["competition"]),
+            "source_id": matches._str_or_none(row["source_id"]),
+            # Carried so the core's leak-safe view can scope a club fixture to its
+            # own competition; scoping is the core's job, not this module's.
+            "source_kind": matches._str_or_none(row["source_kind"]),
         }
 
         try:
-            analysis = build_match_analysis(matches=scoped, match_row=match_row)
+            analysis = build_match_analysis(matches=frame, match_row=match_row)
         except AnalysisUnavailable as exc:
             # A stable "no kickoff" verdict is safe to cache for this exact
             # generation; a source refresh may add one, so stale work retries.
@@ -251,32 +233,34 @@ def match_analysis(match_id: str) -> dict[str, Any] | None:
             }
         except Exception as exc:  # noqa: BLE001 (fail closed; never 500 the cockpit)
             if not matches.snapshot_is_current(snapshot):
-                continue
-            # A transient fit failure is NOT cached — retrying may succeed.
-            return {
-                "available": False,
-                "reason": f"analysis failed: {exc}",
-                "analysis": None,
-            }
+                # The frame moved under this fit; the failure may be an artifact
+                # of the retired generation, so try the new one.
+                raise matches.RetryGeneration from exc
+            # A transient fit failure is NOT cached — retrying may succeed. Raising
+            # (rather than returning) is what keeps it out of the reader's memo.
+            raise _TransientFailure(
+                {"available": False, "reason": f"analysis failed: {exc}", "analysis": None}
+            ) from exc
         else:
             envelope = {"available": True, "reason": None, "analysis": analysis}
 
-        # An old generation may safely leave an old-fingerprint disk entry, but
-        # it must never enter L1 after repoint. Publish under the matches lock so
-        # reset/repoint either happens before this check or clears it afterward.
+        # An old generation may safely leave an old-fingerprint disk entry: L2 is
+        # keyed by fingerprint, and only the reader's publish gate decides what
+        # reaches L1.
         if disk_path is not None:
             _disk_write(disk_path, str(match_id), snapshot.fingerprint, envelope)
-        if matches.apply_if_snapshot_current(
-            snapshot,
-            lambda key=key, envelope=envelope: _remember(key, envelope),
-        ):
-            return envelope
+        return envelope
 
-    return {
-        "available": False,
-        "reason": "analysis paused because the verified match index changed; retry",
-        "analysis": None,
-    }
+    try:
+        return _ANALYSIS.read(compute, key=(str(match_id),))
+    except _TransientFailure as exc:
+        return exc.envelope
+    except matches.MatchIndexUnavailable:
+        return {
+            "available": False,
+            "reason": "analysis paused because the verified match index changed; retry",
+            "analysis": None,
+        }
 
 
 def warm_home_window(limit: int = 12) -> None:

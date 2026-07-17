@@ -40,7 +40,7 @@ import pandas as pd
 # on-demand replay abstains on exactly the same data floor a seal does. These are
 # plain ints; pulling them in does not couple analysis to any ledger write.
 from golavo_core.artifacts import DECAY_WINDOW_DAYS, MIN_TEAM_MATCHES
-from golavo_core.ingest import training_rows
+from golavo_core.ingest import NoKickoffAnchor, leak_safe_training_view
 from golavo_core.models import fit_model
 from golavo_core.score_matrix import assert_model_coherent, build_score_matrix
 
@@ -403,23 +403,21 @@ def build_match_analysis(
 ) -> dict[str, Any]:
     """Compute a MatchAnalysis for one fixture — no writes, leak-safe by cutoff.
 
-    ``matches`` must already be scoped to the fixture's own source (as the
-    on-demand notebook path does) so a shared team string cannot merge a club's
-    history into an international fixture. ``match_row`` is any mapping with the
-    index-row fields (``match_id``, ``kickoff_utc``, ``home_team``, ``away_team``,
-    ``neutral``, ``is_complete``, ``competition``, ...). Raises
-    ``AnalysisUnavailable`` if the fixture has no kickoff to anchor the cutoff.
+    ``matches`` may be the whole index: ``leak_safe_training_view`` scopes history
+    to the fixture's own source itself, so a shared team string cannot merge a
+    club's history into an international fixture. ``match_row`` is any mapping with
+    the index-row fields (``match_id``, ``kickoff_utc``, ``home_team``,
+    ``away_team``, ``neutral``, ``is_complete``, ``competition``, ``source_id``,
+    ``source_kind``, ...). Raises ``AnalysisUnavailable`` if the fixture has no
+    kickoff to anchor the cutoff.
     """
-    kickoff_raw = match_row.get("kickoff_utc")
-    if kickoff_raw is None or (isinstance(kickoff_raw, float) and pd.isna(kickoff_raw)):
-        raise AnalysisUnavailable("fixture has no kickoff timestamp to anchor a leak-safe cutoff")
-    kickoff = _to_utc(kickoff_raw)
-    # The one conservative cutoff, identical for replay and preview: a completed
-    # fixture is reconstructed with only pre-kickoff data; a scheduled fixture
-    # simply has no later data to exclude. training_rows() additionally asserts no
-    # row after the cutoff survives — the machine-checked leak guard.
-    cutoff = kickoff - pd.Timedelta(seconds=1)
-    cutoff_iso = _iso(cutoff)
+    try:
+        view = leak_safe_training_view(matches, match_row)
+    except NoKickoffAnchor as exc:
+        raise AnalysisUnavailable(str(exc)) from exc
+    kickoff = view.kickoff_utc
+    cutoff = _to_utc(view.cutoff_utc)
+    cutoff_iso = view.cutoff_utc
 
     match_id = str(match_row["match_id"])
     home_team = str(match_row["home_team"])
@@ -429,10 +427,7 @@ def build_match_analysis(
     source_id = str(match_row.get("source_id") or "") or None
     kind = "replay" if is_complete else "preview"
 
-    train = training_rows(matches, cutoff_iso)
-    # Belt-and-braces: never let the fixture's own row into training even if a
-    # future snapshot dated it before the cutoff.
-    train = train.loc[~train["match_id"].astype("string").eq(match_id)].copy()
+    train = view.rows
 
     counts = _team_counts(train, cutoff, (home_team, away_team))
     minimum_count = min(counts.values())

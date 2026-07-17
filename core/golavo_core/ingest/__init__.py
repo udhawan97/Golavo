@@ -13,8 +13,11 @@ from .match_index import (
 from .openfootball import canonical_team, load_openfootball_table
 from .overlay import apply_exact_kickoffs
 from .snapshot import (
+    NoKickoffAnchor,
+    TrainingView,
     assert_no_future_rows,
     co_source_descriptors,
+    leak_safe_training_view,
     load_match_table,
     snapshot_anchor_utc,
     snapshot_descriptor,
@@ -46,12 +49,15 @@ def load_matches(pack_dir: Path) -> pd.DataFrame:
 
 __all__ = [
     "MATCH_INDEX_SCHEMA_VERSION",
+    "NoKickoffAnchor",
+    "TrainingView",
     "apply_exact_kickoffs",
     "assert_no_future_rows",
     "build_match_index",
     "co_source_descriptors",
     "canonical_team",
     "default_index_packs",
+    "leak_safe_training_view",
     "load_footballtxt_table",
     "load_match_table",
     "load_matches",

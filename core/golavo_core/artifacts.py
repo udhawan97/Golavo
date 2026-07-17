@@ -20,10 +20,10 @@ from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 from golavo_core import __version__
 from golavo_core.ingest import (
     co_source_descriptors,
+    leak_safe_training_view,
     load_matches,
     snapshot_anchor_utc,
     snapshot_descriptor,
-    training_rows,
 )
 from golavo_core.models import FAMILIES, fit_model
 from golavo_core.score_matrix import (
@@ -356,9 +356,11 @@ def build_forecast_artifact(
             "sealed_at_utc must be before kickoff_utc (dates-only source: kickoff is "
             "the conservative 00:00 UTC day proxy)"
         )
-    cutoff = min(as_of, kickoff - pd.Timedelta(seconds=1).to_pytimedelta())
-    train = training_rows(matches, _iso(cutoff))
-    train = train.loc[~train["match_id"].eq(match["match_id"])].copy()
+    # One owner for the seal's information boundary: min(as_of, kickoff - 1s),
+    # the fixture's own source, its own row excluded, guard asserted.
+    view = leak_safe_training_view(matches, match, as_of_utc=as_of)
+    cutoff = _utc(view.cutoff_utc)
+    train = view.rows
     counts = _team_counts(train, as_of, (home_team, away_team))
     abstained = min(counts.values()) < MIN_TEAM_MATCHES
 
