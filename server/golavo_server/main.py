@@ -254,6 +254,19 @@ def get_competition_scorers(
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
+@app.get("/api/v1/ratings/international")
+def get_international_ratings(as_of_utc: str | None = None, top_n: int = 40) -> dict[str, Any]:
+    """Golavo Ratings — the in-house national-team Elo table, leak-safe at the cutoff."""
+    from golavo_server import ratings
+
+    try:
+        return ratings.get_international_ratings(as_of_utc=as_of_utc, top_n=top_n)
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
 @app.get("/api/v1/tournaments/worldcup-2026/outlook")
 def get_world_cup_2026_outlook(as_of_utc: str | None = None) -> dict[str, Any]:
     """Exact four-team bracket enumeration from Golavo's two model voices."""
