@@ -23,13 +23,21 @@ export interface AiProgress {
 }
 
 /** A job id the sidecar accepts (`^[A-Za-z0-9][A-Za-z0-9_-]{7,63}$`). */
-export function newJobId(): string {
+/** A fresh job id in one lane's own id space.
+ *
+ *  The prefix is the lane, and the server checks it: a retrospective's cancel
+ *  door will not stop an AI read, and vice versa. Callers name their lane rather
+ *  than minting an AI id and rewriting its prefix. */
+export function newJobId(prefix: JobLanePrefix = "cl"): string {
   const uuid =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
       : `${Date.now().toString(36)}-${Math.floor(Math.random() * 1e9).toString(36)}`;
-  return `cl-${uuid}`.slice(0, 60);
+  return `${prefix}-${uuid}`.slice(0, 60);
 }
+
+/** The lanes the sidecar tracks work in (golavo_server/jobs.py). */
+export type JobLanePrefix = "cl" | "rt" | "dl";
 
 export type ProgressResult =
   | { kind: "progress"; progress: AiProgress }

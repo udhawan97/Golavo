@@ -141,7 +141,7 @@ export function OllamaModelGuide({
     setProgress(null);
     try {
       onActivateOllama?.();
-      const jobId = newJobId().replace(/^cl-/, "dl-");
+      const jobId = newJobId("dl");
       await startOllamaModelDownload(model.name, jobId);
       setActive({ jobId, model: model.name, role: model.role });
     } catch (error) {

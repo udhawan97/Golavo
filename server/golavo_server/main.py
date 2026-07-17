@@ -17,7 +17,6 @@ from golavo_server import (
     __version__,
     analysis,
     analytics,
-    capabilities,
     conditions,
     context_registry,
     correction_exports,
@@ -218,7 +217,9 @@ def meta() -> dict[str, Any]:
 @app.get("/api/v1/capabilities")
 def get_capabilities() -> dict[str, Any]:
     """Stable competition identities and honest per-feature availability states."""
-    return capabilities.get_capabilities()
+    from golavo_core.competitions import competition_catalog
+
+    return competition_catalog()
 
 
 @app.get("/api/v1/analytics/competitions/{competition_id}")
@@ -257,67 +258,53 @@ async def start_world_cup_2026_retrospective(
     """
     from golavo_server import jobs
 
+    lane = jobs.RETROSPECTIVE_LANE
     try:
         body = await request.json()
     except Exception:  # noqa: BLE001 -- an empty body is a valid synchronous request
         body = {}
     job_id = body.get("job_id") if isinstance(body, dict) else None
 
-    job = None
+    tracked: str | None = None
     if isinstance(job_id, str) and job_id:
-        if not jobs.JOB_ID_RE.match(job_id):
+        if not lane.owns(job_id):
             raise HTTPException(status_code=400, detail="malformed job_id")
         try:
-            job = jobs.store().start(job_id)
+            # The lane starts the job in its OWN first stage, with its opening
+            # detail, atomically — so a client polling right after this 202 (before
+            # the first progress tick) can never be shown another lane's stage or a
+            # null detail.
+            tracked = lane.start(
+                job_id,
+                detail="Run started; no match scored yet",
+                counts={"completed": 0, "total": 0},
+            ).job_id
         except jobs.JobConflict as exc:
             raise HTTPException(status_code=409, detail="job already running") from exc
-        # jobs.Job defaults to the AI lane's own stage ("assembling_evidence",
-        # from jobs.STAGES). Without seeding here, a client polling right after
-        # this 202 — before the first _progress tick — would see that AI-lane
-        # stage on a retrospective job. Stamp this lane's own stage immediately
-        # so the leak window does not exist.
-        jobs.store().update(
-            job.job_id,
-            stage="replaying",
-            detail="Run started; no match scored yet",
-            counts={"completed": 0, "total": 0},
-        )
 
     def _progress(done: int, total: int) -> None:
-        if job is not None:
-            jobs.store().update(
-                job.job_id,
-                stage="replaying",
-                detail=f"Backtesting match {done} of {total}",
-                counts={"completed": done, "total": total},
-            )
-
-    def _cancelled() -> bool:
-        return job is not None and jobs.store().is_cancelled(job.job_id)
+        lane.progress(
+            tracked,
+            stage="replaying",
+            detail=f"Backtesting match {done} of {total}",
+            counts={"completed": done, "total": total},
+        )
 
     def _run() -> dict[str, Any]:
-        try:
-            result = retrospective.build(progress=_progress, is_cancelled=_cancelled)
-            if job is not None:
-                # No separate "scoring" stage: finish() below unconditionally
-                # sets stage to "done" (jobs.JobStore._terminate) with no yield
-                # point in between, so a client can never observe an
-                # intermediate stage here — decorative state a poller would
-                # never see.
-                jobs.store().finish(job.job_id, result=result)
-            return result
-        except Exception as exc:
-            # RetrospectiveCancelled lands here too: fail() is a no-op on a job
-            # whose state is already "cancelled" (jobs.JobStore._terminate keeps
-            # cancellation as the terminal public state), so a cancelled run
-            # never gets relabelled "failed".
-            if job is not None:
-                jobs.store().fail(job.job_id, str(exc)[:240])
-            raise
+        # No separate "scoring" stage: the lane's finish sets "done" with no yield
+        # point in between, so a client can never observe an intermediate stage
+        # here — decorative state a poller would never see.
+        return lane.run(
+            tracked,
+            lambda: retrospective.build(
+                progress=_progress,
+                is_cancelled=lambda: lane.is_cancelled(tracked),
+            ),
+        )
 
-    if job is not None:
+    if tracked is not None:
         background_tasks.add_task(_run)
-        return JSONResponse({"job_id": job.job_id, "state": "running"}, status_code=202)
+        return JSONResponse({"job_id": tracked, "state": "running"}, status_code=202)
     try:
         return await run_in_threadpool(_run)
     except matches.MatchIndexUnavailable as exc:
@@ -329,7 +316,7 @@ def world_cup_2026_retrospective_job(job_id: str) -> dict[str, Any]:
     """Progress for one retrospective run. Its own lane, not the AI job route."""
     from golavo_server import jobs
 
-    if not jobs.JOB_ID_RE.match(job_id):
+    if not jobs.RETROSPECTIVE_LANE.owns(job_id):
         raise HTTPException(status_code=400, detail="malformed job_id")
     job = jobs.store().get(job_id)
     if job is None:
@@ -341,13 +328,13 @@ def world_cup_2026_retrospective_job(job_id: str) -> dict[str, Any]:
 def world_cup_2026_retrospective_job_cancel(job_id: str) -> dict[str, Any]:
     """Request cancellation of an in-flight retrospective run. Its own lane's
     door, so a client never has to reach into the AI job route to stop a
-    ~5-minute backtest it started here."""
+    ~5-minute backtest it started here — nor this door into the AI lane's jobs."""
     from golavo_server import jobs
 
-    if not jobs.JOB_ID_RE.match(job_id):
+    lane = jobs.RETROSPECTIVE_LANE
+    if not lane.owns(job_id):
         raise HTTPException(status_code=400, detail="malformed job_id")
-    cancelled = jobs.store().cancel(job_id)
-    return {"job_id": job_id, "cancelled": bool(cancelled)}
+    return {"job_id": job_id, "cancelled": bool(lane.cancel(job_id))}
 
 
 @app.get("/api/v1/analytics/competitions/{competition_id}/season-outlook")
@@ -445,58 +432,70 @@ async def start_ollama_download(
             status_code=409,
             detail="Ollama is not reachable. Install and open Ollama, then check again.",
         )
+    lane = jobs.MODEL_DOWNLOAD_LANE
     try:
-        job = jobs.store().start(job_id)
+        job = lane.start(job_id)
     except jobs.JobConflict as exc:
         raise HTTPException(status_code=409, detail="download already running") from exc
 
-    def _run() -> None:
-        try:
-            installed_before = [str(item["name"]) for item in before.get("models", [])]
-            if any(
-                item["name"] == model and item["installed"]
-                for item in ai_gateway.recommended_ollama_models(installed_before)
-            ):
-                jobs.store().finish(job.job_id, result={"model": model, "status": "installed"})
-                return
+    def _download() -> dict[str, Any] | None:
+        installed_before = [str(item["name"]) for item in before.get("models", [])]
+        if any(
+            item["name"] == model and item["installed"]
+            for item in ai_gateway.recommended_ollama_models(installed_before)
+        ):
+            return {"model": model, "status": "installed"}
 
-            jobs.store().update(
+        lane.progress(
+            job.job_id,
+            stage="downloading_model",
+            detail=f"Preparing {model}",
+            counts={"completed": 0, "total": None},
+        )
+
+        def _progress(status: str, completed: int | None, total: int | None) -> None:
+            lane.progress(
                 job.job_id,
                 stage="downloading_model",
-                detail=f"Preparing {model}",
-                counts={"completed": 0, "total": None},
+                detail=status,
+                counts={"completed": completed, "total": total},
             )
 
-            def _progress(status: str, completed: int | None, total: int | None) -> None:
-                jobs.store().update(
-                    job.job_id,
-                    stage="downloading_model",
-                    detail=status,
-                    counts={"completed": completed, "total": total},
-                )
+        completed = ai_gateway.pull_ollama_model(
+            config,
+            model,
+            progress=_progress,
+            is_cancelled=lambda: lane.is_cancelled(job.job_id),
+        )
+        if lane.is_cancelled(job.job_id):
+            # A cancelled pull owns its own terminal state; finishing it here would
+            # relabel what the user asked for. Raising still runs the lane's fail(),
+            # which is a no-op on a cancelled job EXCEPT that it releases the id —
+            # so a cancelled download can be retried without waiting out the TTL.
+            raise _DownloadCancelled
+        if not completed:
+            raise OSError("The download stopped before the model was installed.")
+        after = ai_gateway.inspect_local_models(config)
+        installed_after = [str(item["name"]) for item in after.get("models", [])]
+        catalog = ai_gateway.recommended_ollama_models(installed_after)
+        if not any(item["name"] == model and item["installed"] for item in catalog):
+            raise OSError("Ollama finished, but the model is not available yet.")
+        return {"model": model, "status": "installed", "models": after["models"]}
 
-            completed = ai_gateway.pull_ollama_model(
-                config,
-                model,
-                progress=_progress,
-                is_cancelled=lambda: jobs.store().is_cancelled(job.job_id),
-            )
-            if not completed or jobs.store().is_cancelled(job.job_id):
-                return
-            after = ai_gateway.inspect_local_models(config)
-            installed_after = [str(item["name"]) for item in after.get("models", [])]
-            catalog = ai_gateway.recommended_ollama_models(installed_after)
-            if not any(item["name"] == model and item["installed"] for item in catalog):
-                raise OSError("Ollama finished, but the model is not available yet.")
-            jobs.store().finish(
-                job.job_id,
-                result={"model": model, "status": "installed", "models": after["models"]},
-            )
-        except Exception as exc:
+    def _run() -> None:
+        try:
+            lane.run(job.job_id, _download)
+        except _DownloadCancelled:
+            return  # the job is already cancelled; fail() was a no-op on it
+        except Exception as exc:  # noqa: BLE001 (a background task owns its own errors)
             jobs.store().fail(job.job_id, _ai_job_error(exc))
 
     background_tasks.add_task(_run)
     return JSONResponse({"job_id": job.job_id, "state": "running"}, status_code=202)
+
+
+class _DownloadCancelled(Exception):
+    """The pull stopped because the user cancelled it — not a failure."""
 
 
 def _ai_job_error(exc: Exception) -> str:
@@ -1555,7 +1554,7 @@ async def create_match_research_run(
             raise matches.MatchIndexUnavailable(
                 "verified match index changed while creating the research run; retry"
             )
-        jobs.store().start(run["run_id"])
+        jobs.AI_LANE.start(run["run_id"])
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
     except (research_store.ResearchStoreError, jobs.JobConflict) as exc:
@@ -1822,19 +1821,7 @@ def get_context_capabilities() -> dict[str, Any]:
 def get_match_conditions(match_id: str) -> dict[str, Any]:
     """Display-only location, rest and travel context known before this match."""
     try:
-        for _attempt in range(3):
-            snapshot = matches.index_snapshot()
-            result = conditions.conditions_snapshot(
-                match_id,
-                snapshot.frame,
-                index_fingerprint=snapshot.fingerprint,
-            )
-            if matches.snapshot_is_current(snapshot):
-                break
-        else:
-            raise matches.MatchIndexUnavailable(
-                "verified match index changed while building match conditions; retry"
-            )
+        result = conditions.match_conditions(match_id)
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
     except OSError as exc:
@@ -2495,7 +2482,7 @@ async def narrative(artifact_id: str, request: Request, background_tasks: Backgr
         if not jobs.JOB_ID_RE.match(job_id):
             raise HTTPException(status_code=400, detail="malformed job_id")
         try:
-            job = jobs.store().start(job_id)
+            job = jobs.AI_LANE.start(job_id)
         except jobs.JobConflict as exc:
             raise HTTPException(status_code=409, detail="job already running") from exc
 
@@ -2646,7 +2633,7 @@ async def match_narrative(
     job = None
     if isinstance(job_id, str) and job_id:
         try:
-            job = jobs.store().start(job_id)
+            job = jobs.AI_LANE.start(job_id)
         except jobs.JobConflict as exc:
             raise HTTPException(status_code=409, detail="job already running") from exc
 
