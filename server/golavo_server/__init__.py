@@ -1,3 +1,3 @@
 """Golavo Phase 0 read-only local server."""
 
-__version__ = "0.14.2"
+__version__ = "0.15.0"

@@ -6,6 +6,39 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-07-16
+
+Golavo 0.15.0 is an architecture release. Three rules that the app had been keeping in
+several places at once — where a forecast's information cutoff comes from, when a cached
+answer stops being current, and which model families are voices — now each live in exactly
+one place. Forecasts, sources, and the seal→score loop are unchanged; the committed sample
+artifacts reproduce byte-for-byte.
+
+### Changed
+- **The leak-safe training view is one module.** A fixture's `kickoff - 1s` cutoff, the
+  scoping of history to that fixture's own source, the exclusion of its own row, and the
+  no-future-rows guard are now inseparable in `golavo_core.ingest.leak_safe_training_view`.
+  The cutoff was previously derived in four places and the source scoping existed twice —
+  verbatim, in the server's analysis path and in the core retrospective — kept in agreement
+  by a comment. The seal path uses the same module, with `min(as_of, kickoff - 1s)`.
+- **Cached reads share one implementation.** Every derived read over the match index
+  (outlook, season outlook, match analysis, competition analytics, conditions, the
+  retrospective) now goes through one `SnapshotReader`, which owns the repoint retry, the
+  cache key, the publish gate, the provenance stamp, and its own invalidation. `matches`
+  no longer hardcodes the names of the modules that cache on top of it — a new cached read
+  cannot be forgotten and quietly serve a retired data generation after a refresh.
+- **Tracked work runs in named lanes.** Each kind of background job (AI read, World Cup
+  retrospective, model download) declares its own stage vocabulary and job-id space, so a
+  job reports its real stage from the moment it starts and one lane's cancel door cannot
+  reach another lane's job.
+- **The trust table's voices are chosen once.** The retrospective's skill fold is now
+  served already projected onto the four voices the backtest offers, with anything dropped
+  named in a new required `omitted_families` field
+  (`docs/contracts/tournament_retrospective.schema.json`). The rule previously lived in
+  both the core and the React view, which could disagree.
+- Competition analytics resolves its as-of to the minute and caches per minute, matching
+  the outlook surfaces. Previously it recomputed on every request against the wall clock.
+
 ## [0.14.2] - 2026-07-16
 
 Golavo 0.14.2 brings the 2026 World Cup final into the app, closes a training-data leak
