@@ -1,4 +1,17 @@
 {
+  "co_sources": [
+    {
+      "license": "CC0-1.0",
+      "raw_sha256": {
+        "2026-27/1-premierleague.txt": "ec7f37c90517fe8d697bff0e8be9ce87d2bb54e11c67c0883c5bf5c955aa9e91"
+      },
+      "sha256_file": "2026-27.en.1.txt",
+      "source_id": "openfootball-england",
+      "upstream_committed_at_utc": "2026-07-02T16:05:26Z",
+      "upstream_ref": "afc118c3314171ef0b2cbb43ea0144ca3ebaf0b9",
+      "url": "https://github.com/openfootball/england"
+    }
+  ],
   "competition": "English Premier League",
   "files": [
     {
@@ -82,8 +95,18 @@
       "sha256": "d6070bdf731546ccf97767f062e8af4bd26dd309dee69f6092025bf9c78f43c1"
     },
     {
+      "name": "2026-27.en.1.txt",
+      "season": "2026-27",
+      "sha256": "ec7f37c90517fe8d697bff0e8be9ce87d2bb54e11c67c0883c5bf5c955aa9e91",
+      "source_match_count": 380
+    },
+    {
       "name": "CC0-1.0.txt",
       "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    },
+    {
+      "name": "field_provenance.csv",
+      "sha256": "8d194b98a968536f5f5403d4db777205b457fa148859e8cb59fbe4b82c6513de"
     }
   ],
   "license": "CC0-1.0",

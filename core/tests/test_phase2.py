@@ -17,13 +17,18 @@ SCHEMA = REPO_ROOT / "docs/contracts/forecast_artifact.schema.json"
 # docs/handoff/team-canonicalization.md. Row counts are fixtures (played or not),
 # complete counts exclude missing/[0, 0]-encoded results, club counts are the
 # proven canonical identities.
+# Row counts are the football.json seasons plus the 2026-27 Football.TXT fixture
+# list bundled beside them (ingest.domestictxt). Every 'complete' count below is
+# unchanged by that addition: a schedule contributes fixtures, never results.
+# Club counts rise only by the sides genuinely promoted for 2026-27 — France
+# gains Le Mans alone, because Troyes resolves to the identity it already had.
 EXPECTED = {
     "es.1": {
         "pack": "packs/openfootball-esp-ll",
         "competition": "La Liga",
-        "rows": 14 * 380,
+        "rows": 14 * 380 + 380,
         "complete": 14 * 380 - 10 - 15,
-        "clubs": 33,
+        "clubs": 34,
         "clean": 12,
         "flagged": ["2024-25", "2025-26"],
         "fold_seasons": ["2021-22", "2022-23", "2023-24"],
@@ -33,9 +38,9 @@ EXPECTED = {
     "de.1": {
         "pack": "packs/openfootball-deu-bl",
         "competition": "Bundesliga",
-        "rows": 16 * 306,
+        "rows": 16 * 306 + 306,
         "complete": 16 * 306 - 12,
-        "clubs": 32,
+        "clubs": 33,
         "clean": 15,
         "flagged": ["2025-26"],
         "fold_seasons": ["2022-23", "2023-24", "2024-25"],
@@ -45,7 +50,7 @@ EXPECTED = {
     "it.1": {
         "pack": "packs/openfootball-ita-sa",
         "competition": "Serie A",
-        "rows": 13 * 380,
+        "rows": 13 * 380 + 380,
         "complete": 13 * 380 - 10 - 36,
         "clubs": 38,
         "clean": 11,
@@ -57,9 +62,9 @@ EXPECTED = {
     "fr.1": {
         "pack": "packs/openfootball-fra-l1",
         "competition": "Ligue 1",
-        "rows": 9 * 380 + 3 * 306,
+        "rows": 9 * 380 + 4 * 306,
         "complete": 9 * 380 + 3 * 306 - 101 - 24,
-        "clubs": 34,
+        "clubs": 35,
         "clean": 10,
         "flagged": ["2019-20", "2025-26"],
         "fold_seasons": ["2022-23", "2023-24", "2024-25"],

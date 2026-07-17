@@ -59,9 +59,22 @@ def test_target_scope_covers_domestic_and_mens_uefa_competitions() -> None:
 
 def test_capabilities_never_claim_blocked_features_are_available() -> None:
     catalog = competition_catalog()
+    # A seeded outlook is claimed only where a complete schedule is bundled: the
+    # resolved World Cup bracket, and the five domestic leagues whose 2026-27
+    # double round-robin certifies (proved against the index in
+    # core/tests/test_season_unlock.py). UEFA club and the remaining
+    # international competitions have no complete forward schedule.
+    simulating = {
+        "fifa-world-cup",
+        "england-premier-league",
+        "spain-la-liga",
+        "germany-bundesliga",
+        "italy-serie-a",
+        "france-ligue-1",
+    }
     for item in catalog["competitions"]:
         expected_simulation = (
-            "available" if item["competition_id"] == "fifa-world-cup" else "blocked"
+            "available" if item["competition_id"] in simulating else "blocked"
         )
         assert item["capabilities"]["simulation"]["status"] == expected_simulation
         assert item["capabilities"]["weather_context"]["status"] == "blocked"

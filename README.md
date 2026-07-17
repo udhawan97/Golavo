@@ -52,8 +52,9 @@
 > is open, provenance-first corrections, optional evidence-bound research, the World Cup 2026
 > retrospective (a backtest of every played match, never a record), and desktop
 > packaging are implemented. The isolated OpenLigaDB overlay is opt-in and display-only. The
-> World Cup outlook and domestic standings/season engine are implemented, but the latter
-> correctly remains blocked until a complete 2026–27 fixture list exists. Signing,
+> World Cup outlook and the domestic standings/season engine are implemented, and the 2026–27
+> fixture lists for the five bundled leagues now certify complete, so the seeded season
+> outlook runs (it still fails closed per request if a certificate fails). Signing,
 > notarization, authoritative live club fixtures, observed
 > xG/lineups/injuries, and a club forward loop are not.
 > This is a football analysis workbench, **not a betting product**.
@@ -197,7 +198,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** or **Preview** arranged as six programme chapters. Casual keeps the essential story; Expert exposes fitted model internals, complete market rows, source proof, and the coherent score grid — machine-checked leak-safe, never averaged |
 | **Navigation** | Games-first home (recent + upcoming rails, offline), Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
 | **Conditions Snapshot** | Read-only rest and travel context from the local index plus pinned GeoNames and Natural Earth side tables. City resolution is exact-name and country scoped; stadium remains unknown without a stadium-level source. Weather is explicitly blocked rather than reconstructed from observed conditions. Labeled “Context, not a model input.” |
-| **Tournament / Season outlooks** | The World Cup four-team bracket is exactly enumerated per voice. Five domestic standings rule sets reproduce the latest commonly complete season; the 10,000-run season engine stays blocked until a complete, gap-free current fixture list exists. Neither outlook enters the seal ledger. |
+| **Tournament / Season outlooks** | The World Cup four-team bracket is exactly enumerated per voice. Five domestic standings rule sets reproduce the latest commonly complete season, and the 10,000-run seeded season engine runs on the bundled 2026–27 schedules, each machine-checked as a complete, gap-free double round-robin before a single iteration runs. Neither outlook enters the seal ledger. |
 | **Historical team research** | Seven isolated CC-BY-4.0 competition-era artifacts cover 1,941 Pappalardo/Wyscout matches and 3,251,294 events. Only team aggregates ship; raw events and player identities do not. |
 | **Your Call / My Season** | Kickoff-locked score picks with SHA-256 integrity, durable local storage, five deterministic rivals, 3 / 1 / +1 scoring, standings, history, filters, cumulative points, and streaks |
 | **Approved-source refresh** | Consent-gated manual, launch, and while-open checks for martj42 internationals and genuinely published OpenFootball files. Raw bytes and hashes are retained; activation is atomic; source failures keep the last-known-good generation. |

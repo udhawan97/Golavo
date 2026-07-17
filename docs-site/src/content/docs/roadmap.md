@@ -18,7 +18,7 @@ history-support/model-gap/capability explanations.
 | Workstream | What remains | Entry / kill criterion |
 |---|---|---|
 | **Live club forecasting** | An authoritative, complete current fixture source and a club seal→score loop | Approved refresh plumbing already exists. Enter forecasting only after a source proves its license, coverage, cadence, fixture identity, and cutoff semantics. Kill if those cannot be verified. |
-| **Current league state** | Acquire and certify a complete live fixture/result feed so the shipped season engine can run | The engine and UI gate exist. No complete, gap-free schedule means no probabilities. |
+| **Current league state** | Keep the bundled 2026-27 schedules current as results land, and certify a live result feed | The five bundled leagues' 2026-27 schedules now certify as complete double round-robins, so the season engine runs. Results still arrive only when the packs are rebuilt; no runtime refresh adapter reads the fixture repos yet. |
 | **Observed match data** | Optional lineups, injuries, xG, scorers, corners, and cups as typed features | Every field needs a lawful licensed source, retrieval timestamp, provenance record, and evidence that it improves forward metrics. Otherwise defer it. |
 | **Ledger longevity** | Cross-artifact hash chaining, verification, and migration tooling | Must preserve and recover every existing local ledger before the format changes. |
 | **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | Requires real credentials plus a green install/update/rollback matrix on both platforms. |

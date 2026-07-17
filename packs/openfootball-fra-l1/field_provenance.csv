@@ -1,0 +1,307 @@
+date,home_team,away_team,identity_source_id,result_source_id,kickoff_source_id,venue_source_id,training_source_id,upstream_fixture_key,training_eligible
+2026-08-22,Le Mans,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-22,Lens,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-22,Paris Saint-Germain,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-22,Troyes,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-22,Marseille,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-22,Nice,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-22,Angers,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-22,Toulouse,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-22,Le Havre,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:1,false
+2026-08-29,Monaco,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-08-29,Strasbourg,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-08-29,Lorient,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-08-29,Lyon,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-08-29,Paris,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-08-29,Auxerre,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-08-29,Stade Rennais,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-08-29,Stade Brestois,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-08-30,Lille,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:2,false
+2026-09-05,Le Havre,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-05,Marseille,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-05,Lens,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-05,Toulouse,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-05,Paris Saint-Germain,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-05,Angers,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-05,Lyon,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-05,Troyes,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-05,Nice,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:3,false
+2026-09-12,Lorient,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-12,Lille,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-12,Le Mans,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-12,Strasbourg,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-12,Auxerre,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-12,Stade Rennais,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-12,Le Havre,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-12,Stade Brestois,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-12,Paris,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:4,false
+2026-09-19,Auxerre,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-09-19,Le Mans,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-09-19,Nice,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-09-19,Paris,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-09-19,Toulouse,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-09-19,Angers,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-09-19,Monaco,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-09-19,Lyon,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-09-20,Marseille,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:5,false
+2026-10-10,Stade Brestois,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-10,Stade Rennais,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-10,Lorient,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-10,Lens,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-10,Nice,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-10,Troyes,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-10,Paris Saint-Germain,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-10,Monaco,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-10,Lille,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:6,false
+2026-10-17,Lorient,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-17,Paris,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-17,Troyes,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-17,Lille,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-17,Le Mans,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-17,Strasbourg,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-17,Le Havre,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-17,Angers,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-17,Lyon,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:7,false
+2026-10-24,Marseille,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-24,Monaco,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-24,Stade Rennais,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-24,Lens,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-24,Angers,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-24,Stade Brestois,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-24,Toulouse,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-24,Auxerre,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-25,Paris Saint-Germain,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:8,false
+2026-10-31,Lille,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-10-31,Lyon,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-10-31,Lorient,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-10-31,Paris,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-10-31,Troyes,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-10-31,Le Havre,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-10-31,Marseille,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-10-31,Nice,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-10-31,Strasbourg,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:9,false
+2026-11-07,Le Mans,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-07,Stade Brestois,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-07,Le Havre,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-07,Angers,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-07,Paris Saint-Germain,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-07,Stade Rennais,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-07,Auxerre,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-07,Toulouse,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-07,Lens,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:10,false
+2026-11-21,Monaco,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-21,Troyes,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-21,Lens,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-21,Lille,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-21,Paris,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-21,Lorient,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-21,Strasbourg,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-21,Nice,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-21,Marseille,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:11,false
+2026-11-28,Stade Brestois,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-11-28,Le Mans,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-11-28,Toulouse,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-11-28,Auxerre,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-11-28,Nice,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-11-28,Angers,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-11-28,Le Havre,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-11-28,Paris Saint-Germain,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-11-28,Lyon,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:12,false
+2026-12-05,Troyes,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-05,Monaco,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-05,Lens,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-05,Lille,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-05,Marseille,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-05,Stade Rennais,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-05,Toulouse,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-05,Strasbourg,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-05,Paris,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:13,false
+2026-12-12,Nice,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2026-12-12,Paris Saint-Germain,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2026-12-12,Angers,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2026-12-12,Stade Brestois,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2026-12-12,Le Havre,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2026-12-12,Stade Rennais,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2026-12-12,Lorient,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2026-12-12,Auxerre,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2026-12-13,Lyon,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:14,false
+2027-01-02,Le Mans,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-02,Stade Brestois,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-02,Troyes,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-02,Toulouse,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-02,Monaco,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-02,Paris,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-02,Lorient,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-02,Lille,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-03,Lens,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:15,false
+2027-01-16,Marseille,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-16,Lyon,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-16,Paris,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-16,Stade Rennais,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-16,Nice,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-16,Auxerre,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-16,Strasbourg,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-16,Monaco,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-16,Angers,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:16,false
+2027-01-23,Le Havre,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-23,Strasbourg,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-23,Lille,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-23,Lens,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-23,Paris Saint-Germain,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-23,Troyes,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-23,Lorient,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-23,Le Mans,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-23,Toulouse,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:17,false
+2027-01-30,Paris,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-01-30,Lyon,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-01-30,Stade Rennais,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-01-30,Le Mans,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-01-30,Marseille,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-01-30,Angers,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-01-30,Stade Brestois,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-01-30,Monaco,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-01-30,Toulouse,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:18,false
+2027-02-06,Troyes,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-06,Lens,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-06,Le Havre,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-06,Lorient,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-06,Nice,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-06,Stade Rennais,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-06,Strasbourg,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-06,Auxerre,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-07,Paris Saint-Germain,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:19,false
+2027-02-13,Stade Brestois,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-13,Paris,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-13,Le Mans,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-13,Lorient,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-13,Auxerre,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-13,Toulouse,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-13,Marseille,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-13,Lille,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-13,Lyon,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:20,false
+2027-02-20,Angers,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-20,Stade Rennais,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-20,Paris Saint-Germain,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-20,Strasbourg,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-20,Nice,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-20,Le Havre,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-20,Monaco,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-20,Lille,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-20,Lens,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:21,false
+2027-02-27,Strasbourg,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-02-27,Auxerre,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-02-27,Troyes,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-02-27,Stade Brestois,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-02-27,Lorient,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-02-27,Marseille,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-02-27,Lyon,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-02-27,Le Mans,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-02-28,Paris Saint-Germain,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:22,false
+2027-03-06,Le Havre,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-06,Stade Rennais,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-06,Lens,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-06,Toulouse,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-06,Troyes,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-06,Angers,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-06,Monaco,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-06,Paris,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-06,Lille,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:23,false
+2027-03-13,Nice,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-13,Paris,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-13,Strasbourg,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-13,Le Mans,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-13,Stade Brestois,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-13,Le Havre,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-13,Marseille,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-13,Auxerre,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-13,Lyon,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:24,false
+2027-03-20,Angers,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-03-20,Toulouse,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-03-20,Troyes,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-03-20,Stade Rennais,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-03-20,Monaco,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-03-20,Paris Saint-Germain,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-03-20,Lens,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-03-20,Lorient,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-03-21,Marseille,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:25,false
+2027-04-03,Le Havre,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-03,Angers,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-03,Le Mans,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-03,Auxerre,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-03,Lille,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-03,Stade Brestois,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-03,Strasbourg,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-03,Paris,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-03,Nice,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:26,false
+2027-04-10,Lorient,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-10,Marseille,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-10,Monaco,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-10,Troyes,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-10,Paris Saint-Germain,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-10,Lyon,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-10,Le Mans,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-10,Lille,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-10,Nice,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:27,false
+2027-04-17,Auxerre,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-17,Stade Brestois,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-17,Monaco,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-17,Angers,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-17,Lens,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-17,Stade Rennais,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-17,Le Havre,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-17,Paris Saint-Germain,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-17,Toulouse,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:28,false
+2027-04-24,Paris,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-04-24,Marseille,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-04-24,Lille,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-04-24,Lorient,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-04-24,Troyes,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-04-24,Nice,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-04-24,Lyon,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-04-24,Le Mans,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-04-24,Strasbourg,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:29,false
+2027-05-01,Strasbourg,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-01,Monaco,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-01,Troyes,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-01,Lens,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-01,Paris Saint-Germain,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-01,Le Havre,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-01,Auxerre,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-01,Stade Rennais,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-01,Toulouse,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:30,false
+2027-05-08,Paris,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-08,Lorient,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-08,Stade Brestois,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-08,Le Mans,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-08,Stade Rennais,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-08,Lens,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-08,Angers,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-08,Nice,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-09,Lyon,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:31,false
+2027-05-16,Monaco,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-16,Lyon,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-16,Paris Saint-Germain,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-16,Toulouse,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-16,Stade Brestois,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-16,Marseille,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-16,Lille,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-16,Auxerre,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-16,Strasbourg,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:32,false
+2027-05-22,Nice,Monaco,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-22,Angers,Stade Brestois,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-22,Lorient,Lyon,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-22,Troyes,Paris Saint-Germain,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-22,Le Mans,Strasbourg,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-22,Toulouse,Auxerre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-22,Le Havre,Lille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-22,Paris,Marseille,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-22,Lens,Stade Rennais,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:33,false
+2027-05-29,Monaco,Troyes,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false
+2027-05-29,Paris Saint-Germain,Toulouse,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false
+2027-05-29,Lille,Le Mans,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false
+2027-05-29,Stade Brestois,Lens,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false
+2027-05-29,Marseille,Lorient,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false
+2027-05-29,Stade Rennais,Angers,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false
+2027-05-29,Lyon,Paris,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false
+2027-05-29,Auxerre,Le Havre,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false
+2027-05-29,Strasbourg,Nice,openfootball-europe,,openfootball-europe,,,openfootball-europe:2026-27:34,false

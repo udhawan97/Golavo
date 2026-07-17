@@ -1,4 +1,17 @@
 {
+  "co_sources": [
+    {
+      "license": "CC0-1.0",
+      "raw_sha256": {
+        "france/2026-27_fr1.txt": "75258c91f552692841b4fcb49da9a546f442d280928346179fdf8dced510f793"
+      },
+      "sha256_file": "2026-27.fr.1.txt",
+      "source_id": "openfootball-europe",
+      "upstream_committed_at_utc": "2026-07-08T11:55:24Z",
+      "upstream_ref": "159d7367f7d82748682f0225096e5ef48bbaf49d",
+      "url": "https://github.com/openfootball/europe"
+    }
+  ],
   "competition": "Ligue 1",
   "files": [
     {
@@ -62,8 +75,18 @@
       "sha256": "3e9403445dd96f4bb7f740de22d4ea7e3ea7d640777a12eab621ae4d4dbf3bc7"
     },
     {
+      "name": "2026-27.fr.1.txt",
+      "season": "2026-27",
+      "sha256": "75258c91f552692841b4fcb49da9a546f442d280928346179fdf8dced510f793",
+      "source_match_count": 306
+    },
+    {
       "name": "CC0-1.0.txt",
       "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    },
+    {
+      "name": "field_provenance.csv",
+      "sha256": "ca489c3044fa2c7a7b954c800a28d317bfd8ba20373fd771f254256aa419a4a8"
     }
   ],
   "license": "CC0-1.0",

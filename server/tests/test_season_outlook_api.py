@@ -23,16 +23,46 @@ def _reset_shared_index_and_outlook_caches():
     matches.reset_cache()
 
 
-def test_current_domestic_season_outlook_is_an_honest_typed_block() -> None:
+def test_current_domestic_season_outlook_runs_on_the_certified_schedule() -> None:
+    """2026-27 is bundled and certifies, so the seeded outlook answers for real."""
     response = TestClient(server_main.app).get(
         "/api/v1/analytics/competitions/england-premier-league/season-outlook",
-        params={"as_of_utc": "2026-07-15T08:00:00Z"},
+        params={"as_of_utc": "2026-08-20T08:00:00Z"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    Draft202012Validator(SCHEMA, format_checker=FormatChecker()).validate(body)
+    assert body["status"] == "available"
+    assert body["season"] == "2026-27"
+    assert body["fixture_certificate"]["complete_fixture_list"] is True
+    assert body["fixture_certificate"]["observed_matches"] == 380
+    # Separate voices, never blended, and never a seal.
+    assert [voice["voice_id"] for voice in body["voices"]] == [
+        "elo_ordlogit",
+        "dixon_coles",
+        "equal-chance-baseline",
+    ]
+    assert body["iterations"] == 10_000
+    assert body["ledger_status"] == "never_persisted_or_scored_as_a_seal"
+    for voice in body["voices"]:
+        assert len(voice["teams"]) == 20
+        # Exactly one side wins the league in every simulated season.
+        assert sum(team["title"] for team in voice["teams"]) == pytest.approx(1.0, abs=1e-6)
+        assert sum(team["top_four"] for team in voice["teams"]) == pytest.approx(4.0, abs=1e-6)
+        assert sum(team["relegation"] for team in voice["teams"]) == pytest.approx(3.0, abs=1e-6)
+
+
+def test_a_season_with_no_published_fixtures_still_fails_closed() -> None:
+    """The certificate is enforced per request: an unpublished season gets no numbers."""
+    response = TestClient(server_main.app).get(
+        "/api/v1/analytics/competitions/england-premier-league/season-outlook",
+        params={"as_of_utc": "2027-08-15T08:00:00Z"},
     )
     assert response.status_code == 200
     body = response.json()
     Draft202012Validator(SCHEMA, format_checker=FormatChecker()).validate(body)
     assert body["status"] == "blocked"
-    assert body["season"] == "2026-27"
+    assert body["season"] == "2027-28"
     assert body["reason_code"] == "fixtures_not_published"
     assert body["voices"] == []
     assert body["fixture_certificate"]["observed_matches"] == 0

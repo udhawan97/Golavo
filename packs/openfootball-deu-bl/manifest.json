@@ -1,4 +1,17 @@
 {
+  "co_sources": [
+    {
+      "license": "CC0-1.0",
+      "raw_sha256": {
+        "2026-27/1-bundesliga.txt": "5bf0551df31c042697c23efd39579a313d5de8a586bea91d8e6536316b1e2b13"
+      },
+      "sha256_file": "2026-27.de.1.txt",
+      "source_id": "openfootball-deutschland",
+      "upstream_committed_at_utc": "2026-07-06T12:35:05Z",
+      "upstream_ref": "68a414df2703cdd67b1b5eb1c413c5f07837e36d",
+      "url": "https://github.com/openfootball/deutschland"
+    }
+  ],
   "competition": "Bundesliga",
   "files": [
     {
@@ -82,8 +95,18 @@
       "sha256": "17d0999db6281e6365823acdbce41a4f01dd469eac63e1f897e4e47c02906672"
     },
     {
+      "name": "2026-27.de.1.txt",
+      "season": "2026-27",
+      "sha256": "5bf0551df31c042697c23efd39579a313d5de8a586bea91d8e6536316b1e2b13",
+      "source_match_count": 306
+    },
+    {
       "name": "CC0-1.0.txt",
       "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    },
+    {
+      "name": "field_provenance.csv",
+      "sha256": "58225d407c4d2b95de415f2bea147cc4f8886cbe2f9c23fb653af4677057342f"
     }
   ],
   "license": "CC0-1.0",

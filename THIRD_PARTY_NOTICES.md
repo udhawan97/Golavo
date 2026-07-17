@@ -25,6 +25,30 @@ software dependencies.
 - Attribution: European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.
 - Notes: Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone.
 
+### openfootball/deutschland — **bundled**
+
+- Source: https://github.com/openfootball/deutschland
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/deutschland/blob/master/LICENSE.md)
+- Attribution: The bundesliga fixtures from openfootball/deutschland (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py).
+
+### openfootball/england — **bundled**
+
+- Source: https://github.com/openfootball/england
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/england/blob/master/LICENSE.md)
+- Attribution: The english premier league fixtures from openfootball/england (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py).
+
+### openfootball/espana — **bundled**
+
+- Source: https://github.com/openfootball/espana
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/espana/blob/master/LICENSE.md)
+- Attribution: La liga fixtures from openfootball/espana (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py).
+
 ### openfootball/euro — available, not bundled
 
 - Source: https://github.com/openfootball/euro
@@ -33,6 +57,14 @@ software dependencies.
 - Attribution: European Championship data from openfootball/euro (Gerald Bauer and contributors), CC0-1.0.
 - Notes: Registered but not bundled: the available finals editions duplicate UEFA Euro results already carried by martj42. Golavo avoids adding duplicate match rows; martj42 remains the historical international results source.
 
+### openfootball/europe — **bundled**
+
+- Source: https://github.com/openfootball/europe
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/europe/blob/master/LICENSE.md)
+- Attribution: Ligue 1 fixtures from openfootball/europe (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py).
+
 ### openfootball/football.json — **bundled**
 
 - Source: https://github.com/openfootball/football.json
@@ -40,6 +72,14 @@ software dependencies.
 - License: CC0-1.0 (https://github.com/openfootball/football.json/blob/master/LICENSE.md)
 - Attribution: Club football results from openfootball/football.json (Gerald Bauer and contributors), CC0-1.0.
 - Notes: Bundled, search/backtest only (five leagues share one source_id, so not seal-eligible). Naive local kickoff time; club rows carry kickoff_precision=day.
+
+### openfootball/italy — **bundled**
+
+- Source: https://github.com/openfootball/italy
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/italy/blob/master/LICENSE.md)
+- Attribution: Serie a fixtures from openfootball/italy (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py).
 
 ### openfootball/worldcup.json — **bundled**
 

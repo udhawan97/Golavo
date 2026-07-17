@@ -6,6 +6,26 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **The 2026-27 domestic season.** The five bundled leagues now carry their full
+  published schedule — 380 fixtures each for the Premier League, La Liga and Serie A,
+  306 each for the Bundesliga and Ligue 1 — pinned from the OpenFootball Football.TXT
+  country repos, which publish 2026-27 while football.json (the packs' existing source)
+  stops at 2025-26. Every schedule is machine-checked as a complete, gap-free double
+  round-robin, so the 10,000-run seeded season outlook — implemented since 0.13.0 but
+  blocked ever since for want of a fixture list — now runs for all five. Score picks
+  already worked on any upcoming match, so the season is playable from the first
+  matchday. Fixtures are a co-source: they supply identity and the local kickoff clock
+  only, they are never training-eligible, and every league's own results remain the sole
+  training truth.
+
+### Fixed
+- Troyes no longer arrives as a club with no history. The 2026-27 fixture list prints
+  them 'ES Troyes AC' where the indexed seasons (2015-16..2022-23) use 'ESTAC Troyes';
+  unmapped, the promoted side would have been unknown to every model and would have sat
+  in the league table twice. Racing Santander, promoted with no prior indexed season, is
+  named like its peers rather than as the legal 'Real Racing Club de Santander'.
+
 ## [0.15.0] - 2026-07-16
 
 Golavo 0.15.0 is an architecture release. Three rules that the app had been keeping in

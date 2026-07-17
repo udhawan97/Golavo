@@ -2,7 +2,8 @@
  * Leagues — a browse hub over bundled domestic and UEFA club competitions + internationals.
  *
  * Domestic leagues also expose their verified standings/simulation gate. The
- * outlook remains blocked until the local source proves a complete fixture list.
+ * 2026-27 fixture lists now certify complete, so the seeded season outlook runs;
+ * it still renders its blocked state per request if a certificate ever fails.
  */
 import { useState } from "react";
 import type { CompetitionAnalytics, StrengthPoint } from "../lib/contract";

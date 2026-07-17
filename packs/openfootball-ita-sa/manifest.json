@@ -1,4 +1,17 @@
 {
+  "co_sources": [
+    {
+      "license": "CC0-1.0",
+      "raw_sha256": {
+        "2026-27/1-seriea.txt": "94c6b83204b55965d576e2a15329b0fbb3ab818f24b9e4d5ab0074d12eb64fc3"
+      },
+      "sha256_file": "2026-27.it.1.txt",
+      "source_id": "openfootball-italy",
+      "upstream_committed_at_utc": "2026-07-02T16:05:32Z",
+      "upstream_ref": "0ecb64bc6e8f771a5374abacaf9ecb0e8a886c7b",
+      "url": "https://github.com/openfootball/italy"
+    }
+  ],
   "competition": "Serie A",
   "files": [
     {
@@ -67,8 +80,18 @@
       "sha256": "28f7773dea86345aeb0cbb4aff2f90231033f7ed855219e70fdd1cf45d4d7e7f"
     },
     {
+      "name": "2026-27.it.1.txt",
+      "season": "2026-27",
+      "sha256": "94c6b83204b55965d576e2a15329b0fbb3ab818f24b9e4d5ab0074d12eb64fc3",
+      "source_match_count": 380
+    },
+    {
       "name": "CC0-1.0.txt",
       "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    },
+    {
+      "name": "field_provenance.csv",
+      "sha256": "e729220d7433d5d0c537b54844c565ed8548a439790793fadd1591feb6a1fd7d"
     }
   ],
   "license": "CC0-1.0",

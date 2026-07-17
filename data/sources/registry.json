@@ -13,9 +13,109 @@
   },
   "sources": [
     {
+      "source_id": "clubelo",
+      "name": "ClubElo",
+      "contributors": [
+        "ClubElo"
+      ],
+      "url": "http://clubelo.com/",
+      "license": "NONE",
+      "license_url": null,
+      "classification": "rejected",
+      "fields": "club Elo ratings API",
+      "verified": "2026-07-12",
+      "notes": "REJECTED: publishes no license or terms of any kind. Free access is not a redistribution grant."
+    },
+    {
+      "source_id": "fjelstul-worldcup",
+      "name": "Fjelstul World Cup Database",
+      "contributors": [
+        "Joshua C. Fjelstul"
+      ],
+      "url": "https://github.com/jfjelstul/worldcup",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/legalcode",
+      "classification": "by-sa-pack",
+      "pin_strategy": "commit",
+      "pin": "f942c6b",
+      "citation_key": "fjelstul2023worldcup",
+      "fields": "men's (1930-2022) + women's (1991-2019) World Cup history: matches, players, managers, referees, stadiums, events, awards",
+      "attribution": "Fjelstul World Cup Database v1.2.0 \u00a9 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.",
+      "share_alike": true,
+      "verified": "2026-07-12",
+      "notes": "Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag \u2014 pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses only the men's 1930\u20132022 history."
+    },
+    {
+      "source_id": "football-data-org",
+      "name": "football-data.org",
+      "contributors": [
+        "Freitag Web Tec UG"
+      ],
+      "url": "https://www.football-data.org/",
+      "license": "PROPRIETARY-API-TERMS",
+      "license_url": "https://www.football-data.org/about",
+      "classification": "rejected",
+      "fields": "fixtures/results API (free tier)",
+      "verified": "2026-07-12",
+      "notes": "REJECTED: proprietary API service with a post-cancellation data restriction. Free access is not openly licensed redistributable data."
+    },
+    {
+      "source_id": "geonames",
+      "name": "GeoNames",
+      "contributors": [
+        "GeoNames.org"
+      ],
+      "url": "https://www.geonames.org/export/",
+      "license": "CC-BY-4.0",
+      "license_url": "https://download.geonames.org/export/dump/readme.txt",
+      "classification": "enrichment",
+      "pin_strategy": "dump-date",
+      "fields": "city coordinates, country, timezone, altitude \u2014 bulk dumps (cities15000, countryInfo, timeZones)",
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "enrichment-cc-by-4.0",
+        "allowed_types": [
+          "venue"
+        ],
+        "evidence_hosts": [
+          "geonames.org",
+          "www.geonames.org",
+          "download.geonames.org"
+        ],
+        "local_annotation": true,
+        "redistributable_export": true,
+        "contribution_url": "https://www.geonames.org/manual.html"
+      },
+      "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
+      "verified": "2026-07-15",
+      "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact table resolves 1,571 of 2,215 indexed city-country pairs through unique exact GeoNames primary-name matching. All 82 ambiguous pairs remain excluded; 175 alias candidates remain pending, and no manual city resolutions ship. Bulk files only, with no runtime web-service dependency."
+    },
+    {
+      "source_id": "idsse",
+      "name": "IDSSE \u2014 integrated spatiotemporal + event data",
+      "contributors": [
+        "Manuel Bassek",
+        "Robert Rein",
+        "Hendrik Weber",
+        "Daniel Memmert"
+      ],
+      "url": "https://springernature.figshare.com/articles/dataset/An_integrated_dataset_of_spatiotemporal_and_event_data_in_elite_soccer/28196177",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "classification": "research-pack",
+      "pin_strategy": "figshare-doi",
+      "citation_key": "bassek2025idsse",
+      "fields": "7 elite German matches (~2.63 GB): synchronized TRACAB tracking + DFL event data (XML)",
+      "attribution": "IDSSE dataset, provided with authorization of the Deutsche Fu\u00dfball Liga (DFL); Bassek et al., Sci Data 12:195 (2025), CC BY 4.0.",
+      "verified": "2026-07-12",
+      "notes": "Research-only (pipeline validation). 2.63 GB for 7 matches \u2014 not a user-facing pack. Attribution must name DFL and cite the paper."
+    },
+    {
       "source_id": "martj42-international-results",
       "name": "martj42/international_results",
-      "contributors": ["Mart Jürisoo"],
+      "contributors": [
+        "Mart J\u00fcrisoo"
+      ],
       "url": "https://github.com/martj42/international_results",
       "license": "CC0-1.0",
       "license_url": "https://github.com/martj42/international_results/blob/master/LICENSE",
@@ -26,7 +126,13 @@
         "adapter": "martj42-international-results",
         "repository": "martj42/international_results",
         "branch": "master",
-        "allowed_paths": ["results.csv", "goalscorers.csv", "shootouts.csv", "former_names.csv", "LICENSE"],
+        "allowed_paths": [
+          "results.csv",
+          "goalscorers.csv",
+          "shootouts.csv",
+          "former_names.csv",
+          "LICENSE"
+        ],
         "default_interval_seconds": 21600,
         "max_file_bytes": 33554432,
         "max_snapshot_bytes": 67108864
@@ -35,137 +141,64 @@
       "corrections": {
         "enabled": true,
         "license_namespace": "core-cc0",
-        "allowed_types": ["missing_fixture", "team_alias", "final_score"],
-        "evidence_hosts": ["github.com", "raw.githubusercontent.com"],
+        "allowed_types": [
+          "missing_fixture",
+          "team_alias",
+          "final_score"
+        ],
+        "evidence_hosts": [
+          "github.com",
+          "raw.githubusercontent.com"
+        ],
         "local_annotation": true,
         "redistributable_export": true,
         "contribution_url": "https://github.com/martj42/international_results"
       },
-      "attribution": "International football results from martj42/international_results (Mart Jürisoo), CC0-1.0.",
+      "attribution": "International football results from martj42/international_results (Mart J\u00fcrisoo), CC0-1.0.",
       "verified": "2026-07-12",
       "notes": "Bundled and seal-eligible. Sole forward-seal training source. Date-only; exact kickoff requires the worldcup-json overlay."
     },
     {
-      "source_id": "openfootball-football-json",
-      "name": "openfootball/football.json",
-      "contributors": ["Gerald Bauer", "openfootball contributors"],
-      "url": "https://github.com/openfootball/football.json",
-      "license": "CC0-1.0",
-      "license_url": "https://github.com/openfootball/football.json/blob/master/LICENSE.md",
-      "classification": "core",
-      "pin_strategy": "commit",
-      "refresh": {
-        "supported": true,
-        "adapter": "openfootball-football-json",
-        "repository": "openfootball/football.json",
-        "branch": "master",
-        "allowed_paths": ["<current-season>/en.1.json", "<current-season>/es.1.json", "<current-season>/de.1.json", "<current-season>/it.1.json", "<current-season>/fr.1.json", "LICENSE.md"],
-        "default_interval_seconds": 86400,
-        "max_file_bytes": 33554432,
-        "max_snapshot_bytes": 67108864
-      },
-      "fields": "top-five European league files published through 2025-26; season completeness is certified per league and 2025-26 is incomplete in the audited snapshot (no 2026-27 files published as of verified date)",
-      "corrections": {
-        "enabled": true,
-        "license_namespace": "core-cc0",
-        "allowed_types": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"],
-        "evidence_hosts": ["github.com", "raw.githubusercontent.com"],
-        "local_annotation": true,
-        "redistributable_export": true,
-        "contribution_url": "https://github.com/openfootball/football.json"
-      },
-      "attribution": "Club football results from openfootball/football.json (Gerald Bauer and contributors), CC0-1.0.",
+      "source_id": "martj42-womens-international-results",
+      "name": "martj42/womens-international-results",
+      "contributors": [
+        "Mart J\u00fcrisoo"
+      ],
+      "url": "https://github.com/martj42/womens-international-results",
+      "license": "NONE",
+      "license_url": null,
+      "classification": "blocked",
+      "recheck_by": "2026-10-01",
+      "fields": "women's international results (unlicensed)",
       "verified": "2026-07-12",
-      "notes": "Bundled, search/backtest only (five leagues share one source_id, so not seal-eligible). Naive local kickoff time; club rows carry kickoff_precision=day."
+      "notes": "BLOCKED: no LICENSE file as of the verified date (default all-rights-reserved). Do not use or redistribute. Recheck for an added open license."
     },
     {
-      "source_id": "openfootball-worldcup-json",
-      "name": "openfootball/worldcup.json",
-      "contributors": ["Gerald Bauer", "openfootball contributors"],
-      "url": "https://github.com/openfootball/worldcup.json",
-      "license": "CC0-1.0",
-      "license_url": "https://github.com/openfootball/worldcup.json/blob/master/LICENSE.md",
-      "classification": "core",
-      "pin_strategy": "commit",
-      "refresh": {
-        "supported": true,
-        "adapter": "openfootball-worldcup-json",
-        "repository": "openfootball/worldcup.json",
-        "branch": "master",
-        "allowed_paths": ["2026/worldcup.json", "2026/worldcup.stadiums.json", "LICENSE.md"],
-        "default_interval_seconds": 21600,
-        "max_file_bytes": 33554432,
-        "max_snapshot_bytes": 67108864
-      },
-      "fields": "World Cup fixtures/results with exact kickoff time + UTC offset, round, venue city, stadium timezone/coords (separate stadiums file); knockout placeholders W###/L### before teams resolve",
-      "corrections": {
-        "enabled": true,
-        "license_namespace": "core-cc0",
-        "allowed_types": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"],
-        "evidence_hosts": ["github.com", "raw.githubusercontent.com"],
-        "local_annotation": true,
-        "redistributable_export": true,
-        "contribution_url": "https://github.com/openfootball/worldcup.json"
-      },
-      "attribution": "World Cup fixtures and kickoff times from openfootball/worldcup.json (Gerald Bauer and contributors), CC0-1.0.",
+      "source_id": "meteostat",
+      "name": "Meteostat",
+      "contributors": [
+        "Meteostat",
+        "Deutscher Wetterdienst",
+        "NOAA",
+        "ECCC"
+      ],
+      "url": "https://dev.meteostat.net/",
+      "license": "UNRESOLVED",
+      "license_url": "https://dev.meteostat.net/license",
+      "classification": "blocked",
+      "recheck_by": "2026-10-01",
+      "fields": "historical observed weather (temperature, precipitation, wind); bulk annual Parquet",
       "verified": "2026-07-12",
-      "notes": "Bundled as a fixture/kickoff co-source inside the refreshed internationals pack: supplies the World Cup fixtures martj42 has not published yet plus exact kickoff times. Excluded from model training (martj42 remains the sole training source). A user-authorized post-match check may also use its pinned, hashed final score to settle a World Cup seal when martj42 still reports NA/NA; if both sources publish and disagree, settlement fails closed. W###/L### placeholder fixtures are rejected until the bracket resolves."
-    },
-    {
-      "source_id": "openfootball-champions-league",
-      "name": "openfootball/champions-league",
-      "contributors": ["Gerald Bauer", "openfootball contributors"],
-      "url": "https://github.com/openfootball/champions-league",
-      "license": "CC0-1.0",
-      "license_url": "https://github.com/openfootball/champions-league/blob/master/LICENSE.md",
-      "classification": "core",
-      "pin_strategy": "commit",
-      "fields": "UEFA Champions League, Europa League, and Conference League main-competition results in Football.TXT format; qualifiers excluded from the bundled packs",
-      "attribution": "European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.",
-      "verified": "2026-07-15",
-      "notes": "Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone."
-    },
-    {
-      "source_id": "openfootball-euro",
-      "name": "openfootball/euro",
-      "contributors": ["Gerald Bauer", "openfootball contributors"],
-      "url": "https://github.com/openfootball/euro",
-      "license": "CC0-1.0",
-      "license_url": "https://github.com/openfootball/euro/blob/master/LICENSE.md",
-      "classification": "core",
-      "pin_strategy": "commit",
-      "fields": "UEFA European Championship fixtures/results in Football.TXT format",
-      "attribution": "European Championship data from openfootball/euro (Gerald Bauer and contributors), CC0-1.0.",
-      "verified": "2026-07-15",
-      "notes": "Registered but not bundled: the available finals editions duplicate UEFA Euro results already carried by martj42. Golavo avoids adding duplicate match rows; martj42 remains the historical international results source."
-    },
-    {
-      "source_id": "geonames",
-      "name": "GeoNames",
-      "contributors": ["GeoNames.org"],
-      "url": "https://www.geonames.org/export/",
-      "license": "CC-BY-4.0",
-      "license_url": "https://download.geonames.org/export/dump/readme.txt",
-      "classification": "enrichment",
-      "pin_strategy": "dump-date",
-      "fields": "city coordinates, country, timezone, altitude — bulk dumps (cities15000, countryInfo, timeZones)",
-      "corrections": {
-        "enabled": true,
-        "license_namespace": "enrichment-cc-by-4.0",
-        "allowed_types": ["venue"],
-        "evidence_hosts": ["geonames.org", "www.geonames.org", "download.geonames.org"],
-        "local_annotation": true,
-        "redistributable_export": true,
-        "contribution_url": "https://www.geonames.org/manual.html"
-      },
-      "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
-      "verified": "2026-07-15",
-      "notes": "Bundled as a separately registered enrichment pack pinned to the 2026-07-15 dump and exact file hashes. The compact table resolves 1,571 of 2,215 indexed city-country pairs through unique exact GeoNames primary-name matching. All 82 ambiguous pairs remain excluded; 175 alias candidates remain pending, and no manual city resolutions ship. Bulk files only, with no runtime web-service dependency."
+      "notes": "BLOCKED: /license states CC BY 4.0 but the live /faq states CC BY-NC 4.0 \u2014 a contradiction that must be resolved in writing before adoption. Also no historical-FORECAST archive exists, so weather can only ever be context, never a backtested pre-match feature."
     },
     {
       "source_id": "natural-earth",
       "name": "Natural Earth",
-      "contributors": ["Tom Patterson", "Nathaniel Vaughn Kelso", "Natural Earth contributors"],
+      "contributors": [
+        "Tom Patterson",
+        "Nathaniel Vaughn Kelso",
+        "Natural Earth contributors"
+      ],
       "url": "https://www.naturalearthdata.com/",
       "license": "PUBLIC-DOMAIN",
       "license_url": "https://www.naturalearthdata.com/about/terms-of-use/",
@@ -177,108 +210,246 @@
       "notes": "Bundled as a separately registered public-domain enrichment pack pinned to Admin-0 Countries v5.1.1 at commit 9380cca and exact file hashes. The compact 1:110m GeoJSON basemap is offline; no tile service is required."
     },
     {
-      "source_id": "wikipedia-en",
-      "name": "English Wikipedia",
-      "contributors": ["Wikipedia contributors"],
-      "url": "https://en.wikipedia.org/",
-      "license": "CC-BY-SA-4.0",
-      "license_url": "https://en.wikipedia.org/wiki/Wikipedia:Copyrights",
-      "classification": "by-sa-pack",
-      "pin_strategy": "page-revision-and-content-sha256",
-      "fields": "user-selected article text for local research evidence; no images or media",
-      "research_access": {
-        "enabled": true,
-        "roles": ["discovery", "capture"],
-        "hosts": ["en.wikipedia.org"],
-        "schemes": ["https"],
-        "ports": [443],
-        "methods": ["GET"],
-        "path_patterns": ["^/w/api\\.php$"],
-        "redirect_hosts": [],
-        "allowed_query_keys": ["action", "explaintext", "format", "formatversion", "inprop", "list", "origin", "prop", "redirects", "rvprop", "srlimit", "srprop", "srsearch", "titles"],
-        "content_types": ["application/json"],
-        "max_raw_bytes": 524288,
-        "license_namespace": "research-cc-by-sa-4.0",
-        "permitted_fact_types": ["team_alias", "venue"],
-        "parser_id": "wikipedia-action-v1",
-        "parser_version": "1",
-        "ai_fallback": true,
-        "attribution_required": true,
-        "terms_url": "https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_API_Usage_Guidelines/en",
-        "terms_verified_at": "2026-07-15",
-        "recheck_by": "2026-10-15"
-      },
-      "corrections": {
-        "enabled": true,
-        "license_namespace": "research-cc-by-sa-4.0",
-        "allowed_types": ["team_alias", "venue"],
-        "evidence_hosts": ["en.wikipedia.org"],
-        "local_annotation": true,
-        "redistributable_export": false,
-        "contribution_url": "https://en.wikipedia.org/"
-      },
-      "attribution": "Text from Wikipedia contributors, CC BY-SA 4.0; page URL and revision retained.",
-      "verified": "2026-07-15",
-      "notes": "Runtime research only, off by default and user-selected. No Wikipedia bytes ship. Captures and local correction candidates remain in a physically isolated, non-exportable BY-SA namespace; media is forbidden."
+      "source_id": "open-meteo-hosted",
+      "name": "Open-Meteo (hosted free API)",
+      "contributors": [
+        "Open-Meteo"
+      ],
+      "url": "https://open-meteo.com/",
+      "license": "CC-BY-4.0-data-AGPL-3.0-source",
+      "license_url": "https://open-meteo.com/en/terms",
+      "classification": "rejected",
+      "fields": "weather forecast/history API",
+      "verified": "2026-07-12",
+      "notes": "REJECTED as a default dependency: the hosted free API tier is non-commercial only. Only ever a user-supplied optional adapter with disclosed terms."
     },
     {
-      "source_id": "wikidata",
-      "name": "Wikidata",
-      "contributors": ["Wikidata contributors"],
-      "url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+      "source_id": "openfootball-champions-league",
+      "name": "openfootball/champions-league",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/champions-league",
       "license": "CC0-1.0",
-      "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
-      "classification": "enrichment",
-      "pin_strategy": "entity-revisions",
-      "fields": "structured data only — stable entity ids, multilingual aliases, country/confederation, venue metadata",
+      "license_url": "https://github.com/openfootball/champions-league/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "UEFA Champions League, Europa League, and Conference League main-competition results in Football.TXT format; qualifiers excluded from the bundled packs",
+      "attribution": "European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-15",
+      "notes": "Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone."
+    },
+    {
+      "source_id": "openfootball-deutschland",
+      "name": "openfootball/deutschland",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/deutschland",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/deutschland/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "Football.TXT season schedule for the Bundesliga: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
+      "attribution": "The bundesliga fixtures from openfootball/deutschland (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-17",
+      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+    },
+    {
+      "source_id": "openfootball-england",
+      "name": "openfootball/england",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/england",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/england/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "Football.TXT season schedule for the English Premier League: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
+      "attribution": "The english premier league fixtures from openfootball/england (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-17",
+      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+    },
+    {
+      "source_id": "openfootball-espana",
+      "name": "openfootball/espana",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/espana",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/espana/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "Football.TXT season schedule for La Liga: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
+      "attribution": "La liga fixtures from openfootball/espana (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-17",
+      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+    },
+    {
+      "source_id": "openfootball-euro",
+      "name": "openfootball/euro",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/euro",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/euro/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "UEFA European Championship fixtures/results in Football.TXT format",
+      "attribution": "European Championship data from openfootball/euro (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-15",
+      "notes": "Registered but not bundled: the available finals editions duplicate UEFA Euro results already carried by martj42. Golavo avoids adding duplicate match rows; martj42 remains the historical international results source."
+    },
+    {
+      "source_id": "openfootball-europe",
+      "name": "openfootball/europe",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/europe",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/europe/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "Football.TXT season schedule for Ligue 1: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
+      "attribution": "Ligue 1 fixtures from openfootball/europe (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-17",
+      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+    },
+    {
+      "source_id": "openfootball-football-json",
+      "name": "openfootball/football.json",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/football.json",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/football.json/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-football-json",
+        "repository": "openfootball/football.json",
+        "branch": "master",
+        "allowed_paths": [
+          "<current-season>/en.1.json",
+          "<current-season>/es.1.json",
+          "<current-season>/de.1.json",
+          "<current-season>/it.1.json",
+          "<current-season>/fr.1.json",
+          "LICENSE.md"
+        ],
+        "default_interval_seconds": 86400,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
+      "fields": "top-five European league files published through 2025-26; season completeness is certified per league and 2025-26 is incomplete in the audited snapshot (no 2026-27 files published as of verified date)",
       "corrections": {
         "enabled": true,
-        "license_namespace": "enrichment-cc0",
-        "allowed_types": ["team_alias", "venue"],
-        "evidence_hosts": ["wikidata.org", "www.wikidata.org"],
+        "license_namespace": "core-cc0",
+        "allowed_types": [
+          "missing_fixture",
+          "kickoff_time",
+          "team_alias",
+          "venue",
+          "final_score"
+        ],
+        "evidence_hosts": [
+          "github.com",
+          "raw.githubusercontent.com"
+        ],
         "local_annotation": true,
         "redistributable_export": true,
-        "contribution_url": "https://www.wikidata.org/"
+        "contribution_url": "https://github.com/openfootball/football.json"
       },
-      "entity_access": {
-        "mode": "revision-pinned-individual-entities",
-        "runtime_network": false,
-        "allowed_namespaces": ["item", "property"],
-        "allowed_properties": ["P17", "P31", "P131", "P625", "P1083", "P463"],
-        "languages": ["en"],
-        "max_entities": 300,
-        "retain_revision_evidence": true
+      "attribution": "Club football results from openfootball/football.json (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-12",
+      "notes": "Bundled, search/backtest only (five leagues share one source_id, so not seal-eligible). Naive local kickoff time; club rows carry kickoff_precision=day."
+    },
+    {
+      "source_id": "openfootball-italy",
+      "name": "openfootball/italy",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/italy",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/italy/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "Football.TXT season schedule for Serie A: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
+      "attribution": "Serie a fixtures from openfootball/italy (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-17",
+      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+    },
+    {
+      "source_id": "openfootball-worldcup-json",
+      "name": "openfootball/worldcup.json",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/worldcup.json",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/worldcup.json/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-worldcup-json",
+        "repository": "openfootball/worldcup.json",
+        "branch": "master",
+        "allowed_paths": [
+          "2026/worldcup.json",
+          "2026/worldcup.stadiums.json",
+          "LICENSE.md"
+        ],
+        "default_interval_seconds": 21600,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
       },
-      "research_access": {
+      "fields": "World Cup fixtures/results with exact kickoff time + UTC offset, round, venue city, stadium timezone/coords (separate stadiums file); knockout placeholders W###/L### before teams resolve",
+      "corrections": {
         "enabled": true,
-        "roles": ["discovery", "capture", "structured"],
-        "hosts": ["www.wikidata.org"],
-        "schemes": ["https"],
-        "ports": [443],
-        "methods": ["GET"],
-        "path_patterns": ["^/w/api\\.php$", "^/w/rest\\.php/wikibase/v1/entities/items/Q[1-9][0-9]*$"],
-        "redirect_hosts": [],
-        "allowed_query_keys": ["action", "format", "language", "languages", "limit", "search", "type"],
-        "content_types": ["application/json"],
-        "max_raw_bytes": 524288,
-        "license_namespace": "enrichment-cc0",
-        "permitted_fact_types": ["team_alias", "venue"],
-        "parser_id": "wikidata-item-v1",
-        "parser_version": "1",
-        "ai_fallback": false,
-        "attribution_required": true,
-        "terms_url": "https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_API_Usage_Guidelines/en",
-        "terms_verified_at": "2026-07-15",
-        "recheck_by": "2026-10-15"
+        "license_namespace": "core-cc0",
+        "allowed_types": [
+          "missing_fixture",
+          "kickoff_time",
+          "team_alias",
+          "venue",
+          "final_score"
+        ],
+        "evidence_hosts": [
+          "github.com",
+          "raw.githubusercontent.com"
+        ],
+        "local_annotation": true,
+        "redistributable_export": true,
+        "contribution_url": "https://github.com/openfootball/worldcup.json"
       },
-      "attribution": "Structured data from Wikidata (CC0); we credit it voluntarily as 'Data from Wikidata'.",
-      "verified": "2026-07-15",
-      "notes": "The bundled Phase 4 context remains limited to a maintainer-reviewed QID allowlist with no runtime network. Phase 7 separately permits explicit, consent-gated runtime research through the declared API paths; those candidates remain untrusted and never trigger automatic identity merges. Structured claims are CC0; prose, sitelink text and Commons media are excluded."
+      "attribution": "World Cup fixtures and kickoff times from openfootball/worldcup.json (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-12",
+      "notes": "Bundled as a fixture/kickoff co-source inside the refreshed internationals pack: supplies the World Cup fixtures martj42 has not published yet plus exact kickoff times. Excluded from model training (martj42 remains the sole training source). A user-authorized post-match check may also use its pinned, hashed final score to settle a World Cup seal when martj42 still reports NA/NA; if both sources publish and disagree, settlement fails closed. W###/L### placeholder fixtures are rejected until the bracket resolves."
     },
     {
       "source_id": "openligadb",
       "name": "OpenLigaDB",
-      "contributors": ["Marcel Siegel", "OpenLigaDB community"],
+      "contributors": [
+        "Marcel Siegel",
+        "OpenLigaDB community"
+      ],
       "url": "https://www.openligadb.de/",
       "license": "ODbL-1.0",
       "license_url": "https://www.openligadb.de/lizenz",
@@ -290,14 +461,21 @@
         "fetch_per_user": true,
         "display_only": true,
         "host": "api.openligadb.de",
-        "methods": ["GET"],
+        "methods": [
+          "GET"
+        ],
         "path_templates": [
           "/getavailableleagues/{season}",
           "/getavailablegroups/{leagueShortcut}/{season}",
           "/getlastchangedate/{leagueShortcut}/{season}/{groupOrderId}",
           "/getmatchdata/{leagueShortcut}/{season}/{groupOrderId}"
         ],
-        "competition_shortcuts": ["bl1", "bl2", "bl3", "dfb"],
+        "competition_shortcuts": [
+          "bl1",
+          "bl2",
+          "bl3",
+          "dfb"
+        ],
         "default_interval_seconds": 43200,
         "max_response_bytes": 8388608,
         "storage_boundary": "overlays/openligadb"
@@ -306,38 +484,39 @@
       "corrections": {
         "enabled": true,
         "license_namespace": "overlay-odbl-1.0",
-        "allowed_types": ["missing_fixture", "kickoff_time", "team_alias", "venue", "final_score"],
-        "evidence_hosts": ["openligadb.de", "www.openligadb.de", "api.openligadb.de"],
+        "allowed_types": [
+          "missing_fixture",
+          "kickoff_time",
+          "team_alias",
+          "venue",
+          "final_score"
+        ],
+        "evidence_hosts": [
+          "openligadb.de",
+          "www.openligadb.de",
+          "api.openligadb.de"
+        ],
         "local_annotation": true,
         "redistributable_export": false,
         "contribution_url": "https://www.openligadb.de/"
       },
-      "attribution": "Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0.",
+      "attribution": "Datenquelle: OpenLigaDB (www.openligadb.de) \u2014 Open Database License (ODbL) v1.0.",
       "share_alike": true,
       "verified": "2026-07-15",
-      "notes": "Optional isolated, per-user ODbL overlay. No response bytes ship with Golavo. The v1 adapter is display-only and allowlists the current-season bl1, bl2, bl3 and dfb identities; it cannot train models, seal or settle forecasts, enter exports, or join the CC0/CC-BY core. A redistributed adapted database must itself honor ODbL and carry attribution/license information. Single-operator hobby service — feature must tolerate its permanent absence."
-    },
-    {
-      "source_id": "fjelstul-worldcup",
-      "name": "Fjelstul World Cup Database",
-      "contributors": ["Joshua C. Fjelstul"],
-      "url": "https://github.com/jfjelstul/worldcup",
-      "license": "CC-BY-SA-4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/legalcode",
-      "classification": "by-sa-pack",
-      "pin_strategy": "commit",
-      "pin": "f942c6b",
-      "citation_key": "fjelstul2023worldcup",
-      "fields": "men's (1930-2022) + women's (1991-2019) World Cup history: matches, players, managers, referees, stadiums, events, awards",
-      "attribution": "Fjelstul World Cup Database v1.2.0 © 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.",
-      "share_alike": true,
-      "verified": "2026-07-12",
-      "notes": "Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses only the men's 1930–2022 history."
+      "notes": "Optional isolated, per-user ODbL overlay. No response bytes ship with Golavo. The v1 adapter is display-only and allowlists the current-season bl1, bl2, bl3 and dfb identities; it cannot train models, seal or settle forecasts, enter exports, or join the CC0/CC-BY core. A redistributed adapted database must itself honor ODbL and carry attribution/license information. Single-operator hobby service \u2014 feature must tolerate its permanent absence."
     },
     {
       "source_id": "pappalardo-wyscout-events",
       "name": "Pappalardo/Wyscout public soccer event dataset",
-      "contributors": ["Luca Pappalardo", "Paolo Cintia", "Alessio Rossi", "Emanuele Massucco", "Paolo Ferragina", "Dino Pedreschi", "Fosca Giannotti"],
+      "contributors": [
+        "Luca Pappalardo",
+        "Paolo Cintia",
+        "Alessio Rossi",
+        "Emanuele Massucco",
+        "Paolo Ferragina",
+        "Dino Pedreschi",
+        "Fosca Giannotti"
+      ],
       "url": "https://figshare.com/collections/Soccer_match_event_dataset/4415000",
       "license": "CC-BY-4.0",
       "license_url": "https://creativecommons.org/licenses/by/4.0/",
@@ -352,7 +531,10 @@
     {
       "source_id": "skillcorner-opendata",
       "name": "SkillCorner Open Data",
-      "contributors": ["SkillCorner", "PySport"],
+      "contributors": [
+        "SkillCorner",
+        "PySport"
+      ],
       "url": "https://github.com/SkillCorner/opendata",
       "license": "MIT",
       "license_url": "https://github.com/SkillCorner/opendata/blob/master/LICENSE",
@@ -364,62 +546,11 @@
       "notes": "Optional research pack. Preserve documented limits (~97% ID accuracy; extrapolated frames flagged)."
     },
     {
-      "source_id": "idsse",
-      "name": "IDSSE — integrated spatiotemporal + event data",
-      "contributors": ["Manuel Bassek", "Robert Rein", "Hendrik Weber", "Daniel Memmert"],
-      "url": "https://springernature.figshare.com/articles/dataset/An_integrated_dataset_of_spatiotemporal_and_event_data_in_elite_soccer/28196177",
-      "license": "CC-BY-4.0",
-      "license_url": "https://creativecommons.org/licenses/by/4.0/",
-      "classification": "research-pack",
-      "pin_strategy": "figshare-doi",
-      "citation_key": "bassek2025idsse",
-      "fields": "7 elite German matches (~2.63 GB): synchronized TRACAB tracking + DFL event data (XML)",
-      "attribution": "IDSSE dataset, provided with authorization of the Deutsche Fußball Liga (DFL); Bassek et al., Sci Data 12:195 (2025), CC BY 4.0.",
-      "verified": "2026-07-12",
-      "notes": "Research-only (pipeline validation). 2.63 GB for 7 matches — not a user-facing pack. Attribution must name DFL and cite the paper."
-    },
-    {
-      "source_id": "meteostat",
-      "name": "Meteostat",
-      "contributors": ["Meteostat", "Deutscher Wetterdienst", "NOAA", "ECCC"],
-      "url": "https://dev.meteostat.net/",
-      "license": "UNRESOLVED",
-      "license_url": "https://dev.meteostat.net/license",
-      "classification": "blocked",
-      "recheck_by": "2026-10-01",
-      "fields": "historical observed weather (temperature, precipitation, wind); bulk annual Parquet",
-      "verified": "2026-07-12",
-      "notes": "BLOCKED: /license states CC BY 4.0 but the live /faq states CC BY-NC 4.0 — a contradiction that must be resolved in writing before adoption. Also no historical-FORECAST archive exists, so weather can only ever be context, never a backtested pre-match feature."
-    },
-    {
-      "source_id": "martj42-womens-international-results",
-      "name": "martj42/womens-international-results",
-      "contributors": ["Mart Jürisoo"],
-      "url": "https://github.com/martj42/womens-international-results",
-      "license": "NONE",
-      "license_url": null,
-      "classification": "blocked",
-      "recheck_by": "2026-10-01",
-      "fields": "women's international results (unlicensed)",
-      "verified": "2026-07-12",
-      "notes": "BLOCKED: no LICENSE file as of the verified date (default all-rights-reserved). Do not use or redistribute. Recheck for an added open license."
-    },
-    {
-      "source_id": "open-meteo-hosted",
-      "name": "Open-Meteo (hosted free API)",
-      "contributors": ["Open-Meteo"],
-      "url": "https://open-meteo.com/",
-      "license": "CC-BY-4.0-data-AGPL-3.0-source",
-      "license_url": "https://open-meteo.com/en/terms",
-      "classification": "rejected",
-      "fields": "weather forecast/history API",
-      "verified": "2026-07-12",
-      "notes": "REJECTED as a default dependency: the hosted free API tier is non-commercial only. Only ever a user-supplied optional adapter with disclosed terms."
-    },
-    {
       "source_id": "statsbomb-open-data",
       "name": "StatsBomb Open Data",
-      "contributors": ["StatsBomb"],
+      "contributors": [
+        "StatsBomb"
+      ],
       "url": "https://github.com/statsbomb/open-data",
       "license": "PROPRIETARY-USER-AGREEMENT",
       "license_url": "https://github.com/statsbomb/open-data/blob/master/LICENSE.pdf",
@@ -429,28 +560,191 @@
       "notes": "REJECTED: user agreement forbids redistribution and commercial use, is revocable, and mandates logo attribution. Not an open-data license."
     },
     {
-      "source_id": "clubelo",
-      "name": "ClubElo",
-      "contributors": ["ClubElo"],
-      "url": "http://clubelo.com/",
-      "license": "NONE",
-      "license_url": null,
-      "classification": "rejected",
-      "fields": "club Elo ratings API",
-      "verified": "2026-07-12",
-      "notes": "REJECTED: publishes no license or terms of any kind. Free access is not a redistribution grant."
+      "source_id": "wikidata",
+      "name": "Wikidata",
+      "contributors": [
+        "Wikidata contributors"
+      ],
+      "url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+      "license": "CC0-1.0",
+      "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+      "classification": "enrichment",
+      "pin_strategy": "entity-revisions",
+      "fields": "structured data only \u2014 stable entity ids, multilingual aliases, country/confederation, venue metadata",
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "enrichment-cc0",
+        "allowed_types": [
+          "team_alias",
+          "venue"
+        ],
+        "evidence_hosts": [
+          "wikidata.org",
+          "www.wikidata.org"
+        ],
+        "local_annotation": true,
+        "redistributable_export": true,
+        "contribution_url": "https://www.wikidata.org/"
+      },
+      "entity_access": {
+        "mode": "revision-pinned-individual-entities",
+        "runtime_network": false,
+        "allowed_namespaces": [
+          "item",
+          "property"
+        ],
+        "allowed_properties": [
+          "P17",
+          "P31",
+          "P131",
+          "P625",
+          "P1083",
+          "P463"
+        ],
+        "languages": [
+          "en"
+        ],
+        "max_entities": 300,
+        "retain_revision_evidence": true
+      },
+      "research_access": {
+        "enabled": true,
+        "roles": [
+          "discovery",
+          "capture",
+          "structured"
+        ],
+        "hosts": [
+          "www.wikidata.org"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "ports": [
+          443
+        ],
+        "methods": [
+          "GET"
+        ],
+        "path_patterns": [
+          "^/w/api\\.php$",
+          "^/w/rest\\.php/wikibase/v1/entities/items/Q[1-9][0-9]*$"
+        ],
+        "redirect_hosts": [],
+        "allowed_query_keys": [
+          "action",
+          "format",
+          "language",
+          "languages",
+          "limit",
+          "search",
+          "type"
+        ],
+        "content_types": [
+          "application/json"
+        ],
+        "max_raw_bytes": 524288,
+        "license_namespace": "enrichment-cc0",
+        "permitted_fact_types": [
+          "team_alias",
+          "venue"
+        ],
+        "parser_id": "wikidata-item-v1",
+        "parser_version": "1",
+        "ai_fallback": false,
+        "attribution_required": true,
+        "terms_url": "https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_API_Usage_Guidelines/en",
+        "terms_verified_at": "2026-07-15",
+        "recheck_by": "2026-10-15"
+      },
+      "attribution": "Structured data from Wikidata (CC0); we credit it voluntarily as 'Data from Wikidata'.",
+      "verified": "2026-07-15",
+      "notes": "The bundled Phase 4 context remains limited to a maintainer-reviewed QID allowlist with no runtime network. Phase 7 separately permits explicit, consent-gated runtime research through the declared API paths; those candidates remain untrusted and never trigger automatic identity merges. Structured claims are CC0; prose, sitelink text and Commons media are excluded."
     },
     {
-      "source_id": "football-data-org",
-      "name": "football-data.org",
-      "contributors": ["Freitag Web Tec UG"],
-      "url": "https://www.football-data.org/",
-      "license": "PROPRIETARY-API-TERMS",
-      "license_url": "https://www.football-data.org/about",
-      "classification": "rejected",
-      "fields": "fixtures/results API (free tier)",
-      "verified": "2026-07-12",
-      "notes": "REJECTED: proprietary API service with a post-cancellation data restriction. Free access is not openly licensed redistributable data."
+      "source_id": "wikipedia-en",
+      "name": "English Wikipedia",
+      "contributors": [
+        "Wikipedia contributors"
+      ],
+      "url": "https://en.wikipedia.org/",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://en.wikipedia.org/wiki/Wikipedia:Copyrights",
+      "classification": "by-sa-pack",
+      "pin_strategy": "page-revision-and-content-sha256",
+      "fields": "user-selected article text for local research evidence; no images or media",
+      "research_access": {
+        "enabled": true,
+        "roles": [
+          "discovery",
+          "capture"
+        ],
+        "hosts": [
+          "en.wikipedia.org"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "ports": [
+          443
+        ],
+        "methods": [
+          "GET"
+        ],
+        "path_patterns": [
+          "^/w/api\\.php$"
+        ],
+        "redirect_hosts": [],
+        "allowed_query_keys": [
+          "action",
+          "explaintext",
+          "format",
+          "formatversion",
+          "inprop",
+          "list",
+          "origin",
+          "prop",
+          "redirects",
+          "rvprop",
+          "srlimit",
+          "srprop",
+          "srsearch",
+          "titles"
+        ],
+        "content_types": [
+          "application/json"
+        ],
+        "max_raw_bytes": 524288,
+        "license_namespace": "research-cc-by-sa-4.0",
+        "permitted_fact_types": [
+          "team_alias",
+          "venue"
+        ],
+        "parser_id": "wikipedia-action-v1",
+        "parser_version": "1",
+        "ai_fallback": true,
+        "attribution_required": true,
+        "terms_url": "https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_API_Usage_Guidelines/en",
+        "terms_verified_at": "2026-07-15",
+        "recheck_by": "2026-10-15"
+      },
+      "corrections": {
+        "enabled": true,
+        "license_namespace": "research-cc-by-sa-4.0",
+        "allowed_types": [
+          "team_alias",
+          "venue"
+        ],
+        "evidence_hosts": [
+          "en.wikipedia.org"
+        ],
+        "local_annotation": true,
+        "redistributable_export": false,
+        "contribution_url": "https://en.wikipedia.org/"
+      },
+      "attribution": "Text from Wikipedia contributors, CC BY-SA 4.0; page URL and revision retained.",
+      "verified": "2026-07-15",
+      "notes": "Runtime research only, off by default and user-selected. No Wikipedia bytes ship. Captures and local correction candidates remain in a physically isolated, non-exportable BY-SA namespace; media is forbidden."
     }
   ]
 }

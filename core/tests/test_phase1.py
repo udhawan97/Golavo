@@ -30,8 +30,11 @@ def test_canonical_team() -> None:
 def test_openfootball_loader_schema_and_counts() -> None:
     frame = load_openfootball_table(PACK)
     assert CANONICAL_COLUMNS <= set(frame.columns)
-    assert len(frame) == 16 * 380
-    # 15 clean seasons (380 each) complete + the partial 2025-26 capture (353).
+    # 16 football.json seasons + the 2026-27 Football.TXT fixture list, which
+    # football.json does not publish (see ingest.domestictxt).
+    assert len(frame) == 16 * 380 + 380
+    # Unchanged by the fixture list: 15 clean seasons (380 each) complete + the
+    # partial 2025-26 capture (353). A schedule must add no result at all.
     assert int(frame["is_complete"].sum()) == 15 * 380 + 353
     assert not any(str(team).endswith(" FC") for team in frame["home_team"].unique())
     assert frame["match_id"].is_unique

@@ -26,8 +26,10 @@ not a sealed prediction and not part of the forecast ledger.
 Domestic standings use verified competition-specific rules, including known points
 adjustments in the validation season. The seeded 10,000-run outlook can start only
 after Golavo certifies every team, ordered home/away pair, past result, and remaining
-fixture. With no complete 2026/27 schedule in the pinned source, the current UI says
-exactly that and produces no probabilities.
+fixture. All five bundled leagues now pass that certificate for 2026/27 — their full
+published schedules are pinned from the OpenFootball Football.TXT country repos — so
+the outlook runs. The certificate is still checked on every request, and a league that
+ever fails it produces the blocked state and no probabilities rather than a guess.
 
 ## Historical team research
 

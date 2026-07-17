@@ -1,4 +1,17 @@
 {
+  "co_sources": [
+    {
+      "license": "CC0-1.0",
+      "raw_sha256": {
+        "2026-27/1-liga.txt": "a1c7a44d63e717e7606e621c4dcdbb416284bef7435401c2a62c8759a741c83c"
+      },
+      "sha256_file": "2026-27.es.1.txt",
+      "source_id": "openfootball-espana",
+      "upstream_committed_at_utc": "2026-07-02T16:05:28Z",
+      "upstream_ref": "a3fd997aabb623ccdc1f8006e5f31525be6f89c6",
+      "url": "https://github.com/openfootball/espana"
+    }
+  ],
   "competition": "La Liga",
   "files": [
     {
@@ -72,8 +85,18 @@
       "sha256": "b40397d8e62c640138548d57a1a9f76150549213d2a07fcbbb90ed0eabc6ccea"
     },
     {
+      "name": "2026-27.es.1.txt",
+      "season": "2026-27",
+      "sha256": "a1c7a44d63e717e7606e621c4dcdbb416284bef7435401c2a62c8759a741c83c",
+      "source_match_count": 380
+    },
+    {
       "name": "CC0-1.0.txt",
       "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    },
+    {
+      "name": "field_provenance.csv",
+      "sha256": "76f3762f7a037c5737dd06c371b0321aacaf372ed0ae8ffdda8ebc3219fec361"
     }
   ],
   "license": "CC0-1.0",

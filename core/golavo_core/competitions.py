@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.15.7"
+CATALOG_VERSION = "2026.07.17.1"
 
 
 def _capability(
@@ -82,6 +82,7 @@ def _domestic(
     slug: str,
     display_name: str,
     source_competition: str,
+    fixture_source_id: str,
 ) -> dict[str, Any]:
     capabilities = _base_capabilities()
     capabilities["results"] = _capability(
@@ -90,9 +91,11 @@ def _domestic(
         "openfootball-football-json",
     )
     capabilities["fixtures"] = _capability(
-        "partial",
-        "Only fixtures present in the pinned snapshot are available; completeness is not assumed.",
+        "available",
+        "The complete 2026-27 double round-robin is bundled from the pinned OpenFootball "
+        "fixture list and machine-checked against the season certificate.",
         "openfootball-football-json",
+        fixture_source_id,
     )
     capabilities["report_cards"] = _capability(
         "available",
@@ -110,10 +113,11 @@ def _domestic(
         "openfootball-football-json",
     )
     capabilities["simulation"] = _capability(
-        "blocked",
-        "Standings rules are verified; a complete, gap-free 2026-27 fixture list is required "
-        "before the seeded outlook can run.",
+        "available",
+        "Standings rules are verified and the 2026-27 fixture list certifies complete, so the "
+        "seeded outlook runs. It still fails closed per request if that certificate ever fails.",
         "openfootball-football-json",
+        fixture_source_id,
     )
     capabilities["research"] = _capability(
         "partial",
@@ -261,12 +265,19 @@ def _international(
 
 _COMPETITIONS: tuple[dict[str, Any], ...] = (
     _domestic(
-        "england-premier-league", "premier-league", "Premier League", "English Premier League"
+        "england-premier-league",
+        "premier-league",
+        "Premier League",
+        "English Premier League",
+        "openfootball-england",
     ),
-    _domestic("spain-la-liga", "la-liga", "La Liga", "La Liga"),
-    _domestic("germany-bundesliga", "bundesliga", "Bundesliga", "Bundesliga"),
-    _domestic("italy-serie-a", "serie-a", "Serie A", "Serie A"),
-    _domestic("france-ligue-1", "ligue-1", "Ligue 1", "Ligue 1"),
+    _domestic("spain-la-liga", "la-liga", "La Liga", "La Liga", "openfootball-espana"),
+    _domestic(
+        "germany-bundesliga", "bundesliga", "Bundesliga", "Bundesliga", "openfootball-deutschland"
+    ),
+    _domestic("italy-serie-a", "serie-a", "Serie A", "Serie A", "openfootball-italy"),
+    # France has no repo of its own upstream; Ligue 1 ships in openfootball/europe.
+    _domestic("france-ligue-1", "ligue-1", "Ligue 1", "Ligue 1", "openfootball-europe"),
     _uefa_club(
         "uefa-champions-league",
         "champions-league",
