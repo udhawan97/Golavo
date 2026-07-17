@@ -129,9 +129,7 @@ def parse_domestic_txt(text: str, *, season: str, league_code: str) -> pd.DataFr
             or _SCORE.match(teams["away"].strip())
             or _SCORE.match(teams["home"].strip())
         ):
-            raise ValueError(
-                f"line {line_number}: unsupported domestic Football.TXT match syntax"
-            )
+            raise ValueError(f"line {line_number}: unsupported domestic Football.TXT match syntax")
         result = (teams["result"] or "").strip()
         full_time = _full_time(result)
         half_time = _half_time(result, full_time)
@@ -158,9 +156,19 @@ def parse_domestic_txt(text: str, *, season: str, league_code: str) -> pd.DataFr
     frame = pd.DataFrame(
         rows,
         columns=[
-            "date", "local_time", "matchday", "home_team", "away_team",
-            "home_score", "away_score", "ht_home_score", "ht_away_score",
-            "tournament", "city", "country", "neutral",
+            "date",
+            "local_time",
+            "matchday",
+            "home_team",
+            "away_team",
+            "home_score",
+            "away_score",
+            "ht_home_score",
+            "ht_away_score",
+            "tournament",
+            "city",
+            "country",
+            "neutral",
         ],
     )
     frame["home_score"] = frame["home_score"].astype("Int16")

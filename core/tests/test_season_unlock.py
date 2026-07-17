@@ -77,9 +77,7 @@ def test_catalog_simulation_claim_is_backed_by_the_certificate(
 
 
 @pytest.mark.parametrize("competition_id", sorted(DOMESTIC))
-def test_fixture_rows_are_never_training_rows(
-    index: pd.DataFrame, competition_id: str
-) -> None:
+def test_fixture_rows_are_never_training_rows(index: pd.DataFrame, competition_id: str) -> None:
     """A scheduled fixture carries no result, so it can never train a forecast."""
     label, _ = DOMESTIC[competition_id]
     season = index[index["competition"].eq(label) & index["season"].eq(SEASON)]

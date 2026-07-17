@@ -43,25 +43,45 @@ _RAW = "https://raw.githubusercontent.com/openfootball"
 #                 committed_at, published fixture count)
 LEAGUES: dict[str, tuple[str, str, str, str, str, int]] = {
     "en.1": (
-        "openfootball-eng-pl", "england", "2026-27/1-premierleague.txt",
-        "afc118c3314171ef0b2cbb43ea0144ca3ebaf0b9", "2026-07-02T16:05:26Z", 380,
+        "openfootball-eng-pl",
+        "england",
+        "2026-27/1-premierleague.txt",
+        "afc118c3314171ef0b2cbb43ea0144ca3ebaf0b9",
+        "2026-07-02T16:05:26Z",
+        380,
     ),
     "de.1": (
-        "openfootball-deu-bl", "deutschland", "2026-27/1-bundesliga.txt",
-        "68a414df2703cdd67b1b5eb1c413c5f07837e36d", "2026-07-06T12:35:05Z", 306,
+        "openfootball-deu-bl",
+        "deutschland",
+        "2026-27/1-bundesliga.txt",
+        "68a414df2703cdd67b1b5eb1c413c5f07837e36d",
+        "2026-07-06T12:35:05Z",
+        306,
     ),
     "es.1": (
-        "openfootball-esp-ll", "espana", "2026-27/1-liga.txt",
-        "a3fd997aabb623ccdc1f8006e5f31525be6f89c6", "2026-07-02T16:05:28Z", 380,
+        "openfootball-esp-ll",
+        "espana",
+        "2026-27/1-liga.txt",
+        "a3fd997aabb623ccdc1f8006e5f31525be6f89c6",
+        "2026-07-02T16:05:28Z",
+        380,
     ),
     "it.1": (
-        "openfootball-ita-sa", "italy", "2026-27/1-seriea.txt",
-        "0ecb64bc6e8f771a5374abacaf9ecb0e8a886c7b", "2026-07-02T16:05:32Z", 380,
+        "openfootball-ita-sa",
+        "italy",
+        "2026-27/1-seriea.txt",
+        "0ecb64bc6e8f771a5374abacaf9ecb0e8a886c7b",
+        "2026-07-02T16:05:32Z",
+        380,
     ),
     "fr.1": (
         # France has no repo of its own; Ligue 1 lives in openfootball/europe.
-        "openfootball-fra-l1", "europe", "france/2026-27_fr1.txt",
-        "159d7367f7d82748682f0225096e5ef48bbaf49d", "2026-07-08T11:55:24Z", 306,
+        "openfootball-fra-l1",
+        "europe",
+        "france/2026-27_fr1.txt",
+        "159d7367f7d82748682f0225096e5ef48bbaf49d",
+        "2026-07-08T11:55:24Z",
+        306,
     ),
 }
 
@@ -125,7 +145,6 @@ def _provenance_rows(frame) -> list[dict[str, str]]:
 
 def build(check_only: bool = False) -> int:
     import pandas as pd
-
     from golavo_core.ingest.domestictxt import parse_domestic_txt
 
     drift = 0
@@ -135,9 +154,7 @@ def build(check_only: bool = False) -> int:
         text = payload.decode("utf-8")
         frame = parse_domestic_txt(text, season=SEASON, league_code=code)
         if len(frame) != expected:
-            raise ValueError(
-                f"{repo}/{path}: parsed {len(frame)} fixtures, expected {expected}"
-            )
+            raise ValueError(f"{repo}/{path}: parsed {len(frame)} fixtures, expected {expected}")
         co_source_id = f"openfootball-{repo}"
         file_name = f"{SEASON}.{code}.txt"
 
@@ -180,9 +197,16 @@ def build(check_only: bool = False) -> int:
         pd.DataFrame(
             _provenance_rows(provenance),
             columns=[
-                "date", "home_team", "away_team", "identity_source_id",
-                "result_source_id", "kickoff_source_id", "venue_source_id",
-                "training_source_id", "upstream_fixture_key", "training_eligible",
+                "date",
+                "home_team",
+                "away_team",
+                "identity_source_id",
+                "result_source_id",
+                "kickoff_source_id",
+                "venue_source_id",
+                "training_source_id",
+                "upstream_fixture_key",
+                "training_eligible",
             ],
         ).to_csv(pack_dir / "field_provenance.csv", index=False, lineterminator="\n")
 
