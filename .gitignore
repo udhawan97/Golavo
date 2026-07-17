@@ -2,6 +2,16 @@
 .DS_Store
 Thumbs.db
 desktop.ini
+# iCloud "Desktop & Documents" sync leaves duplicate " 2"/" 3" files
+*\ 2
+*\ 2.*
+*\ 3
+*\ 3.*
+
+# ---- Session/runtime state (never version-controlled) ----
+# The remember plugin writes logs, pids and timestamps here every session;
+# tracking it churns the tree and is how iCloud dupes got committed before.
+.remember/
 
 # ---- Secrets / local config (NEVER commit real values) ----
 .env
