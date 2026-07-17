@@ -1,307 +1,307 @@
 date,home_team,away_team,identity_source_id,result_source_id,kickoff_source_id,venue_source_id,training_source_id,upstream_fixture_key,training_eligible
-2026-08-28,Bayern München,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-08-29,RB Leipzig,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-08-29,Mainz,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-08-29,Union Berlin,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-08-29,Elversberg,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-08-29,Borussia Dortmund,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-08-29,Augsburg,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-08-29,Köln,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-08-29,Freiburg,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1,false
-2026-09-05,Werder Bremen,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-05,Eintracht Frankfurt,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-05,Hoffenheim,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-05,Hamburger SV,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-05,Schalke,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-05,Bayer Leverkusen,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-05,Stuttgart,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-05,Borussia Mönchengladbach,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-05,Paderborn,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2,false
-2026-09-12,Hoffenheim,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-12,Borussia Dortmund,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-12,Augsburg,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-12,Union Berlin,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-12,Köln,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-12,RB Leipzig,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-12,Elversberg,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-12,Mainz,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-12,Freiburg,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3,false
-2026-09-19,Paderborn,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-09-19,Bayern München,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-09-19,Schalke,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-09-19,Stuttgart,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-09-19,Bayer Leverkusen,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-09-19,Hamburger SV,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-09-19,Borussia Mönchengladbach,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-09-19,Werder Bremen,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-09-19,Eintracht Frankfurt,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4,false
-2026-10-10,Mainz,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-10,Paderborn,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-10,Köln,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-10,RB Leipzig,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-10,Freiburg,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-10,Union Berlin,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-10,Hoffenheim,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-10,Augsburg,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-10,Borussia Dortmund,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5,false
-2026-10-17,Union Berlin,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-17,Hamburger SV,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-17,Werder Bremen,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-17,Elversberg,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-17,Bayern München,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-17,Borussia Mönchengladbach,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-17,Bayer Leverkusen,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-17,Eintracht Frankfurt,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-17,Schalke,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6,false
-2026-10-24,Mainz,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-24,Köln,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-24,RB Leipzig,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-24,Stuttgart,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-24,Paderborn,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-24,Hoffenheim,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-24,Freiburg,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-24,Borussia Dortmund,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-24,Augsburg,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7,false
-2026-10-31,Borussia Mönchengladbach,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-10-31,Schalke,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-10-31,Union Berlin,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-10-31,Augsburg,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-10-31,Werder Bremen,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-10-31,Eintracht Frankfurt,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-10-31,Bayern München,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-10-31,Elversberg,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-10-31,Bayer Leverkusen,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8,false
-2026-11-07,RB Leipzig,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-07,Stuttgart,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-07,Borussia Dortmund,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-07,Mainz,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-07,Hamburger SV,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-07,Paderborn,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-07,Freiburg,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-07,Köln,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-07,Hoffenheim,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9,false
-2026-11-21,Bayer Leverkusen,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-21,Union Berlin,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-21,Bayern München,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-21,Elversberg,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-21,Schalke,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-21,Borussia Mönchengladbach,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-21,Werder Bremen,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-21,Augsburg,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-21,Eintracht Frankfurt,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10,false
-2026-11-28,Köln,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-11-28,Mainz,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-11-28,Paderborn,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-11-28,Werder Bremen,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-11-28,Stuttgart,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-11-28,Hoffenheim,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-11-28,Borussia Dortmund,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-11-28,Freiburg,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-11-28,Hamburger SV,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11,false
-2026-12-05,Union Berlin,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-05,Schalke,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-05,Bayer Leverkusen,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-05,Eintracht Frankfurt,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-05,RB Leipzig,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-05,Elversberg,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-05,Freiburg,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-05,Bayern München,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-05,Augsburg,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12,false
-2026-12-12,Paderborn,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-12,Werder Bremen,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-12,Stuttgart,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-12,Borussia Dortmund,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-12,Hamburger SV,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-12,Mainz,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-12,Köln,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-12,Hoffenheim,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-12,Borussia Mönchengladbach,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13,false
-2026-12-19,Schalke,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2026-12-19,Bayern München,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2026-12-19,Elversberg,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2026-12-19,Bayer Leverkusen,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2026-12-19,Freiburg,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2026-12-19,RB Leipzig,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2026-12-19,Mainz,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2026-12-19,Union Berlin,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2026-12-19,Augsburg,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14,false
-2027-01-09,Stuttgart,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-09,Hamburger SV,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-09,Köln,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-09,Eintracht Frankfurt,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-09,Hoffenheim,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-09,Borussia Mönchengladbach,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-09,Borussia Dortmund,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-09,Werder Bremen,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-09,Paderborn,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15,false
-2027-01-13,Mainz,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-13,Freiburg,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-13,Schalke,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-13,RB Leipzig,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-13,Union Berlin,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-13,Bayern München,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-13,Augsburg,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-13,Elversberg,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-13,Köln,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16,false
-2027-01-16,Werder Bremen,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-16,Eintracht Frankfurt,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-16,Paderborn,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-16,Hoffenheim,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-16,Bayer Leverkusen,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-16,Stuttgart,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-16,Hamburger SV,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-16,Borussia Mönchengladbach,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-16,Borussia Dortmund,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17,false
-2027-01-23,Werder Bremen,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-23,Hamburger SV,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-23,Paderborn,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-23,Schalke,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-23,Hoffenheim,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-23,Stuttgart,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-23,Borussia Mönchengladbach,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-23,Eintracht Frankfurt,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-23,Bayer Leverkusen,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18,false
-2027-01-30,Elversberg,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-01-30,Augsburg,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-01-30,Mainz,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-01-30,RB Leipzig,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-01-30,Köln,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-01-30,Union Berlin,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-01-30,Freiburg,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-01-30,Borussia Dortmund,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-01-30,Bayern München,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19,false
-2027-02-06,Eintracht Frankfurt,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-06,Borussia Mönchengladbach,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-06,Schalke,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-06,Hamburger SV,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-06,Bayer Leverkusen,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-06,Werder Bremen,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-06,Stuttgart,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-06,Bayern München,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-06,Paderborn,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20,false
-2027-02-13,Köln,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-13,Mainz,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-13,Union Berlin,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-13,Elversberg,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-13,Borussia Dortmund,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-13,Hoffenheim,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-13,Freiburg,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-13,Augsburg,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-13,RB Leipzig,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21,false
-2027-02-20,Schalke,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-20,Stuttgart,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-20,Borussia Mönchengladbach,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-20,Werder Bremen,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-20,Hamburger SV,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-20,Bayer Leverkusen,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-20,Eintracht Frankfurt,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-20,Bayern München,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-20,Elversberg,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22,false
-2027-02-27,Stuttgart,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-02-27,Köln,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-02-27,Freiburg,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-02-27,Augsburg,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-02-27,Mainz,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-02-27,Hoffenheim,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-02-27,Paderborn,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-02-27,RB Leipzig,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-02-27,Borussia Dortmund,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23,false
-2027-03-03,Eintracht Frankfurt,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-03,Schalke,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-03,Bayer Leverkusen,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-03,Bayern München,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-03,Werder Bremen,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-03,Union Berlin,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-03,Elversberg,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-03,Borussia Mönchengladbach,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-03,Hamburger SV,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24,false
-2027-03-06,Borussia Dortmund,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-06,Freiburg,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-06,Mainz,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-06,Hamburger SV,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-06,Stuttgart,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-06,RB Leipzig,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-06,Paderborn,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-06,Köln,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-06,Hoffenheim,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25,false
-2027-03-13,Union Berlin,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-13,Elversberg,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-13,Eintracht Frankfurt,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-13,Augsburg,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-13,Borussia Mönchengladbach,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-13,Werder Bremen,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-13,Schalke,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-13,Bayern München,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-13,Bayer Leverkusen,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26,false
-2027-03-20,Köln,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-03-20,Hoffenheim,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-03-20,Borussia Dortmund,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-03-20,Mainz,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-03-20,Stuttgart,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-03-20,RB Leipzig,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-03-20,Freiburg,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-03-20,Hamburger SV,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-03-20,Paderborn,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27,false
-2027-04-03,RB Leipzig,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-03,Elversberg,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-03,Bayern München,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-03,Augsburg,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-03,Borussia Mönchengladbach,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-03,Eintracht Frankfurt,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-03,Union Berlin,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-03,Bayer Leverkusen,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-03,Schalke,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28,false
-2027-04-10,Stuttgart,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-10,Paderborn,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-10,Hoffenheim,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-10,Mainz,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-10,Werder Bremen,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-10,Borussia Dortmund,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-10,Hamburger SV,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-10,Borussia Mönchengladbach,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-10,Köln,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29,false
-2027-04-17,Bayer Leverkusen,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-17,Eintracht Frankfurt,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-17,Union Berlin,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-17,Bayern München,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-17,Schalke,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-17,Elversberg,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-17,Augsburg,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-17,Freiburg,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-17,RB Leipzig,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30,false
-2027-04-24,Werder Bremen,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-04-24,Köln,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-04-24,Hamburger SV,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-04-24,Borussia Dortmund,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-04-24,Hoffenheim,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-04-24,Paderborn,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-04-24,Stuttgart,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-04-24,Borussia Mönchengladbach,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-04-24,Eintracht Frankfurt,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31,false
-2027-05-08,Schalke,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-08,RB Leipzig,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-08,Freiburg,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-08,Mainz,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-08,Augsburg,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-08,Union Berlin,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-08,Elversberg,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-08,Bayer Leverkusen,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-08,Bayern München,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32,false
-2027-05-15,Eintracht Frankfurt,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-15,Paderborn,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-15,Stuttgart,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-15,Borussia Dortmund,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-15,Hamburger SV,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-15,Bayer Leverkusen,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-15,Werder Bremen,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-15,Borussia Mönchengladbach,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-15,Hoffenheim,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33,false
-2027-05-22,RB Leipzig,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
-2027-05-22,Union Berlin,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
-2027-05-22,Mainz,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
-2027-05-22,Schalke,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
-2027-05-22,Elversberg,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
-2027-05-22,Bayern München,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
-2027-05-22,Augsburg,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
-2027-05-22,Freiburg,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
-2027-05-22,Köln,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34,false
+2026-08-28,Bayern München,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:bayern munchen-stuttgart,false
+2026-08-29,RB Leipzig,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:rb leipzig-borussia monchengladbach,false
+2026-08-29,Mainz,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:mainz-paderborn,false
+2026-08-29,Union Berlin,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:union berlin-eintracht frankfurt,false
+2026-08-29,Elversberg,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:elversberg-bayer leverkusen,false
+2026-08-29,Borussia Dortmund,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:borussia dortmund-hamburger sv,false
+2026-08-29,Augsburg,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:augsburg-schalke,false
+2026-08-29,Köln,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:koln-hoffenheim,false
+2026-08-29,Freiburg,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:1:freiburg-werder bremen,false
+2026-09-05,Werder Bremen,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:werder bremen-rb leipzig,false
+2026-09-05,Eintracht Frankfurt,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:eintracht frankfurt-augsburg,false
+2026-09-05,Hoffenheim,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:hoffenheim-borussia dortmund,false
+2026-09-05,Hamburger SV,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:hamburger sv-mainz,false
+2026-09-05,Schalke,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:schalke-bayern munchen,false
+2026-09-05,Bayer Leverkusen,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:bayer leverkusen-union berlin,false
+2026-09-05,Stuttgart,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:stuttgart-koln,false
+2026-09-05,Borussia Mönchengladbach,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:borussia monchengladbach-elversberg,false
+2026-09-05,Paderborn,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:2:paderborn-freiburg,false
+2026-09-12,Hoffenheim,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:hoffenheim-stuttgart,false
+2026-09-12,Borussia Dortmund,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:borussia dortmund-paderborn,false
+2026-09-12,Augsburg,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:augsburg-bayer leverkusen,false
+2026-09-12,Union Berlin,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:union berlin-schalke,false
+2026-09-12,Köln,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:koln-werder bremen,false
+2026-09-12,RB Leipzig,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:rb leipzig-hamburger sv,false
+2026-09-12,Elversberg,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:elversberg-bayern munchen,false
+2026-09-12,Mainz,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:mainz-eintracht frankfurt,false
+2026-09-12,Freiburg,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:3:freiburg-borussia monchengladbach,false
+2026-09-19,Paderborn,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:paderborn-hoffenheim,false
+2026-09-19,Bayern München,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:bayern munchen-union berlin,false
+2026-09-19,Schalke,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:schalke-elversberg,false
+2026-09-19,Stuttgart,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:stuttgart-borussia dortmund,false
+2026-09-19,Bayer Leverkusen,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:bayer leverkusen-rb leipzig,false
+2026-09-19,Hamburger SV,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:hamburger sv-koln,false
+2026-09-19,Borussia Mönchengladbach,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:borussia monchengladbach-mainz,false
+2026-09-19,Werder Bremen,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:werder bremen-augsburg,false
+2026-09-19,Eintracht Frankfurt,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:4:eintracht frankfurt-freiburg,false
+2026-10-10,Mainz,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:mainz-bayer leverkusen,false
+2026-10-10,Paderborn,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:paderborn-stuttgart,false
+2026-10-10,Köln,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:koln-borussia monchengladbach,false
+2026-10-10,RB Leipzig,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:rb leipzig-eintracht frankfurt,false
+2026-10-10,Freiburg,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:freiburg-schalke,false
+2026-10-10,Union Berlin,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:union berlin-elversberg,false
+2026-10-10,Hoffenheim,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:hoffenheim-hamburger sv,false
+2026-10-10,Augsburg,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:augsburg-bayern munchen,false
+2026-10-10,Borussia Dortmund,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:5:borussia dortmund-werder bremen,false
+2026-10-17,Union Berlin,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:union berlin-borussia dortmund,false
+2026-10-17,Hamburger SV,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:hamburger sv-stuttgart,false
+2026-10-17,Werder Bremen,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:werder bremen-paderborn,false
+2026-10-17,Elversberg,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:elversberg-augsburg,false
+2026-10-17,Bayern München,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:bayern munchen-rb leipzig,false
+2026-10-17,Borussia Mönchengladbach,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:borussia monchengladbach-hoffenheim,false
+2026-10-17,Bayer Leverkusen,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:bayer leverkusen-freiburg,false
+2026-10-17,Eintracht Frankfurt,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:eintracht frankfurt-koln,false
+2026-10-17,Schalke,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:6:schalke-mainz,false
+2026-10-24,Mainz,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:mainz-werder bremen,false
+2026-10-24,Köln,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:koln-schalke,false
+2026-10-24,RB Leipzig,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:rb leipzig-elversberg,false
+2026-10-24,Stuttgart,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:stuttgart-borussia monchengladbach,false
+2026-10-24,Paderborn,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:paderborn-hamburger sv,false
+2026-10-24,Hoffenheim,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:hoffenheim-bayer leverkusen,false
+2026-10-24,Freiburg,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:freiburg-bayern munchen,false
+2026-10-24,Borussia Dortmund,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:borussia dortmund-eintracht frankfurt,false
+2026-10-24,Augsburg,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:7:augsburg-union berlin,false
+2026-10-31,Borussia Mönchengladbach,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:borussia monchengladbach-paderborn,false
+2026-10-31,Schalke,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:schalke-rb leipzig,false
+2026-10-31,Union Berlin,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:union berlin-koln,false
+2026-10-31,Augsburg,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:augsburg-freiburg,false
+2026-10-31,Werder Bremen,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:werder bremen-hoffenheim,false
+2026-10-31,Eintracht Frankfurt,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:eintracht frankfurt-hamburger sv,false
+2026-10-31,Bayern München,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:bayern munchen-borussia dortmund,false
+2026-10-31,Elversberg,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:elversberg-mainz,false
+2026-10-31,Bayer Leverkusen,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:8:bayer leverkusen-stuttgart,false
+2026-11-07,RB Leipzig,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:rb leipzig-augsburg,false
+2026-11-07,Stuttgart,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:stuttgart-werder bremen,false
+2026-11-07,Borussia Dortmund,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:borussia dortmund-elversberg,false
+2026-11-07,Mainz,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:mainz-bayern munchen,false
+2026-11-07,Hamburger SV,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:hamburger sv-borussia monchengladbach,false
+2026-11-07,Paderborn,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:paderborn-eintracht frankfurt,false
+2026-11-07,Freiburg,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:freiburg-union berlin,false
+2026-11-07,Köln,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:koln-bayer leverkusen,false
+2026-11-07,Hoffenheim,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:9:hoffenheim-schalke,false
+2026-11-21,Bayer Leverkusen,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:bayer leverkusen-paderborn,false
+2026-11-21,Union Berlin,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:union berlin-rb leipzig,false
+2026-11-21,Bayern München,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:bayern munchen-koln,false
+2026-11-21,Elversberg,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:elversberg-freiburg,false
+2026-11-21,Schalke,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:schalke-stuttgart,false
+2026-11-21,Borussia Mönchengladbach,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:borussia monchengladbach-borussia dortmund,false
+2026-11-21,Werder Bremen,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:werder bremen-hamburger sv,false
+2026-11-21,Augsburg,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:augsburg-mainz,false
+2026-11-21,Eintracht Frankfurt,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:10:eintracht frankfurt-hoffenheim,false
+2026-11-28,Köln,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:koln-elversberg,false
+2026-11-28,Mainz,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:mainz-union berlin,false
+2026-11-28,Paderborn,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:paderborn-schalke,false
+2026-11-28,Werder Bremen,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:werder bremen-borussia monchengladbach,false
+2026-11-28,Stuttgart,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:stuttgart-eintracht frankfurt,false
+2026-11-28,Hoffenheim,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:hoffenheim-augsburg,false
+2026-11-28,Borussia Dortmund,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:borussia dortmund-bayer leverkusen,false
+2026-11-28,Freiburg,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:freiburg-rb leipzig,false
+2026-11-28,Hamburger SV,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:11:hamburger sv-bayern munchen,false
+2026-12-05,Union Berlin,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:union berlin-hamburger sv,false
+2026-12-05,Schalke,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:schalke-borussia dortmund,false
+2026-12-05,Bayer Leverkusen,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:bayer leverkusen-borussia monchengladbach,false
+2026-12-05,Eintracht Frankfurt,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:eintracht frankfurt-werder bremen,false
+2026-12-05,RB Leipzig,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:rb leipzig-mainz,false
+2026-12-05,Elversberg,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:elversberg-stuttgart,false
+2026-12-05,Freiburg,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:freiburg-hoffenheim,false
+2026-12-05,Bayern München,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:bayern munchen-paderborn,false
+2026-12-05,Augsburg,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:12:augsburg-koln,false
+2026-12-12,Paderborn,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:paderborn-elversberg,false
+2026-12-12,Werder Bremen,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:werder bremen-bayer leverkusen,false
+2026-12-12,Stuttgart,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:stuttgart-union berlin,false
+2026-12-12,Borussia Dortmund,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:borussia dortmund-augsburg,false
+2026-12-12,Hamburger SV,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:hamburger sv-schalke,false
+2026-12-12,Mainz,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:mainz-freiburg,false
+2026-12-12,Köln,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:koln-rb leipzig,false
+2026-12-12,Hoffenheim,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:hoffenheim-bayern munchen,false
+2026-12-12,Borussia Mönchengladbach,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:13:borussia monchengladbach-eintracht frankfurt,false
+2026-12-19,Schalke,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:schalke-borussia monchengladbach,false
+2026-12-19,Bayern München,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:bayern munchen-werder bremen,false
+2026-12-19,Elversberg,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:elversberg-hamburger sv,false
+2026-12-19,Bayer Leverkusen,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:bayer leverkusen-eintracht frankfurt,false
+2026-12-19,Freiburg,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:freiburg-stuttgart,false
+2026-12-19,RB Leipzig,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:rb leipzig-borussia dortmund,false
+2026-12-19,Mainz,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:mainz-koln,false
+2026-12-19,Union Berlin,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:union berlin-hoffenheim,false
+2026-12-19,Augsburg,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:14:augsburg-paderborn,false
+2027-01-09,Stuttgart,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:stuttgart-augsburg,false
+2027-01-09,Hamburger SV,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:hamburger sv-bayer leverkusen,false
+2027-01-09,Köln,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:koln-freiburg,false
+2027-01-09,Eintracht Frankfurt,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:eintracht frankfurt-schalke,false
+2027-01-09,Hoffenheim,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:hoffenheim-elversberg,false
+2027-01-09,Borussia Mönchengladbach,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:borussia monchengladbach-bayern munchen,false
+2027-01-09,Borussia Dortmund,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:borussia dortmund-mainz,false
+2027-01-09,Werder Bremen,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:werder bremen-union berlin,false
+2027-01-09,Paderborn,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:15:paderborn-rb leipzig,false
+2027-01-13,Mainz,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:mainz-hoffenheim,false
+2027-01-13,Freiburg,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:freiburg-hamburger sv,false
+2027-01-13,Schalke,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:schalke-werder bremen,false
+2027-01-13,RB Leipzig,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:rb leipzig-stuttgart,false
+2027-01-13,Union Berlin,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:union berlin-paderborn,false
+2027-01-13,Bayern München,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:bayern munchen-bayer leverkusen,false
+2027-01-13,Augsburg,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:augsburg-borussia monchengladbach,false
+2027-01-13,Elversberg,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:elversberg-eintracht frankfurt,false
+2027-01-13,Köln,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:16:koln-borussia dortmund,false
+2027-01-16,Werder Bremen,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:werder bremen-elversberg,false
+2027-01-16,Eintracht Frankfurt,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:eintracht frankfurt-bayern munchen,false
+2027-01-16,Paderborn,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:paderborn-koln,false
+2027-01-16,Hoffenheim,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:hoffenheim-rb leipzig,false
+2027-01-16,Bayer Leverkusen,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:bayer leverkusen-schalke,false
+2027-01-16,Stuttgart,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:stuttgart-mainz,false
+2027-01-16,Hamburger SV,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:hamburger sv-augsburg,false
+2027-01-16,Borussia Mönchengladbach,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:borussia monchengladbach-union berlin,false
+2027-01-16,Borussia Dortmund,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:17:borussia dortmund-freiburg,false
+2027-01-23,Werder Bremen,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:werder bremen-freiburg,false
+2027-01-23,Hamburger SV,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:hamburger sv-borussia dortmund,false
+2027-01-23,Paderborn,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:paderborn-mainz,false
+2027-01-23,Schalke,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:schalke-augsburg,false
+2027-01-23,Hoffenheim,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:hoffenheim-koln,false
+2027-01-23,Stuttgart,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:stuttgart-bayern munchen,false
+2027-01-23,Borussia Mönchengladbach,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:borussia monchengladbach-rb leipzig,false
+2027-01-23,Eintracht Frankfurt,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:eintracht frankfurt-union berlin,false
+2027-01-23,Bayer Leverkusen,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:18:bayer leverkusen-elversberg,false
+2027-01-30,Elversberg,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:elversberg-borussia monchengladbach,false
+2027-01-30,Augsburg,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:augsburg-eintracht frankfurt,false
+2027-01-30,Mainz,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:mainz-hamburger sv,false
+2027-01-30,RB Leipzig,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:rb leipzig-werder bremen,false
+2027-01-30,Köln,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:koln-stuttgart,false
+2027-01-30,Union Berlin,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:union berlin-bayer leverkusen,false
+2027-01-30,Freiburg,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:freiburg-paderborn,false
+2027-01-30,Borussia Dortmund,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:borussia dortmund-hoffenheim,false
+2027-01-30,Bayern München,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:19:bayern munchen-schalke,false
+2027-02-06,Eintracht Frankfurt,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:eintracht frankfurt-mainz,false
+2027-02-06,Borussia Mönchengladbach,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:borussia monchengladbach-freiburg,false
+2027-02-06,Schalke,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:schalke-union berlin,false
+2027-02-06,Hamburger SV,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:hamburger sv-rb leipzig,false
+2027-02-06,Bayer Leverkusen,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:bayer leverkusen-augsburg,false
+2027-02-06,Werder Bremen,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:werder bremen-koln,false
+2027-02-06,Stuttgart,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:stuttgart-hoffenheim,false
+2027-02-06,Bayern München,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:bayern munchen-elversberg,false
+2027-02-06,Paderborn,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:20:paderborn-borussia dortmund,false
+2027-02-13,Köln,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:koln-hamburger sv,false
+2027-02-13,Mainz,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:mainz-borussia monchengladbach,false
+2027-02-13,Union Berlin,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:union berlin-bayern munchen,false
+2027-02-13,Elversberg,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:elversberg-schalke,false
+2027-02-13,Borussia Dortmund,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:borussia dortmund-stuttgart,false
+2027-02-13,Hoffenheim,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:hoffenheim-paderborn,false
+2027-02-13,Freiburg,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:freiburg-eintracht frankfurt,false
+2027-02-13,Augsburg,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:augsburg-werder bremen,false
+2027-02-13,RB Leipzig,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:21:rb leipzig-bayer leverkusen,false
+2027-02-20,Schalke,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:schalke-freiburg,false
+2027-02-20,Stuttgart,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:stuttgart-paderborn,false
+2027-02-20,Borussia Mönchengladbach,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:borussia monchengladbach-koln,false
+2027-02-20,Werder Bremen,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:werder bremen-borussia dortmund,false
+2027-02-20,Hamburger SV,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:hamburger sv-hoffenheim,false
+2027-02-20,Bayer Leverkusen,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:bayer leverkusen-mainz,false
+2027-02-20,Eintracht Frankfurt,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:eintracht frankfurt-rb leipzig,false
+2027-02-20,Bayern München,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:bayern munchen-augsburg,false
+2027-02-20,Elversberg,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:22:elversberg-union berlin,false
+2027-02-27,Stuttgart,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:stuttgart-hamburger sv,false
+2027-02-27,Köln,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:koln-eintracht frankfurt,false
+2027-02-27,Freiburg,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:freiburg-bayer leverkusen,false
+2027-02-27,Augsburg,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:augsburg-elversberg,false
+2027-02-27,Mainz,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:mainz-schalke,false
+2027-02-27,Hoffenheim,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:hoffenheim-borussia monchengladbach,false
+2027-02-27,Paderborn,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:paderborn-werder bremen,false
+2027-02-27,RB Leipzig,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:rb leipzig-bayern munchen,false
+2027-02-27,Borussia Dortmund,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:23:borussia dortmund-union berlin,false
+2027-03-03,Eintracht Frankfurt,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:eintracht frankfurt-borussia dortmund,false
+2027-03-03,Schalke,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:schalke-koln,false
+2027-03-03,Bayer Leverkusen,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:bayer leverkusen-hoffenheim,false
+2027-03-03,Bayern München,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:bayern munchen-freiburg,false
+2027-03-03,Werder Bremen,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:werder bremen-mainz,false
+2027-03-03,Union Berlin,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:union berlin-augsburg,false
+2027-03-03,Elversberg,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:elversberg-rb leipzig,false
+2027-03-03,Borussia Mönchengladbach,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:borussia monchengladbach-stuttgart,false
+2027-03-03,Hamburger SV,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:24:hamburger sv-paderborn,false
+2027-03-06,Borussia Dortmund,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:borussia dortmund-bayern munchen,false
+2027-03-06,Freiburg,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:freiburg-augsburg,false
+2027-03-06,Mainz,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:mainz-elversberg,false
+2027-03-06,Hamburger SV,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:hamburger sv-eintracht frankfurt,false
+2027-03-06,Stuttgart,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:stuttgart-bayer leverkusen,false
+2027-03-06,RB Leipzig,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:rb leipzig-schalke,false
+2027-03-06,Paderborn,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:paderborn-borussia monchengladbach,false
+2027-03-06,Köln,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:koln-union berlin,false
+2027-03-06,Hoffenheim,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:25:hoffenheim-werder bremen,false
+2027-03-13,Union Berlin,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:union berlin-freiburg,false
+2027-03-13,Elversberg,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:elversberg-borussia dortmund,false
+2027-03-13,Eintracht Frankfurt,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:eintracht frankfurt-paderborn,false
+2027-03-13,Augsburg,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:augsburg-rb leipzig,false
+2027-03-13,Borussia Mönchengladbach,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:borussia monchengladbach-hamburger sv,false
+2027-03-13,Werder Bremen,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:werder bremen-stuttgart,false
+2027-03-13,Schalke,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:schalke-hoffenheim,false
+2027-03-13,Bayern München,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:bayern munchen-mainz,false
+2027-03-13,Bayer Leverkusen,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:26:bayer leverkusen-koln,false
+2027-03-20,Köln,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:koln-bayern munchen,false
+2027-03-20,Hoffenheim,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:hoffenheim-eintracht frankfurt,false
+2027-03-20,Borussia Dortmund,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:borussia dortmund-borussia monchengladbach,false
+2027-03-20,Mainz,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:mainz-augsburg,false
+2027-03-20,Stuttgart,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:stuttgart-schalke,false
+2027-03-20,RB Leipzig,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:rb leipzig-union berlin,false
+2027-03-20,Freiburg,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:freiburg-elversberg,false
+2027-03-20,Hamburger SV,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:hamburger sv-werder bremen,false
+2027-03-20,Paderborn,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:27:paderborn-bayer leverkusen,false
+2027-04-03,RB Leipzig,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:rb leipzig-freiburg,false
+2027-04-03,Elversberg,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:elversberg-koln,false
+2027-04-03,Bayern München,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:bayern munchen-hamburger sv,false
+2027-04-03,Augsburg,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:augsburg-hoffenheim,false
+2027-04-03,Borussia Mönchengladbach,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:borussia monchengladbach-werder bremen,false
+2027-04-03,Eintracht Frankfurt,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:eintracht frankfurt-stuttgart,false
+2027-04-03,Union Berlin,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:union berlin-mainz,false
+2027-04-03,Bayer Leverkusen,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:bayer leverkusen-borussia dortmund,false
+2027-04-03,Schalke,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:28:schalke-paderborn,false
+2027-04-10,Stuttgart,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:stuttgart-elversberg,false
+2027-04-10,Paderborn,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:paderborn-bayern munchen,false
+2027-04-10,Hoffenheim,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:hoffenheim-freiburg,false
+2027-04-10,Mainz,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:mainz-rb leipzig,false
+2027-04-10,Werder Bremen,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:werder bremen-eintracht frankfurt,false
+2027-04-10,Borussia Dortmund,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:borussia dortmund-schalke,false
+2027-04-10,Hamburger SV,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:hamburger sv-union berlin,false
+2027-04-10,Borussia Mönchengladbach,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:borussia monchengladbach-bayer leverkusen,false
+2027-04-10,Köln,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:29:koln-augsburg,false
+2027-04-17,Bayer Leverkusen,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:bayer leverkusen-werder bremen,false
+2027-04-17,Eintracht Frankfurt,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:eintracht frankfurt-borussia monchengladbach,false
+2027-04-17,Union Berlin,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:union berlin-stuttgart,false
+2027-04-17,Bayern München,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:bayern munchen-hoffenheim,false
+2027-04-17,Schalke,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:schalke-hamburger sv,false
+2027-04-17,Elversberg,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:elversberg-paderborn,false
+2027-04-17,Augsburg,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:augsburg-borussia dortmund,false
+2027-04-17,Freiburg,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:freiburg-mainz,false
+2027-04-17,RB Leipzig,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:30:rb leipzig-koln,false
+2027-04-24,Werder Bremen,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:werder bremen-bayern munchen,false
+2027-04-24,Köln,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:koln-mainz,false
+2027-04-24,Hamburger SV,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:hamburger sv-elversberg,false
+2027-04-24,Borussia Dortmund,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:borussia dortmund-rb leipzig,false
+2027-04-24,Hoffenheim,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:hoffenheim-union berlin,false
+2027-04-24,Paderborn,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:paderborn-augsburg,false
+2027-04-24,Stuttgart,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:stuttgart-freiburg,false
+2027-04-24,Borussia Mönchengladbach,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:borussia monchengladbach-schalke,false
+2027-04-24,Eintracht Frankfurt,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:31:eintracht frankfurt-bayer leverkusen,false
+2027-05-08,Schalke,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:schalke-eintracht frankfurt,false
+2027-05-08,RB Leipzig,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:rb leipzig-paderborn,false
+2027-05-08,Freiburg,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:freiburg-koln,false
+2027-05-08,Mainz,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:mainz-borussia dortmund,false
+2027-05-08,Augsburg,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:augsburg-stuttgart,false
+2027-05-08,Union Berlin,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:union berlin-werder bremen,false
+2027-05-08,Elversberg,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:elversberg-hoffenheim,false
+2027-05-08,Bayer Leverkusen,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:bayer leverkusen-hamburger sv,false
+2027-05-08,Bayern München,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:32:bayern munchen-borussia monchengladbach,false
+2027-05-15,Eintracht Frankfurt,Elversberg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:eintracht frankfurt-elversberg,false
+2027-05-15,Paderborn,Union Berlin,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:paderborn-union berlin,false
+2027-05-15,Stuttgart,RB Leipzig,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:stuttgart-rb leipzig,false
+2027-05-15,Borussia Dortmund,Köln,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:borussia dortmund-koln,false
+2027-05-15,Hamburger SV,Freiburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:hamburger sv-freiburg,false
+2027-05-15,Bayer Leverkusen,Bayern München,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:bayer leverkusen-bayern munchen,false
+2027-05-15,Werder Bremen,Schalke,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:werder bremen-schalke,false
+2027-05-15,Borussia Mönchengladbach,Augsburg,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:borussia monchengladbach-augsburg,false
+2027-05-15,Hoffenheim,Mainz,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:33:hoffenheim-mainz,false
+2027-05-22,RB Leipzig,Hoffenheim,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:rb leipzig-hoffenheim,false
+2027-05-22,Union Berlin,Borussia Mönchengladbach,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:union berlin-borussia monchengladbach,false
+2027-05-22,Mainz,Stuttgart,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:mainz-stuttgart,false
+2027-05-22,Schalke,Bayer Leverkusen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:schalke-bayer leverkusen,false
+2027-05-22,Elversberg,Werder Bremen,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:elversberg-werder bremen,false
+2027-05-22,Bayern München,Eintracht Frankfurt,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:bayern munchen-eintracht frankfurt,false
+2027-05-22,Augsburg,Hamburger SV,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:augsburg-hamburger sv,false
+2027-05-22,Freiburg,Borussia Dortmund,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:freiburg-borussia dortmund,false
+2027-05-22,Köln,Paderborn,openfootball-deutschland,,openfootball-deutschland,,,openfootball-deutschland:2026-27:34:koln-paderborn,false

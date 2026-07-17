@@ -30,6 +30,10 @@ import urllib.request
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT / "core"))
+
+from golavo_core.ingest.match_index import normalize  # noqa: E402
+
 SEASON = "2026-27"
 SOURCE_ID = "openfootball-football-json"
 _MAX_BYTES = 2_000_000
@@ -76,29 +80,52 @@ def _sha256(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _fixture_key(row) -> str:
+    """A key that identifies ONE fixture.
+
+    Callers resolve a single match by this value (server.main._missing_fixture_match
+    takes the first row that matches), so a matchday-wide key would let a correction
+    validate against an arbitrary other game in the same gameweek. Home/away are
+    unique within a matchday, and stable across a postponement, which moves a
+    fixture's date but not its opponents or its round.
+    """
+    sides = f"{normalize(row.home_team)}-{normalize(row.away_team)}"
+    return f"{row.co_source_id}:{SEASON}:{row.matchday}:{sides}"
+
+
 def _provenance_rows(frame) -> list[dict[str, str]]:
-    """Per-fixture provenance: the .txt repo gave identity and kickoff, nothing else."""
-    return [
-        {
-            "date": row.date.strftime("%Y-%m-%d"),
-            "home_team": row.home_team,
-            "away_team": row.away_team,
-            "identity_source_id": row.co_source_id,
-            "result_source_id": "",
-            "kickoff_source_id": row.co_source_id,
-            "venue_source_id": "",
-            "training_source_id": "",
-            "upstream_fixture_key": f"{row.co_source_id}:{SEASON}:{row.matchday}",
-            "training_eligible": "false",
-        }
-        for row in frame.itertuples(index=False)
-    ]
+    """Per-fixture provenance, derived from each row rather than assumed.
+
+    The .txt repo supplies identity and the kickoff clock. Whether it also
+    supplies a RESULT depends on the row: upstream appends scores to the same
+    file as matches are played, and this builder reruns when those bytes move.
+    Hardcoding 'no result, never train' would, on the first rerun after kickoff,
+    null out training_source_id for real league results and quietly withhold them
+    from every model.
+    """
+    rows: list[dict[str, str]] = []
+    for row in frame.itertuples(index=False):
+        complete = bool(row.is_complete)
+        rows.append(
+            {
+                "date": row.date.strftime("%Y-%m-%d"),
+                "home_team": row.home_team,
+                "away_team": row.away_team,
+                "identity_source_id": row.co_source_id,
+                "result_source_id": row.co_source_id if complete else "",
+                "kickoff_source_id": row.co_source_id,
+                "venue_source_id": "",
+                "training_source_id": row.co_source_id if complete else "",
+                "upstream_fixture_key": _fixture_key(row),
+                "training_eligible": "true" if complete else "false",
+            }
+        )
+    return rows
 
 
 def build(check_only: bool = False) -> int:
     import pandas as pd
 
-    sys.path.insert(0, str(REPO_ROOT / "core"))
     from golavo_core.ingest.domestictxt import parse_domestic_txt
 
     drift = 0

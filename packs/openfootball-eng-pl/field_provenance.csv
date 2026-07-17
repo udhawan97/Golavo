@@ -1,381 +1,381 @@
 date,home_team,away_team,identity_source_id,result_source_id,kickoff_source_id,venue_source_id,training_source_id,upstream_fixture_key,training_eligible
-2026-08-21,Arsenal,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-22,Hull City,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-22,Ipswich Town,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-22,Nottingham Forest,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-22,Everton,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-22,Brentford,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-23,Manchester City,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-23,Brighton & Hove Albion,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-23,Newcastle United,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-24,Fulham,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1,false
-2026-08-29,Liverpool,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Manchester United,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Sunderland,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Crystal Palace,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Chelsea,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Aston Villa,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Tottenham Hotspur,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Leeds United,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Bournemouth,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-08-29,Coventry City,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2,false
-2026-09-05,Nottingham Forest,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Manchester City,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Brighton & Hove Albion,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Brentford,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Ipswich Town,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Everton,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Fulham,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Hull City,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Arsenal,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-05,Newcastle United,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3,false
-2026-09-12,Crystal Palace,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Liverpool,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Aston Villa,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Tottenham Hotspur,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Bournemouth,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Sunderland,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Coventry City,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Leeds United,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Manchester United,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-12,Chelsea,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4,false
-2026-09-19,Bournemouth,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Fulham,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Everton,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Leeds United,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Brighton & Hove Albion,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Tottenham Hotspur,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Newcastle United,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Nottingham Forest,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Manchester City,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-09-19,Brentford,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5,false
-2026-10-10,Sunderland,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Arsenal,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Hull City,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Chelsea,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Crystal Palace,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Coventry City,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Liverpool,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Ipswich Town,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Manchester United,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-10,Aston Villa,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6,false
-2026-10-17,Fulham,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Everton,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Bournemouth,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Leeds United,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Tottenham Hotspur,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Newcastle United,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Nottingham Forest,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Brighton & Hove Albion,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Manchester City,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-17,Brentford,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7,false
-2026-10-24,Liverpool,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Crystal Palace,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Aston Villa,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Manchester United,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Arsenal,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Chelsea,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Coventry City,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Hull City,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Ipswich Town,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-24,Sunderland,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8,false
-2026-10-31,Newcastle United,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Manchester City,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Bournemouth,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Coventry City,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Chelsea,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Tottenham Hotspur,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Aston Villa,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Hull City,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Brentford,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-10-31,Liverpool,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9,false
-2026-11-07,Arsenal,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Nottingham Forest,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Leeds United,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Fulham,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Everton,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Crystal Palace,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Sunderland,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Ipswich Town,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Brighton & Hove Albion,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-07,Manchester United,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10,false
-2026-11-21,Chelsea,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Manchester City,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Aston Villa,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Liverpool,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Hull City,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Bournemouth,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Tottenham Hotspur,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Brentford,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Coventry City,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-21,Newcastle United,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11,false
-2026-11-28,Leeds United,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Ipswich Town,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Arsenal,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Manchester United,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Everton,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Fulham,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Nottingham Forest,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Brighton & Hove Albion,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Sunderland,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-11-28,Crystal Palace,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12,false
-2026-12-02,Tottenham Hotspur,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Liverpool,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Hull City,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Chelsea,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Aston Villa,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Brentford,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Coventry City,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Manchester City,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Newcastle United,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-02,Bournemouth,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13,false
-2026-12-05,Tottenham Hotspur,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Manchester United,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Leeds United,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Newcastle United,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Chelsea,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Brentford,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Bournemouth,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Aston Villa,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Nottingham Forest,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-05,Everton,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14,false
-2026-12-12,Sunderland,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Crystal Palace,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Hull City,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Brighton & Hove Albion,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Ipswich Town,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Coventry City,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Arsenal,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Manchester City,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Liverpool,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-12,Fulham,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15,false
-2026-12-19,Leeds United,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Brighton & Hove Albion,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Nottingham Forest,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Brentford,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Manchester City,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Sunderland,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Bournemouth,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Arsenal,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Liverpool,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-19,Chelsea,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16,false
-2026-12-26,Aston Villa,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Manchester United,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Crystal Palace,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Everton,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Coventry City,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Newcastle United,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Fulham,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Tottenham Hotspur,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Hull City,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-26,Ipswich Town,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17,false
-2026-12-30,Fulham,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Coventry City,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Aston Villa,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Newcastle United,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Hull City,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Manchester United,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Ipswich Town,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Tottenham Hotspur,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Everton,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2026-12-30,Crystal Palace,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18,false
-2027-01-02,Bournemouth,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Brentford,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Leeds United,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Arsenal,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Sunderland,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Liverpool,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Chelsea,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Nottingham Forest,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Brighton & Hove Albion,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-02,Manchester City,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19,false
-2027-01-06,Arsenal,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Leeds United,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Manchester United,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Brighton & Hove Albion,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Nottingham Forest,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Fulham,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Everton,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Sunderland,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Crystal Palace,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-06,Ipswich Town,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20,false
-2027-01-16,Bournemouth,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Manchester City,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Chelsea,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Brentford,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Aston Villa,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Tottenham Hotspur,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Coventry City,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Liverpool,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Hull City,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-16,Newcastle United,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21,false
-2027-01-23,Ipswich Town,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Everton,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Sunderland,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Nottingham Forest,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Arsenal,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Leeds United,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Fulham,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Manchester United,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Brighton & Hove Albion,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-23,Crystal Palace,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22,false
-2027-01-30,Tottenham Hotspur,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Brentford,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Newcastle United,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Hull City,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Coventry City,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Bournemouth,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Chelsea,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Liverpool,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Manchester City,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-01-30,Aston Villa,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23,false
-2027-02-06,Arsenal,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Brighton & Hove Albion,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Sunderland,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Crystal Palace,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Ipswich Town,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Everton,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Fulham,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Leeds United,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Manchester United,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-06,Nottingham Forest,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24,false
-2027-02-10,Everton,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Coventry City,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Hull City,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Aston Villa,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Crystal Palace,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Newcastle United,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Fulham,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Tottenham Hotspur,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Manchester United,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-10,Ipswich Town,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25,false
-2027-02-20,Manchester City,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Bournemouth,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Brentford,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Chelsea,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Liverpool,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Arsenal,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Nottingham Forest,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Brighton & Hove Albion,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Sunderland,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-20,Leeds United,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26,false
-2027-02-27,Crystal Palace,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Manchester United,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Ipswich Town,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Coventry City,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Everton,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Fulham,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Aston Villa,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Tottenham Hotspur,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Newcastle United,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-02-27,Hull City,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27,false
-2027-03-03,Nottingham Forest,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Bournemouth,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Manchester City,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Arsenal,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Leeds United,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Sunderland,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Liverpool,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Brighton & Hove Albion,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Brentford,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-03,Chelsea,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28,false
-2027-03-13,Leeds United,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Tottenham Hotspur,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Crystal Palace,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Liverpool,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Coventry City,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Bournemouth,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Chelsea,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Aston Villa,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Manchester United,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-13,Sunderland,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29,false
-2027-03-20,Brentford,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Brighton & Hove Albion,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Manchester City,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Ipswich Town,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Arsenal,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Fulham,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Hull City,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Nottingham Forest,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Everton,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-03-20,Newcastle United,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30,false
-2027-04-10,Sunderland,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Leeds United,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Manchester United,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Chelsea,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Liverpool,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Coventry City,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Bournemouth,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Crystal Palace,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Tottenham Hotspur,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-10,Aston Villa,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31,false
-2027-04-17,Brighton & Hove Albion,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Fulham,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Brentford,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Nottingham Forest,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Hull City,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Arsenal,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Ipswich Town,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Manchester City,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Newcastle United,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-17,Everton,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32,false
-2027-04-24,Chelsea,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Bournemouth,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Tottenham Hotspur,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Manchester United,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Everton,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Nottingham Forest,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Newcastle United,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Aston Villa,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Brentford,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-04-24,Leeds United,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33,false
-2027-05-01,Sunderland,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Brighton & Hove Albion,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Coventry City,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Hull City,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Manchester City,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Fulham,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Liverpool,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Arsenal,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Crystal Palace,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-01,Ipswich Town,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34,false
-2027-05-08,Manchester City,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Leeds United,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Fulham,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Nottingham Forest,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Brentford,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Newcastle United,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Brighton & Hove Albion,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Tottenham Hotspur,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Everton,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-08,Bournemouth,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35,false
-2027-05-15,Hull City,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Manchester United,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Crystal Palace,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Aston Villa,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Chelsea,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Coventry City,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Sunderland,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Liverpool,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Ipswich Town,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-15,Arsenal,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36,false
-2027-05-23,Brentford,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Newcastle United,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Tottenham Hotspur,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Leeds United,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Brighton & Hove Albion,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Nottingham Forest,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Bournemouth,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Fulham,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Everton,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-23,Manchester City,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37,false
-2027-05-30,Ipswich Town,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Arsenal,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Liverpool,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Coventry City,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Aston Villa,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Hull City,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Manchester United,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Sunderland,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Chelsea,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
-2027-05-30,Crystal Palace,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38,false
+2026-08-21,Arsenal,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:arsenal-coventry city,false
+2026-08-22,Hull City,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:hull city-manchester united,false
+2026-08-22,Ipswich Town,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:ipswich town-sunderland,false
+2026-08-22,Nottingham Forest,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:nottingham forest-leeds united,false
+2026-08-22,Everton,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:everton-crystal palace,false
+2026-08-22,Brentford,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:brentford-tottenham hotspur,false
+2026-08-23,Manchester City,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:manchester city-bournemouth,false
+2026-08-23,Brighton & Hove Albion,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:brighton & hove albion-aston villa,false
+2026-08-23,Newcastle United,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:newcastle united-liverpool,false
+2026-08-24,Fulham,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:1:fulham-chelsea,false
+2026-08-29,Liverpool,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:liverpool-nottingham forest,false
+2026-08-29,Manchester United,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:manchester united-ipswich town,false
+2026-08-29,Sunderland,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:sunderland-fulham,false
+2026-08-29,Crystal Palace,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:crystal palace-manchester city,false
+2026-08-29,Chelsea,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:chelsea-brighton & hove albion,false
+2026-08-29,Aston Villa,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:aston villa-arsenal,false
+2026-08-29,Tottenham Hotspur,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:tottenham hotspur-newcastle united,false
+2026-08-29,Leeds United,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:leeds united-brentford,false
+2026-08-29,Bournemouth,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:bournemouth-everton,false
+2026-08-29,Coventry City,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:2:coventry city-hull city,false
+2026-09-05,Nottingham Forest,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:nottingham forest-tottenham hotspur,false
+2026-09-05,Manchester City,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:manchester city-coventry city,false
+2026-09-05,Brighton & Hove Albion,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:brighton & hove albion-leeds united,false
+2026-09-05,Brentford,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:brentford-sunderland,false
+2026-09-05,Ipswich Town,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:ipswich town-liverpool,false
+2026-09-05,Everton,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:everton-manchester united,false
+2026-09-05,Fulham,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:fulham-crystal palace,false
+2026-09-05,Hull City,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:hull city-aston villa,false
+2026-09-05,Arsenal,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:arsenal-chelsea,false
+2026-09-05,Newcastle United,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:3:newcastle united-bournemouth,false
+2026-09-12,Crystal Palace,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:crystal palace-ipswich town,false
+2026-09-12,Liverpool,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:liverpool-fulham,false
+2026-09-12,Aston Villa,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:aston villa-nottingham forest,false
+2026-09-12,Tottenham Hotspur,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:tottenham hotspur-everton,false
+2026-09-12,Bournemouth,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:bournemouth-brentford,false
+2026-09-12,Sunderland,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:sunderland-arsenal,false
+2026-09-12,Coventry City,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:coventry city-brighton & hove albion,false
+2026-09-12,Leeds United,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:leeds united-newcastle united,false
+2026-09-12,Manchester United,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:manchester united-manchester city,false
+2026-09-12,Chelsea,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:4:chelsea-hull city,false
+2026-09-19,Bournemouth,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:bournemouth-liverpool,false
+2026-09-19,Fulham,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:fulham-manchester united,false
+2026-09-19,Everton,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:everton-ipswich town,false
+2026-09-19,Leeds United,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:leeds united-crystal palace,false
+2026-09-19,Brighton & Hove Albion,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:brighton & hove albion-arsenal,false
+2026-09-19,Tottenham Hotspur,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:tottenham hotspur-aston villa,false
+2026-09-19,Newcastle United,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:newcastle united-hull city,false
+2026-09-19,Nottingham Forest,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:nottingham forest-coventry city,false
+2026-09-19,Manchester City,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:manchester city-sunderland,false
+2026-09-19,Brentford,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:5:brentford-chelsea,false
+2026-10-10,Sunderland,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:sunderland-brighton & hove albion,false
+2026-10-10,Arsenal,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:arsenal-leeds united,false
+2026-10-10,Hull City,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:hull city-everton,false
+2026-10-10,Chelsea,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:chelsea-bournemouth,false
+2026-10-10,Crystal Palace,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:crystal palace-nottingham forest,false
+2026-10-10,Coventry City,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:coventry city-newcastle united,false
+2026-10-10,Liverpool,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:liverpool-manchester city,false
+2026-10-10,Ipswich Town,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:ipswich town-fulham,false
+2026-10-10,Manchester United,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:manchester united-tottenham hotspur,false
+2026-10-10,Aston Villa,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:6:aston villa-brentford,false
+2026-10-17,Fulham,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:fulham-hull city,false
+2026-10-17,Everton,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:everton-chelsea,false
+2026-10-17,Bournemouth,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:bournemouth-sunderland,false
+2026-10-17,Leeds United,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:leeds united-manchester united,false
+2026-10-17,Tottenham Hotspur,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:tottenham hotspur-coventry city,false
+2026-10-17,Newcastle United,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:newcastle united-aston villa,false
+2026-10-17,Nottingham Forest,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:nottingham forest-arsenal,false
+2026-10-17,Brighton & Hove Albion,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:brighton & hove albion-crystal palace,false
+2026-10-17,Manchester City,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:manchester city-ipswich town,false
+2026-10-17,Brentford,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:7:brentford-liverpool,false
+2026-10-24,Liverpool,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:liverpool-brighton & hove albion,false
+2026-10-24,Crystal Palace,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:crystal palace-newcastle united,false
+2026-10-24,Aston Villa,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:aston villa-manchester city,false
+2026-10-24,Manchester United,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:manchester united-bournemouth,false
+2026-10-24,Arsenal,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:arsenal-everton,false
+2026-10-24,Chelsea,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:chelsea-tottenham hotspur,false
+2026-10-24,Coventry City,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:coventry city-fulham,false
+2026-10-24,Hull City,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:hull city-brentford,false
+2026-10-24,Ipswich Town,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:ipswich town-nottingham forest,false
+2026-10-24,Sunderland,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:8:sunderland-leeds united,false
+2026-10-31,Newcastle United,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:newcastle united-everton,false
+2026-10-31,Manchester City,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:manchester city-brighton & hove albion,false
+2026-10-31,Bournemouth,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:bournemouth-leeds united,false
+2026-10-31,Coventry City,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:coventry city-sunderland,false
+2026-10-31,Chelsea,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:chelsea-manchester united,false
+2026-10-31,Tottenham Hotspur,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:tottenham hotspur-crystal palace,false
+2026-10-31,Aston Villa,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:aston villa-fulham,false
+2026-10-31,Hull City,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:hull city-ipswich town,false
+2026-10-31,Brentford,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:brentford-nottingham forest,false
+2026-10-31,Liverpool,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:9:liverpool-arsenal,false
+2026-11-07,Arsenal,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:arsenal-hull city,false
+2026-11-07,Nottingham Forest,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:nottingham forest-manchester city,false
+2026-11-07,Leeds United,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:leeds united-tottenham hotspur,false
+2026-11-07,Fulham,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:fulham-newcastle united,false
+2026-11-07,Everton,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:everton-coventry city,false
+2026-11-07,Crystal Palace,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:crystal palace-liverpool,false
+2026-11-07,Sunderland,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:sunderland-chelsea,false
+2026-11-07,Ipswich Town,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:ipswich town-bournemouth,false
+2026-11-07,Brighton & Hove Albion,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:brighton & hove albion-brentford,false
+2026-11-07,Manchester United,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:10:manchester united-aston villa,false
+2026-11-21,Chelsea,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:chelsea-leeds united,false
+2026-11-21,Manchester City,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:manchester city-fulham,false
+2026-11-21,Aston Villa,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:aston villa-sunderland,false
+2026-11-21,Liverpool,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:liverpool-manchester united,false
+2026-11-21,Hull City,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:hull city-brighton & hove albion,false
+2026-11-21,Bournemouth,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:bournemouth-nottingham forest,false
+2026-11-21,Tottenham Hotspur,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:tottenham hotspur-ipswich town,false
+2026-11-21,Brentford,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:brentford-everton,false
+2026-11-21,Coventry City,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:coventry city-crystal palace,false
+2026-11-21,Newcastle United,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:11:newcastle united-arsenal,false
+2026-11-28,Leeds United,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:leeds united-coventry city,false
+2026-11-28,Ipswich Town,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:ipswich town-aston villa,false
+2026-11-28,Arsenal,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:arsenal-manchester city,false
+2026-11-28,Manchester United,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:manchester united-brentford,false
+2026-11-28,Everton,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:everton-liverpool,false
+2026-11-28,Fulham,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:fulham-bournemouth,false
+2026-11-28,Nottingham Forest,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:nottingham forest-chelsea,false
+2026-11-28,Brighton & Hove Albion,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:brighton & hove albion-newcastle united,false
+2026-11-28,Sunderland,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:sunderland-tottenham hotspur,false
+2026-11-28,Crystal Palace,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:12:crystal palace-hull city,false
+2026-12-02,Tottenham Hotspur,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:tottenham hotspur-fulham,false
+2026-12-02,Liverpool,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:liverpool-sunderland,false
+2026-12-02,Hull City,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:hull city-nottingham forest,false
+2026-12-02,Chelsea,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:chelsea-crystal palace,false
+2026-12-02,Aston Villa,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:aston villa-everton,false
+2026-12-02,Brentford,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:brentford-arsenal,false
+2026-12-02,Coventry City,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:coventry city-ipswich town,false
+2026-12-02,Manchester City,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:manchester city-leeds united,false
+2026-12-02,Newcastle United,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:newcastle united-manchester united,false
+2026-12-02,Bournemouth,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:13:bournemouth-brighton & hove albion,false
+2026-12-05,Tottenham Hotspur,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:tottenham hotspur-arsenal,false
+2026-12-05,Manchester United,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:manchester united-coventry city,false
+2026-12-05,Leeds United,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:leeds united-ipswich town,false
+2026-12-05,Newcastle United,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:newcastle united-sunderland,false
+2026-12-05,Chelsea,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:chelsea-liverpool,false
+2026-12-05,Brentford,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:brentford-manchester city,false
+2026-12-05,Bournemouth,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:bournemouth-hull city,false
+2026-12-05,Aston Villa,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:aston villa-crystal palace,false
+2026-12-05,Nottingham Forest,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:nottingham forest-brighton & hove albion,false
+2026-12-05,Everton,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:14:everton-fulham,false
+2026-12-12,Sunderland,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:sunderland-nottingham forest,false
+2026-12-12,Crystal Palace,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:crystal palace-manchester united,false
+2026-12-12,Hull City,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:hull city-tottenham hotspur,false
+2026-12-12,Brighton & Hove Albion,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:brighton & hove albion-everton,false
+2026-12-12,Ipswich Town,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:ipswich town-newcastle united,false
+2026-12-12,Coventry City,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:coventry city-aston villa,false
+2026-12-12,Arsenal,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:arsenal-bournemouth,false
+2026-12-12,Manchester City,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:manchester city-chelsea,false
+2026-12-12,Liverpool,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:liverpool-leeds united,false
+2026-12-12,Fulham,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:15:fulham-brentford,false
+2026-12-19,Leeds United,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:leeds united-fulham,false
+2026-12-19,Brighton & Hove Albion,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:brighton & hove albion-ipswich town,false
+2026-12-19,Nottingham Forest,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:nottingham forest-everton,false
+2026-12-19,Brentford,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:brentford-newcastle united,false
+2026-12-19,Manchester City,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:manchester city-hull city,false
+2026-12-19,Sunderland,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:sunderland-crystal palace,false
+2026-12-19,Bournemouth,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:bournemouth-coventry city,false
+2026-12-19,Arsenal,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:arsenal-manchester united,false
+2026-12-19,Liverpool,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:liverpool-tottenham hotspur,false
+2026-12-19,Chelsea,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:16:chelsea-aston villa,false
+2026-12-26,Aston Villa,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:aston villa-leeds united,false
+2026-12-26,Manchester United,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:manchester united-nottingham forest,false
+2026-12-26,Crystal Palace,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:crystal palace-arsenal,false
+2026-12-26,Everton,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:everton-sunderland,false
+2026-12-26,Coventry City,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:coventry city-chelsea,false
+2026-12-26,Newcastle United,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:newcastle united-manchester city,false
+2026-12-26,Fulham,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:fulham-brighton & hove albion,false
+2026-12-26,Tottenham Hotspur,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:tottenham hotspur-bournemouth,false
+2026-12-26,Hull City,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:hull city-liverpool,false
+2026-12-26,Ipswich Town,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:17:ipswich town-brentford,false
+2026-12-30,Fulham,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:fulham-arsenal,false
+2026-12-30,Coventry City,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:coventry city-brentford,false
+2026-12-30,Aston Villa,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:aston villa-liverpool,false
+2026-12-30,Newcastle United,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:newcastle united-nottingham forest,false
+2026-12-30,Hull City,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:hull city-leeds united,false
+2026-12-30,Manchester United,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:manchester united-sunderland,false
+2026-12-30,Ipswich Town,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:ipswich town-chelsea,false
+2026-12-30,Tottenham Hotspur,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:tottenham hotspur-brighton & hove albion,false
+2026-12-30,Everton,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:everton-manchester city,false
+2026-12-30,Crystal Palace,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:18:crystal palace-bournemouth,false
+2027-01-02,Bournemouth,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:bournemouth-aston villa,false
+2027-01-02,Brentford,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:brentford-crystal palace,false
+2027-01-02,Leeds United,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:leeds united-everton,false
+2027-01-02,Arsenal,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:arsenal-ipswich town,false
+2027-01-02,Sunderland,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:sunderland-hull city,false
+2027-01-02,Liverpool,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:liverpool-coventry city,false
+2027-01-02,Chelsea,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:chelsea-newcastle united,false
+2027-01-02,Nottingham Forest,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:nottingham forest-fulham,false
+2027-01-02,Brighton & Hove Albion,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:brighton & hove albion-manchester united,false
+2027-01-02,Manchester City,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:19:manchester city-tottenham hotspur,false
+2027-01-06,Arsenal,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:arsenal-brentford,false
+2027-01-06,Leeds United,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:leeds united-manchester city,false
+2027-01-06,Manchester United,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:manchester united-newcastle united,false
+2027-01-06,Brighton & Hove Albion,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:brighton & hove albion-bournemouth,false
+2027-01-06,Nottingham Forest,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:nottingham forest-hull city,false
+2027-01-06,Fulham,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:fulham-tottenham hotspur,false
+2027-01-06,Everton,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:everton-aston villa,false
+2027-01-06,Sunderland,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:sunderland-liverpool,false
+2027-01-06,Crystal Palace,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:crystal palace-chelsea,false
+2027-01-06,Ipswich Town,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:20:ipswich town-coventry city,false
+2027-01-16,Bournemouth,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:bournemouth-ipswich town,false
+2027-01-16,Manchester City,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:manchester city-nottingham forest,false
+2027-01-16,Chelsea,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:chelsea-sunderland,false
+2027-01-16,Brentford,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:brentford-brighton & hove albion,false
+2027-01-16,Aston Villa,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:aston villa-manchester united,false
+2027-01-16,Tottenham Hotspur,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:tottenham hotspur-leeds united,false
+2027-01-16,Coventry City,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:coventry city-everton,false
+2027-01-16,Liverpool,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:liverpool-crystal palace,false
+2027-01-16,Hull City,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:hull city-arsenal,false
+2027-01-16,Newcastle United,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:21:newcastle united-fulham,false
+2027-01-23,Ipswich Town,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:ipswich town-hull city,false
+2027-01-23,Everton,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:everton-brentford,false
+2027-01-23,Sunderland,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:sunderland-coventry city,false
+2027-01-23,Nottingham Forest,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:nottingham forest-bournemouth,false
+2027-01-23,Arsenal,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:arsenal-newcastle united,false
+2027-01-23,Leeds United,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:leeds united-chelsea,false
+2027-01-23,Fulham,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:fulham-aston villa,false
+2027-01-23,Manchester United,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:manchester united-liverpool,false
+2027-01-23,Brighton & Hove Albion,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:brighton & hove albion-manchester city,false
+2027-01-23,Crystal Palace,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:22:crystal palace-tottenham hotspur,false
+2027-01-30,Tottenham Hotspur,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:tottenham hotspur-sunderland,false
+2027-01-30,Brentford,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:brentford-manchester united,false
+2027-01-30,Newcastle United,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:newcastle united-brighton & hove albion,false
+2027-01-30,Hull City,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:hull city-crystal palace,false
+2027-01-30,Coventry City,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:coventry city-leeds united,false
+2027-01-30,Bournemouth,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:bournemouth-fulham,false
+2027-01-30,Chelsea,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:chelsea-nottingham forest,false
+2027-01-30,Liverpool,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:liverpool-everton,false
+2027-01-30,Manchester City,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:manchester city-arsenal,false
+2027-01-30,Aston Villa,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:23:aston villa-ipswich town,false
+2027-02-06,Arsenal,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:arsenal-liverpool,false
+2027-02-06,Brighton & Hove Albion,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:brighton & hove albion-hull city,false
+2027-02-06,Sunderland,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:sunderland-aston villa,false
+2027-02-06,Crystal Palace,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:crystal palace-coventry city,false
+2027-02-06,Ipswich Town,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:ipswich town-tottenham hotspur,false
+2027-02-06,Everton,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:everton-newcastle united,false
+2027-02-06,Fulham,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:fulham-manchester city,false
+2027-02-06,Leeds United,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:leeds united-bournemouth,false
+2027-02-06,Manchester United,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:manchester united-chelsea,false
+2027-02-06,Nottingham Forest,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:24:nottingham forest-brentford,false
+2027-02-10,Everton,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:everton-leeds united,false
+2027-02-10,Coventry City,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:coventry city-liverpool,false
+2027-02-10,Hull City,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:hull city-sunderland,false
+2027-02-10,Aston Villa,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:aston villa-bournemouth,false
+2027-02-10,Crystal Palace,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:crystal palace-brentford,false
+2027-02-10,Newcastle United,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:newcastle united-chelsea,false
+2027-02-10,Fulham,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:fulham-nottingham forest,false
+2027-02-10,Tottenham Hotspur,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:tottenham hotspur-manchester city,false
+2027-02-10,Manchester United,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:manchester united-brighton & hove albion,false
+2027-02-10,Ipswich Town,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:25:ipswich town-arsenal,false
+2027-02-20,Manchester City,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:manchester city-newcastle united,false
+2027-02-20,Bournemouth,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:bournemouth-crystal palace,false
+2027-02-20,Brentford,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:brentford-coventry city,false
+2027-02-20,Chelsea,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:chelsea-ipswich town,false
+2027-02-20,Liverpool,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:liverpool-hull city,false
+2027-02-20,Arsenal,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:arsenal-fulham,false
+2027-02-20,Nottingham Forest,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:nottingham forest-manchester united,false
+2027-02-20,Brighton & Hove Albion,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:brighton & hove albion-tottenham hotspur,false
+2027-02-20,Sunderland,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:sunderland-everton,false
+2027-02-20,Leeds United,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:26:leeds united-aston villa,false
+2027-02-27,Crystal Palace,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:crystal palace-sunderland,false
+2027-02-27,Manchester United,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:manchester united-arsenal,false
+2027-02-27,Ipswich Town,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:ipswich town-brighton & hove albion,false
+2027-02-27,Coventry City,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:coventry city-bournemouth,false
+2027-02-27,Everton,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:everton-nottingham forest,false
+2027-02-27,Fulham,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:fulham-leeds united,false
+2027-02-27,Aston Villa,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:aston villa-chelsea,false
+2027-02-27,Tottenham Hotspur,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:tottenham hotspur-liverpool,false
+2027-02-27,Newcastle United,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:newcastle united-brentford,false
+2027-02-27,Hull City,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:27:hull city-manchester city,false
+2027-03-03,Nottingham Forest,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:nottingham forest-newcastle united,false
+2027-03-03,Bournemouth,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:bournemouth-tottenham hotspur,false
+2027-03-03,Manchester City,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:manchester city-everton,false
+2027-03-03,Arsenal,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:arsenal-crystal palace,false
+2027-03-03,Leeds United,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:leeds united-hull city,false
+2027-03-03,Sunderland,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:sunderland-manchester united,false
+2027-03-03,Liverpool,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:liverpool-aston villa,false
+2027-03-03,Brighton & Hove Albion,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:brighton & hove albion-fulham,false
+2027-03-03,Brentford,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:brentford-ipswich town,false
+2027-03-03,Chelsea,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:28:chelsea-coventry city,false
+2027-03-13,Leeds United,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:leeds united-brighton & hove albion,false
+2027-03-13,Tottenham Hotspur,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:tottenham hotspur-nottingham forest,false
+2027-03-13,Crystal Palace,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:crystal palace-fulham,false
+2027-03-13,Liverpool,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:liverpool-ipswich town,false
+2027-03-13,Coventry City,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:coventry city-manchester city,false
+2027-03-13,Bournemouth,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:bournemouth-newcastle united,false
+2027-03-13,Chelsea,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:chelsea-arsenal,false
+2027-03-13,Aston Villa,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:aston villa-hull city,false
+2027-03-13,Manchester United,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:manchester united-everton,false
+2027-03-13,Sunderland,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:29:sunderland-brentford,false
+2027-03-20,Brentford,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:brentford-bournemouth,false
+2027-03-20,Brighton & Hove Albion,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:brighton & hove albion-coventry city,false
+2027-03-20,Manchester City,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:manchester city-manchester united,false
+2027-03-20,Ipswich Town,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:ipswich town-crystal palace,false
+2027-03-20,Arsenal,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:arsenal-sunderland,false
+2027-03-20,Fulham,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:fulham-liverpool,false
+2027-03-20,Hull City,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:hull city-chelsea,false
+2027-03-20,Nottingham Forest,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:nottingham forest-aston villa,false
+2027-03-20,Everton,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:everton-tottenham hotspur,false
+2027-03-20,Newcastle United,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:30:newcastle united-leeds united,false
+2027-04-10,Sunderland,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:sunderland-ipswich town,false
+2027-04-10,Leeds United,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:leeds united-nottingham forest,false
+2027-04-10,Manchester United,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:manchester united-hull city,false
+2027-04-10,Chelsea,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:chelsea-fulham,false
+2027-04-10,Liverpool,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:liverpool-newcastle united,false
+2027-04-10,Coventry City,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:coventry city-arsenal,false
+2027-04-10,Bournemouth,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:bournemouth-manchester city,false
+2027-04-10,Crystal Palace,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:crystal palace-everton,false
+2027-04-10,Tottenham Hotspur,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:tottenham hotspur-brentford,false
+2027-04-10,Aston Villa,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:31:aston villa-brighton & hove albion,false
+2027-04-17,Brighton & Hove Albion,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:brighton & hove albion-chelsea,false
+2027-04-17,Fulham,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:fulham-sunderland,false
+2027-04-17,Brentford,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:brentford-leeds united,false
+2027-04-17,Nottingham Forest,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:nottingham forest-liverpool,false
+2027-04-17,Hull City,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:hull city-coventry city,false
+2027-04-17,Arsenal,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:arsenal-aston villa,false
+2027-04-17,Ipswich Town,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:ipswich town-manchester united,false
+2027-04-17,Manchester City,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:manchester city-crystal palace,false
+2027-04-17,Newcastle United,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:newcastle united-tottenham hotspur,false
+2027-04-17,Everton,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:32:everton-bournemouth,false
+2027-04-24,Chelsea,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:chelsea-manchester city,false
+2027-04-24,Bournemouth,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:bournemouth-arsenal,false
+2027-04-24,Tottenham Hotspur,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:tottenham hotspur-hull city,false
+2027-04-24,Manchester United,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:manchester united-crystal palace,false
+2027-04-24,Everton,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:everton-brighton & hove albion,false
+2027-04-24,Nottingham Forest,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:nottingham forest-sunderland,false
+2027-04-24,Newcastle United,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:newcastle united-ipswich town,false
+2027-04-24,Aston Villa,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:aston villa-coventry city,false
+2027-04-24,Brentford,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:brentford-fulham,false
+2027-04-24,Leeds United,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:33:leeds united-liverpool,false
+2027-05-01,Sunderland,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:sunderland-newcastle united,false
+2027-05-01,Brighton & Hove Albion,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:brighton & hove albion-nottingham forest,false
+2027-05-01,Coventry City,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:coventry city-manchester united,false
+2027-05-01,Hull City,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:hull city-bournemouth,false
+2027-05-01,Manchester City,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:manchester city-brentford,false
+2027-05-01,Fulham,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:fulham-everton,false
+2027-05-01,Liverpool,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:liverpool-chelsea,false
+2027-05-01,Arsenal,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:arsenal-tottenham hotspur,false
+2027-05-01,Crystal Palace,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:crystal palace-aston villa,false
+2027-05-01,Ipswich Town,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:34:ipswich town-leeds united,false
+2027-05-08,Manchester City,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:manchester city-liverpool,false
+2027-05-08,Leeds United,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:leeds united-arsenal,false
+2027-05-08,Fulham,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:fulham-ipswich town,false
+2027-05-08,Nottingham Forest,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:nottingham forest-crystal palace,false
+2027-05-08,Brentford,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:brentford-aston villa,false
+2027-05-08,Newcastle United,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:newcastle united-coventry city,false
+2027-05-08,Brighton & Hove Albion,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:brighton & hove albion-sunderland,false
+2027-05-08,Tottenham Hotspur,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:tottenham hotspur-chelsea,false
+2027-05-08,Everton,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:everton-hull city,false
+2027-05-08,Bournemouth,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:35:bournemouth-manchester united,false
+2027-05-15,Hull City,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:hull city-fulham,false
+2027-05-15,Manchester United,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:manchester united-leeds united,false
+2027-05-15,Crystal Palace,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:crystal palace-brighton & hove albion,false
+2027-05-15,Aston Villa,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:aston villa-newcastle united,false
+2027-05-15,Chelsea,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:chelsea-everton,false
+2027-05-15,Coventry City,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:coventry city-tottenham hotspur,false
+2027-05-15,Sunderland,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:sunderland-bournemouth,false
+2027-05-15,Liverpool,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:liverpool-brentford,false
+2027-05-15,Ipswich Town,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:ipswich town-manchester city,false
+2027-05-15,Arsenal,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:36:arsenal-nottingham forest,false
+2027-05-23,Brentford,Hull City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:brentford-hull city,false
+2027-05-23,Newcastle United,Crystal Palace,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:newcastle united-crystal palace,false
+2027-05-23,Tottenham Hotspur,Manchester United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:tottenham hotspur-manchester united,false
+2027-05-23,Leeds United,Sunderland,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:leeds united-sunderland,false
+2027-05-23,Brighton & Hove Albion,Liverpool,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:brighton & hove albion-liverpool,false
+2027-05-23,Nottingham Forest,Ipswich Town,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:nottingham forest-ipswich town,false
+2027-05-23,Bournemouth,Chelsea,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:bournemouth-chelsea,false
+2027-05-23,Fulham,Coventry City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:fulham-coventry city,false
+2027-05-23,Everton,Arsenal,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:everton-arsenal,false
+2027-05-23,Manchester City,Aston Villa,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:37:manchester city-aston villa,false
+2027-05-30,Ipswich Town,Everton,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:ipswich town-everton,false
+2027-05-30,Arsenal,Brighton & Hove Albion,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:arsenal-brighton & hove albion,false
+2027-05-30,Liverpool,Bournemouth,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:liverpool-bournemouth,false
+2027-05-30,Coventry City,Nottingham Forest,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:coventry city-nottingham forest,false
+2027-05-30,Aston Villa,Tottenham Hotspur,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:aston villa-tottenham hotspur,false
+2027-05-30,Hull City,Newcastle United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:hull city-newcastle united,false
+2027-05-30,Manchester United,Fulham,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:manchester united-fulham,false
+2027-05-30,Sunderland,Manchester City,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:sunderland-manchester city,false
+2027-05-30,Chelsea,Brentford,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:chelsea-brentford,false
+2027-05-30,Crystal Palace,Leeds United,openfootball-england,,openfootball-england,,,openfootball-england:2026-27:38:crystal palace-leeds united,false

@@ -10,7 +10,7 @@
       "upstream_ref": "ddd7249ac0c24c44a5bd8c3af1bf16fc971bebe9"
     },
     {
-      "manifest_sha256": "1003b94d8f40ce19322caf88810b1f7a6dbad8a3a17aff83547151393f478016",
+      "manifest_sha256": "515ebec03087d14a0425121823ecfeaba54875138a900aabeda316d6a9888d04",
       "pack": "packs/openfootball-deu-bl",
       "retrieved_at_utc": "2026-07-11T03:26:42Z",
       "source_id": "openfootball-football-json",
@@ -18,7 +18,7 @@
       "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
-      "manifest_sha256": "67196219093bc42badc12ecfc0ed5a22c580ea64c0992505aa573b739e264e43",
+      "manifest_sha256": "b01d9d8094096572e7eb1a9a9ee2c7367ff0914b84862e11281769ab2f0aca34",
       "pack": "packs/openfootball-eng-pl",
       "retrieved_at_utc": "2026-07-11T02:36:12Z",
       "source_id": "openfootball-football-json",
@@ -26,7 +26,7 @@
       "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
-      "manifest_sha256": "2e0c6275c748d1b02a4729642abbc752cd0b89a9253fd8f5204ded54ab69b18d",
+      "manifest_sha256": "92eee63ba7a798b08deb1fe0009a7b41c1574d6cb12b2400bd9ed8b0d8dccd5d",
       "pack": "packs/openfootball-esp-ll",
       "retrieved_at_utc": "2026-07-11T03:26:38Z",
       "source_id": "openfootball-football-json",
@@ -34,7 +34,7 @@
       "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
-      "manifest_sha256": "dc89e4760eeb7b89193b91c5ca398788fa547783c6d552cc619bd62ce79d4a4a",
+      "manifest_sha256": "a3fed7d013ef52943c7e6a72e197d545eaf24394e137cdbadbae114d87ffe603",
       "pack": "packs/openfootball-fra-l1",
       "retrieved_at_utc": "2026-07-11T03:26:49Z",
       "source_id": "openfootball-football-json",
@@ -42,7 +42,7 @@
       "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
-      "manifest_sha256": "01dcbbd226039f9cc08c0146a8c6769696c6f575ce6d3ba5cd1052784c57a8f3",
+      "manifest_sha256": "a385f52dc0e89e7d1862617168d427b46388187f5a68ea30d38a9c842deef43b",
       "pack": "packs/openfootball-ita-sa",
       "retrieved_at_utc": "2026-07-11T03:26:46Z",
       "source_id": "openfootball-football-json",

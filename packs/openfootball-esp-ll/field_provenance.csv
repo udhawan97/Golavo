@@ -1,381 +1,381 @@
 date,home_team,away_team,identity_source_id,result_source_id,kickoff_source_id,venue_source_id,training_source_id,upstream_fixture_key,training_eligible
-2026-08-16,Atlético Madrid,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Racing Santander,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Barcelona,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Real Madrid,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Espanyol,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Sevilla,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Alavés,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Deportivo La Coruña,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Celta Vigo,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-16,Valencia,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1,false
-2026-08-23,Rayo Vallecano,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Osasuna,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Málaga,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Athletic Club,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Elche,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Valencia,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Getafe,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Espanyol,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Atlético Madrid,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-23,Real Betis,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2,false
-2026-08-30,Alavés,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Sevilla,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Barcelona,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Deportivo La Coruña,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Celta Vigo,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Real Sociedad,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Racing Santander,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Levante,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Real Madrid,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-08-30,Osasuna,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3,false
-2026-09-06,Elche,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Valencia,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Rayo Vallecano,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Espanyol,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Villarreal,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Athletic Club,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Alavés,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Getafe,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Málaga,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-06,Real Betis,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4,false
-2026-09-13,Getafe,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Sevilla,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Racing Santander,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Villarreal,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Celta Vigo,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Osasuna,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Real Sociedad,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Levante,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Athletic Club,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-13,Real Madrid,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5,false
-2026-09-16,Rayo Vallecano,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Deportivo La Coruña,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Alavés,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Elche,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Real Sociedad,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Málaga,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Atlético Madrid,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Levante,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Real Betis,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-16,Barcelona,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6,false
-2026-09-20,Atlético Madrid,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Valencia,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Sevilla,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Athletic Club,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Espanyol,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Osasuna,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Celta Vigo,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Deportivo La Coruña,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Villarreal,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-09-20,Getafe,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7,false
-2026-10-11,Rayo Vallecano,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Alavés,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Barcelona,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Real Betis,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Real Madrid,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Elche,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Levante,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Racing Santander,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Málaga,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-11,Real Sociedad,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8,false
-2026-10-18,Villarreal,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Real Madrid,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Espanyol,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Valencia,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Celta Vigo,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Real Betis,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Málaga,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Osasuna,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Deportivo La Coruña,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-18,Getafe,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9,false
-2026-10-25,Rayo Vallecano,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Alavés,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Athletic Club,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Sevilla,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Valencia,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Barcelona,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Atlético Madrid,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Celta Vigo,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Real Sociedad,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-10-25,Racing Santander,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10,false
-2026-11-01,Real Betis,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Villarreal,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Elche,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Athletic Club,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Levante,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Deportivo La Coruña,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Barcelona,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Getafe,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Racing Santander,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-01,Rayo Vallecano,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11,false
-2026-11-08,Elche,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Osasuna,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Sevilla,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Valencia,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Celta Vigo,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Real Sociedad,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Málaga,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Espanyol,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Atlético Madrid,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-08,Villarreal,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12,false
-2026-11-22,Athletic Club,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Barcelona,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Racing Santander,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Rayo Vallecano,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Osasuna,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Getafe,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Real Madrid,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Alavés,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Sevilla,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-22,Levante,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13,false
-2026-11-29,Celta Vigo,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Elche,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Real Betis,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Valencia,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Real Madrid,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Espanyol,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Real Sociedad,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Levante,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Deportivo La Coruña,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-11-29,Málaga,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14,false
-2026-12-06,Osasuna,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Sevilla,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Alavés,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Atlético Madrid,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Racing Santander,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Barcelona,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Getafe,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Athletic Club,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Villarreal,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-06,Rayo Vallecano,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15,false
-2026-12-13,Espanyol,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Málaga,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Real Madrid,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Deportivo La Coruña,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Levante,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Elche,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Villarreal,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Real Betis,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Real Sociedad,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-13,Atlético Madrid,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16,false
-2026-12-20,Athletic Club,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Getafe,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Alavés,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Valencia,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Osasuna,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Barcelona,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Celta Vigo,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Rayo Vallecano,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Deportivo La Coruña,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2026-12-20,Sevilla,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17,false
-2027-01-03,Real Madrid,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Real Sociedad,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Levante,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Racing Santander,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Málaga,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Real Betis,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Celta Vigo,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Espanyol,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Villarreal,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-03,Rayo Vallecano,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18,false
-2027-01-10,Athletic Club,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Elche,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Real Madrid,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Osasuna,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Deportivo La Coruña,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Atlético Madrid,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Alavés,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Sevilla,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Espanyol,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-10,Valencia,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19,false
-2027-01-17,Málaga,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Barcelona,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Villarreal,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Racing Santander,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Levante,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Celta Vigo,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Getafe,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Rayo Vallecano,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Real Betis,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-17,Atlético Madrid,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20,false
-2027-01-24,Real Madrid,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Getafe,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Valencia,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Elche,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Alavés,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Real Sociedad,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Racing Santander,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Athletic Club,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Espanyol,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-24,Deportivo La Coruña,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21,false
-2027-01-31,Real Betis,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Rayo Vallecano,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Atlético Madrid,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Celta Vigo,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Villarreal,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Levante,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Barcelona,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Sevilla,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Osasuna,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-01-31,Málaga,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22,false
-2027-02-07,Athletic Club,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Alavés,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Real Betis,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Elche,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Espanyol,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Getafe,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Deportivo La Coruña,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Real Sociedad,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Valencia,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-07,Barcelona,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23,false
-2027-02-14,Sevilla,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Osasuna,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Celta Vigo,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Villarreal,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Real Sociedad,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Elche,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Valencia,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Levante,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Racing Santander,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-14,Real Madrid,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24,false
-2027-02-21,Alavés,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Málaga,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Villarreal,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Barcelona,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Athletic Club,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Espanyol,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Sevilla,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Atlético Madrid,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Deportivo La Coruña,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-21,Rayo Vallecano,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25,false
-2027-02-28,Celta Vigo,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Levante,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Málaga,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Osasuna,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Real Madrid,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Getafe,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Athletic Club,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Racing Santander,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Real Betis,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-02-28,Real Sociedad,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26,false
-2027-03-07,Barcelona,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Elche,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Alavés,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Rayo Vallecano,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Sevilla,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Atlético Madrid,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Villarreal,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Valencia,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Deportivo La Coruña,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-07,Espanyol,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27,false
-2027-03-14,Osasuna,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Elche,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Alavés,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Athletic Club,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Real Betis,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Racing Santander,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Málaga,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Getafe,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Barcelona,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-14,Real Madrid,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28,false
-2027-03-21,Villarreal,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Sevilla,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Levante,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Celta Vigo,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Rayo Vallecano,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Real Sociedad,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Espanyol,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Racing Santander,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Valencia,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-03-21,Atlético Madrid,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29,false
-2027-04-04,Levante,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Barcelona,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Málaga,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Athletic Club,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Deportivo La Coruña,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Real Sociedad,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Elche,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Real Madrid,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Getafe,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-04,Real Betis,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30,false
-2027-04-11,Rayo Vallecano,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Espanyol,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Villarreal,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Alavés,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Valencia,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Sevilla,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Celta Vigo,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Racing Santander,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Osasuna,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-11,Atlético Madrid,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31,false
-2027-04-18,Atlético Madrid,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Barcelona,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Levante,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Real Sociedad,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Málaga,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Deportivo La Coruña,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Elche,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Alavés,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Real Betis,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-18,Getafe,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32,false
-2027-04-21,Getafe,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Valencia,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Celta Vigo,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Osasuna,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Real Madrid,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Athletic Club,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Racing Santander,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Villarreal,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Sevilla,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-04-21,Espanyol,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33,false
-2027-05-02,Deportivo La Coruña,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Celta Vigo,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Real Sociedad,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Barcelona,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Rayo Vallecano,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Málaga,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Real Betis,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Elche,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Levante,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-02,Atlético Madrid,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34,false
-2027-05-09,Valencia,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Osasuna,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Alavés,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Athletic Club,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Racing Santander,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Rayo Vallecano,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Real Betis,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Real Madrid,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Getafe,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-09,Villarreal,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35,false
-2027-05-16,Atlético Madrid,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Sevilla,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Real Sociedad,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Elche,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Málaga,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Deportivo La Coruña,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Levante,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Espanyol,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Real Madrid,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-16,Osasuna,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36,false
-2027-05-23,Atlético Madrid,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Alavés,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Sevilla,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Villarreal,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Racing Santander,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Deportivo La Coruña,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Rayo Vallecano,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Barcelona,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Valencia,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-23,Celta Vigo,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37,false
-2027-05-30,Levante,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Real Madrid,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Real Betis,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Real Sociedad,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Málaga,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Elche,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Athletic Club,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Espanyol,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Getafe,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
-2027-05-30,Osasuna,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38,false
+2026-08-16,Atlético Madrid,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:atletico madrid-malaga,false
+2026-08-16,Racing Santander,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:racing santander-villarreal,false
+2026-08-16,Barcelona,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:barcelona-athletic club,false
+2026-08-16,Real Madrid,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:real madrid-real sociedad,false
+2026-08-16,Espanyol,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:espanyol-levante,false
+2026-08-16,Sevilla,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:sevilla-rayo vallecano,false
+2026-08-16,Alavés,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:alaves-getafe,false
+2026-08-16,Deportivo La Coruña,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:deportivo la coruna-elche,false
+2026-08-16,Celta Vigo,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:celta vigo-osasuna,false
+2026-08-16,Valencia,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:1:valencia-real betis,false
+2026-08-23,Rayo Vallecano,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:rayo vallecano-alaves,false
+2026-08-23,Osasuna,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:osasuna-levante,false
+2026-08-23,Málaga,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:malaga-deportivo la coruna,false
+2026-08-23,Athletic Club,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:athletic club-sevilla,false
+2026-08-23,Elche,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:elche-barcelona,false
+2026-08-23,Valencia,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:valencia-celta vigo,false
+2026-08-23,Getafe,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:getafe-racing santander,false
+2026-08-23,Espanyol,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:espanyol-real madrid,false
+2026-08-23,Atlético Madrid,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:atletico madrid-villarreal,false
+2026-08-23,Real Betis,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:2:real betis-real sociedad,false
+2026-08-30,Alavés,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:alaves-villarreal,false
+2026-08-30,Sevilla,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:sevilla-atletico madrid,false
+2026-08-30,Barcelona,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:barcelona-rayo vallecano,false
+2026-08-30,Deportivo La Coruña,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:deportivo la coruna-valencia,false
+2026-08-30,Celta Vigo,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:celta vigo-athletic club,false
+2026-08-30,Real Sociedad,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:real sociedad-espanyol,false
+2026-08-30,Racing Santander,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:racing santander-elche,false
+2026-08-30,Levante,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:levante-real betis,false
+2026-08-30,Real Madrid,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:real madrid-malaga,false
+2026-08-30,Osasuna,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:3:osasuna-getafe,false
+2026-09-06,Elche,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:elche-real sociedad,false
+2026-09-06,Valencia,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:valencia-barcelona,false
+2026-09-06,Rayo Vallecano,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:rayo vallecano-racing santander,false
+2026-09-06,Espanyol,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:espanyol-sevilla,false
+2026-09-06,Villarreal,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:villarreal-deportivo la coruna,false
+2026-09-06,Athletic Club,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:athletic club-atletico madrid,false
+2026-09-06,Alavés,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:alaves-osasuna,false
+2026-09-06,Getafe,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:getafe-celta vigo,false
+2026-09-06,Málaga,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:malaga-levante,false
+2026-09-06,Real Betis,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:4:real betis-real madrid,false
+2026-09-13,Getafe,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:getafe-deportivo la coruna,false
+2026-09-13,Sevilla,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:sevilla-valencia,false
+2026-09-13,Racing Santander,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:racing santander-alaves,false
+2026-09-13,Villarreal,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:villarreal-real betis,false
+2026-09-13,Celta Vigo,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:celta vigo-malaga,false
+2026-09-13,Osasuna,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:osasuna-espanyol,false
+2026-09-13,Real Sociedad,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:real sociedad-atletico madrid,false
+2026-09-13,Levante,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:levante-barcelona,false
+2026-09-13,Athletic Club,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:athletic club-elche,false
+2026-09-13,Real Madrid,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:5:real madrid-rayo vallecano,false
+2026-09-16,Rayo Vallecano,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:rayo vallecano-espanyol,false
+2026-09-16,Deportivo La Coruña,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:deportivo la coruna-sevilla,false
+2026-09-16,Alavés,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:alaves-valencia,false
+2026-09-16,Elche,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:elche-real madrid,false
+2026-09-16,Real Sociedad,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:real sociedad-celta vigo,false
+2026-09-16,Málaga,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:malaga-villarreal,false
+2026-09-16,Atlético Madrid,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:atletico madrid-osasuna,false
+2026-09-16,Levante,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:levante-athletic club,false
+2026-09-16,Real Betis,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:real betis-getafe,false
+2026-09-16,Barcelona,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:6:barcelona-racing santander,false
+2026-09-20,Atlético Madrid,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:atletico madrid-real madrid,false
+2026-09-20,Valencia,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:valencia-real sociedad,false
+2026-09-20,Sevilla,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:sevilla-barcelona,false
+2026-09-20,Athletic Club,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:athletic club-alaves,false
+2026-09-20,Espanyol,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:espanyol-elche,false
+2026-09-20,Osasuna,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:osasuna-rayo vallecano,false
+2026-09-20,Celta Vigo,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:celta vigo-racing santander,false
+2026-09-20,Deportivo La Coruña,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:deportivo la coruna-real betis,false
+2026-09-20,Villarreal,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:villarreal-levante,false
+2026-09-20,Getafe,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:7:getafe-malaga,false
+2026-10-11,Rayo Vallecano,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:rayo vallecano-athletic club,false
+2026-10-11,Alavés,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:alaves-atletico madrid,false
+2026-10-11,Barcelona,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:barcelona-getafe,false
+2026-10-11,Real Betis,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:real betis-osasuna,false
+2026-10-11,Real Madrid,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:real madrid-villarreal,false
+2026-10-11,Elche,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:elche-celta vigo,false
+2026-10-11,Levante,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:levante-sevilla,false
+2026-10-11,Racing Santander,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:racing santander-valencia,false
+2026-10-11,Málaga,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:malaga-espanyol,false
+2026-10-11,Real Sociedad,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:8:real sociedad-deportivo la coruna,false
+2026-10-18,Villarreal,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:villarreal-elche,false
+2026-10-18,Real Madrid,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:real madrid-sevilla,false
+2026-10-18,Espanyol,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:espanyol-atletico madrid,false
+2026-10-18,Valencia,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:valencia-athletic club,false
+2026-10-18,Celta Vigo,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:celta vigo-alaves,false
+2026-10-18,Real Betis,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:real betis-barcelona,false
+2026-10-18,Málaga,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:malaga-real sociedad,false
+2026-10-18,Osasuna,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:osasuna-racing santander,false
+2026-10-18,Deportivo La Coruña,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:deportivo la coruna-levante,false
+2026-10-18,Getafe,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:9:getafe-rayo vallecano,false
+2026-10-25,Rayo Vallecano,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:rayo vallecano-elche,false
+2026-10-25,Alavés,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:alaves-malaga,false
+2026-10-25,Athletic Club,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:athletic club-getafe,false
+2026-10-25,Sevilla,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:sevilla-osasuna,false
+2026-10-25,Valencia,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:valencia-villarreal,false
+2026-10-25,Barcelona,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:barcelona-real madrid,false
+2026-10-25,Atlético Madrid,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:atletico madrid-deportivo la coruna,false
+2026-10-25,Celta Vigo,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:celta vigo-real betis,false
+2026-10-25,Real Sociedad,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:real sociedad-levante,false
+2026-10-25,Racing Santander,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:10:racing santander-espanyol,false
+2026-11-01,Real Betis,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:real betis-malaga,false
+2026-11-01,Villarreal,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:villarreal-espanyol,false
+2026-11-01,Elche,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:elche-valencia,false
+2026-11-01,Athletic Club,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:athletic club-real sociedad,false
+2026-11-01,Levante,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:levante-atletico madrid,false
+2026-11-01,Deportivo La Coruña,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:deportivo la coruna-osasuna,false
+2026-11-01,Barcelona,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:barcelona-alaves,false
+2026-11-01,Getafe,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:getafe-sevilla,false
+2026-11-01,Racing Santander,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:racing santander-real madrid,false
+2026-11-01,Rayo Vallecano,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:11:rayo vallecano-celta vigo,false
+2026-11-08,Elche,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:elche-real betis,false
+2026-11-08,Osasuna,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:osasuna-athletic club,false
+2026-11-08,Sevilla,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:sevilla-alaves,false
+2026-11-08,Valencia,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:valencia-real madrid,false
+2026-11-08,Celta Vigo,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:celta vigo-levante,false
+2026-11-08,Real Sociedad,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:real sociedad-rayo vallecano,false
+2026-11-08,Málaga,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:malaga-racing santander,false
+2026-11-08,Espanyol,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:espanyol-deportivo la coruna,false
+2026-11-08,Atlético Madrid,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:atletico madrid-barcelona,false
+2026-11-08,Villarreal,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:12:villarreal-getafe,false
+2026-11-22,Athletic Club,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:athletic club-espanyol,false
+2026-11-22,Barcelona,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:barcelona-villarreal,false
+2026-11-22,Racing Santander,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:racing santander-real sociedad,false
+2026-11-22,Rayo Vallecano,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:rayo vallecano-valencia,false
+2026-11-22,Osasuna,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:osasuna-malaga,false
+2026-11-22,Getafe,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:getafe-atletico madrid,false
+2026-11-22,Real Madrid,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:real madrid-celta vigo,false
+2026-11-22,Alavés,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:alaves-deportivo la coruna,false
+2026-11-22,Sevilla,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:sevilla-real betis,false
+2026-11-22,Levante,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:13:levante-elche,false
+2026-11-29,Celta Vigo,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:celta vigo-villarreal,false
+2026-11-29,Elche,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:elche-atletico madrid,false
+2026-11-29,Real Betis,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:real betis-rayo vallecano,false
+2026-11-29,Valencia,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:valencia-osasuna,false
+2026-11-29,Real Madrid,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:real madrid-alaves,false
+2026-11-29,Espanyol,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:espanyol-getafe,false
+2026-11-29,Real Sociedad,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:real sociedad-sevilla,false
+2026-11-29,Levante,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:levante-racing santander,false
+2026-11-29,Deportivo La Coruña,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:deportivo la coruna-barcelona,false
+2026-11-29,Málaga,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:14:malaga-athletic club,false
+2026-12-06,Osasuna,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:osasuna-elche,false
+2026-12-06,Sevilla,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:sevilla-malaga,false
+2026-12-06,Alavés,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:alaves-espanyol,false
+2026-12-06,Atlético Madrid,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:atletico madrid-real betis,false
+2026-12-06,Racing Santander,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:racing santander-deportivo la coruna,false
+2026-12-06,Barcelona,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:barcelona-celta vigo,false
+2026-12-06,Getafe,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:getafe-valencia,false
+2026-12-06,Athletic Club,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:athletic club-real madrid,false
+2026-12-06,Villarreal,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:villarreal-real sociedad,false
+2026-12-06,Rayo Vallecano,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:15:rayo vallecano-levante,false
+2026-12-13,Espanyol,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:espanyol-celta vigo,false
+2026-12-13,Málaga,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:malaga-barcelona,false
+2026-12-13,Real Madrid,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:real madrid-osasuna,false
+2026-12-13,Deportivo La Coruña,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:deportivo la coruna-athletic club,false
+2026-12-13,Levante,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:levante-alaves,false
+2026-12-13,Elche,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:elche-sevilla,false
+2026-12-13,Villarreal,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:villarreal-rayo vallecano,false
+2026-12-13,Real Betis,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:real betis-racing santander,false
+2026-12-13,Real Sociedad,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:real sociedad-getafe,false
+2026-12-13,Atlético Madrid,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:16:atletico madrid-valencia,false
+2026-12-20,Athletic Club,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:athletic club-real betis,false
+2026-12-20,Getafe,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:getafe-levante,false
+2026-12-20,Alavés,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:alaves-elche,false
+2026-12-20,Valencia,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:valencia-espanyol,false
+2026-12-20,Osasuna,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:osasuna-villarreal,false
+2026-12-20,Barcelona,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:barcelona-real sociedad,false
+2026-12-20,Celta Vigo,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:celta vigo-atletico madrid,false
+2026-12-20,Rayo Vallecano,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:rayo vallecano-malaga,false
+2026-12-20,Deportivo La Coruña,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:deportivo la coruna-real madrid,false
+2026-12-20,Sevilla,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:17:sevilla-racing santander,false
+2027-01-03,Real Madrid,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:real madrid-getafe,false
+2027-01-03,Real Sociedad,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:real sociedad-osasuna,false
+2027-01-03,Levante,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:levante-valencia,false
+2027-01-03,Racing Santander,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:racing santander-athletic club,false
+2027-01-03,Málaga,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:malaga-elche,false
+2027-01-03,Real Betis,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:real betis-alaves,false
+2027-01-03,Celta Vigo,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:celta vigo-deportivo la coruna,false
+2027-01-03,Espanyol,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:espanyol-barcelona,false
+2027-01-03,Villarreal,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:villarreal-sevilla,false
+2027-01-03,Rayo Vallecano,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:18:rayo vallecano-atletico madrid,false
+2027-01-10,Athletic Club,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:athletic club-villarreal,false
+2027-01-10,Elche,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:elche-getafe,false
+2027-01-10,Real Madrid,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:real madrid-levante,false
+2027-01-10,Osasuna,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:osasuna-barcelona,false
+2027-01-10,Deportivo La Coruña,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:deportivo la coruna-rayo vallecano,false
+2027-01-10,Atlético Madrid,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:atletico madrid-racing santander,false
+2027-01-10,Alavés,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:alaves-real sociedad,false
+2027-01-10,Sevilla,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:sevilla-celta vigo,false
+2027-01-10,Espanyol,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:espanyol-real betis,false
+2027-01-10,Valencia,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:19:valencia-malaga,false
+2027-01-17,Málaga,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:malaga-real madrid,false
+2027-01-17,Barcelona,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:barcelona-elche,false
+2027-01-17,Villarreal,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:villarreal-alaves,false
+2027-01-17,Racing Santander,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:racing santander-osasuna,false
+2027-01-17,Levante,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:levante-espanyol,false
+2027-01-17,Celta Vigo,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:celta vigo-valencia,false
+2027-01-17,Getafe,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:getafe-athletic club,false
+2027-01-17,Rayo Vallecano,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:rayo vallecano-sevilla,false
+2027-01-17,Real Betis,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:real betis-deportivo la coruna,false
+2027-01-17,Atlético Madrid,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:20:atletico madrid-real sociedad,false
+2027-01-24,Real Madrid,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:real madrid-real betis,false
+2027-01-24,Getafe,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:getafe-osasuna,false
+2027-01-24,Valencia,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:valencia-sevilla,false
+2027-01-24,Elche,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:elche-rayo vallecano,false
+2027-01-24,Alavés,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:alaves-barcelona,false
+2027-01-24,Real Sociedad,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:real sociedad-malaga,false
+2027-01-24,Racing Santander,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:racing santander-celta vigo,false
+2027-01-24,Athletic Club,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:athletic club-levante,false
+2027-01-24,Espanyol,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:espanyol-villarreal,false
+2027-01-24,Deportivo La Coruña,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:21:deportivo la coruna-atletico madrid,false
+2027-01-31,Real Betis,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:real betis-elche,false
+2027-01-31,Rayo Vallecano,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:rayo vallecano-real madrid,false
+2027-01-31,Atlético Madrid,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:atletico madrid-espanyol,false
+2027-01-31,Celta Vigo,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:celta vigo-getafe,false
+2027-01-31,Villarreal,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:villarreal-racing santander,false
+2027-01-31,Levante,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:levante-real sociedad,false
+2027-01-31,Barcelona,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:barcelona-valencia,false
+2027-01-31,Sevilla,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:sevilla-athletic club,false
+2027-01-31,Osasuna,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:osasuna-deportivo la coruna,false
+2027-01-31,Málaga,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:22:malaga-alaves,false
+2027-02-07,Athletic Club,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:athletic club-osasuna,false
+2027-02-07,Alavés,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:alaves-celta vigo,false
+2027-02-07,Real Betis,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:real betis-sevilla,false
+2027-02-07,Elche,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:elche-levante,false
+2027-02-07,Espanyol,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:espanyol-rayo vallecano,false
+2027-02-07,Getafe,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:getafe-villarreal,false
+2027-02-07,Deportivo La Coruña,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:deportivo la coruna-malaga,false
+2027-02-07,Real Sociedad,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:real sociedad-real madrid,false
+2027-02-07,Valencia,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:valencia-racing santander,false
+2027-02-07,Barcelona,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:23:barcelona-atletico madrid,false
+2027-02-14,Sevilla,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:sevilla-espanyol,false
+2027-02-14,Osasuna,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:osasuna-atletico madrid,false
+2027-02-14,Celta Vigo,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:celta vigo-rayo vallecano,false
+2027-02-14,Villarreal,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:villarreal-barcelona,false
+2027-02-14,Real Sociedad,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:real sociedad-real betis,false
+2027-02-14,Elche,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:elche-deportivo la coruna,false
+2027-02-14,Valencia,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:valencia-alaves,false
+2027-02-14,Levante,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:levante-malaga,false
+2027-02-14,Racing Santander,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:racing santander-getafe,false
+2027-02-14,Real Madrid,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:24:real madrid-athletic club,false
+2027-02-21,Alavés,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:alaves-racing santander,false
+2027-02-21,Málaga,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:malaga-real betis,false
+2027-02-21,Villarreal,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:villarreal-valencia,false
+2027-02-21,Barcelona,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:barcelona-levante,false
+2027-02-21,Athletic Club,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:athletic club-celta vigo,false
+2027-02-21,Espanyol,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:espanyol-osasuna,false
+2027-02-21,Sevilla,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:sevilla-real madrid,false
+2027-02-21,Atlético Madrid,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:atletico madrid-elche,false
+2027-02-21,Deportivo La Coruña,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:deportivo la coruna-real sociedad,false
+2027-02-21,Rayo Vallecano,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:25:rayo vallecano-getafe,false
+2027-02-28,Celta Vigo,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:celta vigo-espanyol,false
+2027-02-28,Levante,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:levante-deportivo la coruna,false
+2027-02-28,Málaga,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:malaga-atletico madrid,false
+2027-02-28,Osasuna,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:osasuna-sevilla,false
+2027-02-28,Real Madrid,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:real madrid-valencia,false
+2027-02-28,Getafe,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:getafe-alaves,false
+2027-02-28,Athletic Club,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:athletic club-barcelona,false
+2027-02-28,Racing Santander,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:racing santander-rayo vallecano,false
+2027-02-28,Real Betis,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:real betis-villarreal,false
+2027-02-28,Real Sociedad,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:26:real sociedad-elche,false
+2027-03-07,Barcelona,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:barcelona-real betis,false
+2027-03-07,Elche,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:elche-malaga,false
+2027-03-07,Alavés,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:alaves-athletic club,false
+2027-03-07,Rayo Vallecano,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:rayo vallecano-osasuna,false
+2027-03-07,Sevilla,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:sevilla-real sociedad,false
+2027-03-07,Atlético Madrid,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:atletico madrid-celta vigo,false
+2027-03-07,Villarreal,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:villarreal-real madrid,false
+2027-03-07,Valencia,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:valencia-levante,false
+2027-03-07,Deportivo La Coruña,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:deportivo la coruna-getafe,false
+2027-03-07,Espanyol,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:27:espanyol-racing santander,false
+2027-03-14,Osasuna,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:osasuna-celta vigo,false
+2027-03-14,Elche,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:elche-villarreal,false
+2027-03-14,Alavés,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:alaves-sevilla,false
+2027-03-14,Athletic Club,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:athletic club-valencia,false
+2027-03-14,Real Betis,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:real betis-levante,false
+2027-03-14,Racing Santander,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:racing santander-atletico madrid,false
+2027-03-14,Málaga,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:malaga-rayo vallecano,false
+2027-03-14,Getafe,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:getafe-real sociedad,false
+2027-03-14,Barcelona,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:barcelona-deportivo la coruna,false
+2027-03-14,Real Madrid,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:28:real madrid-espanyol,false
+2027-03-21,Villarreal,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:villarreal-malaga,false
+2027-03-21,Sevilla,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:sevilla-elche,false
+2027-03-21,Levante,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:levante-osasuna,false
+2027-03-21,Celta Vigo,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:celta vigo-real madrid,false
+2027-03-21,Rayo Vallecano,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:rayo vallecano-barcelona,false
+2027-03-21,Real Sociedad,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:real sociedad-alaves,false
+2027-03-21,Espanyol,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:espanyol-athletic club,false
+2027-03-21,Racing Santander,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:racing santander-real betis,false
+2027-03-21,Valencia,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:valencia-deportivo la coruna,false
+2027-03-21,Atlético Madrid,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:29:atletico madrid-getafe,false
+2027-04-04,Levante,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:levante-rayo vallecano,false
+2027-04-04,Barcelona,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:barcelona-sevilla,false
+2027-04-04,Málaga,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:malaga-osasuna,false
+2027-04-04,Athletic Club,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:athletic club-racing santander,false
+2027-04-04,Deportivo La Coruña,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:deportivo la coruna-villarreal,false
+2027-04-04,Real Sociedad,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:real sociedad-valencia,false
+2027-04-04,Elche,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:elche-alaves,false
+2027-04-04,Real Madrid,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:real madrid-atletico madrid,false
+2027-04-04,Getafe,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:getafe-espanyol,false
+2027-04-04,Real Betis,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:30:real betis-celta vigo,false
+2027-04-11,Rayo Vallecano,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:rayo vallecano-real sociedad,false
+2027-04-11,Espanyol,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:espanyol-malaga,false
+2027-04-11,Villarreal,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:villarreal-athletic club,false
+2027-04-11,Alavés,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:alaves-real betis,false
+2027-04-11,Valencia,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:valencia-getafe,false
+2027-04-11,Sevilla,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:sevilla-deportivo la coruna,false
+2027-04-11,Celta Vigo,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:celta vigo-elche,false
+2027-04-11,Racing Santander,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:racing santander-barcelona,false
+2027-04-11,Osasuna,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:osasuna-real madrid,false
+2027-04-11,Atlético Madrid,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:31:atletico madrid-levante,false
+2027-04-18,Atlético Madrid,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:atletico madrid-sevilla,false
+2027-04-18,Barcelona,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:barcelona-espanyol,false
+2027-04-18,Levante,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:levante-villarreal,false
+2027-04-18,Real Sociedad,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:real sociedad-racing santander,false
+2027-04-18,Málaga,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:malaga-valencia,false
+2027-04-18,Deportivo La Coruña,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:deportivo la coruna-celta vigo,false
+2027-04-18,Elche,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:elche-osasuna,false
+2027-04-18,Alavés,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:alaves-rayo vallecano,false
+2027-04-18,Real Betis,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:real betis-athletic club,false
+2027-04-18,Getafe,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:32:getafe-real madrid,false
+2027-04-21,Getafe,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:getafe-real betis,false
+2027-04-21,Valencia,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:valencia-rayo vallecano,false
+2027-04-21,Celta Vigo,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:celta vigo-barcelona,false
+2027-04-21,Osasuna,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:osasuna-alaves,false
+2027-04-21,Real Madrid,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:real madrid-elche,false
+2027-04-21,Athletic Club,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:athletic club-deportivo la coruna,false
+2027-04-21,Racing Santander,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:racing santander-malaga,false
+2027-04-21,Villarreal,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:villarreal-atletico madrid,false
+2027-04-21,Sevilla,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:sevilla-levante,false
+2027-04-21,Espanyol,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:33:espanyol-real sociedad,false
+2027-05-02,Deportivo La Coruña,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:deportivo la coruna-racing santander,false
+2027-05-02,Celta Vigo,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:celta vigo-sevilla,false
+2027-05-02,Real Sociedad,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:real sociedad-athletic club,false
+2027-05-02,Barcelona,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:barcelona-osasuna,false
+2027-05-02,Rayo Vallecano,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:rayo vallecano-villarreal,false
+2027-05-02,Málaga,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:malaga-getafe,false
+2027-05-02,Real Betis,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:real betis-valencia,false
+2027-05-02,Elche,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:elche-espanyol,false
+2027-05-02,Levante,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:levante-real madrid,false
+2027-05-02,Atlético Madrid,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:34:atletico madrid-alaves,false
+2027-05-09,Valencia,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:valencia-atletico madrid,false
+2027-05-09,Osasuna,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:osasuna-real sociedad,false
+2027-05-09,Alavés,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:alaves-levante,false
+2027-05-09,Athletic Club,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:athletic club-malaga,false
+2027-05-09,Racing Santander,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:racing santander-sevilla,false
+2027-05-09,Rayo Vallecano,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:rayo vallecano-deportivo la coruna,false
+2027-05-09,Real Betis,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:real betis-espanyol,false
+2027-05-09,Real Madrid,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:real madrid-barcelona,false
+2027-05-09,Getafe,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:getafe-elche,false
+2027-05-09,Villarreal,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:35:villarreal-celta vigo,false
+2027-05-16,Atlético Madrid,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:atletico madrid-rayo vallecano,false
+2027-05-16,Sevilla,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:sevilla-villarreal,false
+2027-05-16,Real Sociedad,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:real sociedad-barcelona,false
+2027-05-16,Elche,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:elche-athletic club,false
+2027-05-16,Málaga,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:malaga-celta vigo,false
+2027-05-16,Deportivo La Coruña,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:deportivo la coruna-alaves,false
+2027-05-16,Levante,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:levante-getafe,false
+2027-05-16,Espanyol,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:espanyol-valencia,false
+2027-05-16,Real Madrid,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:real madrid-racing santander,false
+2027-05-16,Osasuna,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:36:osasuna-real betis,false
+2027-05-23,Atlético Madrid,Athletic Club,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:atletico madrid-athletic club,false
+2027-05-23,Alavés,Real Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:alaves-real madrid,false
+2027-05-23,Sevilla,Getafe,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:sevilla-getafe,false
+2027-05-23,Villarreal,Osasuna,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:villarreal-osasuna,false
+2027-05-23,Racing Santander,Levante,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:racing santander-levante,false
+2027-05-23,Deportivo La Coruña,Espanyol,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:deportivo la coruna-espanyol,false
+2027-05-23,Rayo Vallecano,Real Betis,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:rayo vallecano-real betis,false
+2027-05-23,Barcelona,Málaga,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:barcelona-malaga,false
+2027-05-23,Valencia,Elche,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:valencia-elche,false
+2027-05-23,Celta Vigo,Real Sociedad,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:37:celta vigo-real sociedad,false
+2027-05-30,Levante,Celta Vigo,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:levante-celta vigo,false
+2027-05-30,Real Madrid,Deportivo La Coruña,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:real madrid-deportivo la coruna,false
+2027-05-30,Real Betis,Atlético Madrid,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:real betis-atletico madrid,false
+2027-05-30,Real Sociedad,Villarreal,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:real sociedad-villarreal,false
+2027-05-30,Málaga,Sevilla,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:malaga-sevilla,false
+2027-05-30,Elche,Racing Santander,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:elche-racing santander,false
+2027-05-30,Athletic Club,Rayo Vallecano,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:athletic club-rayo vallecano,false
+2027-05-30,Espanyol,Alavés,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:espanyol-alaves,false
+2027-05-30,Getafe,Barcelona,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:getafe-barcelona,false
+2027-05-30,Osasuna,Valencia,openfootball-espana,,openfootball-espana,,,openfootball-espana:2026-27:38:osasuna-valencia,false

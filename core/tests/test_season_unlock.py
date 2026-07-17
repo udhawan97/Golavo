@@ -89,6 +89,18 @@ def test_fixture_rows_are_never_training_rows(
     assert season["result_source_id"].isna().all()
 
 
+def test_every_row_has_its_own_upstream_fixture_key(index: pd.DataFrame) -> None:
+    """The key identifies one fixture, and callers rely on that.
+
+    server.main._missing_fixture_match resolves a correction proposal by taking
+    the first row matching this key. A key shared by a whole matchday would let a
+    'missing fixture' correction validate against an arbitrary other match.
+    """
+    keys = index["upstream_fixture_key"].astype("string")
+    duplicated = keys[keys.duplicated(keep=False)]
+    assert duplicated.empty, sorted(duplicated.unique())[:5]
+
+
 @pytest.mark.parametrize("competition_id", sorted(DOMESTIC))
 def test_fixture_rows_credit_the_repo_that_published_them(
     index: pd.DataFrame, competition_id: str
