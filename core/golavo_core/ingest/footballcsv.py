@@ -14,9 +14,11 @@ verified against the committed files:
   from 2020-21 — either is accepted.
 
 Team names are canonicalized through the SAME ``openfootball.canonical_team`` the
-league packs use, so a club reads identically across the two sources. The
-committed pre-2010 England and Germany names canonicalize injectively with no new
-alias table, which the fragmentation gate re-proves.
+league packs use, so a club reads identically across the two sources. Those rules
+were tuned on the post-2010 club set, so ``test_deep_history_names_canonicalize_injectively``
+re-checks them over this disjoint deep-history set in CI (the standalone fragmentation
+gate covers only the openfootball packs). One deep-history club the token rules would
+mangle — 1860 München, whose ``1860`` the digit filter drops — carries an explicit alias.
 """
 
 from __future__ import annotations

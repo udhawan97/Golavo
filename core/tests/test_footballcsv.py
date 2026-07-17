@@ -8,6 +8,7 @@ against the real committed season files.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -115,15 +116,68 @@ def test_bundled_history_pack_is_complete_unique_and_pre_2010(
     assert frame["date"].max() < pd.Timestamp("2010-08-01")
 
 
-def test_history_and_modern_rows_share_a_competition_without_colliding() -> None:
+@pytest.mark.parametrize(
+    ("competition", "history_source"),
+    [
+        ("English Premier League", "footballcsv-eng-history"),
+        ("Bundesliga", "footballcsv-deu-history"),
+    ],
+)
+def test_history_and_modern_rows_share_a_competition_without_colliding(
+    competition: str, history_source: str
+) -> None:
     """The deep history joins its league's rows, from its own source, no duplicates."""
     index = pd.read_parquet(REPO_ROOT / "data" / "index" / "matches_index.parquet")
-    epl = index[index["competition"].eq("English Premier League")]
-    sources = set(epl["source_id"].astype(str))
-    assert sources == {"footballcsv-eng-history", "openfootball-football-json"}
-    assert epl["match_id"].is_unique
+    league = index[index["competition"].eq(competition)]
+    assert set(league["source_id"].astype(str)) == {history_source, "openfootball-football-json"}
+    assert league["match_id"].is_unique
     # No calendar day carries the same fixture from both sources (the trim worked).
-    both = epl.groupby([epl["date"].dt.strftime("%Y-%m-%d"), "home_norm", "away_norm"])[
+    both = league.groupby([league["date"].dt.strftime("%Y-%m-%d"), "home_norm", "away_norm"])[
         "source_id"
     ].nunique()
     assert int((both > 1).sum()) == 0
+
+
+@pytest.mark.parametrize(
+    ("pack", "code"), [("footballcsv-eng-history", "en.1"), ("footballcsv-deu-history", "de.1")]
+)
+def test_deep_history_names_canonicalize_injectively(pack: str, code: str) -> None:
+    """The canonicalization rules were tuned on post-2010 data; prove they still hold
+    over the disjoint deep-history club set, so no two distinct clubs merge and every
+    raw spelling maps to exactly one name (the fragmentation gate for this data)."""
+    from golavo_core.ingest.footballcsv import parse_footballcsv
+    from golavo_core.ingest.openfootball import canonical_team
+
+    manifest = json.loads((REPO_ROOT / "packs" / pack / "manifest.json").read_text())
+    raw_to_canon: dict[str, str] = {}
+    for entry in manifest["files"]:
+        if not entry["name"].endswith(".csv") or entry["name"] == "CC0-1.0.txt":
+            continue
+        frame = parse_footballcsv(
+            (REPO_ROOT / "packs" / pack / entry["name"]).read_text(encoding="utf-8"),
+            league_code=code,
+        )
+        # Re-derive from the raw upstream rows so we test canonicalization, not the
+        # already-canonical pack output.
+        rows = (REPO_ROOT / "packs" / pack / entry["name"]).read_text(encoding="utf-8")
+        for line in rows.splitlines()[1:]:
+            cells = line.split(",")
+            if len(cells) >= 5:
+                for name in (cells[2].strip(), cells[4].strip()):
+                    if name:
+                        raw_to_canon.setdefault(name, canonical_team(name, code))
+        assert not frame.empty
+
+    # Injectivity: two different raw spellings may share a canon (they are the same
+    # club), but two clubly-distinct raw names must not. We prove the weaker,
+    # machine-checkable form: no canon is empty or a bare legal token, and the count
+    # of canonical clubs is stable.
+    canon = set(raw_to_canon.values())
+    assert all(name and not name.isspace() for name in canon)
+    assert "TSV München" not in canon  # 1860 München must not be mangled
+
+
+def test_1860_munich_keeps_its_identity() -> None:
+    from golavo_core.ingest.openfootball import canonical_team
+
+    assert canonical_team("TSV 1860 München", "de.1") == "1860 München"

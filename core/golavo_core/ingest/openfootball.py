@@ -82,6 +82,9 @@ _ALIASES: dict[str, dict[str, str]] = {
     },
     "de.1": {
         "Bor. Mönchengladbach": "Borussia Mönchengladbach",
+        # A deep-history club (1963-64+) the token rules would mangle: the pure-digit
+        # filter drops '1860', leaving the meaningless 'TSV München'.
+        "TSV 1860 München": "1860 München",
     },
     "it.1": {
         "FC Internazionale Milano": "Inter",
