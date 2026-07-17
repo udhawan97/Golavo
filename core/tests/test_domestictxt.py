@@ -44,7 +44,10 @@ def test_parser_carries_matchday_year_and_kickoff_clock() -> None:
     assert frame.loc[0, "matchday"] == 1
     # A fixture with no clock of its own inherits the one printed above it.
     assert frame.loc[3, "local_time"] == "15:00"
-    assert frame.loc[3, ["home_team", "away_team"]].tolist() == ["Nottingham Forest", "Leeds United"]
+    assert frame.loc[3, ["home_team", "away_team"]].tolist() == [
+        "Nottingham Forest",
+        "Leeds United",
+    ]
     # Unplayed fixtures carry no score and are never complete.
     assert frame["home_score"].isna().all()
     assert not frame["is_complete"].any()
