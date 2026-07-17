@@ -246,6 +246,9 @@ def world_cup_2026_retrospective(
                 "forecast may rest on a result that was really played later that day."
             ),
         },
-        "matches": rows,
+        # The only row list, and ranked. A second chronological copy shipped the
+        # SAME row dicts under "matches", so a mutation of one silently moved the
+        # other; every row carries kickoff_utc, so that order is recoverable
+        # without serializing all 102 rows twice for no reader.
         "biggest_surprises": ranked,
     }

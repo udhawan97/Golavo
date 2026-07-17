@@ -19,14 +19,31 @@ def _reset():
     server_retrospective.reset_cache()
 
 
-def _contract_validator() -> Draft202012Validator:
+def _schema() -> dict[str, Any]:
     root = Path(__file__).resolve().parents[2]
-    schema = json.loads(
+    return json.loads(
         (root / "docs" / "contracts" / "tournament_retrospective.schema.json").read_text(
             encoding="utf-8"
         )
     )
-    return Draft202012Validator(schema, format_checker=FormatChecker())
+
+
+def _contract_validator() -> Draft202012Validator:
+    return Draft202012Validator(_schema(), format_checker=FormatChecker())
+
+
+def _agreement_validator() -> Draft202012Validator:
+    """Validates a snapshot_agreement alone.
+
+    The build() tests below drive a deliberately minimal story stub, which is not
+    a contract-valid "available" envelope; pointing the whole-envelope validator
+    at one would fail on the stub rather than on the field under test.
+    """
+    schema = _schema()
+    return Draft202012Validator(
+        {"$ref": "#/$defs/SnapshotAgreement", "$defs": schema["$defs"]},
+        format_checker=FormatChecker(),
+    )
 
 
 def _story_envelope() -> dict[str, Any]:
@@ -35,7 +52,6 @@ def _story_envelope() -> dict[str, Any]:
         "schema_version": "0.1.0",
         "status": "available",
         "coverage": {"status": "complete", "scored": 1, "pending": 0, "note": "n"},
-        "matches": [],
         "biggest_surprises": [],
     }
 
@@ -124,7 +140,7 @@ def test_build_stamps_the_exact_pack_it_handed_the_trust_layer(monkeypatch) -> N
     pack_dir = Path("/gen-7/packs/internationals")
 
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: pack_dir)
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: f"stamp::{p}")
+    monkeypatch.setattr(server_retrospective, "_pack_identity", lambda p: (f"stamp::{p}", "d" * 64))
     monkeypatch.setattr(
         server_retrospective,
         "_story",
@@ -145,7 +161,7 @@ def test_build_stamps_the_exact_pack_it_handed_the_trust_layer(monkeypatch) -> N
     assert result["provenance"]["index_sha256"] == "fp-1"
 
 
-def test_pack_stamp_identifies_the_snapshot_not_the_directory_name(monkeypatch) -> None:
+def test_pack_identity_identifies_the_snapshot_not_the_directory_name(monkeypatch) -> None:
     """Every refreshed generation's pack is named "internationals", so the name is
     inert. Two different generations must stamp differently or the decoupling this
     stamp exists to expose stays invisible."""
@@ -157,14 +173,14 @@ def test_pack_stamp_identifies_the_snapshot_not_the_directory_name(monkeypatch) 
     }
     monkeypatch.setattr(ingest, "snapshot_descriptor", lambda p: descriptors[p])
 
-    stamps = {server_retrospective._pack_stamp(p) for p in descriptors}
+    stamps = {server_retrospective._pack_identity(p)[0] for p in descriptors}
 
     assert len(stamps) == 2
     assert {p.name for p in descriptors} == {"internationals"}  # the names are identical
     assert stamps == {f"sp_aaaaaaaaaaaa@{'a' * 64}", f"sp_bbbbbbbbbbbb@{'b' * 64}"}
 
 
-def test_pack_stamp_never_raises_on_a_corrupt_pack(monkeypatch) -> None:
+def test_pack_identity_never_raises_on_a_corrupt_pack(monkeypatch) -> None:
     """snapshot_descriptor validates the pack off disk; provenance degrading to a
     stated reason is honest, a 500 is not."""
     from golavo_core import ingest
@@ -174,11 +190,124 @@ def test_pack_stamp_never_raises_on_a_corrupt_pack(monkeypatch) -> None:
 
     monkeypatch.setattr(ingest, "snapshot_descriptor", boom)
 
-    stamp = server_retrospective._pack_stamp(Path("/broken"))
+    stamp, digest = server_retrospective._pack_identity(Path("/broken"))
 
     assert stamp.startswith("unidentified: ")
     assert "manifest.json" in stamp
-    assert server_retrospective._pack_stamp(None).startswith("unresolved: ")
+    assert digest is None  # unknown, never a digest that could accidentally match
+    assert server_retrospective._pack_identity(None) == (
+        "unresolved: no sourcepack resolved for this index",
+        None,
+    )
+
+
+# --- the one-snapshot claim, checked not asserted ---------------------------
+
+
+def _meta(tmp_path: Path, digest: str | None) -> Path:
+    """An index meta.json as ingest writes one: one built_from entry per pack.
+
+    The real index carries NINE, the internationals pack among them, so the club
+    entry here is load-bearing: reading the wrong one would compare this pack
+    against a club pack's digest and cry mismatch on a consistent snapshot.
+    """
+    built_from = [{"source_id": "openfootball-football-json", "manifest_sha256": "e" * 64}]
+    if digest is not None:
+        built_from.append(
+            {"source_id": server_retrospective._MARTJ42, "manifest_sha256": digest}
+        )
+    path = tmp_path / "matches_index.meta.json"
+    path.write_text(json.dumps({"built_from": built_from, "schema_version": "0.5.0"}))
+    return path
+
+
+def _build_with(monkeypatch, meta_path: Path | None, pack_digest: str | None) -> dict[str, Any]:
+    """build() over a controlled (index meta, pack digest) pair."""
+    _stub_layers(monkeypatch)
+    monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/p"))
+    monkeypatch.setattr(
+        server_retrospective,
+        "_pack_identity",
+        lambda p: (f"sp_x@{pack_digest}" if pack_digest else "unidentified: boom", pack_digest),
+    )
+    index = _FakeIndex().install(monkeypatch)
+    # install() hands back a snapshot with no meta_path; this build reads the meta
+    # off the snapshot itself, so give it one.
+    monkeypatch.setattr(
+        matches,
+        "index_snapshot",
+        lambda: matches.IndexSnapshot(
+            frame=object(), fingerprint=index.fingerprint, epoch=index.epoch, meta_path=meta_path
+        ),
+    )
+    server_retrospective.reset_cache()
+    return server_retrospective.build()
+
+
+def test_build_detects_a_pack_the_index_was_not_built_from(monkeypatch, tmp_path) -> None:
+    """The exact failure the pack stamp NAMED but could not catch.
+
+    A user refreshes (generation G1); the app upgrades and MATCH_INDEX_SCHEMA_VERSION
+    bumps. Next run, _resolve_index_paths() falls back to the committed bundle index
+    while resolve_pack_dir() still hands trust G1's pack. After the tournament both
+    plausibly carry 104 completed matches, so reconciling coverage.scored against
+    trust.n_matches says nothing at all — only the digests can show it.
+    """
+    result = _build_with(monkeypatch, _meta(tmp_path, "a" * 64), pack_digest="b" * 64)
+
+    agreement = result["provenance"]["snapshot_agreement"]
+    assert agreement["status"] == "mismatched"
+    assert agreement["cause"] == "pack_index_mismatch"
+    # Both digests are stamped, so the verdict is auditable rather than asserted.
+    assert agreement["index_pack_sha256"] == "a" * 64
+    assert agreement["pack_sha256"] == "b" * 64
+    assert "different datasets" in agreement["reason"]
+    _agreement_validator().validate(agreement)
+
+
+def test_build_verifies_one_snapshot_when_the_digests_agree(monkeypatch, tmp_path) -> None:
+    """snapshot_descriptor()["sha256"] and the index meta's built_from[].manifest_sha256
+    are the same quantity — the sha256 of the pack's manifest.json — which is what
+    makes the comparison exact rather than heuristic."""
+    result = _build_with(monkeypatch, _meta(tmp_path, "a" * 64), pack_digest="a" * 64)
+
+    agreement = result["provenance"]["snapshot_agreement"]
+    assert agreement["status"] == "verified"
+    assert agreement["index_pack_sha256"] == agreement["pack_sha256"] == "a" * 64
+    assert "cause" not in agreement
+    _agreement_validator().validate(agreement)
+
+
+def test_an_uncheckable_snapshot_never_reads_as_a_verified_one(monkeypatch, tmp_path) -> None:
+    """The claim must fail open to "unknown", never to "verified" — and the two
+    sides that can go missing stay distinguishable without parsing prose."""
+    no_pack = _build_with(monkeypatch, _meta(tmp_path, "a" * 64), pack_digest=None)
+    assert no_pack["provenance"]["snapshot_agreement"]["status"] == "unverified"
+    assert no_pack["provenance"]["snapshot_agreement"]["cause"] == "pack_unidentified"
+
+    # An index whose meta names every source EXCEPT this one cannot vouch for the pack.
+    other = _build_with(monkeypatch, _meta(tmp_path, None), pack_digest="b" * 64)
+    assert other["provenance"]["snapshot_agreement"]["status"] == "unverified"
+    assert other["provenance"]["snapshot_agreement"]["cause"] == "index_provenance_unreadable"
+
+    # A meta that is absent from disk entirely is the same "unknown", not a crash.
+    missing = _build_with(monkeypatch, tmp_path / "gone.json", pack_digest="b" * 64)
+    assert missing["provenance"]["snapshot_agreement"]["status"] == "unverified"
+    for envelope in (no_pack, other, missing):
+        _agreement_validator().validate(envelope["provenance"]["snapshot_agreement"])
+
+
+def test_index_pack_digest_reads_this_source_entry_not_just_any(tmp_path) -> None:
+    """built_from[] carries every pack the index was built from — nine on the real
+    index. Reading the wrong entry compares the internationals pack against a club
+    pack's digest and cries mismatch on a perfectly consistent snapshot."""
+    assert server_retrospective._index_pack_digest(_meta(tmp_path, "a" * 64)) == "a" * 64
+    # Every "cannot tell" path is None, never a value a comparison could match on.
+    assert server_retrospective._index_pack_digest(None) is None
+    assert server_retrospective._index_pack_digest(tmp_path / "absent.json") is None
+    corrupt = tmp_path / "corrupt.json"
+    corrupt.write_text("{not json")
+    assert server_retrospective._index_pack_digest(corrupt) is None
 
 
 # --- trust layer -----------------------------------------------------------
@@ -307,7 +436,9 @@ def test_unavailable_story_returns_a_typed_envelope_even_when_trust_blows_up(
     monkeypatch.setattr(
         server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/gen/packs/internationals")
     )
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: "sp_deadbeef@" + "c" * 64)
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: ("sp_deadbeef@" + "c" * 64, "c" * 64)
+    )
     _FakeIndex().install(monkeypatch)
 
     result = server_retrospective.build()
@@ -337,7 +468,9 @@ def test_unavailable_envelope_takes_its_version_and_label_from_core() -> None:
 def test_a_second_build_on_the_same_generation_is_served_from_the_memo(monkeypatch) -> None:
     calls = _stub_layers(monkeypatch)
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/p"))
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: "sp_a@" + "a" * 64)
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: ("sp_a@" + "a" * 64, "a" * 64)
+    )
     _FakeIndex().install(monkeypatch)
 
     first = server_retrospective.build()
@@ -350,7 +483,9 @@ def test_a_second_build_on_the_same_generation_is_served_from_the_memo(monkeypat
 def test_the_key_self_invalidates_on_an_index_fingerprint_change(monkeypatch) -> None:
     calls = _stub_layers(monkeypatch)
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/p"))
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: "sp_a@" + "a" * 64)
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: ("sp_a@" + "a" * 64, "a" * 64)
+    )
     index = _FakeIndex().install(monkeypatch)
 
     server_retrospective.build()
@@ -365,7 +500,9 @@ def test_the_key_self_invalidates_on_an_epoch_change(monkeypatch) -> None:
     same bytes); the epoch is what always moves."""
     calls = _stub_layers(monkeypatch)
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/p"))
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: "sp_a@" + "a" * 64)
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: ("sp_a@" + "a" * 64, "a" * 64)
+    )
     index = _FakeIndex().install(monkeypatch)
 
     server_retrospective.build()
@@ -387,7 +524,9 @@ def test_the_key_self_invalidates_on_a_pack_change_under_an_unchanged_index(
     active = {"pack": packs[0]}
 
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: active["pack"])
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: stamps[p])
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: (stamps[p], stamps[p][-64:])
+    )
     _FakeIndex().install(monkeypatch)
 
     first = server_retrospective.build()
@@ -403,7 +542,9 @@ def test_the_memo_is_bounded(monkeypatch) -> None:
     generation's frame-derived work in memory."""
     _stub_layers(monkeypatch)
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/p"))
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: "sp_a@" + "a" * 64)
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: ("sp_a@" + "a" * 64, "a" * 64)
+    )
     index = _FakeIndex().install(monkeypatch)
 
     for generation in range(server_retrospective._CACHE_MAX + 3):
@@ -418,7 +559,9 @@ def test_a_stale_cache_hit_is_never_served(monkeypatch) -> None:
     returned — build() retries against the new generation."""
     calls = _stub_layers(monkeypatch)
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/p"))
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: "sp_a@" + "a" * 64)
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: ("sp_a@" + "a" * 64, "a" * 64)
+    )
     index = _FakeIndex().install(monkeypatch)
 
     server_retrospective.build()
@@ -451,7 +594,9 @@ def test_build_retries_rather_than_returning_stale_generation_work(monkeypatch) 
     computed on a retired index generation."""
     calls = _stub_layers(monkeypatch)
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/p"))
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: "sp_a@" + "a" * 64)
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: ("sp_a@" + "a" * 64, "a" * 64)
+    )
     index = _FakeIndex().install(monkeypatch)
 
     # The first publish is refused (the index moved mid-compute); the retry lands.
@@ -477,7 +622,9 @@ def test_exhausted_retries_return_a_typed_paused_envelope(monkeypatch) -> None:
     to silently-retired work."""
     calls = _stub_layers(monkeypatch)
     monkeypatch.setattr(server_retrospective.seal, "resolve_pack_dir", lambda *a: Path("/p"))
-    monkeypatch.setattr(server_retrospective, "_pack_stamp", lambda p: "sp_a@" + "a" * 64)
+    monkeypatch.setattr(
+        server_retrospective, "_pack_identity", lambda p: ("sp_a@" + "a" * 64, "a" * 64)
+    )
     index = _FakeIndex().install(monkeypatch)
     index.publishes_are_current = False
 
@@ -546,7 +693,6 @@ def test_retrospective_route_validates_against_contract(monkeypatch) -> None:
         "window_end": "2026-07-19",
         "coverage": {"status": "complete", "scored": 1, "pending": 0, "note": "n"},
         "exposure": {"rows_with_same_day_proxies": 0, "note": "n"},
-        "matches": [row],
         "biggest_surprises": [row],
     }
     monkeypatch.setattr(server_retrospective, "build", lambda **_: stub)
@@ -594,7 +740,6 @@ def test_retrospective_route_runs_async_and_a_mid_flight_poll_sees_running(
         "label": "n",
         "tournament_id": "worldcup-2026",
         "tournament_name": "2026 FIFA World Cup",
-        "matches": [],
         "biggest_surprises": [],
     }
     release = threading.Event()
@@ -661,7 +806,7 @@ def test_retrospective_job_seeds_its_own_stage_before_any_progress_tick(
     def blocking_build(**_: object) -> dict[str, Any]:
         entered.set()
         assert release.wait(timeout=5), "test deadlocked waiting for release"
-        return {"status": "available", "matches": [], "biggest_surprises": []}
+        return {"status": "available", "biggest_surprises": []}
 
     monkeypatch.setattr(server_retrospective, "build", blocking_build)
     job_id = "rt-seedtest1"
@@ -710,7 +855,7 @@ def test_retrospective_progress_callback_drives_the_lane_stage_detail_counts(
         progress(3, 9)
         reached.set()
         assert release.wait(timeout=5), "test deadlocked waiting for release"
-        return {"status": "available", "matches": [], "biggest_surprises": []}
+        return {"status": "available", "biggest_surprises": []}
 
     monkeypatch.setattr(server_retrospective, "build", build_with_progress)
     job_id = "rt-progress01"

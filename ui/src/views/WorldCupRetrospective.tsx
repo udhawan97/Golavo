@@ -26,6 +26,7 @@ import { newJobId } from "../lib/aiProgress";
 import type {
   ModelFamily,
   RetrospectiveRow,
+  SnapshotAgreement,
   TournamentRetrospective,
   TrustFold,
   TrustFoldModel,
@@ -72,6 +73,19 @@ function familyLabel(family: ModelFamily): string {
 /** A metric the fold may not carry. Never rendered as a zero. */
 const metricCell = (value: number | undefined) => (value === undefined ? "—" : num(value, 3));
 
+/** The server's snapshot check, stated as exactly what it is.
+ *
+ *  "verified" is the only wording that claims the two layers share a snapshot,
+ *  and only a digest comparison the server actually ran can produce it — an
+ *  unverified check says so rather than defaulting either way. */
+function agreementNote(agreement: SnapshotAgreement): string {
+  if (agreement.status === "verified")
+    return `both layers verified on pack ${shortHash(agreement.pack_sha256)}`;
+  if (agreement.status === "mismatched")
+    return `layers on DIFFERENT packs: index ${shortHash(agreement.index_pack_sha256)}, fold ${shortHash(agreement.pack_sha256)}`;
+  return `one-snapshot check could not run (${agreement.cause})`;
+}
+
 function StoryRow({ row, family }: { row: RetrospectiveRow; family: string }) {
   const call = row.families[family];
   const proxyRows = row.training_same_day_proxy_rows;
@@ -101,7 +115,7 @@ function StoryRow({ row, family }: { row: RetrospectiveRow; family: string }) {
   );
 }
 
-function TrustPanel({ trust, scored }: { trust: NonNullable<TournamentRetrospective["trust"]>; scored?: number }) {
+function TrustPanel({ trust }: { trust: NonNullable<TournamentRetrospective["trust"]> }) {
   if (trust.status === "unavailable") {
     // A typed state with the server's own reason — never an empty table, which
     // a reader could read as "measured, and it is zero".
@@ -157,12 +171,12 @@ function TrustPanel({ trust, scored }: { trust: NonNullable<TournamentRetrospect
           backtested with four voices, not five.
         </p>
       )}
+      {/* Metadata only. A disagreement with the story's count is a broken
+          cross-layer guarantee, so it is raised as a callout beside the page's
+          other broken guarantees — never trailed here in dim small print. */}
       <p className="small dim measure" style={{ margin: ".4rem 0 0" }}>
         Fold {trust.fold_id} · {trust.n_matches} matches
         {trust.training_cutoff_utc ? ` · trained once at ${utcDate(trust.training_cutoff_utc)}` : ""}
-        {scored !== undefined && scored !== trust.n_matches
-          ? ` · this count disagrees with the ${scored} matches backtested above, which means the two layers read different snapshots.`
-          : ""}
       </p>
     </>
   );
@@ -185,6 +199,10 @@ export function WorldCupRetrospectiveBody({ data }: { data: TournamentRetrospect
   const rankingFamily = data.ranking_family ?? "dixon_coles";
   const exposed = data.exposure?.rows_with_same_day_proxies ?? 0;
   const scored = data.coverage?.scored ?? data.biggest_surprises.length;
+  const agreement = data.provenance?.snapshot_agreement;
+  // Only an available fold carries a count to reconcile against. An unavailable
+  // one already says why it has no number, and must not be read as zero.
+  const fold = data.trust?.status === "available" ? data.trust : null;
 
   return (
     <>
@@ -201,6 +219,43 @@ export function WorldCupRetrospectiveBody({ data }: { data: TournamentRetrospect
           </p>
         </div>
       </div>
+
+      {/* Both of these outrank "the tournament isn't over yet" below: a page
+          whose two layers describe different data is a broken guarantee, not a
+          pending one. */}
+      {agreement?.status === "mismatched" && (
+        <div className="callout callout--warning" role="status">
+          <div>
+            <div className="callout__title">The two layers read different snapshots</div>
+            {/* The server owns this comparison — it holds the digests. */}
+            <p>{agreement.reason}</p>
+            <p>
+              The matches and the skill fold below therefore describe different datasets, so
+              neither is a check on the other.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {fold && scored !== fold.n_matches && (
+        <div className="callout callout--warning" role="status">
+          <div>
+            <div className="callout__title">The two layers’ match counts disagree</div>
+            <p>
+              {scored} matches were backtested below, but the {fold.fold_id} fold scored{" "}
+              {fold.n_matches}. Both describe the 2026 World Cup, so these counts should agree.
+            </p>
+            <p>
+              Two things can cause this, and the counts alone cannot tell them apart: the layers
+              may have read different snapshots, or they may select the tournament window’s edges
+              differently — the backtest selects on exact kickoff time, the fold on calendar date,
+              so a match dated inside the window but kicking off outside it is scored by one and
+              dropped by the other. Read the two layers as possibly describing different sets of
+              matches.
+            </p>
+          </div>
+        </div>
+      )}
 
       {data.coverage?.status === "partial" && (
         <div className="callout callout--warning" role="status">
@@ -263,16 +318,18 @@ export function WorldCupRetrospectiveBody({ data }: { data: TournamentRetrospect
               This is a backtest too — no forecast here was published in advance either.
             </p>
           </div>
-          <TrustPanel trust={data.trust} scored={scored} />
+          <TrustPanel trust={data.trust} />
         </section>
       )}
 
       <details className="outlook-method">
         <summary>How this page is built</summary>
         <p>
-          Two layers, one snapshot, two different information boundaries. The matches replay the
-          app’s own kickoff−1s cutoff, one fit per match. The skill fold trains once before the
-          tournament and scores the whole window. Nothing on this page is written to the forecast
+          Two layers, two different information boundaries — and one snapshot, checked rather than
+          assumed. The matches replay the app’s own kickoff−1s cutoff, one fit per match. The skill
+          fold trains once before the tournament and scores the whole window. The two are read from
+          different files, so the server compares their snapshot digests and reports the verdict
+          below rather than taking it on trust. Nothing on this page is written to the forecast
           ledger, and nothing was scored as a seal.
         </p>
         <p className="small dim">
@@ -283,6 +340,7 @@ export function WorldCupRetrospectiveBody({ data }: { data: TournamentRetrospect
           {data.ranking_metric ?? "log_loss"}
           {data.provenance?.index_sha256 ? ` · index ${shortHash(data.provenance.index_sha256)}` : ""}
           {data.provenance?.pack ? ` · pack ${data.provenance.pack}` : ""}
+          {agreement ? ` · ${agreementNote(agreement)}` : ""}
         </p>
       </details>
     </>

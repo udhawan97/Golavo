@@ -104,13 +104,13 @@ def test_returns_one_row_per_completed_match_ranked_by_log_loss() -> None:
     result = world_cup_2026_retrospective(_frame())
     assert result["schema_version"] == "0.1.0"
     assert result["ledger_status"] == "never_persisted_or_scored_as_a_seal"
-    assert [row["match_id"] for row in result["matches"]] == ["m_wc1", "m_wc2"]
-    for row in result["matches"]:
+    assert {row["match_id"] for row in result["biggest_surprises"]} == {"m_wc1", "m_wc2"}
+    for row in result["biggest_surprises"]:
         assert set(row["families"]) == set(RETROSPECTIVE_FAMILIES)
         assert row["log_loss"] == pytest.approx(
             row["families"][RANKING_FAMILY]["log_loss"]
         )
-    # biggest_surprises is the same rows ordered by the ranking family's loss
+    # the one row list, ordered by the ranking family's loss
     losses = [row["log_loss"] for row in result["biggest_surprises"]]
     assert losses == sorted(losses, reverse=True)
 
@@ -118,7 +118,7 @@ def test_returns_one_row_per_completed_match_ranked_by_log_loss() -> None:
 def test_bivariate_poisson_is_not_offered_as_a_separate_voice() -> None:
     assert "bivariate_poisson" not in RETROSPECTIVE_FAMILIES
     result = world_cup_2026_retrospective(_frame())
-    assert "bivariate_poisson" not in result["matches"][0]["families"]
+    assert "bivariate_poisson" not in result["biggest_surprises"][0]["families"]
 
 
 def test_four_families_are_exactly_these_four() -> None:
@@ -141,8 +141,8 @@ def test_a_later_same_day_result_never_reaches_an_earlier_match() -> None:
         _wc_match("m_wc2", "2026-06-20T20:00:00Z", "England", "Argentina", 9, 0),
     ]
     poisoned = world_cup_2026_retrospective(_frame(poisoned_rows))
-    first_clean = next(r for r in clean["matches"] if r["match_id"] == "m_wc1")
-    first_poisoned = next(r for r in poisoned["matches"] if r["match_id"] == "m_wc1")
+    first_clean = next(r for r in clean["biggest_surprises"] if r["match_id"] == "m_wc1")
+    first_poisoned = next(r for r in poisoned["biggest_surprises"] if r["match_id"] == "m_wc1")
     assert first_clean["families"] == first_poisoned["families"], (
         "a 20:00 result changed the 12:00 forecast"
     )
@@ -161,7 +161,7 @@ def test_future_rows_never_change_any_forecast() -> None:
         }
     ]
     poisoned = world_cup_2026_retrospective(pd.DataFrame(extra))
-    assert clean["matches"] == poisoned["matches"]
+    assert clean["biggest_surprises"] == poisoned["biggest_surprises"]
 
 
 def test_is_deterministic_byte_for_byte() -> None:
@@ -176,7 +176,7 @@ def test_day_precision_rows_are_carried_not_hidden() -> None:
         _wc_match("m_wc2", "2026-06-21T20:00:00Z", "England", "Argentina", 2, 1),
     ]
     result = world_cup_2026_retrospective(_frame(rows))
-    by_id = {row["match_id"]: row for row in result["matches"]}
+    by_id = {row["match_id"]: row for row in result["biggest_surprises"]}
     assert by_id["m_wc1"]["kickoff_precision"] == "day"
     assert by_id["m_wc2"]["kickoff_precision"] == "exact"
 
@@ -187,7 +187,7 @@ def test_scheduled_matches_are_reported_as_typed_pending_not_scored() -> None:
         _wc_match("m_wc2", "2026-07-19T19:00:00Z", "Spain", "Argentina", None, None),
     ]
     result = world_cup_2026_retrospective(_frame(rows))
-    assert [row["match_id"] for row in result["matches"]] == ["m_wc1"]
+    assert [row["match_id"] for row in result["biggest_surprises"]] == ["m_wc1"]
     assert result["coverage"]["scored"] == 1
     assert result["coverage"]["pending"] == 1
     assert result["coverage"]["status"] == "partial"
@@ -234,7 +234,7 @@ def test_same_day_proxy_exposure_is_disclosed_not_hidden() -> None:
         ),
     ]
     result = world_cup_2026_retrospective(_frame(rows))
-    by_id = {row["match_id"]: row for row in result["matches"]}
+    by_id = {row["match_id"]: row for row in result["biggest_surprises"]}
 
     # The 00:00 proxy match kicked off (by its own stamp) before the 02:00 exact
     # match's cutoff, so it lands in that match's training frame — but the 01:00
@@ -296,7 +296,7 @@ def test_same_day_proxy_count_covers_nat_kickoff_and_na_precision() -> None:
     frame = pd.DataFrame([*_history(), nat_kickoff_row, na_precision_row, target])
 
     result = world_cup_2026_retrospective(frame)
-    row = next(r for r in result["matches"] if r["match_id"] == "m_wc_target")
+    row = next(r for r in result["biggest_surprises"] if r["match_id"] == "m_wc_target")
 
     assert row["training_same_day_proxy_rows"] == 2
 
@@ -320,7 +320,7 @@ def test_matches_the_apps_own_build_match_analysis() -> None:
         ]
     )
     result = world_cup_2026_retrospective(frame)
-    row = next(r for r in result["matches"] if r["match_id"] == "m_wc1")
+    row = next(r for r in result["biggest_surprises"] if r["match_id"] == "m_wc1")
 
     fixture = frame.loc[frame["match_id"] == "m_wc1"].iloc[0]
     match_row = {

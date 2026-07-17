@@ -449,6 +449,29 @@ export interface TrustUnavailable {
   reason: string;
 }
 
+/** Whether the two layers are PROVABLY reading one snapshot. They resolve
+ *  independently — the story reads the index Parquet, the trust fold reads the
+ *  pack directory — so the server earns this by comparing the pack manifest's
+ *  digest against the digest the index records for the same source, rather than
+ *  asserting it. Three states, never a boolean: a check that could not run
+ *  ("unverified") must never read as agreement. */
+export type SnapshotAgreement =
+  | { status: "verified"; index_pack_sha256: string; pack_sha256: string }
+  | {
+      status: "mismatched";
+      cause: "pack_index_mismatch";
+      reason: string;
+      index_pack_sha256: string;
+      pack_sha256: string;
+    }
+  | {
+      status: "unverified";
+      cause: "pack_unidentified" | "index_provenance_unreadable";
+      reason: string;
+      index_pack_sha256?: string;
+      pack_sha256?: string;
+    };
+
 export interface TournamentRetrospective {
   schema_version: "0.1.0";
   status: "available" | "unavailable";
@@ -472,12 +495,17 @@ export interface TournamentRetrospective {
    *  proxy row that cannot be proven to have happened first. Required when
    *  status is available. */
   exposure?: { rows_with_same_day_proxies: number; note: string };
-  matches: RetrospectiveRow[];
+  /** Every backtested match, ranked by ranking_family's log loss. The only row
+   *  list — kickoff_utc recovers chronological order. */
   biggest_surprises: RetrospectiveRow[];
   /** null = core called directly (core never emits trust); a typed fold or a
    *  typed unavailable state = the server layer. */
   trust?: TrustFold | TrustUnavailable | null;
-  provenance?: { index_sha256?: string; pack?: string };
+  provenance?: {
+    index_sha256?: string;
+    pack?: string;
+    snapshot_agreement?: SnapshotAgreement;
+  };
 }
 
 // ---- Domestic season outlook ----------------------------------------------

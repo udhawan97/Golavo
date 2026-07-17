@@ -14,7 +14,10 @@ const TRUST: TrustFold = {
   status: "available",
   fold_id: "WC2026",
   competition: "FIFA World Cup",
-  n_matches: 102,
+  // Reconciles with DATA.coverage.scored. A fixture whose layers disagree fires
+  // the cross-layer warning on every unrelated test, which is how that warning
+  // went 16 tests without a single assertion in either direction.
+  n_matches: 2,
   training_cutoff_utc: "2026-06-10T00:00:00Z",
   window_start: "2026-06-11",
   window_end: "2026-07-19",
@@ -54,7 +57,6 @@ const DATA: TournamentRetrospective = {
     rows_with_same_day_proxies: 1,
     note: "A day-precision kickoff is a 00:00 UTC calendar-day stand-in, not a verified kickoff time.",
   },
-  matches: [],
   biggest_surprises: [
     {
       match_id: "m_1",
@@ -146,9 +148,116 @@ describe("WorldCupRetrospectiveBody", () => {
   it("shows the partial-coverage note from the server verbatim", () => {
     const html = render({
       ...DATA,
-      coverage: { status: "partial", scored: 102, pending: 2, note: "2 not yet played." },
+      coverage: { status: "partial", scored: 2, pending: 2, note: "2 not yet played." },
     });
     expect(html).toContain("2 not yet played.");
+  });
+
+  // --- the cross-layer safety net -------------------------------------------
+  // This warning is the only thing on the page telling a reader that the two
+  // layers may describe different data. Asserted in BOTH directions: a
+  // regression that deletes it, and one that inverts the comparison so it fires
+  // forever, must each turn a test red.
+
+  const DISAGREE_TITLE = "The two layers’ match counts disagree";
+
+  it("warns when the story's count and the trust fold's count disagree", () => {
+    const html = render({ ...DATA, trust: { ...TRUST, n_matches: 103 } });
+    expect(html).toContain(DISAGREE_TITLE);
+    expect(html).toContain("2 matches were backtested below");
+    expect(html).toContain("103");
+    // Raised at the same prominence as the page's other broken guarantees, not
+    // trailed in small print under the fold's metadata.
+    expect(html).toContain('class="callout callout--warning" role="status"');
+  });
+
+  it("states the disagreement's possible causes without asserting one", () => {
+    const html = render({ ...DATA, trust: { ...TRUST, n_matches: 103 } });
+    // The two layers use different window predicates (kickoff vs date), so a
+    // disagreement does NOT prove two snapshots — the old copy asserted exactly
+    // that, and could not have known it.
+    expect(html).toContain("the counts alone cannot tell them apart");
+    expect(html).toContain("may have read different snapshots");
+    expect(html).toContain("select the tournament window’s edges");
+    expect(html).not.toContain("which means the two layers read different snapshots");
+  });
+
+  it("says nothing about a disagreement when the two counts reconcile", () => {
+    // DATA reconciles (coverage.scored 2 === trust.n_matches 2). If the
+    // comparison is ever inverted, this is the test that catches it.
+    expect(DATA.coverage!.scored).toBe(TRUST.n_matches);
+    const html = render(DATA);
+    expect(html).not.toContain(DISAGREE_TITLE);
+    expect(html).not.toContain("cannot tell them apart");
+  });
+
+  it("does not reconcile against an unavailable fold's absent count", () => {
+    // An unavailable fold has no n_matches. Reading a missing count as 0 would
+    // fire the warning on top of a state that already says why it has no number.
+    const html = render({
+      ...DATA,
+      trust: { status: "unavailable", cause: "no_pack", reason: "no sourcepack resolved" },
+    });
+    expect(html).not.toContain(DISAGREE_TITLE);
+  });
+
+  // --- the one-snapshot claim, checked not asserted --------------------------
+
+  it("warns when the server proves the two layers ran on different packs", () => {
+    const html = render({
+      ...DATA,
+      provenance: {
+        index_sha256: "f".repeat(64),
+        pack: "sp_bbbbbbbbbbbb@" + "b".repeat(64),
+        snapshot_agreement: {
+          status: "mismatched",
+          cause: "pack_index_mismatch",
+          reason: "the backtested matches were read from an index built on pack aaa…, but the skill fold was computed on pack bbb…: the two layers describe different datasets.",
+          index_pack_sha256: "a".repeat(64),
+          pack_sha256: "b".repeat(64),
+        },
+      },
+    });
+    expect(html).toContain("The two layers read different snapshots");
+    expect(html).toContain("the two layers describe different datasets");
+    expect(html).toContain("neither is a check on the other");
+  });
+
+  it("claims a verified one-snapshot check only when the server ran one", () => {
+    const verified = render({
+      ...DATA,
+      provenance: {
+        snapshot_agreement: {
+          status: "verified",
+          index_pack_sha256: "a".repeat(64),
+          pack_sha256: "a".repeat(64),
+        },
+      },
+    });
+    expect(verified).toContain("both layers verified on pack");
+    expect(verified).not.toContain("The two layers read different snapshots");
+
+    // A check that could not run must never read as agreement.
+    const unverified = render({
+      ...DATA,
+      provenance: {
+        snapshot_agreement: {
+          status: "unverified",
+          cause: "index_provenance_unreadable",
+          reason: "the match index does not record which pack it was built from",
+        },
+      },
+    });
+    expect(unverified).toContain("could not run (index_provenance_unreadable)");
+    expect(unverified).not.toContain("verified on pack");
+  });
+
+  it("never asserts one snapshot as a bare fact in the method note", () => {
+    const html = render(DATA);
+    // The old copy stated "Two layers, one snapshot" flatly — a guarantee the
+    // page cannot make on its own, since the two layers read different files.
+    expect(html).not.toContain("Two layers, one snapshot,");
+    expect(html).toContain("checked rather than assumed");
   });
 
   it("renders typed unavailable copy without fabricated numbers", () => {
@@ -157,7 +266,6 @@ describe("WorldCupRetrospectiveBody", () => {
       status: "unavailable",
       reason: "No completed matches",
       biggest_surprises: [],
-      matches: [],
     });
     expect(html).toContain("No completed matches");
     expect(html).not.toContain("0.0%");
@@ -173,7 +281,6 @@ describe("WorldCupRetrospectiveBody", () => {
       status: "unavailable",
       reason,
       biggest_surprises: [],
-      matches: [],
     });
     expect(html).toContain(reason);
   });

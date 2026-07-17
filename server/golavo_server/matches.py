@@ -120,6 +120,10 @@ class IndexSnapshot:
     goalscorers_path: Path | None = None
     shootouts_path: Path | None = None
     aliases_path: Path | None = None
+    # Carried so a caller can read this frame's OWN provenance (which packs it was
+    # built from) without re-reading the module global, which a concurrent repoint
+    # may already have moved off this snapshot's generation.
+    meta_path: Path | None = None
 
 
 def _paths_are_current(epoch: int, index_path: Path, meta_path: Path) -> bool:
@@ -229,6 +233,7 @@ def index_snapshot() -> IndexSnapshot:
                     Path(GOALSCORERS_PATH),
                     Path(SHOOTOUTS_PATH),
                     Path(ALIASES_PATH),
+                    Path(INDEX_META_PATH),
                 )
             epoch = _GENERATION_EPOCH
             index_path = Path(INDEX_PATH)
@@ -281,6 +286,7 @@ def index_snapshot() -> IndexSnapshot:
                 Path(GOALSCORERS_PATH),
                 Path(SHOOTOUTS_PATH),
                 Path(ALIASES_PATH),
+                Path(INDEX_META_PATH),
             )
 
 

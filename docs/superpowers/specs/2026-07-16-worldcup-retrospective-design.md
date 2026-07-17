@@ -89,8 +89,22 @@ never buy speed by widening a cutoff.
 
 Both layers must resolve the **same** pack — the story reads the index frame, the trust
 layer reads the pack directory. The server resolves the active pack via
-`seal.resolve_pack_dir(...)` (runtime-refreshed → greatest-anchor → canonical). The
-response must stamp which pack both layers used, so a reader can audit that they agree.
+`seal.resolve_pack_dir(...)` (runtime-refreshed → greatest-anchor → canonical).
+
+**Resolving both from one call does not make them one snapshot, and the response must not
+claim it does.** The two resolve independently: `matches._resolve_index_paths()` falls back
+to the *committed bundle* index when the active generation's index meta carries a superseded
+`schema_version`, while `resolve_pack_dir()` returns that generation's pack regardless. So
+the story can be computed on one dataset and the trust fold on another. Stamping the pack is
+not enough to catch this — the stamp describes only the pack — and neither is reconciling
+`coverage.scored` against `trust.n_matches`, because after the tournament two different
+datasets both plausibly carry 104 completed matches.
+
+The check must therefore be a real comparison: `snapshot_descriptor(pack_dir)["sha256"]` is
+the same quantity the index meta records per source as `built_from[].manifest_sha256`, so
+the server compares them and stamps a typed `provenance.snapshot_agreement` — `verified`,
+`mismatched` (with both digests, so a reader can audit it), or `unverified` with a cause.
+A check that could not run must never render as agreement.
 
 ## Architecture
 
@@ -99,7 +113,9 @@ active pack ─┬─> index frame ──> retrospective.compute(window) ──>
              └─> evaluate(pack) ──> WC2026 fold report card ──────────────────────┘
 ```
 
-One pack resolves both layers, so their match counts cannot drift apart.
+One pack resolves both layers — and the server checks that it did, by digest, rather than
+assuming it. See "Both layers must resolve the same pack" above for why resolving them from
+one call is not on its own a guarantee.
 
 ### `core/golavo_core/retrospective.py` (new, pure)
 
@@ -154,12 +170,15 @@ requirement does not scale with effect size.
   atomic write, digest check, and pruning, and it is shaped around a per-`match_id`
   payload; a per-tournament envelope carrying 104 rows is a different shape and a
   different failure surface. L1-only is correct, just slower across a restart, which
-  re-runs the ~3.2 min compute. Add L2 when a restart-cost complaint justifies its
-  failure surface — not before.
+  re-runs the full ~6 min compute (see "Measured cost, corrected" above — 327s story +
+  ~31s trust). Add L2 when a restart-cost complaint justifies its failure surface — not
+  before.
 - The cache is an **accelerator, never a dependency**: a miss recomputes, and no read
   ever fails the request.
-- Route: `GET /api/v1/tournaments/worldcup-2026/retrospective` → typed job handle;
-  poll for progress; result on completion.
+- Route: `POST /api/v1/tournaments/worldcup-2026/retrospective` → typed job handle; poll
+  `GET .../retrospective/jobs/{job_id}` for progress and for the result on completion;
+  `POST .../retrospective/jobs/{job_id}/cancel` stops a run. POST, not GET: the request
+  starts a six-minute job and carries a caller-supplied `job_id` in its body.
 
 ### `ui/src/views/WorldCupRetrospective.tsx` (new)
 
