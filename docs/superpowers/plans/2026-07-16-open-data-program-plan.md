@@ -9,8 +9,14 @@
 > adapter reads the five .txt repos (results move only when the packs are rebuilt —
 > registry entries therefore ship with no `refresh` block), no postponement pick
 > re-bind, no Playwright/axe pass, no installed-app QA. Those remain open Phase 1 tasks.
-> **Phases 2–10: not started.** Phase 2's data (goalscorers/shootouts) is already
-> bundled and current through 2026-07-15, so it needs no new source work.
+> **Phase 2 (Golden Boot): SHIPPED** — a leak-safe competition leading-scorers table
+> and penalty-shootout ledger (`core/golavo_core/scorers.py`, served at
+> `GET /competitions/{id}/scorers`, panel on the World Cup page). Verified in the running
+> app (Messi/Mbappé/Klose order, 39 shootouts) and by 15 core + 5 API + 177 vitest tests.
+> Deliberately did **not** add new per-match fact families: they widen `family_size()`,
+> the multiple-comparison budget applied to every forecast's notebook, and the surface
+> delivers the scorer value without that cost.
+> **Phases 3–10: not started.**
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan phase-by-phase. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
