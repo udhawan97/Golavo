@@ -7,6 +7,14 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Golavo Ratings.** An in-house national-team Elo table (Model Lab → Golavo Ratings,
+  `GET /api/v1/ratings/international`), computed from the same public-domain results the
+  models train on — there is no lawful open source for the FIFA ranking, so Golavo
+  estimates its own and says so plainly. It uses the exact Elo update the forecast model
+  uses (now a single shared function), and is leak-safe by construction: a rating as of a
+  date is a pure replay of the matches played by then, proved as a property test. Each of
+  the top teams carries a 12-month trend, and every row shows its match count so a
+  thin-sample rating can be weighed against a dense one.
 - **Golden Boot & shootouts.** An international competition now shows a leak-safe
   leading-scorers table and penalty-shootout ledger, built from the bundled martj42
   goalscorers and shootouts side tables (`GET /api/v1/competitions/{id}/scorers`,
