@@ -79,20 +79,30 @@ backend.
 | `GET /api/v1/matches/{match_id}/analysis` | on-demand Match Cockpit (Replay/Preview) model council | no |
 | `POST /api/v1/matches/{match_id}/seal` | run the deterministic engine and write an immutable seal for an eligible fixture | **appends** a new artifact; never rewrites one |
 | `GET /api/v1/fixtures/check` | opt-in launch-time check for newly-published upcoming internationals | no |
+| `GET /api/v1/tournaments/worldcup-2026/outlook` | exact bracket enumeration from current model fits; never a sealed forecast | no |
+| `POST /api/v1/tournaments/worldcup-2026/retrospective` | backtest every played 2026 World Cup match at its own pre-kickoff cutoff | no — nothing is persisted or scored as a seal |
 | `GET /api/v1/calibration` | recomputed forward record over real sealed→resolved chains | no |
 | `POST /api/v1/forecasts/{artifact_id}/narrative` | optional narration over a sealed forecast; may fail back to local-only | narrative only; never the seal |
 | `POST /api/v1/matches/{match_id}/narrative` | optional narration over a match's notebook + council | narrative only; never a seal |
 | `GET /api/v1/eval/summary` | historical chronological folds, separate from forward evidence | no |
 
-Four routes are non-GET. `POST /shutdown` only stops the sidecar process tree.
-The two `narrative` routes wrap an optional provider call around deterministic
-evidence and return either guarded text or a fallback status — they cannot
-persist or rewrite a forecast. `POST /matches/{id}/seal` is the **only** route
-that writes a forecast artifact, and it *appends* a new immutable seal (running
-the same deterministic engine as the `golavo seal` CLI, byte-identical) rather
-than mutating an existing one — the pack, training cutoff, and as-of are all
-resolved server-side, so a seal cannot be backdated or pointed at an untrusted
-pack.
+The table above is a representative selection, not the full surface: later
+releases added local-only routes for corrections, followed matches, approved-source
+refresh, the ODbL overlay, match research, and the World Cup retrospective. Every
+one of them is read-only or writes strictly outside the ledger, except the two
+named next.
+
+**Two routes write a forecast artifact, and both only ever append.**
+`POST /matches/{id}/seal` runs the same deterministic engine as the `golavo seal`
+CLI (byte-identical) and appends a new immutable seal; the pack, training cutoff,
+and as-of are all resolved server-side, so a seal cannot be backdated or pointed
+at an untrusted pack. `POST /forecasts/settle` appends a scored or voided
+*successor* once a strictly newer validated source state carries the result. No
+route rewrites a sealed artifact — resolution is a new file, never an edit.
+
+`POST /shutdown` only stops the sidecar process tree. The two `narrative` routes
+wrap an optional provider call around deterministic evidence and return either
+guarded text or a fallback status — they cannot persist or rewrite a forecast.
 
 ## Desktop shell and sidecar lifecycle
 
@@ -164,9 +174,19 @@ and training cutoff are part of the eventual seal.
 - every training row is at or before the recorded cutoff; and
 - the target fixture is still scheduled in the sealing snapshot.
 
-The international source has dates but no verified kickoff times, so Golavo
-uses 00:00 UTC on match day as a conservative proxy. It does not invent a
-precise kickoff time.
+The international source publishes dates, not kickoff times. Where a pinned CC0
+overlay supplies a verified kickoff, Golavo uses it and marks the row `exact`;
+otherwise it falls back to 00:00 UTC on match day as a conservative proxy and
+marks the row `day`. It never invents a precise kickoff time, and it never treats
+a proxy as if it were one: today 94 of the index's 77,363 rows carry a verified
+kickoff, all of them 2026 World Cup fixtures.
+
+That distinction is load-bearing. A date is not a time, so ordering by date alone
+treats every fixture on a day as simultaneous — which is exactly how a result from
+20:00 could reach a forecast for a match that kicked off at 00:30 that morning.
+Training rows are ordered by the sharpest instant each row can prove, and where a
+proxy row shares a fixture's calendar day, the surfaces that rely on it disclose
+that its order within the day cannot be shown.
 
 ### 4. Seal the complete numeric claim
 
@@ -310,6 +330,9 @@ generation or alter a sealed artifact.
   — the Commentator's Notebook contract.
 - [`ai_narration.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/ai_narration.schema.json)
   — the only narrative shape accepted back from a provider.
+- [`tournament_retrospective.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/tournament_retrospective.schema.json)
+  — the two-layer World Cup backtest, including the typed check that its story and
+  skill layers really came from one snapshot.
 - [Track record](/Golavo/prediction-ledger/) — the Model Lab's forward record:
   timing, resolution, and verification details.
 - [Prediction methodology](/Golavo/methodology/prediction/) — candidate models,
