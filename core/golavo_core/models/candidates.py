@@ -22,6 +22,41 @@ FAMILIES = (
     "bivariate_poisson",
 )
 
+# The Elo update constants and rule, shared so the standalone ratings table
+# (golavo_core.ratings) computes byte-identically to the forecast model below.
+# Changing any of these changes both.
+ELO_INITIAL = 1500.0
+ELO_K_FACTOR = 28.0
+ELO_HOME_ADVANTAGE = 60.0
+
+
+def elo_match_delta(
+    home_rating: float,
+    away_rating: float,
+    home_score: int,
+    away_score: int,
+    neutral: bool,
+    *,
+    k_factor: float = ELO_K_FACTOR,
+    home_advantage: float = ELO_HOME_ADVANTAGE,
+) -> float:
+    """The rating change the home team earns from one match (the away team's is its negation).
+
+    Goal-difference weighted (log1p) with a home advantage on non-neutral ground —
+    the single source of truth for the Elo update.
+    """
+    advantage = 0.0 if neutral else home_advantage
+    expected = 1.0 / (1.0 + 10.0 ** (-((home_rating + advantage) - away_rating) / 400.0))
+    if home_score > away_score:
+        actual = 1.0
+    elif home_score == away_score:
+        actual = 0.5
+    else:
+        actual = 0.0
+    goal_difference = abs(int(home_score) - int(away_score))
+    multiplier = max(1.0, math.log1p(goal_difference))
+    return k_factor * multiplier * (actual - expected)
+
 
 @dataclass(frozen=True)
 class Prediction:
@@ -74,8 +109,8 @@ class EloOrdinalLogitModel:
     def __init__(
         self,
         *,
-        k_factor: float = 28.0,
-        home_advantage: float = 60.0,
+        k_factor: float = ELO_K_FACTOR,
+        home_advantage: float = ELO_HOME_ADVANTAGE,
         scale: float = 300.0,
         threshold: float = 0.575,
     ) -> None:
@@ -92,19 +127,17 @@ class EloOrdinalLogitModel:
             ["date", "home_team", "away_team", "match_id"], kind="mergesort"
         )
         for row in ordered.itertuples(index=False):
-            home_rating = ratings.get(str(row.home_team), 1500.0)
-            away_rating = ratings.get(str(row.away_team), 1500.0)
-            advantage = 0.0 if bool(row.neutral) else self.home_advantage
-            expected = 1.0 / (1.0 + 10.0 ** (-((home_rating + advantage) - away_rating) / 400.0))
-            if row.home_score > row.away_score:
-                actual = 1.0
-            elif row.home_score == row.away_score:
-                actual = 0.5
-            else:
-                actual = 0.0
-            goal_difference = abs(int(row.home_score) - int(row.away_score))
-            multiplier = max(1.0, math.log1p(goal_difference))
-            delta = self.k_factor * multiplier * (actual - expected)
+            home_rating = ratings.get(str(row.home_team), ELO_INITIAL)
+            away_rating = ratings.get(str(row.away_team), ELO_INITIAL)
+            delta = elo_match_delta(
+                home_rating,
+                away_rating,
+                row.home_score,
+                row.away_score,
+                bool(row.neutral),
+                k_factor=self.k_factor,
+                home_advantage=self.home_advantage,
+            )
             ratings[str(row.home_team)] = home_rating + delta
             ratings[str(row.away_team)] = away_rating - delta
         self.ratings = ratings

@@ -93,3 +93,46 @@ def test_training_rows_never_leaks_future_or_incomplete(
     # Nothing eligible was dropped: every completed on-or-before row is present.
     eligible = frame[(pd.to_datetime(frame["date"], utc=True) <= cutoff) & frame["is_complete"]]
     assert set(selected["match_id"]) == set(eligible["match_id"])
+
+
+@st.composite
+def _rating_frame_with_future(draw: st.DrawFn) -> tuple[pd.DataFrame, str]:
+    teams = ["Alpha", "Bravo", "Charlie", "Delta"]
+    n = draw(st.integers(min_value=1, max_value=25))
+    rows = []
+    for i in range(n):
+        home, away = draw(st.sampled_from(teams)), draw(st.sampled_from(teams))
+        if home == away:
+            away = teams[(teams.index(home) + 1) % len(teams)]
+        day = draw(st.integers(min_value=-400, max_value=400))
+        rows.append(
+            {
+                "match_id": f"m_{i:04d}",
+                "date": pd.Timestamp("2024-01-01") + pd.Timedelta(days=day),
+                "home_team": home,
+                "away_team": away,
+                "home_score": draw(st.integers(min_value=0, max_value=5)),
+                "away_score": draw(st.integers(min_value=0, max_value=5)),
+                "neutral": draw(st.booleans()),
+                "is_complete": True,
+            }
+        )
+    frame = pd.DataFrame(rows)
+    frame["kickoff_utc"] = pd.to_datetime(frame["date"], utc=True)
+    return frame, "2024-01-01T00:00:00Z"
+
+
+@given(data=_rating_frame_with_future())
+@settings(max_examples=200, deadline=None)
+def test_elo_rating_as_of_is_frozen_against_later_matches(
+    data: tuple[pd.DataFrame, str],
+) -> None:
+    """A Golavo rating at an instant is a pure replay of the past, so any matches
+    after that instant — however many, however lopsided — leave it byte-identical."""
+    from golavo_core.ratings import elo_trajectory
+
+    frame, cutoff = data
+    before = frame[pd.to_datetime(frame["date"]) <= pd.Timestamp(cutoff).tz_localize(None)]
+    full = elo_trajectory(frame, as_of_utc=cutoff)
+    only_past = elo_trajectory(before, as_of_utc=cutoff)
+    assert full["teams"] == only_past["teams"]
