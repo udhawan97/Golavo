@@ -1,14 +1,9 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { FAMILY_LABELS } from "../lib/contract";
 import type { TournamentRetrospective, TrustFold } from "../lib/contract";
-import { WorldCupRetrospectiveBody, trustVoices } from "./WorldCupRetrospective";
-
-/** The bivariate row carries values that appear nowhere else, so a filter
- *  regression is caught by the number itself surfacing — not by a label that a
- *  disclosure sentence also legitimately contains. */
-const BIVARIATE_ONLY_LOG_LOSS = 9.876;
-const BIVARIATE_ONLY_BRIER = 8.765;
+import { WorldCupRetrospectiveBody } from "./WorldCupRetrospective";
 
 const TRUST: TrustFold = {
   status: "available",
@@ -21,17 +16,16 @@ const TRUST: TrustFold = {
   training_cutoff_utc: "2026-06-10T00:00:00Z",
   window_start: "2026-06-11",
   window_end: "2026-07-19",
+  // Exactly what the sidecar sends: it projects evaluation.py's five-family fold
+  // onto the story's four voices and names what it dropped. This view renders that
+  // decision; it no longer re-derives it (server/golavo_server/retrospective.py).
   models: [
     { family: "climatological", log_loss: 1.05, brier: 0.66 },
     { family: "elo_ordlogit", log_loss: 0.98, brier: 0.61 },
     { family: "poisson_independent", log_loss: 1.01, brier: 0.63 },
     { family: "dixon_coles", log_loss: 0.99, brier: 0.62 },
-    {
-      family: "bivariate_poisson",
-      log_loss: BIVARIATE_ONLY_LOG_LOSS,
-      brier: BIVARIATE_ONLY_BRIER,
-    },
   ],
+  omitted_families: ["bivariate_poisson"],
 };
 
 const DATA: TournamentRetrospective = {
@@ -118,12 +112,16 @@ describe("WorldCupRetrospectiveBody", () => {
     expect(html).toContain("not an average of the matches above");
   });
 
-  it("never offers bivariate Poisson as a voice in the trust table", () => {
+  it("lists exactly the voices the sidecar sent, and no others", () => {
+    // Which families are voices is one rule with one home — the story layer's
+    // RETROSPECTIVE_FAMILIES, projected onto the fold by the sidecar and pinned in
+    // server/tests/test_retrospective_api.py. This view must render that decision
+    // rather than re-deriving it, so the two tables cannot disagree.
     const html = render(DATA);
-    // If the filter regresses, this family's own metrics render as a row.
-    expect(html).not.toContain(String(BIVARIATE_ONLY_LOG_LOSS));
-    expect(html).not.toContain(String(BIVARIATE_ONLY_BRIER));
-    // …and the reader is told where it went rather than left to notice a gap.
+    const rows = html.match(/<th scope="row"[^>]*>([^<]+)<\/th>/g) ?? [];
+    expect(rows.join(" ")).toContain(FAMILY_LABELS.dixon_coles);
+    expect(rows.join(" ")).not.toContain(FAMILY_LABELS.bivariate_poisson);
+    // …and the reader is told where the dropped family went, not left with a gap.
     expect(html).toContain("Bivariate Poisson is not listed");
     expect(html).toContain("Poisson (independent)");
   });
@@ -321,24 +319,15 @@ describe("WorldCupRetrospectiveBody", () => {
   });
 });
 
-describe("trustVoices", () => {
-  it("drops bivariate Poisson and reports it as omitted", () => {
-    const { shown, omitted } = trustVoices(TRUST);
-    expect(shown.map((m) => m.family)).toEqual([
-      "climatological",
-      "elo_ordlogit",
-      "poisson_independent",
-      "dixon_coles",
-    ]);
-    expect(omitted).toEqual(["bivariate_poisson"]);
+describe("trust voices", () => {
+  it("names the family the sidecar dropped, instead of leaving a silent gap", () => {
+    const html = render(DATA);
+    expect(html).toContain("not listed");
+    expect(html).toContain("Bivariate Poisson");
   });
 
-  it("reports nothing omitted when the fold never carried the duplicate", () => {
-    const { shown, omitted } = trustVoices({
-      ...TRUST,
-      models: TRUST.models.filter((m) => m.family !== "bivariate_poisson"),
-    });
-    expect(shown).toHaveLength(4);
-    expect(omitted).toEqual([]);
+  it("says nothing about omissions when the sidecar dropped nothing", () => {
+    const html = render({ ...DATA, trust: { ...TRUST, omitted_families: [] } });
+    expect(html).not.toContain("not listed");
   });
 });

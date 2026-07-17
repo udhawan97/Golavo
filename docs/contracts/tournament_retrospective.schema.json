@@ -151,7 +151,7 @@
       "type": "object",
       "description": "One entry of golavo_core.evaluation.evaluate()'s `folds` list — the WC2026 fold — plus the server's `status` discriminator. Deliberately permissive: additionalProperties is true and only the identifying spine is required, so a change owned by evaluation.py (a new metric, a new family) does not break this contract. fold_id IS pinned, because the identity of the fold is the one thing this contract does own: selecting the wrong entry silently re-describes a different tournament, and no other field would give a reader a way to notice.",
       "additionalProperties": true,
-      "required": ["status", "fold_id", "competition", "n_matches", "models"],
+      "required": ["status", "fold_id", "competition", "n_matches", "models", "omitted_families"],
       "properties": {
         "status": { "const": "available" },
         "fold_id": {
@@ -177,8 +177,13 @@
         "window_end": { "type": "string", "format": "date" },
         "models": {
           "type": "array",
-          "description": "One entry per evaluated family. Note this is golavo_core.models.FAMILIES (five, including bivariate_poisson) — NOT the story layer's four-voice `families` enum above, which deliberately omits bivariate_poisson as a duplicate opinion.",
+          "description": "One entry per voice the STORY layer offers — the same four-family list as `families` above, because the server projects the fold through golavo_core.retrospective.RETROSPECTIVE_FAMILIES before serving it. evaluation.py itself scores five (it includes bivariate_poisson, a duplicate opinion); dropping it here is what stops the trust table listing a voice the story table does not. Anything dropped is named in `omitted_families`, never silently absent.",
           "items": { "$ref": "#/$defs/TrustFoldModel" }
+        },
+        "omitted_families": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Families evaluation.py scored but the story layer does not offer as voices (today: bivariate_poisson, numerically identical to poisson_independent on every recorded fold). Present so a reader can be told where a family went rather than shown a silent gap; empty when nothing was dropped."
         }
       }
     },

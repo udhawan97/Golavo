@@ -380,20 +380,17 @@ def _contract_validator():
 
 
 def _trust_fold() -> dict:
-    """A realistic WC2026 fold, shaped as ``evaluation._evaluate_folds`` emits one,
-    plus the server layer's ``status`` discriminator.
+    """A realistic WC2026 fold as the SERVER serves one: ``evaluation._evaluate_folds``'
+    shape, plus the server layer's ``status`` discriminator, already projected onto
+    the story's voices.
 
-    Deliberately carries all five ``golavo_core.models.FAMILIES`` — including
-    ``bivariate_poisson``, which the story layer's four-voice ``families`` omits —
-    so the contract is pinned against conflating the two family lists.
+    ``evaluation.py`` scores all five ``golavo_core.models.FAMILIES``; the server
+    (``golavo_server.retrospective._as_story_voices``) drops the ones the story
+    layer does not offer as voices and names them in ``omitted_families``, so the
+    two tables on the page can never list different voices. This fixture mirrors
+    that — a fold carrying five models is what evaluation emits, not what a client
+    ever receives.
     """
-    families = (
-        "climatological",
-        "elo_ordlogit",
-        "poisson_independent",
-        "dixon_coles",
-        "bivariate_poisson",
-    )
     models = [
         {
             "family": family,
@@ -404,7 +401,7 @@ def _trust_fold() -> dict:
             "rps": 0.21,
             "reliability_bins": [],
         }
-        for family in families
+        for family in RETROSPECTIVE_FAMILIES
     ]
     return {
         "status": "available",
@@ -415,6 +412,7 @@ def _trust_fold() -> dict:
         "training_cutoff_utc": "2026-06-10T23:59:59Z",
         "n_matches": 97,
         "models": models,
+        "omitted_families": ["bivariate_poisson"],
     }
 
 

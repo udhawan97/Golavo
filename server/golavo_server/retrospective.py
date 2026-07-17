@@ -36,13 +36,17 @@ Task 3+'s to reconsider, not v1's.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from golavo_server import matches, seal
 
-_CACHE: dict[tuple[Any, ...], dict[str, Any]] = {}
-_CACHE_ORDER: list[tuple[Any, ...]] = []
-_CACHE_MAX = 4  # each entry costs minutes to build; keep a few generations
+# Each entry costs minutes to build; keep a few generations. The repoint retry,
+# the publish gate and the invalidation registration all come with the reader.
+_RETROSPECTIVE = matches.SnapshotReader(
+    "tournament retrospective", max_entries=4, stamps_provenance=True
+)
 
 _MARTJ42 = "martj42-international-results"
 
@@ -50,24 +54,10 @@ _MARTJ42 = "martj42-international-results"
 # be exactly this fold — not its competition, which spans two World Cups.
 _TRUST_FOLD_ID = "WC2026"
 
-# Refresh activation is infrequent and serialized, so three generation retries
-# are ample while keeping a pathological repoint loop fail-closed. The window a
-# repoint can strand work in is minutes wide here (the story layer's cost), far
-# wider than on the analysis path, so the retry matters more, not less.
-_MAX_ATTEMPTS = 3
-
 
 def reset_cache() -> None:
     """Drop the in-process memo (tests / after an index repoint)."""
-    _CACHE.clear()
-    _CACHE_ORDER.clear()
-
-
-def _remember(key: tuple[Any, ...], value: dict[str, Any]) -> None:
-    _CACHE[key] = value
-    _CACHE_ORDER.append(key)
-    while len(_CACHE_ORDER) > _CACHE_MAX:
-        _CACHE.pop(_CACHE_ORDER.pop(0), None)
+    _RETROSPECTIVE.reset()
 
 
 def _story(frame: Any, progress: Any, is_cancelled: Any) -> dict[str, Any]:
@@ -107,6 +97,31 @@ def _trust_unavailable(cause: str, reason: str) -> dict[str, Any]:
     must stay distinguishable without parsing prose.
     """
     return {"status": "unavailable", "cause": cause, "reason": reason}
+
+
+@dataclass(frozen=True)
+class PackSnapshot:
+    """The sourcepack both layers were handed, and what makes the claim checkable.
+
+    A value, so the reconciliation below can be exercised on plain data — the
+    agreement logic is the module's real depth and must not be reachable only
+    through the filesystem.
+    """
+
+    directory: Path | None
+    stamp: str
+    digest: str | None
+
+    @classmethod
+    def resolve(cls) -> PackSnapshot:
+        """The pack the active index's internationals are sealed from."""
+        pack_dir = seal.resolve_pack_dir(_MARTJ42, "international")
+        stamp, digest = _pack_identity(pack_dir)
+        return cls(directory=pack_dir, stamp=stamp, digest=digest)
+
+    def agreement_with(self, index_digest: str | None) -> dict[str, Any]:
+        """Whether this pack and the story's index are provably one snapshot."""
+        return _snapshot_agreement(index_digest, self.digest)
 
 
 def _pack_identity(pack_dir: Any) -> tuple[str, str | None]:
@@ -210,6 +225,41 @@ def _snapshot_agreement(index_digest: str | None, pack_digest: str | None) -> di
     return {"status": "verified", "index_pack_sha256": index_digest, "pack_sha256": pack_digest}
 
 
+def evaluate_pack(pack_dir: Any) -> dict[str, Any]:
+    """The pack's full evaluation summary. Seam: expensive, and stubbed in tests."""
+    from golavo_core.evaluation import evaluate
+
+    return evaluate(pack_dir)
+
+
+def _as_story_voices(fold: dict[str, Any]) -> dict[str, Any]:
+    """Project a fold's models onto exactly the voices the story layer offers.
+
+    ``evaluation.py`` iterates every family it knows; the story deliberately
+    carries four, dropping bivariate_poisson because it is numerically identical
+    to poisson_independent on every recorded fold — offering both would imply two
+    independent opinions where there is one. That reasoning is about the models,
+    not about one table, so trust must show the same voices or the page contradicts
+    itself. Derived from ``RETROSPECTIVE_FAMILIES`` rather than naming the dropped
+    family again: the story's family list is the one home for this rule.
+
+    ``omitted_families`` is what lets a reader be told where a family went instead
+    of being shown a silent gap.
+    """
+    from golavo_core.retrospective import RETROSPECTIVE_FAMILIES
+
+    models = fold.get("models", [])
+    shown = [model for model in models if model.get("family") in RETROSPECTIVE_FAMILIES]
+    omitted = [
+        str(model.get("family"))
+        for model in models
+        if model.get("family") not in RETROSPECTIVE_FAMILIES
+    ]
+    order = {family: rank for rank, family in enumerate(RETROSPECTIVE_FAMILIES)}
+    shown.sort(key=lambda model: order[model["family"]])
+    return {"models": shown, "omitted_families": omitted}
+
+
 def _trust(pack_dir: Any) -> dict[str, Any]:
     """The WC2026 evaluation fold, recomputed on the active pack.
 
@@ -228,10 +278,8 @@ def _trust(pack_dir: Any) -> dict[str, Any]:
     if pack_dir is None:
         return _trust_unavailable("no_pack", "no sourcepack resolved for this index")
 
-    from golavo_core.evaluation import evaluate
-
     try:
-        summary = evaluate(pack_dir)
+        summary = evaluate_pack(pack_dir)
     except Exception as exc:  # noqa: BLE001 (trust degrades; the request must not fail)
         return _trust_unavailable(
             "evaluation_failed", f"the {_TRUST_FOLD_ID} fold could not be recomputed: {exc}"
@@ -241,7 +289,7 @@ def _trust(pack_dir: Any) -> dict[str, Any]:
         if fold.get("fold_id") == _TRUST_FOLD_ID:
             # status is the reader's discriminator and must win over any field
             # evaluation.py might ever add to a fold under the same name.
-            return {**fold, "status": "available"}
+            return {**fold, **_as_story_voices(fold), "status": "available"}
     return _trust_unavailable(
         "fold_absent", f"this snapshot's evaluation carries no {_TRUST_FOLD_ID} fold"
     )
@@ -251,54 +299,53 @@ def build(
     *,
     progress: Any = None,
     is_cancelled: Any = None,
+    resolve_pack: Any = None,
 ) -> dict[str, Any]:
-    """The full two-layer retrospective for the active index and pack."""
+    """The full two-layer retrospective for the active index and pack.
+
+    ``resolve_pack`` names where the trust layer's pack comes from — the active
+    sourcepack in production, a plain :class:`PackSnapshot` in a test.
+    """
     from golavo_core.retrospective import RetrospectiveUnavailable
 
-    for _attempt in range(_MAX_ATTEMPTS):
-        snapshot = matches.index_snapshot()
-        pack_dir = seal.resolve_pack_dir(_MARTJ42, "international")
-        # The pack's digest — not its directory name — is the third key
-        # component, so the memo self-invalidates when the active pack changes
-        # under an otherwise unchanged index fingerprint and epoch.
-        pack, pack_digest = _pack_identity(pack_dir)
-        key = (snapshot.fingerprint, snapshot.epoch, pack)
+    resolve = resolve_pack or PackSnapshot.resolve
+    # One slot, written by the key and read by the compute of the SAME attempt.
+    # Resolving the pack twice would let it move between the two, and the result
+    # would then be memoized under a key naming a pack it was not built from.
+    held: dict[str, PackSnapshot] = {}
 
-        cached = _CACHE.get(key)
-        if cached is not None:
-            if matches.snapshot_is_current(snapshot):
-                return cached
-            continue
+    def key() -> tuple[Any, ...]:
+        pack = resolve()
+        held["pack"] = pack
+        # The pack's digest — not its directory name — is the key component, so the
+        # memo self-invalidates when the active pack changes under an otherwise
+        # unchanged index. Every generation's pack is named "internationals".
+        return (pack.stamp,)
 
+    def compute(snapshot: matches.IndexSnapshot) -> dict[str, Any]:
+        pack = held["pack"]
         try:
             story = _story(snapshot.frame, progress, is_cancelled)
         except RetrospectiveUnavailable as exc:
             story = _unavailable_story(str(exc))
 
         result = dict(story)
-        result["trust"] = _trust(pack_dir)
-        # The digests are read from THIS snapshot's own meta, not the module
+        result["trust"] = _trust(pack.directory)
+        # The index digest is read from THIS snapshot's own meta, not the module
         # global, so a repoint racing this compute cannot make a retired index
-        # vouch for the active pack.
+        # vouch for the active pack. index_sha256 is the reader's to stamp.
         result["provenance"] = {
-            "index_sha256": snapshot.fingerprint,
-            "pack": pack,
-            "snapshot_agreement": _snapshot_agreement(
-                _index_pack_digest(snapshot.meta_path), pack_digest
-            ),
+            "pack": pack.stamp,
+            "snapshot_agreement": pack.agreement_with(_index_pack_digest(snapshot.meta_path)),
         }
+        return result
 
-        # Publish under the same _CACHE_LOCK that guards the epoch bump, so no
-        # entry from a retired generation can survive a concurrent reset_cache().
-        # A refused publish means the index moved during the minutes this took:
-        # retry against the new generation rather than return retired work.
-        if matches.apply_if_snapshot_current(
-            snapshot, lambda key=key, result=result: _remember(key, result)
-        ):
-            return result
-
-    # Exhausted. No trust or provenance is stamped: there is no settled snapshot
-    # or pack left to honestly describe, and a stale stamp would be worse than none.
-    return _unavailable_story(
-        "retrospective paused because the verified match index changed; retry"
-    )
+    try:
+        return _RETROSPECTIVE.read(compute, key=key)
+    except matches.MatchIndexUnavailable:
+        # Exhausted. No trust or provenance is stamped: there is no settled
+        # snapshot or pack left to honestly describe, and a stale stamp would be
+        # worse than none.
+        return _unavailable_story(
+            "retrospective paused because the verified match index changed; retry"
+        )

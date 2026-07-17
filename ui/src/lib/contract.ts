@@ -437,7 +437,14 @@ export interface TrustFold {
   training_cutoff_utc?: string;
   window_start?: string;
   window_end?: string;
+  /** Exactly the voices the story layer offers — the server projects the fold
+   *  through RETROSPECTIVE_FAMILIES, so this table can never list a voice the
+   *  story table does not. */
   models: TrustFoldModel[];
+  /** Families evaluation.py scored but the story does not offer as voices
+   *  (bivariate_poisson duplicates poisson_independent). Named, never a silent
+   *  gap; empty when nothing was dropped. */
+  omitted_families: ModelFamily[];
 }
 
 /** A missing trust layer is always a typed, machine-readable state — never a

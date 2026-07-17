@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -122,11 +123,183 @@ def _stub_layers(monkeypatch: pytest.MonkeyPatch) -> dict[str, int]:
     return calls
 
 
+# --- one home for "which families are voices" -------------------------------
+
+
+def test_trust_lists_exactly_the_voices_the_story_lists(monkeypatch) -> None:
+    """bivariate_poisson is numerically identical to poisson_independent, so core
+    offers four voices where evaluation.py's fold carries five. Projecting the fold
+    through the story's own family list is the server's job: while a React view
+    re-derived it, the rule had two homes and the two tables could disagree.
+    """
+    from golavo_core.retrospective import RETROSPECTIVE_FAMILIES
+
+    fold = _fold(
+        "WC2026",
+        "FIFA World Cup",
+        models=[
+            {"family": "dixon_coles", "log_loss": 1.02, "params": {}},
+            {"family": "poisson_independent", "log_loss": 1.03, "params": {}},
+            {"family": "bivariate_poisson", "log_loss": 1.03, "params": {}},
+            {"family": "elo_ordlogit", "log_loss": 1.05, "params": {}},
+            {"family": "climatological", "log_loss": 1.09, "params": {}},
+        ],
+    )
+    monkeypatch.setattr(
+        server_retrospective, "evaluate_pack", lambda pack_dir: {"folds": [fold]}
+    )
+
+    trust = server_retrospective._trust(Path("/p"))
+
+    assert [model["family"] for model in trust["models"]] == [
+        family for family in RETROSPECTIVE_FAMILIES
+    ]
+    assert trust["omitted_families"] == ["bivariate_poisson"]
+
+
+def test_trust_keeps_the_folds_own_match_count_when_projecting(monkeypatch) -> None:
+    """Only the family list is projected. n_matches is what lets a reader
+    reconcile trust against the story's coverage, and it is evaluation.py's."""
+    fold = _fold("WC2026", "FIFA World Cup", n_matches=97)
+    monkeypatch.setattr(
+        server_retrospective, "evaluate_pack", lambda pack_dir: {"folds": [fold]}
+    )
+
+    trust = server_retrospective._trust(Path("/p"))
+
+    assert trust["n_matches"] == 97
+    assert trust["status"] == "available"
+
+
+# --- the snapshot pair, as plain values ------------------------------------
+#
+# The module's real depth is proving the story's index and the trust layer's pack
+# are one snapshot. That reconciliation is a value operation and is tested as one:
+# no monkeypatching, no filesystem, no index.
+
+
+def test_matching_digests_are_a_verified_agreement() -> None:
+    pack = server_retrospective.PackSnapshot(
+        directory=Path("/gen-7/packs/internationals"), stamp="sp_a@" + "a" * 64, digest="a" * 64
+    )
+
+    agreement = pack.agreement_with("a" * 64)
+
+    assert agreement["status"] == "verified"
+    assert agreement["index_pack_sha256"] == "a" * 64
+    _agreement_validator().validate(agreement)
+
+
+def test_differing_digests_are_a_caught_mismatch() -> None:
+    pack = server_retrospective.PackSnapshot(
+        directory=Path("/p"), stamp="sp_b@" + "b" * 64, digest="b" * 64
+    )
+
+    agreement = pack.agreement_with("a" * 64)
+
+    assert agreement["status"] == "mismatched"
+    assert agreement["cause"] == "pack_index_mismatch"
+    _agreement_validator().validate(agreement)
+
+
+def test_an_unidentified_pack_is_unverified_never_agreement() -> None:
+    """A check that could not run must never read as agreement."""
+    pack = server_retrospective.PackSnapshot(
+        directory=None, stamp="unresolved: no sourcepack resolved for this index", digest=None
+    )
+
+    agreement = pack.agreement_with("a" * 64)
+
+    assert agreement["status"] == "unverified"
+    assert agreement["cause"] == "pack_unidentified"
+    _agreement_validator().validate(agreement)
+
+
+def test_an_unreadable_index_provenance_is_unverified() -> None:
+    pack = server_retrospective.PackSnapshot(
+        directory=Path("/p"), stamp="sp_a@" + "a" * 64, digest="a" * 64
+    )
+
+    agreement = pack.agreement_with(None)
+
+    assert agreement["status"] == "unverified"
+    assert agreement["cause"] == "index_provenance_unreadable"
+    _agreement_validator().validate(agreement)
+
+
+def test_build_takes_its_pack_as_a_parameter(monkeypatch) -> None:
+    """The pack is injected, so the two-layer build is exercisable without
+    reaching through seal.resolve_pack_dir and the descriptor on disk."""
+    _stub_layers(monkeypatch)
+    _FakeIndex().install(monkeypatch)
+    pack = server_retrospective.PackSnapshot(
+        directory=Path("/gen-7/packs/internationals"), stamp="sp_x@" + "x" * 64, digest="x" * 64
+    )
+
+    result = server_retrospective.build(resolve_pack=lambda: pack)
+
+    assert result["provenance"]["pack"] == "sp_x@" + "x" * 64
+    # No index meta on the fake snapshot → the check could not run → unverified.
+    assert result["provenance"]["snapshot_agreement"]["status"] == "unverified"
+
+
+def test_concurrent_builds_never_cross_their_packs(monkeypatch) -> None:
+    """build() resolves its pack once per attempt and hands that same value to the
+    trust layer and the provenance stamp. Two runs in flight at once must not be
+    able to swap them: a result stamped with a pack it was not built from is
+    exactly the false provenance this module exists to prevent.
+    """
+    monkeypatch.setattr(matches, "index_snapshot", lambda: matches.IndexSnapshot(
+        frame=object(), fingerprint="fp-1", epoch=1
+    ))
+    monkeypatch.setattr(matches, "snapshot_is_current", lambda snapshot: True)
+    monkeypatch.setattr(
+        matches, "apply_if_snapshot_current", lambda snapshot, op: (op(), True)[1]
+    )
+    monkeypatch.setattr(
+        server_retrospective, "_story", lambda frame, progress, cancel: _story_envelope()
+    )
+    # trust echoes the pack it was handed, so a crossed handoff is observable.
+    monkeypatch.setattr(
+        server_retrospective,
+        "_trust",
+        lambda pack_dir: {"status": "available", "seen": str(pack_dir)},
+    )
+
+    barrier = threading.Barrier(2)
+    results: dict[str, dict[str, Any]] = {}
+
+    def run(name: str) -> None:
+        pack = server_retrospective.PackSnapshot(
+            directory=Path(f"/packs/{name}"), stamp=f"sp_{name}@{name * 8}", digest=name * 8
+        )
+
+        def resolve() -> server_retrospective.PackSnapshot:
+            barrier.wait(5)  # force both runs to interleave key() and compute()
+            return pack
+
+        results[name] = server_retrospective.build(resolve_pack=resolve)
+
+    threads = [threading.Thread(target=run, args=(name,)) for name in ("a", "b")]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(10)
+
+    for name in ("a", "b"):
+        assert results[name]["provenance"]["pack"] == f"sp_{name}@{name * 8}"
+        assert results[name]["trust"]["seen"] == f"/packs/{name}"
+
+
 def test_matches_reset_clears_the_retrospective_cache() -> None:
-    """A repointed index must never serve a retrospective from the old frame."""
-    server_retrospective._CACHE[("probe",)] = {"stale": True}
+    """A repointed index must never serve a retrospective from the old frame.
+
+    The reader registers itself with ``matches``, so this holds without ``matches``
+    naming this module.
+    """
+    server_retrospective._RETROSPECTIVE.entries()[("probe",)] = {"stale": True}
     matches.reset_cache()
-    assert server_retrospective._CACHE == {}
+    assert server_retrospective._RETROSPECTIVE.entries() == {}
 
 
 # --- both layers, one pack -------------------------------------------------
@@ -547,11 +720,12 @@ def test_the_memo_is_bounded(monkeypatch) -> None:
     )
     index = _FakeIndex().install(monkeypatch)
 
-    for generation in range(server_retrospective._CACHE_MAX + 3):
+    bound = server_retrospective._RETROSPECTIVE._max_entries
+    for generation in range(bound + 3):
         index.fingerprint = f"fp-{generation}"
         server_retrospective.build()
 
-    assert len(server_retrospective._CACHE) == server_retrospective._CACHE_MAX
+    assert len(server_retrospective._RETROSPECTIVE.entries()) == bound
 
 
 def test_a_stale_cache_hit_is_never_served(monkeypatch) -> None:
@@ -569,8 +743,8 @@ def test_a_stale_cache_hit_is_never_served(monkeypatch) -> None:
 
     # Hand-plant the retired generation's key so build() hits it while the module
     # globals have already moved on: the memo must lose to the epoch check.
-    stale_key = ("fp-1", 1, "sp_a@" + "a" * 64)
-    server_retrospective._CACHE[stale_key] = {"stale": True}
+    stale_key = ("sp_a@" + "a" * 64, "fp-1", 1)
+    server_retrospective._RETROSPECTIVE.entries()[stale_key] = {"stale": True}
     index.epoch = 2
 
     def snapshot() -> matches.IndexSnapshot:
@@ -630,12 +804,12 @@ def test_exhausted_retries_return_a_typed_paused_envelope(monkeypatch) -> None:
 
     result = server_retrospective.build()
 
-    assert calls["story"] == server_retrospective._MAX_ATTEMPTS
+    assert calls["story"] == matches._MAX_ATTEMPTS
     assert result["status"] == "unavailable"
     assert result["reason"] == (
         "retrospective paused because the verified match index changed; retry"
     )
-    assert server_retrospective._CACHE == {}
+    assert server_retrospective._RETROSPECTIVE.entries() == {}
     # No settled snapshot or pack survives, so none is stamped — a stale stamp
     # would be worse than none.
     assert "provenance" not in result

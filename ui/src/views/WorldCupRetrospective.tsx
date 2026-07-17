@@ -28,41 +28,9 @@ import type {
   RetrospectiveRow,
   SnapshotAgreement,
   TournamentRetrospective,
-  TrustFold,
-  TrustFoldModel,
 } from "../lib/contract";
 import { FAMILY_LABELS } from "../lib/contract";
 import { num, pct, shortHash, utcDate } from "../lib/format";
-
-/**
- * The family the trust table refuses to list as a voice.
- *
- * `trust.models` comes from evaluation.py, which iterates all FIVE families.
- * The story layer's `families` deliberately carries four — it drops
- * bivariate_poisson because the family is numerically identical to
- * poisson_independent on every recorded fold, so offering both implies two
- * independent opinions where there is one. That reasoning is about the models,
- * not about one table, so it binds here too: rendering trust unfiltered would
- * list a voice the story table does not, and the two tables would visibly
- * contradict each other.
- */
-const DUPLICATE_VOICE: ModelFamily = "bivariate_poisson";
-
-/** Split a fold's models into the voices we show and the duplicates we drop.
- *  `omitted` is what lets the page tell a reader where a family went instead of
- *  leaving a silent gap. */
-export function trustVoices(fold: TrustFold): {
-  shown: TrustFoldModel[];
-  omitted: ModelFamily[];
-} {
-  const shown: TrustFoldModel[] = [];
-  const omitted: ModelFamily[] = [];
-  for (const model of fold.models) {
-    if (model.family === DUPLICATE_VOICE) omitted.push(model.family);
-    else shown.push(model);
-  }
-  return { shown, omitted };
-}
 
 /** Contract-permissive: only family/log_loss are guaranteed, so an unknown
  *  future family shows its raw id rather than "undefined". */
@@ -128,7 +96,11 @@ function TrustPanel({ trust }: { trust: NonNullable<TournamentRetrospective["tru
       </div>
     );
   }
-  const { shown, omitted } = trustVoices(trust);
+  // The server projects the fold onto exactly the voices the story offers, so
+  // this table cannot list one the story table does not. Re-deriving that rule
+  // here is what once gave it two homes.
+  const shown = trust.models;
+  const omitted = trust.omitted_families;
   const best = shown.length > 0 ? Math.min(...shown.map((m) => m.log_loss)) : null;
   return (
     <>
@@ -165,7 +137,8 @@ function TrustPanel({ trust }: { trust: NonNullable<TournamentRetrospective["tru
       </p>
       {omitted.length > 0 && (
         <p className="small dim measure" style={{ margin: ".4rem 0 0" }}>
-          {familyLabel(DUPLICATE_VOICE)} is not listed. It is numerically identical to{" "}
+          {omitted.map((family) => familyLabel(family)).join(", ")}{" "}
+          {omitted.length === 1 ? "is" : "are"} not listed. It is numerically identical to{" "}
           {familyLabel("poisson_independent")} on every recorded fold, so showing both would imply
           two independent opinions where there is one — the same reason the matches above are
           backtested with four voices, not five.
@@ -405,7 +378,7 @@ export function WorldCupRetrospective() {
     setData(null);
     setJob(null);
     try {
-      const jobId = newJobId().replace(/^cl-/, "rt-");
+      const jobId = newJobId("rt");
       const started = await startWorldCupRetrospective(jobId);
       setActive({ jobId: started });
     } catch (err) {
