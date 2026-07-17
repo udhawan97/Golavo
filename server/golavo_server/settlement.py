@@ -47,6 +47,29 @@ _WORLD_CUP_URL = "https://github.com/openfootball/worldcup.json"
 _COMMIT_API = "https://api.github.com/repos/{repo}/commits/master"
 _RAW = "https://raw.githubusercontent.com/{repo}/{ref}/{path}"
 
+# A club prediction is graded only when two independent trusted sources agree on
+# the score. Golavo has fewer than two free club-result sources today, so a club
+# seal is deferred with this reason — never graded on a single unverified result.
+_CLUB_PENDING_REASON = "awaiting_independent_confirmation"
+
+
+def _requires_independent_confirmation(competition: str) -> bool:
+    """True for a club competition, which needs multi-source agreement to settle.
+
+    Internationals settle from martj42 (with a World Cup cross-check); a club
+    competition has no such trusted forward-result source wired, so it is held
+    until two independent sources can confirm the score. The sealed artifact
+    stores the source competition NAME, so it is resolved to a catalog id first.
+    """
+    from golavo_core.competitions import competition_by_id, competition_id_for_source_name
+
+    competition_id = competition_id_for_source_name(competition)
+    if competition_id is None:
+        return False
+    entry = competition_by_id(competition_id)
+    return entry is not None and entry.get("team_scope") == "club"
+
+
 # Two simultaneous UI requests must not observe the same unresolved root and
 # write two different successors with different retrieval timestamps.
 _SETTLEMENT_LOCK = threading.Lock()
@@ -286,14 +309,20 @@ def settle_pending_forecasts(
         ]
         eligible: list[dict[str, Any]] = []
         deferred: list[str] = []
+        club_pending: list[dict[str, Any]] = []
         for chain in unresolved:
             kickoff = datetime.fromisoformat(
                 chain["match"]["kickoff_utc"].replace("Z", "+00:00")
             ).astimezone(UTC)
-            if now >= kickoff + RESULT_GRACE:
-                eligible.append(chain)
-            else:
+            if now < kickoff + RESULT_GRACE:
                 deferred.append(chain["sealed_artifact_id"])
+            elif _requires_independent_confirmation(chain["match"]["competition"]):
+                # Past kickoff, but a club seal is never graded on a single source;
+                # it waits for two independent sources rather than joining the
+                # internationals settlement below.
+                club_pending.append(chain)
+            else:
+                eligible.append(chain)
 
         retrieved_at = _iso(now)
         sources: dict[str, SourceResults] = {}
@@ -329,7 +358,10 @@ def settle_pending_forecasts(
                 errors.append({"source_id": _WORLD_CUP_SOURCE, "message": str(exc)})
 
         scored: list[dict[str, Any]] = []
-        still_pending: list[dict[str, str]] = []
+        still_pending: list[dict[str, str]] = [
+            {"artifact_id": chain["sealed_artifact_id"], "reason": _CLUB_PENDING_REASON}
+            for chain in club_pending
+        ]
         for chain in eligible:
             match = chain["match"]
             match_key = _key(
@@ -408,6 +440,7 @@ def settle_pending_forecasts(
             "checked_at_utc": retrieved_at,
             "pending_before_check": len(unresolved),
             "eligible": len(eligible),
+            "awaiting_independent_confirmation": len(club_pending),
             "deferred_in_progress": deferred,
             "sources_checked": sorted(
                 {*sources.keys(), *(source.source_id for source in world_cup_sources.values())}

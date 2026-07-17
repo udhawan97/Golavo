@@ -9,10 +9,13 @@ byte-identical to a ``golavo seal``. Three safety properties hold:
   the training date, and the as-of are all resolved server-side — the pack from
   the indexed row's source, the as-of from the server clock. A caller can neither
   backdate a seal nor point the engine at an untrusted file or pack path.
-* **Forward seals are scoped to men's senior internationals.** That is the only
-  source whose rows map unambiguously to one pinned CC0 pack (OpenFootball club
-  source ids are reused across competitions) and whose scheduled rows carry a
-  usable date-proxy kickoff. Everything else returns a typed, honest abstention.
+* **Forward seals cover men's senior internationals and the bundled domestic
+  leagues.** Both map a scheduled row to exactly one pinned CC0 pack — an
+  international by its martj42 source, a club by its competition (the OpenFootball
+  club source id is shared across leagues, so the competition disambiguates).
+  A club prediction is written the same way but is graded only once two
+  independent sources agree, so it stays honestly pending until then. Everything
+  else returns a typed, honest abstention.
 * **One active seal per (fixture, family).** A repeat request returns the existing
   immutable artifact instead of minting a near-duplicate that differs only by the
   as-of second.
@@ -81,13 +84,17 @@ def _parse_iso(value: str) -> datetime:
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
-def _active_bundled_pack(source_id: str) -> Path | None:
+def _active_bundled_pack(source_id: str, competition: str | None = None) -> Path | None:
     """The greatest-anchor bundled pack for a source, from the bundled snapshots.json.
 
     Mirrors ingest.default_index_packs so search and sealing resolve the SAME pack: a
     newly bundled refresh (a higher snapshot anchor) becomes active for both at once.
     Returns None when no snapshots registry is bundled (older frozen builds), so the
     caller falls back to the pinned canonical pack and behavior is unchanged.
+
+    When ``competition`` is given, only a pack whose manifest declares that
+    competition qualifies — the disambiguation a club source needs, since the
+    OpenFootball club source id is shared across five leagues.
     """
     import json
 
@@ -101,20 +108,30 @@ def _active_bundled_pack(source_id: str) -> Path | None:
         if str(entry.get("source_id")) != source_id:
             continue
         pack = Path(PACKS_DIR) / Path(str(entry["pack"])).name
-        if not (pack / "manifest.json").is_file():
+        manifest_path = pack / "manifest.json"
+        if not manifest_path.is_file():
             continue
+        if competition is not None:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if str(manifest.get("competition") or "") != competition:
+                continue
         rank = (snapshot_anchor_utc(entry), str(entry["pack"]))
         if best is None or rank > best[0]:
             best = (rank, pack)
     return best[1] if best is not None else None
 
 
-def resolve_pack_dir(source_id: str | None, source_kind: str | None) -> Path | None:
+def resolve_pack_dir(
+    source_id: str | None, source_kind: str | None, competition: str | None = None
+) -> Path | None:
     """The pinned CC0 pack a fixture's forward seal must train from, or None.
 
-    Only sources that map to exactly one pack resolve: men's internationals today.
-    A club row whose OpenFootball source id is shared across competitions cannot
-    be tied to a single pack and is intentionally unsupported here.
+    Two kinds of fixture resolve to exactly one pack:
+
+    * men's internationals — one martj42 pack (competition is not needed);
+    * a club fixture whose ``competition`` names its league — the OpenFootball
+      club source id is shared across five leagues, so the competition is what
+      picks the one league pack.
 
     Resolution order, all keeping search and sealing on one source of truth:
     a runtime-refreshed pack (an in-app "pull it in" refresh) first; then the
@@ -122,6 +139,12 @@ def resolve_pack_dir(source_id: str | None, source_kind: str | None) -> Path | N
     bundled refresh that adds fixtures becomes sealable too); then the pinned
     canonical pack as a fallback.
     """
+    if source_kind == "club":
+        # A club trains only on its own league (leak_safe_training_view scopes to
+        # source_id AND competition), and that league is exactly one bundled pack.
+        if not source_id or not competition:
+            return None
+        return _active_bundled_pack(source_id, competition)
     if source_kind != "international":
         return None
     name = _SOURCE_PACKS.get(source_id or "")
@@ -160,13 +183,17 @@ def eligibility(match: dict[str, Any], *, now_utc: datetime | None = None) -> di
         )
 
     source_id = match.get("source_id")
-    if match.get("source_kind") != "international" or _SOURCE_PACKS.get(source_id or "") is None:
+    source_kind = match.get("source_kind")
+    competition = match.get("competition")
+    if source_kind not in ("international", "club") or (
+        source_kind == "international" and _SOURCE_PACKS.get(source_id or "") is None
+    ):
         return verdict(
             False,
             "unsupported_competition",
-            "forward seals currently cover men's senior international fixtures only",
+            "forward seals cover men's senior internationals and the bundled domestic leagues",
         )
-    if resolve_pack_dir(source_id, match.get("source_kind")) is None:
+    if resolve_pack_dir(source_id, source_kind, competition) is None:
         return verdict(
             False,
             "pack_unavailable",
@@ -307,7 +334,9 @@ def seal_match(
         status = 503 if verdict["reason_code"] == "pack_unavailable" else 422
         raise SealError(status, verdict["reason_code"], verdict["detail"])
 
-    pack = resolve_pack_dir(match.get("source_id"), match.get("source_kind"))
+    pack = resolve_pack_dir(
+        match.get("source_id"), match.get("source_kind"), match.get("competition")
+    )
     assert pack is not None  # eligibility proved this; narrows the type for mypy
 
     from golavo_core.artifacts import load_verified_artifact, seal_forecast

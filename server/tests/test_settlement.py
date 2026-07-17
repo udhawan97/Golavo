@@ -180,6 +180,41 @@ def test_recent_kickoff_is_deferred_without_network(tmp_path: Path) -> None:
     assert report["deferred_in_progress"] == [sealed.stem]
 
 
+def test_a_club_seal_is_deferred_for_independent_confirmation_not_graded(tmp_path: Path) -> None:
+    # Seal a real 2026-27 La Liga fixture, then settle after its kickoff. A club
+    # prediction must never be graded on a single source: it is held pending two
+    # independent sources, and the internationals result loaders are not consulted.
+    esp_pack = REPO_ROOT / "packs/openfootball-esp-ll"
+    ledger = tmp_path / "ledger"
+    sealed = seal_forecast(
+        pack_dir=esp_pack,
+        output_dir=ledger,
+        date="2026-08-16",
+        home_team="Celta Vigo",
+        away_team="Osasuna",
+        as_of_utc="2026-08-01T00:00:00Z",
+    )
+
+    def unexpected(**_kwargs):
+        raise AssertionError("a club seal must not hit an internationals result source")
+
+    report = settle_pending_forecasts(
+        ledger,
+        now=datetime(2026, 9, 1, tzinfo=UTC),  # well after the club kickoff
+        martj_loader=unexpected,
+        world_cup_loader=unexpected,
+    )
+
+    assert report["eligible"] == 0
+    assert report["awaiting_independent_confirmation"] == 1
+    assert report["scored"] == []
+    assert report["still_pending"] == [
+        {"artifact_id": sealed.stem, "reason": "awaiting_independent_confirmation"}
+    ]
+    # The seal is untouched: no scored successor was written.
+    assert len(list(ledger.glob("fa_*.json"))) == 1
+
+
 def test_result_parsers_ignore_scheduled_rows_and_prefer_extra_time() -> None:
     csv_text = (
         "date,home_team,away_team,home_score,away_score,tournament,city,country,neutral\n"

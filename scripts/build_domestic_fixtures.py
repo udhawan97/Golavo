@@ -184,6 +184,10 @@ def build(check_only: bool = False) -> int:
                 "url": f"https://github.com/openfootball/{repo}",
                 "upstream_ref": ref,
                 "upstream_committed_at_utc": committed_at,
+                # The pinned bytes are anchored to their upstream commit, so the
+                # retrieval time is recorded as the commit instant (required by
+                # co_source_descriptors when a club fixture is sealed).
+                "retrieved_at_utc": committed_at,
                 "license": "CC0-1.0",
                 "sha256_file": file_name,
                 "raw_sha256": {path: _sha256(payload)},

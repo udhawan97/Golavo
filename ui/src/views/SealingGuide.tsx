@@ -35,12 +35,13 @@ interface Step {
 const STEPS: Step[] = [
   {
     icon: <CalendarIcon size={18} />,
-    title: "1 · Pick an upcoming international",
+    title: "1 · Pick an upcoming match",
     body: (
       <>
         Open an upcoming men’s senior international from <a href="#/">Matchday → Upcoming</a> or the{" "}
-        <a href="#/league/internationals">Internationals</a> page. Club competitions can’t be sealed —
-        they’re bundled as historical data for backtesting, not forward forecasts.
+        <a href="#/league/internationals">Internationals</a> page, or an upcoming fixture in a bundled
+        domestic league. A sealed club prediction goes on the record the same way, but is graded only
+        once two independent sources agree on the result — until then it stays honestly pending.
       </>
     ),
   },
@@ -158,11 +159,13 @@ export function SealingGuide() {
 
       <section className="stack" style={{ ["--gap" as string]: ".5rem" }} aria-label="Common questions">
         <h2 className="rail__title">Common questions</h2>
-        <Drawer title="Why can’t I seal club competition matches?">
+        <Drawer title="How are club predictions graded?">
           <p className="small">
-            The open club datasets are bundled as history for backtesting, with no forward feed.
-            Men’s senior internationals are the one surface that refreshes on demand, so they’re the
-            only fixtures Golavo can honestly seal ahead of kickoff.
+            You can seal a prediction for an upcoming fixture in a bundled domestic league, and it
+            goes on the record the same way an international does. But Golavo grades a club prediction
+            only once two independent sources agree on the final score — and there is only one open
+            club-result source today, so a sealed club prediction stays honestly pending rather than
+            being scored against a single unverified result.
           </p>
         </Drawer>
         <Drawer title="Can a seal be changed later?">

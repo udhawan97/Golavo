@@ -583,7 +583,7 @@ function SealAction({ detail, quiet = false }: { detail: MatchDetailResponse; qu
   if (!eligibility) {
     return quiet ? (
       <div className="expert-seal-row"><span className="upper">Expert</span><span>Model sealing is unavailable in this build.</span><a href="#/guide/sealing">What is sealing? ›</a></div>
-    ) : <SealUnknown match={match} />;
+    ) : <SealUnknown />;
   }
   if (!eligibility.eligible) {
     return quiet ? (
@@ -681,7 +681,7 @@ function SealIneligible({ eligibility }: { eligibility: SealEligibility }) {
     kickoff_passed:
       "The seal window has closed. A forecast is only honest if it was sealed before kickoff — for this date-only fixture, before its 00:00 UTC day proxy, which has already passed.",
     unsupported_competition:
-      "Forward sealing currently covers men’s senior international fixtures. Club competitions are bundled for historical analysis, not forward forecasts.",
+      "Forward sealing covers men’s senior internationals and the bundled domestic leagues. This competition isn’t one of them.",
     pack_unavailable:
       "The pinned data pack for this fixture isn’t available in this build yet, so a forecast can’t be sealed here.",
   };
@@ -699,16 +699,13 @@ function SealIneligible({ eligibility }: { eligibility: SealEligibility }) {
 }
 
 /** Fallback for a backend that predates the eligibility verdict. */
-function SealUnknown({ match }: { match: MatchRow }) {
+function SealUnknown() {
   return (
     <div className="callout callout--info">
       <InfoIcon size={18} />
       <div>
         <div className="callout__title">No forecast sealed for this fixture yet</div>
-        This build doesn’t report in-app sealing for this fixture.
-        {match.source_kind === "club" && (
-          <> Forward sealing currently covers internationals; club competitions are historical data.</>
-        )}{" "}
+        This build doesn’t report in-app sealing for this fixture.{" "}
         <a href="#/guide/sealing">What is sealing? ›</a>
       </div>
     </div>

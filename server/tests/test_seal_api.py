@@ -87,7 +87,7 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     # snapshot whose Norway v England id and 00:00 kickoff proxy these tests assume).
     # The greatest-anchor-pack resolution is covered hermetically in
     # test_seal_pack_resolution.py.
-    monkeypatch.setattr(seal, "_active_bundled_pack", lambda source_id: None)
+    monkeypatch.setattr(seal, "_active_bundled_pack", lambda source_id, competition=None: None)
     return TestClient(server_main.app)
 
 
@@ -126,10 +126,14 @@ def test_completed_fixture_is_not_eligible(client: TestClient) -> None:
     assert elig["reason_code"] == "fixture_complete"
 
 
-def test_club_fixture_is_unsupported(client: TestClient) -> None:
+def test_club_without_a_bundled_pack_reports_pack_unavailable(client: TestClient) -> None:
+    # A club fixture is a supported kind now — it reaches pack resolution rather
+    # than a categorical 'unsupported'. This hermetic build bundles no league pack
+    # (_active_bundled_pack is stubbed to None), so it honestly reports the missing
+    # pack; a real build resolves the league's own openfootball pack.
     elig = client.get("/api/v1/matches/m_club").json()["seal_eligibility"]
     assert elig["eligible"] is False
-    assert elig["reason_code"] == "unsupported_competition"
+    assert elig["reason_code"] == "pack_unavailable"
 
 
 def test_scheduled_international_is_eligible_before_kickoff(
@@ -237,10 +241,12 @@ def test_seal_rejects_a_completed_fixture(client: TestClient) -> None:
     assert resp.json()["detail"]["reason_code"] == "fixture_complete"
 
 
-def test_seal_rejects_a_club_fixture(client: TestClient) -> None:
+def test_seal_rejects_a_club_fixture_without_a_bundled_pack(client: TestClient) -> None:
+    # Clubs are supported now, but this hermetic build bundles no league pack, so
+    # the seal is refused for a missing pack rather than an unsupported competition.
     resp = client.post("/api/v1/matches/m_club/seal")
-    assert resp.status_code == 422
-    assert resp.json()["detail"]["reason_code"] == "unsupported_competition"
+    assert resp.status_code == 503
+    assert resp.json()["detail"]["reason_code"] == "pack_unavailable"
 
 
 def test_seal_rejects_an_unknown_family(
@@ -285,8 +291,14 @@ def test_eligibility_is_pure_over_the_row_view() -> None:
     assert ok["eligible"] is True
     assert ok["existing_artifact_ids"] == ["fa_x"]
     assert seal.eligibility({**base, "is_complete": True})["reason_code"] == "fixture_complete"
+    # A club is a supported kind now; without a resolvable league pack (no
+    # competition here) it reports the missing pack, not an unsupported kind.
     assert seal.eligibility({**base, "source_kind": "club", "source_id": _CLUB})["reason_code"] == (
-        "unsupported_competition"
+        "pack_unavailable"
     )
+    # A truly unknown source kind stays categorically unsupported.
+    assert seal.eligibility({**base, "source_kind": "exhibition", "source_id": "x"})[
+        "reason_code"
+    ] == "unsupported_competition"
     past = seal.eligibility({**base, "kickoff_utc": "2000-01-01T00:00:00Z"})
     assert past["reason_code"] == "kickoff_passed"
