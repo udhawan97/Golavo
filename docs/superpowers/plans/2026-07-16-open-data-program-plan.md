@@ -16,7 +16,12 @@
 > Deliberately did **not** add new per-match fact families: they widen `family_size()`,
 > the multiple-comparison budget applied to every forecast's notebook, and the surface
 > delivers the scorer value without that cost.
-> **Phases 3–10: not started.**
+> **Phase 3 (Golavo Ratings): SHIPPED** — an in-house national-team Elo table (Model Lab →
+> Golavo Ratings, `GET /ratings/international`). The Elo update is extracted into a shared
+> `elo_match_delta` used by both the model and the table (byte-identical, 19 model tests
+> confirm). Leak-safe proved as a Hypothesis property. Verified in the running app
+> (Argentina #1, 40 sparklines, era-correct rewind to 2018).
+> **Phases 4–10: not started.**
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan phase-by-phase. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
