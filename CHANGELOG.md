@@ -6,6 +6,39 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.14.2] - 2026-07-16
+
+Golavo 0.14.2 brings the 2026 World Cup final into the app, closes a training-data leak
+that the tournament's exact kickoff times made reachable, and adds a retrospective that
+backtests every played match of the tournament.
+
+### Fixed
+- Forecasts no longer train on matches played later the same day. Training rows were
+  selected by calendar date, which treats every fixture on a day as simultaneous, so a
+  result from 20:00 could inform a forecast for a match that kicked off at 00:30 — and the
+  leakage guard compared the same dates, so it could not see it. **Replays on days with
+  several matches will differ from 0.14.1: they previously used information that did not
+  exist yet.** Sealed forecasts were never affected, because a match played later that day
+  is not complete when a seal is written, and evaluation folds cut on day boundaries.
+- The World Cup outlook no longer treats a semifinal as decided when its kickoff has not
+  passed at the requested cutoff. A snapshot carrying the result of a later match could
+  report that match complete, and pin its winner into the bracket, for a cutoff before it
+  was played.
+
+### Added
+- The 2026 World Cup final and third-place match, with exact kickoff times, so the seal
+  window stays open until the whistle rather than closing at midnight the night before.
+  Both semifinals now carry their results.
+- A World Cup 2026 retrospective in Model Lab (`Model Lab → World Cup 2026 retrospective`).
+  It replays every played match of the tournament at that match's own pre-kickoff cutoff —
+  the same cutoff a seal uses — and ranks them by how surprised the goal model was, beside
+  the tournament's evaluation fold answering whether the models had skill at all.
+  Every number on the page is a backtest, not a record: nothing there was called in advance
+  by anyone, and nothing is persisted or scored as a seal. Computed on demand from your
+  active data (a few minutes, with progress and cancellation) and cached until that data
+  changes. Rows whose training data includes a same-day date-proxy kickoff are marked,
+  because their ordering within the day cannot be proven.
+
 ## [0.14.1] - 2026-07-16
 
 Golavo 0.14.1 repairs installed-app result refresh and gives match conditions a

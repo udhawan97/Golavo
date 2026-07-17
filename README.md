@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.14.1" src="https://img.shields.io/badge/version-v0.14.1-6082b8?style=flat-square">
+  <img alt="version v0.14.2" src="https://img.shields.io/badge/version-v0.14.2-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -45,11 +45,12 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.14.1 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.14.2 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international seal→score loop, approved-source refresh, followed-match checks while the app
-> is open, provenance-first corrections, optional evidence-bound research, and desktop
+> is open, provenance-first corrections, optional evidence-bound research, the World Cup 2026
+> retrospective (a backtest of every played match, never a record), and desktop
 > packaging are implemented. The isolated OpenLigaDB overlay is opt-in and display-only. The
 > World Cup outlook and domestic standings/season engine are implemented, but the latter
 > correctly remains blocked until a complete 2026–27 fixture list exists. Signing,
