@@ -5,23 +5,27 @@ from __future__ import annotations
 from typing import Any
 
 from golavo_server import matches
+from golavo_server.outlook import _minute
+
+_ANALYTICS = matches.SnapshotReader("competition analytics", stamps_provenance=True)
+
+
+def reset_cache() -> None:
+    _ANALYTICS.reset()
 
 
 def get_competition_analytics(
     competition_id: str, *, as_of_utc: str | None = None
 ) -> dict[str, Any]:
-    # Lazy core import preserves the sidecar's fast health/readiness startup.
-    from golavo_core.analytics import competition_analytics
+    # The core reads "now" when handed no as-of, so the cutoff is resolved to the
+    # minute HERE and carried in the key: a memo keyed on a bare None would freeze
+    # one moment's answer and serve it as if it were current.
+    cutoff = _minute(as_of_utc)
 
-    for _attempt in range(3):
-        snapshot = matches.index_snapshot()
-        result = competition_analytics(
-            snapshot.frame,
-            competition_id,
-            as_of_utc=as_of_utc,
-        )
-        if not matches.snapshot_is_current(snapshot):
-            continue
-        result["provenance"]["index_sha256"] = snapshot.fingerprint
-        return result
-    raise matches.MatchIndexUnavailable("verified match index changed during analytics; retry")
+    def compute(snapshot: matches.IndexSnapshot) -> dict[str, Any]:
+        # Lazy core import preserves the sidecar's fast health/readiness startup.
+        from golavo_core.analytics import competition_analytics
+
+        return competition_analytics(snapshot.frame, competition_id, as_of_utc=cutoff)
+
+    return _ANALYTICS.read(compute, key=(competition_id, cutoff))

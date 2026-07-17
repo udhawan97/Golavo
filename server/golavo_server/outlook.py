@@ -7,12 +7,14 @@ from typing import Any
 
 from golavo_server import matches
 
-_CACHE: dict[tuple[str, str, int, str], dict[str, Any]] = {}
-_CACHE_MAX = 32
+_WORLD_CUP = matches.SnapshotReader("tournament outlook", stamps_provenance=True)
+_SEASON = matches.SnapshotReader("season outlook", stamps_provenance=True)
 
 
 def reset_cache() -> None:
-    _CACHE.clear()
+    """Kept for callers that reset this module by name; the readers own the memo."""
+    _WORLD_CUP.reset()
+    _SEASON.reset()
 
 
 def _minute(value: str | None) -> str:
@@ -26,20 +28,12 @@ def world_cup_2026(*, as_of_utc: str | None = None) -> dict[str, Any]:
     from golavo_core.outlook import OutlookUnavailable, world_cup_2026_outlook
 
     cutoff = _minute(as_of_utc)
-    for _attempt in range(3):
-        snapshot = matches.index_snapshot()
-        # The content fingerprint protects production refreshes; the epoch also
-        # prevents a reset/repoint from accepting work begun on a retired frame.
-        key = ("worldcup-2026", snapshot.fingerprint, snapshot.epoch, cutoff)
-        cached = _CACHE.get(key)
-        if cached is not None:
-            if matches.snapshot_is_current(snapshot):
-                return cached
-            continue
+
+    def compute(snapshot: matches.IndexSnapshot) -> dict[str, Any]:
         try:
-            result = world_cup_2026_outlook(snapshot.frame, as_of_utc=cutoff)
+            return world_cup_2026_outlook(snapshot.frame, as_of_utc=cutoff)
         except OutlookUnavailable as exc:
-            result = {
+            return {
                 "schema_version": "0.1.0",
                 "status": "unavailable",
                 "label": (
@@ -52,19 +46,9 @@ def world_cup_2026(*, as_of_utc: str | None = None) -> dict[str, Any]:
                 "reason": str(exc),
                 "voices": [],
                 "semifinals": [],
-                "provenance": {"index_sha256": snapshot.fingerprint},
             }
-        else:
-            result["provenance"]["index_sha256"] = snapshot.fingerprint
 
-        def publish(key=key, result=result) -> None:
-            if len(_CACHE) >= _CACHE_MAX:
-                _CACHE.clear()
-            _CACHE[key] = result
-
-        if matches.apply_if_snapshot_current(snapshot, publish):
-            return result
-    raise matches.MatchIndexUnavailable("verified match index changed during outlook; retry")
+    return _WORLD_CUP.read(compute, key=("worldcup-2026", cutoff))
 
 
 def season(
@@ -77,32 +61,16 @@ def season(
     from golavo_core.season_outlook import season_outlook
 
     cutoff = _minute(as_of_utc)
-    for _attempt in range(3):
-        snapshot = matches.index_snapshot()
-        key = (
-            f"season:{competition_id}:{season_id or 'current'}",
-            snapshot.fingerprint,
-            snapshot.epoch,
-            cutoff,
-        )
-        cached = _CACHE.get(key)
-        if cached is not None:
-            if matches.snapshot_is_current(snapshot):
-                return cached
-            continue
-        result = season_outlook(
+
+    def compute(snapshot: matches.IndexSnapshot) -> dict[str, Any]:
+        return season_outlook(
             snapshot.frame,
             competition_id,
             as_of_utc=cutoff,
             season=season_id,
         )
-        result["provenance"]["index_sha256"] = snapshot.fingerprint
 
-        def publish(key=key, result=result) -> None:
-            if len(_CACHE) >= _CACHE_MAX:
-                _CACHE.clear()
-            _CACHE[key] = result
-
-        if matches.apply_if_snapshot_current(snapshot, publish):
-            return result
-    raise matches.MatchIndexUnavailable("verified match index changed during outlook; retry")
+    return _SEASON.read(
+        compute,
+        key=(f"season:{competition_id}:{season_id or 'current'}", cutoff),
+    )

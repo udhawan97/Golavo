@@ -159,17 +159,10 @@ def _invalidate_cache_locked() -> None:
 
 
 def _reset_derivative_caches() -> None:
-    # Import outside _CACHE_LOCK: derivative modules may call back into this
-    # module during initialization. Their reset functions are intentionally
-    # cheap and idempotent.
-    for module_name in ("outlook", "conditions", "analysis", "retrospective"):
-        try:
-            module = __import__(f"golavo_server.{module_name}", fromlist=["reset_cache"])
-            reset = getattr(module, "reset_cache", None)
-            if callable(reset):
-                reset()
-        except ImportError:
-            pass
+    # Called outside _CACHE_LOCK: an invalidator is cheap and idempotent, and a
+    # derivative module may call back into this one during import.
+    for invalidate in tuple(_INVALIDATORS):
+        invalidate()
 
 
 def repoint_to_refreshed() -> None:
@@ -316,6 +309,137 @@ def apply_if_snapshot_current(snapshot: IndexSnapshot, operation: Callable[[], N
             return False
         operation()
         return True
+
+
+# Refresh activation is infrequent and serialized, so three generation retries are
+# ample while keeping a pathological repoint loop fail-closed.
+_MAX_ATTEMPTS = 3
+
+# Everything to drop when the index repoints. A SnapshotReader joins at
+# construction, so this module never needs to know the name of a single derivative
+# module to invalidate it — the failure it used to invite was a new cached read
+# quietly missing from a hardcoded tuple, serving a retired generation's work
+# after a refresh and looking exactly like fresh work.
+_INVALIDATORS: list[Callable[[], None]] = []
+_READERS: list[SnapshotReader] = []
+
+
+def on_repoint(invalidate: Callable[[], None]) -> None:
+    """Register a cache to drop whenever the index repoints.
+
+    For state that moves with the index but is not itself a
+    :class:`SnapshotReader` memo (the context pack's fingerprint-stamped
+    capability report). A reader registers itself; nothing else has to remember to.
+    """
+    _INVALIDATORS.append(invalidate)
+
+
+class RetryGeneration(Exception):
+    """``compute`` raising this says: my snapshot is retired, try the next one.
+
+    For work that discovers mid-compute that the frame under it has been repointed
+    (a fit that failed on a half-retired generation, say). Nothing is published and
+    the attempt does not count as an answer.
+    """
+
+
+class SnapshotReader:
+    """One derived read over the active index generation — memoized and honest.
+
+    The whole dance every derived read needs, owned once: load a snapshot, key the
+    memo by ``(caller key..., fingerprint, epoch)``, recheck the generation before
+    trusting a hit, stamp the fingerprint into the result's provenance, and publish
+    only under the lock that guards the epoch bump — so work begun on a generation
+    a refresh has since retired can never enter the cache. Callers supply only the
+    part that is theirs: what to compute.
+
+    Registration is the point of the class, not an implementation detail: a reader
+    cannot be built without becoming invalidatable.
+    """
+
+    def __init__(
+        self, name: str, *, max_entries: int = 32, stamps_provenance: bool = False
+    ) -> None:
+        self.name = name
+        self._max_entries = max_entries
+        # Whether this read's envelope carries a ``provenance.index_sha256``. Only
+        # the reader can stamp it honestly — it alone knows which snapshot the
+        # result was actually computed on, rather than which one the module global
+        # names by the time the answer is serialized. Off by default: an envelope
+        # that does not declare provenance (the conditions pack stamps its own
+        # ``snapshot_sha256``; an analysis envelope carries none) must not have a
+        # field invented on it.
+        self._stamps_provenance = stamps_provenance
+        self._entries: dict[tuple[Any, ...], Any] = {}
+        self._order: list[tuple[Any, ...]] = []
+        _READERS.append(self)
+        on_repoint(self.reset)
+
+    def reset(self) -> None:
+        """Drop this reader's memo (tests / after an index repoint)."""
+        self._entries.clear()
+        self._order.clear()
+
+    def entries(self) -> dict[tuple[Any, ...], Any]:
+        """The live memo — for tests and diagnostics, never for serving."""
+        return self._entries
+
+    def _publish(self, key: tuple[Any, ...], value: Any) -> None:
+        self._entries[key] = value
+        self._order.append(key)
+        while len(self._order) > self._max_entries:
+            self._entries.pop(self._order.pop(0), None)
+
+    def read(
+        self,
+        compute: Callable[[IndexSnapshot], Any],
+        *,
+        key: tuple[Any, ...] | Callable[[], tuple[Any, ...]] = (),
+    ) -> Any:
+        """``compute(snapshot)``'s result for the active generation, memoized.
+
+        ``key`` names what else the result depends on (a competition id, an as-of
+        minute). Pass a callable when the key itself must be resolved per attempt —
+        the retrospective's active pack can move under an unchanged index, and its
+        memo has to self-invalidate when it does.
+
+        Raises ``MatchIndexUnavailable`` when a repoint outruns every attempt: there
+        is no settled generation left to describe, and stale work is worse than none.
+        """
+        for _attempt in range(_MAX_ATTEMPTS):
+            snapshot = index_snapshot()
+            extra = key() if callable(key) else key
+            full_key = (*extra, snapshot.fingerprint, snapshot.epoch)
+
+            cached = self._entries.get(full_key)
+            if cached is not None:
+                if snapshot_is_current(snapshot):
+                    return cached
+                continue  # a repoint raced us; retry against the new generation
+
+            try:
+                result = compute(snapshot)
+            except RetryGeneration:
+                continue
+            # The fingerprint is read from THIS snapshot, never the module global a
+            # concurrent repoint may already have moved.
+            if self._stamps_provenance and isinstance(result, dict):
+                provenance = result.setdefault("provenance", {})
+                if isinstance(provenance, dict):
+                    provenance["index_sha256"] = snapshot.fingerprint
+
+            if apply_if_snapshot_current(
+                snapshot, lambda key=full_key, result=result: self._publish(key, result)
+            ):
+                return result
+        raise MatchIndexUnavailable(
+            f"verified match index changed during {self.name}; retry"
+        )
+
+
+def registered_readers() -> tuple[SnapshotReader, ...]:
+    """Every reader that will be invalidated on a repoint."""
+    return tuple(_READERS)
 
 
 def _meta_row_count() -> int | None:

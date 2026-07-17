@@ -13,7 +13,7 @@ from zoneinfo import TZPATH, ZoneInfo, ZoneInfoNotFoundError
 
 from golavo_core import resources
 
-from golavo_server import context_registry
+from golavo_server import context_registry, matches
 
 SCHEMA_VERSION = "0.3.0"
 LABEL = "Context, not a model input."
@@ -27,11 +27,29 @@ _PLACES: dict[str, dict[str, Any]] | None = None
 _WORLD: dict[str, Any] | None = None
 
 
-def reset_cache() -> None:
+_CONDITIONS = matches.SnapshotReader("match conditions")
+
+
+def _reset_static_caches() -> None:
+    """Drop the bundled place/basemap data and the registry's capability report.
+
+    The bundled data is index-independent, but the capability report is stamped
+    with the index fingerprint, so it must move with a repoint. Registered rather
+    than named by ``matches``, which no longer knows this module exists.
+    """
     global _PLACES, _WORLD
     _PLACES = None
     _WORLD = None
     context_registry.reset_cache()
+
+
+matches.on_repoint(_reset_static_caches)
+
+
+def reset_cache() -> None:
+    """Public reset (tests). A repoint reaches both halves via the registry."""
+    _reset_static_caches()
+    _CONDITIONS.reset()
 
 
 def _norm(value: Any) -> str:
@@ -408,6 +426,20 @@ def _local_kickoff(target: Any, location: dict[str, Any], precision: str) -> dic
             inputs,
         ),
     }
+
+
+def match_conditions(match_id: str) -> dict[str, Any] | None:
+    """Display-only context for one indexed match; None if the id is unknown.
+
+    Raises ``matches.MatchIndexUnavailable`` if a repoint outruns every attempt,
+    and ``OSError`` if the context pack is unavailable.
+    """
+    return _CONDITIONS.read(
+        lambda snapshot: conditions_snapshot(
+            match_id, snapshot.frame, index_fingerprint=snapshot.fingerprint
+        ),
+        key=(str(match_id),),
+    )
 
 
 def conditions_snapshot(

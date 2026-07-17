@@ -12,6 +12,7 @@ import hashlib
 import json
 import threading
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -174,7 +175,12 @@ def test_unknown_match_is_404(client):
     assert client.get("/api/v1/matches/m_nope/analysis").status_code == 404
 
 
-def test_club_analysis_never_mixes_competitions_with_a_shared_source(tmp_path, monkeypatch):
+def test_club_analysis_hands_the_core_what_it_needs_to_scope(tmp_path, monkeypatch):
+    """Scoping is the core's (``ingest.leak_safe_training_view``), which needs the
+    fixture's source AND kind to know a club fixture must not train across
+    competitions. This pins the handoff; that the rule then holds is pinned
+    directly, on training rows, in core/tests/test_leak_safe_view.py.
+    """
     rows = _rows()
     for row in rows:
         row["source_id"] = "openfootball-shared"
@@ -193,17 +199,62 @@ def test_club_analysis_never_mixes_competitions_with_a_shared_source(tmp_path, m
     _build_index(index_path, rows)
     monkeypatch.setattr(matches, "INDEX_PATH", index_path)
 
-    captured: dict[str, pd.DataFrame] = {}
+    captured: dict[str, Any] = {}
     import golavo_core.analysis as core_analysis
 
     def _capture(*, matches, match_row):
-        captured["matches"] = matches
+        captured["match_row"] = match_row
         return {"schema_version": "0.5.0", "match": match_row}
 
     monkeypatch.setattr(core_analysis, "build_match_analysis", _capture)
     body = server_analysis.match_analysis("m_target")
+
     assert body is not None and body["available"] is True
-    assert set(captured["matches"]["competition"].astype(str)) == {"League A"}
+    assert captured["match_row"]["source_id"] == "openfootball-shared"
+    assert captured["match_row"]["source_kind"] == "club"
+    assert captured["match_row"]["competition"] == "League A"
+
+
+def test_club_analysis_never_mixes_competitions_with_a_shared_source(tmp_path, monkeypatch):
+    """End to end, with the real engine: a League A fixture's council must never
+    have seen a League B result from the same source."""
+    rows = _rows()
+    for row in rows:
+        row["source_id"] = "openfootball-shared"
+        row["source_kind"] = "club"
+        row["competition"] = "League A"
+        row["tournament"] = "League A"
+    contaminant = _row("m_other", "2024-12-01", "Other A", "Other B", 4, 0, True)
+    contaminant.update(
+        source_id="openfootball-shared",
+        source_kind="club",
+        competition="League B",
+        tournament="League B",
+    )
+    rows.append(contaminant)
+    index_path = tmp_path / "matches_index.parquet"
+    _build_index(index_path, rows)
+    monkeypatch.setattr(matches, "INDEX_PATH", index_path)
+
+    seen: dict[str, Any] = {}
+    from golavo_core.ingest import snapshot as core_snapshot
+
+    real_view = core_snapshot.leak_safe_training_view
+
+    def recording_view(frame, match_row, **kwargs):
+        view = real_view(frame, match_row, **kwargs)
+        seen["competitions"] = set(view.rows["competition"].astype(str))
+        return view
+
+    monkeypatch.setattr(core_snapshot, "leak_safe_training_view", recording_view)
+    import golavo_core.analysis as core_analysis
+
+    monkeypatch.setattr(core_analysis, "leak_safe_training_view", recording_view)
+
+    body = server_analysis.match_analysis("m_target")
+
+    assert body is not None and body["available"] is True
+    assert seen["competitions"] == {"League A"}
 
 
 def test_recent_rails_have_results_and_honest_upcoming(client):
