@@ -235,6 +235,25 @@ def get_competition_analytics(competition_id: str, as_of_utc: str | None = None)
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
+@app.get("/api/v1/competitions/{competition_id}/scorers")
+def get_competition_scorers(
+    competition_id: str, as_of_utc: str | None = None, min_goals: int = 1
+) -> dict[str, Any]:
+    """A competition's leak-safe Golden Boot and penalty-shootout ledger."""
+    from golavo_server import scorers
+
+    try:
+        return scorers.get_competition_scorers(
+            competition_id, as_of_utc=as_of_utc, min_goals=min_goals
+        )
+    except ValueError as exc:
+        message = str(exc)
+        status = 404 if message.startswith("unknown competition_id") else 400
+        raise HTTPException(status_code=status, detail=message) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
 @app.get("/api/v1/tournaments/worldcup-2026/outlook")
 def get_world_cup_2026_outlook(as_of_utc: str | None = None) -> dict[str, Any]:
     """Exact four-team bracket enumeration from Golavo's two model voices."""
