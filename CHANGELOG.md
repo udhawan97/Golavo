@@ -7,6 +7,14 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Golden Boot & shootouts.** An international competition now shows a leak-safe
+  leading-scorers table and penalty-shootout ledger, built from the bundled martj42
+  goalscorers and shootouts side tables (`GET /api/v1/competitions/{id}/scorers`,
+  on the World Cup page). It counts only matches played by the requested cutoff, so a
+  retired player's tally never changes and rewinding the clock removes later goals; own
+  goals are never credited to a scorer. The data is internationals-only, so any
+  competition without side-table coverage returns a typed "no scorer data" state rather
+  than an empty table.
 - **The 2026-27 domestic season.** The five bundled leagues now carry their full
   published schedule — 380 fixtures each for the Premier League, La Liga and Serie A,
   306 each for the Bundesliga and Ligue 1 — pinned from the OpenFootball Football.TXT

@@ -31,6 +31,19 @@ published schedules are pinned from the OpenFootball Football.TXT country repos 
 the outlook runs. The certificate is still checked on every request, and a league that
 ever fails it produces the blocked state and no probabilities rather than a guess.
 
+## Golden Boot and shootouts
+
+An international competition shows a leading-scorers table and a penalty-shootout
+ledger, built from the bundled martj42 goalscorers and shootouts records. Both are
+leak-safe: they count only matches played by the requested cutoff, so a completed
+player's tally is fixed and rewinding the clock removes later goals. Own goals are
+never credited to a scorer. Neither table carries a competition column upstream, so
+each is joined to the match index by date and teams to attach the competition.
+
+This data ships only for men's internationals, so a club competition reports a typed
+"no scorer data" state rather than an empty table — the same first-class unknown the
+rest of the app uses.
+
 ## Historical team research
 
 The isolated Pappalardo/Wyscout CC-BY-4.0 pack contains seven team-only summaries:
