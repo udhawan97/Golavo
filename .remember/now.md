@@ -1,3 +1,3 @@
 
-## 16:28 | friendly-helper-claude/japanese-theme-design-4e111c
-Hallmark redesign of docs-site (Astro) keeping Japanese theme + colors; installed deps, launched preview, began visual component inspection.
+## 22:08 | friendly-helper-claude/improve-codebase-architecture-d47c8a
+Tagged v0.15.0 with 6 arch candidates via TDD (c2a355b), fixed 2 wrong claims on public docs, all 7 CI jobs passed, release build running.
