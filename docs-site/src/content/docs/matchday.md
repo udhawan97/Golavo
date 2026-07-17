@@ -13,7 +13,7 @@ Every match also carries source-backed **Match Notes**. Below is what each does 
 The landing page is football, offline, from the first launch. It shows:
 
 - a **recent results** rail and an **upcoming fixtures** rail drawn from the local index;
-- **search over every match** in the bundled index (~77,000 games — internationals, the
+- **search over every match** in the bundled index (~79,000 games — internationals, the
   five top European leagues, and UEFA club competitions), by team or competition;
 - **league shortcuts** into the Leagues hub.
 
@@ -101,8 +101,9 @@ match that already kicked off — a forecast is only honest if it was sealed *be
 
 > Upcoming rails and seal windows depend on what approved sources genuinely publish. Settings
 > exposes each source's freshness and a manual refresh. With consent, Golavo can check on launch
-> and periodically while it is open. It does not monitor after the app closes, and current club
-> fixtures remain unavailable when OpenFootball has no complete current-season file.
+> and periodically while it is open. It does not monitor after the app closes. The five bundled
+> leagues carry their full 2026–27 schedules, so club fixtures appear from the first matchday;
+> their results arrive when the packs are rebuilt, not from a live feed.
 
 ## Follow this match
 
