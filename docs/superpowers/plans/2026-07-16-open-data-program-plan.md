@@ -1,5 +1,17 @@
 # Open-Data Program Implementation Plan (10 phases, chronological)
 
+> **Progress — updated 2026-07-17.**
+> **Phase 1 (The Fixture Key): SHIPPED** on main (`52a4c08`; parser `f7d7d7f`, unlock
+> `52e8edc`, docs `f3e563a`, review fixes `47e6a39`). The season outlook runs for all
+> five leagues; full core+server suite **847 passed**; all six governance validators,
+> `ruff check .`, the byte-identical index rebuild and the docs-site build are green.
+> Deliberately **not** done in Phase 1, and not claimed anywhere: no runtime refresh
+> adapter reads the five .txt repos (results move only when the packs are rebuilt —
+> registry entries therefore ship with no `refresh` block), no postponement pick
+> re-bind, no Playwright/axe pass, no installed-app QA. Those remain open Phase 1 tasks.
+> **Phases 2–10: not started.** Phase 2's data (goalscorers/shootouts) is already
+> bundled and current through 2026-07-15, so it needs no new source work.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan phase-by-phase. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > **Scope note (writing-plans scope check):** this program covers ten independent
