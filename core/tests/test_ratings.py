@@ -70,6 +70,35 @@ def test_a_rating_as_of_an_instant_is_frozen_against_later_matches() -> None:
     assert early["teams"] == later["teams"]
 
 
+def test_an_exact_kickoff_after_the_cutoff_is_excluded_even_on_the_same_date() -> None:
+    """The cutoff must respect the true kickoff instant, not the calendar day.
+
+    A World Cup row can carry date 2026-06-11 but an exact kickoff of
+    2026-06-12T02:00Z (a late local kickoff crossing into the next UTC day). A
+    cutoff at 2026-06-11T23:30Z is before that kickoff, so the match — and any
+    rating change it caused — must not appear.
+    """
+    rows = _rows(
+        [
+            _match("2026-05-01", "Spain", "Italy", 1, 0),
+            _match("2026-06-11", "Brazil", "Argentina", 4, 0),
+        ]
+    )
+    # Push the second match's true kickoff past midnight UTC into 2026-06-12.
+    rows.loc[rows["home_team"].eq("Brazil"), "kickoff_utc"] = pd.Timestamp(
+        "2026-06-12T02:00:00Z"
+    )
+    table = elo_trajectory(rows, as_of_utc="2026-06-11T23:30:00Z")
+
+    teams = {row["team"] for row in table["teams"]}
+    assert "Brazil" not in teams and "Argentina" not in teams
+    assert table["matches_counted"] == 1
+    # And at a cutoff after the true kickoff, it is counted.
+    later = elo_trajectory(rows, as_of_utc="2026-06-12T03:00:00Z")
+    assert {"Brazil", "Argentina"} <= {row["team"] for row in later["teams"]}
+    assert later["matches_counted"] == 2
+
+
 def test_only_completed_matches_before_the_cutoff_are_counted() -> None:
     rows = _rows(
         [

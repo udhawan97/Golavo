@@ -105,10 +105,16 @@ def _rating_frame_with_future(draw: st.DrawFn) -> tuple[pd.DataFrame, str]:
         if home == away:
             away = teams[(teams.index(home) + 1) % len(teams)]
         day = draw(st.integers(min_value=-400, max_value=400))
+        date = pd.Timestamp("2024-01-01") + pd.Timedelta(days=day)
+        # kickoff_utc may diverge from the date by up to a day, exactly as the
+        # exact-kickoff overlay does — so "before the cutoff" must be judged on
+        # the true instant, not the calendar day.
+        kickoff_offset = draw(st.integers(min_value=0, max_value=24))
         rows.append(
             {
                 "match_id": f"m_{i:04d}",
-                "date": pd.Timestamp("2024-01-01") + pd.Timedelta(days=day),
+                "date": date,
+                "kickoff_utc": date.tz_localize("UTC") + pd.Timedelta(hours=kickoff_offset),
                 "home_team": home,
                 "away_team": away,
                 "home_score": draw(st.integers(min_value=0, max_value=5)),
@@ -118,8 +124,7 @@ def _rating_frame_with_future(draw: st.DrawFn) -> tuple[pd.DataFrame, str]:
             }
         )
     frame = pd.DataFrame(rows)
-    frame["kickoff_utc"] = pd.to_datetime(frame["date"], utc=True)
-    return frame, "2024-01-01T00:00:00Z"
+    return frame, "2024-04-01T12:00:00Z"
 
 
 @given(data=_rating_frame_with_future())
@@ -128,11 +133,16 @@ def test_elo_rating_as_of_is_frozen_against_later_matches(
     data: tuple[pd.DataFrame, str],
 ) -> None:
     """A Golavo rating at an instant is a pure replay of the past, so any matches
-    after that instant — however many, however lopsided — leave it byte-identical."""
+    after that instant — however many, however lopsided — leave it byte-identical.
+
+    "After" is judged on the true kickoff instant, so a match whose kickoff is
+    past the cutoff cannot influence the table even if its calendar date is not.
+    """
     from golavo_core.ratings import elo_trajectory
 
     frame, cutoff = data
-    before = frame[pd.to_datetime(frame["date"]) <= pd.Timestamp(cutoff).tz_localize(None)]
+    cut = pd.Timestamp(cutoff)
+    before = frame[pd.to_datetime(frame["kickoff_utc"], utc=True) <= cut]
     full = elo_trajectory(frame, as_of_utc=cutoff)
     only_past = elo_trajectory(before, as_of_utc=cutoff)
     assert full["teams"] == only_past["teams"]

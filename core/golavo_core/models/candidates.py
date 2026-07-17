@@ -146,8 +146,8 @@ class EloOrdinalLogitModel:
     def predict(self, home_team: str, away_team: str, neutral: bool) -> Prediction:
         advantage = 0.0 if neutral else self.home_advantage
         strength = (
-            self.ratings.get(home_team, 1500.0)
-            - self.ratings.get(away_team, 1500.0)
+            self.ratings.get(home_team, ELO_INITIAL)
+            - self.ratings.get(away_team, ELO_INITIAL)
             + advantage
         ) / self.scale
         lower = -self.threshold

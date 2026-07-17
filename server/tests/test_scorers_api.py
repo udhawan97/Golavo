@@ -5,11 +5,17 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 from golavo_server import main as server_main
-from golavo_server import scorers
+from golavo_server import matches, scorers
 
 
 @pytest.fixture(autouse=True)
-def _fresh_cache() -> None:
+def _fresh_cache():
+    # Reset the shared index cache so a sibling test's fixture index cannot bleed
+    # into these real-index assertions.
+    matches.reset_cache()
+    scorers.reset_cache()
+    yield
+    matches.reset_cache()
     scorers.reset_cache()
 
 

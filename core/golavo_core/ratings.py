@@ -17,6 +17,7 @@ from typing import Any
 
 import pandas as pd
 
+from golavo_core.ingest.snapshot import _order_instants
 from golavo_core.models.candidates import ELO_INITIAL, elo_match_delta
 
 RATINGS_SCHEMA_VERSION = "0.1.0"
@@ -75,17 +76,21 @@ def elo_trajectory(
     if rows.empty:
         return table
 
+    # Cut off on the sharpest instant each row carries — an exact kickoff where an
+    # overlay supplied one, else the date's midnight. Filtering by calendar date
+    # alone would fold in a late kickoff that crosses into the next UTC day but
+    # has not happened yet at the cutoff. This is the same rule training uses.
     complete = rows["is_complete"].astype("boolean").fillna(False)
-    dates = pd.to_datetime(rows["date"])
-    kept = rows.loc[complete & (dates <= cutoff.tz_convert(None))].copy()
+    instants = _order_instants(rows)
+    kept = rows.loc[complete & (instants <= cutoff)].copy()
     if kept.empty:
         return table
-    kept["date"] = pd.to_datetime(kept["date"])
+    kept["order_instant"] = _order_instants(kept)
 
     ordered = kept.sort_values(
-        ["date", "home_team", "away_team", "match_id"], kind="mergesort"
+        ["order_instant", "home_team", "away_team", "match_id"], kind="mergesort"
     )
-    anchor = ordered["date"].max()
+    anchor = ordered["order_instant"].max()
     checkpoints = _month_end_checkpoints(anchor)
 
     ratings: dict[str, float] = {}
@@ -95,8 +100,8 @@ def elo_trajectory(
     checkpoint_index = 0
 
     for row in ordered.itertuples(index=False):
-        match_date = pd.Timestamp(row.date)
-        while checkpoint_index < len(checkpoints) and checkpoints[checkpoint_index] < match_date:
+        instant = pd.Timestamp(row.order_instant)
+        while checkpoint_index < len(checkpoints) and checkpoints[checkpoint_index] < instant:
             snapshots.append(dict(ratings))
             checkpoint_index += 1
         home, away = str(row.home_team), str(row.away_team)
@@ -109,7 +114,7 @@ def elo_trajectory(
         ratings[away] = away_rating - delta
         for team in (home, away):
             counts[team] = counts.get(team, 0) + 1
-            last_seen[team] = match_date
+            last_seen[team] = instant
     while checkpoint_index < len(checkpoints):
         snapshots.append(dict(ratings))
         checkpoint_index += 1

@@ -5,11 +5,18 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 from golavo_server import main as server_main
-from golavo_server import ratings
+from golavo_server import matches, ratings
 
 
 @pytest.fixture(autouse=True)
-def _fresh_cache() -> None:
+def _fresh_cache():
+    # A sibling test may have monkeypatched matches.INDEX_PATH at a fixture index
+    # and cached it; reset the shared cache so this test reads the real bundled
+    # index (which the monkeypatch has since reverted).
+    matches.reset_cache()
+    ratings.reset_cache()
+    yield
+    matches.reset_cache()
     ratings.reset_cache()
 
 
