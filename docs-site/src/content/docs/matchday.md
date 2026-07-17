@@ -13,7 +13,7 @@ Every match also carries source-backed **Match Notes**. Below is what each does 
 The landing page is football, offline, from the first launch. It shows:
 
 - a **recent results** rail and an **upcoming fixtures** rail drawn from the local index;
-- **search over every match** in the bundled index (~79,000 games — internationals, the
+- **search over every match** in the bundled index (~100,000 games — internationals, the
   five top European leagues, and UEFA club competitions), by team or competition;
 - **league shortcuts** into the Leagues hub.
 

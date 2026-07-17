@@ -7,6 +7,13 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Deep league history.** The Premier League now reaches back to 1992-93 and the
+  Bundesliga to 1963-64, pinned from the CC0 footballcsv archive (a 1:1 mirror of the
+  openfootball datasets). Only the seasons before the bundled football.json data (2010-11)
+  are folded in, so the two sources never carry the same match — the index grows to
+  100,525 rows. This history is browsable and searchable but stays out of every forecast's
+  training set (it keeps its own source, so the leak-safe view never reaches it) and cannot
+  be sealed; it is a record, not a prediction input.
 - **Golavo Ratings.** An in-house national-team Elo table (Model Lab → Golavo Ratings,
   `GET /api/v1/ratings/international`), computed from the same public-domain results the
   models train on — there is no lawful open source for the FIFA ranking, so Golavo
