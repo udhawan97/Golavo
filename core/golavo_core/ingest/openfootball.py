@@ -31,6 +31,10 @@ LEAGUES: dict[str, tuple[str, str]] = {
     "fr.1": ("Ligue 1", "France"),
 }
 SEASON_FILE = re.compile(r"^(?P<season>\d{4}-\d{2})\.(?P<code>[a-z]{2}\.\d)\.json$")
+# football.json stops at 2025-26; later seasons are published only as
+# Football.TXT fixture lists, pinned into this same pack so a fixture keeps its
+# own league's history (see ingest.domestictxt).
+SEASON_TXT_FILE = re.compile(r"^(?P<season>\d{4}-\d{2})\.(?P<code>[a-z]{2}\.\d)\.txt$")
 
 _SUFFIX = re.compile(r"\s+(?:FC|AFC)$")
 _PREFIX = re.compile(r"^AFC\s+")
@@ -74,6 +78,7 @@ _ALIASES: dict[str, dict[str, str]] = {
         "RC Celta": "Celta Vigo",
         "RC Celta de Vigo": "Celta Vigo",
         "Deportivo Alavés": "Alavés",
+        "Real Racing Club de Santander": "Racing Santander",
     },
     "de.1": {
         "Bor. Mönchengladbach": "Borussia Mönchengladbach",
@@ -92,6 +97,9 @@ _ALIASES: dict[str, dict[str, str]] = {
         "RC Strasbourg Alsace": "Strasbourg",
         "Girondins Bordeaux": "Bordeaux",
         "ESTAC Troyes": "Troyes",
+        # The 2026-27 fixture list prints Troyes a third way; without this the
+        # promoted side would be a new club to every model and the table.
+        "ES Troyes AC": "Troyes",
     },
 }
 
@@ -142,10 +150,36 @@ def _extract_ht(match: dict) -> tuple[int, int] | None:
 
 def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
     """Load a validated openfootball pack into Golavo's deterministic match table."""
+    from .domestictxt import parse_domestic_txt  # lazy: domestictxt imports this module
+
     manifest = validate_pack(pack_dir)
     rows: list[dict] = []
     for entry in sorted(manifest["files"], key=lambda e: e["name"]):
         name = entry["name"]
+        fixtures = SEASON_TXT_FILE.match(name)
+        if fixtures is not None:
+            code = fixtures["code"]
+            if code not in LEAGUES:
+                raise ValueError(f"{pack_dir / name}: unknown league code {code!r}")
+            frame = parse_domestic_txt(
+                (pack_dir / name).read_text(encoding="utf-8"),
+                season=fixtures["season"],
+                league_code=code,
+            )
+            expected = entry.get("source_match_count")
+            if expected is not None and len(frame) != int(expected):
+                raise ValueError(
+                    f"{pack_dir / name}: parsed {len(frame)} matches, expected {expected}"
+                )
+            # 'local_time' is the same venue-local, timezone-less clock the
+            # football.json path calls 'time', so both formats reach the shared
+            # tail with one schema and it is dropped in one place.
+            rows.extend(
+                frame.drop(columns=["matchday", "is_complete"])
+                .rename(columns={"local_time": "time"})
+                .to_dict("records")
+            )
+            continue
         parsed = SEASON_FILE.match(name)
         if parsed is None:
             continue  # license text, etc.
