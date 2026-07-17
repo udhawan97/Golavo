@@ -60,6 +60,40 @@
       "notes": "REJECTED: proprietary API service with a post-cancellation data restriction. Free access is not openly licensed redistributable data."
     },
     {
+      "source_id": "footballcsv-deu-history",
+      "name": "footballcsv/deutschland",
+      "contributors": [
+        "Gerald Bauer",
+        "footballcsv contributors"
+      ],
+      "url": "https://github.com/footballcsv/deutschland",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/footballcsv/deutschland/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "Historical completed results for the Bundesliga (1963-64 to 2009-10), a CC0 1:1 mirror of the openfootball datasets in flat CSV. Rows carry date, teams, and full-time score; no half-time score, no kickoff time (day precision).",
+      "attribution": "Historical the Bundesliga results from footballcsv/deutschland (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-17",
+      "notes": "Bundled as deep pre-2010 history, trimmed to end the season before openfootball's earliest bundled season (2010-11) so it never overlaps or duplicates the football.json rows. Its own source_id keeps it out of any forecast's training set (history and search only, seal-ineligible). Upstream is dormant; no runtime refresh adapter is wired, so the bytes move only when the pack is rebuilt."
+    },
+    {
+      "source_id": "footballcsv-eng-history",
+      "name": "footballcsv/england",
+      "contributors": [
+        "Gerald Bauer",
+        "footballcsv contributors"
+      ],
+      "url": "https://github.com/footballcsv/england",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/footballcsv/england/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "Historical completed results for the English Premier League (1992-93 to 2009-10), a CC0 1:1 mirror of the openfootball datasets in flat CSV. Rows carry date, teams, and full-time score; no half-time score, no kickoff time (day precision).",
+      "attribution": "Historical the English Premier League results from footballcsv/england (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-17",
+      "notes": "Bundled as deep pre-2010 history, trimmed to end the season before openfootball's earliest bundled season (2010-11) so it never overlaps or duplicates the football.json rows. Its own source_id keeps it out of any forecast's training set (history and search only, seal-ineligible). Upstream is dormant; no runtime refresh adapter is wired, so the bytes move only when the pack is rebuilt."
+    },
+    {
       "source_id": "geonames",
       "name": "GeoNames",
       "contributors": [

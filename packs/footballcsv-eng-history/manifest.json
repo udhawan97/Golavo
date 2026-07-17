@@ -1,0 +1,124 @@
+{
+  "competition": "English Premier League",
+  "coverage": "1992-93..2009-10",
+  "files": [
+    {
+      "name": "1992-93.en.1.csv",
+      "season": "1992-93",
+      "sha256": "722a6bcfcc640ef323fc6cd20a6e0de80599a19f02093af13fdeb54e89d4a79e",
+      "source_match_count": 462
+    },
+    {
+      "name": "1993-94.en.1.csv",
+      "season": "1993-94",
+      "sha256": "d5655a50ad7112e0ff37b878a8d03ff1e3767630599bef1026291ab2522ef564",
+      "source_match_count": 462
+    },
+    {
+      "name": "1994-95.en.1.csv",
+      "season": "1994-95",
+      "sha256": "f798df193e7c154fecb0ed5c2890e1272bdc5d67beb3c44324b6365cf22b7087",
+      "source_match_count": 462
+    },
+    {
+      "name": "1995-96.en.1.csv",
+      "season": "1995-96",
+      "sha256": "ecb2a0b26044c8d4d923a7a43e8ed70b821ee1883085ed43c8c55a8c12b64006",
+      "source_match_count": 380
+    },
+    {
+      "name": "1996-97.en.1.csv",
+      "season": "1996-97",
+      "sha256": "577eb345ed0c629a6bc91addcd88a6b72f4437078e55b75ac58a7135b7b49da8",
+      "source_match_count": 380
+    },
+    {
+      "name": "1997-98.en.1.csv",
+      "season": "1997-98",
+      "sha256": "1a83744e6199c07b9c7410c1fb08f4721dfacf3dca71f69e57c566c0a652d60f",
+      "source_match_count": 380
+    },
+    {
+      "name": "1998-99.en.1.csv",
+      "season": "1998-99",
+      "sha256": "72952e36f11e4d5eab20c6dd97e9b5abce60d709eaad041911f1a1f4697a2475",
+      "source_match_count": 380
+    },
+    {
+      "name": "1999-00.en.1.csv",
+      "season": "1999-00",
+      "sha256": "c1e9a96315fc859a25366b7730351b453463405fe25ba87d054dc0d302bd6728",
+      "source_match_count": 380
+    },
+    {
+      "name": "2000-01.en.1.csv",
+      "season": "2000-01",
+      "sha256": "778a3bcb23db7db177f3b980b7d9e673852042b1271d1254a53dacd53d2cacfd",
+      "source_match_count": 380
+    },
+    {
+      "name": "2001-02.en.1.csv",
+      "season": "2001-02",
+      "sha256": "176f43b6623e8f9878ca12032eeb68883a79e410d4a91886fd04bada0eab11d6",
+      "source_match_count": 380
+    },
+    {
+      "name": "2002-03.en.1.csv",
+      "season": "2002-03",
+      "sha256": "6561faf4089150db048860699f7ca8a767f88f1a13bbc7eec4b31a84dfac0e52",
+      "source_match_count": 380
+    },
+    {
+      "name": "2003-04.en.1.csv",
+      "season": "2003-04",
+      "sha256": "1863a4f3cf4ce2617665869a12c86b052ae0adddf6f350bfe56ab232bc8a4c01",
+      "source_match_count": 380
+    },
+    {
+      "name": "2004-05.en.1.csv",
+      "season": "2004-05",
+      "sha256": "ac7511e184dfd26b947ef029c3cfe4a085b213b769f965a9ee12dd7ef22a3de0",
+      "source_match_count": 380
+    },
+    {
+      "name": "2005-06.en.1.csv",
+      "season": "2005-06",
+      "sha256": "29c7b0a92d7da1eb9551351e317c9c3ed6ca7eee03a3ead5ac4f7ded082de766",
+      "source_match_count": 380
+    },
+    {
+      "name": "2006-07.en.1.csv",
+      "season": "2006-07",
+      "sha256": "23c4272ae6addb2a2c3ec972263daaceaa2cd90e867edffb9d58574c4942df66",
+      "source_match_count": 380
+    },
+    {
+      "name": "2007-08.en.1.csv",
+      "season": "2007-08",
+      "sha256": "2c8237482c9b39b0314640ffaa5d5b5608caabed47f461b77126ca0a55b304db",
+      "source_match_count": 380
+    },
+    {
+      "name": "2008-09.en.1.csv",
+      "season": "2008-09",
+      "sha256": "3084c1e89f867ac25a5e1dd1bf92174ee6f76c1dbf1f4a2627eae8434c49add7",
+      "source_match_count": 380
+    },
+    {
+      "name": "2009-10.en.1.csv",
+      "season": "2009-10",
+      "sha256": "5898b4a97acd480cf216c2356abef6b95c33a3c5f829581acb53fae957d9123b",
+      "source_match_count": 380
+    },
+    {
+      "name": "CC0-1.0.txt",
+      "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2023-05-28T13:09:55Z",
+  "source_id": "footballcsv-eng-history",
+  "upstream_committed_at_utc": "2023-05-28T13:09:55Z",
+  "upstream_ref": "52b7e5f5f37b28db72dba1fdc8dbec1adae4c8d0",
+  "url": "https://github.com/footballcsv/england"
+}

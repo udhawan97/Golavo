@@ -2,6 +2,20 @@
   "built_from": [
     {
       "license": "CC0-1.0",
+      "manifest_sha256": "22c009de4e6cbf8eafe3704f3f4fe822c332a40201a30d5640056635d6dcbdd9",
+      "pack": "footballcsv-deu-history",
+      "source_id": "footballcsv-deu-history",
+      "upstream_ref": "178324626681a9e4c42b81463f59f9c4500dbd53"
+    },
+    {
+      "license": "CC0-1.0",
+      "manifest_sha256": "81ec520ce30bef3d415419ec05cfeb917a9d240241a36e0b9e7abfba147b6720",
+      "pack": "footballcsv-eng-history",
+      "source_id": "footballcsv-eng-history",
+      "upstream_ref": "52b7e5f5f37b28db72dba1fdc8dbec1adae4c8d0"
+    },
+    {
+      "license": "CC0-1.0",
       "manifest_sha256": "1b18bea4d76c5d08a5dc2194aab4baa32794f9bb4516bd48c387b5a921c97dc5",
       "pack": "martj42-internationals-80f408d2c93b",
       "source_id": "martj42-international-results",
@@ -64,7 +78,7 @@
       "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     }
   ],
-  "parquet_sha256": "6f5b2919ff5e8afbe4d1bc3669bf97e1fb48b5932701e2946e03183396ed248b",
-  "row_count": 79115,
+  "parquet_sha256": "e405358df88c586a3fc082430d3be70e22003051738b4ebee4576791d3156c82",
+  "row_count": 100525,
   "schema_version": "0.5.0"
 }

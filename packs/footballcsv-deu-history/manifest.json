@@ -1,0 +1,298 @@
+{
+  "competition": "Bundesliga",
+  "coverage": "1963-64..2009-10",
+  "files": [
+    {
+      "name": "1963-64.de.1.csv",
+      "season": "1963-64",
+      "sha256": "61e641128ac120d37a0b4f151d02ad0cc47d30f18dc4a4867df2af649d9957a2",
+      "source_match_count": 240
+    },
+    {
+      "name": "1964-65.de.1.csv",
+      "season": "1964-65",
+      "sha256": "6cfdc9fc3ea9f2896b13579000b0a9d5fa98a66a9690490e484aed8462244fa6",
+      "source_match_count": 240
+    },
+    {
+      "name": "1965-66.de.1.csv",
+      "season": "1965-66",
+      "sha256": "78edc40d61185bf80c77939b5b51de0eb4b2942bfa5830167f407e8a629f7fff",
+      "source_match_count": 306
+    },
+    {
+      "name": "1966-67.de.1.csv",
+      "season": "1966-67",
+      "sha256": "ce1b62270478a7eaf848cdaef075a00a261edba76a5a337da4271ed2a77e6ccf",
+      "source_match_count": 306
+    },
+    {
+      "name": "1967-68.de.1.csv",
+      "season": "1967-68",
+      "sha256": "44e93ebe44893e73a68b88e47c37d08524b86eb9227e68185331c862303dca83",
+      "source_match_count": 306
+    },
+    {
+      "name": "1968-69.de.1.csv",
+      "season": "1968-69",
+      "sha256": "6f0e03c2f3aed512506190b74260e9041e23ccc3421bb57857f4c74c1f424a71",
+      "source_match_count": 306
+    },
+    {
+      "name": "1969-70.de.1.csv",
+      "season": "1969-70",
+      "sha256": "ba84856688fd6144d83e57ee8f44b68ae614a0419dc31ad30bd71e292a5d1ec4",
+      "source_match_count": 306
+    },
+    {
+      "name": "1970-71.de.1.csv",
+      "season": "1970-71",
+      "sha256": "568915879871139a30eea6ae64d7140f6e3a81d8377f1405dd5cb587d819b97a",
+      "source_match_count": 306
+    },
+    {
+      "name": "1971-72.de.1.csv",
+      "season": "1971-72",
+      "sha256": "b88f9453672cfa5cceca635196b8f6d99d4766a4a787ce131f5324bb7cf36664",
+      "source_match_count": 306
+    },
+    {
+      "name": "1972-73.de.1.csv",
+      "season": "1972-73",
+      "sha256": "5333f3f0db8c6b217cd540b579effece71ef3bdc66bd50f43708928aef33df19",
+      "source_match_count": 306
+    },
+    {
+      "name": "1973-74.de.1.csv",
+      "season": "1973-74",
+      "sha256": "c8c4991a7e5c7aebbc258a944c94f6e163aea050f8cb6f58092e59f73c190f60",
+      "source_match_count": 306
+    },
+    {
+      "name": "1974-75.de.1.csv",
+      "season": "1974-75",
+      "sha256": "d5b58de8dd9ba3bf32e4b42f7e8625dec2c1289fae1f4891b4ed3f81f9411887",
+      "source_match_count": 306
+    },
+    {
+      "name": "1975-76.de.1.csv",
+      "season": "1975-76",
+      "sha256": "090f07c09af952428857c21c13b2bb520751e4d88f7f4ab79e47c57c5a6b0928",
+      "source_match_count": 306
+    },
+    {
+      "name": "1976-77.de.1.csv",
+      "season": "1976-77",
+      "sha256": "20a3e3e42f4e3ac1d364fab9c72107006a37692862d9f82148ecab9a778614e6",
+      "source_match_count": 306
+    },
+    {
+      "name": "1977-78.de.1.csv",
+      "season": "1977-78",
+      "sha256": "208cfd2d1f35e07691c6281ed0a53509cbea6dfa1c72a36baa55dc7e22e48f13",
+      "source_match_count": 306
+    },
+    {
+      "name": "1978-79.de.1.csv",
+      "season": "1978-79",
+      "sha256": "a000adf0e429025f4e360eb0a5aceea5242cf59a1169bd3879202970eff9279e",
+      "source_match_count": 306
+    },
+    {
+      "name": "1979-80.de.1.csv",
+      "season": "1979-80",
+      "sha256": "2317bdcccff3d3a009936c57899fbde931d77c672aaa8ed73977fc4440998efe",
+      "source_match_count": 306
+    },
+    {
+      "name": "1980-81.de.1.csv",
+      "season": "1980-81",
+      "sha256": "7e86c18000a51b49cdeb77aa4ef1d21bbcea7f8c8bb23265e66d34f18f622565",
+      "source_match_count": 306
+    },
+    {
+      "name": "1981-82.de.1.csv",
+      "season": "1981-82",
+      "sha256": "2ac0998f4f134ccbe6f7aef1514000046dec3b48a14be3d818bbba4200282c52",
+      "source_match_count": 306
+    },
+    {
+      "name": "1982-83.de.1.csv",
+      "season": "1982-83",
+      "sha256": "c8935ca81fbaa9e0b81453f5ac77e0f3e9091e8e27017f9c3fb78752605c7c5f",
+      "source_match_count": 306
+    },
+    {
+      "name": "1983-84.de.1.csv",
+      "season": "1983-84",
+      "sha256": "ffe6e2628b0cad86d75404ae52b8c62e7f6575384e2a8171e4c57b7057c87bce",
+      "source_match_count": 306
+    },
+    {
+      "name": "1984-85.de.1.csv",
+      "season": "1984-85",
+      "sha256": "a91fb94c8d6d6a58d4d0d7b477cbd344d876a024d4516b4ec7dd928121e20786",
+      "source_match_count": 306
+    },
+    {
+      "name": "1985-86.de.1.csv",
+      "season": "1985-86",
+      "sha256": "9ccd4e9b1420ba3ec1f2a6e3176215159f0def641a8fb8930fff6757466e8b0d",
+      "source_match_count": 306
+    },
+    {
+      "name": "1986-87.de.1.csv",
+      "season": "1986-87",
+      "sha256": "ccdeee7555137914ab4d95d162b07a41033c74d0b22349fcfa1502ad1105081f",
+      "source_match_count": 306
+    },
+    {
+      "name": "1987-88.de.1.csv",
+      "season": "1987-88",
+      "sha256": "f301aa1662c9299c9358fb9ec66439fd786b6f8be230d6535b747efc616687b6",
+      "source_match_count": 306
+    },
+    {
+      "name": "1988-89.de.1.csv",
+      "season": "1988-89",
+      "sha256": "5f99111ebb9e0124a0c07550a3129e6910523d13b84d4c67fcd6ecdc87da9515",
+      "source_match_count": 306
+    },
+    {
+      "name": "1989-90.de.1.csv",
+      "season": "1989-90",
+      "sha256": "ac6249477051d8fdef7f1f98e0959e755ce0238ffc5c03d84def3b6a52ec5482",
+      "source_match_count": 306
+    },
+    {
+      "name": "1990-91.de.1.csv",
+      "season": "1990-91",
+      "sha256": "f6082fa6b1118523115af91b3f63c20750969dc0c2ddcf7482921b29db56db17",
+      "source_match_count": 306
+    },
+    {
+      "name": "1991-92.de.1.csv",
+      "season": "1991-92",
+      "sha256": "c4356a376959c478d9f4c61ea20e0e7989884cf5bf17351d4c8cf18fac96bf7d",
+      "source_match_count": 380
+    },
+    {
+      "name": "1992-93.de.1.csv",
+      "season": "1992-93",
+      "sha256": "5c96919656d37767e43c62c73dc6177b693d2df15e594eaffc718be7f7151d1e",
+      "source_match_count": 306
+    },
+    {
+      "name": "1993-94.de.1.csv",
+      "season": "1993-94",
+      "sha256": "16e238e5beadb704ea07be70095303dfecba5fff6c86b3859dd6a2cc93df2c7a",
+      "source_match_count": 306
+    },
+    {
+      "name": "1994-95.de.1.csv",
+      "season": "1994-95",
+      "sha256": "c12fdaf2f73bffe3790d87294ccd560701c67978ec35fce818f8f1205151163c",
+      "source_match_count": 306
+    },
+    {
+      "name": "1995-96.de.1.csv",
+      "season": "1995-96",
+      "sha256": "dced4de9e8a11e0a9e8ca15c421d30af4da44552b9bd2f2368acbd71adeaa1d2",
+      "source_match_count": 306
+    },
+    {
+      "name": "1996-97.de.1.csv",
+      "season": "1996-97",
+      "sha256": "4295438d72dc9451ae18f8278da0c46420dac09a41c8bf49e5e13d04327a53eb",
+      "source_match_count": 306
+    },
+    {
+      "name": "1997-98.de.1.csv",
+      "season": "1997-98",
+      "sha256": "0fe3089629028e567b5c3925cd5b0de1647a3fedce84b8b39ba5e99ce0b512cb",
+      "source_match_count": 306
+    },
+    {
+      "name": "1998-99.de.1.csv",
+      "season": "1998-99",
+      "sha256": "65b57cd4afb6123010272dd17ec00aef47a0c0206292400b99dc828a84766529",
+      "source_match_count": 306
+    },
+    {
+      "name": "1999-00.de.1.csv",
+      "season": "1999-00",
+      "sha256": "e1c555a9da78c2ff529854057237c5dcdc4ea91d0557b753f4b0becaed1b5aa3",
+      "source_match_count": 306
+    },
+    {
+      "name": "2000-01.de.1.csv",
+      "season": "2000-01",
+      "sha256": "7a2bdf28b989e49daff09e3fdceed0d860913b57a7b23da8027dc0bb98e22e36",
+      "source_match_count": 306
+    },
+    {
+      "name": "2001-02.de.1.csv",
+      "season": "2001-02",
+      "sha256": "ca15e06e2bed737c4ddbd789e30cd9ae6f39fb4e04d3e9e5b7d11b791ab33efb",
+      "source_match_count": 306
+    },
+    {
+      "name": "2002-03.de.1.csv",
+      "season": "2002-03",
+      "sha256": "816d0ca9b3d6686e0c3333e264deddef67d41b26b56551604de0bdbe091a0d49",
+      "source_match_count": 306
+    },
+    {
+      "name": "2003-04.de.1.csv",
+      "season": "2003-04",
+      "sha256": "67719f38db44ecc14c8669bbc22547b8e843098fa7e9577256c02849ea24c2f8",
+      "source_match_count": 306
+    },
+    {
+      "name": "2004-05.de.1.csv",
+      "season": "2004-05",
+      "sha256": "ea4f52e1a490f7fc3522e38d9c10143edf7acecdb39bc314e4408383586f1333",
+      "source_match_count": 306
+    },
+    {
+      "name": "2005-06.de.1.csv",
+      "season": "2005-06",
+      "sha256": "1bf8380c523b3c9473668bc9da999974d36ab6b4dd1a32e36d4230b5fee6d108",
+      "source_match_count": 306
+    },
+    {
+      "name": "2006-07.de.1.csv",
+      "season": "2006-07",
+      "sha256": "237e1af0112438b13b259c5f9248b2b9f1013af768d23374aadc23917d155795",
+      "source_match_count": 306
+    },
+    {
+      "name": "2007-08.de.1.csv",
+      "season": "2007-08",
+      "sha256": "0560948d540307fe0f140804f14c73e35052298fcf9c719ad50437d7e8a95fb8",
+      "source_match_count": 306
+    },
+    {
+      "name": "2008-09.de.1.csv",
+      "season": "2008-09",
+      "sha256": "a336eeb198d7f4758195a5153efc226d5f21524b57e7128d6d9de9503fa0cf81",
+      "source_match_count": 306
+    },
+    {
+      "name": "2009-10.de.1.csv",
+      "season": "2009-10",
+      "sha256": "2549a4840a577552b171aca717ae8af8d7a9c4dadc541a35fea70b6b9cb0028e",
+      "source_match_count": 306
+    },
+    {
+      "name": "CC0-1.0.txt",
+      "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2020-12-01T06:05:32Z",
+  "source_id": "footballcsv-deu-history",
+  "upstream_committed_at_utc": "2020-12-01T06:05:32Z",
+  "upstream_ref": "178324626681a9e4c42b81463f59f9c4500dbd53",
+  "url": "https://github.com/footballcsv/deutschland"
+}

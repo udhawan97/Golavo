@@ -9,6 +9,22 @@ software dependencies.
 
 ## Bundled data (public domain / CC0)
 
+### footballcsv/deutschland — **bundled**
+
+- Source: https://github.com/footballcsv/deutschland
+- Contributors: Gerald Bauer, footballcsv contributors
+- License: CC0-1.0 (https://github.com/footballcsv/deutschland/blob/master/LICENSE.md)
+- Attribution: Historical the Bundesliga results from footballcsv/deutschland (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Bundled as deep pre-2010 history, trimmed to end the season before openfootball's earliest bundled season (2010-11) so it never overlaps or duplicates the football.json rows. Its own source_id keeps it out of any forecast's training set (history and search only, seal-ineligible). Upstream is dormant; no runtime refresh adapter is wired, so the bytes move only when the pack is rebuilt.
+
+### footballcsv/england — **bundled**
+
+- Source: https://github.com/footballcsv/england
+- Contributors: Gerald Bauer, footballcsv contributors
+- License: CC0-1.0 (https://github.com/footballcsv/england/blob/master/LICENSE.md)
+- Attribution: Historical the English Premier League results from footballcsv/england (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Bundled as deep pre-2010 history, trimmed to end the season before openfootball's earliest bundled season (2010-11) so it never overlaps or duplicates the football.json rows. Its own source_id keeps it out of any forecast's training set (history and search only, seal-ineligible). Upstream is dormant; no runtime refresh adapter is wired, so the bytes move only when the pack is rebuilt.
+
 ### martj42/international_results — **bundled**
 
 - Source: https://github.com/martj42/international_results

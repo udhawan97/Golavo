@@ -2,12 +2,52 @@
   "schema_version": "0.1.0",
   "snapshots": [
     {
+      "manifest_sha256": "22c009de4e6cbf8eafe3704f3f4fe822c332a40201a30d5640056635d6dcbdd9",
+      "pack": "packs/footballcsv-deu-history",
+      "retrieved_at_utc": "2020-12-01T06:05:32Z",
+      "source_id": "footballcsv-deu-history",
+      "upstream_committed_at_utc": "2020-12-01T06:05:32Z",
+      "upstream_ref": "178324626681a9e4c42b81463f59f9c4500dbd53"
+    },
+    {
+      "manifest_sha256": "81ec520ce30bef3d415419ec05cfeb917a9d240241a36e0b9e7abfba147b6720",
+      "pack": "packs/footballcsv-eng-history",
+      "retrieved_at_utc": "2023-05-28T13:09:55Z",
+      "source_id": "footballcsv-eng-history",
+      "upstream_committed_at_utc": "2023-05-28T13:09:55Z",
+      "upstream_ref": "52b7e5f5f37b28db72dba1fdc8dbec1adae4c8d0"
+    },
+    {
       "manifest_sha256": "e76b38473d1401134cc00955dd64cc7174f38bfaa600dbb1dbc3d4a349611319",
       "pack": "packs/martj42-internationals",
       "retrieved_at_utc": "2026-07-10T19:35:25Z",
       "source_id": "martj42-international-results",
       "upstream_committed_at_utc": null,
       "upstream_ref": "ddd7249ac0c24c44a5bd8c3af1bf16fc971bebe9"
+    },
+    {
+      "manifest_sha256": "6053477001b887b69d97ce7ff89ec4d55f34b0e1b0513b29d22fe26a7fc39899",
+      "pack": "packs/martj42-internationals-273c731492df",
+      "retrieved_at_utc": "2026-07-11T04:36:22Z",
+      "source_id": "martj42-international-results",
+      "upstream_committed_at_utc": "2026-07-07T23:01:13Z",
+      "upstream_ref": "273c731492df960cae363317e8e78e2be4b4b7cf"
+    },
+    {
+      "manifest_sha256": "1b18bea4d76c5d08a5dc2194aab4baa32794f9bb4516bd48c387b5a921c97dc5",
+      "pack": "packs/martj42-internationals-80f408d2c93b",
+      "retrieved_at_utc": "2026-07-16T19:38:58Z",
+      "source_id": "martj42-international-results",
+      "upstream_committed_at_utc": "2026-07-15T23:39:52Z",
+      "upstream_ref": "80f408d2c93ba4f9e06a2c7cdc5effb05fea9680"
+    },
+    {
+      "manifest_sha256": "7280572f4d3ae31c2f6f6cfa47ad84a99d6540c3b6fc6b54ee6ae724279dc4a7",
+      "pack": "packs/martj42-internationals-f73286079f8c",
+      "retrieved_at_utc": "2026-07-13T04:46:29Z",
+      "source_id": "martj42-international-results",
+      "upstream_committed_at_utc": "2026-07-11T08:33:26Z",
+      "upstream_ref": "f73286079f8c6b48a59f8a16e895d757119dca71"
     },
     {
       "manifest_sha256": "515ebec03087d14a0425121823ecfeaba54875138a900aabeda316d6a9888d04",
@@ -50,32 +90,8 @@
       "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     },
     {
-      "manifest_sha256": "6053477001b887b69d97ce7ff89ec4d55f34b0e1b0513b29d22fe26a7fc39899",
-      "pack": "packs/martj42-internationals-273c731492df",
-      "retrieved_at_utc": "2026-07-11T04:36:22Z",
-      "source_id": "martj42-international-results",
-      "upstream_committed_at_utc": "2026-07-07T23:01:13Z",
-      "upstream_ref": "273c731492df960cae363317e8e78e2be4b4b7cf"
-    },
-    {
-      "manifest_sha256": "7280572f4d3ae31c2f6f6cfa47ad84a99d6540c3b6fc6b54ee6ae724279dc4a7",
-      "pack": "packs/martj42-internationals-f73286079f8c",
-      "retrieved_at_utc": "2026-07-13T04:46:29Z",
-      "source_id": "martj42-international-results",
-      "upstream_committed_at_utc": "2026-07-11T08:33:26Z",
-      "upstream_ref": "f73286079f8c6b48a59f8a16e895d757119dca71"
-    },
-    {
       "manifest_sha256": "64035787494d2e4b9b777f534dde41f45b47c28f744a4c4df1fe250608cf34ef",
       "pack": "packs/openfootball-uefa-champions-league",
-      "retrieved_at_utc": "2026-07-15T07:39:03Z",
-      "source_id": "openfootball-champions-league",
-      "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
-      "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
-    },
-    {
-      "manifest_sha256": "86f04f6bb6a4fef14fe2052025adddd23e6d0ddcb8ce44da68e144460df105e6",
-      "pack": "packs/openfootball-uefa-europa-league",
       "retrieved_at_utc": "2026-07-15T07:39:03Z",
       "source_id": "openfootball-champions-league",
       "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
@@ -90,12 +106,12 @@
       "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
     },
     {
-      "manifest_sha256": "1b18bea4d76c5d08a5dc2194aab4baa32794f9bb4516bd48c387b5a921c97dc5",
-      "pack": "packs/martj42-internationals-80f408d2c93b",
-      "retrieved_at_utc": "2026-07-16T19:38:58Z",
-      "source_id": "martj42-international-results",
-      "upstream_committed_at_utc": "2026-07-15T23:39:52Z",
-      "upstream_ref": "80f408d2c93ba4f9e06a2c7cdc5effb05fea9680"
+      "manifest_sha256": "86f04f6bb6a4fef14fe2052025adddd23e6d0ddcb8ce44da68e144460df105e6",
+      "pack": "packs/openfootball-uefa-europa-league",
+      "retrieved_at_utc": "2026-07-15T07:39:03Z",
+      "source_id": "openfootball-champions-league",
+      "upstream_committed_at_utc": "2026-07-02T15:56:11Z",
+      "upstream_ref": "abfaeddc2ee3d14f99ecc163c9ddb46cb4d67cef"
     }
   ]
 }
