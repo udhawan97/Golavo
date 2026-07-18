@@ -1,11 +1,45 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from pathlib import Path
 
 import pandas as pd
+import pytest
 from golavo_core.ingest import build_match_index
 from golavo_server import matches, refresh, refresh_jobs, refresh_sources, refresh_state
+
+# ``repoint_to_refreshed`` reassigns these module globals DIRECTLY. That is correct for
+# the sidecar PROCESS, where a refresh is one-way, but this file reaches it through the
+# REAL RefreshCoordinator, so the writes land in this pytest process and monkeypatch
+# never sees them. ``test_refresh_coordinator_builds_and_activates_generation`` left all
+# of them except ``INDEX_PATH`` — the one it does monkeypatch, so that one self-restored
+# — pointing into its own tmp generation dir for the rest of the session. Every later
+# test then resolved aliases against that dir's ``aliases.json``, which is enough to
+# turn ``test_matches_api``'s multi-word alias test red purely by running after this
+# file. Default ordering hides it twice over: ``test_matches_api`` sorts before this
+# file, and ``test_refresh_wiring`` — which sorts after it — happens to repoint back to
+# the bundle. See golavo_server.matches.repoint_to_refreshed.
+_INDEX_PATH_GLOBALS = (
+    "INDEX_PATH",
+    "INDEX_META_PATH",
+    "GOALSCORERS_PATH",
+    "SHOOTOUTS_PATH",
+    "ALIASES_PATH",
+)
+
+
+@pytest.fixture(autouse=True)
+def _restore_index_paths() -> Iterator[None]:
+    """Snapshot and restore ``matches``' index path globals around every test in this
+    file, so activating a real generation can never strand them in a tmp dir."""
+    saved = {name: getattr(matches, name) for name in _INDEX_PATH_GLOBALS}
+    try:
+        yield
+    finally:
+        for name, value in saved.items():
+            setattr(matches, name, value)
+        matches.reset_cache()  # the frame read from the retired generation goes too
 
 
 def _write_raw(root: Path, martj_ref: str, worldcup_ref: str) -> None:
@@ -217,3 +251,19 @@ def test_active_manifest_reconciles_interrupted_or_rolled_back_state() -> None:
     assert source["active_ref"] == "1" * 40
     assert source["health"] == "stale"
     assert source["last_activated_at_utc"] == "2026-07-15T12:00:00Z"
+
+
+def test_this_file_leaves_the_index_globals_on_the_bundle() -> None:
+    # Guards the autouse restore above, and is defined LAST on purpose: pytest runs a
+    # file's tests in definition order, so this executes after the coordinator test —
+    # the one that reaches production's repoint_to_refreshed. Without the restore it
+    # fails here, rather than in whichever unrelated test later happens to read the
+    # stranded aliases.json.
+    expected = {key: Path(value) for key, value in matches._resolve_index_paths().items()}
+    assert {
+        "index": Path(matches.INDEX_PATH),
+        "meta": Path(matches.INDEX_META_PATH),
+        "goalscorers": Path(matches.GOALSCORERS_PATH),
+        "shootouts": Path(matches.SHOOTOUTS_PATH),
+        "aliases": Path(matches.ALIASES_PATH),
+    } == expected
