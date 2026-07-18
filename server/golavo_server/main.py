@@ -713,10 +713,20 @@ def matches_window(window: str, limit: int = 200) -> dict[str, Any]:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
 
 
+def _typed_detail(exc: Any) -> dict[str, Any]:
+    """The error envelope every typed local-store failure is reported in.
+
+    The UI parses ``reason_code`` to decide what to say and whether to offer a
+    retry, so this shape is a contract. It was written out at each of the eight
+    places a typed failure became an HTTPException.
+    """
+    return {"reason_code": exc.reason_code, "message": exc.detail}
+
+
 def _follow_error(exc: follows.FollowError) -> HTTPException:
     return HTTPException(
         status_code=exc.status_code,
-        detail={"reason_code": exc.reason_code, "message": exc.detail},
+        detail=_typed_detail(exc),
     )
 
 
@@ -788,36 +798,22 @@ async def put_follow_settings(request: Request) -> dict[str, Any]:
 @app.post("/api/v1/follows/reconcile")
 async def reconcile_followed_matches() -> dict[str, Any]:
     """Reconcile against already-active local bytes; this route never reaches the network."""
+    async def reconcile(stable: matches.StableGeneration) -> dict[str, Any]:
+        stable.require_stable()
+        return await run_in_threadpool(
+            follows.reconcile,
+            ledger=ARTIFACT_DIR,
+            frame=stable.snapshot.frame,
+            index_fingerprint=stable.snapshot.fingerprint,
+            generation_id=stable.generation_id,
+            source_status=stable.sources,
+            generation_commit=stable.commit,
+        )
+
     try:
-        for _attempt in range(3):
-            status_before = refresh_jobs.status()
-            snapshot = await run_in_threadpool(matches.index_snapshot)
-            status_after = refresh_jobs.status()
-            before_id = (status_before.get("active_generation") or {}).get("generation_id")
-            after_id = (status_after.get("active_generation") or {}).get("generation_id")
-            if before_id != after_id or not matches.snapshot_is_current(snapshot):
-                continue
-            source_status = {
-                item["source_id"]: item for item in status_after.get("sources", [])
-            }
-            try:
-                return await run_in_threadpool(
-                    follows.reconcile,
-                    ledger=ARTIFACT_DIR,
-                    frame=snapshot.frame,
-                    index_fingerprint=snapshot.fingerprint,
-                    generation_id=after_id,
-                    source_status=source_status,
-                    generation_commit=lambda operation, snapshot=snapshot: (
-                        matches.apply_if_snapshot_current(snapshot, operation)
-                    ),
-                )
-            except follows.FollowError as exc:
-                if exc.reason_code == "index_generation_changed":
-                    continue
-                raise
-        raise matches.MatchIndexUnavailable(
-            "verified match index changed during follow reconciliation; retry"
+        return await matches.run_on_stable_generation(
+            reconcile,
+            detail="verified match index changed during follow reconciliation; retry",
         )
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
@@ -948,18 +944,18 @@ def _research_error(exc: Exception) -> HTTPException:
     if isinstance(exc, research_store.ResearchStoreError):
         return HTTPException(
             status_code=exc.status,
-            detail={"reason_code": exc.reason_code, "message": exc.detail},
+            detail=_typed_detail(exc),
         )
     if isinstance(exc, research_policy.ResearchPolicyError):
         return HTTPException(
             status_code=422,
-            detail={"reason_code": exc.reason_code, "message": exc.detail},
+            detail=_typed_detail(exc),
         )
     if isinstance(exc, match_research.ResearchFetchError):
         status = 429 if exc.reason_code == "source_busy" else 503
         return HTTPException(
             status_code=status,
-            detail={"reason_code": exc.reason_code, "message": exc.detail},
+            detail=_typed_detail(exc),
         )
     return HTTPException(status_code=500, detail="research operation failed")
 
@@ -968,17 +964,17 @@ def _correction_error(exc: Exception) -> HTTPException:
     if isinstance(exc, correction_store.CorrectionStoreError):
         return HTTPException(
             status_code=exc.status_code,
-            detail={"reason_code": exc.reason_code, "message": exc.detail},
+            detail=_typed_detail(exc),
         )
     if isinstance(exc, correction_policy.CorrectionPolicyError):
         return HTTPException(
             status_code=422,
-            detail={"reason_code": exc.reason_code, "message": exc.detail},
+            detail=_typed_detail(exc),
         )
     if isinstance(exc, correction_sanitize.EvidenceError):
         return HTTPException(
             status_code=422,
-            detail={"reason_code": exc.reason_code, "message": exc.detail},
+            detail=_typed_detail(exc),
         )
     return HTTPException(status_code=500, detail="correction operation failed")
 
@@ -1074,68 +1070,58 @@ async def create_correction(request: Request) -> JSONResponse:
     match_id = target_input.get("match_id")
     if correction_type != "missing_fixture" and not isinstance(match_id, str):
         raise HTTPException(status_code=422, detail="an exact match_id is required")
+    async def propose(
+        stable: matches.StableGeneration,
+    ) -> tuple[dict[str, Any], bool]:
+        match = await run_in_threadpool(
+            _match_for_correction,
+            match_id if isinstance(match_id, str) else None,
+            stable.snapshot,
+        )
+        stable.require_stable()
+        if correction_type != "missing_fixture" and match is None:
+            raise HTTPException(status_code=404, detail="match not found")
+        original = correction_validation.derive_original(str(correction_type), match)
+        kind = {
+            "missing_fixture": "fixture_candidate",
+            "team_alias": "team",
+            "venue": "venue",
+        }.get(str(correction_type), "match")
+        target = {
+            "kind": kind,
+            "match_id": match_id if isinstance(match_id, str) else None,
+            # Entity identities are never accepted from the client. Phase 6
+            # anchors aliases/venues to the exact indexed match; a later
+            # reviewed registry workflow may derive a stable entity id.
+            "entity_id": None,
+            "upstream_record_key": (
+                proposed.get("upstream_record_key")
+                if correction_type == "missing_fixture"
+                else match.get("upstream_fixture_key")
+                if match
+                else None
+            ),
+            "base_generation_id": stable.generation_id,
+            "index_fingerprint": stable.snapshot.fingerprint,
+        }
+        return await run_in_threadpool(
+            correction_store.create_proposal,
+            _correction_root(),
+            correction_type=str(correction_type),
+            target=target,
+            original=original,
+            proposed=proposed,
+            source_id=source_id,
+            generation_commit=stable.commit,
+        )
+
     try:
         proposed = correction_validation.normalize_proposed(proposed_input)
         assert isinstance(proposed, dict)
-        for _attempt in range(3):
-            status_before = refresh_jobs.status()
-            snapshot = matches.index_snapshot()
-            match = _match_for_correction(
-                match_id if isinstance(match_id, str) else None, snapshot
-            )
-            status_after = refresh_jobs.status()
-            before_id = (status_before.get("active_generation") or {}).get("generation_id")
-            active = status_after.get("active_generation") or {}
-            after_id = active.get("generation_id")
-            if before_id != after_id or not matches.snapshot_is_current(snapshot):
-                continue
-            if correction_type != "missing_fixture" and match is None:
-                raise HTTPException(status_code=404, detail="match not found")
-            original = correction_validation.derive_original(str(correction_type), match)
-            kind = {
-                "missing_fixture": "fixture_candidate",
-                "team_alias": "team",
-                "venue": "venue",
-            }.get(str(correction_type), "match")
-            target = {
-                "kind": kind,
-                "match_id": match_id if isinstance(match_id, str) else None,
-                # Entity identities are never accepted from the client. Phase 6
-                # anchors aliases/venues to the exact indexed match; a later
-                # reviewed registry workflow may derive a stable entity id.
-                "entity_id": None,
-                "upstream_record_key": (
-                    proposed.get("upstream_record_key")
-                    if correction_type == "missing_fixture"
-                    else match.get("upstream_fixture_key")
-                    if match
-                    else None
-                ),
-                "base_generation_id": after_id,
-                "index_fingerprint": snapshot.fingerprint,
-            }
-            try:
-                proposal, created = await run_in_threadpool(
-                    correction_store.create_proposal,
-                    _correction_root(),
-                    correction_type=str(correction_type),
-                    target=target,
-                    original=original,
-                    proposed=proposed,
-                    source_id=source_id,
-                    generation_commit=lambda operation, snapshot=snapshot: (
-                        matches.apply_if_snapshot_current(snapshot, operation)
-                    ),
-                )
-            except correction_store.CorrectionStoreError as exc:
-                if exc.reason_code == "index_generation_changed":
-                    continue
-                raise
-            break
-        else:
-            raise matches.MatchIndexUnavailable(
-                "verified match index changed while creating the correction; retry"
-            )
+        proposal, created = await matches.run_on_stable_generation(
+            propose,
+            detail="verified match index changed while creating the correction; retry",
+        )
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
     except (correction_store.CorrectionStoreError, correction_policy.CorrectionPolicyError) as exc:
@@ -1891,7 +1877,7 @@ async def refresh_match_weather(match_id: str, request: Request) -> dict[str, An
     except weather.WeatherRefreshError as exc:
         raise HTTPException(
             status_code=exc.status,
-            detail={"reason_code": exc.reason_code, "message": exc.detail},
+            detail=_typed_detail(exc),
         ) from exc
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
@@ -1930,53 +1916,33 @@ def get_match(match_id: str) -> dict[str, Any]:
 
 @app.put("/api/v1/matches/{match_id}/follow")
 async def follow_match(match_id: str) -> JSONResponse:
+    async def follow(stable: matches.StableGeneration) -> JSONResponse:
+        detail = await run_in_threadpool(
+            matches.get_match,
+            match_id,
+            forecasts_dir=ARTIFACT_DIR,
+            snapshot=stable.snapshot,
+        )
+        stable.require_stable()
+        if detail is None:
+            raise HTTPException(status_code=404, detail="match not found")
+        source = stable.sources.get(str(detail["match"].get("source_id") or ""), {})
+        followed, created = await run_in_threadpool(
+            follows.follow_match,
+            detail["match"],
+            ledger=ARTIFACT_DIR,
+            source_ref=source.get("active_ref"),
+            source_checked_at_utc=source.get("last_checked_at_utc"),
+            generation_id=stable.generation_id,
+            index_fingerprint=stable.snapshot.fingerprint,
+            generation_commit=stable.commit,
+        )
+        return JSONResponse(status_code=201 if created else 200, content=followed)
+
     try:
-        for _attempt in range(3):
-            status_before = refresh_jobs.status()
-            snapshot = await run_in_threadpool(matches.index_snapshot)
-            detail = await run_in_threadpool(
-                matches.get_match,
-                match_id,
-                forecasts_dir=ARTIFACT_DIR,
-                snapshot=snapshot,
-            )
-            status_after = refresh_jobs.status()
-            before_id = (status_before.get("active_generation") or {}).get("generation_id")
-            active = status_after.get("active_generation") or {}
-            after_id = active.get("generation_id")
-            if before_id != after_id or not matches.snapshot_is_current(snapshot):
-                continue
-            if detail is None:
-                raise HTTPException(status_code=404, detail="match not found")
-            source_id = str(detail["match"].get("source_id") or "")
-            source = next(
-                (
-                    item
-                    for item in status_after.get("sources", [])
-                    if item.get("source_id") == source_id
-                ),
-                {},
-            )
-            try:
-                followed, created = await run_in_threadpool(
-                    follows.follow_match,
-                    detail["match"],
-                    ledger=ARTIFACT_DIR,
-                    source_ref=source.get("active_ref"),
-                    source_checked_at_utc=source.get("last_checked_at_utc"),
-                    generation_id=after_id,
-                    index_fingerprint=snapshot.fingerprint,
-                    generation_commit=lambda operation, snapshot=snapshot: (
-                        matches.apply_if_snapshot_current(snapshot, operation)
-                    ),
-                )
-            except follows.FollowError as exc:
-                if exc.reason_code == "index_generation_changed":
-                    continue
-                raise
-            return JSONResponse(status_code=201 if created else 200, content=followed)
-        raise matches.MatchIndexUnavailable(
-            "verified match index changed while following the match; retry"
+        return await matches.run_on_stable_generation(
+            follow,
+            detail="verified match index changed while following the match; retry",
         )
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
@@ -1987,7 +1953,7 @@ async def follow_match(match_id: str) -> JSONResponse:
 def _pick_error(exc: pick_service.PickError) -> HTTPException:
     return HTTPException(
         status_code=exc.status_code,
-        detail={"reason_code": exc.reason_code, "message": exc.detail},
+        detail=_typed_detail(exc),
     )
 
 
@@ -2168,7 +2134,7 @@ async def create_seal(match_id: str, request: Request) -> JSONResponse:
     except seal.SealError as exc:
         raise HTTPException(
             status_code=exc.status_code,
-            detail={"reason_code": exc.reason_code, "message": exc.detail},
+            detail=_typed_detail(exc),
         ) from exc
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(

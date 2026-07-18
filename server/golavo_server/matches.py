@@ -315,6 +315,97 @@ def apply_if_snapshot_current(snapshot: IndexSnapshot, operation: Callable[[], N
 # ample while keeping a pathological repoint loop fail-closed.
 _MAX_ATTEMPTS = 3
 
+
+class _GenerationMoved(Exception):
+    """Internal retry signal: the active generation changed inside the window."""
+
+
+def _generation_status() -> dict[str, Any]:
+    # Local import: refresh_jobs imports this module, and this module is loaded
+    # at sidecar boot.
+    from golavo_server import refresh_jobs
+
+    return refresh_jobs.status()
+
+
+def _generation_id(status: dict[str, Any]) -> str | None:
+    active = status.get("active_generation") or {}
+    return active.get("generation_id")
+
+
+@dataclass(frozen=True)
+class StableGeneration:
+    """One index generation, proven not to have moved while work ran on it."""
+
+    snapshot: IndexSnapshot
+    status: dict[str, Any]
+    generation_id: str | None
+    _opened_id: str | None
+
+    @property
+    def sources(self) -> dict[str, dict[str, Any]]:
+        """Per-source refresh status, keyed by source id."""
+        return {item["source_id"]: item for item in self.status.get("sources", [])}
+
+    def require_stable(self) -> None:
+        """Assert the generation has not moved since this window opened.
+
+        Call it after reading from ``snapshot`` and before writing anything. It
+        raises the retry signal rather than returning a flag so a caller cannot
+        read the answer and forget to act on it.
+        """
+        if self._opened_id != self.generation_id or not snapshot_is_current(self.snapshot):
+            raise _GenerationMoved
+
+    def commit(self, operation: Callable[[], None]) -> bool:
+        """Publish a small cache operation, but only for this generation."""
+        return apply_if_snapshot_current(self.snapshot, operation)
+
+
+async def run_on_stable_generation(
+    work: Callable[[StableGeneration], Any],
+    *,
+    detail: str,
+    attempts: int = _MAX_ATTEMPTS,
+) -> Any:
+    """Run ``work`` against an index generation that provably did not move.
+
+    The read path has had this since ``SnapshotReader``; the write path did not,
+    so following a match, reconciling follows and proposing a correction each
+    hand-inlined the same loop — read the refresh status, take a snapshot, read
+    the status again, compare generation ids, retry if they moved. Three copies
+    of a concurrency guard is three chances for one of them to drift, and the
+    only way to exercise any of them was to stand up the whole app.
+
+    ``work`` is retried when it calls ``require_stable()`` on a window that has
+    moved, and when it raises a store failure whose ``reason_code`` is
+    ``index_generation_changed`` — the same race losing at write time instead of
+    check time. Every other failure propagates untouched. Exhausting the
+    attempts raises ``MatchIndexUnavailable`` so the route fails closed with a
+    503 rather than spinning or half-writing.
+    """
+    from starlette.concurrency import run_in_threadpool
+
+    for _attempt in range(attempts):
+        opened_id = _generation_id(_generation_status())
+        snapshot = await run_in_threadpool(index_snapshot)
+        status = _generation_status()
+        stable = StableGeneration(
+            snapshot=snapshot,
+            status=status,
+            generation_id=_generation_id(status),
+            _opened_id=opened_id,
+        )
+        try:
+            return await work(stable)
+        except _GenerationMoved:
+            continue
+        except Exception as exc:  # noqa: BLE001 (re-raised unless it is the race)
+            if getattr(exc, "reason_code", None) == "index_generation_changed":
+                continue
+            raise
+    raise MatchIndexUnavailable(detail)
+
 # Everything to drop when the index repoints. A SnapshotReader joins at
 # construction, so this module never needs to know the name of a single derivative
 # module to invalidate it — the failure it used to invite was a new cached read
