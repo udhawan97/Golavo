@@ -84,7 +84,9 @@ def _resolve_index_paths() -> dict[str, Path]:
 
 # Module globals so tests can point them at a tiny fixture index (mirrors the
 # ARTIFACT_DIR pattern in main.py). The index is immutable within a process
-# (barring an explicit refresh), so it is loaded once and cached.
+# (barring an explicit refresh), so it is loaded once and cached — once PER PATH:
+# the cache records which of these it was read from and retires itself when they
+# move, so repointing can never serve a frame from the previous index.
 _paths = _resolve_index_paths()
 INDEX_PATH = _paths["index"]
 INDEX_META_PATH = _paths["meta"]
@@ -94,6 +96,9 @@ ALIASES_PATH = _paths["aliases"]
 
 _CACHE: Any = None  # the loaded index DataFrame; reset_cache() clears it
 _FINGERPRINT: str | None = None  # content hash of the index, for the analysis cache
+# The (index, meta) pair ``_CACHE`` was read from, so the cache can recognise that
+# it has been orphaned by a repoint. None while no attributable frame is cached.
+_CACHE_PATHS: tuple[Path, Path] | None = None
 _GENERATION_EPOCH = 0
 _CACHE_LOCK = threading.RLock()
 
@@ -148,9 +153,10 @@ def _fingerprint_for(index_path: Path, meta_path: Path) -> str:
 
 
 def _invalidate_cache_locked() -> None:
-    global _CACHE, _META_ROWS, _FINGERPRINT, _GENERATION_EPOCH
+    global _CACHE, _CACHE_PATHS, _META_ROWS, _FINGERPRINT, _GENERATION_EPOCH
     _GENERATION_EPOCH += 1
     _CACHE = None
+    _CACHE_PATHS = None
     _META_ROWS = "unread"
     _FINGERPRINT = None
     _WARM["state"] = "cold"
@@ -163,6 +169,30 @@ def _reset_derivative_caches() -> None:
     # derivative module may call back into this one during import.
     for invalidate in tuple(_INVALIDATORS):
         invalidate()
+
+
+def _discard_retired_cache() -> None:
+    """Drop a cached frame that was read from a path the module no longer names.
+
+    ``_CACHE`` is only meaningful together with the ``INDEX_PATH`` it came from:
+    reassigning the path leaves the frame describing a different file, and the
+    fast-path cache hit in ``index_snapshot`` would go on serving it forever.
+    ``repoint_to_refreshed`` invalidates explicitly, but a plain reassignment
+    cannot — most sharply under ``monkeypatch``, which restores ``INDEX_PATH`` at
+    teardown and has no way to restore the cache with it, so a test's fixture
+    index used to outlive its own test and be served to every later one in the
+    process. Binding the cache to its provenance makes that state unrepresentable
+    rather than a rule each writer has to remember.
+
+    A frame injected straight into ``_CACHE`` carries no recorded provenance and
+    is left alone; it is attributed on its next publication.
+    """
+    with _CACHE_LOCK:
+        if _CACHE_PATHS is None or _CACHE_PATHS == (Path(INDEX_PATH), Path(INDEX_META_PATH)):
+            return
+        _invalidate_cache_locked()
+    # Outside the lock, for the same reason reset_cache() does it there.
+    _reset_derivative_caches()
 
 
 def repoint_to_refreshed() -> None:
@@ -191,7 +221,12 @@ class MatchIndexUnavailable(Exception):
 
 
 def reset_cache() -> None:
-    """Drop the cached index frame (tests call this after repointing INDEX_PATH)."""
+    """Drop the cached index frame and every cache derived from it.
+
+    Repointing ``INDEX_PATH`` no longer requires this — the cache notices that its
+    provenance moved (see ``_discard_retired_cache``). It is still the way to force
+    a re-read of the SAME path, e.g. after its bytes changed on disk.
+    """
     with _CACHE_LOCK:
         _invalidate_cache_locked()
     # Every in-process derivative must move with the index cache. The analysis
@@ -213,10 +248,11 @@ def index_snapshot() -> IndexSnapshot:
     before refresh activation is discarded and retried against the new paths,
     so it can never repopulate ``_CACHE`` with the retired generation.
     """
-    global _CACHE, _FINGERPRINT
+    global _CACHE, _CACHE_PATHS, _FINGERPRINT
     import pandas as pd
 
     while True:
+        _discard_retired_cache()
         with _CACHE_LOCK:
             if _CACHE is not None and _FINGERPRINT is not None:
                 return IndexSnapshot(
@@ -264,8 +300,10 @@ def index_snapshot() -> IndexSnapshot:
             if _CACHE is None:
                 _CACHE = frame
                 _FINGERPRINT = fingerprint
+                _CACHE_PATHS = (index_path, meta_path)
             elif _CACHE is cached_frame and _FINGERPRINT is None:
                 _FINGERPRINT = fingerprint
+                _CACHE_PATHS = (index_path, meta_path)
             # Another loader may have won publication for this same epoch. Use
             # its frame and fingerprint rather than replacing an equal-generation
             # object while callers are already reading it.
@@ -590,6 +628,9 @@ def index_fingerprint() -> str:
 
 def index_status() -> dict[str, Any]:
     """Live warm-up status for the UI. Reports only; never triggers the load."""
+    # Dropping a retired frame is not a load: it keeps this from reporting "ready"
+    # on behalf of an index the module has already been pointed away from.
+    _discard_retired_cache()
     with _CACHE_LOCK:
         ready = _CACHE is not None
         warm_state = _WARM["state"]

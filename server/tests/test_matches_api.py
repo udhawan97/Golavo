@@ -385,6 +385,43 @@ def test_notebook_unknown_match_is_404(client):
     assert client.get("/api/v1/matches/nope/notebook").status_code == 404
 
 
+# ------------------------------------------------------------------- cache coherence
+
+def test_cache_follows_a_repointed_index_without_an_explicit_reset(
+    client, tmp_path, monkeypatch
+):
+    # ``_CACHE`` and ``INDEX_PATH`` are two halves of one piece of state. Repointing
+    # the path without calling ``reset_cache()`` used to leave the module serving a
+    # frame loaded from a file it no longer names — invisibly, because the fast-path
+    # cache hit never rechecked the path. That is not a hypothetical: ``monkeypatch``
+    # restores ``INDEX_PATH`` at teardown but cannot restore the cache, so any test
+    # that repointed the path leaked its fixture frame into every later test in the
+    # process (see the module docstring's note on the autouse reset).
+    assert client.get("/api/v1/matches/m_target").status_code == 200  # warms the cache
+
+    other = tmp_path / "other_index.parquet"
+    _build_index(other, [
+        _row("m_only_here", "2024-02-01", "Peru", "Chile", "peru", "chile", 1, 0, True,
+             "Friendly", _INTL, "international"),
+    ])
+    monkeypatch.setattr(matches, "INDEX_PATH", other)  # deliberately NO reset_cache()
+
+    # The retired frame must not be reported as ready, nor served to a reader.
+    assert matches.index_status()["index_ready"] is False
+    assert client.get("/api/v1/matches/m_only_here").status_code == 200
+    assert client.get("/api/v1/matches/m_target").status_code == 404
+
+
+def test_a_directly_injected_frame_survives_a_path_recheck(client, tmp_path, monkeypatch):
+    # The injected-frame compatibility path (a test placing a preloaded frame in
+    # ``_CACHE`` itself) carries no provenance, so the coherence check must leave it
+    # alone rather than discarding a frame it cannot attribute to any path.
+    frame = _build_index(tmp_path / "injected.parquet", _ROWS)
+    matches.reset_cache()
+    monkeypatch.setattr(matches, "_CACHE", frame)
+    assert matches._load_index() is frame
+
+
 # ------------------------------------------------------------------- index failures
 
 def test_search_503_when_index_missing(client, tmp_path, monkeypatch):
