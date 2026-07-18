@@ -99,6 +99,33 @@ def test_refresh_keeps_club_history_and_adds_new_fixture(tmp_path: Path) -> None
     assert (target / "aliases.json").exists()
 
 
+def test_refresh_states_the_packs_it_was_built_from(tmp_path: Path) -> None:
+    """A refreshed generation must stay provable, not just fresh.
+
+    The retrospective proves a story's index and a seal's pack are one snapshot
+    by comparing built_from[].manifest_sha256 with the pack's manifest digest.
+    This meta used to be written to its own shape without the key, so a
+    refreshed generation silently lost the ability to make that claim.
+    """
+    bundled = _bundled_index(tmp_path, "2019-06-01,Brazil,Argentina,2,2,Copa,Rio,Brazil,FALSE\n")
+    fresh = _write_pack(
+        tmp_path / "intl-fresh",
+        "martj42-international-results",
+        "2019-06-01,Brazil,Argentina,2,2,Copa,Rio,Brazil,FALSE\n",
+    )
+    target = tmp_path / "refresh"
+    merge_refreshed_index(fresh, bundled, target)
+
+    meta = json.loads((target / "matches_index.meta.json").read_text())
+    built_from = meta["built_from"]
+    assert [entry["source_id"] for entry in built_from] == ["martj42-international-results"]
+    assert built_from[0]["manifest_sha256"] == hashlib.sha256(
+        (fresh / "manifest.json").read_bytes()
+    ).hexdigest()
+    # The refresh-specific facts are additions, not a replacement shape.
+    assert meta["refreshed"] is True
+
+
 def test_refresh_drops_stale_internationals(tmp_path: Path) -> None:
     """The internationals side is rebuilt, not merged — a match dropped upstream
     must not linger from the old bundled index."""

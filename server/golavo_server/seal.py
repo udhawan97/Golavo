@@ -44,9 +44,12 @@ ALLOWED_FAMILIES = ("dixon_coles", "poisson_independent", "elo_ordlogit", "clima
 
 DEFAULT_HORIZON = "T-24h"
 
-# source_id -> pinned pack directory name, for sources whose rows map to exactly
-# one CC0 pack. Only men's internationals qualify today.
-_SOURCE_PACKS = {"martj42-international-results": "martj42-internationals"}
+# The one international source Golavo can seal from, and the pack name it falls
+# back to when no registry is bundled. A map keyed by source id would promise a
+# generality that does not exist: a second international source would need its
+# own eligibility rules and co-source handling, not another dict entry.
+_INTERNATIONAL_SOURCE_ID = "martj42-international-results"
+_INTERNATIONAL_PACK_NAME = "martj42-internationals"
 
 # Module global (mirrors matches.INDEX_PATH) so tests can repoint pack resolution
 # at a fixture directory. Defaults to the committed packs, bundle-resolved. In a
@@ -85,40 +88,29 @@ def _parse_iso(value: str) -> datetime:
 
 
 def _active_bundled_pack(source_id: str, competition: str | None = None) -> Path | None:
-    """The greatest-anchor bundled pack for a source, from the bundled snapshots.json.
+    """The current bundled pack for a source, so search and sealing agree.
 
-    Mirrors ingest.default_index_packs so search and sealing resolve the SAME pack: a
-    newly bundled refresh (a higher snapshot anchor) becomes active for both at once.
-    Returns None when no snapshots registry is bundled (older frozen builds), so the
-    caller falls back to the pinned canonical pack and behavior is unchanged.
-
-    When ``competition`` is given, only a pack whose manifest declares that
-    competition qualifies — the disambiguation a club source needs, since the
-    OpenFootball club source id is shared across five leagues.
+    A thin adapter over :func:`golavo_core.packstore.active_pack`, which owns the
+    rule; this call site only says where a frozen build keeps its packs — flat in
+    ``PACKS_DIR``, not nested as the registry path spells them. The resolver
+    declines a pack the build did not ship, so a partial bundle resolves what it
+    has instead of failing; an older build with no registry at all resolves None
+    and the caller falls back to the pinned canonical pack.
     """
-    import json
+    from golavo_core.packstore import active_pack
 
-    from golavo_core.ingest import snapshot_anchor_utc
+    packs_dir = Path(PACKS_DIR)
 
-    registry = Path(PACKS_DIR) / "snapshots.json"
-    if not registry.is_file():
-        return None
-    best: tuple[tuple[str, str], Path] | None = None
-    for entry in json.loads(registry.read_text(encoding="utf-8")).get("snapshots", []):
-        if str(entry.get("source_id")) != source_id:
-            continue
-        pack = Path(PACKS_DIR) / Path(str(entry["pack"])).name
-        manifest_path = pack / "manifest.json"
-        if not manifest_path.is_file():
-            continue
-        if competition is not None:
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            if str(manifest.get("competition") or "") != competition:
-                continue
-        rank = (snapshot_anchor_utc(entry), str(entry["pack"]))
-        if best is None or rank > best[0]:
-            best = (rank, pack)
-    return best[1] if best is not None else None
+    def resolve(declared: str) -> Path | None:
+        pack = packs_dir / Path(declared).name
+        return pack if (pack / "manifest.json").is_file() else None
+
+    return active_pack(
+        packs_dir / "snapshots.json",
+        resolve=resolve,
+        source_id=source_id,
+        competition=competition,
+    )
 
 
 def resolve_pack_dir(
@@ -147,8 +139,7 @@ def resolve_pack_dir(
         return _active_bundled_pack(source_id, competition)
     if source_kind != "international":
         return None
-    name = _SOURCE_PACKS.get(source_id or "")
-    if not name:
+    if source_id != _INTERNATIONAL_SOURCE_ID:
         return None
     from golavo_server import runtime  # local: avoid an import cycle at load
 
@@ -158,7 +149,7 @@ def resolve_pack_dir(
     active = _active_bundled_pack(source_id or "")
     if active is not None:
         return active
-    pack = Path(PACKS_DIR) / name
+    pack = Path(PACKS_DIR) / _INTERNATIONAL_PACK_NAME
     return pack if (pack / "manifest.json").is_file() else None
 
 
@@ -186,7 +177,7 @@ def eligibility(match: dict[str, Any], *, now_utc: datetime | None = None) -> di
     source_kind = match.get("source_kind")
     competition = match.get("competition")
     if source_kind not in ("international", "club") or (
-        source_kind == "international" and _SOURCE_PACKS.get(source_id or "") is None
+        source_kind == "international" and source_id != _INTERNATIONAL_SOURCE_ID
     ):
         return verdict(
             False,

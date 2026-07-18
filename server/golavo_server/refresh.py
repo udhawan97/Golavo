@@ -23,8 +23,8 @@ from typing import Any
 
 from golavo_core.ingest.match_index import (
     INDEX_COLUMNS,
-    MATCH_INDEX_SCHEMA_VERSION,
     build_match_index,
+    write_index_meta,
 )
 
 _CLUB_KIND = "club"
@@ -81,6 +81,7 @@ def merge_refreshed_index(
     # 1. Fresh internationals index + its side tables/aliases, straight into
     #    target_dir. This is the only side that gains new fixtures upstream.
     build_match_index([Path(fresh_intl_pack)], target_index)
+    built_from = _built_from(target_dir)
     intl = pd.read_parquet(target_index)
     if not (intl["source_kind"] == _INTERNATIONAL_KIND).all():
         raise RefreshError("fresh pack is not a pure internationals source; refusing to refresh")
@@ -106,18 +107,34 @@ def merge_refreshed_index(
     #    build_match_index already left the fresh internationals side tables and
     #    alias map in target_dir; those are intl-only, so the fresh copies stand.
     merged.to_parquet(target_index, index=False, engine="pyarrow", compression="zstd")
-    meta = {
-        "schema_version": MATCH_INDEX_SCHEMA_VERSION,
-        "row_count": int(len(merged)),
-        "parquet_sha256": hashlib.sha256(target_index.read_bytes()).hexdigest(),
-        "refreshed": True,
-        "internationals_pack": Path(fresh_intl_pack).name,
-        "club_rows_from": Path(bundled_index_path).name,
-    }
-    (target_dir / "matches_index.meta.json").write_text(
-        json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    write_index_meta(
+        target_dir,
+        index_path=target_index,
+        row_count=int(len(merged)),
+        built_from=built_from,
+        extra={
+            "refreshed": True,
+            "internationals_pack": Path(fresh_intl_pack).name,
+            "club_rows_from": Path(bundled_index_path).name,
+        },
     )
     return target_index
+
+
+def _built_from(meta_dir: Path) -> list[dict[str, str]]:
+    """The pack provenance build_match_index just recorded, to carry forward.
+
+    A refreshed generation overwrites the Parquet it was handed, so it must
+    re-state which packs were validated to produce it. Dropping the key would
+    leave the retrospective unable to prove that this index and a seal's pack
+    are one snapshot.
+    """
+    try:
+        meta = json.loads((Path(meta_dir) / "matches_index.meta.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    recorded = meta.get("built_from")
+    return recorded if isinstance(recorded, list) else []
 
 
 def _sha256(path: Path) -> str:
@@ -545,6 +562,7 @@ def merge_refresh_generation(
     target_dir.mkdir(parents=True, exist_ok=True)
     target_index = target_dir / "matches_index.parquet"
     build_match_index([Path(fresh_intl_pack), *map(Path, club_packs)], target_index)
+    built_from = _built_from(target_dir)
     fresh = pd.read_parquet(target_index)
     base = _upgrade_legacy_columns(pd.read_parquet(base_index_path))
     fresh, retained_completed = _reconcile_international_history(fresh, base)
@@ -569,16 +587,18 @@ def merge_refresh_generation(
         collisions = sorted(merged.loc[duplicate, "match_id"].unique())[:10]
         raise RefreshError(f"match_id collision in refresh candidate: {collisions}")
     merged.to_parquet(target_index, index=False, engine="pyarrow", compression="zstd")
-    meta = {
-        "schema_version": MATCH_INDEX_SCHEMA_VERSION,
-        "row_count": int(len(merged)),
-        "parquet_sha256": _sha256(target_index),
-        "refreshed": True,
-        "sources": sorted(set(str(value) for value in merged["source_id"].dropna().unique())),
-        "base_index_sha256": _sha256(base_index_path),
-        "retained_completed_match_ids": sorted(retained_completed["match_id"].astype(str)),
-    }
-    _write_json(target_dir / "matches_index.meta.json", meta)
+    write_index_meta(
+        target_dir,
+        index_path=target_index,
+        row_count=int(len(merged)),
+        built_from=built_from,
+        extra={
+            "refreshed": True,
+            "sources": sorted(set(str(value) for value in merged["source_id"].dropna().unique())),
+            "base_index_sha256": _sha256(base_index_path),
+            "retained_completed_match_ids": sorted(retained_completed["match_id"].astype(str)),
+        },
+    )
     return target_index
 
 

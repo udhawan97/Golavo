@@ -18,11 +18,11 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
 from ..identity import fixture_key_strings, normalize
-from .snapshot import snapshot_anchor_utc
 
 MATCH_INDEX_SCHEMA_VERSION = "0.5.0"
 
@@ -158,29 +158,53 @@ def _add_field_provenance(
 
 
 def default_index_packs(repo_root: Path) -> list[Path]:
-    """Select one pack per (source, competition): the greatest snapshot anchor.
+    """The current pack for every (source, competition), in build order.
 
-    Entries in packs/snapshots.json are grouped by manifest source_id and, for
-    club packs, competition; the entry whose data state is anchored latest wins
-    its group (ties broken by pack path). This keeps a single internationals
-    pack and exactly one pack per club league. Returns absolute pack directories
-    in a stable, path-sorted build order.
+    A thin adapter over :func:`golavo_core.packstore.active_packs`, which owns
+    the rule; this call site only says where a repo checkout keeps its packs.
+    The resolver never declines an entry, so a declared pack that cannot be read
+    fails the build rather than quietly dropping a source from the index.
     """
     repo_root = Path(repo_root)
-    registry = json.loads((repo_root / "packs" / "snapshots.json").read_text(encoding="utf-8"))
-    best: dict[tuple[str, str], dict] = {}
-    for entry in registry["snapshots"]:
-        pack_dir = repo_root / entry["pack"]
-        manifest = json.loads((pack_dir / "manifest.json").read_text(encoding="utf-8"))
-        key = (str(entry["source_id"]), str(manifest.get("competition") or ""))
-        rank = (snapshot_anchor_utc(entry), str(entry["pack"]))
-        incumbent = best.get(key)
-        if incumbent is None or rank > incumbent["_rank"]:
-            best[key] = {**entry, "_rank": rank}
+    from ..packstore import active_packs
+
     return [
-        (repo_root / entry["pack"]).resolve()
-        for entry in sorted(best.values(), key=lambda e: e["pack"])
+        pack.directory.resolve()
+        for pack in active_packs(
+            repo_root / "packs" / "snapshots.json",
+            resolve=lambda declared: repo_root / declared,
+        )
     ]
+
+
+def write_index_meta(
+    out_dir: Path,
+    *,
+    index_path: Path,
+    row_count: int,
+    built_from: list[dict[str, str]],
+    extra: dict[str, Any] | None = None,
+) -> Path:
+    """Write ``matches_index.meta.json`` — the one shape every index carries.
+
+    ``built_from`` is not decoration. The retrospective proves that the story's
+    index and the pack a seal trained from are one snapshot by comparing
+    ``built_from[].manifest_sha256`` against the pack's own manifest digest; a
+    meta without it degrades that claim to "could not check". The runtime refresh
+    used to write its own shape and drop the key, so a refreshed generation
+    silently lost the ability to make that claim. ``extra`` carries the extra
+    facts a refreshed generation adds, never a replacement for these.
+    """
+    meta: dict[str, Any] = {
+        "schema_version": MATCH_INDEX_SCHEMA_VERSION,
+        "row_count": int(row_count),
+        "parquet_sha256": hashlib.sha256(Path(index_path).read_bytes()).hexdigest(),
+        "built_from": sorted(built_from, key=lambda p: (p["source_id"], p["pack"])),
+    }
+    meta.update(extra or {})
+    path = Path(out_dir) / "matches_index.meta.json"
+    path.write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
 
 
 def _read_bool(series: pd.Series) -> pd.Series:
@@ -334,14 +358,11 @@ def build_match_index(pack_dirs: list[Path], output_path: Path) -> Path:
     index = index[INDEX_COLUMNS]
     index.to_parquet(output_path, index=False, engine="pyarrow", compression="zstd")
 
-    meta = {
-        "schema_version": MATCH_INDEX_SCHEMA_VERSION,
-        "row_count": int(len(index)),
-        "parquet_sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
-        "built_from": sorted(provenance, key=lambda p: (p["source_id"], p["pack"])),
-    }
-    (out_dir / "matches_index.meta.json").write_text(
-        json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    write_index_meta(
+        out_dir,
+        index_path=output_path,
+        row_count=int(len(index)),
+        built_from=provenance,
     )
 
     if side_source is not None:
