@@ -16,12 +16,13 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from golavo_core.identity import normalize
 from golavo_core.ingest import (
     MATCH_INDEX_SCHEMA_VERSION,
     build_match_index,
     default_index_packs,
 )
-from golavo_core.ingest.match_index import INDEX_COLUMNS, normalize
+from golavo_core.ingest.match_index import INDEX_COLUMNS
 
 _HEADER = "date,home_team,away_team,home_score,away_score,tournament,city,country,neutral\n"
 

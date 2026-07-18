@@ -21,7 +21,6 @@ import hashlib
 import io
 import json
 import threading
-import unicodedata
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -31,6 +30,7 @@ from urllib.request import Request, urlopen
 
 from golavo_core.artifacts import score_forecast_result
 from golavo_core.calibration import calibration_summary
+from golavo_core.identity import fixture_key
 from golavo_core.ingest.snapshot import snapshot_anchor_utc
 from golavo_core.ingest.worldcup import final_score
 
@@ -94,13 +94,14 @@ FetchBytes = Callable[[str], bytes]
 MatchKey = tuple[str, str, str, str]
 
 
-def _normalize(value: str) -> str:
-    decomposed = unicodedata.normalize("NFKD", str(value))
-    return "".join(ch for ch in decomposed if not unicodedata.combining(ch)).casefold().strip()
-
-
 def _key(date: str, home: str, away: str, competition: str) -> MatchKey:
-    return date, _normalize(home), _normalize(away), _normalize(competition)
+    """This fixture's identity, scoped to its competition.
+
+    Grading requires two sources to agree on a fixture, so this key must be the
+    same one the index was built with — hence the shared fold.
+    """
+    day, home_norm, away_norm, competition_norm = fixture_key(date, home, away, competition)
+    return day, home_norm, away_norm, competition_norm
 
 
 def _fetch(url: str) -> bytes:

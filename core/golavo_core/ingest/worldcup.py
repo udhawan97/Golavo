@@ -20,10 +20,11 @@ result after extra time but before penalties, so the cross-check compares worldc
 from __future__ import annotations
 
 import re
-import unicodedata
 from datetime import timedelta, timezone
 
 import pandas as pd
+
+from ..identity import fixture_key_strings
 
 TOURNAMENT = "FIFA World Cup"
 
@@ -31,12 +32,6 @@ TOURNAMENT = "FIFA World Cup"
 _TIME_RE = re.compile(r"^\s*(\d{1,2}):(\d{2})\s+UTC([+-]\d{1,2})\s*$")
 # An unresolved knockout slot: 'W101' (winner of match 101), 'L102' (loser of 102).
 _PLACEHOLDER_RE = re.compile(r"^[WL]\d+$")
-
-
-def _normalize(value: str) -> str:
-    decomposed = unicodedata.normalize("NFKD", str(value))
-    without_marks = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
-    return without_marks.casefold().strip()
 
 
 def is_placeholder(team: str) -> bool:
@@ -135,11 +130,7 @@ def kickoff_overlay(parsed: pd.DataFrame) -> pd.DataFrame:
 
 
 def _match_key(frame: pd.DataFrame) -> pd.Series:
-    return (
-        pd.to_datetime(frame["date"]).dt.strftime("%Y-%m-%d")
-        + "|" + frame["home_team"].map(_normalize)
-        + "|" + frame["away_team"].map(_normalize)
-    )
+    return fixture_key_strings(frame)
 
 
 def missing_fixtures(
@@ -202,12 +193,7 @@ def crosscheck_completed(parsed: pd.DataFrame, reference: pd.DataFrame) -> list[
     if parsed.empty or reference.empty:
         return []
 
-    def _key(frame: pd.DataFrame) -> pd.Series:
-        return (
-            pd.to_datetime(frame["date"]).dt.strftime("%Y-%m-%d")
-            + "|" + frame["home_team"].map(_normalize)
-            + "|" + frame["away_team"].map(_normalize)
-        )
+    _key = fixture_key_strings
 
     ref = reference.copy()
     ref_complete = ref[ref["is_complete"].astype("boolean").fillna(False)]

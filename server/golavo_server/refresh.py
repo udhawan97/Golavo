@@ -208,7 +208,7 @@ def build_international_runtime_pack(
 ) -> dict[str, Any]:
     """Build the martj42 training pack with World Cup fixture provenance."""
     import pandas as pd
-    from golavo_core.ingest.match_index import normalize
+    from golavo_core.identity import normalize
     from golavo_core.ingest.worldcup import (
         crosscheck_completed,
         is_placeholder,

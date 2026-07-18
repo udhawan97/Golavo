@@ -73,10 +73,10 @@ def _fetch_latest() -> tuple[str, str]:
 
 
 def _normalize(text: str) -> str:
-    import unicodedata
+    """The one fold, imported lazily so this module stays cheap at sidecar boot."""
+    from golavo_core.identity import normalize
 
-    decomposed = unicodedata.normalize("NFKD", str(text))
-    return "".join(ch for ch in decomposed if not unicodedata.combining(ch)).casefold().strip()
+    return normalize(text)
 
 
 def check_new_fixtures(

@@ -17,11 +17,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-import unicodedata
 from pathlib import Path
 
 import pandas as pd
 
+from ..identity import fixture_key_strings, normalize
 from .snapshot import snapshot_anchor_utc
 
 MATCH_INDEX_SCHEMA_VERSION = "0.5.0"
@@ -63,25 +63,8 @@ INDEX_COLUMNS = [
 _CLEARED_LICENSES = frozenset({"CC0-1.0"})
 
 
-def normalize(s: str) -> str:
-    """Fold a team name to a diacritic-free, casefolded search key.
-
-    NFKD decompose -> drop combining marks -> casefold -> strip, so 'Atletico'
-    and 'Atletico' collapse and a later search need not reproduce diacritics.
-    """
-    decomposed = unicodedata.normalize("NFKD", str(s))
-    without_marks = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
-    return without_marks.casefold().strip()
-
-
 def _provenance_key(frame: pd.DataFrame) -> pd.Series:
-    return (
-        pd.to_datetime(frame["date"]).dt.strftime("%Y-%m-%d")
-        + "|"
-        + frame["home_team"].map(normalize)
-        + "|"
-        + frame["away_team"].map(normalize)
-    )
+    return fixture_key_strings(frame)
 
 
 def _add_field_provenance(

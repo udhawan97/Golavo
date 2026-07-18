@@ -21,7 +21,7 @@ from typing import Any
 
 import pandas as pd
 
-from golavo_core.ingest.match_index import normalize
+from golavo_core.identity import fixture_keys
 
 SCORERS_SCHEMA_VERSION = "0.1.0"
 
@@ -59,28 +59,13 @@ def _competition_match_keys(
     scoped = index.loc[
         index["competition"].astype("string").isin(names) & complete & (kickoff <= cutoff)
     ]
-    return set(
-        zip(
-            pd.to_datetime(scoped["date"]).dt.strftime("%Y-%m-%d"),
-            scoped["home_norm"].astype(str),
-            scoped["away_norm"].astype(str),
-            strict=True,
-        )
-    )
+    # home_norm/away_norm are already folded; the fold is idempotent, so keying
+    # them gives the same tuple a raw upstream spelling would give.
+    return set(fixture_keys(scoped, home="home_norm", away="away_norm"))
 
 
 def _row_keys(frame: pd.DataFrame) -> pd.Series:
-    return pd.Series(
-        list(
-            zip(
-                pd.to_datetime(frame["date"]).dt.strftime("%Y-%m-%d"),
-                frame["home_team"].map(normalize),
-                frame["away_team"].map(normalize),
-                strict=True,
-            )
-        ),
-        index=frame.index,
-    )
+    return fixture_keys(frame)
 
 
 def competition_top_scorers(

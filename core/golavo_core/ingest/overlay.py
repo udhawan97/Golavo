@@ -21,16 +21,11 @@ from typing import Any
 
 import pandas as pd
 
-from .match_index import normalize
+from ..identity import fixture_key_strings
 
 
 def _keys(frame: pd.DataFrame) -> pd.Series:
-    return (
-        pd.to_datetime(frame["date"]).dt.strftime("%Y-%m-%d")
-        + "|" + frame["home_team"].map(normalize)
-        + "|" + frame["away_team"].map(normalize)
-        + "|" + frame["tournament"].map(normalize)
-    )
+    return fixture_key_strings(frame, scope=("tournament",))
 
 
 def apply_exact_kickoffs(

@@ -506,16 +506,15 @@ def index_status() -> dict[str, Any]:
 
 
 def _normalize(text: Any) -> str:
-    """Fold a query to the index's search key: NFKD -> drop combining -> casefold.
+    """Fold a query to the index's search key.
 
-    Matches ``golavo_core.ingest.match_index.normalize`` exactly, so a query need
-    not reproduce diacritics to hit ``home_norm``/``away_norm`` (already folded).
+    Delegates to the one fold in ``golavo_core.identity``. Imported inside the
+    function, not at module scope, because that module pulls pandas and this one
+    is imported at sidecar boot (see the module docstring).
     """
-    import unicodedata
+    from golavo_core.identity import normalize
 
-    decomposed = unicodedata.normalize("NFKD", str(text))
-    without_marks = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
-    return without_marks.casefold().strip()
+    return normalize(text)
 
 
 def _load_aliases(path: Path | None = None) -> dict[str, list[str]]:
@@ -587,6 +586,8 @@ def artifact_links(
     """
     import json
 
+    from golavo_core.identity import fixture_key
+
     by_match_id: dict[str, list[dict[str, Any]]] = {}
     by_fixture: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
     folder = Path(forecasts_dir)
@@ -613,7 +614,7 @@ def artifact_links(
         away = match.get("away_team")
         kickoff = match.get("kickoff_utc")
         if home is not None and away is not None and kickoff is not None:
-            key = (str(kickoff)[:10], _normalize(home), _normalize(away))
+            key = fixture_key(kickoff, home, away)
             by_fixture.setdefault(key, []).append(summary)
 
     return by_match_id, by_fixture
@@ -629,7 +630,7 @@ def _links_for_row(
     match_id is authoritative; a fixture (date + normalized teams) match is the
     fallback for a forecast sealed against a differently-keyed snapshot.
     """
-    import pandas as pd
+    from golavo_core.identity import fixture_key
 
     match_id = str(row["match_id"])
     if match_id in by_match_id:
@@ -637,8 +638,7 @@ def _links_for_row(
 
     date_value = row["date"]
     if not _isna(date_value):
-        date_str = pd.Timestamp(date_value).date().isoformat()
-        key = (date_str, str(row["home_norm"]), str(row["away_norm"]))
+        key = fixture_key(date_value, row["home_norm"], row["away_norm"])
         if key in by_fixture:
             return by_fixture[key], "fixture"
     return [], None
