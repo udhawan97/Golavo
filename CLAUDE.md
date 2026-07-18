@@ -9,7 +9,7 @@ Read [CONTEXT.md](CONTEXT.md) first — it defines the domain words (pack, snaps
 make setup        # pip install -e core[dev] + server[dev]; npm install in ui/ and docs-site/
 make dev          # python scripts/dev.py — FastAPI + Vite together
 make test         # pytest -q  (~840 tests across core/, server/, scripts/)
-make lint         # ruff check .   (ui has no lint script; the --if-present is a no-op)
+make lint         # ruff check .  +  cd ui && oxlint
 make validate     # 7 validate_*.py scripts + pytest scripts/tests/test_contract_versions.py
 make index        # rebuild the committed match index — see "Determinism" below
 make build        # ui + docs-site production builds
@@ -18,7 +18,11 @@ make build        # ui + docs-site production builds
 Single test: `pytest -q server/tests/test_matches_api.py::test_name`.
 UI: `cd ui && npm test` (vitest, unit) — `npm run test:e2e` (Playwright) — `npm run typecheck`.
 
-`make lint` is ruff only. mypy is a declared dev dep in both pyprojects but has no config file, no `[tool.mypy]` section, and no invocation — don't assume type checking runs. `ui/` has no eslint config or dependency either; `npm run typecheck` (`tsc --noEmit`) is the TS gate.
+mypy is a declared dev dep in both pyprojects but has no config file, no `[tool.mypy]` section, and no invocation — don't assume type checking runs on the Python side. `npm run typecheck` (`tsc --noEmit`, strict) is the TS gate.
+
+**The UI linter is oxlint, not ESLint, and that is deliberate.** `ui/` is on TypeScript 7, and no release of `typescript-eslint` supports it — the latest and its canary both cap the peer at `<6.1.0`, and installing anyway crashes in `typescript-estree` reading `ts.ModuleKind.Cjs`, which TS 7 no longer exposes. oxlint parses TypeScript itself with no dependency on the TS compiler API, so it works today. Config is `ui/.oxlintrc.json`; rule names mirror ESLint's (`react-hooks/exhaustive-deps`, `typescript/no-unused-vars`). Revisit if typescript-eslint ships TS 7 support.
+
+Lint is **warn-clean, not warning-free**: 10 pre-existing warnings, exit 0. Use `npm run lint:fix` for autofixable ones. Don't add `--deny-warnings` until the backlog is cleared or you'll turn every one of those into a merge blocker.
 
 ## Layout
 
@@ -84,7 +88,7 @@ Env vars (all seven): `GOLAVO_TOKEN`, `GOLAVO_DATA_DIR`, `GOLAVO_HOST`, `GOLAVO_
 
 ## CI jobs that must be green
 
-`core` (ruff + 5 validators + notices check + index determinism + pytest) · `ui` (vitest + build + Playwright) · `docs` (`astro check` + build) · `desktop-check` (`cargo check --locked`) · `license-isolation` · `sidecar-smoke` (PyInstaller on macOS + Windows, `--version` and `--smoke` must exit 0).
+`core` (ruff + 5 validators + notices check + index determinism + pytest) · `ui` (oxlint + vitest + build + Playwright) · `docs` (`astro check` + build) · `desktop-check` (`cargo check --locked`) · `license-isolation` · `sidecar-smoke` (PyInstaller on macOS + Windows, `--version` and `--smoke` must exit 0).
 
 ## Conventions
 

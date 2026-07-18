@@ -85,7 +85,7 @@ jobs:
       - name: Build & test UI
         run: |
           if [ -f ui/package.json ]; then
-            cd ui && npm ci && npm test --if-present && npm run build --if-present
+            cd ui && npm ci && npm run lint --if-present && npm test --if-present && npm run build --if-present
             npx playwright install --with-deps chromium
             npm run test:e2e --if-present
           else

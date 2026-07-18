@@ -32,7 +32,7 @@ cp .env.example .env          # optional; Golavo runs local with no keys
 make setup                    # install core + server + ui dev deps
 make dev                      # run the FastAPI core + Vite UI
 make test                     # run the test suite
-make lint                     # ruff
+make lint                     # ruff (python) + oxlint (ui)
 ```
 
 (These `make` targets are real — `setup`, `dev`, `test`, `lint`, `validate`, `build`, `ingest`, `index`, `evaluate`, `release-bump`, and `clean`; see the `Makefile` for the full list.)
@@ -47,7 +47,7 @@ make lint                     # ruff
 
 ## Tests & quality gates
 
-- Python: `pytest`, `ruff`. UI: `vitest` (unit, `npm test`), `playwright` (`npm run test:e2e`), `tsc --noEmit` (`npm run typecheck`). Docs: `astro check` and the Astro build must pass.
+- Python: `pytest`, `ruff`. UI: `oxlint` (`npm run lint`), `vitest` (unit, `npm test`), `playwright` (`npm run test:e2e`), `tsc --noEmit` (`npm run typecheck`). Docs: `astro check` and the Astro build must pass.
 - Determinism test: the same snapshot set must produce a bit-identical forecast.
 - Leakage audit: features may only use data with `retrieved_at ≤ seal time`.
 
