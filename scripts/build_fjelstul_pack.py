@@ -9,13 +9,17 @@ and DESCRIPTION at the pinned commit, so both are retained as license evidence.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.request import Request, urlopen
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.packlib import sha256  # noqa: E402
+
 SOURCE_ID = "fjelstul-worldcup"
 SOURCE_URL = "https://github.com/jfjelstul/worldcup"
 PIN = "f942c6b"
@@ -51,10 +55,6 @@ def _get(url: str) -> bytes:
         return response.read()
 
 
-def _sha256(payload: bytes) -> str:
-    return hashlib.sha256(payload).hexdigest()
-
-
 def _register(output: Path, manifest: dict[str, object]) -> None:
     registry = (
         json.loads(ISOLATED_PATH.read_text(encoding="utf-8"))
@@ -62,7 +62,7 @@ def _register(output: Path, manifest: dict[str, object]) -> None:
         else {"schema_version": "0.1.0", "snapshots": []}
     )
     entry = {
-        "manifest_sha256": _sha256((output / "manifest.json").read_bytes()),
+        "manifest_sha256": sha256((output / "manifest.json").read_bytes()),
         "pack": output.relative_to(REPO_ROOT).as_posix(),
         "retrieved_at_utc": manifest["retrieved_at"],
         "source_id": SOURCE_ID,
@@ -103,7 +103,7 @@ def build(output: Path = OUTPUT) -> dict[str, object]:
     entries = []
     for name, payload in downloads:
         (output / name).write_bytes(payload)
-        entries.append({"name": name, "sha256": _sha256(payload)})
+        entries.append({"name": name, "sha256": sha256(payload)})
     manifest: dict[str, object] = {
         "files": entries,
         "license": "CC-BY-SA-4.0",

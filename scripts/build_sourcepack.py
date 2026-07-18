@@ -10,15 +10,19 @@ overwritten, and packs/snapshots.json only ever gains entries.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.request import urlopen
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.packlib import sha256  # noqa: E402
+
 REGISTRY_PATH = REPO_ROOT / "packs/snapshots.json"
 
 SOURCE_ID = "martj42-international-results"
@@ -42,10 +46,6 @@ RESULTS_HEADER = b"date,home_team,away_team,home_score,away_score,tournament,cit
 def _download(url: str) -> bytes:
     with urlopen(url, timeout=60) as response:  # noqa: S310 - pinned https URLs only.
         return response.read()
-
-
-def _sha256(payload: bytes) -> str:
-    return hashlib.sha256(payload).hexdigest()
 
 
 def _utc_z(value: str) -> str:
@@ -73,7 +73,7 @@ def registry_entry(pack_dir: Path, manifest: dict[str, Any]) -> dict[str, Any]:
         "upstream_ref": str(manifest["upstream_ref"]),
         "upstream_committed_at_utc": manifest.get("upstream_committed_at_utc"),
         "retrieved_at_utc": str(manifest["retrieved_at_utc"]),
-        "manifest_sha256": _sha256(manifest_bytes),
+        "manifest_sha256": sha256(manifest_bytes),
     }
 
 
@@ -132,7 +132,7 @@ def build_sourcepack(ref: str, output_dir: Path, file_set: str) -> dict[str, Any
     entries = []
     for name, payload in downloads:
         (output_dir / name).write_bytes(payload)
-        entries.append({"name": name, "sha256": _sha256(payload)})
+        entries.append({"name": name, "sha256": sha256(payload)})
     manifest: dict[str, Any] = {
         "source_id": SOURCE_ID,
         "url": SOURCE_URL,

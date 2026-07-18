@@ -13,7 +13,6 @@ Usage: python scripts/build_footballcsv_history.py [--check]
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
 import urllib.request
@@ -21,8 +20,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "core"))
+sys.path.insert(0, str(REPO_ROOT))
 
 from golavo_core.ingest.footballcsv import parse_footballcsv  # noqa: E402
+
+from scripts.packlib import sha256  # noqa: E402
 
 _RAW = "https://raw.githubusercontent.com/footballcsv"
 _MAX_BYTES = 4_000_000
@@ -72,10 +74,6 @@ def _fetch(repo: str, path: str, ref: str) -> bytes | None:
     return payload
 
 
-def _sha256(payload: bytes) -> str:
-    return hashlib.sha256(payload).hexdigest()
-
-
 def build(check_only: bool = False) -> int:
     drift = 0
     for _repo, (
@@ -106,13 +104,13 @@ def build(check_only: bool = False) -> int:
                 {
                     "name": file_name,
                     "season": season,
-                    "sha256": _sha256(payload),
+                    "sha256": sha256(payload),
                     "source_match_count": int(len(frame)),
                 }
             )
             if check_only:
                 existing = pack_dir / file_name
-                if not existing.is_file() or _sha256(existing.read_bytes()) != _sha256(payload):
+                if not existing.is_file() or sha256(existing.read_bytes()) != sha256(payload):
                     print(f"DRIFT {pack_name}/{file_name}")
                     drift += 1
             else:
@@ -125,7 +123,7 @@ def build(check_only: bool = False) -> int:
         license_text = _fetch(repo_name, "LICENSE.md", ref)
         if license_text is not None:
             (pack_dir / "CC0-1.0.txt").write_bytes(license_text)
-            files.append({"name": "CC0-1.0.txt", "sha256": _sha256(license_text)})
+            files.append({"name": "CC0-1.0.txt", "sha256": sha256(license_text)})
 
         manifest = {
             "source_id": pack_name,

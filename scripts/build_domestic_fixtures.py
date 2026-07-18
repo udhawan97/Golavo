@@ -23,16 +23,17 @@ Usage: python scripts/build_domestic_fixtures.py [--check]
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
-import urllib.request
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "core"))
+sys.path.insert(0, str(REPO_ROOT))
 
 from golavo_core.identity import normalize  # noqa: E402
+
+from scripts.packlib import Transport, fetch, sha256  # noqa: E402
 
 SEASON = "2026-27"
 SOURCE_ID = "openfootball-football-json"
@@ -86,18 +87,13 @@ LEAGUES: dict[str, tuple[str, str, str, str, str, int]] = {
 }
 
 
-def _fetch(repo: str, path: str, ref: str) -> bytes:
-    url = f"{_RAW}/{repo}/{ref}/{path}"
-    request = urllib.request.Request(url, headers={"User-Agent": "golavo-pack-builder"})
-    with urllib.request.urlopen(request, timeout=30) as response:  # noqa: S310 - pinned host
-        payload = response.read(_MAX_BYTES + 1)
-    if len(payload) > _MAX_BYTES:
-        raise ValueError(f"{url}: fixture file exceeds {_MAX_BYTES} bytes")
-    return payload
-
-
-def _sha256(payload: bytes) -> str:
-    return hashlib.sha256(payload).hexdigest()
+def _fetch(repo: str, path: str, ref: str, *, transport: Transport | None = None) -> bytes:
+    """One pinned fixture file. ``transport`` is injectable so tests skip the network."""
+    return fetch(
+        f"{_RAW}/{repo}/{ref}/{path}",
+        max_bytes=_MAX_BYTES,
+        transport=transport,
+    )
 
 
 def _fixture_key(row) -> str:
@@ -160,7 +156,7 @@ def build(check_only: bool = False) -> int:
 
         if check_only:
             existing = pack_dir / file_name
-            if not existing.is_file() or _sha256(existing.read_bytes()) != _sha256(payload):
+            if not existing.is_file() or sha256(existing.read_bytes()) != sha256(payload):
                 print(f"DRIFT {pack_name}/{file_name}: pinned bytes differ from upstream {ref[:8]}")
                 drift += 1
             continue
@@ -173,7 +169,7 @@ def build(check_only: bool = False) -> int:
             {
                 "name": file_name,
                 "season": SEASON,
-                "sha256": _sha256(payload),
+                "sha256": sha256(payload),
                 "source_match_count": expected,
             }
         )
@@ -190,7 +186,7 @@ def build(check_only: bool = False) -> int:
                 "retrieved_at_utc": committed_at,
                 "license": "CC0-1.0",
                 "sha256_file": file_name,
-                "raw_sha256": {path: _sha256(payload)},
+                "raw_sha256": {path: sha256(payload)},
             }
         ]
         (pack_dir / "manifest.json").write_text(
@@ -220,7 +216,7 @@ def build(check_only: bool = False) -> int:
         files.append(
             {
                 "name": "field_provenance.csv",
-                "sha256": _sha256((pack_dir / "field_provenance.csv").read_bytes()),
+                "sha256": sha256((pack_dir / "field_provenance.csv").read_bytes()),
             }
         )
         manifest["files"] = sorted(files, key=lambda e: e["name"])

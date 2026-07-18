@@ -9,9 +9,9 @@ of scope. Runtime ingestion remains network-free and verifies every file hash.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -20,6 +20,10 @@ from urllib.request import Request, urlopen
 from golavo_core.ingest.footballtxt import parse_footballtxt
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.packlib import sha256  # noqa: E402
+
 REGISTRY_PATH = REPO_ROOT / "packs/snapshots.json"
 SOURCE_ID = "openfootball-champions-league"
 SOURCE_URL = "https://github.com/openfootball/champions-league"
@@ -60,10 +64,6 @@ def _get(url: str) -> bytes:
     request = Request(url, headers={"User-Agent": "golavo-sourcepack"})
     with urlopen(request, timeout=60) as response:  # noqa: S310 - pinned HTTPS only
         return response.read()
-
-
-def _sha256(payload: bytes) -> str:
-    return hashlib.sha256(payload).hexdigest()
 
 
 def _format_era(competition_id: str, season: str) -> str:
@@ -114,7 +114,7 @@ def _register(pack_dir: Path, manifest: dict[str, Any]) -> None:
         "upstream_ref": UPSTREAM_REF,
         "upstream_committed_at_utc": UPSTREAM_COMMITTED_AT_UTC,
         "retrieved_at_utc": manifest["retrieved_at_utc"],
-        "manifest_sha256": _sha256((pack_dir / "manifest.json").read_bytes()),
+        "manifest_sha256": sha256((pack_dir / "manifest.json").read_bytes()),
     }
     for existing in registry["snapshots"]:
         if existing["pack"] == entry["pack"]:
@@ -159,13 +159,13 @@ def build_pack(code: str, output_root: Path, license_text: bytes) -> Path:
                 "name": name,
                 "source_path": f"{season}/{code}.txt",
                 "season": season,
-                "sha256": _sha256(payload),
+                "sha256": sha256(payload),
                 "format_era_id": _format_era(str(spec["competition_id"]), season),
                 **audit,
             }
         )
     (output_dir / LICENSE_FILE).write_bytes(license_text)
-    entries.append({"name": LICENSE_FILE, "sha256": _sha256(license_text)})
+    entries.append({"name": LICENSE_FILE, "sha256": sha256(license_text)})
 
     manifest: dict[str, Any] = {
         "source_id": SOURCE_ID,

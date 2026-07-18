@@ -18,11 +18,15 @@ from __future__ import annotations
 
 import argparse
 import base64
-import hashlib
 import json
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.request import Request, urlopen
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.packlib import sha256  # noqa: E402
 
 SOURCE_ID = "openfootball-football-json"
 SOURCE_URL = "https://github.com/openfootball/football.json"
@@ -74,10 +78,6 @@ def _get(url: str, accept: str | None = None) -> bytes:
         return response.read()
 
 
-def _sha256(payload: bytes) -> str:
-    return hashlib.sha256(payload).hexdigest()
-
-
 def _fetch_license() -> bytes:
     license_meta = json.loads(_get(API_LICENSE, accept="application/vnd.github+json"))
     spdx = license_meta.get("license", {}).get("spdx_id", "")
@@ -98,10 +98,10 @@ def build_pack(league: str, output_dir: Path, license_text: bytes) -> dict[str, 
         payload = _get(f"{RAW_BASE}/{season}/{league}.json")
         json.loads(payload)  # fail loudly on malformed JSON
         (output_dir / name).write_bytes(payload)
-        entries.append({"name": name, "season": season, "sha256": _sha256(payload)})
+        entries.append({"name": name, "season": season, "sha256": sha256(payload)})
 
     (output_dir / LICENSE_FILE).write_bytes(license_text)
-    entries.append({"name": LICENSE_FILE, "sha256": _sha256(license_text)})
+    entries.append({"name": LICENSE_FILE, "sha256": sha256(license_text)})
 
     manifest: dict[str, object] = {
         "source_id": SOURCE_ID,
