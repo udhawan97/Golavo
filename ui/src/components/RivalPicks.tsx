@@ -1,5 +1,5 @@
 import type { PickView, RivalPick } from "../lib/contract";
-import { RIVAL_LABELS } from "../lib/picks";
+import { RIVALS, rivalLabel } from "../lib/picks";
 
 const OUTCOME = { home: "Home win", draw: "Draw", away: "Away win" } as const;
 
@@ -34,8 +34,8 @@ export function RivalPicks({
       </div>
       <div className={`rivals__grid${revealed ? "" : " is-hidden"}`}>
         {rivals.map((rival) => (
-          <article className="rival-card" key={rival.family} aria-label={revealed ? RIVAL_LABELS[rival.family] : "Hidden rival pick"}>
-            <div className="rival-card__name">{RIVAL_LABELS[rival.family].split(" · ")[0]}</div>
+          <article className="rival-card" key={rival.family} aria-label={revealed ? rivalLabel(rival.family) : "Hidden rival pick"}>
+            <div className="rival-card__name">{RIVALS[rival.family].name}</div>
             <div className="rival-card__pick num" aria-hidden={!revealed}>
               {rival.capability === "abstained"
                 ? "Sits out"

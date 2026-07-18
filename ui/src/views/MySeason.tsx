@@ -89,7 +89,7 @@ function Leaderboard({ summary }: { summary: PicksSummary }) {
           <tbody>{seasonTable(summary).map((row) => (
             <tr key={row.id} className={row.user ? "season-you" : ""}>
               <th scope="row">{row.label}</th><td className="num">{row.total}</td>
-              <td className="num">{row.id === "elo_ordlogit" || row.id === "climatological" ? "—" : row.exact / 3}</td>
+              <td className="num">{row.capability === "score" ? row.exact / 3 : "—"}</td>
               <td className="num">{row.outcome}</td><td className="num">{row.user ? row.bonus : "—"}</td>
             </tr>
           ))}</tbody>

@@ -8,6 +8,7 @@ import type {
   PickScoring,
   PicksSummary,
   PickView,
+  RivalCapability,
   RivalPick,
   UserPick,
 } from "./contract";
@@ -15,13 +16,42 @@ import { deletePick, fetchPick, fetchPicks, savePick } from "./api";
 import { useDataGenerationRevision } from "./data-refresh-context";
 import type { AsyncState } from "./hooks";
 
-export const RIVAL_LABELS: Record<ModelFamily, string> = {
-  dixon_coles: "Goal Machine · picks an exact score",
-  poisson_independent: "Plain Goals · picks an exact score",
-  bivariate_poisson: "Twin Goals · picks an exact score",
-  elo_ordlogit: "Form Ranker · calls the winner only",
-  climatological: "History Buff · calls the winner only",
+/**
+ * What a family is *able* to call, season-wide. This is the stable subset of
+ * {@link RivalCapability}: a scoring family may still abstain on an individual
+ * match, but an `outcome_only` family can never earn exact-score points.
+ */
+export type RivalScoring = Extract<RivalCapability, "score" | "outcome_only">;
+
+export interface RivalProfile {
+  /** Short name used in tables, charts, and legends. */
+  name: string;
+  capability: RivalScoring;
+}
+
+/**
+ * The rival roster. Keyed by {@link ModelFamily}, so adding a family to the
+ * union is a compile error here until its capability is declared — no consumer
+ * has to re-derive "does this rival pick scores?" from its name.
+ */
+export const RIVALS: Record<ModelFamily, RivalProfile> = {
+  dixon_coles: { name: "Goal Machine", capability: "score" },
+  poisson_independent: { name: "Plain Goals", capability: "score" },
+  bivariate_poisson: { name: "Twin Goals", capability: "score" },
+  elo_ordlogit: { name: "Form Ranker", capability: "outcome_only" },
+  climatological: { name: "History Buff", capability: "outcome_only" },
 };
+
+const CAPABILITY_BLURB: Record<RivalScoring, string> = {
+  score: "picks an exact score",
+  outcome_only: "calls the winner only",
+};
+
+/** Descriptive label. The blurb is derived, so it cannot drift from capability. */
+export function rivalLabel(family: ModelFamily): string {
+  const profile = RIVALS[family];
+  return `${profile.name} · ${CAPABILITY_BLURB[profile.capability]}`;
+}
 
 export type LockPhase = "open" | "locked" | "scored" | "void";
 
@@ -119,11 +149,12 @@ export function deriveLiveRivals(analysis: MatchAnalysis | null): RivalPick[] {
 export function seasonTable(summary: PicksSummary) {
   const rivals = new Map(summary.rivals.map((rival) => [rival.family, rival]));
   return [
-    { id: "user", label: "You", total: summary.user.total, exact: summary.user.exact, outcome: summary.user.outcome, bonus: summary.user.bonus, user: true },
-    ...(Object.keys(RIVAL_LABELS) as ModelFamily[]).map((family) => ({
+    { id: "user", label: "You", capability: "score" as RivalScoring, total: summary.user.total, exact: summary.user.exact, outcome: summary.user.outcome, bonus: summary.user.bonus, user: true },
+    ...(Object.keys(RIVALS) as ModelFamily[]).map((family) => ({
       id: family,
-      label: RIVAL_LABELS[family].split(" · ")[0],
+      label: RIVALS[family].name,
       family,
+      capability: RIVALS[family].capability,
       total: rivals.get(family)?.total ?? 0,
       exact: rivals.get(family)?.exact ?? 0,
       outcome: rivals.get(family)?.outcome ?? 0,

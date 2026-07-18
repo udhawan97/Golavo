@@ -1,15 +1,9 @@
 import { memo, useMemo, useState } from "react";
 import type { ModelFamily, PicksSummary } from "../lib/contract";
-import { RIVAL_LABELS } from "../lib/picks";
+import { RIVALS } from "../lib/picks";
 
 type SeriesId = "user" | ModelFamily;
-const RIVALS: ModelFamily[] = [
-  "dixon_coles",
-  "poisson_independent",
-  "bivariate_poisson",
-  "elo_ordlogit",
-  "climatological",
-];
+const FAMILIES = Object.keys(RIVALS) as ModelFamily[];
 const CLASS: Record<SeriesId, string> = {
   user: "points-line--user",
   dixon_coles: "points-line--dc",
@@ -47,7 +41,7 @@ function PointsChartImpl({ series }: { series: PicksSummary["series"] }) {
   const y = (value: number) => pad.t + (1 - value / chart.max) * plotH;
   const values = (id: SeriesId) =>
     series.map((point) => (id === "user" ? point.user_total : point.per_family_totals[id] ?? 0));
-  const ids: SeriesId[] = ["user", ...RIVALS];
+  const ids: SeriesId[] = ["user", ...FAMILIES];
   const tickEvery = Math.max(1, Math.ceil(series.length / 8));
   const summary = `Cumulative points across ${series.length} scored picks. You have ${series.at(-1)?.user_total ?? 0} points.`;
 
@@ -65,7 +59,7 @@ function PointsChartImpl({ series }: { series: PicksSummary["series"] }) {
       <div className="points-chart__legend" aria-label="Chart series">
         {ids.map((id) => (
           <button key={id} type="button" className={CLASS[id]} aria-pressed={!hidden.has(id)} disabled={id === "user"} onClick={() => toggle(id)}>
-            <span aria-hidden /> {id === "user" ? "You" : RIVAL_LABELS[id].split(" · ")[0]}
+            <span aria-hidden /> {id === "user" ? "You" : RIVALS[id].name}
           </button>
         ))}
       </div>
@@ -84,7 +78,7 @@ function PointsChartImpl({ series }: { series: PicksSummary["series"] }) {
             <g key={id} className={`points-line ${CLASS[id]}`}>
               {series.length > 1 && <polyline points={points} />}
               {data.map((value, index) => <circle key={index} cx={x(index)} cy={y(value)} r={id === "user" ? 3.5 : 2.5} />)}
-              <text x={pad.l + plotW + 7} y={y(data.at(-1) ?? 0) + 4}>{id === "user" ? "You" : RIVAL_LABELS[id].split(" · ")[0]}</text>
+              <text x={pad.l + plotW + 7} y={y(data.at(-1) ?? 0) + 4}>{id === "user" ? "You" : RIVALS[id].name}</text>
             </g>
           );
         })}
