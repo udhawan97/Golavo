@@ -18,7 +18,7 @@ cp .env.example .env      # optional; every key is optional
 make setup                # install core + server + ui dev dependencies
 make dev                  # starts both services and opens 127.0.0.1:5173
 make test                 # run the test suite
-make lint                 # ruff + mypy + eslint
+make lint                 # ruff
 ```
 
 `make dev` keeps the FastAPI service on `127.0.0.1:8000`, points the Vite UI at

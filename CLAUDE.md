@@ -18,7 +18,7 @@ make build        # ui + docs-site production builds
 Single test: `pytest -q server/tests/test_matches_api.py::test_name`.
 UI: `cd ui && npm test` (vitest, unit) — `npm run test:e2e` (Playwright) — `npm run typecheck`.
 
-`make lint` does **not** run mypy or eslint despite what CONTRIBUTING.md says. mypy is a declared dev dep with no config file, no `[tool.mypy]` section, and no invocation anywhere.
+`make lint` is ruff only. mypy is a declared dev dep in both pyprojects but has no config file, no `[tool.mypy]` section, and no invocation — don't assume type checking runs. `ui/` has no eslint config or dependency either; `npm run typecheck` (`tsc --noEmit`) is the TS gate.
 
 ## Layout
 
