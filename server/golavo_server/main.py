@@ -129,27 +129,7 @@ app.add_middleware(
 ARTIFACT_DIR = runtime.data_dir()
 CORRECTIONS_DIR = runtime.corrections_dir()
 RESEARCH_DIR = runtime.research_dir()
-SAMPLE_DIR = runtime.sample_artifacts_dir()
 EVAL_SUMMARY_PATHS = runtime.eval_summary_paths()
-
-
-def _forecasts_dir() -> Path:
-    """Where the forecast surface reads from — always the real ledger.
-
-    Synthetic samples are NEVER served as data: an empty ledger honestly shows an
-    empty forecast list, and the one teaching example lives inside the in-app
-    sealing guide (bundled UI-side), not on the forecast routes. This makes the
-    honesty invariant "samples are never passed off as real forecasts" hold at the
-    source — a ``#/forecast/fa_<sample-id>`` deep link now 404s honestly rather
-    than rendering a synthetic artifact as a real page.
-    """
-    return ARTIFACT_DIR
-
-
-def showing_samples() -> bool:
-    """Retained for envelope compatibility; the forecast surface never serves
-    samples now, so this is always False."""
-    return False
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -178,7 +158,7 @@ def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
     the verified artifact alone. The sealed path keeps base pack ids (its sources
     carry richer snapshot metadata), so per-dataset scoping is off here.
     """
-    notebook_path = _forecasts_dir() / "notebooks" / f"{artifact_id}.json"
+    notebook_path = ARTIFACT_DIR / "notebooks" / f"{artifact_id}.json"
     if not notebook_path.is_file():
         return [], []
     from golavo_core.facts import notebook_to_evidence  # lazy: pulls the AI guards
@@ -208,7 +188,12 @@ def meta() -> dict[str, Any]:
     return {
         "version": __version__,
         "source_sha": runtime.source_sha(),
-        "forecast_source": "sample" if showing_samples() else "ledger",
+        # Always the real ledger. Synthetic samples are NEVER served as data:
+        # an empty ledger honestly shows an empty forecast list, and the one
+        # teaching example lives inside the in-app sealing guide (bundled
+        # UI-side), not on these routes. So a #/forecast/fa_<sample-id> deep
+        # link 404s honestly rather than rendering a synthetic artifact.
+        "forecast_source": "ledger",
         "refresh_supported": data_status["refresh_supported"],
         "data_generation_id": active.get("generation_id"),
     }
@@ -580,7 +565,7 @@ def list_forecasts() -> list[dict[str, Any]]:
     Fails closed: an artifact whose sealed identity does not match its bytes is
     omitted rather than shown as a genuine forecast.
     """
-    source = _forecasts_dir()
+    source = ARTIFACT_DIR
     if not source.exists():
         return []
     artifacts: list[dict[str, Any]] = []
@@ -599,7 +584,7 @@ def list_forecasts() -> list[dict[str, Any]]:
 @app.get("/api/v1/forecasts/{artifact_id}")
 def get_forecast(artifact_id: str) -> dict[str, Any]:
     """Return one artifact by canonical id."""
-    known_paths = {path.stem: path for path in _forecasts_dir().glob("fa_*.json")}
+    known_paths = {path.stem: path for path in ARTIFACT_DIR.glob("fa_*.json")}
     path = known_paths.get(artifact_id)
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")
@@ -621,7 +606,7 @@ def forecast_facts(artifact_id: str) -> dict[str, Any]:
     empty envelope rather than fabricating facts. Coincidences that ARE present
     stay labelled so the UI can quarantine them.
     """
-    source = _forecasts_dir()
+    source = ARTIFACT_DIR
     known = {path.stem for path in source.glob("fa_*.json")}
     if artifact_id not in known:
         raise HTTPException(status_code=404, detail="forecast not found")
@@ -2470,7 +2455,7 @@ async def narrative(artifact_id: str, request: Request, background_tasks: Backgr
 
     from golavo_server import ai_gateway, jobs
 
-    known_paths = {path.stem: path for path in _forecasts_dir().glob("fa_*.json")}
+    known_paths = {path.stem: path for path in ARTIFACT_DIR.glob("fa_*.json")}
     path = known_paths.get(artifact_id)
     if path is None:
         raise HTTPException(status_code=404, detail="forecast not found")

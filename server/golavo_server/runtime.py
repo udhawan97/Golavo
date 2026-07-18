@@ -158,18 +158,6 @@ def analysis_cache_dir() -> Path | None:
     return Path(override).expanduser().parent / "analysis-cache"
 
 
-def sample_artifacts_dir() -> Path:
-    """Bundled synthetic sample forecasts.
-
-    A fresh desktop install has an empty writable ledger, so the API serves
-    these read-only samples until the user has real sealed forecasts — otherwise
-    the app opens to an empty shell. Each sample carries its own 'synthetic
-    fixture' provenance, and calibration always reads the real ledger, so samples
-    never skew the forward record.
-    """
-    return resource("data", "fixtures", "sample_artifacts")
-
-
 def eval_summary_paths() -> tuple[Path, ...]:
     """The committed per-league evaluation summaries, in declared order."""
     return tuple(resource("docs", "handoff", name) for name in _EVAL_SUMMARY_NAMES)

@@ -5,8 +5,8 @@ Boundaries (each a submodule):
     warehouse  - Parquet match index + side tables (pandas/pyarrow)
     models     - Elo, Dixon-Coles, bivariate Poisson, corners, scorers, calibration
     artifacts  - immutable Phase 0 ForecastArtifact seal/score pipeline
-    ledger     - planned hash-chained ledger (ADR-0001, Phase 1)
-    facts      - planned deterministic, source-backed fact templates
+    facts      - deterministic, source-backed fact templates
+    identity   - the one team-name fold and fixture key
 
 The engine owns every probability; nothing here performs network I/O outside
 `ingest`. Apache-2.0 licensed so the science stays reusable.
