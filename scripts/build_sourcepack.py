@@ -21,7 +21,7 @@ from urllib.request import urlopen
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.packlib import sha256  # noqa: E402
+from scripts.packlib import append_snapshot, sha256  # noqa: E402
 
 REGISTRY_PATH = REPO_ROOT / "packs/snapshots.json"
 
@@ -79,20 +79,7 @@ def registry_entry(pack_dir: Path, manifest: dict[str, Any]) -> dict[str, Any]:
 
 def register(pack_dir: Path, manifest: dict[str, Any]) -> None:
     """Append the snapshot to the registry; existing entries are immutable."""
-    registry = load_registry()
-    entry = registry_entry(pack_dir, manifest)
-    for existing in registry["snapshots"]:
-        if existing["pack"] == entry["pack"]:
-            if existing != entry:
-                raise RuntimeError(
-                    f"registry entry for {entry['pack']} exists and differs; "
-                    "snapshots are immutable — never rewrite a retained entry"
-                )
-            return
-    registry["snapshots"].append(entry)
-    REGISTRY_PATH.write_text(
-        json.dumps(registry, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    append_snapshot(REGISTRY_PATH, registry_entry(pack_dir, manifest))
 
 
 def _registered_pack_for_ref(ref: str) -> str | None:

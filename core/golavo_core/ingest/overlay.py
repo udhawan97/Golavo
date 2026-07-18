@@ -25,6 +25,7 @@ from ..identity import fixture_key_strings
 
 
 def _keys(frame: pd.DataFrame) -> pd.Series:
+    """Overlay keys are tournament-scoped: the same pair meets in several."""
     return fixture_key_strings(frame, scope=("tournament",))
 
 

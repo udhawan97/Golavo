@@ -53,10 +53,6 @@ def _competition_match_keys(
     return set(fixture_keys(scoped, home="home_norm", away="away_norm"))
 
 
-def _row_keys(frame: pd.DataFrame) -> pd.Series:
-    return fixture_keys(frame)
-
-
 def competition_top_scorers(
     index: pd.DataFrame,
     goalscorers: pd.DataFrame | None,
@@ -90,7 +86,7 @@ def competition_top_scorers(
     if goalscorers is None or goalscorers.empty or not keys:
         return board
 
-    row_keys = _row_keys(goalscorers)
+    row_keys = fixture_keys(goalscorers)
     scored = goalscorers.loc[row_keys.isin(keys)]
     scored = scored.loc[~scored["own_goal"].astype("boolean").fillna(False)]
     if scored.empty:
@@ -98,7 +94,7 @@ def competition_top_scorers(
 
     # Count matches that actually contributed a goal, so an empty board reads as
     # "built from 0 matches" rather than implying a played match was goalless.
-    board["matches_counted"] = int(_row_keys(scored).nunique())
+    board["matches_counted"] = int(fixture_keys(scored).nunique())
 
     penalty = scored["penalty"].astype("boolean").fillna(False)
     grouped = scored.assign(_penalty=penalty).groupby(["scorer", "team"], dropna=True)
@@ -166,7 +162,7 @@ def competition_shootout_ledger(
     if shootouts is None or shootouts.empty or not keys:
         return ledger
 
-    played = shootouts.loc[_row_keys(shootouts).isin(keys)]
+    played = shootouts.loc[fixture_keys(shootouts).isin(keys)]
     if played.empty:
         return ledger
 

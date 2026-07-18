@@ -129,10 +129,6 @@ def kickoff_overlay(parsed: pd.DataFrame) -> pd.DataFrame:
     ).reset_index(drop=True)
 
 
-def _match_key(frame: pd.DataFrame) -> pd.Series:
-    return fixture_key_strings(frame)
-
-
 def missing_fixtures(
     parsed: pd.DataFrame, reference: pd.DataFrame, city_country: dict[str, str]
 ) -> pd.DataFrame:
@@ -154,9 +150,11 @@ def missing_fixtures(
     scheduled = parsed[~parsed["is_complete"]]
     if scheduled.empty:
         return pd.DataFrame(columns=columns)
-    have = set(_match_key(reference)) if not reference.empty else set()
+    have = set(fixture_key_strings(reference)) if not reference.empty else set()
     rows: list[dict] = []
-    for key, row in zip(_match_key(scheduled), scheduled.itertuples(index=False), strict=True):
+    for key, row in zip(
+        fixture_key_strings(scheduled), scheduled.itertuples(index=False), strict=True
+    ):
         if key in have:
             continue
         city = None if row.city is None else str(row.city)
@@ -193,13 +191,11 @@ def crosscheck_completed(parsed: pd.DataFrame, reference: pd.DataFrame) -> list[
     if parsed.empty or reference.empty:
         return []
 
-    _key = fixture_key_strings
-
     ref = reference.copy()
     ref_complete = ref[ref["is_complete"].astype("boolean").fillna(False)]
     ref_map = dict(
         zip(
-            _key(ref_complete),
+            fixture_key_strings(ref_complete),
             zip(ref_complete["home_score"], ref_complete["away_score"], strict=True),
             strict=True,
         )
@@ -207,7 +203,7 @@ def crosscheck_completed(parsed: pd.DataFrame, reference: pd.DataFrame) -> list[
     disagreements: list[dict] = []
     done = parsed[parsed["is_complete"]]
     for key, home, away, hs, as_ in zip(
-        _key(done),
+        fixture_key_strings(done),
         done["home_team"],
         done["away_team"],
         done["home_score"],

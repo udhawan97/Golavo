@@ -294,3 +294,27 @@ def test_settlement_api_uses_the_writable_ledger_off_the_event_loop(
     assert response.status_code == 200
     assert response.json() == expected
     assert seen == [ledger]
+
+
+def test_an_unparseable_upstream_date_is_skipped_not_fatal() -> None:
+    """Remote bytes must not be able to abort a settlement run.
+
+    worldcup.json is fetched from a remote repository, so its date field is
+    untrusted input. A date that cannot be parsed has to key to something that
+    matches no fixture and be passed over — if it raised, one malformed row
+    would leave every other pending forecast ungraded.
+    """
+    from golavo_server.settlement import world_cup_results
+
+    data = {
+        "matches": [
+            {"date": "not a date", "team1": "Brazil", "team2": "Serbia", "score": {"ft": [2, 0]}},
+            {"date": "2022-11-28", "team1": "Brazil", "team2": "Switzerland",
+             "score": {"ft": [1, 0]}},
+        ]
+    }
+    results = world_cup_results(data)
+
+    # The good row still grades, and the bad row is present but unmatchable.
+    assert ("2022-11-28", "brazil", "switzerland", "fifa world cup") in results
+    assert ("not a date", "brazil", "serbia", "fifa world cup") in results

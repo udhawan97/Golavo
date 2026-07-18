@@ -340,21 +340,29 @@ class StableGeneration:
     snapshot: IndexSnapshot
     status: dict[str, Any]
     generation_id: str | None
-    _opened_id: str | None
 
     @property
     def sources(self) -> dict[str, dict[str, Any]]:
         """Per-source refresh status, keyed by source id."""
-        return {item["source_id"]: item for item in self.status.get("sources", [])}
+        return {
+            item["source_id"]: item
+            for item in self.status.get("sources", [])
+            if item.get("source_id") is not None
+        }
 
     def require_stable(self) -> None:
         """Assert the generation has not moved since this window opened.
 
-        Call it after reading from ``snapshot`` and before writing anything. It
-        raises the retry signal rather than returning a flag so a caller cannot
-        read the answer and forget to act on it.
+        Call it after reading from ``snapshot`` and before writing anything, so
+        the check brackets the read — a refresh activating while a match was
+        being looked up must invalidate the window, which is why the status is
+        re-read here rather than captured once up front. It raises the retry
+        signal rather than returning a flag so a caller cannot read the answer
+        and forget to act on it.
         """
-        if self._opened_id != self.generation_id or not snapshot_is_current(self.snapshot):
+        if _generation_id(_generation_status()) != self.generation_id:
+            raise _GenerationMoved
+        if not snapshot_is_current(self.snapshot):
             raise _GenerationMoved
 
     def commit(self, operation: Callable[[], None]) -> bool:
@@ -387,14 +395,12 @@ async def run_on_stable_generation(
     from starlette.concurrency import run_in_threadpool
 
     for _attempt in range(attempts):
-        opened_id = _generation_id(_generation_status())
         snapshot = await run_in_threadpool(index_snapshot)
         status = _generation_status()
         stable = StableGeneration(
             snapshot=snapshot,
             status=status,
             generation_id=_generation_id(status),
-            _opened_id=opened_id,
         )
         try:
             return await work(stable)

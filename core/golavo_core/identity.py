@@ -94,15 +94,15 @@ def _key_columns(
     away: str,
     scope: Sequence[str],
 ) -> list[pd.Series]:
-    column = frame[date]
+    days_column = frame[date]
     # The index build keys 100k rows; a datetime column formats vectorised, and
     # lands on the same day fixture_date would give it.
-    if pd.api.types.is_datetime64_any_dtype(column):
-        days = column.dt.strftime("%Y-%m-%d")
+    if pd.api.types.is_datetime64_any_dtype(days_column):
+        days = days_column.dt.strftime("%Y-%m-%d")
     else:
-        days = column.map(fixture_date)
+        days = days_column.map(fixture_date)
     folded = [frame[home].map(normalize), frame[away].map(normalize)]
-    folded.extend(frame[column].map(normalize) for column in scope)
+    folded.extend(frame[name].map(normalize) for name in scope)
     return [days, *folded]
 
 

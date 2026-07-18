@@ -30,7 +30,7 @@ from urllib.request import Request, urlopen
 
 from golavo_core.artifacts import score_forecast_result
 from golavo_core.calibration import calibration_summary
-from golavo_core.identity import fixture_key
+from golavo_core.identity import fixture_date, normalize
 from golavo_core.ingest.snapshot import snapshot_anchor_utc
 from golavo_core.ingest.worldcup import final_score
 
@@ -99,9 +99,17 @@ def _key(date: str, home: str, away: str, competition: str) -> MatchKey:
 
     Grading requires two sources to agree on a fixture, so this key must be the
     same one the index was built with — hence the shared fold.
+
+    A date this cannot parse is deliberately not an error. These bytes come from
+    a remote repository, so an unparseable date must key to something that
+    matches no fixture and be skipped, never abort the settlement run and leave
+    every other pending forecast ungraded.
     """
-    day, home_norm, away_norm, competition_norm = fixture_key(date, home, away, competition)
-    return day, home_norm, away_norm, competition_norm
+    try:
+        day = fixture_date(date)
+    except (ValueError, TypeError):
+        day = str(date)
+    return day, normalize(home), normalize(away), normalize(competition)
 
 
 def _fetch(url: str) -> bytes:

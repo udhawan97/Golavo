@@ -18,7 +18,7 @@ from urllib.request import Request, urlopen
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.packlib import sha256  # noqa: E402
+from scripts.packlib import append_snapshot, sha256, write_json  # noqa: E402
 
 SOURCE_ID = "fjelstul-worldcup"
 SOURCE_URL = "https://github.com/jfjelstul/worldcup"
@@ -56,27 +56,18 @@ def _get(url: str) -> bytes:
 
 
 def _register(output: Path, manifest: dict[str, object]) -> None:
-    registry = (
-        json.loads(ISOLATED_PATH.read_text(encoding="utf-8"))
-        if ISOLATED_PATH.is_file()
-        else {"schema_version": "0.1.0", "snapshots": []}
-    )
-    entry = {
-        "manifest_sha256": sha256((output / "manifest.json").read_bytes()),
-        "pack": output.relative_to(REPO_ROOT).as_posix(),
-        "retrieved_at_utc": manifest["retrieved_at"],
-        "source_id": SOURCE_ID,
-        "upstream_committed_at_utc": "2023-07-20T01:14:23Z",
-        "upstream_ref": PIN,
-    }
-    for current in registry["snapshots"]:
-        if current["pack"] == entry["pack"]:
-            if current != entry:
-                raise RuntimeError("isolated pack registration differs; packs are immutable")
-            return
-    registry["snapshots"].append(entry)
-    ISOLATED_PATH.write_text(
-        json.dumps(registry, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    if not ISOLATED_PATH.is_file():
+        write_json(ISOLATED_PATH, {"schema_version": "0.1.0", "snapshots": []})
+    append_snapshot(
+        ISOLATED_PATH,
+        {
+            "manifest_sha256": sha256((output / "manifest.json").read_bytes()),
+            "pack": output.relative_to(REPO_ROOT).as_posix(),
+            "retrieved_at_utc": manifest["retrieved_at"],
+            "source_id": SOURCE_ID,
+            "upstream_committed_at_utc": "2023-07-20T01:14:23Z",
+            "upstream_ref": PIN,
+        },
     )
 
 

@@ -22,7 +22,6 @@ from scripts.packlib import (  # noqa: E402
     PackBuildError,
     append_snapshot,
     fetch,
-    manifest_file_entry,
     sha256,
     write_json,
 )
@@ -60,10 +59,6 @@ class TestDigests:
         import hashlib
 
         assert sha256(b"abc") == hashlib.sha256(b"abc").hexdigest()
-
-    def test_a_manifest_entry_declares_name_size_and_digest(self) -> None:
-        entry = manifest_file_entry("results.csv", b"abc")
-        assert entry == {"name": "results.csv", "bytes": 3, "sha256": sha256(b"abc")}
 
 
 class TestWriteJson:

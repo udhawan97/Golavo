@@ -22,7 +22,7 @@ from golavo_core.ingest.footballtxt import parse_footballtxt
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.packlib import sha256  # noqa: E402
+from scripts.packlib import append_snapshot, sha256  # noqa: E402
 
 REGISTRY_PATH = REPO_ROOT / "packs/snapshots.json"
 SOURCE_ID = "openfootball-champions-league"
@@ -102,28 +102,17 @@ def _audit_file(payload: bytes, *, season: str, code: str, competition: str) -> 
     }
 
 
-def _registry() -> dict[str, Any]:
-    return json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
-
-
 def _register(pack_dir: Path, manifest: dict[str, Any]) -> None:
-    registry = _registry()
-    entry = {
-        "pack": pack_dir.relative_to(REPO_ROOT).as_posix(),
-        "source_id": SOURCE_ID,
-        "upstream_ref": UPSTREAM_REF,
-        "upstream_committed_at_utc": UPSTREAM_COMMITTED_AT_UTC,
-        "retrieved_at_utc": manifest["retrieved_at_utc"],
-        "manifest_sha256": sha256((pack_dir / "manifest.json").read_bytes()),
-    }
-    for existing in registry["snapshots"]:
-        if existing["pack"] == entry["pack"]:
-            if existing != entry:
-                raise RuntimeError(f"immutable registry entry differs for {entry['pack']}")
-            return
-    registry["snapshots"].append(entry)
-    REGISTRY_PATH.write_text(
-        json.dumps(registry, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    append_snapshot(
+        REGISTRY_PATH,
+        {
+            "pack": pack_dir.relative_to(REPO_ROOT).as_posix(),
+            "source_id": SOURCE_ID,
+            "upstream_ref": UPSTREAM_REF,
+            "upstream_committed_at_utc": UPSTREAM_COMMITTED_AT_UTC,
+            "retrieved_at_utc": manifest["retrieved_at_utc"],
+            "manifest_sha256": sha256((pack_dir / "manifest.json").read_bytes()),
+        },
     )
 
 

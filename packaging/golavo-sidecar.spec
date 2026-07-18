@@ -93,13 +93,11 @@ datas += [
     (os.path.join(ROOT, "data", "context", name), "data/context")
     for name in ("manifest.json", "venue_entities.json", "venue_assignments.json")
 ]
-# Synthetic sample forecasts: a fresh desktop install has an empty ledger, so
-# the API serves these until the user has real seals (see runtime.sample_
-# artifacts_dir). Kept at their repo-relative layout so the resolver finds them.
-datas += [
-    (path, "data/fixtures/sample_artifacts")
-    for path in glob.glob(os.path.join(ROOT, "data", "fixtures", "sample_artifacts", "*.json"))
-]
+# The synthetic sample forecasts under data/fixtures/sample_artifacts are NOT
+# shipped. They were bundled when a fresh install served them from an empty
+# ledger; the forecast surface no longer serves samples at all (an empty ledger
+# honestly shows an empty list), so nothing in the sidecar reads them. They stay
+# in the repo as contract fixtures for the validators and tests.
 # CC0 match search index: the frozen 77k-row Parquet plus its meta digest and
 # side tables. All sources are CC0-1.0 (guarded by check_license_isolation.sh);
 # no ODbL data ships here. Kept at the repo-relative layout so

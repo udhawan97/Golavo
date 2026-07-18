@@ -63,10 +63,6 @@ INDEX_COLUMNS = [
 _CLEARED_LICENSES = frozenset({"CC0-1.0"})
 
 
-def _provenance_key(frame: pd.DataFrame) -> pd.Series:
-    return fixture_key_strings(frame)
-
-
 def _add_field_provenance(
     frame: pd.DataFrame,
     *,
@@ -122,11 +118,11 @@ def _add_field_provenance(
             f"{override_path}: missing provenance identity columns "
             f"{sorted(required - set(override.columns))}"
         )
-    keys = _provenance_key(override)
+    keys = fixture_key_strings(override)
     if keys.duplicated().any():
         raise ValueError(f"{override_path}: duplicate fixture provenance rows")
     lookup = override.assign(_key=keys).set_index("_key")
-    row_keys = _provenance_key(result)
+    row_keys = fixture_key_strings(result)
     provenance_columns = (
         "identity_source_id",
         "result_source_id",

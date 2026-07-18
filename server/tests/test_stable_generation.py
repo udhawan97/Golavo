@@ -99,7 +99,12 @@ def test_retries_when_the_snapshot_is_no_longer_current(index: dict[str, Any]) -
 
 
 def test_retries_when_the_generation_id_changed_mid_window(index: dict[str, Any]) -> None:
-    """Activation landed between the two status reads, so the window is void."""
+    """Activation landed while the work was reading, so the window is void.
+
+    The check must bracket the read, not just the snapshot acquisition: the
+    status is read once when the window opens and again inside require_stable,
+    so a refresh activating during a match lookup still invalidates it.
+    """
     index["ids"] = iter(["gen-1", "gen-2", "gen-2", "gen-2"])
     attempts = {"count": 0}
 
@@ -110,6 +115,26 @@ def test_retries_when_the_generation_id_changed_mid_window(index: dict[str, Any]
 
     assert _run(work) == "ok"
     assert attempts["count"] == 2
+
+
+def test_a_status_source_without_an_id_is_skipped_not_fatal(
+    index: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The route this replaced tolerated a malformed source entry."""
+    monkeypatch.setattr(
+        matches,
+        "_generation_status",
+        lambda: {
+            "active_generation": {"generation_id": "gen-1"},
+            "sources": [{"last_checked_at_utc": "2026-07-01T00:00:00Z"}, {"source_id": "martj42"}],
+        },
+    )
+
+    async def work(stable: Any) -> Any:
+        stable.require_stable()
+        return stable.sources
+
+    assert _run(work) == {"martj42": {"source_id": "martj42"}}
 
 
 def test_retries_when_a_store_reports_the_generation_changed(index: dict[str, Any]) -> None:

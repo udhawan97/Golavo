@@ -35,9 +35,11 @@ build is pure, so the same packs always produce byte-identical bytes.
 
 ## Identity
 
-**Fold** — the diacritic-free, casefolded search key written into the index as
-`home_norm`/`away_norm`. One implementation, in `golavo_core.identity`.
-Idempotent, so an already-folded column and a raw upstream spelling agree.
+**Name fold** — the diacritic-free, casefolded search key written into the index
+as `home_norm`/`away_norm`; the function is `golavo_core.identity.normalize`.
+Idempotent, so an already-folded column and a raw upstream spelling agree. Say
+*name fold*, never bare "fold": a **fold** is already a backtest split in
+`evaluation.py` (`fold_id`, `FOLDS`), and the two are unrelated.
 
 **Fixture key** — `(day, home, away)`, optionally scoped by competition; how two
 sources are shown to be talking about the same fixture. Result settlement grades

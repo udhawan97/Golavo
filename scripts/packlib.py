@@ -1,20 +1,27 @@
 """Shared machinery for the pack builders.
 
-Every ``build_*.py`` script does the same four things around its own parsing:
-hash bytes, fetch pinned bytes over HTTPS, write a manifest, and append an entry
-to a snapshot registry. Each had grown its own copy — ``_sha256`` was written
-out identically in six scripts, ten opened their own ``urllib`` request, and six
-appended to a registry through helpers with five different names.
+The thirteen ``build_*.py`` scripts do the same few things around their own
+parsing: hash bytes, fetch pinned bytes over HTTPS, and append an entry to a
+snapshot registry. Each had grown its own copy — an identical ``_sha256`` in
+eight of them, and a registry append through helpers with several different
+names, every one re-implementing the same immutability rule.
 
 The cost was not the duplication itself but that none of it could be exercised.
 The fetch was a module-level call to a pinned GitHub URL with no seam, so the
-whole fetch-hash-manifest-register path was reachable only by running a script
-against the live network. Of the twelve builders exactly one had a test, and it
+whole fetch-hash-register path was reachable only by running a script against
+the live network. Of the thirteen builders exactly one had a test, and it
 covered a single pure helper.
 
 ``fetch`` therefore takes a transport. The live one is the default; a recorded
 one in tests is the second adapter, which is what makes this a seam rather than
 a parameter nobody passes.
+
+Partially adopted, deliberately. Every registry append now goes through
+``append_snapshot``, and the builders that shared a byte-identical ``_sha256``
+now share this one. Nine scripts still open their own ``urllib`` request:
+several fetch through a GitHub API rather than raw bytes, or need their own
+headers and validation, so converting them is a real change to each rather than
+a mechanical swap, and is not pretended here.
 """
 
 from __future__ import annotations
@@ -31,7 +38,6 @@ __all__ = [
     "Transport",
     "append_snapshot",
     "fetch",
-    "manifest_file_entry",
     "sha256",
     "urlopen_transport",
     "write_json",
@@ -91,11 +97,6 @@ def write_json(path: Path, obj: Any) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return path
-
-
-def manifest_file_entry(name: str, payload: bytes) -> dict[str, Any]:
-    """One declared file in a pack manifest: its name, size and digest."""
-    return {"name": name, "bytes": len(payload), "sha256": sha256(payload)}
 
 
 def append_snapshot(registry_path: Path, entry: dict[str, Any]) -> bool:
