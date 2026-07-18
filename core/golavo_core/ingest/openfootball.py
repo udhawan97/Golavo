@@ -12,13 +12,13 @@ docs/handoff/openfootball-audit.md.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 from pathlib import Path
 
 import pandas as pd
 
+from .matchframe import mint_match_ids, with_day_precision_kickoff
 from .snapshot import validate_pack
 
 # league code -> (competition label, country). The single registry every
@@ -229,31 +229,6 @@ def load_openfootball_table(pack_dir: Path) -> pd.DataFrame:
     frame = frame.sort_values(
         ["date", "home_team", "away_team"], kind="mergesort"
     ).reset_index(drop=True)
-    identities = frame.apply(
-        lambda r: "|".join(
-            [
-                r["date"].date().isoformat(),
-                str(r["home_team"]),
-                str(r["away_team"]),
-                str(r["tournament"]),
-            ]
-        ),
-        axis=1,
-    )
-    occurrences = identities.groupby(identities, sort=False).cumcount()
-    frame.insert(
-        0,
-        "match_id",
-        [
-            f"m_{hashlib.sha256(f'{identity}|{occurrence}'.encode()).hexdigest()[:16]}"
-            for identity, occurrence in zip(identities, occurrences, strict=True)
-        ],
-    )
-
-    # Upstream clocks are venue-local but the pack has no venue timezone. Treat
-    # them as date evidence only: labeling a naive local clock as UTC would be a
-    # false instant and could silently move a pre-kickoff cutoff by hours.
-    frame["kickoff_utc"] = pd.to_datetime(frame["date"], utc=True)
-    frame["kickoff_precision"] = pd.Series("day", index=frame.index, dtype="string")
-    frame["is_complete"] = frame[["home_score", "away_score"]].notna().all(axis=1)
+    frame = mint_match_ids(frame, ["date", "home_team", "away_team", "tournament"])
+    frame = with_day_precision_kickoff(frame)
     return frame.drop(columns=["time"])

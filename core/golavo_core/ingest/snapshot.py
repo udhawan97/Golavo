@@ -12,6 +12,8 @@ from typing import Any
 
 import pandas as pd
 
+from .matchframe import mint_match_ids, with_day_precision_kickoff
+
 REQUIRED_RESULT_COLUMNS = {
     "date",
     "home_team",
@@ -177,18 +179,17 @@ def _canonicalize_former_names(matches: pd.DataFrame, former_names_path: Path) -
     return result
 
 
-def _match_identity(row: pd.Series) -> str:
-    return "|".join(
-        [
-            row["date"].date().isoformat(),
-            str(row["home_team"]),
-            str(row["away_team"]),
-            str(row["tournament"]),
-            str(row["city"]),
-            str(row["country"]),
-            str(bool(row["neutral"])),
-        ]
-    )
+# martj42 alone needs the venue and the neutral flag: two same-day meetings of
+# the same pair at different grounds are different fixtures.
+_MARTJ42_IDENTITY = [
+    "date",
+    "home_team",
+    "away_team",
+    "tournament",
+    "city",
+    "country",
+    "neutral",
+]
 
 
 def load_match_table(pack_dir: Path) -> pd.DataFrame:
@@ -229,19 +230,10 @@ def load_match_table(pack_dir: Path) -> pd.DataFrame:
     matches = matches.sort_values(
         ["date", "home_team", "away_team", "tournament"], kind="mergesort"
     ).reset_index(drop=True)
-    identities = matches.apply(_match_identity, axis=1)
-    occurrences = identities.groupby(identities, sort=False).cumcount()
-    match_ids = [
-        f"m_{hashlib.sha256(f'{identity}|{occurrence}'.encode()).hexdigest()[:16]}"
-        for identity, occurrence in zip(identities, occurrences, strict=True)
-    ]
-    matches.insert(0, "match_id", match_ids)
+    matches = mint_match_ids(matches, _MARTJ42_IDENTITY)
     matches["ht_home_score"] = pd.Series(pd.NA, index=matches.index, dtype="Int16")
     matches["ht_away_score"] = pd.Series(pd.NA, index=matches.index, dtype="Int16")
-    matches["kickoff_utc"] = pd.to_datetime(matches["date"], utc=True)
-    matches["kickoff_precision"] = pd.Series("day", index=matches.index, dtype="string")
-    matches["is_complete"] = matches[["home_score", "away_score"]].notna().all(axis=1)
-    return matches
+    return with_day_precision_kickoff(matches)
 
 
 def order_instants(matches: pd.DataFrame) -> pd.Series:

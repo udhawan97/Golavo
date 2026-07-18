@@ -10,13 +10,13 @@ historical "upcoming" fixtures.
 
 from __future__ import annotations
 
-import hashlib
 import re
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
+from .matchframe import mint_match_ids
 from .openfootball import canonical_team
 from .snapshot import validate_pack
 
@@ -210,25 +210,7 @@ def load_footballtxt_table(pack_dir: Path) -> pd.DataFrame:
     frame = frame.sort_values(
         ["date", "home_team", "away_team"], kind="mergesort"
     ).reset_index(drop=True)
-    identities = frame.apply(
-        lambda row: "|".join(
-            [
-                row["date"].date().isoformat(),
-                str(row["home_team"]),
-                str(row["away_team"]),
-                str(row["tournament"]),
-                str(row["season"]),
-            ]
-        ),
-        axis=1,
-    )
-    occurrences = identities.groupby(identities, sort=False).cumcount()
-    frame.insert(
-        0,
-        "match_id",
-        [
-            f"m_{hashlib.sha256(f'{identity}|{occurrence}'.encode()).hexdigest()[:16]}"
-            for identity, occurrence in zip(identities, occurrences, strict=True)
-        ],
+    frame = mint_match_ids(
+        frame, ["date", "home_team", "away_team", "tournament", "season"]
     )
     return frame.drop(columns=["local_time", "result_status"])
