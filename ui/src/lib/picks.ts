@@ -3,6 +3,7 @@ import type {
   MatchAnalysis,
   MatchRow,
   ModelFamily,
+  ScoredRivalFamily,
   PickPoints,
   PickResponse,
   PickScoring,
@@ -15,7 +16,7 @@ import { deletePick, fetchPick, fetchPicks, savePick } from "./api";
 import { useDataGenerationRevision } from "./data-refresh-context";
 import type { AsyncState } from "./hooks";
 
-export const RIVAL_LABELS: Record<ModelFamily, string> = {
+export const RIVAL_LABELS: Record<ScoredRivalFamily, string> = {
   dixon_coles: "Goal Machine · picks an exact score",
   poisson_independent: "Plain Goals · picks an exact score",
   bivariate_poisson: "Twin Goals · picks an exact score",
@@ -94,16 +95,25 @@ export function scorePick(
   };
 }
 
+function isScoredRival(family: ModelFamily): family is ScoredRivalFamily {
+  return family in RIVAL_LABELS;
+}
+
 export function deriveLiveRivals(analysis: MatchAnalysis | null): RivalPick[] {
   if (!analysis) return [];
-  return analysis.models.map((model) => {
+  // Mirrors `golavo_core.picks.derive_rival_picks`: a club council may seat a
+  // voice that is not in the scored roster, and the live panel must show the
+  // same five the season table will later score, or the two disagree on screen.
+  return analysis.models.flatMap<RivalPick>((model) => {
+    const family = model.family;
+    if (!isScoredRival(family)) return [];
     if (model.abstained || !model.probs) {
-      return { family: model.family, capability: "abstained", score_pick: null, outcome_pick: null };
+      return { family, capability: "abstained", score_pick: null, outcome_pick: null };
     }
     const likely = model.score_matrix?.most_likely;
     if (likely) {
       return {
-        family: model.family,
+        family,
         capability: "score",
         score_pick: { home_goals: likely.home, away_goals: likely.away },
         outcome_pick: outcome(likely.home, likely.away),
@@ -112,7 +122,7 @@ export function deriveLiveRivals(analysis: MatchAnalysis | null): RivalPick[] {
     const ranked = (["home", "draw", "away"] as const).reduce((best, next) =>
       model.probs![next] > model.probs![best] ? next : best,
     );
-    return { family: model.family, capability: "outcome_only", score_pick: null, outcome_pick: ranked };
+    return { family, capability: "outcome_only", score_pick: null, outcome_pick: ranked };
   });
 }
 
@@ -120,7 +130,7 @@ export function seasonTable(summary: PicksSummary) {
   const rivals = new Map(summary.rivals.map((rival) => [rival.family, rival]));
   return [
     { id: "user", label: "You", total: summary.user.total, exact: summary.user.exact, outcome: summary.user.outcome, bonus: summary.user.bonus, user: true },
-    ...(Object.keys(RIVAL_LABELS) as ModelFamily[]).map((family) => ({
+    ...(Object.keys(RIVAL_LABELS) as ScoredRivalFamily[]).map((family) => ({
       id: family,
       label: RIVAL_LABELS[family].split(" · ")[0],
       family,
@@ -142,7 +152,7 @@ export function cumulativeSeries(views: PickView[]) {
         a.record.match.match_id.localeCompare(b.record.match.match_id),
     );
   let user = 0;
-  const rivals: Partial<Record<ModelFamily, number>> = {};
+  const rivals: Partial<Record<ScoredRivalFamily, number>> = {};
   return scored.map((view) => {
     user += view.scoring!.user.total;
     for (const row of view.scoring!.rivals) rivals[row.family] = (rivals[row.family] ?? 0) + row.total;

@@ -7,6 +7,29 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **A sixth candidate, and the measurement that kept it off the council.**
+  `contextual_dixon_coles` extends Dixon-Coles with the two signals most often
+  called cheap wins for a club model — a home advantage estimated per club rather
+  than per league, and days of rest since each side last played, both read from
+  data already on disk. It is registered, fitted and reported like any other
+  candidate, and it **lost**: it beat the median incumbent on log loss in one
+  league of five and on RPS in none, so it is seated on no council and is not a
+  scored rival. The evaluation is published beside the others either way, because
+  a candidate that loses stays on the record.
+
+  The diagnostics are the durable finding. A club's home edge in the first half of
+  the training era predicts its edge in the second half with a correlation of
+  **-0.007**, so the spread between clubs is sampling noise around the league-wide
+  home advantage the frozen five already carry — no estimator recovers a signal
+  that does not persist. The rest effect has no consistent sign: across 15 fitted
+  league-seasons the short-rest band sits +0.1% from the normal band on average
+  with 3.5% scatter between folds, landing above normal 8 times and below it 7.
+  Written up in
+  `docs/research/contextual-signals-2026-07.md` and surfaced in Model Lab →
+  Methodologies. The season game is unaffected: the scored roster is now pinned
+  explicitly (`SCORED_RIVAL_FAMILIES`), so growing the registry can never restate
+  "beat all five models" as a different bet.
+
 - **Deep league history.** The Premier League now reaches back to 1992-93 and the
   Bundesliga to 1963-64, pinned from the CC0 footballcsv archive (a 1:1 mirror of the
   openfootball datasets). Only the seasons before the bundled football.json data (2010-11)

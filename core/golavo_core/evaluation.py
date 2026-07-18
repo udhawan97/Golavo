@@ -13,7 +13,8 @@ import pandas as pd
 from jsonschema import Draft202012Validator, FormatChecker
 
 from golavo_core.ingest import load_matches, snapshot_descriptor, training_rows, validate_pack
-from golavo_core.models import FAMILIES, fit_model
+from golavo_core.models import FAMILIES, FROZEN_FAMILIES, fit_model
+from golavo_core.models.candidates import schedule_rest_days
 
 REPORT_CARD_BOOTSTRAP_REPLICATES = 2000
 REPORT_CARD_BOOTSTRAP_SEED = 20260715
@@ -179,6 +180,7 @@ def _bootstrap_skill_interval(
 def _build_report_cards(
     folds: list[dict[str, Any]],
     losses: list[dict[str, Any]],
+    families: tuple[str, ...] = FAMILIES,
 ) -> list[dict[str, Any]]:
     """Aggregate held-out folds without erasing their dates or rank variation."""
     loss_by_fold = {str(item["fold_id"]): item for item in losses}
@@ -197,7 +199,7 @@ def _build_report_cards(
         ]
         n_matches = sum(int(fold["n_matches"]) for fold in selected)
         model_cards: list[dict[str, Any]] = []
-        for family in FAMILIES:
+        for family in families:
             family_rows = [
                 loss_by_fold[str(fold["fold_id"])]["families"][family]
                 for fold in selected
@@ -275,14 +277,54 @@ def _build_report_cards(
     return cards
 
 
-def _predict_frame(model: Any, matches: pd.DataFrame) -> np.ndarray:
+def _predict_frame(
+    model: Any,
+    matches: pd.DataFrame,
+    rest: tuple[list[float | None], list[float | None]] | None = None,
+) -> np.ndarray:
+    if rest is None:
+        return np.array(
+            [
+                model.predict(str(row.home_team), str(row.away_team), bool(row.neutral)).probs
+                for row in matches.itertuples(index=False)
+            ],
+            dtype=float,
+        )
+    home_rest, away_rest = rest
     return np.array(
         [
-            model.predict(str(row.home_team), str(row.away_team), bool(row.neutral)).probs
-            for row in matches.itertuples(index=False)
+            model.predict(
+                str(row.home_team),
+                str(row.away_team),
+                bool(row.neutral),
+                home_rest_days=home_rest[index],
+                away_rest_days=away_rest[index],
+            ).probs
+            for index, row in enumerate(matches.itertuples(index=False))
         ],
         dtype=float,
     )
+
+
+def _fold_rest_days(
+    train: pd.DataFrame, test: pd.DataFrame
+) -> tuple[list[float | None], list[float | None]]:
+    """Rest days for each test row, counted across the fold boundary.
+
+    A fold's first matchday rests from matches in the training frame, and later
+    matchdays rest from earlier test rows — so the gap has to be computed over
+    both frames at once. Only dates cross the boundary: ``schedule_rest_days`` is
+    score-blind, so nothing a fold has yet to settle reaches the model.
+    """
+    columns = [
+        column
+        for column in ("date", "home_team", "away_team", "match_id")
+        if column in train.columns and column in test.columns
+    ]
+    combined = pd.concat([train[columns], test[columns]], ignore_index=True)
+    home_rest, away_rest = schedule_rest_days(combined)
+    offset = len(train)
+    return home_rest[offset:], away_rest[offset:]
 
 
 def _tune_dixon_coles_xi(train: pd.DataFrame, cutoff_utc: str) -> float:
@@ -306,7 +348,10 @@ def _tune_dixon_coles_xi(train: pd.DataFrame, cutoff_utc: str) -> float:
 
 
 def _evaluate_folds(
-    matches: pd.DataFrame, snapshot: dict[str, str], folds: tuple[dict, ...]
+    matches: pd.DataFrame,
+    snapshot: dict[str, str],
+    folds: tuple[dict, ...],
+    families: tuple[str, ...] = FAMILIES,
 ) -> dict[str, Any]:
     fold_results: list[dict[str, Any]] = []
     fold_losses: list[dict[str, Any]] = []
@@ -326,12 +371,18 @@ def _evaluate_folds(
             raise ValueError(f"{fold['fold_id']} has no rows in the pinned snapshot")
         outcomes = _outcomes(test)
         xi = _tune_dixon_coles_xi(train, cutoff.isoformat())
+        rest = _fold_rest_days(train, test)
         models: list[dict[str, Any]] = []
         losses: dict[str, np.ndarray] = {}
-        for family in FAMILIES:
-            family_xi = xi if family == "dixon_coles" else 0.001
+        for family in families:
+            # The contextual family shares Dixon-Coles' tuned decay deliberately:
+            # holding xi equal makes the pair differ by the two context signals
+            # and nothing else, so any gap between them is attributable.
+            family_xi = xi if family in {"dixon_coles", "contextual_dixon_coles"} else 0.001
             fitted = fit_model(family, train, cutoff.isoformat(), xi=family_xi)
-            predictions = _predict_frame(fitted, test)
+            predictions = _predict_frame(
+                fitted, test, rest if getattr(fitted, "READS_SCHEDULE", False) else None
+            )
             losses[family] = _log_loss_rows(predictions, outcomes)
             metrics = _metrics(predictions, outcomes)
             params = fitted.predict(
@@ -357,13 +408,22 @@ def _evaluate_folds(
         "primary_metric": "log_loss",
         "source_snapshot": snapshot,
         "folds": fold_results,
-        "report_cards": _build_report_cards(fold_results, fold_losses),
+        "report_cards": _build_report_cards(fold_results, fold_losses, families),
     }
 
 
 def evaluate(pack_dir: Path) -> dict[str, Any]:
-    """Evaluate all candidates on the frozen international tournament folds."""
-    return _evaluate_folds(load_matches(pack_dir), snapshot_descriptor(pack_dir), FOLDS)
+    """Evaluate the frozen five on the international tournament folds.
+
+    Club-league candidates are deliberately absent: their signals describe a
+    dense domestic schedule on owned grounds, and an international fold is often
+    neutral ground weeks after the last window. Running them here would publish a
+    number against conditions they do not claim to model, and would move every
+    incumbent's rank in a report whose engine is meant to stay untouched.
+    """
+    return _evaluate_folds(
+        load_matches(pack_dir), snapshot_descriptor(pack_dir), FOLDS, FROZEN_FAMILIES
+    )
 
 
 def evaluate_club(pack_dir: Path) -> dict[str, Any]:

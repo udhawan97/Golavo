@@ -38,6 +38,7 @@ FAMILY_LABEL = {
     "poisson_independent": "independent Poisson",
     "dixon_coles": "time-decayed Dixon-Coles",
     "bivariate_poisson": "bivariate Poisson",
+    "contextual_dixon_coles": "Dixon-Coles with per-club home advantage and rest days",
 }
 
 
@@ -187,7 +188,7 @@ def build() -> str:
         "These cards report the **actual** out-of-sample backtest metrics Golavo emits, one card per competition. They are generated from the schema-validated `eval_summary*.json` artifacts by `scripts/build_model_cards.py` — never hand-edited — so the numbers here match what CI validates. **Log loss is primary.** No model is a declared champion; forward evidence (the [calibration record](/Golavo/prediction-ledger/)) is kept separate from these historical folds.",
         "",
         ":::note[How to read a card]",
-        "Each card lists the five deterministic candidates against the climatological baseline. Skill is `1 - model log loss / baseline log loss`; its 95% interval is a seeded, fold-stratified bootstrap over held-out matches. Metrics are out-of-sample on strictly chronological folds. League strengths are **not** comparable across competitions — each league is modeled independently from its own pack.",
+        "Each card lists every deterministic candidate evaluated on that competition against the climatological baseline — the five seated families everywhere, plus any club-league candidate on trial in the domestic cards. Skill is `1 - model log loss / baseline log loss`; its 95% interval is a seeded, fold-stratified bootstrap over held-out matches. Metrics are out-of-sample on strictly chronological folds. League strengths are **not** comparable across competitions — each league is modeled independently from its own pack.",
         ":::",
         "",
     ]

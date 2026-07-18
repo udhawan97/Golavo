@@ -22,7 +22,11 @@ from golavo_core.score_matrix import (  # noqa: E402
     outcome_probabilities,
 )
 
-_POISSON_FAMILIES = {"poisson_independent", "dixon_coles", "bivariate_poisson"}
+# Local to this generator and deliberately NOT golavo_core's same-named set: these
+# are the families the sample fixtures rotate through, which is a fixed cast, not
+# "every family that models goals". Adding a candidate to the registry must not
+# silently change the committed sample artifacts.
+_SAMPLE_GOAL_FAMILIES = {"poisson_independent", "dixon_coles", "bivariate_poisson"}
 
 
 def _goal_forecast(
@@ -70,7 +74,7 @@ def _base(index: int, status: str) -> dict[str, Any]:
     if abstained:
         probs = None
         expected_goals_value = None
-    elif family in _POISSON_FAMILIES:
+    elif family in _SAMPLE_GOAL_FAMILIES:
         probs, expected_goals_value, score_matrix = _goal_forecast(index, family)
     else:
         home = round(0.46 + index * 0.01, 6)

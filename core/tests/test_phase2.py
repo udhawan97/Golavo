@@ -9,6 +9,7 @@ from pathlib import Path
 from golavo_core.evaluation import CLUB_FOLDS_BY_COMPETITION, _validate_summary, evaluate_club
 from golavo_core.ingest import load_matches
 from golavo_core.ingest.openfootball import canonical_team
+from golavo_core.models import FAMILIES
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = REPO_ROOT / "docs/contracts/forecast_artifact.schema.json"
@@ -148,7 +149,7 @@ def test_club_evaluation_la_liga_gate_and_schema() -> None:
     for fold in summary["folds"]:
         assert fold["n_matches"] == 380
         by_family = {model["family"]: model["log_loss"] for model in fold["models"]}
-        assert len(by_family) == 5
+        assert set(by_family) == set(FAMILIES)
         # Gate: a candidate must beat the climatological baseline on log loss.
         assert min(by_family.values()) < by_family["climatological"]
 

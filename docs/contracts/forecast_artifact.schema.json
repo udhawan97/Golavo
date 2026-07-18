@@ -229,7 +229,7 @@
                   "additionalProperties": false,
                   "required": ["family", "params", "log_loss", "brier", "ece", "rps", "reliability_bins"],
                   "properties": {
-                    "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson"]},
+                    "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson", "contextual_dixon_coles"]},
                     "params": {"type": "object"},
                     "log_loss": {"type": "number", "minimum": 0},
                     "brier": {"type": "number", "minimum": 0},
@@ -277,7 +277,7 @@
       "additionalProperties": false,
       "required": ["family", "n_matches", "n_folds", "log_loss", "brier", "ece", "rps", "skill_score", "skill_ci_95", "sample_status", "mean_rank", "best_rank", "worst_rank", "first_place_folds"],
       "properties": {
-        "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson"]},
+        "family": {"enum": ["climatological", "elo_ordlogit", "poisson_independent", "dixon_coles", "bivariate_poisson", "contextual_dixon_coles"]},
         "n_matches": {"type": "integer", "minimum": 1},
         "n_folds": {"type": "integer", "minimum": 1},
         "log_loss": {"type": "number", "minimum": 0},

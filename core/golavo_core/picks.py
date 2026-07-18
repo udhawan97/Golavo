@@ -106,11 +106,28 @@ def _modal_outcome(probs: dict[str, Any]) -> Outcome:
     return max(OUTCOMES, key=lambda outcome: float(probs[outcome]))
 
 
+# The roster the season game scores you against, fixed independently of who sits
+# on the council. The council is an analysis surface and may gain a voice at any
+# time; this list is a rule players have already played whole seasons under, so a
+# new family joins it only at a season boundary and only once its backtest record
+# is published. Keeping the two lists separate is what lets the cockpit deepen
+# without silently restating "beat all five models" as a different bet.
+SCORED_RIVAL_FAMILIES: tuple[str, ...] = (
+    "elo_ordlogit",
+    "dixon_coles",
+    "poisson_independent",
+    "bivariate_poisson",
+    "climatological",
+)
+
+
 def derive_rival_picks(analysis: dict[str, Any]) -> dict[str, Any]:
-    """Snapshot each council model's honest scoring capability and call."""
+    """Snapshot each scored rival's honest scoring capability and call."""
     rivals: list[dict[str, Any]] = []
     for model in analysis.get("models", []):
         family = str(model["family"])
+        if family not in SCORED_RIVAL_FAMILIES:
+            continue
         probs = model.get("probs")
         matrix = model.get("score_matrix")
         abstained = bool(model.get("abstained")) or probs is None

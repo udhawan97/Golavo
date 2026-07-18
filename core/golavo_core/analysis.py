@@ -62,6 +62,11 @@ COUNCIL_FAMILIES: tuple[str, ...] = (
     "climatological",
 )
 
+# contextual_dixon_coles is deliberately NOT seated here. It is a registered
+# candidate and appears in every backtest, but it lost to the median incumbent
+# in all five leagues, so it did not earn a voice — see
+# docs/research/contextual-signals-2026-07.md for the measured reason.
+
 # The single goal-model voice shown by default; its siblings are variants.
 GOAL_VOICE = "dixon_coles"
 

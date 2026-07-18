@@ -85,8 +85,9 @@ export function Methodologies() {
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
         <h1>Methodologies</h1>
         <p className="measure dim" style={{ margin: 0 }}>
-          Golavo fits five deterministic model families — but they are not five independent
-          opinions. Here is the honest picture.
+          Golavo seats five deterministic model families on every council — but they are not five
+          independent opinions. A sixth is measured in the backtests without a seat. Here is the
+          honest picture.
         </p>
       </header>
 
@@ -120,6 +121,27 @@ export function Methodologies() {
             independent and bivariate variants produce identical numbers in every backtest fold — so
             treating them as separate votes would be false plurality. The cockpit shows Dixon–Coles
             as the goal voice and discloses the variants as exactly that: variants.
+          </p>
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="panel__head"><h2>A candidate that did not earn a seat</h2></div>
+        <div className="panel__body stack measure" style={{ ["--gap" as string]: ".8rem" }}>
+          <p style={{ margin: 0 }}>
+            <strong>Dixon–Coles (in context)</strong> adds the two signals most often called easy
+            wins: a home advantage estimated per club rather than per league, and days of rest since
+            each side last played. It is fitted, backtested and reported like any other candidate —
+            it just lost, beating the median rival in one league of five.
+          </p>
+          <p style={{ margin: 0 }}>
+            The measured reason is worth more than the model. A club's home edge in one era predicts
+            its home edge in the next with a correlation of <b>−0.007</b> — that is, not at all, so
+            the apparent spread between clubs is sampling noise around the league-wide effect the
+            other families already carry. Rest days fare no better: across fifteen fitted
+            league-seasons the short-rest correction lands <em>above</em> ordinary rest eight times
+            and below it seven, with scatter between seasons thirty-five times larger than the
+            average effect. A losing candidate stays on the record here rather than disappearing.
           </p>
         </div>
       </section>

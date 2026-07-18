@@ -1,9 +1,9 @@
 import { memo, useMemo, useState } from "react";
-import type { ModelFamily, PicksSummary } from "../lib/contract";
+import type { ScoredRivalFamily, PicksSummary } from "../lib/contract";
 import { RIVAL_LABELS } from "../lib/picks";
 
-type SeriesId = "user" | ModelFamily;
-const RIVALS: ModelFamily[] = [
+type SeriesId = "user" | ScoredRivalFamily;
+const RIVALS: ScoredRivalFamily[] = [
   "dixon_coles",
   "poisson_independent",
   "bivariate_poisson",

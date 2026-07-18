@@ -71,7 +71,9 @@ def test_competition_analytics_rejects_unknown_identity() -> None:
 def test_report_cards_use_match_weighting_and_seeded_bootstrap() -> None:
     folds: list[dict[str, object]] = []
     losses: list[dict[str, object]] = []
-    factors = dict(zip(FAMILIES, (1.0, 0.8, 0.9, 0.7, 1.1), strict=True))
+    # One distinct synthetic loss per family; strict=True is the point — it fails
+    # loudly when the registry grows so a new family cannot skip this card.
+    factors = dict(zip(FAMILIES, (1.0, 0.8, 0.9, 0.7, 1.1, 0.75), strict=True))
     for fold_id, n_matches in (("TEST-A", 50), ("TEST-B", 100)):
         models = [
             {

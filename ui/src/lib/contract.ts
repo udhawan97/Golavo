@@ -27,12 +27,21 @@ export type Uncertainty = "low" | "medium" | "high";
 export type Outcome = "home" | "draw" | "away";
 export type Market = "1x2_regulation";
 
-export type ModelFamily =
+/** The roster the season game scores you against — mirrors
+ *  `golavo_core.picks.SCORED_RIVAL_FAMILIES`. Fixed independently of the council
+ *  so a new analysis voice cannot silently restate "beat all five models". */
+export type ScoredRivalFamily =
   | "climatological"
   | "elo_ordlogit"
   | "poisson_independent"
   | "dixon_coles"
   | "bivariate_poisson";
+
+/** Every registered family. A superset of the scored roster and of what any
+ *  council seats: `contextual_dixon_coles` appears only in club backtests — it
+ *  lost its gate, so it is neither a council voice nor a rival you play against.
+ *  Backtest views must therefore handle it; council and picks views cannot see it. */
+export type ModelFamily = ScoredRivalFamily | "contextual_dixon_coles";
 
 export interface MatchInfo {
   match_id: string;
@@ -902,7 +911,7 @@ export interface ScorePick {
 }
 
 export interface RivalPick {
-  family: ModelFamily;
+  family: ScoredRivalFamily;
   capability: RivalCapability;
   score_pick: ScorePick | null;
   outcome_pick: Outcome | null;
@@ -948,7 +957,7 @@ export interface PickPoints {
 
 export interface PickScoring {
   user: PickPoints & { bonus: number };
-  rivals: Array<PickPoints & { family: ModelFamily }>;
+  rivals: Array<PickPoints & { family: ScoredRivalFamily }>;
   beat_ai: boolean;
   best_rival_total: number;
 }
@@ -985,7 +994,7 @@ export interface PicksSummary {
   season: string | null;
   counts: Record<PickStatus, number>;
   user: { total: number; exact: number; outcome: number; bonus: number };
-  rivals: Array<{ family: ModelFamily; total: number; exact: number; outcome: number }>;
+  rivals: Array<{ family: ScoredRivalFamily; total: number; exact: number; outcome: number }>;
   series: Array<{
     kickoff_utc: string;
     match_id: string;
@@ -1789,6 +1798,7 @@ export const FAMILY_LABELS: Record<ModelFamily, string> = {
   poisson_independent: "Poisson (independent)",
   dixon_coles: "Dixon–Coles",
   bivariate_poisson: "Bivariate Poisson",
+  contextual_dixon_coles: "Dixon–Coles (in context)",
 };
 
 export const STATUS_LABELS: Record<ArtifactStatus, string> = {

@@ -9,7 +9,7 @@ from pathlib import Path
 from golavo_core.artifacts import score_forecast, seal_forecast, void_forecast
 from golavo_core.evaluation import write_club_evaluation, write_evaluation
 from golavo_core.ingest import build_match_index, default_index_packs, write_parquet
-from golavo_core.models import FAMILIES
+from golavo_core.models import FROZEN_FAMILIES
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -66,7 +66,9 @@ def _parser() -> argparse.ArgumentParser:
     seal.add_argument("--away-team", required=True)
     seal.add_argument("--as-of", required=True, dest="as_of_utc")
     seal.add_argument("--horizon", choices=("T-72h", "T-24h", "T-60m"), default="T-24h")
-    seal.add_argument("--family", choices=FAMILIES, default="elo_ordlogit")
+    # Sealing is restricted to the frozen five: a seal is a claim on the record,
+    # and a candidate still on trial has no business making one.
+    seal.add_argument("--family", choices=FROZEN_FAMILIES, default="elo_ordlogit")
     seal.add_argument("--seed", type=int, default=20260710)
     seal.add_argument("--match-id")
 

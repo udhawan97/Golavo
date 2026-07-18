@@ -25,7 +25,7 @@ from golavo_core.ingest import (
     snapshot_anchor_utc,
     snapshot_descriptor,
 )
-from golavo_core.models import FAMILIES, fit_model
+from golavo_core.models import FROZEN_FAMILIES, fit_model
 from golavo_core.score_matrix import (
     assert_model_coherent,
     assert_stored_coherent,
@@ -327,7 +327,11 @@ def build_forecast_artifact(
     deterministic engine and persist through the one shared write path. Raises the
     same typed ``ValueError``s as ``seal_forecast`` on any invariant violation.
     """
-    if family not in FAMILIES:
+    # FROZEN_FAMILIES, not FAMILIES: a seal is a permanent claim on the record, so
+    # only a seated family may make one. A candidate still on trial is fitted and
+    # reported, never sealed — its numbers are allowed to be revised, and a seal
+    # is precisely the thing that cannot be.
+    if family not in FROZEN_FAMILIES:
         raise ValueError(f"unknown model family: {family}")
     as_of = _utc(as_of_utc)
     snapshot = snapshot_descriptor(pack_dir)
