@@ -92,7 +92,7 @@ Env vars (all seven): `GOLAVO_TOKEN`, `GOLAVO_DATA_DIR`, `GOLAVO_HOST`, `GOLAVO_
 
 ## CI jobs that must be green
 
-`core` (ruff + 5 validators + notices check + index determinism + pytest) · `ui` (oxlint + vitest + build + Playwright) · `docs` (`astro check` + build) · `desktop-check` (`cargo check --locked`) · `license-isolation` · `sidecar-smoke` (PyInstaller on macOS + Windows, `--version` and `--smoke` must exit 0).
+`core` (ruff + 5 validators + notices check + index determinism + pytest) · `ui` (oxlint + vitest + build + Playwright) · `docs` (`astro check` + build) · `desktop-check` (`cargo test --locked`, macOS only — so the one `#[cfg(windows)]` test never compiles in CI) · `license-isolation` · `sidecar-smoke` (PyInstaller on macOS + Windows, `--version` and `--smoke` must exit 0).
 
 ## Conventions
 

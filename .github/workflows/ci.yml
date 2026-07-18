@@ -109,7 +109,7 @@ jobs:
           fi
 
   desktop-check:
-    name: desktop shell (cargo check)
+    name: desktop shell (cargo test)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
@@ -132,16 +132,20 @@ jobs:
             desktop/src-tauri/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('desktop/src-tauri/Cargo.lock') }}
       # tauri-build validates that the externalBin sidecar exists for the host
-      # triple. A real (PyInstaller) sidecar build would make this check as heavy
-      # as a release; a zero-byte placeholder satisfies the existence check while
-      # cargo only type-checks the Rust — which is all this job is for.
+      # triple. A real (PyInstaller) sidecar build would make this job as heavy
+      # as a release; a zero-byte placeholder satisfies the existence check, and
+      # nothing here ever executes the sidecar.
       - name: Placeholder sidecar so tauri-build's resource check passes
         run: |
           TRIPLE="$(rustc -vV | sed -n 's/host: //p')"
           mkdir -p desktop/src-tauri/binaries
           touch "desktop/src-tauri/binaries/golavo-sidecar-$TRIPLE"
-      - name: cargo check (no Rust breakage lands silently)
-        run: cargo check --manifest-path desktop/src-tauri/Cargo.toml --locked
+      # `cargo test` supersedes the `cargo check` this step used to run: it
+      # compiles the crate *and* its test cfg, so Rust breakage still cannot land
+      # silently, and the unit tests guarding path traversal, external-URL
+      # rejection and updater asset picking now actually execute.
+      - name: cargo test (no Rust breakage lands silently)
+        run: cargo test --manifest-path desktop/src-tauri/Cargo.toml --locked
 
   license-isolation:
     name: license isolation guard
