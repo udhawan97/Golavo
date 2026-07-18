@@ -70,9 +70,13 @@ export function PickPanel({
     setAway(pick.record.user_pick.away_goals);
   }, [pick]);
 
+  // Destructured so the effect closes over the stable `useCallback` rather than
+  // `controller`, which `usePick` re-creates as a fresh object literal every
+  // render — depending on that object would refresh on every render, in a loop.
+  const { refresh } = controller;
   useEffect(() => {
-    if (pick?.status === "draft" && lock?.phase === "locked") void controller.refresh();
-  }, [controller.refresh, lock?.phase, pick?.status]);
+    if (pick?.status === "draft" && lock?.phase === "locked") void refresh();
+  }, [refresh, lock?.phase, pick?.status]);
 
   const rivals = useMemo(
     () =>

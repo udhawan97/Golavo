@@ -97,8 +97,16 @@ export function MatchResearch({
     };
   }, [matchId]);
 
+  // Depends on `run`'s identity fields, not `run` itself, and deliberately so:
+  // every poll response calls `setRun`, so depending on the object would tear
+  // down and restart the poll loop on each tick.
+  // The loop keys off the run's identity fields, not the object: every poll
+  // response calls `setRun`, so closing over `run` itself would tear down and
+  // restart the poll on each tick.
+  const runId = run?.run_id;
+  const runState = run?.state;
   useEffect(() => {
-    if (!run || terminal.has(run.state) || pollingIssue) return;
+    if (!runId || runState === undefined || terminal.has(runState) || pollingIssue) return;
     let live = true;
     let timer: number | undefined;
     let requestController: AbortController | null = null;
@@ -106,7 +114,7 @@ export function MatchResearch({
     const schedule = () => { timer = window.setTimeout(poll, 800); };
     const poll = () => {
       requestController = new AbortController();
-      fetchResearchRun(run.run_id, requestController.signal).then(
+      fetchResearchRun(runId, requestController.signal).then(
         (value) => {
           if (!live) return;
           consecutiveFailures = 0;
@@ -133,7 +141,7 @@ export function MatchResearch({
       if (timer !== undefined) window.clearTimeout(timer);
       requestController?.abort();
     };
-  }, [run?.run_id, run?.state, pollingIssue]);
+  }, [runId, runState, pollingIssue]);
 
   const fail = (reason: unknown) => {
     if (reason instanceof DOMException && reason.name === "AbortError") return;

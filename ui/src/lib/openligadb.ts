@@ -152,7 +152,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers: {
       ...apiHeaders(),
       ...(init?.body ? { "content-type": "application/json" } : {}),
-      ...(init?.headers ?? {}),
+      ...init?.headers,
     },
   });
   if (!response.ok) {

@@ -28,6 +28,9 @@ export type AsyncState<T> =
  *  state after unmount or after a superseding run. */
 export function useAsync<T>(loader: () => Promise<T>, deps: unknown[]): AsyncState<T> {
   const [state, setState] = useState<AsyncState<T>>({ status: "loading" });
+  // `deps` is the caller's array, so it cannot be verified statically. The
+  // linter reads that as "no dep list" and warns about the setState below.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     let alive = true;
     setState({ status: "loading" });
@@ -36,7 +39,6 @@ export function useAsync<T>(loader: () => Promise<T>, deps: unknown[]): AsyncSta
       (error) => { if (alive) setState({ status: "error", error: error instanceof Error ? error : new Error(String(error)) }); },
     );
     return () => { alive = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
   return state;
 }

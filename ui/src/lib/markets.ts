@@ -71,7 +71,7 @@ export function doubleChanceMarkets(probs: Probs): DoubleChance {
  *  (exact because every tail cell has at least N+1 total goals). */
 export function totalGoalBands(sm: ScoreMatrix): GoalBand[] {
   const n = sm.max_goals;
-  const band = new Array<number>(n + 1).fill(0);
+  const band = Array.from({ length: n + 1 }, () => 0);
   let over = sm.tail.probability;
   for (let i = 0; i <= n; i++) {
     for (let j = 0; j <= n; j++) {

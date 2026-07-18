@@ -55,7 +55,8 @@ function PointsChartImpl({ series }: { series: PicksSummary["series"] }) {
     if (id === "user") return;
     setHidden((previous) => {
       const next = new Set(previous);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };

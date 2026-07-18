@@ -26,6 +26,25 @@
   },
   "overrides": [
     {
+      // useAsync takes the caller's dependency array, so it can never be an
+      // array literal here. oxlint honours no inline disable for this rule,
+      // so it is scoped off for this one file.
+      "files": ["src/lib/hooks.ts"],
+      "rules": {
+        "react-hooks/exhaustive-deps": "off"
+      }
+    },
+    {
+      // Resetting an error boundary on a prop change is what componentDidUpdate
+      // is for, and the change-and-error double guard makes re-entry impossible.
+      // Rewriting untested crash-recovery to satisfy a style rule is the worse
+      // trade.
+      "files": ["src/components/ErrorBoundary.tsx"],
+      "rules": {
+        "react/no-did-update-set-state": "off"
+      }
+    },
+    {
       "files": ["**/*.test.ts", "**/*.test.tsx", "tests/**/*.ts"],
       "env": {
         "node": true

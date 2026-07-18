@@ -264,10 +264,14 @@ export function CorrectionEditor({ matchId }: { matchId?: string }) {
     return () => { live = false; };
   }, [matchId, matchRetry]);
 
-  const sources = corrections.capabilities?.sources ?? [];
+  // Inlined rather than held in a `const`: `?? []` mints a fresh array every
+  // render, which would change the dep on every pass and defeat the memo.
   const allowedSources = useMemo(
-    () => sources.filter((source) => source.allowed_types.includes(type)),
-    [sources, type],
+    () =>
+      (corrections.capabilities?.sources ?? []).filter((source) =>
+        source.allowed_types.includes(type),
+      ),
+    [corrections.capabilities?.sources, type],
   );
   useEffect(() => {
     if (!allowedSources.some((source) => source.source_id === sourceId)) {

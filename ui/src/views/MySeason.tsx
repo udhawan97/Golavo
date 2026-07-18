@@ -18,7 +18,12 @@ export function MySeason() {
   const picks = usePicks();
   const [window, setWindow] = useState<WindowFilter>("all");
   const [competition, setCompetition] = useState("all");
-  const views = picks.state.status === "ready" ? picks.state.data : [];
+  // Memoised because the `: []` branch would otherwise mint a fresh array every
+  // render, changing the dep of every memo below it.
+  const views = useMemo(
+    () => (picks.state.status === "ready" ? picks.state.data : []),
+    [picks.state],
+  );
   const competitions = [...new Set(views.map((view) => view.record.match.competition).filter(Boolean))].sort();
   const filtered = useMemo(() => {
     const cutoff = window === "week" ? Date.now() - 7 * 86_400_000 : window === "month" ? Date.now() - 30 * 86_400_000 : 0;

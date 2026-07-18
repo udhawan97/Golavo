@@ -12,7 +12,8 @@ export function RivalPicks({
 }) {
   const revealed = pick !== null;
   const frozen = pick && pick.status !== "draft";
-  if (rivals.length === 0 || rivals.every((rival) => rival.capability === "abstained")) {
+  // `every` is true for an empty array, so this also covers "no rivals at all".
+  if (rivals.every((rival) => rival.capability === "abstained")) {
     return (
       <div className="rivals-empty small muted">
         The rivals sit this one out — not enough history to model this match. Your pick still

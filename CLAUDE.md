@@ -22,7 +22,9 @@ mypy is a declared dev dep in both pyprojects but has no config file, no `[tool.
 
 **The UI linter is oxlint, not ESLint, and that is deliberate.** `ui/` is on TypeScript 7, and no release of `typescript-eslint` supports it — the latest and its canary both cap the peer at `<6.1.0`, and installing anyway crashes in `typescript-estree` reading `ts.ModuleKind.Cjs`, which TS 7 no longer exposes. oxlint parses TypeScript itself with no dependency on the TS compiler API, so it works today. Config is `ui/.oxlintrc.json`; rule names mirror ESLint's (`react-hooks/exhaustive-deps`, `typescript/no-unused-vars`). Revisit if typescript-eslint ships TS 7 support.
 
-Lint is **warn-clean, not warning-free**: 10 pre-existing warnings, exit 0. Use `npm run lint:fix` for autofixable ones. Don't add `--deny-warnings` until the backlog is cleared or you'll turn every one of those into a merge blocker.
+Lint runs `--deny-warnings`, so **any** warning fails the build — there is no backlog to hide in. `npm run lint:fix` handles the autofixable ones.
+
+Two rules are scoped off in `ui/.oxlintrc.json` rather than obeyed, each with the reason inline (the file is JSONC — comments parse, but `$comment` is a hard error): `exhaustive-deps` in `lib/hooks.ts`, whose `useAsync` takes the caller's dep array and so can never pass an array literal, and `no-did-update-set-state` in `ErrorBoundary.tsx`, where resetting on a prop change is the point. **oxlint honours no inline `eslint-disable` comment for these rules** — file-scoped config is the only lever, so a suppression costs you the rule across the whole file. Prefer restructuring: hoisting `const { refresh } = controller` or a `run?.run_id` into a local satisfies `exhaustive-deps` honestly, and depending on the object instead would have re-run those effects every render.
 
 ## Layout
 

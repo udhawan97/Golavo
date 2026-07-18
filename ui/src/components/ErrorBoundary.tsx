@@ -21,6 +21,10 @@ export class ErrorBoundary extends Component<Props, State> {
     return { error };
   }
 
+  // Resetting on a prop change is what an error boundary is for, and React
+  // offers no other hook for it. The double guard — key actually changed, and
+  // an error is actually held — means this cannot re-enter.
+  // eslint-disable-next-line react/no-did-update-set-state
   componentDidUpdate(prev: Props) {
     if (prev.resetKey !== this.props.resetKey && this.state.error) {
       this.setState({ error: null });
