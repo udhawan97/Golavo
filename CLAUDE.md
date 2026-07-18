@@ -24,7 +24,7 @@ mypy is a declared dev dep in both pyprojects but has no config file, no `[tool.
 
 Lint runs `--deny-warnings`, so **any** warning fails the build — there is no backlog to hide in. `npm run lint:fix` handles the autofixable ones.
 
-Two rules are scoped off in `ui/.oxlintrc.json` rather than obeyed, each with the reason inline (the file is JSONC — comments parse, but `$comment` is a hard error): `exhaustive-deps` in `lib/hooks.ts`, whose `useAsync` takes the caller's dep array and so can never pass an array literal, and `no-did-update-set-state` in `ErrorBoundary.tsx`, where resetting on a prop change is the point. **oxlint honours no inline `eslint-disable` comment for these rules** — file-scoped config is the only lever, so a suppression costs you the rule across the whole file. Prefer restructuring: hoisting `const { refresh } = controller` or a `run?.run_id` into a local satisfies `exhaustive-deps` honestly, and depending on the object instead would have re-run those effects every render.
+Two rules are scoped off in `ui/.oxlintrc.json` rather than obeyed, each with the reason inline (the file is JSONC — comments parse, but `$comment` is a hard error): `exhaustive-deps` in `lib/hooks.ts`, whose `useAsync` takes the caller's dep array and so can never pass an array literal, and `no-did-update-set-state` in `ErrorBoundary.tsx`, where resetting on a prop change is the point (and is now covered by `ErrorBoundary.test.tsx`). **oxlint honours no inline `eslint-disable` comment for these rules** — file-scoped config is the only lever, so a suppression costs you the rule across the whole file. Prefer restructuring: hoisting `const { refresh } = controller` or a `run?.run_id` into a local satisfies `exhaustive-deps` honestly, and depending on the object instead would have re-run those effects every render.
 
 ## Layout
 
@@ -61,7 +61,9 @@ This is why `core/pyproject.toml` pins deps with `==` (pyarrow, pandas, numpy, s
 
 **Contract versions are declared in three places** and cross-checked by `scripts/tests/test_contract_versions.py`: the JSON Schema, a Python constant the sidecar stamps, and a constant in `ui/src/lib/contract.ts`. Its `OWNERS` table must list every schema — **adding a file to `docs/contracts/` fails CI until you register its owners.** There is no codegen; `contract.ts` is maintained by hand and drift is caught by `server/tests/test_contract_drift.py`.
 
-**UI test split is load-bearing.** `ui/vite.config.ts` restricts vitest to `src/**/*.test.ts` and excludes `tests/**`. Specs in `ui/tests/*.spec.ts` run under Playwright only. A test placed in the wrong directory silently never runs.
+**UI test split is load-bearing.** `ui/vite.config.ts` restricts vitest to `src/**/*.test.{ts,tsx}` and excludes `tests/**`. Specs in `ui/tests/*.spec.ts` run under Playwright only. A test placed in the wrong **directory** still silently never runs — this bit once already: the glob was `*.test.ts`, so `ProgrammePullNumber.test.tsx` sat uncollected and had never run.
+
+**Component tests render to a string, not a DOM.** The convention is `createElement` + `renderToStaticMarkup` from `react-dom/server`, asserting on HTML — no jsdom, node environment. That does not work for anything needing state, effects, or error boundaries, which only engage on a client render. For those, opt in per file with a `// @vitest-environment jsdom` docblock and drive a real root (`ErrorBoundary.test.tsx` is the worked example). Don't set jsdom globally — 37 files currently run in node and don't need it.
 
 **Generations use an atomic pointer swap** (ADR-0004, `server/golavo_server/refresh_state.py`): write tempfile → `os.replace` → fsync dir. `active_generation()` falls back to the previous generation if verification fails. Refresh only exists when `GOLAVO_DATA_DIR` is set; source/CI mode uses the committed index.
 

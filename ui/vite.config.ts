@@ -10,7 +10,7 @@ export default defineConfig({
   // without this exclude, `vitest run` tries to collect them and errors on the
   // `test()`-in-async-describe pattern Playwright uses.
   test: {
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.{ts,tsx}"],
     exclude: ["tests/**", "node_modules/**", "dist/**"],
   },
 });
