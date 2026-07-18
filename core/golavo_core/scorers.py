@@ -22,6 +22,7 @@ from typing import Any
 import pandas as pd
 
 from golavo_core.identity import fixture_keys
+from golavo_core.ingest.snapshot import completed_view, iso_utc, to_utc
 
 SCORERS_SCHEMA_VERSION = "0.1.0"
 
@@ -32,15 +33,6 @@ def _competition_names(competition: str | Iterable[str]) -> list[str]:
     if isinstance(competition, str):
         return [competition]
     return [str(name) for name in competition]
-
-
-def _utc(value: str | pd.Timestamp) -> pd.Timestamp:
-    stamp = pd.Timestamp(value)
-    return stamp.tz_localize("UTC") if stamp.tzinfo is None else stamp.tz_convert("UTC")
-
-
-def _iso(value: pd.Timestamp) -> str:
-    return value.isoformat().replace("+00:00", "Z")
 
 
 def _competition_match_keys(
@@ -54,11 +46,8 @@ def _competition_match_keys(
     names = _competition_names(competition)
     if not names:
         return set()
-    kickoff = pd.to_datetime(index["kickoff_utc"], utc=True)
-    complete = index["is_complete"].astype("boolean").fillna(False)
-    scoped = index.loc[
-        index["competition"].astype("string").isin(names) & complete & (kickoff <= cutoff)
-    ]
+    played = completed_view(index, as_of_utc=cutoff).rows
+    scoped = played.loc[played["competition"].astype("string").isin(names)]
     # home_norm/away_norm are already folded; the fold is idempotent, so keying
     # them gives the same tuple a raw upstream spelling would give.
     return set(fixture_keys(scoped, home="home_norm", away="away_norm"))
@@ -85,13 +74,13 @@ def competition_top_scorers(
     """
     if as_of_utc is None:
         raise ValueError("competition_top_scorers requires an explicit as_of_utc cutoff")
-    cutoff = _utc(as_of_utc)
+    cutoff = to_utc(as_of_utc)
     keys = _competition_match_keys(index, competition=competition, cutoff=cutoff)
 
     board: dict[str, Any] = {
         "schema_version": SCORERS_SCHEMA_VERSION,
         "competition_names": _competition_names(competition),
-        "as_of_utc": _iso(cutoff),
+        "as_of_utc": iso_utc(cutoff),
         "scope": "internationals",
         "dataset": "goalscorers",
         "min_goals": int(min_goals),
@@ -162,13 +151,13 @@ def competition_shootout_ledger(
     """Per-team penalty-shootout wins and losses in one competition, as of the cutoff."""
     if as_of_utc is None:
         raise ValueError("competition_shootout_ledger requires an explicit as_of_utc cutoff")
-    cutoff = _utc(as_of_utc)
+    cutoff = to_utc(as_of_utc)
     keys = _competition_match_keys(index, competition=competition, cutoff=cutoff)
 
     ledger: dict[str, Any] = {
         "schema_version": SCORERS_SCHEMA_VERSION,
         "competition_names": _competition_names(competition),
-        "as_of_utc": _iso(cutoff),
+        "as_of_utc": iso_utc(cutoff),
         "scope": "internationals",
         "dataset": "shootouts",
         "shootouts_counted": 0,

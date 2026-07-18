@@ -15,48 +15,29 @@ from typing import Any
 import pandas as pd
 
 from golavo_core.competitions import competition_by_id
+from golavo_core.ingest.snapshot import (
+    ORDER_INSTANT,
+    completed_view,
+    iso_utc,
+    to_utc,
+)
 from golavo_core.models.candidates import PoissonModel
+from golavo_core.trends import month_end_checkpoints
 
 ANALYTICS_SCHEMA_VERSION = "0.1.0"
 MIN_STRENGTH_MATCHES = 8
-TREND_CHECKPOINTS = 12
 
 
 def _utc(value: str | pd.Timestamp | None) -> pd.Timestamp:
-    timestamp = pd.Timestamp(value or datetime.now(UTC))
-    return (
-        timestamp.tz_localize("UTC")
-        if timestamp.tzinfo is None
-        else timestamp.tz_convert("UTC")
-    )
-
-
-def _iso(value: pd.Timestamp) -> str:
-    return value.isoformat().replace("+00:00", "Z")
-
-
-def _dated(frame: pd.DataFrame) -> pd.DataFrame:
-    result = frame.copy()
-    source = "kickoff_utc" if "kickoff_utc" in result.columns else "date"
-    result["_analytics_date"] = pd.to_datetime(result[source], utc=True)
-    return result
-
-
-def _month_end_checkpoints(anchor: pd.Timestamp) -> list[pd.Timestamp]:
-    """Eleven prior month ends plus the exact latest-data cutoff."""
-    month_start = anchor.normalize().replace(day=1)
-    previous_month_end = month_start - pd.Timedelta(seconds=1)
-    prior = list(
-        pd.date_range(end=previous_month_end, periods=TREND_CHECKPOINTS - 1, freq="ME")
-    )
-    return [*prior, anchor]
+    """As-of defaults to now; the shared rule owns the timezone handling."""
+    return to_utc(value or datetime.now(UTC))
 
 
 def _active_teams(rows: pd.DataFrame, anchor: pd.Timestamp) -> list[str]:
     # "Active" means present near the competition's latest indexed match, not
     # merely somewhere in the last two seasons (which would retain relegated
     # clubs on a current league page).
-    recent = rows.loc[rows["_analytics_date"] >= anchor - pd.Timedelta(days=90)]
+    recent = rows.loc[rows[ORDER_INSTANT] >= anchor - pd.Timedelta(days=90)]
     values = pd.concat([recent["home_team"], recent["away_team"]], ignore_index=True)
     return sorted(str(value) for value in values.dropna().unique())
 
@@ -76,11 +57,11 @@ def _strength_trends(rows: pd.DataFrame) -> dict[str, Any]:
             "teams": [],
         }
 
-    anchor = rows["_analytics_date"].max()
+    anchor = rows[ORDER_INSTANT].max()
     teams = _active_teams(rows, anchor)
     trends: dict[str, list[dict[str, Any]]] = {team: [] for team in teams}
-    for checkpoint in _month_end_checkpoints(anchor):
-        training = rows.loc[rows["_analytics_date"] <= checkpoint].copy()
+    for checkpoint in month_end_checkpoints(anchor):
+        training = rows.loc[rows[ORDER_INSTANT] <= checkpoint].copy()
         counts = _team_match_counts(training)
         eligible = [team for team in teams if counts.get(team, 0) >= MIN_STRENGTH_MATCHES]
         if not eligible:
@@ -88,14 +69,14 @@ def _strength_trends(rows: pd.DataFrame) -> dict[str, Any]:
         # The shipped goal voice's fit: chronological, exponentially decayed and
         # shrunk by an eight-match prior. It asserts that no row exceeds cutoff.
         model = PoissonModel("poisson_independent", xi=0.001).fit(
-            training.drop(columns=["_analytics_date"]), _iso(checkpoint)
+            training.drop(columns=[ORDER_INSTANT]), iso_utc(checkpoint)
         )
         for team in eligible:
             attack = float(model.attack.get(team, 1.0))
             defence_conceding = float(model.defence.get(team, 1.0))
             trends[team].append(
                 {
-                    "cutoff_utc": _iso(checkpoint),
+                    "cutoff_utc": iso_utc(checkpoint),
                     "sample_matches": counts[team],
                     "attack_index": round(100.0 * attack, 1),
                     # The fitted defence multiplier is goals conceded (lower is
@@ -121,25 +102,30 @@ def _strength_trends(rows: pd.DataFrame) -> dict[str, Any]:
         ),
         "method": "time-decayed-poisson-rates-v1",
         "minimum_matches": MIN_STRENGTH_MATCHES,
-        "data_through_utc": _iso(anchor),
+        "data_through_utc": iso_utc(anchor),
         "comparison_scope": "this_competition_only",
         "teams": result,
     }
 
 
 def _workload(frame: pd.DataFrame, teams: list[str], as_of: pd.Timestamp) -> dict[str, Any]:
-    completed = frame.loc[frame["is_complete"] & (frame["_analytics_date"] <= as_of)].copy()
+    """Rest and congestion per team, counted across every competition in the index.
+
+    Takes the whole frame, not the competition's slice: a Bundesliga side's rest
+    days must count the cup tie it played midweek.
+    """
+    completed = completed_view(frame, as_of_utc=as_of).rows
     rows: list[dict[str, Any]] = []
     for team in teams:
         team_rows = completed.loc[
             completed["home_team"].eq(team) | completed["away_team"].eq(team)
-        ].sort_values("_analytics_date", kind="mergesort")
+        ].sort_values(ORDER_INSTANT, kind="mergesort")
         if team_rows.empty:
             continue
-        last_match = team_rows["_analytics_date"].iloc[-1]
+        last_match = team_rows[ORDER_INSTANT].iloc[-1]
         rest_days = max(0, int((as_of - last_match).total_seconds() // 86400))
 
-        match_dates = team_rows["_analytics_date"]
+        match_dates = team_rows[ORDER_INSTANT]
         matches_7 = int((match_dates > as_of - pd.Timedelta(days=7)).sum())
         matches_14 = int((match_dates > as_of - pd.Timedelta(days=14)).sum())
         matches_28 = int((match_dates > as_of - pd.Timedelta(days=28)).sum())
@@ -152,7 +138,7 @@ def _workload(frame: pd.DataFrame, teams: list[str], as_of: pd.Timestamp) -> dic
         rows.append(
             {
                 "team": team,
-                "last_indexed_match_utc": _iso(last_match),
+                "last_indexed_match_utc": iso_utc(last_match),
                 "rest_days": rest_days,
                 "matches_last_7_days": matches_7,
                 "matches_last_14_days": matches_14,
@@ -181,22 +167,16 @@ def competition_analytics(
     if competition is None:
         raise ValueError(f"unknown competition_id: {competition_id}")
     as_of = _utc(as_of_utc)
-    dated = _dated(frame)
+    played = completed_view(frame, as_of_utc=as_of).rows
     source_names = set(competition["source_competition_names"])
-    competition_rows = dated.loc[
-        dated["competition"].isin(source_names)
-        & dated["is_complete"]
-        & (dated["_analytics_date"] <= as_of)
-    ].copy()
+    competition_rows = played.loc[played["competition"].isin(source_names)].copy()
     strength = _strength_trends(competition_rows)
     active_teams = [str(item["team"]) for item in strength.get("teams", [])]
     if not active_teams and not competition_rows.empty:
-        active_teams = _active_teams(competition_rows, competition_rows["_analytics_date"].max())
-    workload = _workload(dated, active_teams, as_of)
-    workload_rows = dated.loc[
-        dated["is_complete"]
-        & (dated["_analytics_date"] <= as_of)
-        & (dated["home_team"].isin(active_teams) | dated["away_team"].isin(active_teams))
+        active_teams = _active_teams(competition_rows, competition_rows[ORDER_INSTANT].max())
+    workload = _workload(frame, active_teams, as_of)
+    workload_rows = played.loc[
+        played["home_team"].isin(active_teams) | played["away_team"].isin(active_teams)
     ]
     source_ids = sorted(
         {
@@ -211,7 +191,7 @@ def competition_analytics(
         "schema_version": ANALYTICS_SCHEMA_VERSION,
         "competition_id": competition_id,
         "competition_name": competition["display_name"],
-        "as_of_utc": _iso(as_of),
+        "as_of_utc": iso_utc(as_of),
         "scope": {
             "team_category": competition["team_scope"],
             "strength_comparison": "this_competition_only",

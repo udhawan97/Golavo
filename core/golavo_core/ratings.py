@@ -17,8 +17,9 @@ from typing import Any
 
 import pandas as pd
 
-from golavo_core.ingest.snapshot import _order_instants
+from golavo_core.ingest.snapshot import ORDER_INSTANT, completed_view, iso_utc, to_utc
 from golavo_core.models.candidates import ELO_INITIAL, elo_match_delta
+from golavo_core.trends import month_end_checkpoints
 
 RATINGS_SCHEMA_VERSION = "0.1.0"
 RATINGS_METHOD = "elo-goal-weighted-v1"
@@ -27,25 +28,6 @@ RATINGS_LABEL = (
     "Not the FIFA ranking and not an official rating."
 )
 DEFAULT_TOP_N = 40
-TREND_CHECKPOINTS = 12
-
-
-def _utc(value: str | pd.Timestamp) -> pd.Timestamp:
-    stamp = pd.Timestamp(value)
-    return stamp.tz_localize("UTC") if stamp.tzinfo is None else stamp.tz_convert("UTC")
-
-
-def _iso(value: pd.Timestamp) -> str:
-    return value.isoformat().replace("+00:00", "Z")
-
-
-def _month_end_checkpoints(anchor: pd.Timestamp) -> list[pd.Timestamp]:
-    """Eleven prior month ends plus the exact latest-data anchor (mirrors analytics)."""
-    month_start = anchor.normalize().replace(day=1)
-    previous_month_end = month_start - pd.Timedelta(seconds=1)
-    prior = list(pd.date_range(end=previous_month_end, periods=TREND_CHECKPOINTS - 1, freq="ME"))
-    return [*prior, anchor]
-
 
 def elo_trajectory(
     rows: pd.DataFrame,
@@ -62,13 +44,13 @@ def elo_trajectory(
     """
     if as_of_utc is None:
         raise ValueError("elo_trajectory requires an explicit as_of_utc cutoff")
-    cutoff = _utc(as_of_utc)
+    cutoff = to_utc(as_of_utc)
 
     table: dict[str, Any] = {
         "schema_version": RATINGS_SCHEMA_VERSION,
         "method": RATINGS_METHOD,
         "label": RATINGS_LABEL,
-        "as_of_utc": _iso(cutoff),
+        "as_of_utc": iso_utc(cutoff),
         "scope": "internationals",
         "matches_counted": 0,
         "teams": [],
@@ -76,22 +58,15 @@ def elo_trajectory(
     if rows.empty:
         return table
 
-    # Cut off on the sharpest instant each row carries — an exact kickoff where an
-    # overlay supplied one, else the date's midnight. Filtering by calendar date
-    # alone would fold in a late kickoff that crosses into the next UTC day but
-    # has not happened yet at the cutoff. This is the same rule training uses.
-    complete = rows["is_complete"].astype("boolean").fillna(False)
-    instants = _order_instants(rows)
-    kept = rows.loc[complete & (instants <= cutoff)].copy()
+    kept = completed_view(rows, as_of_utc=cutoff).rows
     if kept.empty:
         return table
-    kept["order_instant"] = _order_instants(kept)
 
     ordered = kept.sort_values(
-        ["order_instant", "home_team", "away_team", "match_id"], kind="mergesort"
+        [ORDER_INSTANT, "home_team", "away_team", "match_id"], kind="mergesort"
     )
-    anchor = ordered["order_instant"].max()
-    checkpoints = _month_end_checkpoints(anchor)
+    anchor = ordered[ORDER_INSTANT].max()
+    checkpoints = month_end_checkpoints(anchor)
 
     ratings: dict[str, float] = {}
     counts: dict[str, int] = {}
@@ -120,7 +95,7 @@ def elo_trajectory(
         checkpoint_index += 1
 
     ranked = sorted(ratings.items(), key=lambda kv: (-kv[1], kv[0]))[: max(0, top_n)]
-    checkpoint_iso = [_iso(_utc(cp)) for cp in checkpoints]
+    checkpoint_iso = [iso_utc(cp) for cp in checkpoints]
     teams: list[dict[str, Any]] = []
     for rank, (team, rating) in enumerate(ranked, start=1):
         history = [
@@ -139,6 +114,6 @@ def elo_trajectory(
         )
 
     table["matches_counted"] = int(len(ordered))
-    table["data_through_utc"] = _iso(_utc(anchor))
+    table["data_through_utc"] = iso_utc(anchor)
     table["teams"] = teams
     return table

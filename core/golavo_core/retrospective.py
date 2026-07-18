@@ -19,7 +19,7 @@ import pandas as pd
 
 from golavo_core.evaluation import FOLDS
 from golavo_core.ingest import leak_safe_training_view
-from golavo_core.ingest.snapshot import _order_instants
+from golavo_core.ingest.snapshot import order_instants
 from golavo_core.models import fit_model
 
 RETROSPECTIVE_SCHEMA_VERSION = "0.1.0"
@@ -81,7 +81,7 @@ def _same_day_proxy_count(train: pd.DataFrame, kickoff: pd.Timestamp) -> int:
     verified instant. Sharing a calendar day with such a row means this match's
     own ``kickoff - 1s`` cutoff cannot prove the proxy row actually happened
     first — it may have kicked off later the same day. Same-day membership is
-    decided by ``_order_instants``, the identical fallback ``training_rows``
+    decided by ``order_instants``, the identical fallback ``training_rows``
     used to admit the row (kickoff_utc, falling back to ``date`` on NaT), so a
     NaT-kickoff row admitted via its date is not silently missed here.
     """
@@ -93,7 +93,7 @@ def _same_day_proxy_count(train: pd.DataFrame, kickoff: pd.Timestamp) -> int:
         else pd.Series("day", index=train.index, dtype="string")
     )
     is_proxy_precision = precision.ne("exact").fillna(True)
-    same_day = _order_instants(train).dt.date.eq(kickoff.date())
+    same_day = order_instants(train).dt.date.eq(kickoff.date())
     return int((is_proxy_precision & same_day).sum())
 
 

@@ -244,7 +244,7 @@ def load_match_table(pack_dir: Path) -> pd.DataFrame:
     return matches
 
 
-def _order_instants(matches: pd.DataFrame) -> pd.Series:
+def order_instants(matches: pd.DataFrame) -> pd.Series:
     """The most precise instant each row can be ordered by.
 
     ``date`` is calendar-day only, so ordering by it treats every fixture on a
@@ -265,11 +265,11 @@ def assert_no_future_rows(matches: pd.DataFrame, cutoff_utc: str | pd.Timestamp)
     """Fail closed if a training frame contains even one row after its cutoff."""
     cutoff = pd.Timestamp(cutoff_utc)
     cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
-    instants = _order_instants(matches)
+    instants = order_instants(matches)
     offenders = matches.loc[instants > cutoff]
     if not offenders.empty:
         first = offenders.loc[instants.loc[offenders.index].idxmin()]
-        stamp = _order_instants(offenders.loc[[first.name]]).iloc[0]
+        stamp = order_instants(offenders.loc[[first.name]]).iloc[0]
         raise ValueError(
             "training leakage: row "
             f"{first.get('match_id', '<unknown>')} kicking off {stamp.isoformat()} exceeds cutoff "
@@ -281,7 +281,7 @@ def training_rows(matches: pd.DataFrame, cutoff_utc: str | pd.Timestamp) -> pd.D
     """Select a chronological training frame and assert the invariant."""
     cutoff = pd.Timestamp(cutoff_utc)
     cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
-    instants = _order_instants(matches)
+    instants = order_instants(matches)
     eligible = (
         matches["training_eligible"].astype("boolean").fillna(False)
         if "training_eligible" in matches.columns
@@ -294,6 +294,74 @@ def training_rows(matches: pd.DataFrame, cutoff_utc: str | pd.Timestamp) -> pd.D
 
 class NoKickoffAnchor(ValueError):
     """The fixture carries no kickoff instant to anchor a leak-safe cutoff."""
+
+
+# The column ``completed_view`` attaches so a caller can sort or window on the
+# same instant the cutoff was applied to, instead of re-deriving one.
+ORDER_INSTANT = "order_instant"
+
+
+def leak_safe_cutoff(kickoff_utc: str | pd.Timestamp) -> pd.Timestamp:
+    """The conservative boundary for a fixture: one second before kickoff.
+
+    Deliberately not tightened further. A day-precision (00:00 UTC) row sharing
+    the fixture's calendar day cannot be proven to have kicked off first; that
+    exposure is disclosed by callers rather than hidden behind a stricter,
+    non-app boundary.
+    """
+    return to_utc(kickoff_utc) - pd.Timedelta(seconds=1)
+
+
+@dataclass(frozen=True)
+class CompletedView:
+    """What a board may honestly show at an instant.
+
+    The read-path counterpart to :class:`TrainingView`. ``rows`` holds the
+    completed matches at or before ``cutoff_utc``, carrying :data:`ORDER_INSTANT`
+    so a caller sorts and windows on the instant the cut was actually made
+    against. ``as_of_iso`` is the same instant in the envelope's ``Z`` form, so a
+    board cannot filter to one cutoff while publishing another.
+    """
+
+    rows: pd.DataFrame
+    cutoff_utc: pd.Timestamp
+
+    @property
+    def as_of_iso(self) -> str:
+        return iso_utc(self.cutoff_utc)
+
+
+def completed_view(
+    matches: pd.DataFrame, *, as_of_utc: str | pd.Timestamp | None
+) -> CompletedView:
+    """Completed matches at or before ``as_of_utc``, ordered by the sharpest instant.
+
+    Every read-side board — Golavo Ratings, the Golden Boot, competition
+    analytics — shares this one rule, because each previously derived its own and
+    the copies disagreed on two things that matter:
+
+    * **which instant to cut on.** Cutting on the calendar ``date`` treats a
+      21:00 kickoff as already played at 18:00; that shipped once and was fixed
+      in 7b5f2d8. :func:`order_instants` prefers the exact kickoff.
+    * **what to do with a blank kickoff.** Comparing the raw column drops those
+      rows silently (``NaT <= cutoff`` is False); the fit path always kept them
+      at their date's midnight. This keeps them.
+
+    ``as_of_utc`` is required: no board may quietly read "everything". Unlike
+    :func:`leak_safe_training_view` this applies no source scoping and excludes
+    no fixture's own row — a board reports on history, it does not train on it.
+    """
+    if as_of_utc is None:
+        raise ValueError("completed_view requires an explicit as_of_utc cutoff")
+    cutoff = to_utc(as_of_utc)
+    if matches.empty:
+        return CompletedView(rows=matches.copy(), cutoff_utc=cutoff)
+
+    instants = order_instants(matches)
+    complete = matches["is_complete"].astype("boolean").fillna(False)
+    rows = matches.loc[complete & (instants <= cutoff)].copy()
+    rows[ORDER_INSTANT] = instants.loc[rows.index]
+    return CompletedView(rows=rows, cutoff_utc=cutoff)
 
 
 @dataclass(frozen=True)
@@ -311,9 +379,15 @@ class TrainingView:
     kickoff_utc: pd.Timestamp
 
 
-def _to_utc(value: Any) -> pd.Timestamp:
+def to_utc(value: Any) -> pd.Timestamp:
+    """Read an instant as UTC, treating a naive one as already UTC."""
     stamp = pd.Timestamp(value)
     return stamp.tz_localize("UTC") if stamp.tzinfo is None else stamp.tz_convert("UTC")
+
+
+def iso_utc(value: pd.Timestamp) -> str:
+    """The ``...Z`` form every envelope publishes instants in."""
+    return to_utc(value).isoformat().replace("+00:00", "Z")
 
 
 def _str_or_none(value: Any) -> str | None:
@@ -370,12 +444,12 @@ def leak_safe_training_view(
     kickoff_raw = match_row.get("kickoff_utc")
     if kickoff_raw is None or pd.isna(kickoff_raw):
         raise NoKickoffAnchor("fixture has no kickoff timestamp to anchor a leak-safe cutoff")
-    kickoff = _to_utc(kickoff_raw)
+    kickoff = to_utc(kickoff_raw)
 
-    cutoff = kickoff - pd.Timedelta(seconds=1)
+    cutoff = leak_safe_cutoff(kickoff)
     if as_of_utc is not None:
-        cutoff = min(_to_utc(as_of_utc), cutoff)
-    cutoff_utc = cutoff.isoformat().replace("+00:00", "Z")
+        cutoff = min(to_utc(as_of_utc), cutoff)
+    cutoff_utc = iso_utc(cutoff)
 
     rows = training_rows(_scope_to_fixture_source(matches, match_row), cutoff_utc)
     match_id = str(match_row["match_id"])

@@ -254,7 +254,7 @@ def test_same_day_proxy_exposure_is_disclosed_not_hidden() -> None:
 def test_same_day_proxy_count_covers_nat_kickoff_and_na_precision() -> None:
     """Both under-disclosure gaps in the proxy counter, pinned in one fixture.
 
-    ``training_rows`` admits a row via ``_order_instants``'s date fallback when
+    ``training_rows`` admits a row via ``order_instants``'s date fallback when
     ``kickoff_utc`` is NaT — the most date-proxy-ish row there is. A counter
     that reads ``kickoff_utc`` directly instead of mirroring that fallback
     would silently drop it. Likewise a ``pd.NA`` ``kickoff_precision`` must

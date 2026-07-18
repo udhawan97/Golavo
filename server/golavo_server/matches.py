@@ -1032,12 +1032,11 @@ def _compute_notebook_on_demand(
     shootouts_path: Path | None = None,
 ) -> dict[str, Any]:
     """Build the notebook for one index row at ``kickoff - 1s`` (leak-safe cutoff)."""
-    import pandas as pd
     from golavo_core.facts import build_notebook
+    from golavo_core.ingest.snapshot import leak_safe_cutoff, to_utc
 
-    kickoff = pd.Timestamp(row["kickoff_utc"])
-    kickoff = kickoff.tz_localize("UTC") if kickoff.tzinfo is None else kickoff.tz_convert("UTC")
-    as_of = kickoff - pd.Timedelta(seconds=1)
+    kickoff = to_utc(row["kickoff_utc"])
+    as_of = leak_safe_cutoff(kickoff)
 
     goalscorers = shootouts = wc_history = None
     if _str_or_none(row["source_kind"]) == "international":
