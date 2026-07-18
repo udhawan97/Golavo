@@ -1,10 +1,12 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { MatchAnalysis, PickView, UserPick } from "./contract";
+import type { MatchAnalysis, ScoredRivalFamily, PicksSummary, PickView, UserPick } from "./contract";
 import {
   cumulativeSeries,
   deriveLiveRivals,
   formatLockCountdown,
   lockStateFor,
+  RIVALS,
+  rivalLabel,
   scorePick,
   seasonTable,
   streaks,
@@ -128,8 +130,8 @@ it("orders cumulative series and excludes voids from streaks", () => {
   expect(streaks([a, voided, b, c])).toEqual({ current: 0, best: 2 });
 });
 
-it("keeps all five rivals visible before any match is scored", () => {
-  const table = seasonTable({
+function emptySummary(): PicksSummary {
+  return {
     schema_version: "0.1.0",
     season: null,
     counts: { draft: 0, locked: 0, scored: 0, void: 0 },
@@ -139,7 +141,11 @@ it("keeps all five rivals visible before any match is scored", () => {
     accuracy: { exact: 0, winner: 0 },
     streak: { current: 0, best: 0 },
     goal_diff_mae: 0,
-  });
+  };
+}
+
+it("keeps all five rivals visible before any match is scored", () => {
+  const table = seasonTable(emptySummary());
   expect(table.map((row) => row.label)).toEqual([
     "You",
     "Goal Machine",
@@ -148,6 +154,27 @@ it("keeps all five rivals visible before any match is scored", () => {
     "Form Ranker",
     "History Buff",
   ]);
+});
+
+it("reports score capability per row so the exact column never guesses by name", () => {
+  const table = seasonTable(emptySummary());
+  expect(Object.fromEntries(table.map((row) => [row.id, row.capability]))).toEqual({
+    user: "score",
+    dixon_coles: "score",
+    poisson_independent: "score",
+    bivariate_poisson: "score",
+    elo_ordlogit: "outcome_only",
+    climatological: "outcome_only",
+  });
+});
+
+it("keeps the rival blurb in step with the declared capability", () => {
+  for (const family of Object.keys(RIVALS) as ScoredRivalFamily[]) {
+    const scores = RIVALS[family].capability === "score";
+    expect(rivalLabel(family)).toBe(
+      `${RIVALS[family].name} · ${scores ? "picks an exact score" : "calls the winner only"}`,
+    );
+  }
 });
 
 describe("practice store", () => {
