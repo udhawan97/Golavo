@@ -2881,7 +2881,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .mn-style .style-profile { border: 0; box-shadow: none; background: transparent; }
 .mn-style .style-profile > .panel__head { display: none; }
 .mn-style .style-profile > .panel__body { padding: 0; }
-.mn-feature-grid, .mn-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: .75rem; }
+.mn-feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: .75rem; }
 .mn-fact { position: relative; min-width: 0; padding: 1rem; border-top: 2px solid var(--border-strong); background: color-mix(in srgb, var(--surface-2) 58%, transparent); }
 .mn-fact__number { position: absolute; top: .7rem; right: .8rem; color: var(--border-strong); font-size: 1.5rem; }
 .mn-fact__headline { display: flex; align-items: baseline; gap: .6rem; margin-top: .35rem; padding-right: 2rem; }
@@ -2891,6 +2891,50 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .mn-fact details > p { color: var(--text-muted); font-size: var(--text-sm); line-height: 1.5; }
 .mn-fact__proof { display: flex; flex-wrap: wrap; gap: .3rem .6rem; color: var(--text-dim); }
 .mn-fact__proof > span { padding-right: .6rem; border-right: 1px solid var(--border); }.mn-fact__proof > span:last-child { border-right: 0; }
+
+/* Stat for stat. The competition band reads as the stage, the table as the
+   two contestants. Home/away keep the --home/--away coding the head-to-head
+   band above already teaches, so the reader learns it once. */
+.mn-compare__stage { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1rem; margin-top: .9rem; padding: .7rem .9rem; border-left: 2px solid var(--wave); background: color-mix(in srgb, var(--surface-2) 58%, transparent); }
+.mn-compare__stage > .upper { color: var(--wave); }
+.mn-compare__stage ul { display: flex; flex-wrap: wrap; gap: .35rem 1.4rem; margin: 0; padding: 0; list-style: none; }
+.mn-compare__stage li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem; min-width: 0; }
+.mn-compare__stage strong { color: var(--gold); font-size: 1.15rem; font-weight: 400; }
+.mn-compare__stage span { color: var(--text-muted); font-size: var(--text-sm); }
+.mn-compare__table { width: 100%; margin-top: 1rem; border-collapse: collapse; }
+.mn-compare__table thead th { padding: 0 0 .5rem; border-bottom: 1px solid var(--border-strong); color: var(--text-dim); font-size: .7rem; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; text-align: left; }
+.mn-compare__team--home { color: var(--home); text-align: right; }
+.mn-compare__team--away { color: var(--away); }
+.mn-compare__table tbody tr { border-bottom: 1px solid var(--border); }
+.mn-compare__stat { width: 40%; padding: .7rem .9rem .7rem 0; font-size: 1rem; font-weight: 400; text-align: left; vertical-align: top; }
+.mn-compare__explainer { margin: .25rem 0 0; max-width: 42ch; color: var(--text-muted); font-size: var(--text-sm); line-height: 1.45; }
+.mn-compare__cell { width: 30%; padding: .7rem 0; vertical-align: top; }
+.mn-compare__cell--home { padding-right: .7rem; text-align: right; }
+.mn-compare__cell--away { padding-left: .7rem; text-align: left; }
+.mn-compare__value { display: block; font-size: 1.4rem; }
+.mn-compare__cell--home .mn-compare__value { color: var(--home); }
+.mn-compare__cell--away .mn-compare__value { color: var(--away); }
+.mn-compare__rail { display: flex; height: .5rem; margin-top: .35rem; background: var(--surface-3); }
+.mn-compare__cell--home .mn-compare__rail { justify-content: flex-end; }
+.mn-compare__fill { height: 100%; }
+.mn-compare__cell--home .mn-compare__fill { background: var(--home); }
+.mn-compare__cell--away .mn-compare__fill { background: var(--away); }
+.mn-compare__absent { color: var(--text-dim); font-size: var(--text-sm); font-style: italic; }
+a.mn-compare__absent { color: var(--link); font-style: normal; }
+.mn-compare__detail { margin-top: .45rem; }
+.mn-compare__detail summary { width: fit-content; cursor: pointer; color: var(--link); font-size: var(--text-xs); }
+.mn-compare__cell--home .mn-compare__detail summary { margin-left: auto; }
+.mn-compare__detail > p { margin: .35rem 0 0; color: var(--text-muted); font-size: var(--text-sm); line-height: 1.5; text-align: left; }
+.mn-compare__cell--home .mn-fact__proof { justify-content: flex-end; }
+.mn-compare__solo, .mn-compare__other { margin-top: 1.3rem; }
+.mn-compare__solo > .upper { color: var(--text-dim); }
+@media (max-width: 46rem) {
+  /* Rails are aria-hidden decoration duplicating the numeric cell, so a narrow
+     screen drops them and loses nothing. */
+  .mn-compare__rail { display: none; }
+  .mn-compare__stat { width: 46%; }
+  .mn-compare__value { font-size: 1.15rem; }
+}
 .mn-h2h__bar { display: flex; height: 1rem; overflow: hidden; border-radius: 999px; background: var(--surface-3); }
 .mn-h2h__home { background: var(--home); }.mn-h2h__draw { background: var(--draw); }.mn-h2h__away { background: var(--away); }
 .mn-h2h__legend { display: flex; justify-content: space-between; margin-top: .45rem; color: var(--text-muted); font-size: var(--text-xs); }
