@@ -8,6 +8,7 @@
  * panel is subordinate to the sealed numbers — it never changes a forecast.
  */
 import type { ReactNode } from "react";
+import { factKey } from "../lib/factPairs";
 import type {
   CommentatorsNotebook as NotebookData,
   FactCategory,
@@ -54,8 +55,10 @@ const factCategory = (f: NotebookFact): FactCategory => FACT_CATEGORY[f.id] ?? "
 
 /** A fact's identity within one notebook: template id + which team/pair it is
  *  about. Used to drop the facts already shown in "Three things to know" so the
- *  notebook is genuinely the deeper cut, not a repeat of the summary. */
-export const factKey = (f: { id: string; subject: string }): string => `${f.id}::${f.subject}`;
+ *  notebook is genuinely the deeper cut, not a repeat of the summary. Defined in
+ *  lib/factPairs, whose absence lookup is only correct while every caller agrees
+ *  on the exact key format; re-exported here so existing importers are unmoved. */
+export { factKey };
 
 const GROUP_ORDER: FactLabel[] = ["predictive", "context", "coincidence"];
 
