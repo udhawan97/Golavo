@@ -29,15 +29,22 @@ function displayValue(fact: NotebookFact): string {
   return fact.numbers[0]?.display ?? "—";
 }
 
-function FactSource({ fact }: { fact: NotebookFact }) {
+/** `compact` keeps the sample and the source id — what an auditor scans first —
+ * and adds the freshness chip only when the fact is actually stale, which is the
+ * case that changes a reading. Everything dropped stays one disclosure away. A
+ * narrow comparison cell cannot hold the full six-chip strip without wrapping to
+ * three lines, which would make the Expert read taller than the Casual one it
+ * exists to condense. */
+function FactSource({ fact, compact }: { fact: NotebookFact; compact?: boolean }) {
   const span = yearSpan(fact.date_range);
+  const stale = fact.freshness.stale;
   return (
     <div className="mn-fact__proof small">
       <span><b>{fact.sample_n.toLocaleString()}</b> {fact.sample_n === 1 ? "match" : "matches"}</span>
-      <span>minimum {fact.min_sample}</span>
-      {span && <span>{span}</span>}
-      <span>{FACT_SCOPE_TEXT[fact.scope]}</span>
-      <span>{fact.freshness.stale ? "stale" : `fresh to ${fact.freshness.last_event_utc.slice(0, 10)}`}</span>
+      {!compact && <span>minimum {fact.min_sample}</span>}
+      {!compact && span && <span>{span}</span>}
+      {!compact && <span>{FACT_SCOPE_TEXT[fact.scope]}</span>}
+      {(!compact || stale) && <span>{stale ? "stale" : `fresh to ${fact.freshness.last_event_utc.slice(0, 10)}`}</span>}
       <span>Source <SourcePopover ids={fact.source_ids} snapshots={[]} /></span>
     </div>
   );
@@ -89,12 +96,14 @@ function CompareCell({ side, tone, rail, expert }: {
           <span className="mn-compare__fill" style={{ width: `${Math.round(fact.base_rate * 100)}%` }} />
         </span>
       )}
-      <details className="mn-compare__detail">
-        <summary>Full stat</summary>
-        <p>{fact.text}</p>
-        {!expert && <FactSource fact={fact} />}
-      </details>
-      {expert && <FactSource fact={fact} />}
+      <div className="mn-compare__meta">
+        {expert && <FactSource fact={fact} compact />}
+        <details className="mn-compare__detail">
+          <summary>Full stat</summary>
+          <p>{fact.text}</p>
+          <FactSource fact={fact} />
+        </details>
+      </div>
     </td>
   );
 }

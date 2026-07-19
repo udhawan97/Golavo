@@ -2906,9 +2906,9 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .mn-compare__team--home { color: var(--home); text-align: right; }
 .mn-compare__team--away { color: var(--away); }
 .mn-compare__table tbody tr { border-bottom: 1px solid var(--border); }
-.mn-compare__stat { width: 40%; padding: .7rem .9rem .7rem 0; font-size: 1rem; font-weight: 400; text-align: left; vertical-align: top; }
+.mn-compare__stat { width: 34%; padding: .7rem .9rem .7rem 0; font-size: 1rem; font-weight: 400; text-align: left; vertical-align: top; }
 .mn-compare__explainer { margin: .25rem 0 0; max-width: 42ch; color: var(--text-muted); font-size: var(--text-sm); line-height: 1.45; }
-.mn-compare__cell { width: 30%; padding: .7rem 0; vertical-align: top; }
+.mn-compare__cell { width: 33%; padding: .7rem 0; vertical-align: top; }
 .mn-compare__cell--home { padding-right: .7rem; text-align: right; }
 .mn-compare__cell--away { padding-left: .7rem; text-align: left; }
 .mn-compare__value { display: block; font-size: 1.4rem; }
@@ -2921,7 +2921,12 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .mn-compare__cell--away .mn-compare__fill { background: var(--away); }
 .mn-compare__absent { color: var(--text-dim); font-size: var(--text-sm); font-style: italic; }
 a.mn-compare__absent { color: var(--link); font-style: normal; }
-.mn-compare__detail { margin-top: .45rem; }
+/* Proof strip and disclosure share one line, so the Expert read stays no taller
+   than the Casual one it condenses. An opened disclosure takes a full line. */
+.mn-compare__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .6rem; margin-top: .4rem; }
+.mn-compare__cell--home .mn-compare__meta { justify-content: flex-end; }
+.mn-compare__meta .mn-fact__proof { margin: 0; font-size: var(--text-xs); }
+.mn-compare__meta > details[open] { flex: 1 1 100%; }
 .mn-compare__detail summary { width: fit-content; cursor: pointer; color: var(--link); font-size: var(--text-xs); }
 .mn-compare__cell--home .mn-compare__detail summary { margin-left: auto; }
 .mn-compare__detail > p { margin: .35rem 0 0; color: var(--text-muted); font-size: var(--text-sm); line-height: 1.5; text-align: left; }

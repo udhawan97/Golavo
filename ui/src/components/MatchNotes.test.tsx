@@ -124,7 +124,14 @@ describe("StatForStat", () => {
     const expert = render({ paired: [row] }, true);
     expect(casual).toContain("How often this team stopped");
     expect(expert).not.toContain("How often this team stopped");
-    expect(expert).toContain("minimum 3");
+    // Expert surfaces a compact proof line per cell on top of the disclosure
+    // both modes carry, so it gains audit context without gaining height.
+    expect(casual.match(/mn-fact__proof/g)).toHaveLength(2);
+    expect(expert.match(/mn-fact__proof/g)).toHaveLength(4);
+    // The compact line drops the chips that would wrap a narrow cell; the full
+    // strip stays reachable in the disclosure, so "minimum" appears only there.
+    expect(casual.match(/minimum 3/g)).toHaveLength(2);
+    expect(expert.match(/minimum 3/g)).toHaveLength(2);
   });
 
   it("draws a rail only for rates", () => {
