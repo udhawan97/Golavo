@@ -8,9 +8,9 @@ license = "Apache-2.0"
 authors = [{ name = "Umang Dhawan" }]
 dependencies = [
   "jsonschema==4.26.0",
-  "numpy==2.4.6",
+  "numpy==2.5.1",
   "pandas==3.0.3",
-  "pyarrow==24.0.0",
+  "pyarrow==25.0.0",
   "scipy==1.18.0",
 ]
 
@@ -18,7 +18,7 @@ dependencies = [
 golavo = "golavo_core.cli:main"
 
 [project.optional-dependencies]
-dev = ["pytest==9.1.1", "ruff==0.15.5", "mypy==1.19.1", "hypothesis==6.156.6"]
+dev = ["pytest==9.1.1", "ruff==0.15.22", "mypy==2.3.0", "hypothesis==6.156.6"]
 
 [build-system]
 requires = ["hatchling"]

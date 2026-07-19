@@ -78,7 +78,7 @@
       "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431"
     }
   ],
-  "parquet_sha256": "bb2224f9262f0006005aa7e2ae4db8a46ae28f6c6112ba967031f19e65927c4b",
+  "parquet_sha256": "71a330b89f77444213a36275f78bad562c7b45a1a17b00b244fea75a320aa7dc",
   "row_count": 100525,
   "schema_version": "0.5.0"
 }

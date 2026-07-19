@@ -87,7 +87,9 @@ describe("ErrorBoundary", () => {
     });
 
     expect(
-      consoleError.mock.calls.some((call) => String(call[0]).includes("Golavo render error:")),
+      consoleError.mock.calls.some((call: unknown[]) =>
+        String(call[0]).includes("Golavo render error:"),
+      ),
     ).toBe(true);
   });
 

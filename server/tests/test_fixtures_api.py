@@ -19,6 +19,18 @@ _CSV = """date,home_team,away_team,home_score,away_score,tournament,city,country
 2026-07-19,France,Argentina,3,1,FIFA World Cup,East Rutherford,United States,TRUE"""
 
 
+class _FrozenDateTime(datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return _NOW if tz is not None else _NOW.replace(tzinfo=None)
+
+
+@pytest.fixture(autouse=True)
+def _freeze_fixture_check_clock(monkeypatch) -> None:
+    """Keep endpoint tests stable when the frozen July 19 fixture becomes today."""
+    monkeypatch.setattr(fixtures, "datetime", _FrozenDateTime)
+
+
 def _index(*rows: dict) -> pd.DataFrame:
     cols = ["date", "home_norm", "away_norm"]
     return pd.DataFrame(list(rows), columns=cols) if rows else pd.DataFrame(columns=cols)
