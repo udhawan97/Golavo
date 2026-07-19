@@ -2,7 +2,8 @@ import type { FormEntry, MatchAnalysis, NotebookFact, CommentatorsNotebook } fro
 import { FACT_DISPLAY, FACT_SCOPE_TEXT } from "../lib/contract";
 import { yearSpan } from "../lib/format";
 import { topInsights } from "../lib/insights";
-import { factKey, RateDial, SourcePopover } from "./CommentatorsNotebook";
+import { RateDial, SourcePopover } from "./CommentatorsNotebook";
+import { buildElsewhere, factKey, groupFacts, type FactRow, type FactSide, type GroupedFacts } from "../lib/factPairs";
 import { FormationPitch } from "./FormationPitch";
 import { AlertIcon } from "./icons";
 import { TeamStyleProfile } from "./TeamStyleProfile";
@@ -42,16 +43,160 @@ function FactSource({ fact }: { fact: NotebookFact }) {
   );
 }
 
-function FactCard({ fact, index }: { fact: NotebookFact; index: number }) {
+function FactCard({ fact, index }: { fact: NotebookFact; index?: number }) {
   const display = FACT_DISPLAY[fact.id] ?? { title: "Match record", explainer: "A source-backed fact from the available history." };
   return (
     <article className="mn-fact">
-      <span className="mn-fact__number num" aria-hidden>{String(index).padStart(2, "0")}</span>
+      {index !== undefined && <span className="mn-fact__number num" aria-hidden>{String(index).padStart(2, "0")}</span>}
       <span className="upper muted">{fact.subject}</span>
       <div className="mn-fact__headline"><strong className="num">{displayValue(fact)}</strong><h3>{display.title}</h3></div>
       <p>{display.explainer}</p>
       <details><summary>Full stat &amp; source</summary><p>{fact.text}</p><FactSource fact={fact} /></details>
     </article>
+  );
+}
+
+/** One side of a comparison row. An absent side never renders a bare dash:
+ * "displayed in another section" and "no fact qualified" are different claims,
+ * and only the second one means the record does not exist. */
+function CompareCell({ side, tone, rail, expert }: {
+  side: FactSide;
+  tone: "home" | "away";
+  rail: boolean;
+  expert?: boolean;
+}) {
+  const className = `mn-compare__cell mn-compare__cell--${tone}`;
+  if (!side.fact) {
+    const absence = side.absence ?? { kind: "unqualified" as const };
+    return (
+      <td className={`${className} mn-compare__cell--absent`}>
+        {absence.kind === "unqualified" ? (
+          <span className="mn-compare__absent">No qualifying sample</span>
+        ) : absence.anchor ? (
+          <a className="mn-compare__absent" href={absence.anchor}>Shown in {absence.section}</a>
+        ) : (
+          <span className="mn-compare__absent">Featured elsewhere in {absence.section}</span>
+        )}
+      </td>
+    );
+  }
+  const fact = side.fact;
+  return (
+    <td className={className}>
+      <span className="mn-compare__value num">{displayValue(fact)}</span>
+      {rail && fact.base_rate !== null && (
+        <span className="mn-compare__rail" aria-hidden>
+          <span className="mn-compare__fill" style={{ width: `${Math.round(fact.base_rate * 100)}%` }} />
+        </span>
+      )}
+      <details className="mn-compare__detail">
+        <summary>Full stat</summary>
+        <p>{fact.text}</p>
+        {!expert && <FactSource fact={fact} />}
+      </details>
+      {expert && <FactSource fact={fact} />}
+    </td>
+  );
+}
+
+function CompareTable({ rows, home, away, expert, caption }: {
+  rows: FactRow[];
+  home: string;
+  away: string;
+  expert?: boolean;
+  caption: string;
+}) {
+  if (rows.length === 0) return null;
+  return (
+    <table className="mn-compare__table">
+      <caption className="visually-hidden">{caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Stat</th>
+          <th scope="col" className="mn-compare__team mn-compare__team--home">{home}</th>
+          <th scope="col" className="mn-compare__team mn-compare__team--away">{away}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.id}>
+            <th scope="row" className="mn-compare__stat">
+              <span>{row.title}</span>
+              {!expert && <p className="mn-compare__explainer">{row.explainer}</p>}
+            </th>
+            <CompareCell side={row.home} tone="home" rail={row.rail} expert={expert} />
+            <CompareCell side={row.away} tone="away" rail={row.rail} expert={expert} />
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+/** The competition band, the paired comparison, and the rows only one side
+ * qualifies for. Exported for direct testing. */
+export function StatForStat({ grouped, home, away, expert }: {
+  grouped: GroupedFacts;
+  home: string;
+  away: string;
+  expert?: boolean;
+}) {
+  const { tournament, paired, solo, other } = grouped;
+  if (!tournament.length && !paired.length && !solo.length && !other.length) return null;
+  return (
+    <section className="mn-section mn-compare" aria-labelledby="mn-stats-title">
+      <div className="mn-section__head"><span className="upper">Deeper cut</span><h3 id="mn-stats-title">Stat for stat</h3></div>
+
+      {tournament.length > 0 && (
+        <div className="mn-compare__stage">
+          <span className="upper">The tournament</span>
+          <ul>
+            {tournament.map((fact) => {
+              const display = FACT_DISPLAY[fact.id] ?? { title: "Match record", explainer: "A source-backed fact from the available history." };
+              return (
+                <li key={factKey(fact)}>
+                  <strong className="num">{displayValue(fact)}</strong>
+                  <b>{display.title}</b>
+                  <span>{display.explainer}</span>
+                  <details className="mn-compare__detail">
+                    <summary>Full stat &amp; source</summary>
+                    <p>{fact.text}</p>
+                    <FactSource fact={fact} />
+                  </details>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      <CompareTable
+        rows={paired}
+        home={home}
+        away={away}
+        expert={expert}
+        caption={`${home} against ${away}, on the stats both teams qualify for.`}
+      />
+
+      {solo.length > 0 && (
+        <div className="mn-compare__solo">
+          <span className="upper">Only one side qualifies</span>
+          <CompareTable
+            rows={solo}
+            home={home}
+            away={away}
+            expert={expert}
+            caption={`Stats where only one of ${home} or ${away} has a qualifying record.`}
+          />
+        </div>
+      )}
+
+      {other.length > 0 && (
+        <div className="mn-feature-grid mn-compare__other">
+          {other.map((fact) => <FactCard fact={fact} key={factKey(fact)} />)}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -167,7 +312,7 @@ function prepareNotes({
   omitKeys = new Set(),
   formation = null,
 }: MatchNotesProps) {
-  const visible = notebook?.facts.filter((fact) => !omitKeys.has(factKey(fact))) ?? [];
+  const visible = (notebook?.facts ?? []).filter((fact) => !omitKeys.has(factKey(fact)));
   const timing = visible.filter((fact) => fact.id === "goal_timing_profile");
   const timingSubjects = new Set(timing.map((fact) => fact.subject));
   const penalties = visible.filter((fact) => fact.id === "penalty_goal_share" && timingSubjects.has(fact.subject));
@@ -186,6 +331,15 @@ function prepareNotes({
   const coincidences = visible.filter((fact) => fact.label === "coincidence");
   const home = analysis?.match.home_team ?? notebook?.match.home_team ?? "Home";
   const away = analysis?.match.away_team ?? notebook?.match.away_team ?? "Away";
+  // omitKeys is passed through rather than discarded: a fact another cockpit
+  // panel consumed still exists, so a blank comparison side can say "featured
+  // elsewhere" instead of implying the guardrails suppressed it.
+  const grouped = groupFacts({
+    cards,
+    home,
+    away,
+    elsewhere: buildElsewhere({ headlines, hero, scorers, h2h, timing, penalties, omitted: omitKeys }),
+  });
   return {
     notebook,
     analysis,
@@ -195,6 +349,7 @@ function prepareNotes({
     scorers,
     h2h,
     cards,
+    grouped,
     coincidences,
     timing,
     penalties,
@@ -276,7 +431,7 @@ export function MatchHistoryRecords(props: MatchNotesProps) {
         <article className="mn-cover">
           <div><span className="upper">Cover story · {view.hero.subject}</span><div className="mn-cover__value num">{displayValue(view.hero)}</div></div>
           {view.hero.base_rate !== null && <RateDial value={view.hero.base_rate} />}
-          <div className="mn-cover__copy"><h3>{FACT_DISPLAY[view.hero.id]?.title ?? "The headline number"}</h3><p>{view.hero.text}</p><FactSource fact={view.hero} /></div>
+          <div className="mn-cover__copy"><h3 id="mn-cover-title">{FACT_DISPLAY[view.hero.id]?.title ?? "The headline number"}</h3><p>{view.hero.text}</p><FactSource fact={view.hero} /></div>
         </article>
       )}
 
@@ -286,7 +441,7 @@ export function MatchHistoryRecords(props: MatchNotesProps) {
 
       {view.formation && (view.formation.home || view.formation.away) && <section className="mn-section" aria-labelledby="mn-formation-title"><div className="mn-section__head"><span className="upper">Optional enrichment</span><h3 id="mn-formation-title">Typical formation</h3></div><span className="chip chip--neutral">typical, from recent lineups — not today’s team sheet</span><div className="mn-formations">{view.formation.home && <FormationPitch formation={view.formation.home} team={view.home} />}{view.formation.away && <FormationPitch formation={view.formation.away} team={view.away} />}</div><p className="small dim">Source: {view.formation.source_label}. Display-only; never used by a model or pick.</p></section>}
 
-      {view.cards.length > 0 && <section className="mn-section" aria-labelledby="mn-stats-title"><div className="mn-section__head"><span className="upper">Deeper cut</span><h3 id="mn-stats-title">Signature stats &amp; records</h3></div><div className="mn-stats-grid">{view.cards.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</div></section>}
+      <StatForStat grouped={view.grouped} home={view.home} away={view.away} expert={props.expert} />
 
       {view.coincidences.length > 0 && <aside className="mn-pub" aria-labelledby="mn-pub-title"><div className="mn-pub__head"><AlertIcon /><div><span className="upper">Quarantined coincidence</span><h3 id="mn-pub-title">For the pub</h3></div></div><p className="small">For the pub, not the forecast — capped at {view.notebook?.coincidence_cap ?? view.coincidences.length}, never shown to the AI.</p>{view.coincidences.map((fact, index) => <FactCard fact={fact} index={index + 1} key={factKey(fact)} />)}</aside>}
 
