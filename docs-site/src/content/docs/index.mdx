@@ -7,9 +7,10 @@ hero:
 ---
 
 import DownloadOptions from '../../components/DownloadOptions.astro';
+import CinematicProductStage from '../../components/CinematicProductStage.astro';
 
 {/*
-  Hallmark · macrostructure: Narrative Workflow · design-system: design.md
+  Hallmark · macrostructure: Feature Stack · design-system: design.md
   Three numbered stages, because a forecast is sealed before kickoff and scored
   after full time — that order is real and irreversible. Everything that is
   always true (architecture, the AI boundary, local data) lives in the
@@ -17,7 +18,9 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
 */}
 
 <div class="gv-home-story">
-  <section id="gv-stage-1" class="gv-stage" data-reveal aria-labelledby="gv-stage-1-title">
+  <CinematicProductStage />
+
+  <section id="gv-stage-1" class="gv-stage" aria-labelledby="gv-stage-1-title">
     <p class="gv-stage-label"><b>1.0</b> Before kickoff <span>· exploratory</span></p>
     <h2 id="gv-stage-1-title" class="gv-stage-title">Open any match. Read both voices.</h2>
     <div class="gv-body">
@@ -29,11 +32,11 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
 
     <div class="gv-stage-grid gv-stage-grid--even">
       <figure class="gv-shot">
-        <img src="/Golavo/screenshots/games-home.jpg" alt="Golavo Games home with match search, league shortcuts and recent World Cup results" width="1440" height="1000" loading="eager" decoding="async"/>
+        <img src="/Golavo/screenshots/games-home.jpg" alt="Golavo Games home with match search, league shortcuts and recent World Cup results" width="1440" height="1000" loading="lazy" decoding="async"/>
         <figcaption><span>Games</span> Internationals, the big-five leagues, and UEFA club competitions.</figcaption>
       </figure>
       <figure class="gv-shot">
-        <img src="/Golavo/screenshots/match-cockpit.jpg" alt="Golavo Match Cockpit presented as a six-chapter matchday programme in Casual mode" width="1440" height="900" loading="eager" decoding="async"/>
+        <img src="/Golavo/screenshots/match-cockpit.jpg" alt="Golavo Match Cockpit presented as a six-chapter matchday programme in Casual mode" width="1440" height="900" loading="lazy" decoding="async"/>
         <figcaption><span>Match Cockpit</span> Six chapters, one source-backed read.</figcaption>
       </figure>
       <figure class="gv-shot gv-shot--contain">
@@ -63,7 +66,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
     </div>
   </section>
 
-  <section id="gv-stage-2" class="gv-stage gv-stage--seal" data-reveal aria-labelledby="gv-stage-2-title">
+  <section id="gv-stage-2" class="gv-stage gv-stage--seal" aria-labelledby="gv-stage-2-title">
     <p class="gv-stage-label"><b>2.0</b> At kickoff <span>· on the record</span></p>
     <h2 id="gv-stage-2-title" class="gv-stage-title">The claim stops moving.</h2>
 
@@ -84,7 +87,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
         <a class="gv-text-link" href="/Golavo/prediction-ledger/">Open Model Lab <span aria-hidden="true">↗</span></a>
       </div>
 
-      <figure class="gv-hanko-figure" data-reveal>
+      <figure class="gv-hanko-figure" data-seal-reveal>
         <svg class="gv-hanko" viewBox="0 0 120 120" role="img" aria-labelledby="gv-hanko-title">
           <title id="gv-hanko-title">A vermilion seal carrying an example forecast digest</title>
           <circle class="gv-hanko-ink" cx="60" cy="60" r="58"/>
@@ -103,7 +106,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
     </a>
   </section>
 
-  <section id="gv-stage-3" class="gv-stage" data-reveal aria-labelledby="gv-stage-3-title">
+  <section id="gv-stage-3" class="gv-stage" aria-labelledby="gv-stage-3-title">
     <p class="gv-stage-label"><b>3.0</b> After full time <span>· scored</span></p>
     <h2 id="gv-stage-3-title" class="gv-stage-title">The result scores it. Nobody gets to forget.</h2>
     <div class="gv-body">
@@ -134,7 +137,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
   </section>
 
   {/* Unnumbered on purpose: the substrate is always true, not a step in the sequence. */}
-  <section class="gv-substrate" data-reveal aria-labelledby="gv-substrate-title">
+  <section class="gv-substrate" aria-labelledby="gv-substrate-title">
     <p class="gv-substrate-head" id="gv-substrate-title">Underneath every stage · always true, never a step</p>
 
     <div class="gv-stage-grid">
@@ -205,7 +208,7 @@ import DownloadOptions from '../../components/DownloadOptions.astro';
 
   <DownloadOptions />
 
-  <section class="gv-closing" data-reveal aria-labelledby="gv-closing-title">
+  <section class="gv-closing" aria-labelledby="gv-closing-title">
     <p class="gv-kicker">No odds. No oracle. No moving the goalposts.</p>
     <h2 id="gv-closing-title" class="gv-display">Let the model speak once, then keep the tape running.</h2>
     <p>Golavo is free, open source, local-first, and currently an unsigned v0.15.0 pre-alpha.</p>

@@ -9,13 +9,13 @@
 
 :root {
   /* ---- Brand constants (unchanged; drawn from the logo) ---- */
-  --golavo-ink: #101312;
-  --golavo-paper: #f4efe6;
-  --golavo-gold: #c9a227;
-  --golavo-red: #bc002d;
-  --golavo-orange: #d9622b;
-  --golavo-green: #0b6e4f;
-  --golavo-wave: #6082b8;
+  --golavo-ink: oklch(18.3% 0.0052 173.7);
+  --golavo-paper: oklch(95.35% 0.0131 82.4);
+  --golavo-gold: oklch(72.8% 0.138 89.7);
+  --golavo-red: oklch(50.28% 0.2021 20.7);
+  --golavo-orange: oklch(63.49% 0.1638 42.8);
+  --golavo-green: oklch(47.83% 0.0975 164.9);
+  --golavo-wave: oklch(60.36% 0.0915 259.4);
 
   /* ---- Type ---- */
   --gv-font-display: "Shippori Mincho", Georgia, "Times New Roman", serif;
@@ -51,13 +51,18 @@
   --gv-space-xl: 3rem;
   --gv-space-2xl: 4.5rem;
   --gv-space-3xl: 7rem;
+  --gv-space-4xl: 9rem;
 
   /* ---- Motion ---- */
   --gv-ease-out: cubic-bezier(0.16, 0.7, 0.3, 1);
+  --gv-ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --gv-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --gv-dur-micro: 120ms;
   --gv-dur-short: 220ms;
   --gv-dur-mid: 420ms;
   --gv-dur-long: 850ms;
+  --gv-dur-major: 500ms;
+  --gv-delay-hover: 800ms;
 
   /* Legacy alias. */
   --gv-ease: var(--gv-ease-out);
@@ -65,61 +70,99 @@
   /* ---- Shape ---- */
   --gv-radius-cta: 4px;
   --gv-radius-surface: 6px;
+  --gv-radius-media: 10px;
   --gv-rule-hair: 1px;
   --gv-rule-stage: 3px;
+
+  /* ---- Depth: perspective and named stacking, never ornamental WebGL ---- */
+  --gv-perspective: 1400px;
+  --gv-z-behind: -1;
+  --gv-z-base: 1;
+  --gv-z-raised: 10;
+  --gv-z-front: 20;
 }
 
 /* ---- Dark ground (default) — sumi ink ---- */
 :root {
-  --gv-ground: #101312;
-  --gv-paper-2: #171a19;
-  --gv-ink-1: #f6f3ec;
-  --gv-ink-2: #bdb9b0;
-  --gv-ink-3: #928f88;
-  --gv-rule: #232522;
-  --gv-rule-strong: #3a3a36;
+  --gv-ground: oklch(18.3% 0.0052 173.7);
+  --gv-paper-2: oklch(21.42% 0.005 173.9);
+  --gv-ink-1: oklch(96.45% 0.0098 87.5);
+  --gv-ink-2: oklch(78.64% 0.0133 86.8);
+  --gv-ink-3: oklch(65.05% 0.0108 87.5);
+  --gv-rule: oklch(26.13% 0.0062 134.9);
+  --gv-rule-strong: oklch(34.71% 0.0068 106.7);
 
   /* Engine: 7.72 on the ground, 7.24 on paper-2 */
-  --gv-engine: #c9a227;
+  --gv-engine: oklch(72.8% 0.138 89.7);
   --gv-engine-quiet: color-mix(in srgb, var(--gv-engine) 16%, transparent);
 
   /* Seal: 5.33 on the ground, 5.00 on paper-2 — hinomaru lightened for ink.
      The brand #bc002d measures 2.83 here and cannot carry text. */
-  --gv-seal: #ea5566;
-  --gv-seal-ink: #16090c;
+  --gv-seal: oklch(65.23% 0.1836 17.2);
+  --gv-seal-ink: oklch(16.08% 0.0237 5);
   --gv-seal-quiet: color-mix(in srgb, var(--gv-seal) 14%, transparent);
 
   /* Seigaiha wave ink. Motif only — the wave is never a text colour. */
   --gv-wave-ink: var(--golavo-wave);
 
-  --gv-focus: #e7c34e;
+  --gv-focus: oklch(82.72% 0.139 91.8);
+
+  /* Starlight semantic surfaces, kept here so custom.css never improvises. */
+  --gv-link-low: oklch(25.88% 0.0407 168.3);
+  --gv-link: oklch(62.62% 0.1189 163);
+  --gv-link-high: oklch(93.22% 0.0283 165.4);
+  --gv-neutral-1: oklch(91.34% 0.0128 86.8);
+  --gv-neutral-4: oklch(47.83% 0.0098 91.6);
+  --gv-neutral-6: oklch(26.52% 0.005 67.7);
+  --gv-ground-deep: oklch(16.1% 0.005 164.5);
+  --gv-ground-sidebar: oklch(16.93% 0.0052 173.7);
+  --gv-ground-inline: oklch(25.08% 0.0055 106.8);
+  --gv-hairline-light: oklch(29.81% 0.006 134.9);
+  --gv-hairline-shade: oklch(22.35% 0.005 145.4);
+  --gv-shadow-media: 0 2rem 5rem
+    color-mix(in oklch, var(--gv-ground-deep) 52%, transparent);
 }
 
 /* ---- Light ground — washi paper ---- */
 :root[data-theme="light"] {
-  --gv-ground: #faf7f0;
-  --gv-paper-2: #f3eee2;
-  --gv-ink-1: #171614;
-  --gv-ink-2: #46443f;
+  --gv-ground: oklch(97.65% 0.0098 87.5);
+  --gv-paper-2: oklch(94.97% 0.0168 88);
+  --gv-ink-1: oklch(20.05% 0.005 84.6);
+  --gv-ink-2: oklch(38.69% 0.0087 88.7);
   /* 5.03 on the inline-code surface (#eee7d6), the darkest small ground in this
      theme. The previous #6c6a62 measured 4.40 there and missed the AA floor. */
-  --gv-ink-3: #636159;
-  --gv-rule: #e3dccb;
-  --gv-rule-strong: #cfcabc;
+  --gv-ink-3: oklch(49.19% 0.0127 95.3);
+  --gv-rule: oklch(89.54% 0.0241 88.2);
+  --gv-rule-strong: oklch(83.91% 0.0199 90.6);
 
   /* Engine: 5.32 on the ground, 4.92 on paper-2. Raw #c9a227 measures 2.26 here
      and failed every kicker; Starlight's own #9a6b12 measures 4.38 — still short
      of the 4.5 AA floor for normal text, so the gold is darkened further. */
-  --gv-engine: #8a5e0d;
+  --gv-engine: oklch(51.64% 0.1042 75.5);
   --gv-engine-quiet: color-mix(in srgb, var(--gv-engine) 12%, transparent);
 
   /* Seal: 6.18 on the ground, 5.71 on paper-2 — the brand hinomaru, unmodified */
-  --gv-seal: #bc002d;
-  --gv-seal-ink: #fff6f2;
+  --gv-seal: oklch(50.28% 0.2021 20.7);
+  --gv-seal-ink: oklch(97.9% 0.0111 45.7);
   --gv-seal-quiet: color-mix(in srgb, var(--gv-seal) 10%, transparent);
 
   /* Deep navy: the wave motif needs to darken, not lighten, on paper. */
-  --gv-wave-ink: #223a5e;
+  --gv-wave-ink: oklch(34.77% 0.0701 258.3);
 
-  --gv-focus: #8a5e0d;
+  --gv-focus: oklch(51.64% 0.1042 75.5);
+
+  --gv-link-low: oklch(93.2% 0.028 171.2);
+  --gv-link: var(--golavo-green);
+  --gv-link-high: oklch(33.2% 0.0632 167.2);
+  --gv-neutral-1: oklch(28.39% 0.0054 106.7);
+  --gv-neutral-4: oklch(67.6% 0.0148 93.1);
+  --gv-neutral-6: oklch(92.86% 0.0169 88);
+  --gv-neutral-7: oklch(96.18% 0.0127 86.8);
+  --gv-ground-deep: var(--gv-ink-1);
+  --gv-ground-sidebar: var(--gv-paper-2);
+  --gv-ground-inline: oklch(92.89% 0.0238 88.2);
+  --gv-hairline-light: oklch(91.65% 0.0211 88.7);
+  --gv-hairline-shade: oklch(93.49% 0.0197 87.5);
+  --gv-shadow-media: 0 2rem 5rem
+    color-mix(in oklch, var(--gv-ink-1) 13%, transparent);
 }

@@ -1,0 +1,386 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<section class="gv-cinema" aria-labelledby="gv-cinema-title" data-gv-cinema>
+  <header class="gv-cinema__head">
+    <h2 id="gv-cinema-title">From matchday question to permanent record.</h2>
+    <p>
+      Three real views of Golavo in use. Start with the fixture, choose how deeply
+      to read it, then keep the model’s claim beside the result that judged it.
+    </p>
+  </header>
+
+  <div class="gv-cinema__sequence">
+    <article class="gv-cinema__scene is-active" data-gv-cinema-scene>
+      <div class="gv-cinema__copy">
+        <p class="gv-cinema__context">Games</p>
+        <h3>Open on football, not setup.</h3>
+        <p>
+          Search internationals, the top-five leagues, and UEFA club competitions.
+          Past and upcoming fixtures share one local index, so the product begins
+          with a match instead of a configuration screen.
+        </p>
+        <a class="gv-cinema__link" href={`${base}/matchday/`}>
+          Explore the Match Cockpit <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      <figure class="gv-cinema__visual">
+        <div class="gv-cinema__media">
+          <img
+            src={`${base}/screenshots/games-home.jpg`}
+            alt="Golavo Games home showing match search, competition shortcuts, and recent results"
+            width="1440"
+            height="1000"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <figcaption>One index for the matches Golavo can actually explain.</figcaption>
+      </figure>
+    </article>
+
+    <article class="gv-cinema__scene" data-gv-cinema-scene>
+      <div class="gv-cinema__copy">
+        <p class="gv-cinema__context">Match Cockpit</p>
+        <h3>Change the depth. Keep the same truth.</h3>
+        <p>
+          Casual mode reads like a matchday programme. Expert mode exposes fitted
+          Elo, Dixon–Coles values, markets, sources, and audit context. The
+          presentation changes; the deterministic forecast does not.
+        </p>
+        <a class="gv-cinema__link" href={`${base}/casual-vs-expert/`}>
+          Compare Casual and Expert <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      <figure class="gv-cinema__visual">
+        <div class="gv-cinema__media gv-cinema__media--programme">
+          <picture>
+            <source
+              media="(prefers-reduced-motion: reduce)"
+              srcset={`${base}/screenshots/match-cockpit.jpg`}
+            />
+            <img
+              src={`${base}/screenshots/match-programme.gif`}
+              alt="Animated tour through the six Match Cockpit chapters in Casual mode"
+              width="1120"
+              height="622"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+        </div>
+        <figcaption>Six chapters keep the first read calm; the deeper cut stays one switch away.</figcaption>
+      </figure>
+    </article>
+
+    <article class="gv-cinema__scene" data-gv-cinema-scene>
+      <div class="gv-cinema__copy">
+        <p class="gv-cinema__context">Model Lab</p>
+        <h3>Keep the claim after the whistle.</h3>
+        <p>
+          Methodologies, held-out backtests, immutable seals, and scored successors
+          stay together. A result can judge an earlier forecast; it cannot revise
+          what the model said before kickoff.
+        </p>
+        <a class="gv-cinema__link" href={`${base}/prediction-ledger/`}>
+          Inspect Model Lab <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      <figure class="gv-cinema__visual">
+        <div class="gv-cinema__media">
+          <img
+            src={`${base}/screenshots/model-lab.jpg`}
+            alt="Golavo Model Lab showing Track record, Backtests, Methodologies, and Sealed forecasts"
+            width="1440"
+            height="1000"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <figcaption>The audit machinery stays visible enough to challenge.</figcaption>
+      </figure>
+    </article>
+  </div>
+</section>
+
+<script>
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const cinemaRoots = document.querySelectorAll<HTMLElement>("[data-gv-cinema]");
+
+  for (const root of cinemaRoots) {
+    const scenes = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-gv-cinema-scene]"),
+    );
+
+    if (reduceMotion.matches || !("IntersectionObserver" in window)) continue;
+
+    root.classList.add("is-enhanced");
+    const selectClosestScene = () => {
+      const viewportCenter = window.innerHeight / 2;
+      const activeScene = scenes
+        .map((scene) => {
+          const rect = scene.getBoundingClientRect();
+          return {
+            scene,
+            distance: Math.abs(rect.top + rect.height / 2 - viewportCenter),
+            visible: rect.bottom > window.innerHeight * 0.18 && rect.top < window.innerHeight * 0.82,
+          };
+        })
+        .filter(({ visible }) => visible)
+        .sort((a, b) => a.distance - b.distance)[0]?.scene;
+
+      if (!activeScene) return;
+      scenes.forEach((scene) => scene.classList.toggle("is-active", scene === activeScene));
+    };
+
+    const observer = new IntersectionObserver(
+      selectClosestScene,
+      {
+        threshold: [0.35, 0.55, 0.75],
+        rootMargin: "-18% 0px -22% 0px",
+      },
+    );
+
+    scenes.forEach((scene) => observer.observe(scene));
+    selectClosestScene();
+  }
+</script>
+
+<style>
+  .gv-cinema {
+    padding-block: clamp(var(--gv-space-2xl), 9vw, var(--gv-space-4xl));
+    border-block: var(--gv-rule-stage) solid var(--sl-color-white);
+  }
+
+  .gv-cinema__head {
+    display: grid;
+    gap: var(--gv-space-md);
+    max-width: 62rem;
+  }
+
+  .gv-cinema__head h2,
+  .gv-cinema__copy h3 {
+    margin: 0;
+    font-family: var(--gv-font-display);
+    font-style: normal;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  .gv-cinema__head h2 {
+    max-width: 18ch;
+    font-size: clamp(2.25rem, 5.8vw, 4.8rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .gv-cinema__head > p {
+    max-width: 58ch;
+    margin: 0;
+    color: var(--sl-color-gray-2);
+    font-size: var(--gv-text-lg);
+    line-height: 1.65;
+  }
+
+  .gv-cinema__sequence {
+    display: grid;
+    gap: var(--gv-space-3xl);
+    margin-top: var(--gv-space-3xl);
+  }
+
+  .gv-cinema__scene {
+    display: grid;
+    gap: var(--gv-space-lg);
+    align-items: center;
+  }
+
+  .gv-cinema__copy {
+    display: grid;
+    gap: var(--gv-space-sm);
+    align-content: center;
+    max-width: 34rem;
+  }
+
+  .gv-cinema__context {
+    margin: 0;
+    color: var(--gv-engine);
+    font-family: var(--gv-font-body);
+    font-size: var(--gv-text-sm);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .gv-cinema__copy h3 {
+    max-width: 16ch;
+    font-size: clamp(1.8rem, 3.6vw, 3.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+  }
+
+  .gv-cinema__copy > p:not(.gv-cinema__context) {
+    margin: 0;
+    color: var(--sl-color-gray-2);
+    font-size: var(--gv-text-md);
+    line-height: 1.65;
+  }
+
+  .gv-cinema__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gv-space-2xs);
+    width: fit-content;
+    min-height: 44px;
+    color: var(--sl-color-white) !important;
+    font-weight: 600;
+    text-decoration: underline !important;
+    text-decoration-color: var(--gv-engine) !important;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+  }
+
+  .gv-cinema__link span {
+    color: var(--gv-engine);
+    transition: transform var(--gv-dur-short) var(--gv-ease-out);
+  }
+
+  .gv-cinema__link:active span {
+    transform: none;
+    transition-delay: 0ms;
+  }
+
+  .gv-cinema__link:focus-visible {
+    outline: 3px solid var(--gv-focus);
+    outline-offset: 4px;
+  }
+
+  .gv-cinema__visual {
+    display: grid;
+    gap: var(--gv-space-xs);
+    margin: 0;
+    transform: none;
+    transform-origin: 50% 70%;
+  }
+
+  .gv-cinema__media {
+    overflow: clip;
+    min-width: 0;
+    aspect-ratio: 16 / 10;
+    border: var(--gv-rule-hair) solid var(--sl-color-hairline);
+    border-radius: var(--gv-radius-media);
+    background: var(--gv-paper-2);
+    box-shadow: var(--gv-shadow-media);
+  }
+
+  .gv-cinema__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .gv-cinema__media--programme {
+    aspect-ratio: 16 / 9;
+  }
+
+  .gv-cinema__media--programme img {
+    object-fit: contain;
+  }
+
+  .gv-cinema__visual figcaption {
+    max-width: 58ch;
+    margin: 0;
+    color: var(--sl-color-gray-3);
+    font-family: var(--gv-font-body);
+    font-size: var(--gv-text-xs);
+    line-height: 1.5;
+  }
+
+  @media (min-width: 60rem) {
+    .gv-cinema__head {
+      grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.65fr);
+      align-items: end;
+      max-width: none;
+    }
+
+    .gv-cinema__head > p {
+      padding-bottom: var(--gv-space-xs);
+    }
+
+    .gv-cinema__sequence {
+      gap: var(--gv-space-4xl);
+    }
+
+    .gv-cinema__scene {
+      grid-template-columns: minmax(18rem, 0.72fr) minmax(0, 1.28fr);
+      gap: clamp(var(--gv-space-xl), 6vw, var(--gv-space-3xl));
+      min-height: 88dvh;
+    }
+
+    .gv-cinema__visual {
+      position: sticky;
+      top: calc(var(--sl-nav-height, 4rem) + var(--gv-space-lg));
+      grid-column: 2;
+      grid-row: 1;
+      perspective: var(--gv-perspective);
+    }
+
+    .gv-cinema__copy {
+      grid-column: 1;
+      grid-row: 1;
+      min-height: 52dvh;
+    }
+
+    .gv-cinema.is-enhanced .gv-cinema__scene:not(.is-active) .gv-cinema__visual {
+      opacity: 0.56;
+      transform: perspective(var(--gv-perspective)) rotateX(3deg) scale(0.94)
+        translateY(var(--gv-space-md));
+    }
+
+    .gv-cinema.is-enhanced .gv-cinema__visual {
+      transition: opacity var(--gv-dur-major) var(--gv-ease-out),
+        transform var(--gv-dur-major) var(--gv-ease-out);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .gv-cinema__link:hover span {
+      transform: translate(3px, -3px);
+      transition-delay: var(--gv-delay-hover);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gv-cinema__scene {
+      grid-template-columns: minmax(0, 1fr);
+      min-height: auto;
+    }
+
+    .gv-cinema__copy,
+    .gv-cinema__visual,
+    .gv-cinema__link span {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+
+    .gv-cinema__copy,
+    .gv-cinema__visual {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    .gv-cinema__visual {
+      position: static;
+    }
+  }
+</style>

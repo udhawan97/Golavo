@@ -1,8 +1,16 @@
-/* Hallmark · genre: editorial · macrostructure: Narrative Workflow
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5
+ * Hallmark · genre: editorial · macrostructure: Feature Stack
  * design-system: design.md · designed-as-app
  * theme: Golavo brand (preserved) · engine=gold · seal=hanko red
- * signature: one pressed hanko at stage 2.0 · enrichment: Tier-B hand-built SVG
- * pre-emit critique: P5 H5 E4 S5 R4 V4
+ * hero: H8 floating no-frame · stack=orbit-of-3 · tilt=3deg
+ * feature: F2 sticky-scroll stack · pinned side=right · scenes=3
+ * nav: N13 inline command-search pill (preserved) · footer: Ft5 statement
+ * enrichment: Tier-A CSS perspective + Tier-B SVG + real product media
+ * signature: one pressed hanko at stage 2.0
+ * contrast: pass (40–41) · nav: N13 · footer: Ft5 · slop: pass (42–45)
+ * honest: pass (46) · chrome: pass (47) · tokens: pass (48)
+ * responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57)
+ * Slop test: 58/58
  *
  * Tokens live in tokens.css and load first. Nothing here inlines a raw colour
  * or a font-family — every value resolves through a named token.
@@ -18,52 +26,52 @@
 
 /* ---- Dark theme (default) — warm ink & cream ---- */
 :root {
-  --sl-color-accent-low: #0c2a20;
-  --sl-color-accent: #2f9e73; /* pitch-green, tuned to read as link text on ink */
-  --sl-color-accent-high: #d8efe4;
+  --sl-color-accent-low: var(--gv-link-low);
+  --sl-color-accent: var(--gv-link);
+  --sl-color-accent-high: var(--gv-link-high);
 
   --sl-color-white: var(--gv-ink-1);
-  --sl-color-gray-1: #e6e2d9;
+  --sl-color-gray-1: var(--gv-neutral-1);
   --sl-color-gray-2: var(--gv-ink-2);
   --sl-color-gray-3: var(--gv-ink-3);
-  --sl-color-gray-4: #5f5d57;
+  --sl-color-gray-4: var(--gv-neutral-4);
   --sl-color-gray-5: var(--gv-rule-strong);
-  --sl-color-gray-6: #262524;
-  --sl-color-black: #0c0e0d;
+  --sl-color-gray-6: var(--gv-neutral-6);
+  --sl-color-black: var(--gv-ground-deep);
 
   --sl-color-bg: var(--gv-ground);
   --sl-color-bg-nav: var(--gv-ground);
-  --sl-color-bg-sidebar: #0d100f;
-  --sl-color-bg-inline-code: #22221f;
+  --sl-color-bg-sidebar: var(--gv-ground-sidebar);
+  --sl-color-bg-inline-code: var(--gv-ground-inline);
   --sl-color-hairline: var(--gv-rule);
-  --sl-color-hairline-light: #2c2e2b;
-  --sl-color-hairline-shade: #1a1c1a;
+  --sl-color-hairline-light: var(--gv-hairline-light);
+  --sl-color-hairline-shade: var(--gv-hairline-shade);
 
   --sl-color-text-accent: var(--gv-engine);
 }
 
 /* ---- Light theme — paper & sumi ---- */
 :root[data-theme="light"] {
-  --sl-color-accent-low: #d7efe6;
-  --sl-color-accent: #0b6e4f;
-  --sl-color-accent-high: #08402f;
+  --sl-color-accent-low: var(--gv-link-low);
+  --sl-color-accent: var(--gv-link);
+  --sl-color-accent-high: var(--gv-link-high);
 
   --sl-color-white: var(--gv-ink-1);
-  --sl-color-gray-1: #2a2a27;
+  --sl-color-gray-1: var(--gv-neutral-1);
   --sl-color-gray-2: var(--gv-ink-2);
   --sl-color-gray-3: var(--gv-ink-3);
-  --sl-color-gray-4: #9a978d;
+  --sl-color-gray-4: var(--gv-neutral-4);
   --sl-color-gray-5: var(--gv-rule-strong);
-  --sl-color-gray-6: #ece7db;
-  --sl-color-gray-7: #f6f2e9;
+  --sl-color-gray-6: var(--gv-neutral-6);
+  --sl-color-gray-7: var(--gv-neutral-7);
 
   --sl-color-bg: var(--gv-ground);
   --sl-color-bg-nav: var(--gv-ground);
   --sl-color-bg-sidebar: var(--gv-paper-2);
-  --sl-color-bg-inline-code: #eee7d6;
+  --sl-color-bg-inline-code: var(--gv-ground-inline);
   --sl-color-hairline: var(--gv-rule);
-  --sl-color-hairline-light: #e9e3d4;
-  --sl-color-hairline-shade: #efe9db;
+  --sl-color-hairline-light: var(--gv-hairline-light);
+  --sl-color-hairline-shade: var(--gv-hairline-shade);
 
   --sl-color-text-accent: var(--gv-engine);
 }
@@ -107,8 +115,29 @@ body {
 
 /* Top nav: solid ground and a hairline. Paper, not glass. */
 .header {
+  position: relative;
   border-bottom: var(--gv-rule-hair) solid var(--sl-color-hairline);
   box-shadow: 0 1px 0 0 var(--gv-engine-quiet);
+}
+
+@supports (animation-timeline: scroll()) {
+  .header::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 calc(var(--gv-rule-hair) * -1);
+    height: 2px;
+    background: var(--gv-engine);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: gv-scroll-progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes gv-scroll-progress {
+  to {
+    transform: scaleX(1);
+  }
 }
 .site-title {
   font-weight: 600;
@@ -122,13 +151,8 @@ body {
 
 /* Links: refined underline that lifts on hover. */
 .sl-markdown-content a:not(:where(.not-content *)) {
-  text-underline-offset: 0.22em;
+  text-underline-offset: 2px;
   text-decoration-thickness: 1px;
-  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
-  transition: text-decoration-color var(--gv-dur-short) var(--gv-ease-out),
-    color var(--gv-dur-short) var(--gv-ease-out);
-}
-.sl-markdown-content a:not(:where(.not-content *)):hover {
   text-decoration-color: currentColor;
 }
 
@@ -139,11 +163,6 @@ body {
   color: var(--sl-color-white);
   font-weight: 600;
 }
-.sidebar-content a {
-  transition: background var(--gv-dur-short) var(--gv-ease-out),
-    color var(--gv-dur-short) var(--gv-ease-out);
-}
-
 /* Scoreboard numerals never jiggle. */
 .sl-markdown-content table {
   border-collapse: collapse;
@@ -205,25 +224,22 @@ body {
   border-radius: var(--gv-radius-surface);
   background-color: var(--sl-color-bg-sidebar);
   overflow: hidden;
-  transition: transform var(--gv-dur-mid) var(--gv-ease-out),
-    border-color var(--gv-dur-mid) var(--gv-ease-out);
 }
 .card::before {
   content: "";
   position: absolute;
   inset: 0 auto auto 0;
-  width: 42%;
+  width: 78%;
   height: 2px;
   background: var(--gv-engine);
   opacity: 0.7;
-  transition: width var(--gv-dur-mid) var(--gv-ease-out);
-}
-.card:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--gv-engine) 45%, var(--sl-color-hairline));
+  transform: scaleX(0.54);
+  transform-origin: left;
+  transition: transform var(--gv-dur-mid) var(--gv-ease-out);
 }
 .card:hover::before {
-  width: 78%;
+  transform: scaleX(1);
+  transition-delay: var(--gv-delay-hover);
 }
 .card .icon {
   color: var(--gv-engine);
@@ -237,7 +253,7 @@ body {
 }
 
 /* =========================================================================
-   Landing page — Narrative Workflow.
+   Landing page — Feature Stack anchored to the real forecast lifecycle.
 
    Two registers, and the difference carries meaning:
      .gv-stage      numbered. The match timeline, which is genuinely ordinal.
@@ -296,7 +312,7 @@ body {
 .gv-stage-label {
   display: block;
   margin: 0 0 var(--gv-space-sm);
-  font-family: var(--gv-font-mono);
+  font-family: var(--gv-font-body);
   font-size: var(--gv-text-sm);
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -368,7 +384,7 @@ body {
   margin: 0 0 var(--gv-space-lg);
   padding-bottom: var(--gv-space-sm);
   border-bottom: var(--gv-rule-hair) solid var(--sl-color-hairline);
-  font-family: var(--gv-font-mono);
+  font-family: var(--gv-font-body);
   font-size: var(--gv-text-sm);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -426,7 +442,7 @@ body {
   fill: var(--gv-seal-ink);
 }
 .gv-hanko text {
-  font-family: var(--gv-font-mono);
+  font-family: var(--gv-font-body);
   font-weight: 600;
 }
 .gv-hanko-figure figcaption {
@@ -437,13 +453,12 @@ body {
   line-height: 1.5;
 }
 
-/* The press: the one motion on this page that asks to be noticed. It reuses the
-   reveal observer's .in class — no extra JS. Without JS the seal is simply there. */
-.gv-hanko-figure.gv-reveal-ready .gv-hanko {
+/* The press: the one motion on this page that asks to be noticed. */
+.gv-hanko-figure.gv-seal-ready .gv-hanko {
   opacity: 0;
   scale: 1.18;
 }
-.gv-hanko-figure.gv-reveal-ready.in .gv-hanko {
+.gv-hanko-figure.gv-seal-ready.is-pressed .gv-hanko {
   animation: gvPress 320ms var(--gv-ease-out) 120ms forwards;
 }
 @keyframes gvPress {
@@ -483,8 +498,10 @@ body {
   align-items: center;
   gap: var(--gv-space-2xs);
   margin-top: var(--gv-space-md);
+  min-height: 44px;
   color: var(--sl-color-white) !important;
   font-weight: 600;
+  white-space: nowrap;
 }
 .gv-text-link span {
   color: var(--gv-engine);
@@ -492,6 +509,11 @@ body {
 }
 .gv-text-link:hover span {
   transform: translate(3px, -3px);
+  transition-delay: var(--gv-delay-hover);
+}
+.gv-text-link:active span {
+  transform: none;
+  transition-delay: 0ms;
 }
 
 .gv-visual {
@@ -501,12 +523,11 @@ body {
   border: var(--gv-rule-hair) solid var(--sl-color-hairline);
   border-radius: var(--gv-radius-surface);
   background: var(--gv-paper-2);
-  transition: transform var(--gv-dur-mid) var(--gv-ease-out),
-    border-color var(--gv-dur-mid) var(--gv-ease-out);
+  transition: transform var(--gv-dur-mid) var(--gv-ease-out);
 }
 .gv-visual:hover {
   transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--gv-engine) 45%, var(--sl-color-hairline));
+  transition-delay: var(--gv-delay-hover);
 }
 .gv-visual img {
   height: auto;
@@ -520,7 +541,7 @@ body {
   border-radius: var(--gv-radius-cta);
   background: var(--gv-ground);
   color: var(--sl-color-gray-2);
-  font-family: var(--gv-font-mono);
+  font-family: var(--gv-font-body);
   font-size: var(--gv-text-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -544,7 +565,7 @@ body {
   margin: 0;
 }
 .gv-fact-row dt {
-  font-family: var(--gv-font-mono);
+  font-family: var(--gv-font-body);
   font-size: var(--gv-text-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -586,12 +607,11 @@ body {
   border: var(--gv-rule-hair) solid var(--sl-color-hairline);
   border-radius: var(--gv-radius-surface);
   background: var(--gv-paper-2);
-  transition: transform var(--gv-dur-mid) var(--gv-ease-out),
-    border-color var(--gv-dur-mid) var(--gv-ease-out);
+  transition: transform var(--gv-dur-mid) var(--gv-ease-out);
 }
 .gv-shot:hover {
   transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--gv-engine) 45%, var(--sl-color-hairline));
+  transition-delay: var(--gv-delay-hover);
 }
 .gv-shot img {
   aspect-ratio: 16 / 9;
@@ -651,6 +671,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: var(--gv-space-2xs);
+  align-items: center;
   margin-top: var(--gv-space-lg);
 }
 
@@ -668,27 +689,31 @@ body {
   background: transparent;
   font-weight: 600;
   white-space: nowrap;
-  transition: transform var(--gv-dur-short) var(--gv-ease-out),
-    border-color var(--gv-dur-short) var(--gv-ease-out);
+  transition: transform var(--gv-dur-short) var(--gv-ease-out);
 }
 .gv-action:hover {
   transform: translateY(-2px);
-  border-color: var(--gv-engine);
+  transition-delay: var(--gv-delay-hover);
 }
 .gv-action--primary {
   border-color: var(--gv-seal);
   color: var(--gv-seal-ink) !important;
   background: var(--gv-seal);
 }
-.gv-action--primary:hover {
-  border-color: var(--gv-seal);
-  background: color-mix(in srgb, var(--gv-seal) 88%, var(--sl-color-white));
+.gv-action:active {
+  transform: translateY(1px);
+  transition-delay: 0ms;
+}
+.gv-action[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 /* ---- Kicker: capped at two per page by design.md. ---- */
 .gv-kicker {
   margin: 0 0 var(--gv-space-2xs);
-  font-family: var(--gv-font-mono);
+  font-family: var(--gv-font-body);
   font-size: var(--gv-text-sm);
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -696,27 +721,16 @@ body {
   color: var(--gv-engine);
 }
 
-/* ---- Reveal: opacity + a short rise, once. Content visible without JS. ---- */
-[data-reveal] {
-  opacity: 1;
-  transform: none;
-}
-[data-reveal].gv-reveal-ready {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity var(--gv-dur-long) var(--gv-ease-out),
-    transform var(--gv-dur-long) var(--gv-ease-out);
-  transition-delay: var(--rd, 0ms);
-}
-[data-reveal].gv-reveal-ready.in {
-  opacity: 1;
-  transform: none;
-}
-
 .gv-home-story a:focus-visible,
 .gv-action:focus-visible {
   outline: 3px solid var(--gv-focus);
   outline-offset: 4px;
+}
+
+.gv-home-story a[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 @media (max-width: 64rem) {
@@ -749,36 +763,47 @@ body {
     align-items: stretch;
   }
   .gv-action {
-    white-space: normal;
+    width: 100%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal],
-  [data-reveal].gv-reveal-ready {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
   /* The seal lands, un-pressed. */
-  .gv-hanko-figure.gv-reveal-ready .gv-hanko,
-  .gv-hanko-figure.gv-reveal-ready.in .gv-hanko {
+  .gv-hanko-figure.gv-seal-ready .gv-hanko,
+  .gv-hanko-figure.gv-seal-ready.is-pressed .gv-hanko {
     opacity: 1;
     scale: 1;
     animation: none;
   }
-  .card,
+  .card::before,
   .gv-visual,
   .gv-shot,
   .gv-action,
-  .gv-text-link span {
+  .gv-text-link span,
+  .sl-markdown-content a:not(:where(.not-content *)),
+  .sidebar-content a {
     transition: none;
+  }
+
+  .gv-visual:hover,
+  .gv-shot:hover,
+  .gv-action:hover,
+  .gv-action:active,
+  .gv-text-link:hover span {
+    transform: none;
+  }
+
+  .card:hover::before {
+    transform: scaleX(0.54);
+  }
+
+  .header::after {
+    display: none;
   }
 }
 
 @media print {
-  [data-reveal],
-  [data-reveal].gv-reveal-ready {
+  .gv-hanko-figure.gv-seal-ready .gv-hanko {
     opacity: 1 !important;
     transform: none !important;
   }

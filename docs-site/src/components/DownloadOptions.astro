@@ -8,7 +8,6 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
 
 <section
   class="gv-install"
-  data-reveal
   data-release-api={releaseApi}
   data-latest-release={latestRelease}
   aria-labelledby="gv-install-title"
@@ -24,7 +23,6 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
 
   <div class="gv-install-grid">
     <article class="gv-install-card" data-install-platform="web">
-      <span class="gv-install-icon" aria-hidden="true">⌁</span>
       <p class="gv-install-platform">macOS · Windows · Linux</p>
       <h3>Run in your browser</h3>
       <p>Clone the source, run one command, and Golavo opens at <code>127.0.0.1:5173</code>.</p>
@@ -36,7 +34,6 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
 
     <article class="gv-install-card" data-install-platform="mac">
       <span class="gv-install-recommended" data-role="preferred-label" hidden>Best for this device</span>
-      <span class="gv-install-icon" aria-hidden="true">⌘</span>
       <p class="gv-install-platform">Apple Silicon · macOS</p>
       <h3>Download the Mac app</h3>
       <p>Install from a DMG, drag Golavo to Applications, then open it locally.</p>
@@ -48,7 +45,6 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
 
     <article class="gv-install-card" data-install-platform="win">
       <span class="gv-install-recommended" data-role="preferred-label" hidden>Best for this device</span>
-      <span class="gv-install-icon" aria-hidden="true">⊞</span>
       <p class="gv-install-platform">x64 · Windows 10/11</p>
       <h3>Download the Windows app</h3>
       <p>Use the per-user EXE installer; an MSI is also available on every release.</p>
@@ -168,10 +164,8 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
     border: var(--gv-rule-hair) solid var(--sl-color-hairline);
     border-radius: var(--gv-radius-surface);
     background: var(--gv-paper-2);
-    transition: transform var(--gv-dur-short) var(--gv-ease-out),
-      border-color var(--gv-dur-short) var(--gv-ease-out);
+    transition: transform var(--gv-dur-short) var(--gv-ease-out);
   }
-  .gv-install-card:hover,
   .gv-install-card.is-preferred {
     transform: translateY(-4px);
     border-color: color-mix(in srgb, var(--gv-engine) 58%, var(--sl-color-hairline));
@@ -185,27 +179,15 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
       color-mix(in srgb, var(--gv-engine) 55%, transparent);
     border-radius: var(--gv-radius-cta);
     color: var(--gv-engine);
-    font-family: var(--gv-font-mono);
+    font-family: var(--gv-font-body);
     font-size: var(--gv-text-xs);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .gv-install-icon {
-    display: grid;
-    width: 2.75rem;
-    height: 2.75rem;
-    place-items: center;
-    border: var(--gv-rule-hair) solid var(--sl-color-hairline);
-    border-radius: var(--gv-radius-cta);
-    color: var(--gv-engine);
-    background: var(--gv-ground);
-    font-family: var(--gv-font-mono);
-    font-size: 1.3rem;
-  }
   .gv-install-platform {
-    margin-top: var(--gv-space-md) !important;
+    margin-top: 0 !important;
     color: var(--sl-color-gray-3) !important;
-    font-family: var(--gv-font-mono);
+    font-family: var(--gv-font-body);
     font-size: var(--gv-text-xs);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -237,20 +219,32 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
     color: var(--sl-color-white) !important;
     background: var(--gv-ground);
     font-weight: 600;
-    transition: border-color var(--gv-dur-short) var(--gv-ease-out);
+    white-space: nowrap;
+    transition: transform var(--gv-dur-short) var(--gv-ease-out);
   }
   .gv-install-button:hover {
-    border-color: var(--gv-engine);
+    transform: translateY(-2px);
+    transition-delay: var(--gv-delay-hover);
   }
   .gv-install-button:focus-visible {
     outline: 3px solid var(--gv-focus);
     outline-offset: 4px;
   }
+  .gv-install-button:active {
+    transform: translateY(1px);
+    background: var(--gv-engine-quiet);
+    transition-delay: 0ms;
+  }
+  .gv-install-button[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.55;
+    pointer-events: none;
+  }
   .gv-install-meta {
     min-height: 1.2rem;
     margin-top: var(--gv-space-2xs);
     color: var(--sl-color-gray-3);
-    font-family: var(--gv-font-mono);
+    font-family: var(--gv-font-body);
     font-size: var(--gv-text-xs);
   }
   .gv-install-foot {
@@ -268,16 +262,31 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
   .gv-install-foot p { margin: 0; }
   .gv-install-foot > p:first-child {
     color: var(--sl-color-gray-1);
-    font-family: var(--gv-font-mono);
+    font-family: var(--gv-font-body);
   }
   .gv-install-foot > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--sl-color-white);
     font-weight: 600;
+    white-space: nowrap;
   }
-  @media (max-width: 46rem) {
-    .gv-install-button { white-space: normal; }
+  .gv-install-foot p a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    white-space: nowrap;
   }
   @media (prefers-reduced-motion: reduce) {
-    .gv-install-card { transition: none; }
+    .gv-install-card,
+    .gv-install-button {
+      transition: none;
+    }
+
+    .gv-install-button:hover,
+    .gv-install-button:active {
+      transform: none;
+    }
   }
 </style>

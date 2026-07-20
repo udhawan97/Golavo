@@ -16,12 +16,15 @@ buttons, centred-everything heroes, glassmorphism, pure black/white grounds.
 
 ## Macrostructure family
 
-- **Marketing pages** (`index.mdx`): **14 · Narrative Workflow**. Chosen because
-  Golavo *is* a sequence — a forecast is sealed before kickoff and scored after
-  full time, and that order is irreversible. Narrative Workflow is the one
-  macrostructure that requires a genuine sequence, so the numbering lands on
-  content where order carries information.
-  Variation knobs: stage count, per-stage media treatment.
+- **Marketing pages** (`index.mdx`): **16 · Feature Stack**, anchored to Golavo's
+  real forecast lifecycle. The page opens with an unnumbered **H8 floating
+  no-frame** product theater, then an **F2 sticky-scroll stack** walks through
+  three real app states. The existing before-kickoff → at-kickoff → after-full-
+  time sequence follows as the product contract beneath the visual tour. This
+  changes the structural fingerprint from the earlier Narrative Workflow build
+  without inventing a fake product story.
+  Variation knobs: pinned side=right, scenes=3, product media=real, lifecycle
+  continuation=numbered. The cinematic prologue is a tour, not a fourth stage.
 - **Content pages** (~25 Starlight markdown docs): **02 · Long Document**.
   Starlight owns these templates. The system reaches them through tokens only —
   no restructuring.
@@ -117,12 +120,19 @@ tokens (`var(--gv-space-md)`), never raw values.
 ## Motion
 
 - Easings: `--gv-ease-out: cubic-bezier(0.16, 0.7, 0.3, 1)` (the existing house
-  curve), `--gv-ease-in-out`. Never the browser default `ease`. No bounce.
-- Reveal pattern: opacity + ≤16px rise, once, on enter. Quiet.
-- The seal press is the **only** motion that draws attention to itself, and it
-  fires once.
+  curve), `--gv-ease-in`, `--gv-ease-in-out`. Never the browser default `ease`.
+  No bounce.
+- The hero gets one orchestrated opacity + ≤12px entrance and then stops.
+- The product theater may crossfade and change perspective between three real
+  screenshots as each scene becomes current. It uses `IntersectionObserver`, not
+  a scroll listener, and never scrubs or parallax-shifts the page.
+- The seal press remains the **only** motion that draws attention to itself, and
+  it fires once.
+- A two-pixel header progress line is functional orientation, not decoration. It
+  may use the native scroll timeline where supported.
 - Reduced-motion fallback: opacity-only, ≤150ms. The seal lands un-pressed.
 - **No scroll-snap.** A ~15,000px page that snaps hijacks the reader's scroll.
+- No infinite ambient loops. The seigaiha field is a still substrate.
 
 ## Microinteractions stance
 
@@ -150,9 +160,15 @@ The rising sun is a **hard-edged disc**, never a blurred radial bloom. The
 hinomaru has an edge; a soft gold gradient glow is the generic dark-page default
 and reads as AI-generated.
 
+Product media may use static CSS perspective and the single
+`--gv-shadow-media` token. It must be a real Golavo screenshot with at most a
+hairline frame—never fake browser, phone, window, or IDE chrome. Below 60rem the
+tilt drops and media returns to normal document flow.
+
 ## Per-page allowances
 
-- Marketing pages MAY use enrichment (Tier-A CSS art, Tier-B hand-built SVG).
+- Marketing pages MAY use enrichment (Tier-A CSS art/perspective, Tier-B
+  hand-built SVG, and real product screenshots or recordings).
 - Content pages: typography only.
 - Utility pages: typography + the platform catalogue grid.
 
@@ -193,20 +209,119 @@ of truth; this section mirrors it.
 
 ```css
 :root {
-  --gv-ground:     #101312;
-  --gv-paper-2:    #171a19;
-  --gv-engine:     #c9a227;  /* dark ground */
-  --gv-seal:       #ea5566;  /* dark ground */
+  --gv-ground:     oklch(18.3% 0.0052 173.7);
+  --gv-paper-2:    oklch(21.42% 0.005 173.9);
+  --gv-ink-1:      oklch(96.45% 0.0098 87.5);
+  --gv-ink-2:      oklch(78.64% 0.0133 86.8);
+  --gv-rule:       oklch(26.13% 0.0062 134.9);
+  --gv-engine:     oklch(72.8% 0.138 89.7);
+  --gv-seal:       oklch(65.23% 0.1836 17.2);
+  --gv-focus:      oklch(82.72% 0.139 91.8);
   --gv-font-display: "Shippori Mincho", Georgia, serif;
   --gv-font-body:    "Zen Kaku Gothic New", -apple-system, sans-serif;
   --gv-space-sm: 1rem; --gv-space-md: 1.5rem; --gv-space-lg: 2rem;
   --gv-ease-out: cubic-bezier(0.16, 0.7, 0.3, 1);
   --gv-radius-cta: 4px;
+  --gv-radius-media: 10px;
+  --gv-perspective: 1400px;
 }
 :root[data-theme="light"] {
-  --gv-ground:  #faf7f0;
-  --gv-paper-2: #f3eee2;
-  --gv-engine:  #8a5e0d;
-  --gv-seal:    #bc002d;
+  --gv-ground:  oklch(97.65% 0.0098 87.5);
+  --gv-paper-2: oklch(94.97% 0.0168 88);
+  --gv-ink-1:   oklch(20.05% 0.005 84.6);
+  --gv-ink-2:   oklch(38.69% 0.0087 88.7);
+  --gv-rule:    oklch(89.54% 0.0241 88.2);
+  --gv-engine:  oklch(51.64% 0.1042 75.5);
+  --gv-seal:    oklch(50.28% 0.2021 20.7);
+  --gv-focus:   oklch(51.64% 0.1042 75.5);
+}
+```
+
+### Tailwind v4 `@theme`
+
+```css
+@theme {
+  --color-paper: oklch(97.65% 0.0098 87.5);
+  --color-paper-2: oklch(94.97% 0.0168 88);
+  --color-ink: oklch(20.05% 0.005 84.6);
+  --color-ink-2: oklch(38.69% 0.0087 88.7);
+  --color-rule: oklch(89.54% 0.0241 88.2);
+  --color-engine: oklch(51.64% 0.1042 75.5);
+  --color-seal: oklch(50.28% 0.2021 20.7);
+  --color-focus: oklch(51.64% 0.1042 75.5);
+  --font-display: "Shippori Mincho", Georgia, serif;
+  --font-body: "Zen Kaku Gothic New", ui-sans-serif, sans-serif;
+  --font-outlier: ui-monospace, "SF Mono", monospace;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+  --spacing-2xl: 4.5rem;
+  --text-md: 1rem;
+  --text-lg: 1.18rem;
+  --ease-out: cubic-bezier(0.16, 0.7, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --radius-card: 6px;
+}
+```
+
+### DTCG `tokens.json`
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "paper": { "$value": "oklch(97.65% 0.0098 87.5)", "$type": "color" },
+    "paper-2": { "$value": "oklch(94.97% 0.0168 88)", "$type": "color" },
+    "ink": { "$value": "oklch(20.05% 0.005 84.6)", "$type": "color" },
+    "ink-2": { "$value": "oklch(38.69% 0.0087 88.7)", "$type": "color" },
+    "rule": { "$value": "oklch(89.54% 0.0241 88.2)", "$type": "color" },
+    "engine": { "$value": "oklch(51.64% 0.1042 75.5)", "$type": "color" },
+    "seal": { "$value": "oklch(50.28% 0.2021 20.7)", "$type": "color" },
+    "focus": { "$value": "oklch(51.64% 0.1042 75.5)", "$type": "color" }
+  },
+  "font": {
+    "display": { "$value": "Shippori Mincho, Georgia, serif", "$type": "fontFamily" },
+    "body": { "$value": "Zen Kaku Gothic New, ui-sans-serif, sans-serif", "$type": "fontFamily" },
+    "outlier": { "$value": "SF Mono, ui-monospace, monospace", "$type": "fontFamily" }
+  },
+  "space": {
+    "sm": { "$value": "1rem", "$type": "dimension" },
+    "md": { "$value": "1.5rem", "$type": "dimension" },
+    "lg": { "$value": "2rem", "$type": "dimension" },
+    "xl": { "$value": "3rem", "$type": "dimension" },
+    "2xl": { "$value": "4.5rem", "$type": "dimension" }
+  },
+  "duration": {
+    "micro": { "$value": "120ms", "$type": "duration" },
+    "short": { "$value": "220ms", "$type": "duration" },
+    "major": { "$value": "500ms", "$type": "duration" }
+  }
+}
+```
+
+### shadcn/ui CSS variables
+
+```css
+:root {
+  --background: 97.65% 0.0098 87.5;
+  --foreground: 20.05% 0.0042 84.6;
+  --card: 94.97% 0.0168 88;
+  --card-foreground: 20.05% 0.0042 84.6;
+  --popover: 94.97% 0.0168 88;
+  --popover-foreground: 20.05% 0.0042 84.6;
+  --primary: 50.28% 0.2021 20.7;
+  --primary-foreground: 97.9% 0.0111 45.7;
+  --secondary: 89.54% 0.0241 88.2;
+  --secondary-foreground: 38.69% 0.0087 88.7;
+  --muted: 89.54% 0.0241 88.2;
+  --muted-foreground: 49.19% 0.0127 95.3;
+  --accent: 51.64% 0.1042 75.5;
+  --accent-foreground: 97.9% 0.0111 45.7;
+  --border: 89.54% 0.0241 88.2;
+  --input: 89.54% 0.0241 88.2;
+  --ring: 51.64% 0.1042 75.5;
+  --radius: 6px;
 }
 ```

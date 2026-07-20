@@ -1,5 +1,15 @@
 [
   {
+    "date": "2026-07-20",
+    "scope": "app",
+    "macrostructure": "Feature Stack",
+    "theme": "custom",
+    "theme_axes": "dark+light / classical-serif / warm (engine 90° · seal 21°)",
+    "vibe": "cinematic washi, dimensional product proof",
+    "enrichment": "Tier-A CSS perspective + Tier-B SVG + real product media",
+    "brief": "Golavo docs-site · make Download or run locally the cinematic destination without weakening deterministic trust"
+  },
+  {
     "date": "2026-07-16",
     "scope": "app",
     "macrostructure": "Narrative Workflow",

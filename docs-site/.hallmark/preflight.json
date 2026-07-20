@@ -1,0 +1,24 @@
+{
+  "scanned_at": "2026-07-20",
+  "framework": "Astro 7 with Starlight 0.41",
+  "font_stack": {
+    "display": "Shippori Mincho",
+    "body": "Zen Kaku Gothic New",
+    "mono": "system monospace"
+  },
+  "palette": "Locked Golavo sumi/washi palette in design.md and src/styles/tokens.css",
+  "motion": "CSS plus small vanilla IntersectionObserver helpers; no motion library",
+  "spacing": "Named 4-point --gv-space-* scale",
+  "assets": [
+    "real product screenshots",
+    "match-programme GIF with reduced-motion still",
+    "brand SVGs",
+    "forecast/trust explanatory SVGs"
+  ],
+  "preserve": [
+    "Japanese editorial identity",
+    "Starlight documentation information architecture",
+    "deterministic forecast authority",
+    "download and release behavior"
+  ]
+}

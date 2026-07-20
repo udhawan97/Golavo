@@ -1,37 +1,26 @@
 ---
 /**
- * Golavo — bespoke landing hero (overrides Starlight's default Hero on the splash page).
- * Hallmark · genre: editorial · macrostructure: Narrative Workflow · design-system: design.md
- *
- * Theme: soccer · japan · zen. A hard-edged rising sun behind drifting seigaiha
- * waves, with the sumi brushstroke mark on the horizon — a woodblock composition,
- * not a gradient bloom. Left-biased, per the editorial genre. All motion honors
- * prefers-reduced-motion.
+ * Golavo cinematic landing hero.
+ * Hallmark · H8 floating no-frame · stack=orbit-of-3 · tilt=3deg
+ * Real product media only; no fake device or browser chrome.
  */
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-
-// Seigaiha ground: the logo's concentric-circle motif tiled in two offset rows,
-// drifting left one 128px unit for a seamless loop (matches the mark's kDrift).
 const unit = 128;
 const cols = Array.from({ length: 20 }, (_, i) => -unit + i * unit);
 ---
 
 <section class="gh" aria-labelledby="gh-title">
   <div class="gh-atmos" aria-hidden="true">
-    <!-- No background sun here: the mark already IS a disc with a rising sun.
-         A second disc behind it is the same motif twice. The mark rises over
-         the seigaiha horizon instead. -->
-
-    <!-- The icon's seigaiha ground, opened into one clean landing-page horizon. -->
     <svg class="gh-waves" viewBox="0 0 2048 220" preserveAspectRatio="xMidYMax slice" fill="none">
       <defs>
         <g id="gh-wv" stroke="var(--gh-wave)" stroke-width="2.4">
           <circle cx="60" cy="60" r="58" fill="var(--gv-ground)" />
           <circle cx="60" cy="60" r="44" />
-          <circle cx="60" cy="60" r="30" /><circle cx="60" cy="60" r="16" />
+          <circle cx="60" cy="60" r="30" />
+          <circle cx="60" cy="60" r="16" />
         </g>
       </defs>
-      <g class="gh-waveDrift">
+      <g>
         {cols.map((x) => <use href="#gh-wv" x={x} y="66" />)}
         {cols.map((x) => <use href="#gh-wv" x={x + unit / 2} y="114" />)}
       </g>
@@ -40,153 +29,186 @@ const cols = Array.from({ length: 20 }, (_, i) => -unit + i * unit);
 
   <div class="gh-inner">
     <div class="gh-copy">
-      <p class="gh-status gh-rise" style="--d:0ms">
+      <p class="gh-status gh-enter" style="--d:0ms">
         <span class="gh-status-dot"></span>v0.15.0 · unsigned pre-alpha · local-first
       </p>
 
-      <p class="gh-eyebrow gh-rise" style="--d:80ms">The local-first football match cockpit</p>
+      <p class="gh-eyebrow gh-enter" style="--d:50ms">The local-first football match cockpit</p>
 
-      <h1 id="gh-title" class="gh-title">
-        <span class="gh-line gh-rise" style="--d:160ms">The numbers remember everything.</span>
-        <span class="gh-line gh-rise" style="--d:280ms">The beautiful game keeps the last word.</span>
+      <h1 id="gh-title" class="gh-title gh-enter" style="--d:100ms">
+        The numbers remember everything. The beautiful game keeps the last word.
       </h1>
 
-      <p class="gh-sub gh-rise" style="--d:400ms">
+      <p class="gh-sub gh-enter" style="--d:150ms">
         Open any match. Compare two genuinely different model voices, see the facts
         behind the fixture, and put an upcoming prediction on the record. The engine
         owns every number; optional AI can explain, but never edit.
       </p>
 
-      <div class="gh-actions gh-rise" style="--d:520ms">
+      <div class="gh-actions gh-enter" style="--d:200ms">
         <a class="gh-btn gh-btn--primary" href="#gv-install-title">
           Download or run locally
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </a>
-        <a class="gh-btn gh-btn--ghost" href="#gv-stage-1">See the cockpit</a>
+        <a class="gh-btn gh-btn--ghost" href="#gv-cinema-title">See Golavo in motion</a>
         <a class="gh-btn gh-btn--text" href="https://github.com/udhawan97/Golavo" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.72-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.36 9.36 0 015 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.26 10.26 0 0022 12.25C22 6.58 17.52 2 12 2z"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.72-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.55-1.14-4.55-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.36 9.36 0 015 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.26 10.26 0 0022 12.25C22 6.58 17.52 2 12 2z" /></svg>
           GitHub
         </a>
       </div>
     </div>
 
-    <div class="gh-mark gh-rise" style="--d:200ms">
-      <img class="gh-mark-img gh-mark-img--dark" src={`${base}/brand/golavo-mark-dark.svg`}
-        alt="Golavo — a sumi brushstroke ball tracing the letter G into the top corner of a goal beneath a rising sun"
-        width="220" height="220" loading="eager" decoding="async" />
-      <img class="gh-mark-img gh-mark-img--light" src={`${base}/brand/golavo-mark-light.svg`}
-        alt="" aria-hidden="true" width="220" height="220" loading="eager" decoding="async" />
-    </div>
+    <figure class="gh-artifact gh-enter" style="--d:180ms" aria-labelledby="gh-artifact-caption">
+      <svg class="gh-orbit" viewBox="0 0 620 560" aria-hidden="true">
+        <path d="M72 385C138 132 405 51 550 186" />
+        <path d="M104 445C245 540 474 493 566 307" />
+        <circle cx="72" cy="385" r="6" />
+        <circle cx="550" cy="186" r="6" />
+        <circle cx="566" cy="307" r="6" />
+      </svg>
+
+      <div class="gh-frame gh-frame--rear" aria-hidden="true">
+        <img src={`${base}/screenshots/games-home.jpg`} alt="" width="1440" height="1000" decoding="async" />
+      </div>
+
+      <div class="gh-frame gh-frame--main">
+        <img
+          src={`${base}/screenshots/match-cockpit.jpg`}
+          alt="Golavo Match Cockpit showing a source-backed France versus Spain match programme"
+          width="1440"
+          height="900"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+
+      <div class="gh-frame gh-frame--front" aria-hidden="true">
+        <img src={`${base}/screenshots/my-season.jpg`} alt="" width="1280" height="720" decoding="async" />
+      </div>
+
+      <img
+        class="gh-mark gh-mark--dark"
+        src={`${base}/brand/golavo-mark-dark.svg`}
+        alt=""
+        aria-hidden="true"
+        width="220"
+        height="220"
+        decoding="async"
+      />
+      <img
+        class="gh-mark gh-mark--light"
+        src={`${base}/brand/golavo-mark-light.svg`}
+        alt=""
+        aria-hidden="true"
+        width="220"
+        height="220"
+        decoding="async"
+      />
+
+      <figcaption id="gh-artifact-caption">
+        <span>Preview → seal → score</span>
+        One match, kept legible from first question to permanent record.
+      </figcaption>
+    </figure>
   </div>
 </section>
 
 <script>
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const sealFigures = document.querySelectorAll<HTMLElement>("[data-seal-reveal]");
 
-  // Reveal-on-scroll for any element marked data-reveal (custom landing sections).
-  // The hanko press hangs off the same .in class — no extra machinery.
-  const revealables = document.querySelectorAll("[data-reveal]");
-  if (revealables.length) {
-    if (reduce.matches || !("IntersectionObserver" in window)) {
-      revealables.forEach((el) => el.classList.add("in"));
-    } else {
-      try {
-        const io = new IntersectionObserver(
-          (entries, obs) => {
-            for (const e of entries) {
-              if (e.isIntersecting) {
-                (e.target as HTMLElement).style.setProperty(
-                  "--rd",
-                  `${(e.target as HTMLElement).dataset.reveal || "0"}ms`,
-                );
-                e.target.classList.add("in");
-                obs.unobserve(e.target);
-              }
-            }
-          },
-          { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
-        );
-        revealables.forEach((el) => {
-          io.observe(el);
-          el.classList.add("gv-reveal-ready");
-        });
-      } catch {
-        revealables.forEach((el) => el.classList.add("in"));
-      }
-    }
+  if (sealFigures.length && !reduceMotion.matches && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries, instance) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-pressed");
+          instance.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.6 },
+    );
+
+    sealFigures.forEach((figure) => {
+      figure.classList.add("gv-seal-ready");
+      observer.observe(figure);
+    });
   }
 </script>
 
 <style>
-  /* ---- Full-bleed break-out of Starlight's splash container ---- */
   .gh {
     position: relative;
-    width: 100vw;
     margin-inline: calc(50% - 50vw);
-    padding: clamp(2rem, 5vh, 4rem) 1.5rem clamp(5rem, 9vh, 7rem);
+    padding: clamp(var(--gv-space-lg), 5vh, var(--gv-space-xl))
+      clamp(var(--gv-space-sm), 3vw, var(--gv-space-xl))
+      clamp(var(--gv-space-2xl), 10vh, var(--gv-space-3xl));
     overflow: clip;
     isolation: isolate;
-    /* theme-tuned atmosphere tokens (dark default) */
-    --gh-wave: color-mix(in srgb, var(--gv-wave-ink) 32%, transparent);
-  }
-  :global([data-theme="light"]) .gh {
-    --gh-wave: color-mix(in srgb, var(--gv-wave-ink) 20%, transparent);
+    --gh-wave: color-mix(in srgb, var(--gv-wave-ink) 28%, transparent);
   }
 
-  /* ---- Atmosphere ---- */
+  :global([data-theme="light"]) .gh {
+    --gh-wave: color-mix(in srgb, var(--gv-wave-ink) 18%, transparent);
+  }
+
   .gh-atmos {
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: var(--gv-z-behind);
     pointer-events: none;
   }
 
   .gh-waves {
     position: absolute;
-    left: 50%;
-    bottom: -2px;
+    inset-inline-start: 50%;
+    inset-block-end: -2px;
     translate: -50% 0;
     width: 100%;
     min-width: 1200px;
     height: clamp(120px, 16vh, 176px);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 86%, transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 86%, transparent 100%);
-  }
-  .gh-waveDrift {
-    animation: ghDrift 20s linear infinite;
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      var(--gv-ink-1) 32%,
+      var(--gv-ink-1) 86%,
+      transparent
+    );
   }
 
-  /* ---- Content: left-biased. Editorial heroes are not centred stacks. ---- */
   .gh-inner {
     position: relative;
-    z-index: 1;
-    width: min(1180px, 100%);
-    margin-inline: auto;
+    z-index: var(--gv-z-base);
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
-    gap: clamp(1.5rem, 4vw, 3.5rem);
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    gap: clamp(var(--gv-space-xl), 6vw, var(--gv-space-3xl));
     align-items: center;
+    width: min(1320px, 100%);
+    min-height: clamp(38rem, 78dvh, 48rem);
+    margin-inline: auto;
   }
+
   .gh-copy {
     min-width: 0;
   }
 
-  /* Paper, not glass — no backdrop-filter anywhere in this brand. */
   .gh-status {
     display: inline-flex;
     align-items: center;
     gap: var(--gv-space-2xs);
     margin: 0 0 var(--gv-space-md);
     padding: var(--gv-space-3xs) var(--gv-space-xs);
+    border: var(--gv-rule-hair) solid var(--sl-color-gray-5);
+    border-radius: var(--gv-radius-cta);
+    background: var(--gv-paper-2);
+    color: var(--sl-color-gray-2);
     font-family: var(--gv-font-mono);
     font-size: var(--gv-text-xs);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--sl-color-gray-2);
-    border: var(--gv-rule-hair) solid var(--sl-color-gray-5);
-    border-radius: var(--gv-radius-cta);
-    background: var(--gv-paper-2);
   }
+
   .gh-status-dot {
     width: 7px;
     height: 7px;
@@ -196,49 +218,45 @@ const cols = Array.from({ length: 20 }, (_, i) => -unit + i * unit);
 
   .gh-eyebrow {
     margin: 0 0 var(--gv-space-2xs);
-    font-family: var(--gv-font-mono);
+    color: var(--gv-engine);
+    font-family: var(--gv-font-body);
     font-size: var(--gv-text-sm);
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--gv-engine);
   }
 
-  /* Roman. Italic is body-copy emphasis only. */
   .gh-title {
-    margin: 0;
-    font-family: var(--gv-font-display);
-    font-weight: 600;
-    font-style: normal;
-    line-height: 1.06;
-    letter-spacing: -0.03em;
-    font-size: clamp(2.1rem, 4.6vw, 3.9rem);
-    color: var(--sl-color-white);
-    text-wrap: balance;
-    overflow-wrap: anywhere;
+    max-width: 15ch;
     min-width: 0;
-  }
-  .gh-line {
-    display: block;
+    margin: 0;
+    color: var(--sl-color-white);
+    font-family: var(--gv-font-display);
+    font-size: clamp(2.65rem, 5vw, 4.8rem);
+    font-style: normal;
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   .gh-sub {
-    margin: var(--gv-space-md) 0 0;
     max-width: 52ch;
-    font-size: var(--gv-text-lg);
-    line-height: 1.65;
+    margin: var(--gv-space-md) 0 0;
     color: var(--sl-color-gray-2);
+    font-size: var(--gv-text-lg);
+    line-height: 1.62;
   }
 
   .gh-actions {
-    margin-top: var(--gv-space-lg);
     display: flex;
     flex-wrap: wrap;
     gap: var(--gv-space-2xs);
     align-items: center;
+    margin-top: var(--gv-space-lg);
   }
 
-  /* Flat fill, 4px radius. A stamp, not a lozenge — gradient pills are banned. */
   .gh-btn {
     display: inline-flex;
     align-items: center;
@@ -247,128 +265,350 @@ const cols = Array.from({ length: 20 }, (_, i) => -unit + i * unit);
     padding: var(--gv-space-xs) var(--gv-space-md);
     border: var(--gv-rule-hair) solid transparent;
     border-radius: var(--gv-radius-cta);
-    font-weight: 600;
+    color: var(--sl-color-white);
     font-size: var(--gv-text-md);
+    font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
-    transition: transform var(--gv-dur-short) var(--gv-ease-out),
-      background var(--gv-dur-short) var(--gv-ease-out),
-      border-color var(--gv-dur-short) var(--gv-ease-out);
+    transition: transform var(--gv-dur-short) var(--gv-ease-out);
   }
+
   .gh-btn svg {
     transition: transform var(--gv-dur-short) var(--gv-ease-out);
   }
+
   .gh-btn--primary {
-    color: var(--gv-seal-ink);
-    background: var(--gv-seal);
     border-color: var(--gv-seal);
+    background: var(--gv-seal);
+    color: var(--gv-seal-ink);
   }
-  .gh-btn--primary:hover {
-    transform: translateY(-2px);
-    background: color-mix(in srgb, var(--gv-seal) 88%, var(--sl-color-white));
-  }
-  .gh-btn--primary:hover svg {
-    transform: translateX(3px);
-  }
+
   .gh-btn--ghost {
-    color: var(--sl-color-white);
     border-color: var(--sl-color-gray-4);
     background: transparent;
   }
-  .gh-btn--ghost:hover {
-    transform: translateY(-2px);
-    border-color: var(--gv-engine);
-  }
+
   .gh-btn--text {
-    color: var(--sl-color-gray-1);
     padding-inline: var(--gv-space-xs);
+    color: var(--sl-color-gray-1);
   }
-  .gh-btn--text:hover {
-    color: var(--sl-color-white);
+
+  .gh-btn:active {
+    transform: translateY(1px);
+    transition-duration: var(--gv-dur-micro);
+    transition-delay: 0ms;
   }
+
   .gh-btn:focus-visible {
     outline: 3px solid var(--gv-focus);
     outline-offset: 4px;
   }
 
-  .gh-mark {
-    justify-self: center;
-    width: clamp(180px, 28vw, 330px);
-    aspect-ratio: 1;
+  .gh-btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.55;
+    pointer-events: none;
   }
-  .gh-mark-img {
+
+  .gh-artifact {
+    position: relative;
+    min-width: 0;
+    min-height: clamp(29rem, 48vw, 41rem);
+    margin: 0;
+    perspective: var(--gv-perspective);
+    transform-style: preserve-3d;
+  }
+
+  .gh-orbit {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
+    overflow: visible;
+    color: var(--gv-engine);
+  }
+
+  .gh-orbit path {
+    fill: none;
+    stroke: color-mix(in srgb, currentColor 46%, transparent);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 10;
+  }
+
+  .gh-orbit circle {
+    fill: currentColor;
+  }
+
+  .gh-frame {
+    position: absolute;
+    overflow: clip;
+    min-width: 0;
+    border: var(--gv-rule-hair) solid var(--sl-color-hairline);
+    border-radius: var(--gv-radius-media);
+    background: var(--gv-paper-2);
+    box-shadow: var(--gv-shadow-media);
+    transform-style: preserve-3d;
+    transition: transform var(--gv-dur-major) var(--gv-ease-out),
+      opacity var(--gv-dur-major) var(--gv-ease-out);
+  }
+
+  .gh-frame img {
     display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
   }
-  .gh-mark-img--light {
+
+  .gh-frame--main {
+    inset: 13% 2% auto 9%;
+    aspect-ratio: 16 / 10;
+    z-index: var(--gv-z-raised);
+    transform: translateZ(38px) rotateX(2deg) rotateY(-4deg) rotateZ(1deg);
+  }
+
+  .gh-frame--rear {
+    inset: 1% auto auto 0;
+    width: 56%;
+    aspect-ratio: 4 / 3;
+    opacity: 0.76;
+    transform: translateZ(-34px) rotateX(5deg) rotateY(8deg) rotateZ(-5deg);
+  }
+
+  .gh-frame--front {
+    inset: auto 0 11% auto;
+    width: 51%;
+    aspect-ratio: 16 / 9;
+    z-index: var(--gv-z-front);
+    transform: translateZ(72px) rotateX(-2deg) rotateY(-7deg) rotateZ(4deg);
+  }
+
+  .gh-mark {
+    position: absolute;
+    inset: auto auto 2% 1%;
+    z-index: var(--gv-z-front);
+    display: block;
+    width: clamp(6rem, 12vw, 9rem);
+    height: auto;
+  }
+
+  .gh-mark--light {
     display: none;
   }
-  :global([data-theme="light"]) .gh-mark-img--dark {
+
+  :global([data-theme="light"]) .gh-mark--dark {
     display: none;
   }
-  :global([data-theme="light"]) .gh-mark-img--light {
+
+  :global([data-theme="light"]) .gh-mark--light {
     display: block;
   }
 
-  /* ---- Entrance: one orchestrated sequence, then the page is still. ---- */
-  .gh-rise {
+  .gh-artifact figcaption {
+    position: absolute;
+    inset: auto auto 0 20%;
+    z-index: var(--gv-z-front);
+    display: grid;
+    gap: var(--gv-space-3xs);
+    max-width: 33ch;
+    padding: var(--gv-space-xs) var(--gv-space-sm);
+    border: var(--gv-rule-hair) solid var(--sl-color-hairline);
+    border-radius: var(--gv-radius-cta);
+    background: var(--gv-ground);
+    color: var(--sl-color-gray-3);
+    font-size: var(--gv-text-xs);
+    line-height: 1.45;
+  }
+
+  .gh-artifact figcaption span {
+    color: var(--gv-engine);
+    font-family: var(--gv-font-body);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .gh-enter {
     opacity: 0;
-    transform: translateY(16px);
-    animation: ghRise var(--gv-dur-long) var(--gv-ease-out) forwards;
+    transform: translateY(12px);
+    animation: gh-enter var(--gv-dur-major) var(--gv-ease-out) forwards;
     animation-delay: var(--d, 0ms);
   }
 
-  @keyframes ghRise {
+  @keyframes gh-enter {
     to {
       opacity: 1;
       transform: none;
-    }
-  }
-  @keyframes ghDrift {
-    to {
-      transform: translateX(-128px);
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .gh-rise {
-      opacity: 1;
-      transform: none;
-      animation: none;
+  @media (hover: hover) and (pointer: fine) {
+    .gh-btn--primary:hover,
+    .gh-btn--ghost:hover,
+    .gh-btn--text:hover {
+      transform: translateY(-2px);
+      transition-delay: var(--gv-delay-hover);
     }
-    .gh-waveDrift {
-      animation: none;
+
+    .gh-btn--primary:hover svg {
+      transform: translateX(3px);
+      transition-delay: var(--gv-delay-hover);
+    }
+
+    .gh-artifact:hover .gh-frame--main {
+      transform: translateZ(46px) rotateX(0) rotateY(-2deg) rotateZ(0);
+      transition-delay: var(--gv-delay-hover);
+    }
+
+    .gh-artifact:hover .gh-frame--front {
+      transform: translateZ(78px) rotateX(0) rotateY(-4deg) rotateZ(3deg);
+      transition-delay: var(--gv-delay-hover);
+    }
+  }
+
+  @media (max-width: 72rem) {
+    .gh-inner {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: var(--gv-space-xl);
+    }
+
+    .gh-title {
+      font-size: clamp(2.45rem, 5vw, 4rem);
     }
   }
 
   @media (max-width: 60rem) {
+    .gh {
+      margin-inline: calc(50% - 50vw);
+      padding-block-start: var(--gv-space-lg);
+    }
+
     .gh-inner {
       grid-template-columns: minmax(0, 1fr);
-      gap: var(--gv-space-lg);
+      min-height: auto;
     }
-    .gh-mark {
+
+    .gh-artifact {
+      grid-row: 2;
+      min-height: 0;
+      max-width: 42rem;
+      perspective: none;
+      transform-style: flat;
+    }
+
+    .gh-copy {
       grid-row: 1;
-      justify-self: start;
-      width: clamp(120px, 26vw, 170px);
     }
-    .gh-sun {
-      right: -10%;
-      top: 2%;
-      width: min(90vw, 420px);
+
+    .gh-frame--main {
+      position: relative;
+      inset: auto;
+      width: 100%;
+      transform: none;
+    }
+
+    .gh-frame--rear,
+    .gh-frame--front,
+    .gh-orbit,
+    .gh-mark,
+    .gh-artifact figcaption {
+      display: none;
     }
   }
 
-  @media (max-width: 46rem) {
+  @media (min-width: 60.01rem) and (max-height: 58rem) {
     .gh {
-      padding-bottom: 3.5rem;
+      padding-block-start: var(--gv-space-md);
+      padding-block-end: var(--gv-space-xl);
     }
+
+    .gh-inner {
+      min-height: calc(100dvh - var(--sl-nav-height, 4rem) - var(--gv-space-2xl));
+      gap: clamp(var(--gv-space-lg), 4vw, var(--gv-space-xl));
+    }
+
+    .gh-status {
+      margin-bottom: var(--gv-space-sm);
+    }
+
+    .gh-title {
+      max-width: 17ch;
+      font-size: clamp(3rem, 4vw, 3.75rem);
+      line-height: 0.97;
+    }
+
+    .gh-sub {
+      max-width: 56ch;
+      margin-top: var(--gv-space-sm);
+      font-size: var(--gv-text-md);
+      line-height: 1.52;
+    }
+
+    .gh-actions {
+      margin-top: var(--gv-space-md);
+    }
+
+    .gh-artifact {
+      min-height: clamp(24rem, 40vw, 33rem);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .gh {
+      padding-inline: var(--gv-space-sm);
+      padding-block-end: var(--gv-space-2xl);
+    }
+
     .gh-waves {
-      bottom: -16px;
-      height: 110px;
+      inset-block-end: -16px;
+      height: 108px;
     }
+
+    .gh-title {
+      font-size: clamp(2.35rem, 11.5vw, 3.25rem);
+    }
+
+    .gh-sub {
+      font-size: var(--gv-text-md);
+    }
+
     .gh-btn {
-      white-space: normal;
+      min-height: 48px;
+    }
+
+    .gh-btn--primary {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gh-enter {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+
+    .gh-frame,
+    .gh-btn,
+    .gh-btn svg {
+      transition: none;
+    }
+
+    .gh-btn:hover,
+    .gh-btn--primary:hover svg {
+      transform: none;
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) and (min-width: 60.01rem) {
+    .gh-artifact:hover .gh-frame--main {
+      transform: translateZ(38px) rotateX(2deg) rotateY(-4deg) rotateZ(1deg);
+    }
+
+    .gh-artifact:hover .gh-frame--front {
+      transform: translateZ(72px) rotateX(-2deg) rotateY(-7deg) rotateZ(4deg);
     }
   }
 </style>
