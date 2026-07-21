@@ -15,14 +15,20 @@ does not create new facts or become a second forecast model.
 - the goal model's attack and defence profile, explicitly labelled as fitted from results;
 - guarded goal-timing bands and penalty-goal share when those notebook facts are present;
 - scorer spotlights when the vendored source actually contains scorer data;
-- head-to-head and signature-stat layouts with sample, minimum sample, freshness, date range,
-  scope, and a per-fact source disclosure;
+- a dedicated **Competition context** band, a like-for-like **Direct comparison**, and separate
+  home/away team lanes for records that only one side qualifies for; every fact retains its
+  sample, minimum sample, freshness, date range, scope, and source disclosure;
 - coincidences preserved in a quarantined **For the pub** sidebar, capped and never shown to AI;
 - a programme colophon naming the fixed fact family, rule-set version, as-of date,
   suppressed-candidate count, and sources.
 
 Sparse data stays sparse. A section renders only when its typed evidence exists; Golavo does not
 fill the page with inferred tactics, players, or formations.
+
+The grouping is presentation-only and deterministic. Competition facts never sit under a team;
+only matching templates share a comparison row; unmatched records stay in the lane of the team
+they describe. If a counterpart was promoted into an earlier programme section, the lane links
+there instead of claiming that the record does not exist.
 
 ## Typical formations: progressive enhancement
 

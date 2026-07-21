@@ -183,9 +183,24 @@ def test_multiword_alias_resolves_to_canonical_team(tmp_path, monkeypatch):
     assert "m_rus" in {m["match_id"] for m in body["matches"]}
 
 
-def test_search_min_chars_is_422(client):
+def test_search_min_chars_is_422_without_a_directory_filter(client):
     assert client.get("/api/v1/matches/search", params={"q": "a"}).status_code == 422
     assert client.get("/api/v1/matches/search", params={"q": "  "}).status_code == 422
+
+
+def test_blank_query_browses_the_directory_when_a_filter_is_active(client):
+    upcoming = client.get(
+        "/api/v1/matches/search", params={"q": "", "status": "upcoming"}
+    )
+    assert upcoming.status_code == 200
+    assert [match["match_id"] for match in upcoming.json()["matches"]] == ["m_u1"]
+
+    competition = client.get(
+        "/api/v1/matches/search",
+        params={"q": "", "competition": "Asian Cup"},
+    )
+    assert competition.status_code == 200
+    assert competition.json()["total"] == 1
 
 
 def test_search_unknown_competition_is_empty(client):

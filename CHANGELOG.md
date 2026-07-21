@@ -6,6 +6,8 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-07-21
+
 ### Added
 - **A sixth candidate, and the measurement that kept it off the council.**
   `contextual_dixon_coles` extends Dixon-Coles with the two signals most often
@@ -83,6 +85,17 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   compares against.
 
 ### Fixed
+- **Match records now read by scope.** The deeper-cut notebook separates competition-wide
+  context, like-for-like team comparisons, and team-specific records instead of mixing them in
+  one numbered grid. Narrow layouts turn each comparison into a labelled two-team card, and a
+  fact promoted elsewhere in the programme still links to its real location.
+- **Match-card actions stay inside the card.** Follow and correction controls now live in a
+  dedicated bordered footer with full touch targets and responsive wrapping; they no longer
+  overlap the rounded edge or bleed into the page in Warm, Light, or Dark themes.
+- **Filters browse the match directory on their own.** Choosing Played, Upcoming, or a competition
+  now returns the filtered directory without requiring placeholder search text. Filtered zero
+  states name the active scope and offer a direct reset. Visible library copy now matches the
+  100,525-row index rather than the pre-expansion 75k/77k count.
 - Troyes no longer arrives as a club with no history. The 2026-27 fixture list prints
   them 'ES Troyes AC' where the indexed seasons (2015-16..2022-23) use 'ESTAC Troyes';
   unmapped, the promoted side would have been unknown to every model and would have sat
@@ -1413,7 +1426,10 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.14.1...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/udhawan97/Golavo/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/udhawan97/Golavo/compare/v0.14.2...v0.15.0
+[0.14.2]: https://github.com/udhawan97/Golavo/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/udhawan97/Golavo/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/udhawan97/Golavo/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/udhawan97/Golavo/compare/v0.12.0...v0.13.0

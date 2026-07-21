@@ -2500,25 +2500,38 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: .85rem;
 }
-.game-card-shell { min-width: 0; display: grid; align-content: start; }
-.game-card-shell__follow {
-  position: relative; z-index: 2; display: flex; justify-content: flex-end;
-  gap: .35rem; min-height: 1.65rem; margin: -1.15rem .7rem 0; pointer-events: none;
+.game-card-shell {
+  min-width: 0; display: grid; align-content: start; overflow: hidden;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-1);
+  box-shadow: var(--edge-light), 0 8px 24px rgba(0, 0, 0, .08);
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
 }
+.game-card-shell__follow {
+  position: relative; z-index: 2; display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: wrap; gap: .45rem .7rem;
+  min-width: 0; padding: .55rem .7rem .65rem;
+  border-top: 1px solid var(--border); background: var(--surface-2);
+}
+.game-card-shell__action-label {
+  color: var(--text-dim); font: 650 var(--text-xs)/1.2 var(--font-mono);
+  letter-spacing: .065em; text-transform: uppercase;
+}
+.game-card-shell__action-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .4rem; }
 .game-card-shell__follow .follow-button,
-.game-card-shell__follow .correction-button { pointer-events: auto; }
+.game-card-shell__follow .correction-button { min-height: 2.75rem; white-space: nowrap; }
 .game-card {
   position: relative; isolation: isolate; overflow: hidden;
   display: grid; grid-template-rows: auto 1fr auto auto;
   min-height: 10.75rem; padding: .9rem 1rem 1rem;
   text-decoration: none; color: inherit;
-  border: 1px solid var(--border); border-radius: var(--radius);
+  border: 0; border-radius: 0;
   background:
     radial-gradient(120% 100% at 100% 0%, var(--gold-soft), transparent 46%),
     linear-gradient(145deg, color-mix(in srgb, var(--surface-2) 70%, transparent), transparent 58%),
     var(--surface-1);
-  box-shadow: var(--edge-light), 0 8px 24px rgba(0, 0, 0, .08);
-  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+  box-shadow: none;
+  transition: background-color .2s ease;
 }
 .game-card::before {
   content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
@@ -2537,8 +2550,8 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   opacity: .1; transform: translateY(-44%) rotate(-4deg) scale(.96);
   transition: opacity .25s ease, transform .25s ease;
 }
-.game-card:hover,
-.game-card:focus-visible {
+.game-card-shell:has(.game-card:hover),
+.game-card-shell:focus-within {
   border-color: var(--gold-line); transform: translateY(-3px);
   box-shadow: var(--edge-light), 0 14px 30px rgba(0, 0, 0, .22), 0 0 0 1px color-mix(in srgb, var(--gold-line) 34%, transparent);
 }
@@ -2709,6 +2722,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   .game-card__mark { width: 1.7rem; height: 1.7rem; }
   .game-card__foot { padding-top: .55rem; }
   .game-card__analyze { max-width: 1rem; font-size: 0; opacity: .7; transform: none; }
+  .game-card-shell__follow { align-items: flex-start; }
 }
 
 @media (max-width: 430px) {
@@ -2725,13 +2739,13 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 @media (hover: none) and (max-width: 700px) { .game-card__analyze { max-width: 1rem; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .game-card, .game-card::after, .game-card__analyze { transition: none; }
-  .game-card:hover, .game-card:focus-visible { transform: none; }
+  .game-card-shell, .game-card, .game-card::after, .game-card__analyze { transition: none; }
+  .game-card-shell:has(.game-card:hover), .game-card-shell:focus-within { transform: none; }
 }
 
 @media (forced-colors: active) {
   .game-card::before, .game-card::after { display: none; }
-  .game-card { border-color: CanvasText; }
+  .game-card-shell { border-color: CanvasText; }
 }
 
 /* --------------------------------------------------------- pick ticket ---- */
@@ -2892,15 +2906,21 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .mn-fact__proof { display: flex; flex-wrap: wrap; gap: .3rem .6rem; color: var(--text-dim); }
 .mn-fact__proof > span { padding-right: .6rem; border-right: 1px solid var(--border); }.mn-fact__proof > span:last-child { border-right: 0; }
 
-/* Stat for stat. The competition band reads as the stage, the table as the
-   two contestants. Home/away keep the --home/--away coding the head-to-head
-   band above already teaches, so the reader learns it once. */
-.mn-compare__stage { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1rem; margin-top: .9rem; padding: .7rem .9rem; border-left: 2px solid var(--wave); background: color-mix(in srgb, var(--surface-2) 58%, transparent); }
-.mn-compare__stage > .upper { color: var(--wave); }
-.mn-compare__stage ul { display: flex; flex-wrap: wrap; gap: .35rem 1.4rem; margin: 0; padding: 0; list-style: none; }
-.mn-compare__stage li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem; min-width: 0; }
+/* Competition and team records. Each scope gets a named band; only genuinely
+   comparable team facts share a row. */
+.mn-compare > .mn-section__head { display: grid; grid-template-columns: minmax(0, 1fr); gap: .25rem; }
+.mn-compare__block { margin-top: 1.35rem; }
+.mn-compare__subhead { display: grid; grid-template-columns: minmax(0, 1fr); gap: .18rem; }
+.mn-compare__subhead .upper { color: var(--gold); }
+.mn-compare__subhead h4 { margin: 0; font-family: var(--font-serif); font-size: 1.25rem; }
+.mn-compare__subhead p { margin: 0; max-width: var(--measure); color: var(--text-muted); font-size: var(--text-sm); }
+.mn-compare__stage { margin-top: .7rem; padding: .85rem 1rem; border-left: 2px solid var(--wave); background: color-mix(in srgb, var(--surface-2) 58%, transparent); }
+.mn-compare__stage ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: .8rem 1.2rem; margin: 0; padding: 0; list-style: none; }
+.mn-compare__stage li { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: .25rem .5rem; min-width: 0; }
+.mn-compare__stage li > .upper { grid-column: 1 / -1; color: var(--wave); }
 .mn-compare__stage strong { color: var(--gold); font-size: 1.15rem; font-weight: 400; }
-.mn-compare__stage span { color: var(--text-muted); font-size: var(--text-sm); }
+.mn-compare__stage li > span:not(.upper) { grid-column: 1 / -1; color: var(--text-muted); font-size: var(--text-sm); }
+.mn-compare__stage details { grid-column: 1 / -1; }
 .mn-compare__table { width: 100%; margin-top: 1rem; border-collapse: collapse; }
 .mn-compare__table thead th { padding: 0 0 .5rem; border-bottom: 1px solid var(--border-strong); color: var(--text-dim); font-size: .7rem; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; text-align: left; }
 .mn-compare__team--home { color: var(--home); text-align: right; }
@@ -2931,15 +2951,40 @@ a.mn-compare__absent { color: var(--link); font-style: normal; }
 .mn-compare__cell--home .mn-compare__detail summary { margin-left: auto; }
 .mn-compare__detail > p { margin: .35rem 0 0; color: var(--text-muted); font-size: var(--text-sm); line-height: 1.5; text-align: left; }
 .mn-compare__cell--home .mn-fact__proof { justify-content: flex-end; }
-.mn-compare__solo, .mn-compare__other { margin-top: 1.3rem; }
-.mn-compare__solo > .upper { color: var(--text-dim); }
+.mn-compare__lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; margin-top: .75rem; }
+.mn-compare__lane { min-width: 0; padding: .9rem 1rem 1rem; border-top: 3px solid var(--home); background: color-mix(in srgb, var(--surface-2) 62%, transparent); }
+.mn-compare__lane--away { border-color: var(--away); }
+.mn-compare__lane > header { display: grid; grid-template-columns: minmax(0, 1fr); gap: .1rem; }
+.mn-compare__lane > header .upper { color: var(--home); }
+.mn-compare__lane--away > header .upper { color: var(--away); }
+.mn-compare__lane h4 { margin: 0; font-family: var(--font-serif); font-size: 1.2rem; overflow-wrap: anywhere; }
+.mn-compare__lane-list { display: grid; gap: .8rem; margin-top: .75rem; }
+.mn-compare__team-fact { min-width: 0; padding-top: .75rem; border-top: 1px solid var(--border); }
+.mn-compare__team-fact-head { display: flex; align-items: baseline; gap: .55rem; }
+.mn-compare__team-fact-head strong { color: var(--gold); font-size: 1.35rem; font-weight: 400; }
+.mn-compare__team-fact h5 { margin: 0; font-size: 1rem; }
+.mn-compare__team-fact > p, .mn-compare__lane-empty { margin: .35rem 0 .65rem; color: var(--text-muted); font-size: var(--text-sm); line-height: 1.45; }
+.mn-compare__counterpart { padding-top: .55rem; border-top: 1px dashed var(--border); color: var(--text-dim) !important; font-size: var(--text-xs) !important; }
+.mn-compare__other .mn-feature-grid { margin-top: .75rem; }
 @media (max-width: 46rem) {
-  /* Rails are aria-hidden decoration duplicating the numeric cell, so a narrow
-     screen drops them and loses nothing. */
+  /* The data remains a semantic table, but each stat becomes a labelled card
+     so team values never squeeze into unreadable columns. */
   .mn-compare__rail { display: none; }
-  .mn-compare__stat { width: 46%; }
+  .mn-compare__table, .mn-compare__table tbody, .mn-compare__table tr { display: block; }
+  .mn-compare__table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .mn-compare__table tbody { display: grid; gap: .65rem; }
+  .mn-compare__table tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--border); background: color-mix(in srgb, var(--surface-2) 58%, transparent); }
+  .mn-compare__stat { grid-column: 1 / -1; width: auto; padding: .75rem; border-bottom: 1px solid var(--border); }
+  .mn-compare__cell { display: grid; width: auto; padding: .7rem .75rem; text-align: left; }
+  .mn-compare__cell--home { border-right: 1px solid var(--border); }
+  .mn-compare__cell::before { content: attr(data-team); margin-bottom: .25rem; color: var(--text-dim); font: 650 var(--text-xs)/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; overflow-wrap: anywhere; }
+  .mn-compare__cell--home .mn-compare__meta, .mn-compare__cell--home .mn-fact__proof { justify-content: flex-start; }
+  .mn-compare__cell--home .mn-compare__detail summary { margin-left: 0; }
   .mn-compare__value { font-size: 1.15rem; }
+  .mn-compare__lanes { grid-template-columns: minmax(0, 1fr); }
 }
+
+.ms-empty-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
 .mn-h2h__bar { display: flex; height: 1rem; overflow: hidden; border-radius: 999px; background: var(--surface-3); }
 .mn-h2h__home { background: var(--home); }.mn-h2h__draw { background: var(--draw); }.mn-h2h__away { background: var(--away); }
 .mn-h2h__legend { display: flex; justify-content: space-between; margin-top: .45rem; color: var(--text-muted); font-size: var(--text-xs); }

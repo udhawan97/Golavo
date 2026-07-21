@@ -50,6 +50,10 @@ all running under the same sample and freshness guards:
 pure, documented pick from this same notebook; the full Notebook below **removes** those picks, so
 the two panels partition the facts rather than repeat them — the Notebook is the deeper cut.
 
+Inside that deeper cut, scope stays visible: competition-wide base rates have their own context
+band, the same team template appears as one direct-comparison row, and facts held by only one side
+stay in that team's lane. The layout never invents a missing value to make a pair look complete.
+
 ## Base rates and samples
 
 Every fact carries `sample_n` (the observations it is built on), `denominator` (the base-rate

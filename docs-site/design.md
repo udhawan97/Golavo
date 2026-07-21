@@ -43,7 +43,7 @@ The landing page has two registers, and the difference is load-bearing:
   take a stage number.
 
 Numbering anywhere else is decoration and is banned. In particular: a rail of
-unrelated facts (`01 · 77,000 matches / 02 · Two model voices`) does not get
+unrelated facts (`01 · 100,000 matches / 02 · Two model voices`) does not get
 numbers, because that list has no order.
 
 ## Theme

@@ -4,7 +4,7 @@
  *   - FACTS      : genuinely-true, obscure football trivia (kept factual on
  *                  purpose — even the loading screen shouldn't make things up).
  *   - WAIT_WHY   : an honest, witty-professional explanation of why a cold launch
- *                  takes a beat (self-extracting engine, a 75k-match library).
+ *                  takes a beat (self-extracting engine, a 100k-match library).
  *   - APP_GEMS   : hidden-feature tips, so the wait doubles as onboarding.
  *
  * Tone: calm, honest, a little playful — never hype, never a claim we can't back.
@@ -31,7 +31,7 @@ export const FACTS: readonly string[] = [
 export const WAIT_WHY: readonly string[] = [
   "Golavo runs entirely on your machine — no cloud shortcuts. The first minute is the price of owning the whole stadium.",
   "The engine ships as one sealed bundle and unpacks itself at every launch. Think of it as the groundskeeper unrolling the pitch.",
-  "Seventy-five thousand matches are taking their seats in the library. They arrive in order; nobody queue-jumps.",
+  "One hundred thousand matches are taking their seats in the library. They arrive in order; nobody queue-jumps.",
   "Five model families are lacing up. Each one fits on demand, at kickoff minus one second — never after.",
   "Nothing is phoning home while you wait. There is no home to phone.",
   "Now loading pandas — the data kind, not the bears. The slowest member of an otherwise punctual squad.",

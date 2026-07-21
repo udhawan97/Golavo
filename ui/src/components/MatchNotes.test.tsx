@@ -83,7 +83,7 @@ describe("StatForStat", () => {
     expect(html).not.toContain("—</");
   });
 
-  it("names the guardrail when no fact qualified", () => {
+  it("puts a one-sided record in the team lane without an empty comparison cell", () => {
     const html = render({
       solo: [{
         id: "win_streak",
@@ -94,7 +94,11 @@ describe("StatForStat", () => {
         rail: false,
       }],
     });
-    expect(html).toContain("No qualifying sample");
+    expect(html).toContain("Team-specific records");
+    expect(html).toContain("France team records");
+    expect(html).toContain("Morocco team records");
+    expect(html).toContain("No additional team-only records");
+    expect(html).not.toContain("No qualifying sample");
   });
 
   it("keeps the tournament band out of the comparison table", () => {
@@ -106,7 +110,8 @@ describe("StatForStat", () => {
         base_rate: 0.26,
       })],
     });
-    expect(html).toContain("The tournament");
+    expect(html).toContain("Competition context");
+    expect(html).toContain("Records about the competition as a whole");
     expect(html).toContain("First-year teams");
     expect(html).not.toContain("<table");
   });

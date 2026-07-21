@@ -120,7 +120,7 @@ export function MatchdayHome() {
 
       <a className="search-cta" href="#/matches">
         <SearchIcon />
-        <span>Search 77,000+ matches — internationals, big-five leagues, and UEFA clubs</span>
+        <span>Search 100,000+ matches — internationals, big-five leagues, and UEFA clubs</span>
         <ChevronRight size={16} />
       </a>
 
@@ -392,9 +392,16 @@ export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anc
         </div>
         <PickChip match={match} pick={pick} />
       </a>
-      <div className="game-card-shell__follow">
-        <FollowButton matchId={match.match_id} compact />
-        <CorrectionButton matchId={match.match_id} compact />
+      <div
+        className="game-card-shell__follow"
+        role="group"
+        aria-label={`Match actions for ${match.home_team} versus ${match.away_team}`}
+      >
+        <span className="game-card-shell__action-label">Match actions</span>
+        <span className="game-card-shell__action-buttons">
+          <FollowButton matchId={match.match_id} compact />
+          <CorrectionButton matchId={match.match_id} compact />
+        </span>
       </div>
     </article>
   );

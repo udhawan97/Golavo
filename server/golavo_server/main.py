@@ -624,15 +624,24 @@ def search_matches(
     limit: int = 25,
     offset: int = 0,
 ) -> dict[str, Any]:
-    """Search the frozen, read-only match index (75k fixtures) by team or competition.
+    """Search the frozen, read-only match index (100k+ fixtures) by team or competition.
 
     Read-only and pack-free: it never writes and never touches the model. Forecast
     links are drawn from the REAL ledger (ARTIFACT_DIR), not the sample fallback, so
     a synthetic sample id can never attach to a real fixture. Links are cheap
     navigation — the forecast route still verifies each artifact's identity on serve.
     """
-    if len(q.strip()) < 2:
-        raise HTTPException(status_code=422, detail="q must be at least 2 characters")
+    query = q.strip()
+    browsing_with_filters = not query and (
+        competition is not None or status in {"played", "upcoming"}
+    )
+    if len(query) < 2 and not browsing_with_filters:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "q must be at least 2 characters unless a competition or status filter is active"
+            ),
+        )
     try:
         return matches.search_matches(
             q,

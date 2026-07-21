@@ -99,7 +99,7 @@ def check_new_fixtures(
         import pandas as pd
 
         # Vectorized: build the (date, home_norm, away_norm) key set with pandas
-        # column ops instead of a Python-level ``iterrows`` over the whole 75k-row
+        # column ops instead of a Python-level ``iterrows`` over the whole 100k-row
         # index on every call. Same key shape — a valid date becomes its
         # ``YYYY-MM-DD`` string, a missing date becomes "".
         dates = pd.to_datetime(index_frame["date"], errors="coerce").dt.strftime("%Y-%m-%d")

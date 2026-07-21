@@ -142,7 +142,7 @@ v0.1.0 cannot currently express; each was worked around read-only without invent
 
 ## Match Search & the per-match Commentator's Notebook (later addition)
 
-A read-only search surface over the committed 75k-match index, plus a Commentator's
+A read-only search and filter-browse surface over the committed 100k-match index, plus a Commentator's
 Notebook for *any* searched match. Additive to the workbench above — the sealed forecast
 views, the Ledger, and the AI panel are unchanged. Full engineering note:
 [`docs/handoff/match-search.md`](../docs/handoff/match-search.md).
@@ -161,8 +161,8 @@ labelled as such (not real fixtures). Contract types are additive in `src/lib/co
 `MatchRow`, `MatchSearchResponse`, `MatchDetailResponse` (with
 `linked_by: "match_id" | "fixture" | null`), `CompetitionsResponse`, and
 `MatchNotebookResponse` (reusing the Phase-7 `CommentatorsNotebook` type + `NotebookFacts`
-renderer). The search box is debounced; Load-more pages by `offset`, keyed so a stale page
-never appends to a newer query.
+renderer). The search box is debounced; status and competition filters can browse without query
+text; Load-more pages by `offset`, keyed so a stale page never appends to a newer query.
 
 ### Honest states (rendered from engine fields alone)
 

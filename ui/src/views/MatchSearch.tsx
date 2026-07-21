@@ -84,6 +84,8 @@ export function MatchSearch() {
     () => ({ competition: competition || undefined, status: status === "all" ? undefined : status }),
     [competition, status],
   );
+  const hasDirectoryFilter = competition !== "" || status !== "all";
+  const canSearch = query.length >= 2 || (query.length === 0 && hasDirectoryFilter);
 
   // Identity of the current search — captured by Load-more so a page that
   // resolves after the filters changed is dropped instead of mis-appended.
@@ -93,7 +95,7 @@ export function MatchSearch() {
 
   // Fresh search (offset 0, replaces rows) whenever the query or a filter moves.
   useEffect(() => {
-    if (query.length < 2) {
+    if (!canSearch) {
       setPhase("idle");
       setRows([]);
       setTotal(0);
@@ -123,13 +125,13 @@ export function MatchSearch() {
     return () => {
       alive = false;
     };
-  }, [query, opts, retryTick, generationRevision]);
+  }, [query, opts, canSearch, retryTick, generationRevision]);
 
   // Re-run the current search (used by the "Try again" affordances).
   const retry = () => setRetryTick((t) => t + 1);
 
   const loadMore = () => {
-    if (query.length < 2 || loadingMore) return;
+    if (!canSearch || loadingMore) return;
     const key = keyRef.current;
     const offset = rows.length;
     setLoadingMore(true);
@@ -208,10 +210,17 @@ export function MatchSearch() {
         </label>
       </div>
 
-      {phase === "idle" && (
+      {phase === "idle" && query.length === 1 && (
+        <EmptyState title="Type one more character">
+          Match search starts at two characters. You can also clear the search and browse with a
+          status or competition filter.
+        </EmptyState>
+      )}
+
+      {phase === "idle" && query.length !== 1 && (
         <div className="stack" style={{ ["--gap" as string]: ".9rem" }}>
           <EmptyState title="Search the match directory">
-            Search 77,000+ matches — internationals, the big-five leagues, and UEFA club
+            Search 100,000+ matches — internationals, the big-five leagues, and UEFA club
             competitions. Or jump in:
           </EmptyState>
           <div
@@ -259,14 +268,31 @@ export function MatchSearch() {
 
       {phase === "ready" && (
         rows.length === 0 ? (
-          <EmptyState title={`No matches for “${query}”`}>
-            No match in the directory matches that query with the current filters. Try fewer
-            filters or a different spelling.
-          </EmptyState>
+          <div className="stack ms-filter-empty" style={{ ["--gap" as string]: ".8rem" }}>
+            <EmptyState title={filterEmptyTitle(query, competition, status)}>
+              {query
+                ? "No match in the directory matches that query with the current filters. Try fewer filters or a different spelling."
+                : `The current snapshot has no ${filterEmptySubject(competition, status)}. Change the filters to keep browsing.`}
+            </EmptyState>
+            {hasDirectoryFilter && (
+              <div className="ms-empty-actions" aria-label="Change empty search filters">
+                {status !== "all" && (
+                  <button type="button" className="btn btn--ghost" onClick={() => setStatus("all")}>
+                    Show all statuses
+                  </button>
+                )}
+                {competition && (
+                  <button type="button" className="btn btn--ghost" onClick={() => setCompetition("")}>
+                    All competitions
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         ) : (
           <div className="stack" style={{ ["--gap" as string]: "1.1rem" }}>
             <p className="ms-count small muted" role="status" aria-live="polite">
-              Showing {rows.length} of {total} match{total === 1 ? "" : "es"}
+              Showing {rows.length} of {total} {resultLabel(status, total)}
             </p>
             {GROUPS.map(({ kind, title }) => {
               const group = rows.filter((r) => r.source_kind === kind);
@@ -306,6 +332,22 @@ export function MatchSearch() {
       )}
     </div>
   );
+}
+
+function filterEmptySubject(competition: string, status: StatusFilter): string {
+  const statusLabel = status === "all" ? "matches" : `${status} matches`;
+  return competition ? `${statusLabel} in ${competition}` : statusLabel;
+}
+
+function filterEmptyTitle(query: string, competition: string, status: StatusFilter): string {
+  if (query) return `No matches for “${query}”`;
+  const subject = filterEmptySubject(competition, status);
+  return `No ${subject}`;
+}
+
+function resultLabel(status: StatusFilter, total: number): string {
+  const noun = total === 1 ? "match" : "matches";
+  return status === "all" ? noun : `${status} ${noun}`;
 }
 
 function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {

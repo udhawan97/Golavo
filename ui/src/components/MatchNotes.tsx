@@ -66,9 +66,10 @@ function FactCard({ fact, index }: { fact: NotebookFact; index?: number }) {
 /** One side of a comparison row. An absent side never renders a bare dash:
  * "displayed in another section" and "no fact qualified" are different claims,
  * and only the second one means the record does not exist. */
-function CompareCell({ side, tone, rail, expert }: {
+function CompareCell({ side, tone, team, rail, expert }: {
   side: FactSide;
   tone: "home" | "away";
+  team: string;
   rail: boolean;
   expert?: boolean;
 }) {
@@ -76,7 +77,7 @@ function CompareCell({ side, tone, rail, expert }: {
   if (!side.fact) {
     const absence = side.absence ?? { kind: "unqualified" as const };
     return (
-      <td className={`${className} mn-compare__cell--absent`}>
+      <td className={`${className} mn-compare__cell--absent`} data-team={team}>
         {absence.kind === "unqualified" ? (
           <span className="mn-compare__absent">No qualifying sample</span>
         ) : absence.anchor ? (
@@ -89,7 +90,7 @@ function CompareCell({ side, tone, rail, expert }: {
   }
   const fact = side.fact;
   return (
-    <td className={className}>
+    <td className={className} data-team={team}>
       <span className="mn-compare__value num">{displayValue(fact)}</span>
       {rail && fact.base_rate !== null && (
         <span className="mn-compare__rail" aria-hidden>
@@ -133,12 +134,81 @@ function CompareTable({ rows, home, away, expert, caption }: {
               <span>{row.title}</span>
               {!expert && <p className="mn-compare__explainer">{row.explainer}</p>}
             </th>
-            <CompareCell side={row.home} tone="home" rail={row.rail} expert={expert} />
-            <CompareCell side={row.away} tone="away" rail={row.rail} expert={expert} />
+            <CompareCell side={row.home} tone="home" team={home} rail={row.rail} expert={expert} />
+            <CompareCell side={row.away} tone="away" team={away} rail={row.rail} expert={expert} />
           </tr>
         ))}
       </tbody>
     </table>
+  );
+}
+
+function TeamFact({ row, fact, counterpart, counterpartTeam }: {
+  row: FactRow;
+  fact: NotebookFact;
+  counterpart: FactSide;
+  counterpartTeam: string;
+}) {
+  const promoted = counterpart.absence?.kind === "elsewhere" ? counterpart.absence : null;
+  return (
+    <article className="mn-compare__team-fact">
+      <div className="mn-compare__team-fact-head">
+        <strong className="num">{displayValue(fact)}</strong>
+        <h5>{row.title}</h5>
+      </div>
+      <p>{row.explainer}</p>
+      <details className="mn-compare__detail">
+        <summary>Full stat &amp; source</summary>
+        <p>{fact.text}</p>
+        <FactSource fact={fact} />
+      </details>
+      {promoted && (
+        <p className="mn-compare__counterpart">
+          {counterpartTeam} counterpart: {promoted.anchor ? (
+            <a href={promoted.anchor}>Shown in {promoted.section}</a>
+          ) : (
+            <span>featured elsewhere in {promoted.section}</span>
+          )}
+        </p>
+      )}
+    </article>
+  );
+}
+
+function TeamFactLane({ team, counterpartTeam, tone, rows }: {
+  team: string;
+  counterpartTeam: string;
+  tone: "home" | "away";
+  rows: FactRow[];
+}) {
+  const facts = rows.flatMap((row) => {
+    const fact = tone === "home" ? row.home.fact : row.away.fact;
+    const counterpart = tone === "home" ? row.away : row.home;
+    return fact ? [{ row, fact, counterpart }] : [];
+  });
+  return (
+    <section className={`mn-compare__lane mn-compare__lane--${tone}`} aria-label={`${team} team records`}>
+      <header>
+        <span className="upper">{tone === "home" ? "Home side" : "Away side"}</span>
+        <h4>{team}</h4>
+        <span className="small dim">{facts.length} additional {facts.length === 1 ? "record" : "records"}</span>
+      </header>
+      {facts.length > 0 ? (
+        <div className="mn-compare__lane-list">
+          {facts.map(({ row, fact, counterpart }) => (
+            <TeamFact
+              key={factKey(fact)}
+              row={row}
+              fact={fact}
+              counterpart={counterpart}
+              counterpartTeam={counterpartTeam}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="mn-compare__lane-empty">No additional team-only records. Comparable stats are shown above.</p>
+      )}
+    </section>
   );
 }
 
@@ -154,16 +224,22 @@ export function StatForStat({ grouped, home, away, expert }: {
   if (!tournament.length && !paired.length && !solo.length && !other.length) return null;
   return (
     <section className="mn-section mn-compare" aria-labelledby="mn-stats-title">
-      <div className="mn-section__head"><span className="upper">Deeper cut</span><h3 id="mn-stats-title">Stat for stat</h3></div>
+      <div className="mn-section__head"><span className="upper">Deeper cut</span><h3 id="mn-stats-title">Competition &amp; team records</h3></div>
 
       {tournament.length > 0 && (
-        <div className="mn-compare__stage">
-          <span className="upper">The tournament</span>
+        <section className="mn-compare__block" aria-labelledby="mn-competition-title">
+          <header className="mn-compare__subhead">
+            <span className="upper">Competition</span>
+            <h4 id="mn-competition-title">Competition context</h4>
+            <p>Records about the competition as a whole—not either team.</p>
+          </header>
+          <div className="mn-compare__stage">
           <ul>
             {tournament.map((fact) => {
               const display = FACT_DISPLAY[fact.id] ?? { title: "Match record", explainer: "A source-backed fact from the available history." };
               return (
                 <li key={factKey(fact)}>
+                  <span className="upper">{fact.subject}</span>
                   <strong className="num">{displayValue(fact)}</strong>
                   <b>{display.title}</b>
                   <span>{display.explainer}</span>
@@ -176,34 +252,52 @@ export function StatForStat({ grouped, home, away, expert }: {
               );
             })}
           </ul>
-        </div>
+          </div>
+        </section>
       )}
 
-      <CompareTable
-        rows={paired}
-        home={home}
-        away={away}
-        expert={expert}
-        caption={`${home} against ${away}, on the stats both teams qualify for.`}
-      />
-
-      {solo.length > 0 && (
-        <div className="mn-compare__solo">
-          <span className="upper">Only one side qualifies</span>
+      {paired.length > 0 && (
+        <section className="mn-compare__block" aria-labelledby="mn-comparison-title">
+          <header className="mn-compare__subhead">
+            <span className="upper">Teams</span>
+            <h4 id="mn-comparison-title">Direct comparison</h4>
+            <p>The same qualified record, aligned side by side.</p>
+          </header>
           <CompareTable
-            rows={solo}
+            rows={paired}
             home={home}
             away={away}
             expert={expert}
-            caption={`Stats where only one of ${home} or ${away} has a qualifying record.`}
+            caption={`${home} against ${away}, on the stats both teams qualify for.`}
           />
-        </div>
+        </section>
+      )}
+
+      {solo.length > 0 && (
+        <section className="mn-compare__block mn-compare__teams" aria-labelledby="mn-team-records-title">
+          <header className="mn-compare__subhead">
+            <span className="upper">By team</span>
+            <h4 id="mn-team-records-title">Team-specific records</h4>
+            <p>Additional facts stay with the team they describe.</p>
+          </header>
+          <div className="mn-compare__lanes">
+            <TeamFactLane team={home} counterpartTeam={away} tone="home" rows={solo} />
+            <TeamFactLane team={away} counterpartTeam={home} tone="away" rows={solo} />
+          </div>
+        </section>
       )}
 
       {other.length > 0 && (
-        <div className="mn-feature-grid mn-compare__other">
-          {other.map((fact) => <FactCard fact={fact} key={factKey(fact)} />)}
-        </div>
+        <section className="mn-compare__block mn-compare__other" aria-labelledby="mn-match-context-title">
+          <header className="mn-compare__subhead">
+            <span className="upper">The fixture</span>
+            <h4 id="mn-match-context-title">Shared match context</h4>
+            <p>Records that belong to this matchup rather than one side.</p>
+          </header>
+          <div className="mn-feature-grid">
+            {other.map((fact) => <FactCard fact={fact} key={factKey(fact)} />)}
+          </div>
+        </section>
       )}
     </section>
   );

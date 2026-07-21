@@ -5,8 +5,15 @@ test("match cards keep navigation and follow as sibling controls", async ({ page
   const shell = page.locator(".game-card-shell").first();
   await shell.waitFor();
   await expect(shell.locator(":scope > a.game-card")).toHaveCount(1);
-  await expect(shell.locator(":scope > .game-card-shell__follow > button")).toHaveCount(1);
+  const actions = shell.getByRole("group", { name: /Match actions for/ });
+  await expect(actions.locator("button")).toHaveCount(1);
   await expect(shell.locator("a button")).toHaveCount(0);
+  const shellBox = await shell.boundingBox();
+  const actionBox = await actions.boundingBox();
+  expect(shellBox).not.toBeNull();
+  expect(actionBox).not.toBeNull();
+  expect(actionBox!.y).toBeGreaterThanOrEqual(shellBox!.y);
+  expect(actionBox!.y + actionBox!.height).toBeLessThanOrEqual(shellBox!.y + shellBox!.height + 0.5);
 });
 
 test("browser preview labels following as desktop-only without prompting", async ({ page }) => {

@@ -52,13 +52,13 @@ than silently rendering malformed data.
 
 ## Routes & views
 
-Hash routing (`src/lib/hooks.ts`), no router library. Header nav is **Games · Leagues · Model
-Lab**, plus Search, an **Aa** reading-comfort popover, and a Settings gear.
+Hash routing (`src/lib/hooks.ts`), no router library. Header nav is **Matchday · Leagues · My
+Season · Model Lab**, plus Search, an **Aa** reading-comfort popover, and a Settings gear.
 
 | Route | View | What it is |
 | --- | --- | --- |
 | `#/` (or `#/games`) | `GamesHome` | recent + upcoming rails, search entry, league chips — the landing surface |
-| `#/matches` | `MatchSearch` | debounced search over the ~75k-match index; grouped internationals/club; honest badge states |
+| `#/matches` | `MatchSearch` | debounced search or filter-only browsing over the 100k-match index; grouped internationals/club; honest badge and empty states |
 | `#/match/{id}` | `MatchDetail` | **Match Cockpit**: on-demand Replay (played) / Preview (scheduled) council, model-implied goals, score grid, Notebook, and the **Seal before kickoff** action for an eligible fixture |
 | `#/forecast/{id}` | `ForecastDetail` | a sealed forecast — verdict bar, seal stamp, provenance, score matrix, scored/voided/superseded states, "what moved" re-seal deltas, insight cards |
 | `#/leagues` | `LeaguesHub` | browse hub for domestic leagues, UEFA clubs + internationals |

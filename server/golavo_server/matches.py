@@ -843,7 +843,10 @@ def search_matches(
     ``home_norm``/``away_norm`` columns. Aliases (former country names) resolve to
     canonical teams. Ranking: a team-name PREFIX hit first, then kickoff desc,
     then match_id — fully deterministic. Forecast links come from the passed
-    ledger dir only.
+    ledger dir only. A blank query deliberately starts from the whole directory;
+    the HTTP boundary permits that mode only when a status or competition filter
+    is active, so it remains bounded and intentional rather than becoming an
+    accidental 100,000-row browse.
     """
     import pandas as pd
 
@@ -879,7 +882,7 @@ def search_matches(
     tokens = nq.split()
     lead = tokens[0] if tokens else nq
     if not tokens:
-        mask = pd.Series(False, index=frame.index)
+        mask = pd.Series(True, index=frame.index)
     else:
         mask = _token_mask(tokens[0])
         for token in tokens[1:]:
