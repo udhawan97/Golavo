@@ -90,3 +90,6 @@ packs/**/build/
 SBOM*.json
 SHA256SUMS*
 *.minisig
+
+# graphify knowledge graph (build artifact, regenerate with: graphify update .)
+graphify-out/
