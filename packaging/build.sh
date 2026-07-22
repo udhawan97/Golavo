@@ -83,7 +83,10 @@ root = Path.cwd()
 registry = root / "packs/snapshots.json"
 resolve = lambda declared: root / declared  # noqa: E731
 for pack in active_packs(registry, resolve=resolve):
-    print(pack.directory / "manifest.json")
+    # Git Bash cannot reliably resolve the native ``D:\\...`` path spelling
+    # emitted by Windows Python. Keep the signer, shell existence check, and
+    # cleanup trap on one portable repository-relative POSIX path.
+    print((pack.directory / "manifest.json").relative_to(root).as_posix())
 PY
   )
   touch "$PACK_SIGNATURE_MARKER"
