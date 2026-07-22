@@ -20,7 +20,7 @@ from golavo_core.models import fit_model
 from golavo_core.outlook import knockout_advance_probability
 from golavo_core.standings import LeagueRule, football_season, league_rule, standings_table
 
-SEASON_OUTLOOK_SCHEMA_VERSION = "0.1.0"
+SEASON_OUTLOOK_SCHEMA_VERSION = "0.2.0"
 SEASON_OUTLOOK_RULE = "season-mc-2026.07.1"
 SEASON_OUTLOOK_LABEL = (
     "Season outlook — a seeded simulation from current model fits. Not a sealed forecast."
@@ -109,6 +109,8 @@ def _blocked(
     reason: str,
     table: list[dict[str, Any]],
     source_ids: list[str],
+    remaining_fixtures: list[dict[str, Any]],
+    scenario: dict[str, Any] | None,
 ) -> dict[str, Any]:
     return {
         "schema_version": SEASON_OUTLOOK_SCHEMA_VERSION,
@@ -128,7 +130,80 @@ def _blocked(
         "iterations": 0,
         "seed": None,
         "voices": [],
+        "remaining_fixtures": remaining_fixtures,
+        "scenario": scenario,
         "provenance": {"source_ids": source_ids},
+    }
+
+
+def _remaining_fixtures(schedule: pd.DataFrame, as_of: pd.Timestamp) -> list[dict[str, Any]]:
+    complete = schedule["is_complete"].astype("boolean").fillna(False)
+    kickoff = pd.to_datetime(schedule["kickoff_utc"], utc=True)
+    rows = schedule.loc[~complete & (kickoff > as_of)]
+    return [
+        {
+            "match_id": str(row.match_id),
+            "kickoff_utc": _iso(pd.Timestamp(row.kickoff_utc)),
+            "home_team": str(row.home_team),
+            "away_team": str(row.away_team),
+        }
+        for row in rows.itertuples(index=False)
+    ]
+
+
+def _apply_forced_results(
+    schedule: pd.DataFrame,
+    forced_results: list[dict[str, Any]] | None,
+    *,
+    as_of: pd.Timestamp,
+) -> tuple[pd.DataFrame, dict[str, Any] | None]:
+    if not forced_results:
+        return schedule, None
+    if len(forced_results) > 12:
+        raise ValueError("a scenario may force at most 12 fixtures")
+    result = schedule.copy()
+    seen: set[str] = set()
+    applied: list[dict[str, Any]] = []
+    for item in forced_results:
+        match_id = str(item.get("match_id") or "")
+        if not match_id or match_id in seen:
+            raise ValueError("scenario fixture ids must be non-empty and unique")
+        seen.add(match_id)
+        try:
+            home_score = item["home_score"]
+            away_score = item["away_score"]
+        except (KeyError, TypeError) as exc:
+            raise ValueError("scenario scores must be integers") from exc
+        if type(home_score) is not int or type(away_score) is not int:
+            raise ValueError("scenario scores must be integers")
+        if not 0 <= home_score <= 20 or not 0 <= away_score <= 20:
+            raise ValueError("scenario scores must be between 0 and 20")
+        selected = result["match_id"].astype("string").eq(match_id)
+        if int(selected.sum()) != 1:
+            raise ValueError(f"scenario fixture is not in this season: {match_id}")
+        row = result.loc[selected].iloc[0]
+        kickoff = _utc(row["kickoff_utc"])
+        if bool(row["is_complete"]) or kickoff <= as_of:
+            raise ValueError(f"scenario fixture is not an unplayed future match: {match_id}")
+        result.loc[selected, ["home_score", "away_score", "is_complete"]] = [
+            home_score,
+            away_score,
+            True,
+        ]
+        applied.append(
+            {
+                "match_id": match_id,
+                "home_team": str(row["home_team"]),
+                "away_team": str(row["away_team"]),
+                "home_score": home_score,
+                "away_score": away_score,
+            }
+        )
+    return result, {
+        "hypothetical_only": True,
+        "persisted": False,
+        "model_input": False,
+        "forced_results": applied,
     }
 
 
@@ -475,6 +550,7 @@ def season_outlook(
     season: str | None = None,
     iterations: int = DEFAULT_ITERATIONS,
     seed: int = DEFAULT_SEED,
+    forced_results: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Build a typed season state, simulating only a certified future schedule."""
     if iterations <= 0:
@@ -496,9 +572,20 @@ def season_outlook(
         for value in schedule.get("source_id", pd.Series(dtype="string")).dropna().unique()
     )
     teams = certificate["teams"]
-    visible_schedule = schedule.copy()
+    remaining_fixtures = _remaining_fixtures(schedule, as_of)
+    scenario_schedule, scenario = _apply_forced_results(
+        schedule, forced_results, as_of=as_of
+    )
+    visible_schedule = scenario_schedule.copy()
     future_mask = pd.to_datetime(visible_schedule["kickoff_utc"], utc=True) > as_of
-    visible_schedule.loc[future_mask, "is_complete"] = False
+    forced_ids = {
+        str(item["match_id"])
+        for item in (scenario or {}).get("forced_results", [])
+    }
+    visible_schedule.loc[
+        future_mask & ~visible_schedule["match_id"].astype("string").isin(forced_ids),
+        "is_complete",
+    ] = False
     table = (
         standings_table(visible_schedule, competition_id, season=season_id, teams=teams)
         if len(schedule)
@@ -513,6 +600,8 @@ def season_outlook(
         "certificate": certificate,
         "table": table,
         "source_ids": source_ids,
+        "remaining_fixtures": remaining_fixtures,
+        "scenario": scenario,
     }
     display_season = season_id.replace("-", "–")
     if schedule.empty:
@@ -579,7 +668,7 @@ def season_outlook(
             rule=rule,
             season=season_id,
             teams=teams,
-            schedule=schedule,
+            schedule=scenario_schedule,
             iterations=iterations,
             seed=seed,
             dixon_coles=dixon_coles,
@@ -592,7 +681,7 @@ def season_outlook(
             rule=rule,
             season=season_id,
             teams=teams,
-            schedule=schedule,
+            schedule=scenario_schedule,
             iterations=iterations,
             seed=seed + 1,
             dixon_coles=dixon_coles,
@@ -605,7 +694,7 @@ def season_outlook(
             rule=rule,
             season=season_id,
             teams=teams,
-            schedule=schedule,
+            schedule=scenario_schedule,
             iterations=iterations,
             seed=seed + 2,
             dixon_coles=dixon_coles,
@@ -630,6 +719,8 @@ def season_outlook(
         "iterations": iterations,
         "seed": seed,
         "voices": voices,
+        "remaining_fixtures": remaining_fixtures,
+        "scenario": scenario,
         "provenance": {
             "source_ids": source_ids,
             "training_source_ids": sorted(

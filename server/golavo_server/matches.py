@@ -502,8 +502,9 @@ class SnapshotReader:
         # result was actually computed on, rather than which one the module global
         # names by the time the answer is serialized. Off by default: an envelope
         # that does not declare provenance (the conditions pack stamps its own
-        # ``snapshot_sha256``; an analysis envelope carries none) must not have a
-        # field invented on it.
+        # ``snapshot_sha256``) must not have a field invented on it. Match analysis opts in
+        # so the UI can compare
+        # deterministic outputs only when the verified index actually changes.
         self._stamps_provenance = stamps_provenance
         self._entries: dict[tuple[Any, ...], Any] = {}
         self._order: list[tuple[Any, ...]] = []

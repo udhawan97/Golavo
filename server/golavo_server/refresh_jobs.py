@@ -426,19 +426,13 @@ class RefreshCoordinator:
 
             self._update_job(stage="downloading")
             snapshots: list[dict[str, Any]] = []
-            for source_id in (refresh_sources.MARTJ42, refresh_sources.WORLDCUP):
+            for source_id in refresh_sources.APPROVED_SOURCE_IDS:
                 snapshots.append(
                     refresh_sources.download_source_snapshot(
                         observations[source_id],
                         staging / "raw",
                         fetcher=fetcher,
                         cancel=self._cancel,
-                    )
-                )
-            if football is not None:
-                snapshots.append(
-                    refresh_sources.download_source_snapshot(
-                        football, staging / "raw", fetcher=fetcher, cancel=self._cancel
                     )
                 )
             if self._cancel.is_set():
@@ -458,34 +452,85 @@ class RefreshCoordinator:
             )
             club_packs: list[Path] = []
             capabilities: list[dict[str, Any]] = []
+            # football.json remains checked and receipted, but the five country
+            # repositories are the continuity lane for the already-published
+            # 2026-27 schedules/results. Each refreshed pack retains its bundled
+            # football.json history and replaces only the current Football.TXT
+            # season with exact co-source provenance.
             if football is not None:
-                if football.current_paths:
-                    club_packs, capabilities = refresh.build_club_runtime_packs(
-                        staging / "raw",
-                        football_ref=football.ref,
-                        football_committed_at=football.committed_at_utc,
-                        season=str(football.season),
-                        current_paths=football.current_paths,
-                        retrieved_at_utc=football.checked_at_utc,
-                        output_root=staging / "packs" / "clubs",
-                        as_of_utc=_now_z(),
-                    )
-                else:
-                    capabilities = [
+                capabilities.append(
+                    {
+                        "source_id": refresh_sources.FOOTBALL,
+                        "season": football.season,
+                        "upstream_ref": football.ref,
+                        "checked_at_utc": football.checked_at_utc,
+                        "capability": "available" if football.current_paths else "absent",
+                        "reason": (
+                            None
+                            if football.current_paths
+                            else "current season is supplied by approved country repositories"
+                        ),
+                    }
+                )
+            from golavo_core.ingest.openfootball import LEAGUES
+
+            from golavo_server import seal as seal_service
+
+            for source_id in refresh_sources.DOMESTIC_SOURCE_IDS:
+                observation = observations[source_id]
+                config = refresh_sources.DOMESTIC_CONFIG[source_id]
+                code = config["league_code"]
+                competition = LEAGUES[code][0]
+                if not observation.current_paths:
+                    capabilities.append(
                         {
-                            "source_id": refresh_sources.FOOTBALL,
-                            "season": football.season,
-                            "upstream_ref": football.ref,
-                            "checked_at_utc": football.checked_at_utc,
-                            "capability": "absent",
-                            "reason": "the approved source has not published current-season files",
+                            "source_id": source_id,
+                            "competition": competition,
+                            "league_code": code,
+                            "season": observation.season,
+                            "upstream_ref": observation.ref,
+                            "checked_at_utc": observation.checked_at_utc,
+                            "capability": "last-known-good",
+                            "reason": (
+                                "current schedule is absent upstream; active verified rows "
+                                "were retained"
+                            ),
+                            "last_known_good": True,
                         }
-                    ]
+                    )
+                    continue
+                base_pack = seal_service.resolve_pack_dir(
+                    refresh_sources.FOOTBALL, "club", competition
+                )
+                if base_pack is None:
+                    raise refresh.RefreshError(f"no verified base pack for {competition}")
+                pack, capability = refresh.build_domestic_runtime_pack(
+                    base_pack,
+                    staging / "raw",
+                    source_id=source_id,
+                    upstream_ref=observation.ref,
+                    upstream_committed_at=observation.committed_at_utc,
+                    season=str(observation.season),
+                    relative_path=observation.current_paths[0],
+                    retrieved_at_utc=observation.checked_at_utc,
+                    output_dir=staging / "packs" / "clubs" / code,
+                    as_of_utc=_now_z(),
+                )
+                club_packs.append(pack)
+                capabilities.append(capability)
 
             self._update_job(stage="building")
             base_index = Path(matches.INDEX_PATH)
+            domestic_season = next(
+                (
+                    str(observations[source_id].season)
+                    for source_id in refresh_sources.DOMESTIC_SOURCE_IDS
+                    if observations[source_id].season
+                ),
+                None,
+            )
             season_start = (
-                f"{football.season[:4]}-07-01" if football and football.season else "9999-07-01"
+                f"{domestic_season[:4]}-07-01" if domestic_season else "9999-07-01"
             )
             candidate = refresh.merge_refresh_generation(
                 staging / "packs" / "internationals",
@@ -548,6 +593,13 @@ class RefreshCoordinator:
                         and all(item.get("capability") == "complete" for item in capabilities)
                         else "partial"
                     )
+            for source_id in refresh_sources.DOMESTIC_SOURCE_IDS:
+                source_state = final_state.setdefault("sources", {}).setdefault(source_id, {})
+                source_state["competitions"] = [
+                    item for item in capabilities if item.get("source_id") == source_id
+                ]
+                if source_state["competitions"]:
+                    source_state["capability"] = source_state["competitions"][0]["capability"]
             refresh_state.save_state(final_state)
             reconciliation = _reconcile_follows(final_state)
             self._finish(

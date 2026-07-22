@@ -312,18 +312,22 @@ Packaging is downstream of the runtime architecture:
 1. PyInstaller freezes the FastAPI/core sidecar and its read-only resources.
 2. The build copies it to Tauri's required target-triple filename.
 3. Tauri bundles the UI, shell, and sidecar into platform installers.
-4. Release jobs emit DMG / MSI / EXE artifacts plus `SHA256SUMS`.
-5. Signing, notarization, and the signed updater are wired but enabled only when
-   maintainers provide the required secrets.
+4. A stable build signs every active pack manifest before it enters the frozen sidecar.
+5. Release jobs emit DMG / MSI / EXE artifacts, updater signatures, `SHA256SUMS.txt`,
+   and a detached signature over that aggregate checksum ledger.
+6. OS code signing and notarization remain conditional on platform credentials.
 
-The current public build is unsigned. Packaging and signing can affect whether
-an operating system trusts the bundle, but they cannot participate in forecast
-generation or alter a sealed artifact.
+The current public installers are OS-unsigned, so Gatekeeper or SmartScreen may warn.
+That platform trust boundary is separate from Golavo's release identity: updater payloads,
+official pack manifests, and aggregate checksums are authenticated before use. None of
+those release controls can alter a sealed artifact.
 
 ## Read the contracts directly
 
 - [`forecast_artifact.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/forecast_artifact.schema.json)
   — the immutable forecast/resolution shape.
+- [`forecast_proof.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/forecast_proof.schema.json)
+  — the portable offline-verifiable artifact lineage bundle.
 - [`evidence_bundle.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/evidence_bundle.schema.json)
   — the constrained input to optional narration.
 - [`facts.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/facts.schema.json)

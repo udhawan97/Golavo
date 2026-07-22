@@ -90,6 +90,11 @@ def match_analysis_schema_path() -> Path:
     return resource("docs", "contracts", "match_analysis.schema.json")
 
 
+def forecast_proof_schema_path() -> Path:
+    """Absolute path to the portable ForecastProof contract."""
+    return resource("docs", "contracts", "forecast_proof.schema.json")
+
+
 def research_team_analytics_schema_path() -> Path:
     """Absolute path to the historical team-only research artifact contract."""
     return resource("docs", "contracts", "research_team_analytics.schema.json")

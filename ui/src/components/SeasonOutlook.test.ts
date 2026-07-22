@@ -2,10 +2,10 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { SeasonOutlook } from "../lib/contract";
-import { SeasonOutlookBody } from "./SeasonOutlook";
+import { scenarioRequest, SeasonOutlookBody } from "./SeasonOutlook";
 
 const BLOCKED: SeasonOutlook = {
-  schema_version: "0.1.0",
+  schema_version: "0.2.0",
   status: "blocked",
   label: "Season outlook — not a seal.",
   competition_id: "england-premier-league",
@@ -23,7 +23,8 @@ const BLOCKED: SeasonOutlook = {
     self_fixtures: 0, incomplete_fixtures: 0, past_result_gaps: 0,
     future_completed_results: 0, complete_fixture_list: false,
   },
-  current_table: [], iterations: 0, seed: null, voices: [],
+  current_table: [], remaining_fixtures: [], scenario: null,
+  iterations: 0, seed: null, voices: [],
   provenance: { source_ids: [], index_sha256: "0".repeat(64) },
 };
 
@@ -55,5 +56,19 @@ describe("SeasonOutlookBody", () => {
     expect(html).toContain("Baseline");
     expect(html).toContain("10,000 seeded runs");
     expect(html).toContain("25.0%");
+  });
+
+  it("builds a bounded one-fixture hypothetical request", () => {
+    const request = scenarioRequest(
+      { match_id: "m-1", kickoff_utc: "2026-08-22T14:00:00Z", home_team: "A", away_team: "B" },
+      2,
+      1,
+    );
+    expect(request).toEqual([{ match_id: "m-1", home_score: 2, away_score: 1 }]);
+    expect(() => scenarioRequest(
+      { match_id: "m-1", kickoff_utc: "2026-08-22T14:00:00Z", home_team: "A", away_team: "B" },
+      21,
+      0,
+    )).toThrow("whole numbers from 0 to 20");
   });
 });

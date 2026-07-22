@@ -10,6 +10,7 @@ from golavo_core.artifacts import score_forecast, seal_forecast, void_forecast
 from golavo_core.evaluation import write_club_evaluation, write_evaluation
 from golavo_core.ingest import build_match_index, default_index_packs, write_parquet
 from golavo_core.models import FROZEN_FAMILIES
+from golavo_core.proof import build_forecast_proof, verify_forecast_proof
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -103,6 +104,17 @@ def _parser() -> argparse.ArgumentParser:
         help="output path; defaults to <artifact-dir>/notebooks/<artifact-id>.json "
         "(where the read-only server looks for it)",
     )
+
+    proof = commands.add_parser("proof", help="export a portable verification bundle")
+    proof.add_argument("--artifact", type=Path, required=True)
+    proof.add_argument("--ledger-dir", type=Path, default=None)
+    proof.add_argument("--pack-root", type=Path, default=REPO_ROOT / "packs")
+    proof.add_argument("--output", type=Path, required=True)
+
+    verify_proof = commands.add_parser(
+        "verify-proof", help="verify a portable forecast proof without a ledger or network"
+    )
+    verify_proof.add_argument("proof", type=Path)
     return parser
 
 
@@ -180,6 +192,15 @@ def main() -> None:
         )
     elif args.command == "notebook":
         print(_write_notebook(args.artifact, args.pack, args.output))
+    elif args.command == "proof":
+        bundle = build_forecast_proof(
+            args.artifact, ledger_dir=args.ledger_dir, pack_root=args.pack_root
+        )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(bundle, indent=2, sort_keys=True) + "\n")
+        print(args.output)
+    elif args.command == "verify-proof":
+        print(json.dumps(verify_forecast_proof(json.loads(args.proof.read_text())), sort_keys=True))
 
 
 if __name__ == "__main__":

@@ -52,6 +52,7 @@ OWNERS: dict[str, tuple[str | None, str | None]] = {
     "evidence_bundle": ("golavo_core.evidence:MATCH_EVIDENCE_SCHEMA_VERSION", None),
     "facts": ("golavo_core.facts.engine:NOTEBOOK_SCHEMA_VERSION", None),
     "forecast_artifact": ("golavo_core.artifacts:SCHEMA_VERSION", "SCHEMA_VERSION"),
+    "forecast_proof": ("golavo_core.proof:PROOF_SCHEMA_VERSION", None),
     "match_analysis": ("golavo_core.analysis:ANALYSIS_SCHEMA_VERSION", "ANALYSIS_SCHEMA_VERSION"),
     "openligadb_overlay_api": ("golavo_server.openligadb_jobs:JOB_SCHEMA_VERSION", None),
     "research_api": ("golavo_server.research.store:SCHEMA_VERSION", None),

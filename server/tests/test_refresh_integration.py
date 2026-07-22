@@ -102,6 +102,10 @@ class FakeFetcher(refresh_sources.Fetcher):
             refresh_sources.MARTJ42: "martj42/international_results",
             refresh_sources.WORLDCUP: "openfootball/worldcup.json",
             refresh_sources.FOOTBALL: "openfootball/football.json",
+            **{
+                source_id: config["repo"]
+                for source_id, config in refresh_sources.DOMESTIC_CONFIG.items()
+            },
         }
         for source_id, repo in repo_by_source.items():
             if f"/repos/{repo}/commits/" in url:
@@ -133,6 +137,11 @@ def test_refresh_coordinator_builds_and_activates_generation(tmp_path: Path, mon
         refresh_sources.MARTJ42: "1" * 40,
         refresh_sources.WORLDCUP: "2" * 40,
         refresh_sources.FOOTBALL: "3" * 40,
+        refresh_sources.ENGLAND: "4" * 40,
+        refresh_sources.GERMANY: "5" * 40,
+        refresh_sources.SPAIN: "6" * 40,
+        refresh_sources.ITALY: "7" * 40,
+        refresh_sources.FRANCE: "8" * 40,
     }
     raw = tmp_path / "fixture-raw"
     _write_raw(raw, refs[refresh_sources.MARTJ42], refs[refresh_sources.WORLDCUP])

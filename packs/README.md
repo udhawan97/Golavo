@@ -3,9 +3,12 @@
 Golavo vendors data as **pinned, hash-verified packs**. Each pack carries a
 license manifest with a per-file SHA-256 list, and every retained snapshot's
 manifest hash is pinned in `snapshots.json`; the app re-hashes every declared file
-before load. Minisign **signature** verification (authenticity) and release-tarball
-distribution are **planned (ADR-0001), not yet implemented** — because the manifest
-lives inside the pack, the current check catches corruption, not a forged pack.
+before load. Official frozen app bundles add a detached Minisign signature to every
+active pack manifest. The sidecar verifies that signature against Golavo's pinned
+release public key and refuses a missing or altered signature before reading pack data.
+Source checkouts and locally generated refresh generations stay unsigned and
+reproducible; their immutable receipts, hashes, and atomic generation pointer are the
+local integrity boundary.
 
 | Pack | Sources | License | Status |
 |---|---|---|---|
@@ -23,8 +26,9 @@ identities and the 74 MB compressed raw event archive are not redistributed.
 
 Pinned, byte-exact snapshots with per-file SHA-256 manifests, validated by
 `scripts/validate_provenance.py`. One pack per competition source; the
-openfootball packs share a single pinned upstream ref and are **historical
-only** — see `docs/handoff/openfootball-audit.md` for each league's gate verdict.
+openfootball JSON packs share a single pinned upstream ref and remain the historical
+base. Current-season Football.TXT snapshots are layered only after their own path,
+revision, license, schema, and schedule checks pass.
 
 | Directory | Coverage | License |
 |---|---|---|

@@ -22,10 +22,12 @@
     "iterations",
     "seed",
     "voices",
+    "remaining_fixtures",
+    "scenario",
     "provenance"
   ],
   "properties": {
-    "schema_version": { "const": "0.1.0" },
+    "schema_version": { "const": "0.2.0" },
     "status": { "enum": ["blocked", "complete", "available"] },
     "label": { "type": "string", "minLength": 1 },
     "competition_id": { "type": "string", "minLength": 1 },
@@ -48,9 +50,55 @@
       "type": "array",
       "items": { "$ref": "#/$defs/voice" }
     },
+    "remaining_fixtures": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/remainingFixture" }
+    },
+    "scenario": {
+      "oneOf": [{ "$ref": "#/$defs/scenario" }, { "type": "null" }]
+    },
     "provenance": { "$ref": "#/$defs/provenance" }
   },
   "$defs": {
+    "remainingFixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match_id", "kickoff_utc", "home_team", "away_team"],
+      "properties": {
+        "match_id": { "type": "string", "minLength": 1 },
+        "kickoff_utc": { "type": "string", "format": "date-time" },
+        "home_team": { "type": "string", "minLength": 1 },
+        "away_team": { "type": "string", "minLength": 1 }
+      }
+    },
+    "scenarioResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match_id", "home_team", "away_team", "home_score", "away_score"],
+      "properties": {
+        "match_id": { "type": "string", "minLength": 1 },
+        "home_team": { "type": "string", "minLength": 1 },
+        "away_team": { "type": "string", "minLength": 1 },
+        "home_score": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "away_score": { "type": "integer", "minimum": 0, "maximum": 20 }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hypothetical_only", "persisted", "model_input", "forced_results"],
+      "properties": {
+        "hypothetical_only": { "const": true },
+        "persisted": { "const": false },
+        "model_input": { "const": false },
+        "forced_results": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": { "$ref": "#/$defs/scenarioResult" }
+        }
+      }
+    },
     "fixtureCertificate": {
       "type": "object",
       "additionalProperties": false,

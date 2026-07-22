@@ -39,6 +39,17 @@ function appVersionLabel(statusVersion: string | undefined): string {
   return injected ?? `source build (contract v${SCHEMA_VERSION})`;
 }
 
+const REFRESH_SOURCE_LABELS: Record<string, string> = {
+  "martj42-international-results": "International results",
+  "openfootball-worldcup-json": "World Cup fixtures",
+  "openfootball-football-json": "Top-five historical base",
+  "openfootball-england": "Premier League current season",
+  "openfootball-deutschland": "Bundesliga current season",
+  "openfootball-espana": "La Liga current season",
+  "openfootball-italy": "Serie A current season",
+  "openfootball-europe": "Ligue 1 current season",
+};
+
 /** Assign which installed local model runs the Fast and Deep reads. Auto-detects
  *  a sensible default (Fast = smallest, Deep = largest) the first time. Only
  *  meaningful for local providers; hidden otherwise. */
@@ -269,8 +280,7 @@ export function Settings({
                 {dataRefresh.status.sources.map((source) => (
                   <div className="settings__row" key={source.source_id}>
                     <span>
-                      {source.source_id === "martj42-international-results" ? "International results" :
-                        source.source_id === "openfootball-worldcup-json" ? "World Cup fixtures" : "Top-five club seasons"}
+                      {REFRESH_SOURCE_LABELS[source.source_id] ?? source.source_id}
                     </span>
                     <span className="small dim" style={{ textAlign: "right" }}>
                       {source.capability === "absent"

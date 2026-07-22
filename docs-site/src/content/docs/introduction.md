@@ -3,12 +3,12 @@ title: Introduction
 description: What Golavo is, what it is not, and the principles that keep it trustworthy.
 ---
 
-Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals (a forward seal→score loop with a real calibration record), backtests the top-5 European leagues, exposes competition-local analytics and honest outlook gates, ships an optional off-by-default AI narration layer, and builds an unsigned desktop app. A **hash-chained** multi-artifact ledger and confirmed-lineup / BYOK data adapters remain planned (ADR-0001).
+Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals and certified domestic fixtures, backtests the top-5 European leagues, exposes competition-local analytics and honest outlook gates, ships an optional off-by-default AI narration layer, and builds an OS-unsigned desktop app whose updater and active data-pack manifests are authenticated. A **hash-chained** multi-artifact ledger and confirmed-lineup / BYOK data adapters remain planned (ADR-0001).
 
 ## What Golavo is
 
 - A **forward forecast pipeline**: sealed pre-kickoff JSON artifacts are replayable and never mutated when scored.
-- A **provenance-first engine**: each artifact records the pinned source snapshot and content hashes.
+- A **provenance-first engine**: each artifact records the pinned source snapshot and content hashes, and can export a portable offline-verifiable lineage proof.
 - A **local source-mode core, API, and desktop app**, with an optional AI layer that is off by default. A built-in Ollama guide can install and assign recommended Fast/Deep models with visible progress; the deterministic **fact engine** (the Commentator's Notebook) remains useful without AI. The hash-chained multi-artifact ledger remains planned (ADR-0001).
 
 ## What Golavo is not

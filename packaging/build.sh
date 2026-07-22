@@ -42,6 +42,56 @@ export GOLAVO_SOURCE_SHA="$CHECKOUT_SOURCE_SHA"
 # golavo_core/golavo_server instead of this repository.
 export PYTHONPATH="$REPO_ROOT/server:$REPO_ROOT/core${PYTHONPATH:+:$PYTHONPATH}"
 
+# The same Minisign identity that authenticates updater metadata signs every
+# manifest entering an official frozen sidecar. Signatures are generated only
+# in the release workspace, included by the PyInstaller spec, and removed from
+# the checkout after the freeze so local source packs remain reproducible.
+# A leading empty sentinel keeps Bash 3.2's `set -u` from treating an empty
+# array expansion as an unbound variable in the cleanup trap.
+SIGNED_PACK_MANIFESTS=("")
+PACK_SIGNATURE_MARKER="packs/.signatures-required"
+PACK_SIGNATURE_MARKER_CREATED=0
+cleanup_pack_signatures() {
+  for manifest in "${SIGNED_PACK_MANIFESTS[@]}"; do
+    [ -n "$manifest" ] || continue
+    rm -f "${manifest}.sig"
+  done
+  if [ "$PACK_SIGNATURE_MARKER_CREATED" -eq 1 ]; then
+    rm -f "$PACK_SIGNATURE_MARKER"
+  fi
+}
+trap cleanup_pack_signatures EXIT
+if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
+  if [ -e "$PACK_SIGNATURE_MARKER" ]; then
+    echo "error: refusing to overwrite existing $PACK_SIGNATURE_MARKER" >&2
+    exit 2
+  fi
+  npm --prefix desktop ci
+  while IFS= read -r manifest; do
+    if [ -e "${manifest}.sig" ]; then
+      echo "error: refusing to overwrite existing ${manifest}.sig" >&2
+      exit 2
+    fi
+    SIGNED_PACK_MANIFESTS+=("$manifest")
+    npm --prefix desktop exec tauri signer sign -- "$manifest"
+    test -s "${manifest}.sig"
+  done < <(python - <<'PY'
+from pathlib import Path
+from golavo_core.packstore import active_packs
+
+root = Path.cwd()
+registry = root / "packs/snapshots.json"
+resolve = lambda declared: root / declared  # noqa: E731
+for pack in active_packs(registry, resolve=resolve):
+    print(pack.directory / "manifest.json")
+PY
+  )
+  touch "$PACK_SIGNATURE_MARKER"
+  PACK_SIGNATURE_MARKER_CREATED=1
+else
+  echo "    no updater signing key -> frozen packs are unsigned development inputs"
+fi
+
 # Fail before freezing if local correction state can reach any authoritative,
 # model, data-pack, or redistributable sink. The spec ships contracts/code only.
 python scripts/validate_correction_isolation.py
@@ -88,7 +138,9 @@ npm --prefix ui ci
 npm --prefix ui run build
 
 echo "==> [3/4] Building Tauri bundle"
-npm --prefix desktop ci
+  # npm dependencies were installed above when signing official packs. Local
+  # unsigned builds still need them here.
+  [ -d desktop/node_modules ] || npm --prefix desktop ci
 BUILD_ARGS=(build --target "$TARGET")
 if [ "$ADHOC_MACOS" -eq 1 ]; then
   # Rust's linker adds only an executable-level ad-hoc signature. An unsigned

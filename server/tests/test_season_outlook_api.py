@@ -68,6 +68,34 @@ def test_a_season_with_no_published_fixtures_still_fails_closed() -> None:
     assert body["fixture_certificate"]["observed_matches"] == 0
 
 
+def test_conditional_season_scenario_is_ephemeral_and_contract_valid() -> None:
+    client = TestClient(server_main.app)
+    path = "/api/v1/analytics/competitions/england-premier-league"
+    params = {"as_of_utc": "2026-08-20T08:00:00Z"}
+    base = client.get(f"{path}/season-outlook", params=params).json()
+    fixture = base["remaining_fixtures"][0]
+
+    response = client.post(
+        f"{path}/season-scenario",
+        params=params,
+        json={
+            "forced_results": [
+                {"match_id": fixture["match_id"], "home_score": 2, "away_score": 0}
+            ]
+        },
+    )
+
+    assert response.status_code == 200
+    scenario = response.json()
+    Draft202012Validator(SCHEMA, format_checker=FormatChecker()).validate(scenario)
+    assert scenario["scenario"]["hypothetical_only"] is True
+    assert scenario["scenario"]["persisted"] is False
+    assert scenario["scenario"]["model_input"] is False
+    assert base["scenario"] is None
+    # Re-reading the canonical outlook proves the scenario was not cached into it.
+    assert client.get(f"{path}/season-outlook", params=params).json()["scenario"] is None
+
+
 def test_unsupported_competition_does_not_fake_a_league_simulation() -> None:
     response = TestClient(server_main.app).get(
         "/api/v1/analytics/competitions/uefa-champions-league/season-outlook",

@@ -27,7 +27,9 @@ from golavo_server import matches, runtime
 
 # L1 is the shared snapshot reader's memo: ~128 fits is plenty for a session's
 # cockpit browsing, and the bound keeps a long session from growing without limit.
-_ANALYSIS = matches.SnapshotReader("match analysis", max_entries=128)
+_ANALYSIS = matches.SnapshotReader(
+    "match analysis", max_entries=128, stamps_provenance=True
+)
 
 # L2 disk cache: content-addressed by (match_id, index fingerprint, schema
 # version), so it survives restarts and self-invalidates on any index change. It

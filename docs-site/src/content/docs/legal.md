@@ -9,17 +9,18 @@ description: Licensing, non-affiliation, and how Golavo celebrates great footbal
 
 ## Data licenses
 
-Golavo vendors one pinned CC0-1.0 pack from `martj42/international_results` and five
-per-league CC0-1.0 packs from `openfootball/football.json` (English Premier League,
-La Liga, Bundesliga, Serie A, and Ligue 1 — historical completed seasons only,
-from one pinned upstream commit).
+Golavo vendors one pinned CC0-1.0 pack from `martj42/international_results`, five
+per-league CC0-1.0 historical bases from `openfootball/football.json`, and current-season
+Football.TXT schedules from the five OpenFootball country repositories. Runtime refresh is
+restricted to those eight declared repository identities and exact allowlisted paths; every
+captured revision, license, byte hash, and field-level role remains visible in provenance.
 
 The Fjelstul World Cup Database is vendored separately under CC-BY-SA-4.0. Its README and
 DESCRIPTION license evidence ship with the pack, attribution appears in the docs and third-party
 notices, and the pack remains facts-only: it is not combined with the CC0 match index or forecast
 training data. Modifications are limited to selecting and parsing the men's 1930–2022 history.
 
-Transfermarkt-derived and DataHub football datasets are rejected because a downstream CC0/PDDL label does not cure upstream ToS and database-provenance risk. Other sources and license-isolated overlays are planned (ADR-0001), not shipped.
+Transfermarkt-derived and DataHub football datasets are rejected because a downstream CC0/PDDL label does not cure upstream ToS and database-provenance risk. The OpenLigaDB ODbL display overlay ships behind a separate consent and storage boundary; it never enters CC0 packs, training, forecasts, or exports.
 
 ## Non-affiliation
 

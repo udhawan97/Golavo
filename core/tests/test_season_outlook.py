@@ -136,6 +136,71 @@ def test_seeded_simulation_is_deterministic_conservative_and_not_a_seal() -> Non
     Draft202012Validator(SCHEMA, format_checker=FormatChecker()).validate(contract_payload)
 
 
+def test_conditional_result_is_hypothetical_deterministic_and_never_mutates_input() -> None:
+    frame = _synthetic_frame()
+    original = frame.copy(deep=True)
+    kwargs = {
+        "as_of_utc": "2026-09-01T00:00:00Z",
+        "season": "2026-27",
+        "iterations": 250,
+        "seed": 17,
+        "forced_results": [
+            {"match_id": "season-4", "home_score": 3, "away_score": 1}
+        ],
+    }
+
+    first = season_outlook(frame, "test-league", **kwargs)
+    second = season_outlook(frame, "test-league", **kwargs)
+
+    assert json.dumps(first, sort_keys=True) == json.dumps(second, sort_keys=True)
+    assert first["scenario"] == {
+        "hypothetical_only": True,
+        "persisted": False,
+        "model_input": False,
+        "forced_results": [
+            {
+                "match_id": "season-4",
+                "home_team": "B",
+                "away_team": "C",
+                "home_score": 3,
+                "away_score": 1,
+            }
+        ],
+    }
+    assert "season-4" in {fixture["match_id"] for fixture in first["remaining_fixtures"]}
+    pd.testing.assert_frame_equal(frame, original)
+
+
+def test_scenario_rejects_a_completed_or_unknown_fixture() -> None:
+    frame = _synthetic_frame()
+    common = {
+        "as_of_utc": "2026-09-01T00:00:00Z",
+        "season": "2026-27",
+        "iterations": 50,
+    }
+    with pytest.raises(ValueError, match="not an unplayed future match"):
+        season_outlook(
+            frame,
+            "test-league",
+            **common,
+            forced_results=[{"match_id": "season-0", "home_score": 1, "away_score": 0}],
+        )
+    with pytest.raises(ValueError, match="not in this season"):
+        season_outlook(
+            frame,
+            "test-league",
+            **common,
+            forced_results=[{"match_id": "unknown", "home_score": 1, "away_score": 0}],
+        )
+    with pytest.raises(ValueError, match="scores must be integers"):
+        season_outlook(
+            frame,
+            "test-league",
+            **common,
+            forced_results=[{"match_id": "season-4", "home_score": 1.5, "away_score": 0}],
+        )
+
+
 def test_missing_current_schedule_and_past_result_gaps_fail_closed() -> None:
     frame = _synthetic_frame()
     missing = season_outlook(

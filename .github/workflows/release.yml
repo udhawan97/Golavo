@@ -189,6 +189,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: "22" }
       - uses: actions/download-artifact@v8
         with: { path: dist, merge-multiple: true }
       - name: Assemble + validate updater manifest (latest.json)
@@ -204,9 +206,16 @@ jobs:
           python3 scripts/make_update_manifest.py validate \
             --manifest dist/latest.json --dist dist --tag "$TAG"
       - name: Checksums
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
           cd dist
           sha256sum * > ../SHA256SUMS.txt && mv ../SHA256SUMS.txt .
+          cd ..
+          npm --prefix desktop ci
+          npm --prefix desktop exec tauri signer sign -- dist/SHA256SUMS.txt
+          test -s dist/SHA256SUMS.txt.sig
       - name: Publish GitHub Release (draft until every asset is uploaded)
         uses: softprops/action-gh-release@v3
         with:

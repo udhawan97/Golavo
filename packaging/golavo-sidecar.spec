@@ -46,6 +46,7 @@ datas = [
     # Phase 3 display-only location/rest/travel contract.
     (os.path.join(ROOT, "docs", "contracts", "conditions_snapshot.schema.json"), "docs/contracts"),
     (os.path.join(ROOT, "docs", "contracts", "match_analysis.schema.json"), "docs/contracts"),
+    (os.path.join(ROOT, "docs", "contracts", "forecast_proof.schema.json"), "docs/contracts"),
     # Historical team-only event research contract.
     (os.path.join(ROOT, "docs", "contracts", "research_team_analytics.schema.json"), "docs/contracts"),
     # Consent-first approved-source refresh: the frozen sidecar validates the
@@ -112,19 +113,18 @@ datas += [
         "aliases.json",
     )
 ]
-# CC0 internationals pack: seal.resolve_pack_dir trains an in-app forward forecast
-# from the greatest-anchor internationals snapshot, so the frozen app must carry
-# that pack AND packs/snapshots.json (which seal.resolve_pack_dir reads to find it).
-# Only the internationals source is forward-sealable today (the five openfootball
-# leagues share one source_id and can't be told apart), so only its active pack
-# ships (~6.7MB). Selecting it dynamically here keeps the freeze correct across
-# refreshes without editing the spec. validate_pack re-hashes every manifest-listed
-# file, so the whole pack dir is bundled at its repo-relative layout for
-# golavo_core.resources to resolve under sys._MEIPASS.
+# Active CC0 sealable packs. The app now supports forward sealing in the five
+# domestic competitions as well as internationals, so the frozen sidecar must
+# carry the winner of every (source, competition) registry group. The selection
+# mirrors golavo_core.packstore without importing the package into PyInstaller's
+# spec evaluation process.
 import json as _json  # noqa: E402
 
 _snap_path = os.path.join(ROOT, "packs", "snapshots.json")
 datas += [(_snap_path, "packs")]
+_signature_marker = os.path.join(ROOT, "packs", ".signatures-required")
+if os.path.isfile(_signature_marker):
+    datas += [(_signature_marker, "packs")]
 _isolated_path = os.path.join(ROOT, "packs", "isolated.json")
 datas += [(_isolated_path, "packs")]
 _research = next(
@@ -145,19 +145,23 @@ datas += [
     for path in glob.glob(os.path.join(ROOT, _fjelstul, "*"))
     if os.path.isfile(path)
 ]
-_intl = [
-    e for e in _json.load(open(_snap_path))["snapshots"]
-    if str(e["source_id"]) == "martj42-international-results"
-]
-_active = max(
-    _intl,
-    key=lambda e: (str(e.get("upstream_committed_at_utc") or e["retrieved_at_utc"]), str(e["pack"])),
-)["pack"]
-datas += [
-    (path, _active)
-    for path in glob.glob(os.path.join(ROOT, _active, "*"))
-    if os.path.isfile(path)
-]
+_best = {}
+for _entry in _json.load(open(_snap_path))["snapshots"]:
+    _pack = str(_entry["pack"])
+    _manifest = _json.load(open(os.path.join(ROOT, _pack, "manifest.json")))
+    _key = (str(_entry["source_id"]), str(_manifest.get("competition") or ""))
+    _rank = (
+        str(_entry.get("upstream_committed_at_utc") or _entry["retrieved_at_utc"]),
+        _pack,
+    )
+    if _key not in _best or _rank > _best[_key][0]:
+        _best[_key] = (_rank, _pack)
+for _rank, _active in sorted(_best.values(), key=lambda item: item[1]):
+    datas += [
+        (path, _active)
+        for path in glob.glob(os.path.join(ROOT, _active, "*"))
+        if os.path.isfile(path)
+    ]
 
 # uvicorn and the golavo packages import submodules dynamically; collect them so
 # the frozen server can actually boot. numpy/pandas/scipy/pyarrow are handled by

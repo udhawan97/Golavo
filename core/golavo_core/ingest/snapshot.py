@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -69,6 +70,28 @@ def validate_pack(pack_dir: Path) -> dict[str, Any]:
     if not isinstance(manifest["files"], list) or not manifest["files"]:
         raise ValueError(f"{pack_dir}: manifest files must be a non-empty array")
 
+    signature_path = pack_dir / "manifest.json.sig"
+    from golavo_core.resources import is_frozen, resource_root
+
+    require_signature = (
+        os.environ.get("GOLAVO_REQUIRE_SIGNED_PACKS", "").strip() == "1"
+        or (
+            is_frozen()
+            and pack_dir.resolve().is_relative_to(resource_root().resolve())
+            and (resource_root() / "packs" / ".signatures-required").is_file()
+            and os.environ.get("GOLAVO_ALLOW_UNSIGNED_PACKS", "").strip() != "1"
+        )
+    )
+    if signature_path.is_file():
+        from golavo_core.signatures import verify_minisign
+
+        try:
+            verify_minisign(manifest_path, signature_path)
+        except (OSError, ValueError) as exc:
+            raise ValueError(f"{pack_dir}: manifest signature verification failed") from exc
+    elif require_signature:
+        raise ValueError(f"{pack_dir}: missing manifest signature")
+
     declared: set[str] = set()
     for entry in manifest["files"]:
         if not isinstance(entry, dict):
@@ -90,7 +113,7 @@ def validate_pack(pack_dir: Path) -> dict[str, Any]:
     present = {
         path.relative_to(pack_dir).as_posix()
         for path in pack_dir.rglob("*")
-        if path.is_file() and path.name != "manifest.json"
+        if path.is_file() and path.name not in {"manifest.json", "manifest.json.sig"}
     }
     undeclared = present - declared
     if undeclared:

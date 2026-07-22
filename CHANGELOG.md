@@ -6,6 +6,43 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-07-21
+
+### Added
+
+- **Authenticated official data packs.** Stable builds sign every active source-pack
+  manifest with Golavo's updater identity. The frozen sidecar verifies the Ed25519/
+  Minisign envelope before loading data, while locally generated refresh packs retain
+  their separate immutable-receipt and generation-manifest boundary.
+- **Portable forecast proofs.** Forecast Detail can download a self-verifying JSON bundle
+  containing the connected artifact lineage, exact source descriptors, available manifest
+  bytes, contract versions, and a canonical bundle digest. `golavo verify-proof` works
+  without a ledger, source pack, or network.
+- **Current domestic source continuity.** Consent-gated refresh now covers eight fixed
+  repositories, including one exact current-season Football.TXT path for each big-five
+  league. Domestic generations preserve verified history, replace only the current table,
+  and stay last-known-good on absence, conflict, or invalid schedules.
+- **A guarded Reference Desk.** Match pages surface revision-pinned venue identity and
+  capacity already present in the evidence bundle. Current-manager claims remain absent
+  until Golavo has a revision-pinned tenure source.
+- **Forecast readiness.** The cockpit now names generation fingerprint, kickoff precision,
+  historical support, seal path, and the unavailable lineup/injury/xG boundary without
+  presenting readiness as accuracy or confidence.
+- **Verified-generation diffs.** When a match's verified index fingerprint changes, Golavo
+  compares the two deterministic model-voice probability sets against the last locally
+  viewed generation. The diff is local display state, never AI and never a seal.
+- **Conditional season scenarios.** An available domestic outlook can assign one future
+  score and rerun the three 10,000-run voices. The response is explicitly hypothetical,
+  never persisted, never sealed, and never model input; resetting restores the canonical
+  verified outlook.
+
+### Changed
+
+- Release assets now include a detached signature for `SHA256SUMS.txt` in addition to
+  updater artifact signatures and per-file hashes.
+- The season-outlook contract advances additively to 0.2.0 with remaining fixtures and an
+  explicit scenario envelope. Source-refresh contracts recognize all eight approved sources.
+
 ## [0.16.0] - 2026-07-21
 
 ### Added
@@ -1426,7 +1463,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/udhawan97/Golavo/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/udhawan97/Golavo/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/udhawan97/Golavo/compare/v0.14.2...v0.15.0
 [0.14.2]: https://github.com/udhawan97/Golavo/compare/v0.14.1...v0.14.2

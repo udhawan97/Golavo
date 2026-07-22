@@ -22,7 +22,8 @@ Windows SmartScreen warn on first install because there is no paid code-signing
 certificate yet (see [Signing & notarization](#signing--notarization)).
 **Updates are different**: they are cryptographically signed and verified
 in-app, and don't re-trigger those warnings. Verify manual downloads against
-`SHA256SUMS.txt` on the release.
+`SHA256SUMS.txt` on the release; `SHA256SUMS.txt.sig` authenticates that ledger against
+the same pinned release identity used by the updater.
 :::
 
 ## Desktop app (recommended)

@@ -49,6 +49,7 @@ import type {
   SealEligibility,
   SealResult,
   SeasonOutlook,
+  SeasonForcedResult,
   SettlementReport,
   SourceKind,
   TournamentOutlook,
@@ -492,6 +493,29 @@ export async function fetchForecast(id: string): Promise<ForecastArtifact | null
   }
 }
 
+export function forecastProofFilename(id: string): string {
+  return `${id}.proof.json`;
+}
+
+/** Download the engine-built, offline-verifiable forecast lineage bundle. */
+export async function downloadForecastProof(id: string): Promise<void> {
+  if (!API_BASE) throw new Error("Portable proof export needs the Golavo engine.");
+  const res = await fetch(`${API_BASE}/api/v1/forecasts/${encodeURIComponent(id)}/proof`, {
+    headers: apiHeaders(),
+  });
+  if (!res.ok) throw new ApiError("Could not export forecast proof", res.status);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  try {
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = forecastProofFilename(id);
+    anchor.click();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 /**
  * Fetch the read-only Commentator's Notebook for an artifact.
  *
@@ -687,12 +711,27 @@ export async function cancelWorldCupRetrospective(jobId: string): Promise<void> 
 function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {
   const data = x as SeasonOutlook;
   if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
-  if (data.schema_version !== "0.1.0" || data.simulation_rule !== "season-mc-2026.07.1")
+  if (data.schema_version !== "0.2.0" || data.simulation_rule !== "season-mc-2026.07.1")
     throw new ContractError(`${ctx}: unsupported season outlook contract`);
   if (!["blocked", "complete", "available"].includes(data.status))
     throw new ContractError(`${ctx}: invalid status`);
-  if (!data.fixture_certificate || !Array.isArray(data.current_table) || !Array.isArray(data.voices))
-    throw new ContractError(`${ctx}: fixture certificate, table, and voices are required`);
+  if (
+    !data.fixture_certificate
+    || !Array.isArray(data.current_table)
+    || !Array.isArray(data.remaining_fixtures)
+    || !Array.isArray(data.voices)
+  )
+    throw new ContractError(`${ctx}: fixture certificate, table, fixtures, and voices are required`);
+  if (data.scenario !== null) {
+    if (
+      data.scenario.hypothetical_only !== true
+      || data.scenario.persisted !== false
+      || data.scenario.model_input !== false
+      || !Array.isArray(data.scenario.forced_results)
+      || data.scenario.forced_results.length === 0
+    )
+      throw new ContractError(`${ctx}: scenario must be explicitly ephemeral and hypothetical`);
+  }
   if (data.status === "available") {
     if (data.iterations !== 10_000 || data.voices.length !== 3)
       throw new ContractError(`${ctx}: available outlook requires 10,000 runs and three voices`);
@@ -723,7 +762,7 @@ export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonO
       ? 18
       : 20;
     return {
-      schema_version: "0.1.0",
+      schema_version: "0.2.0",
       status: "blocked",
       label: "Season outlook — a seeded simulation from current model fits. Not a sealed forecast.",
       competition_id: competitionId,
@@ -750,6 +789,8 @@ export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonO
         complete_fixture_list: false,
       },
       current_table: [],
+      remaining_fixtures: [],
+      scenario: null,
       iterations: 0,
       seed: null,
       voices: [],
@@ -761,6 +802,30 @@ export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonO
       `/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}/season-outlook`,
     ),
     `analytics/competitions/${competitionId}/season-outlook`,
+  );
+}
+
+/** Run a conditional season simulation without writing to the forecast ledger
+ * or changing the canonical season outlook. */
+export async function fetchSeasonScenario(
+  competitionId: string,
+  forcedResults: SeasonForcedResult[],
+  options: { asOfUtc: string; season: string },
+): Promise<SeasonOutlook> {
+  if (!API_BASE) throw new Error("Conditional scenarios need the Golavo engine running locally.");
+  const query = new URLSearchParams({ as_of_utc: options.asOfUtc, season: options.season });
+  const res = await fetch(
+    `${API_BASE}/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}/season-scenario?${query}`,
+    {
+      method: "POST",
+      headers: { ...apiHeaders(), "content-type": "application/json" },
+      body: JSON.stringify({ forced_results: forcedResults }),
+    },
+  );
+  if (!res.ok) throw new ApiError("The conditional season scenario could not run.", res.status);
+  return assertSeasonOutlook(
+    await res.json(),
+    `analytics/competitions/${competitionId}/season-scenario`,
   );
 }
 

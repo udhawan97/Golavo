@@ -13,8 +13,8 @@ input sources and formula version.
 |---|---|---|---|
 | [martj42/international_results](https://github.com/martj42/international_results) | men's senior full internationals, goalscorers, shootouts, former names | CC0-1.0 | bundled, refreshable, international seal→score source |
 | [openfootball/worldcup.json](https://github.com/openfootball/worldcup.json) | World Cup fixtures, exact kickoff, round and venue context | CC0-1.0 | bundled co-source, refreshable; can corroborate settlement but conflicts fail closed |
-| [openfootball/football.json](https://github.com/openfootball/football.json) | top-five European leagues | CC0-1.0 | bundled historical packs; refresh activates only files the upstream repository genuinely publishes for the current season |
-| [openfootball/england](https://github.com/openfootball/england), [deutschland](https://github.com/openfootball/deutschland), [espana](https://github.com/openfootball/espana), [italy](https://github.com/openfootball/italy), [europe](https://github.com/openfootball/europe) | 2026-27 league schedules (Football.TXT), which football.json does not publish | CC0-1.0 | bundled co-sources of the league packs; supply fixture identity and the venue-local kickoff clock only — never a result, never training-eligible, and the clock carries no timezone upstream so kickoff precision stays day-level |
+| [openfootball/football.json](https://github.com/openfootball/football.json) | top-five European leagues | CC0-1.0 | bundled and refreshable historical base; a domestic refresh preserves these completed seasons and replaces only the allowlisted current-season table |
+| [openfootball/england](https://github.com/openfootball/england), [deutschland](https://github.com/openfootball/deutschland), [espana](https://github.com/openfootball/espana), [italy](https://github.com/openfootball/italy), [europe](https://github.com/openfootball/europe) | current big-five league schedules and results (Football.TXT) | CC0-1.0 | bundled and refreshable through one exact current-season path per repository; supplies fixture identity, day-precision kickoff, and completed results with field-level provenance. It may extend training history but remains only one result source, so club settlement still requires independent agreement |
 | [footballcsv/england](https://github.com/footballcsv/england), [deutschland](https://github.com/footballcsv/deutschland) | deep pre-2010 league history (Premier League from 1992-93, Bundesliga from 1963-64) | CC0-1.0 | bundled history packs, a CC0 mirror of openfootball; trimmed to end before football.json's 2010-11 start so the two never overlap; keeps its own source so it never trains a forecast and cannot be sealed |
 | [openfootball/champions-league](https://github.com/openfootball/champions-league) | Champions, Europa, and Conference League main competitions | CC0-1.0 | bundled historical browse/analytics packs; qualifiers excluded |
 
@@ -26,8 +26,9 @@ repoints the running index and never changes an existing seal.
 
 Refresh is consent-gated. Golavo can check on launch and periodically **while the app is
 open**, or only when you ask. It installs no daemon, Login Item, or LaunchAgent and makes
-no closed-app monitoring claim. Current club fixtures remain unavailable unless an approved
-source actually publishes a complete current-season file.
+no closed-app monitoring claim. Golavo checks exactly eight repository identities; current
+club fixtures remain last-known-good or unavailable unless an allowlisted file is genuinely
+published and passes the schedule and result gates.
 
 ## Display-only context
 

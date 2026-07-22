@@ -140,6 +140,7 @@ def client(tmp_path, monkeypatch):
 
 def test_replay_analysis_shape_and_leak_safe_cutoff(client):
     body = client.get("/api/v1/matches/m_target/analysis").json()
+    assert body["provenance"]["index_sha256"] == matches.index_fingerprint()
     assert body["available"] is True
     a = body["analysis"]
     assert a["schema_version"] == "0.5.0"

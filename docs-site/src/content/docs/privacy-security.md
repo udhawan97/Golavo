@@ -35,10 +35,10 @@ hosted forecasting backend. Core match exploration and deterministic analysis wo
 | OpenLigaDB | Separate Application Support root and SQLite schema, ODbL-only source IDs, no bundled response bytes, display-only read model, explicit attribution, and deletion independent of core data. |
 | Research fetch | HTTPS host/path/method allowlists, DNS/IP checks, pinned connection target, redirect validation, response/time limits, hostile-markup sanitization, prompt fencing, exact quote matching, cancellation and a global kill switch. |
 | Corrections | User input begins untrusted; source URL and captured evidence are required before validation. Text is sanitized, history is append-only, conflicts fail closed, and external export requires a separate explicit action. |
-| Source packs | Upstream revisions and every vendored byte are SHA-256 checked against manifests. Minisign authenticity verification remains planned under ADR-0001 and must not be implied today. |
-| Forecast artifacts | Canonical payload hash and source/build identity; scoring appends a successor rather than mutating a sealed forecast. Research, follows, overlays and corrections have no probability write path. |
+| Source packs | Upstream revisions and every vendored byte are SHA-256 checked against manifests. Official frozen bundles also require a detached Minisign signature over every active pack manifest; a missing or altered signature fails before pack data is read. Locally generated refresh generations use immutable receipts, verified manifests, and atomic activation instead. |
+| Forecast artifacts | Canonical payload hash and source/build identity; scoring appends a successor rather than mutating a sealed forecast. A portable proof download carries the connected lineage and any matching source manifests for offline verification. Research, follows, overlays and corrections have no probability write path. |
 | Optional AI | Numeric whitelist, schema/citation/quote guards, betting-language filter, loopback-only local endpoints, fixed cloud providers, no chain-of-thought exposure, and deterministic-only fallback. |
-| Signed auto-update | Update payloads are verified against the public key embedded in the app before install. Installers themselves are not yet OS code-signed/notarized. |
+| Signed auto-update | Update payloads, official pack manifests, and the aggregate release checksum ledger are verified against Golavo's pinned release identity. Installers themselves are not yet OS code-signed/notarized. |
 
 ## Update and data recovery
 

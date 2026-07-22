@@ -10,6 +10,8 @@ from typing import Any
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from golavo_core.proof import build_forecast_proof
+from golavo_core.resources import resource
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
 
@@ -371,6 +373,37 @@ def get_season_outlook(
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
+@app.post("/api/v1/analytics/competitions/{competition_id}/season-scenario")
+async def post_season_scenario(
+    competition_id: str,
+    request: Request,
+    as_of_utc: str | None = None,
+    season: str | None = None,
+) -> dict[str, Any]:
+    """Run an ephemeral conditional season simulation; never write it anywhere."""
+    try:
+        body = await request.json()
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(status_code=400, detail="request body must be JSON") from exc
+    forced = body.get("forced_results") if isinstance(body, dict) else None
+    if not isinstance(forced, list) or not forced:
+        raise HTTPException(status_code=422, detail="forced_results must be a non-empty array")
+    try:
+        return await run_in_threadpool(
+            outlook.season,
+            competition_id,
+            as_of_utc=as_of_utc,
+            season_id=season,
+            forced_results=forced,
+        )
+    except ValueError as exc:
+        message = str(exc)
+        status = 404 if message.startswith("no verified standings rule") else 422
+        raise HTTPException(status_code=status, detail=message) from exc
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
 @app.get("/api/v1/research/competitions/{competition_id}")
 def get_research_team_analytics(competition_id: str) -> dict[str, Any]:
     """Historical, competition-and-era-scoped team aggregates from an isolated pack."""
@@ -594,6 +627,23 @@ def get_forecast(artifact_id: str) -> dict[str, Any]:
         raise HTTPException(
             status_code=500, detail="forecast failed integrity verification"
         ) from exc
+
+
+@app.get("/api/v1/forecasts/{artifact_id}/proof")
+def forecast_proof(artifact_id: str) -> JSONResponse:
+    """Export a deterministic, offline-verifiable forecast lineage bundle."""
+    known_paths = {path.stem: path for path in ARTIFACT_DIR.glob("fa_*.json")}
+    path = known_paths.get(artifact_id)
+    if path is None:
+        raise HTTPException(status_code=404, detail="forecast not found")
+    try:
+        bundle = build_forecast_proof(path, ledger_dir=ARTIFACT_DIR, pack_root=resource("packs"))
+    except _BAD_ARTIFACT as exc:
+        raise HTTPException(status_code=500, detail="forecast proof verification failed") from exc
+    return JSONResponse(
+        bundle,
+        headers={"Content-Disposition": f'attachment; filename="{artifact_id}.proof.json"'},
+    )
 
 
 @app.get("/api/v1/forecasts/{artifact_id}/facts")

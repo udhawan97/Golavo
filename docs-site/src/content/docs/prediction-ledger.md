@@ -3,7 +3,7 @@ title: The Prediction Ledger
 description: How Golavo seals a forecast before kickoff and scores it after full time — and how you can verify a seal was never altered.
 ---
 
-Golavo's accountability spine is the versioned `ForecastArtifact` contract. A forecast is **sealed** before kickoff and a later result produces a separate **scored** artifact; the sealed file is never mutated. This is a working forward loop for **men's senior full internationals only** — sealed real fixtures accumulate in `data/artifacts/`, and a read-only calibration record aggregates what happened after the whistle. A hash-chained multi-artifact ledger is still planned (ADR-0001).
+Golavo's accountability spine is the versioned `ForecastArtifact` contract. A forecast is **sealed** before kickoff and a later result produces a separate **scored** artifact; the sealed file is never mutated. The forward loop supports men's senior full internationals and fixtures in certified domestic schedules. Club settlement remains stricter: it waits for two independent result sources to agree. A read-only calibration record aggregates what happened after the whistle, and a hash-chained multi-artifact ledger is still planned (ADR-0001).
 
 :::note[Seals are not picks]
 A **seal** freezes a model forecast for the expert trust record. A **pick** is your score call in
@@ -57,4 +57,11 @@ Real chains are aggregated into a calibration record — counts, running log los
 
 ## Verifying a seal
 
-Each artifact carries source hashes and a SHA-256 digest over canonical JSON, so its payload can be recomputed. The snapshot descriptors inside `inputs.snapshots` pin the exact upstream refs; `scripts/validate_provenance.py` re-verifies every retained pack byte-for-byte against its manifest and the registry. The append-only audit log (`audit.jsonl`) records every artifact append. Cross-artifact chaining and its verifier remain planned (ADR-0001).
+Each artifact carries source hashes and a SHA-256 digest over canonical JSON, so its payload can be recomputed. The snapshot descriptors inside `inputs.snapshots` pin the exact upstream refs; `scripts/validate_provenance.py` re-verifies every retained pack byte-for-byte against its manifest and the registry. The append-only audit log (`audit.jsonl`) records every artifact append.
+
+Forecast Detail also offers **Download proof**. Its `ForecastProof` JSON contains the
+connected sealed/scored/voided lineage, source descriptors, any locally matching exact
+manifest bytes, contract versions, and a canonical bundle digest. `golavo verify-proof
+proof.json` validates it without a Golavo ledger, pack directory, or network connection.
+Source entries without embedded manifest bytes are labelled `descriptor-only`; the proof
+does not upgrade absent evidence. Cross-artifact hash chaining remains planned (ADR-0001).

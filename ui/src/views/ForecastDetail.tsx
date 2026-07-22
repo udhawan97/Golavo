@@ -1,8 +1,8 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import type { ForecastArtifact } from "../lib/contract";
 import type { ForecastMode } from "../lib/hooks";
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
-import { fetchForecast, fetchForecasts } from "../lib/api";
+import { downloadForecastProof, fetchForecast, fetchForecasts } from "../lib/api";
 import { deriveMarkets } from "../lib/markets";
 import { legacyHistorySupport } from "../lib/analysisPresentation";
 import { num, pct, pctWhole, inWords, largestRemainder, sealLeadTime, utc, utcDate } from "../lib/format";
@@ -77,6 +77,7 @@ function Detail({
       />
 
       <ForecastTrustStrip artifact={artifact} />
+      <ProofExport artifactId={artifact.artifact_id} />
 
       {artifact.supersedes && (
         <div className="callout callout--info">
@@ -133,6 +134,35 @@ function Detail({
           leadingOutcome: leadingOutcomeFromProbs(forecast.probs),
         }}
       />
+    </div>
+  );
+}
+
+function ProofExport({ artifactId }: { artifactId: string }) {
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const save = async () => {
+    setState("saving");
+    try {
+      await downloadForecastProof(artifactId);
+      setState("saved");
+    } catch {
+      setState("error");
+    }
+  };
+  return (
+    <div className="callout callout--info forecast-proof-export" aria-live="polite">
+      <ShieldCheckIcon size={18} />
+      <div>
+        <div className="callout__title">Portable verification proof</div>
+        <p className="small muted">
+          Export this seal, its immutable lineage, source receipts, contract versions, and hashes.
+          Verify it offline with <code>golavo verify-proof</code>.
+        </p>
+        <button className="btn btn--ghost" type="button" disabled={state === "saving"} onClick={() => void save()}>
+          {state === "saving" ? "Building proof…" : state === "saved" ? "Proof downloaded" : "Download proof JSON"}
+        </button>
+        {state === "error" && <span role="alert" className="small"> Proof export failed; the seal was not changed.</span>}
+      </div>
     </div>
   );
 }

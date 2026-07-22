@@ -81,6 +81,55 @@ def test_football_absence_is_a_capability_not_an_error(tmp_path: Path) -> None:
     assert (tmp_path / refresh_sources.FOOTBALL / ref / "git-tree.json").is_file()
 
 
+def test_domestic_txt_source_discovers_only_its_allowlisted_current_schedule() -> None:
+    ref = "4" * 40
+    commit_url = "https://api.github.com/repos/openfootball/england/commits/master"
+    tree_url = f"https://api.github.com/repos/openfootball/england/git/trees/{ref}?recursive=1"
+    fetcher = FakeFetcher(
+        {
+            commit_url: response(
+                commit_url,
+                {"sha": ref, "commit": {"committer": {"date": "2026-07-21T00:00:00Z"}}},
+            ),
+            tree_url: response(
+                tree_url,
+                {
+                    "tree": [
+                        {"path": "2026-27/1-premierleague.txt", "type": "blob"},
+                        {"path": "2026-27/2-championship.txt", "type": "blob"},
+                    ]
+                },
+            ),
+        }
+    )
+
+    observed = refresh_sources.check_source(
+        refresh_sources.ENGLAND,
+        fetcher=fetcher,
+        now=datetime(2026, 7, 21, tzinfo=UTC),
+    )
+
+    assert observed.capability == "available"
+    assert observed.current_paths == ("2026-27/1-premierleague.txt",)
+    assert refresh_sources.source_paths(observed) == (
+        "2026-27/1-premierleague.txt",
+        "LICENSE.md",
+    )
+
+
+def test_each_domestic_refresh_source_has_one_fixed_league_path() -> None:
+    assert {
+        source_id: refresh_sources.expected_current_paths(source_id, "2026-27")
+        for source_id in refresh_sources.DOMESTIC_SOURCE_IDS
+    } == {
+        "openfootball-england": ("2026-27/1-premierleague.txt",),
+        "openfootball-deutschland": ("2026-27/1-bundesliga.txt",),
+        "openfootball-espana": ("2026-27/1-liga.txt",),
+        "openfootball-italy": ("2026-27/1-seriea.txt",),
+        "openfootball-europe": ("france/2026-27_fr1.txt",),
+    }
+
+
 def test_pinned_download_is_hash_receipted_and_leaves_no_part_file(tmp_path: Path) -> None:
     ref = "c" * 40
     observation = refresh_sources.SourceObservation(

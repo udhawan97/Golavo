@@ -45,6 +45,9 @@ import { chapterPullNumber } from "../lib/insights";
 import { ProgrammePullNumber } from "../components/ProgrammePullNumber";
 import { factKey } from "../components/CommentatorsNotebook";
 import { ConditionsSnapshot } from "../components/ConditionsSnapshot";
+import { ReferenceDesk } from "../components/ReferenceDesk";
+import { ForecastReadiness } from "../components/ForecastReadiness";
+import { VerifiedGenerationDiff } from "../components/VerifiedGenerationDiff";
 import { FollowButton } from "../components/FollowButton";
 import { FollowEventHistory } from "../components/FollowEventHistory";
 import { useFollows } from "../lib/follow-context";
@@ -105,6 +108,10 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
   const analysis =
     analysisState.status === "ready" && analysisState.data.available
       ? analysisState.data.analysis
+      : null;
+  const analysisFingerprint =
+    analysisState.status === "ready"
+      ? analysisState.data.provenance?.index_sha256 ?? null
       : null;
   const [notebookRetryTick, setNotebookRetryTick] = useState(0);
   const notebookState = useAsync(
@@ -207,6 +214,11 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       <ProgrammeContents />
 
       <ConditionsSnapshot matchId={id} />
+
+      <ReferenceDesk matchId={id} home={match.home_team} away={match.away_team} />
+
+      <ForecastReadiness detail={detail} analysis={analysis} indexSha256={analysisFingerprint} />
+      <VerifiedGenerationDiff matchId={id} analysis={analysis} indexSha256={analysisFingerprint} />
 
       <MatchResearch
         matchId={id}

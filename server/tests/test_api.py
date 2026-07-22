@@ -65,6 +65,24 @@ def test_real_ledger_serves_real_seals(monkeypatch, tmp_path) -> None:
     assert len(forecasts) == 1
 
 
+def test_forecast_proof_route_exports_an_offline_verifiable_bundle(monkeypatch, tmp_path) -> None:
+    from golavo_core.proof import verify_forecast_proof
+
+    ledger = tmp_path / "ledger"
+    ledger.mkdir()
+    real = next((REPO_ROOT / "data/fixtures/sample_artifacts").glob("fa_*.json"))
+    (ledger / real.name).write_text(real.read_text(), encoding="utf-8")
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", ledger)
+
+    response = TestClient(server_main.app).get(f"/api/v1/forecasts/{real.stem}/proof")
+
+    assert response.status_code == 200
+    assert response.headers["content-disposition"] == (
+        f'attachment; filename="{real.stem}.proof.json"'
+    )
+    assert verify_forecast_proof(response.json())["verified"] is True
+
+
 def test_a_lone_corrupt_seal_does_not_crash_the_list(monkeypatch, tmp_path) -> None:
     # A crash could leave a single truncated fa_*.json. The list must fail closed
     # (skip it) and return an empty list, never a 500.

@@ -136,6 +136,11 @@ def resolve_pack_dir(
         # source_id AND competition), and that league is exactly one bundled pack.
         if not source_id or not competition:
             return None
+        from golavo_server import runtime  # local: avoid an import cycle at load
+
+        refreshed = runtime.refreshed_club_pack_dir(competition)
+        if refreshed is not None and (refreshed / "manifest.json").is_file():
+            return refreshed
         return _active_bundled_pack(source_id, competition)
     if source_kind != "international":
         return None

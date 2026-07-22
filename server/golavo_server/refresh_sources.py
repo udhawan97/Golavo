@@ -24,8 +24,34 @@ from urllib.request import Request, urlopen
 MARTJ42 = "martj42-international-results"
 WORLDCUP = "openfootball-worldcup-json"
 FOOTBALL = "openfootball-football-json"
-APPROVED_SOURCE_IDS = (MARTJ42, WORLDCUP, FOOTBALL)
+ENGLAND = "openfootball-england"
+GERMANY = "openfootball-deutschland"
+SPAIN = "openfootball-espana"
+ITALY = "openfootball-italy"
+FRANCE = "openfootball-europe"
+DOMESTIC_SOURCE_IDS = (ENGLAND, GERMANY, SPAIN, ITALY, FRANCE)
+APPROVED_SOURCE_IDS = (MARTJ42, WORLDCUP, FOOTBALL, *DOMESTIC_SOURCE_IDS)
 LEAGUE_CODES = ("en.1", "es.1", "de.1", "it.1", "fr.1")
+
+DOMESTIC_CONFIG: dict[str, dict[str, str]] = {
+    ENGLAND: {
+        "repo": "openfootball/england",
+        "league_code": "en.1",
+        "path": "{season}/1-premierleague.txt",
+    },
+    GERMANY: {
+        "repo": "openfootball/deutschland",
+        "league_code": "de.1",
+        "path": "{season}/1-bundesliga.txt",
+    },
+    SPAIN: {"repo": "openfootball/espana", "league_code": "es.1", "path": "{season}/1-liga.txt"},
+    ITALY: {"repo": "openfootball/italy", "league_code": "it.1", "path": "{season}/1-seriea.txt"},
+    FRANCE: {
+        "repo": "openfootball/europe",
+        "league_code": "fr.1",
+        "path": "france/{season}_fr1.txt",
+    },
+}
 
 _CONFIG: dict[str, dict[str, Any]] = {
     MARTJ42: {
@@ -44,6 +70,14 @@ _CONFIG: dict[str, dict[str, Any]] = {
         "repo": "openfootball/football.json",
         "branch": "master",
         "interval_seconds": 24 * 60 * 60,
+    },
+    **{
+        source_id: {
+            "repo": config["repo"],
+            "branch": "master",
+            "interval_seconds": 24 * 60 * 60,
+        }
+        for source_id, config in DOMESTIC_CONFIG.items()
     },
 }
 
@@ -239,6 +273,32 @@ def _football_paths(tree_body: bytes, season: str) -> tuple[str, ...]:
     )
 
 
+def _tree_paths(tree_body: bytes) -> set[str]:
+    try:
+        tree = json.loads(tree_body)
+        if tree.get("truncated") is True:
+            raise ValueError("truncated tree")
+        return {str(entry["path"]) for entry in tree["tree"] if entry.get("type") == "blob"}
+    except (KeyError, TypeError, ValueError, UnicodeDecodeError) as exc:
+        raise RefreshSourceError(
+            "invalid_schema",
+            "approved source returned an invalid or truncated tree",
+            retryable=False,
+        ) from exc
+
+
+def expected_current_paths(source_id: str, season: str) -> tuple[str, ...]:
+    if source_id == FOOTBALL:
+        return tuple(f"{season}/{code}.json" for code in LEAGUE_CODES)
+    config = DOMESTIC_CONFIG.get(source_id)
+    return (config["path"].format(season=season),) if config else ()
+
+
+def _published_paths(source_id: str, tree_body: bytes, season: str) -> tuple[str, ...]:
+    paths = _tree_paths(tree_body)
+    return tuple(path for path in expected_current_paths(source_id, season) if path in paths)
+
+
 def check_source(
     source_id: str,
     previous: dict[str, Any] | None = None,
@@ -258,7 +318,8 @@ def check_source(
     client = fetcher or Fetcher()
     commit_url = f"https://api.github.com/repos/{cfg['repo']}/commits/{cfg['branch']}"
     response = client.get(commit_url, headers=headers, cancel=cancel)
-    season = current_european_season(now) if source_id == FOOTBALL else None
+    dynamic_source = source_id == FOOTBALL or source_id in DOMESTIC_SOURCE_IDS
+    season = current_european_season(now) if dynamic_source else None
     previous_ref = str(previous.get("observed_ref") or previous.get("active_ref") or "")
     if response.status == 304:
         if _SHA_RE.fullmatch(previous_ref) is None:
@@ -278,17 +339,20 @@ def check_source(
 
     current_paths: tuple[str, ...] = ()
     capability = "available"
-    if source_id == FOOTBALL:
+    if dynamic_source:
         previous_season = previous.get("season")
         if response.status != 304 or previous_season != season:
             tree_url = f"https://api.github.com/repos/{cfg['repo']}/git/trees/{ref}?recursive=1"
             tree = client.get(tree_url, cancel=cancel, max_bytes=_MAX_METADATA_BYTES)
             if tree.status != 200:
                 raise RefreshSourceError("upstream_http", f"football tree HTTP {tree.status}")
-            current_paths = _football_paths(tree.body, str(season))
+            current_paths = _published_paths(source_id, tree.body, str(season))
         else:
             current_paths = tuple(str(path) for path in previous.get("current_paths", []))
-        capability = "partial" if current_paths else "absent"
+        expected = expected_current_paths(source_id, str(season))
+        capability = (
+            "available" if current_paths == expected else "partial" if current_paths else "absent"
+        )
 
     return SourceObservation(
         source_id=source_id,
@@ -309,7 +373,7 @@ def _raw_url(source_id: str, ref: str, path: str) -> str:
 
 
 def source_paths(observation: SourceObservation) -> tuple[str, ...]:
-    if observation.source_id == FOOTBALL:
+    if observation.source_id == FOOTBALL or observation.source_id in DOMESTIC_SOURCE_IDS:
         return (*observation.current_paths, "LICENSE.md") if observation.current_paths else ()
     return tuple(str(path) for path in _CONFIG[observation.source_id]["files"])
 
@@ -361,15 +425,17 @@ def download_source_snapshot(
     # including the important "current season absent" state where there are no
     # data files to download. Re-checking the tree at the immutable commit also
     # closes the gap between the earlier revision check and snapshot capture.
-    if observation.source_id == FOOTBALL:
+    if observation.source_id == FOOTBALL or observation.source_id in DOMESTIC_SOURCE_IDS:
         tree_url = (
-            f"https://api.github.com/repos/{_CONFIG[FOOTBALL]['repo']}/git/trees/"
+            f"https://api.github.com/repos/{_CONFIG[observation.source_id]['repo']}/git/trees/"
             f"{observation.ref}?recursive=1"
         )
         tree = client.get(tree_url, cancel=cancel, max_bytes=_MAX_METADATA_BYTES)
         if tree.status != 200:
             raise RefreshSourceError("upstream_http", f"football tree HTTP {tree.status}")
-        captured_paths = _football_paths(tree.body, str(observation.season))
+        captured_paths = _published_paths(
+            observation.source_id, tree.body, str(observation.season)
+        )
         if captured_paths != observation.current_paths:
             raise RefreshSourceError(
                 "source_changed_during_refresh",

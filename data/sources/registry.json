@@ -288,10 +288,20 @@
       "license_url": "https://github.com/openfootball/deutschland/blob/master/LICENSE.md",
       "classification": "core",
       "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-deutschland",
+        "repository": "openfootball/deutschland",
+        "branch": "master",
+        "allowed_paths": ["<current-season>/1-bundesliga.txt", "LICENSE.md"],
+        "default_interval_seconds": 86400,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
       "fields": "Football.TXT season schedule for the Bundesliga: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
       "attribution": "The bundesliga fixtures from openfootball/deutschland (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-17",
-      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+      "notes": "Bundled and runtime-refreshable as a co-source of openfootball-football-json. Supplies fixture identity, result once published, and the local kickoff clock; unplayed rows are never training-eligible, and the clock has no timezone so kickoff_precision stays 'day'. Each runtime update is commit-pinned, hash-receipted, schedule-certified, diff-checked, and activated atomically with last-known-good fallback."
     },
     {
       "source_id": "openfootball-england",
@@ -305,10 +315,20 @@
       "license_url": "https://github.com/openfootball/england/blob/master/LICENSE.md",
       "classification": "core",
       "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-england",
+        "repository": "openfootball/england",
+        "branch": "master",
+        "allowed_paths": ["<current-season>/1-premierleague.txt", "LICENSE.md"],
+        "default_interval_seconds": 86400,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
       "fields": "Football.TXT season schedule for the English Premier League: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
       "attribution": "The english premier league fixtures from openfootball/england (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-17",
-      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+      "notes": "Bundled and runtime-refreshable as a co-source of openfootball-football-json. Supplies fixture identity, result once published, and the local kickoff clock; unplayed rows are never training-eligible, and the clock has no timezone so kickoff_precision stays 'day'. Each runtime update is commit-pinned, hash-receipted, schedule-certified, diff-checked, and activated atomically with last-known-good fallback."
     },
     {
       "source_id": "openfootball-espana",
@@ -322,10 +342,20 @@
       "license_url": "https://github.com/openfootball/espana/blob/master/LICENSE.md",
       "classification": "core",
       "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-espana",
+        "repository": "openfootball/espana",
+        "branch": "master",
+        "allowed_paths": ["<current-season>/1-liga.txt", "LICENSE.md"],
+        "default_interval_seconds": 86400,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
       "fields": "Football.TXT season schedule for La Liga: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
       "attribution": "La liga fixtures from openfootball/espana (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-17",
-      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+      "notes": "Bundled and runtime-refreshable as a co-source of openfootball-football-json. Supplies fixture identity, result once published, and the local kickoff clock; unplayed rows are never training-eligible, and the clock has no timezone so kickoff_precision stays 'day'. Each runtime update is commit-pinned, hash-receipted, schedule-certified, diff-checked, and activated atomically with last-known-good fallback."
     },
     {
       "source_id": "openfootball-euro",
@@ -356,10 +386,20 @@
       "license_url": "https://github.com/openfootball/europe/blob/master/LICENSE.md",
       "classification": "core",
       "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-europe",
+        "repository": "openfootball/europe",
+        "branch": "master",
+        "allowed_paths": ["france/<current-season>_fr1.txt", "LICENSE.md"],
+        "default_interval_seconds": 86400,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
       "fields": "Football.TXT season schedule for Ligue 1: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
       "attribution": "Ligue 1 fixtures from openfootball/europe (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-17",
-      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+      "notes": "Bundled and runtime-refreshable as a co-source of openfootball-football-json. Supplies fixture identity, result once published, and the local kickoff clock; unplayed rows are never training-eligible, and the clock has no timezone so kickoff_precision stays 'day'. Each runtime update is commit-pinned, hash-receipted, schedule-certified, diff-checked, and activated atomically with last-known-good fallback."
     },
     {
       "source_id": "openfootball-football-json",
@@ -411,7 +451,7 @@
       },
       "attribution": "Club football results from openfootball/football.json (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-12",
-      "notes": "Bundled, search/backtest only (five leagues share one source_id, so not seal-eligible). Naive local kickoff time; club rows carry kickoff_precision=day."
+      "notes": "Bundled and refreshable as the verified historical base for five competition-specific league packs. Certified current schedules can be sealed; completed club settlement still requires an independent result source. Country-repository rows carry day-precision kickoff and exact field-level co-source provenance."
     },
     {
       "source_id": "openfootball-italy",
@@ -425,10 +465,20 @@
       "license_url": "https://github.com/openfootball/italy/blob/master/LICENSE.md",
       "classification": "core",
       "pin_strategy": "commit",
+      "refresh": {
+        "supported": true,
+        "adapter": "openfootball-italy",
+        "repository": "openfootball/italy",
+        "branch": "master",
+        "allowed_paths": ["<current-season>/1-seriea.txt", "LICENSE.md"],
+        "default_interval_seconds": 86400,
+        "max_file_bytes": 33554432,
+        "max_snapshot_bytes": 67108864
+      },
       "fields": "Football.TXT season schedule for Serie A: matchday, date, venue-local kickoff clock (no timezone token upstream), and the two sides; scores appear once played",
       "attribution": "Serie a fixtures from openfootball/italy (Gerald Bauer and contributors), CC0-1.0.",
       "verified": "2026-07-17",
-      "notes": "Bundled as a co-source of openfootball-football-json, which stops at 2025-26 and has published no 2026-27 files. Supplies fixture identity and the local kickoff clock only: rows are incomplete, so they are never training-eligible, and the clock carries no timezone so kickoff_precision stays 'day'. No runtime refresh adapter is wired for this repo yet, so the bytes move only when the pack is rebuilt; upstream auto-updates weekly and the pinned bytes certify as a complete double round-robin (scripts/build_domestic_fixtures.py)."
+      "notes": "Bundled and runtime-refreshable as a co-source of openfootball-football-json. Supplies fixture identity, result once published, and the local kickoff clock; unplayed rows are never training-eligible, and the clock has no timezone so kickoff_precision stays 'day'. Each runtime update is commit-pinned, hash-receipted, schedule-certified, diff-checked, and activated atomically with last-known-good fallback."
     },
     {
       "source_id": "openfootball-worldcup-json",

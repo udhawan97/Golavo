@@ -465,6 +465,139 @@ def build_club_runtime_packs(
     return packs, capabilities
 
 
+def build_domestic_runtime_pack(
+    base_pack: Path,
+    raw_root: Path,
+    *,
+    source_id: str,
+    upstream_ref: str,
+    upstream_committed_at: str,
+    season: str,
+    relative_path: str,
+    retrieved_at_utc: str,
+    output_dir: Path,
+    as_of_utc: str,
+) -> tuple[Path, dict[str, Any]]:
+    """Refresh one Football.TXT season while retaining its verified history.
+
+    The country repository is a co-source: the pack keeps the shared
+    ``openfootball-football-json`` identity so the model sees the same league
+    history, while per-field provenance attributes the current schedule/results
+    to the exact country repository revision.
+    """
+    import pandas as pd
+    from golavo_core.identity import normalize
+    from golavo_core.ingest.domestictxt import parse_domestic_txt
+    from golavo_core.ingest.openfootball import LEAGUES, load_openfootball_table
+    from golavo_core.ingest.snapshot import validate_pack
+    from golavo_core.season_outlook import certify_schedule
+
+    from golavo_server.refresh_sources import DOMESTIC_CONFIG, FOOTBALL
+
+    config = DOMESTIC_CONFIG.get(source_id)
+    if config is None:
+        raise RefreshError(f"unsupported domestic refresh source: {source_id}")
+    code = config["league_code"]
+    if relative_path != config["path"].format(season=season):
+        raise RefreshError(f"unexpected {source_id} current-season path: {relative_path}")
+    competition, _country = LEAGUES[code]
+    expected_teams = {"de.1": 18, "fr.1": 18, "en.1": 20, "es.1": 20, "it.1": 20}[code]
+    validate_pack(base_pack)
+    output_dir = Path(output_dir)
+    shutil.copytree(base_pack, output_dir)
+    # A copied official signature authenticates the old manifest, not the new
+    # locally generated one. Generation manifests provide the runtime integrity
+    # boundary; never retain a stale detached signature.
+    (output_dir / "manifest.json.sig").unlink(missing_ok=True)
+
+    raw_file = Path(raw_root) / source_id / upstream_ref / relative_path
+    raw_license = Path(raw_root) / source_id / upstream_ref / "LICENSE.md"
+    if not raw_file.is_file() or not raw_license.is_file():
+        raise RefreshError(f"raw domestic snapshot is incomplete for {source_id}")
+    if b"CC0 1.0 Universal" not in raw_license.read_bytes():
+        raise RefreshError(f"{source_id} license is no longer the approved CC0-1.0 text")
+    text = raw_file.read_text(encoding="utf-8")
+    frame = parse_domestic_txt(text, season=season, league_code=code)
+    file_name = f"{season}.{code}.txt"
+    shutil.copyfile(raw_file, output_dir / file_name)
+
+    provenance_rows: list[dict[str, str]] = []
+    for row in frame.itertuples(index=False):
+        complete = bool(row.is_complete)
+        sides = f"{normalize(row.home_team)}-{normalize(row.away_team)}"
+        provenance_rows.append(
+            {
+                "date": row.date.strftime("%Y-%m-%d"),
+                "home_team": row.home_team,
+                "away_team": row.away_team,
+                "identity_source_id": source_id,
+                "result_source_id": source_id if complete else "",
+                "kickoff_source_id": source_id,
+                "venue_source_id": "",
+                "training_source_id": source_id if complete else "",
+                "upstream_fixture_key": f"{source_id}:{season}:{row.matchday}:{sides}",
+                "training_eligible": "true" if complete else "false",
+            }
+        )
+    pd.DataFrame(provenance_rows).to_csv(
+        output_dir / "field_provenance.csv", index=False, lineterminator="\n"
+    )
+
+    manifest_path = output_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("source_id") != FOOTBALL or manifest.get("competition") != competition:
+        raise RefreshError("domestic base pack does not match its league/source identity")
+    replaced = {file_name, "field_provenance.csv"}
+    files = [entry for entry in manifest["files"] if entry.get("name") not in replaced]
+    files.extend(
+        [
+            {
+                **_manifest_entry(output_dir / file_name),
+                "season": season,
+                "source_match_count": int(len(frame)),
+            },
+            _manifest_entry(output_dir / "field_provenance.csv"),
+        ]
+    )
+    manifest["files"] = sorted(files, key=lambda entry: str(entry["name"]))
+    manifest["co_sources"] = [
+        {
+            "source_id": source_id,
+            "url": f"https://github.com/{config['repo']}",
+            "upstream_ref": upstream_ref,
+            "upstream_committed_at_utc": upstream_committed_at,
+            "retrieved_at_utc": retrieved_at_utc,
+            "license": "CC0-1.0",
+            "sha256_file": file_name,
+            "raw_sha256": {relative_path: _sha256(raw_file)},
+        }
+    ]
+    _write_json(manifest_path, manifest)
+    validate_pack(output_dir)
+    loaded = load_openfootball_table(output_dir)
+    start = pd.Timestamp(f"{season[:4]}-07-01")
+    current = loaded.loc[pd.to_datetime(loaded["date"]) >= start]
+    certificate = certify_schedule(
+        current, expected_teams=expected_teams, as_of_utc=as_of_utc
+    )
+    capability = (
+        "complete"
+        if certificate["complete_fixture_list"] and certificate["past_result_gaps"] == 0
+        else "partial"
+    )
+    return output_dir, {
+        "source_id": source_id,
+        "competition": competition,
+        "league_code": code,
+        "season": season,
+        "upstream_ref": upstream_ref,
+        "checked_at_utc": retrieved_at_utc,
+        "capability": capability,
+        "certificate": certificate,
+        "last_known_good": capability != "complete",
+    }
+
+
 def _upgrade_legacy_columns(frame: Any) -> Any:
     """Add v0.5 provenance defaults when carrying rows from a v0.4 bundle."""
     import pandas as pd

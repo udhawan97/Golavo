@@ -24,7 +24,7 @@
       ]
     },
     "capability": {
-      "enum": ["available", "partial", "complete", "absent", "invalid", "unavailable"]
+      "enum": ["available", "partial", "complete", "absent", "last-known-good", "invalid", "unavailable"]
     },
     "source": {
       "type": "object",
@@ -51,7 +51,12 @@
           "enum": [
             "martj42-international-results",
             "openfootball-worldcup-json",
-            "openfootball-football-json"
+            "openfootball-football-json",
+            "openfootball-england",
+            "openfootball-deutschland",
+            "openfootball-espana",
+            "openfootball-italy",
+            "openfootball-europe"
           ]
         },
         "health": {
@@ -176,8 +181,8 @@
     "using_bundled_fallback": {"type": "boolean"},
     "sources": {
       "type": "array",
-      "minItems": 3,
-      "maxItems": 3,
+      "minItems": 8,
+      "maxItems": 8,
       "items": {"$ref": "#/$defs/source"}
     },
     "job": {

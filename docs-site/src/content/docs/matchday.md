@@ -78,6 +78,16 @@ The mode summary beneath the match header states which depth is active.
 The cockpit is machine-checked leak-safe: the cutoff proof rejects any training row dated at or
 after `kickoff − 1s`.
 
+Three trust aids sit beside that read without becoming a third model voice:
+
+- **Forecast readiness** names the active generation fingerprint, kickoff precision,
+  historical support, and seal path, while keeping unavailable lineups, injuries, and xG explicit.
+- **Verified generation diff** compares the current deterministic probabilities with the last
+  locally viewed verified fingerprint for that match. It appears only after the fingerprint
+  changes and never invokes AI or writes a seal.
+- **Reference Desk** shows only revision-pinned venue identity/capacity facts already present in
+  the evidence bundle. Current-manager claims stay absent because Golavo has no pinned tenure pack.
+
 ## My Season
 
 My Season is your private points race against five model rivals, scored only on matches you call.
@@ -89,12 +99,13 @@ fingerprints, and the 3 / 1 / +1 scoring rules.
 
 The cockpit is the live read; **sealing** is how you put a genuine pre-kickoff prediction on the
 record — from inside the app, no CLI required. For an **eligible** fixture (men's senior full
-internationals, still scheduled, inside the seal window) the cockpit shows a **Seal before
+internationals or a certified bundled domestic schedule, still scheduled, inside the seal window)
+the cockpit shows a **Seal before
 kickoff** action; it runs the same deterministic engine as the CLI (byte-identical), freezes the
 model version, seed, parameters, cutoff, and inputs, and writes an immutable `ForecastArtifact`.
 
 The action is honest about scope. A fixture that can't be sealed shows a reason-specific message
-— already played, seal window closed, internationals-only, or pack unavailable — rather than a
+— already played, seal window closed, unsupported competition, or pack unavailable — rather than a
 dead button. After full time, the seal is **scored** against the actual result as a separate
 successor; the original seal's bytes never change. Golavo **never** shows a retro-forecast for a
 match that already kicked off — a forecast is only honest if it was sealed *before* kickoff.
@@ -102,8 +113,9 @@ match that already kicked off — a forecast is only honest if it was sealed *be
 > Upcoming rails and seal windows depend on what approved sources genuinely publish. Settings
 > exposes each source's freshness and a manual refresh. With consent, Golavo can check on launch
 > and periodically while it is open. It does not monitor after the app closes. The five bundled
-> leagues carry their full 2026–27 schedules, so club fixtures appear from the first matchday;
-> their results arrive when the packs are rebuilt, not from a live feed.
+> leagues carry their full 2026–27 schedules, so club fixtures appear from the first matchday.
+> Their exact country-repository paths can refresh results while Golavo is open, but remain one
+> source rather than a live or independently corroborated feed.
 
 ## Follow this match
 
@@ -132,10 +144,11 @@ candidate facts route into the same correction queue. Search never makes a fact 
 
 A browse hub with mutually exclusive **International tournaments**, **Domestic leagues**,
 and **UEFA club competitions** sections.
-The domestic leagues are a **historical backtesting** surface; the Champions League, Europa
-League, and Conference League are historical browsing and competition-local analytics surfaces.
-Their pages do not imply a complete future schedule or live club forecast. Forward sealing covers
-internationals only.
+The domestic leagues combine historical backtesting with certified current-season schedules;
+the Champions League, Europa League, and Conference League remain historical browsing and
+competition-local analytics surfaces. Their pages do not imply a complete future schedule or
+live club forecast. Domestic sealing is limited to certified bundled schedules, and grading waits
+for a second result source.
 
 Domestic league pages add competition-local strength trends and workload context,
 plus a season-outlook gate that refuses to simulate an incomplete schedule. Covered

@@ -56,6 +56,7 @@ def season(
     *,
     as_of_utc: str | None = None,
     season_id: str | None = None,
+    forced_results: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Certified domestic season state, with simulation only when inputs pass."""
     from golavo_core.season_outlook import season_outlook
@@ -68,9 +69,14 @@ def season(
             competition_id,
             as_of_utc=cutoff,
             season=season_id,
+            forced_results=forced_results,
         )
 
+    scenario_key = tuple(
+        (str(item.get("match_id")), item.get("home_score"), item.get("away_score"))
+        for item in (forced_results or [])
+    )
     return _SEASON.read(
         compute,
-        key=(f"season:{competition_id}:{season_id or 'current'}", cutoff),
+        key=(f"season:{competition_id}:{season_id or 'current'}", cutoff, scenario_key),
     )

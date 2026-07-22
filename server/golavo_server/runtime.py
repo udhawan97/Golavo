@@ -144,6 +144,18 @@ def refreshed_pack_dir() -> Path | None:
     return legacy if (legacy / "manifest.json").is_file() else legacy
 
 
+def refreshed_club_pack_dir(competition: str) -> Path | None:
+    """One verified active-generation club pack, if the user refreshed it."""
+    if refresh_dir() is None:
+        return None
+    try:
+        from golavo_server import refresh_state
+
+        return refresh_state.active_club_pack_dir(competition)
+    except (OSError, RuntimeError, ValueError):
+        return None
+
+
 def analysis_cache_dir() -> Path | None:
     """Writable directory for the on-demand council disk cache, or None.
 

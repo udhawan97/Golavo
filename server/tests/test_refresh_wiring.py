@@ -371,3 +371,18 @@ def test_seal_resolver_falls_back_to_bundle_without_a_refreshed_pack(
     assert resolved is not None
     assert (resolved / "manifest.json").is_file()
     assert resolved != tmp_path / "app" / "refresh" / "pack"
+
+
+def test_club_seal_resolver_prefers_the_active_refreshed_league(
+    monkeypatch, tmp_path: Path
+) -> None:
+    refreshed = tmp_path / "refreshed-epl"
+    refreshed.mkdir()
+    (refreshed / "manifest.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(runtime, "refreshed_club_pack_dir", lambda competition: refreshed)
+
+    resolved = seal.resolve_pack_dir(
+        "openfootball-football-json", "club", "English Premier League"
+    )
+
+    assert resolved == refreshed

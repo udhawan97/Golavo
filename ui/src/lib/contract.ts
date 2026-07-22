@@ -561,8 +561,28 @@ export interface SeasonOutlookVoice {
   totals: { title: number; top_four: number; relegation: number };
 }
 
+export interface SeasonRemainingFixture {
+  match_id: string;
+  kickoff_utc: string;
+  home_team: string;
+  away_team: string;
+}
+
+export interface SeasonForcedResult {
+  match_id: string;
+  home_score: number;
+  away_score: number;
+}
+
+export interface SeasonScenario {
+  hypothetical_only: true;
+  persisted: false;
+  model_input: false;
+  forced_results: SeasonForcedResult[];
+}
+
 export interface SeasonOutlook {
-  schema_version: "0.1.0";
+  schema_version: "0.2.0";
   status: "blocked" | "complete" | "available";
   label: string;
   competition_id: string;
@@ -589,6 +609,8 @@ export interface SeasonOutlook {
     complete_fixture_list: boolean;
   };
   current_table: SeasonStandingRow[];
+  remaining_fixtures: SeasonRemainingFixture[];
+  scenario: SeasonScenario | null;
   iterations: number;
   seed: number | null;
   voices: SeasonOutlookVoice[];
@@ -1328,6 +1350,7 @@ export type RefreshCapability =
   | "partial"
   | "complete"
   | "absent"
+  | "last-known-good"
   | "invalid"
   | "unavailable";
 
@@ -1568,6 +1591,7 @@ export interface MatchAnalysisResponse {
   available: boolean;
   reason: string | null;
   analysis: MatchAnalysis | null;
+  provenance?: { index_sha256: string };
 }
 
 /** A directory row pair for the Games home rails. */

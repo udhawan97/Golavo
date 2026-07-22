@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import copy
 import json
-import re
 from pathlib import Path
 
 import pytest
@@ -93,23 +92,18 @@ def test_calibration_rejects_a_tampered_ledger(tmp_path: Path) -> None:
         calibration_summary(ledger)
 
 
-# --- H2: docs must not overclaim an unimplemented security control ------------
+# --- H2: docs and implementation must agree on pack authentication ------------
 
 def test_docs_do_not_overclaim_pack_signature_verification() -> None:
-    """No minisign pack SIGNATURE-verification code exists at this commit (only
-    per-file sha256). Any shipped doc that mentions pack signing must mark it
-    planned/gated/not-implemented, never assert it as an active control."""
-    signing = re.compile(r"minisign|signature[- ]?verif|signed pack", re.IGNORECASE)
-    qualifier = re.compile(
-        r"planned|not yet|not implemented|gated|roadmap|hash-verified", re.IGNORECASE
+    """Official frozen packs are authenticated; local generations stay honest."""
+    security = (REPO_ROOT / "SECURITY.md").read_text(encoding="utf-8")
+    packs = (REPO_ROOT / "packs/README.md").read_text(encoding="utf-8")
+    implementation = (REPO_ROOT / "core/golavo_core/ingest/snapshot.py").read_text(
+        encoding="utf-8"
     )
-    for rel in ("SECURITY.md", "README.md", "packs/README.md"):
-        text = (REPO_ROOT / rel).read_text(encoding="utf-8")
-        for i, line in enumerate(text.splitlines(), 1):
-            if "pack" in line.lower() and signing.search(line):
-                assert qualifier.search(line), (
-                    f"{rel}:{i} presents pack signing as active without a "
-                    f"planned/gated qualifier: {line.strip()!r}"
-                )
-    # Pin the corrected honest phrasing so the qualifier cannot be silently dropped.
-    assert "not yet implemented" in (REPO_ROOT / "SECURITY.md").read_text(encoding="utf-8")
+    assert "Official frozen app bundles" in security
+    assert "missing or bad signature fails closed" in security
+    assert "locally generated refresh packs" in security
+    assert "detached Minisign signature" in packs
+    assert "missing manifest signature" in implementation
+    assert "verify_minisign" in implementation

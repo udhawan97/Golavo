@@ -242,11 +242,9 @@ def verify_generation(path: Path) -> dict[str, Any]:
         raise ValueError(
             "generation must retain at least the international and World Cup snapshots"
         )
-    approved = {
-        "martj42-international-results",
-        "openfootball-worldcup-json",
-        "openfootball-football-json",
-    }
+    from golavo_server.refresh_sources import APPROVED_SOURCE_IDS
+
+    approved = set(APPROVED_SOURCE_IDS)
     for snapshot in snapshots:
         if not isinstance(snapshot, dict) or snapshot.get("schema_version") != "0.1.0":
             raise ValueError("invalid source snapshot receipt")
@@ -302,6 +300,22 @@ def active_pack_dir() -> Path | None:
         return None
     pack = active / "packs" / "internationals"
     return pack if (pack / "manifest.json").is_file() else None
+
+
+def active_club_pack_dir(competition: str) -> Path | None:
+    """The active generation's verified club pack for one competition."""
+    active, _ = active_generation()
+    if active is None:
+        return None
+    clubs = active / "packs" / "clubs"
+    for manifest_path in clubs.glob("*/manifest.json"):
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if manifest.get("competition") == competition:
+            return manifest_path.parent
+    return None
 
 
 def install_generation(staging: Path, generation_id: str) -> Path:

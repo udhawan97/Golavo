@@ -7,7 +7,7 @@
   "required": ["schema_version", "source_id", "repository", "branch", "upstream_ref", "upstream_committed_at_utc", "retrieved_at_utc", "license", "files"],
   "properties": {
     "schema_version": {"const": "0.1.0"},
-    "source_id": {"enum": ["martj42-international-results", "openfootball-worldcup-json", "openfootball-football-json"]},
+    "source_id": {"enum": ["martj42-international-results", "openfootball-worldcup-json", "openfootball-football-json", "openfootball-england", "openfootball-deutschland", "openfootball-espana", "openfootball-italy", "openfootball-europe"]},
     "repository": {"type": "string"},
     "branch": {"type": "string"},
     "upstream_ref": {"type": "string", "pattern": "^[0-9a-f]{40}$"},

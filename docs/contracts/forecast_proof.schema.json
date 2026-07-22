@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.local/contracts/forecast_proof.schema.json",
+  "title": "ForecastProof",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "root_artifact_id", "artifacts", "sources", "contracts", "verification", "bundle_sha256"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "root_artifact_id": {"type": "string", "pattern": "^fa_[0-9a-f]{20}$"},
+    "artifacts": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["descriptor", "manifest_json", "verification"],
+        "properties": {
+          "descriptor": {"type": "object"},
+          "manifest_json": {"type": ["string", "null"]},
+          "verification": {"enum": ["manifest-hash-verified", "descriptor-only"]}
+        }
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["forecast_artifact", "forecast_proof"],
+      "properties": {
+        "forecast_artifact": {"type": "string"},
+        "forecast_proof": {"const": "0.1.0"}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_integrity", "lineage", "source_receipts"],
+      "properties": {
+        "artifact_integrity": {"const": "verified"},
+        "lineage": {"const": "verified"},
+        "source_receipts": {"const": "verified-when-embedded"}
+      }
+    },
+    "bundle_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}

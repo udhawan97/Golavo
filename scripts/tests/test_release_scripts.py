@@ -66,6 +66,17 @@ def test_frozen_sidecar_excludes_unused_optional_ml_and_dataframe_stacks() -> No
         assert f'"{package}"' in spec
 
 
+def test_official_pack_signatures_have_an_explicit_frozen_bundle_marker() -> None:
+    root = SCRIPTS.parent
+    build_text = (root / "packaging/build.sh").read_text(encoding="utf-8")
+    spec = (root / "packaging/golavo-sidecar.spec").read_text(encoding="utf-8")
+    validator = (root / "core/golavo_core/ingest/snapshot.py").read_text(encoding="utf-8")
+    assert 'PACK_SIGNATURE_MARKER="packs/.signatures-required"' in build_text
+    assert 'touch "$PACK_SIGNATURE_MARKER"' in build_text
+    assert 'datas += [(_signature_marker, "packs")]' in spec
+    assert '".signatures-required"' in validator
+
+
 # --- bump_version ------------------------------------------------------------
 
 

@@ -108,7 +108,7 @@
         "supported": {"const": true},
         "adapter": {
           "type": "string",
-          "enum": ["martj42-international-results", "openfootball-worldcup-json", "openfootball-football-json"]
+          "enum": ["martj42-international-results", "openfootball-worldcup-json", "openfootball-football-json", "openfootball-england", "openfootball-deutschland", "openfootball-espana", "openfootball-italy", "openfootball-europe"]
         },
         "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
         "branch": {"type": "string", "minLength": 1},

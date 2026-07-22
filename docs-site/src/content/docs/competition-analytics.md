@@ -31,6 +31,11 @@ published schedules are pinned from the OpenFootball Football.TXT country repos 
 the outlook runs. The certificate is still checked on every request, and a league that
 ever fails it produces the blocked state and no probabilities rather than a guess.
 
+For an available domestic outlook, one future fixture can be assigned a hypothetical
+score and rerun through the same three model voices. The response is stamped
+`hypothetical_only`, `persisted: false`, and `model_input: false`; it exists only in the
+current view, cannot be sealed, and does not change the canonical verified outlook.
+
 ## Golden Boot and shootouts
 
 An international competition shows a leading-scorers table and a penalty-shootout
