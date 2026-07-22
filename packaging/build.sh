@@ -52,6 +52,7 @@ SIGNED_PACK_MANIFESTS=("")
 PACK_SIGNATURE_MARKER="packs/.signatures-required"
 PACK_SIGNATURE_MARKER_CREATED=0
 cleanup_pack_signatures() {
+  local status=$?
   for manifest in "${SIGNED_PACK_MANIFESTS[@]}"; do
     [ -n "$manifest" ] || continue
     rm -f "${manifest}.sig"
@@ -59,6 +60,7 @@ cleanup_pack_signatures() {
   if [ "$PACK_SIGNATURE_MARKER_CREATED" -eq 1 ]; then
     rm -f "$PACK_SIGNATURE_MARKER"
   fi
+  return "$status"
 }
 trap cleanup_pack_signatures EXIT
 if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
@@ -78,23 +80,10 @@ if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
       echo "error: signer did not create ${manifest}.sig" >&2
       exit 2
     fi
-  done < <(python - <<'PY'
-import sys
-from pathlib import Path
-from golavo_core.packstore import active_packs
-
-root = Path.cwd()
-registry = root / "packs/snapshots.json"
-resolve = lambda declared: root / declared  # noqa: E731
-for pack in active_packs(registry, resolve=resolve):
-    # Use repository-relative POSIX paths and a byte-level NUL delimiter. On
-    # Windows, Python's normal text stdout emits CRLF and Git Bash retains the
-    # carriage return in `read`, making the post-signature check look up a
-    # different filename even though Tauri signed the intended manifest.
-    manifest = (pack.directory / "manifest.json").relative_to(root).as_posix()
-    sys.stdout.buffer.write(manifest.encode("utf-8") + b"\0")
-PY
-  )
+  # Byte-level NUL framing avoids Windows CRLF leaking a carriage return into
+  # Git Bash's loop variable. Keep the Python in a standalone helper because
+  # Bash 3.2 cannot execute a heredoc nested inside process substitution.
+  done < <(python scripts/list_active_pack_manifests.py --null)
   touch "$PACK_SIGNATURE_MARKER"
   PACK_SIGNATURE_MARKER_CREATED=1
 else

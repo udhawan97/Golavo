@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -73,11 +75,38 @@ def test_official_pack_signatures_have_an_explicit_frozen_bundle_marker() -> Non
     validator = (root / "core/golavo_core/ingest/snapshot.py").read_text(encoding="utf-8")
     assert 'PACK_SIGNATURE_MARKER="packs/.signatures-required"' in build_text
     assert 'touch "$PACK_SIGNATURE_MARKER"' in build_text
-    assert ".relative_to(root).as_posix()" in build_text
     assert "while IFS= read -r -d '' manifest" in build_text
-    assert "sys.stdout.buffer.write" in build_text
+    assert "python scripts/list_active_pack_manifests.py --null" in build_text
     assert 'datas += [(_signature_marker, "packs")]' in spec
     assert '".signatures-required"' in validator
+
+
+def test_active_pack_manifest_lister_is_nul_framed_and_portable() -> None:
+    root = SCRIPTS.parent
+    helper = _load("list_active_pack_manifests")
+    paths = helper.active_manifest_paths(root)
+    assert len(paths) == 11
+    assert all(not Path(path).is_absolute() and "\\" not in path for path in paths)
+    assert all((root / path).is_file() for path in paths)
+
+    result = subprocess.run(
+        [sys.executable, str(SCRIPTS / "list_active_pack_manifests.py"), "--null"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    assert result.stdout.endswith(b"\0")
+    assert result.stdout.count(b"\0") == len(paths)
+    assert b"\r" not in result.stdout
+
+
+def test_release_build_failures_and_missing_artifacts_cannot_be_masked() -> None:
+    root = SCRIPTS.parent
+    build_text = (root / "packaging/build.sh").read_text(encoding="utf-8")
+    workflow = (root / ".github/workflows/release.yml").read_text(encoding="utf-8")
+    assert "local status=$?" in build_text
+    assert 'return "$status"' in build_text
+    assert "if-no-files-found: error" in workflow
 
 
 # --- bump_version ------------------------------------------------------------

@@ -178,6 +178,7 @@ jobs:
         with:
           name: golavo-${{ matrix.target }}
           path: packaging/out/**
+          if-no-files-found: error
 
   publish:
     needs: [prepare, build]
