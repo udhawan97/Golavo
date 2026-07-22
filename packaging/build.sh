@@ -67,15 +67,19 @@ if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
     exit 2
   fi
   npm --prefix desktop ci
-  while IFS= read -r manifest; do
+  while IFS= read -r -d '' manifest; do
     if [ -e "${manifest}.sig" ]; then
       echo "error: refusing to overwrite existing ${manifest}.sig" >&2
       exit 2
     fi
     SIGNED_PACK_MANIFESTS+=("$manifest")
     npm --prefix desktop exec tauri signer sign -- "$manifest"
-    test -s "${manifest}.sig"
+    if [ ! -s "${manifest}.sig" ]; then
+      echo "error: signer did not create ${manifest}.sig" >&2
+      exit 2
+    fi
   done < <(python - <<'PY'
+import sys
 from pathlib import Path
 from golavo_core.packstore import active_packs
 
@@ -83,10 +87,12 @@ root = Path.cwd()
 registry = root / "packs/snapshots.json"
 resolve = lambda declared: root / declared  # noqa: E731
 for pack in active_packs(registry, resolve=resolve):
-    # Git Bash cannot reliably resolve the native ``D:\\...`` path spelling
-    # emitted by Windows Python. Keep the signer, shell existence check, and
-    # cleanup trap on one portable repository-relative POSIX path.
-    print((pack.directory / "manifest.json").relative_to(root).as_posix())
+    # Use repository-relative POSIX paths and a byte-level NUL delimiter. On
+    # Windows, Python's normal text stdout emits CRLF and Git Bash retains the
+    # carriage return in `read`, making the post-signature check look up a
+    # different filename even though Tauri signed the intended manifest.
+    manifest = (pack.directory / "manifest.json").relative_to(root).as_posix()
+    sys.stdout.buffer.write(manifest.encode("utf-8") + b"\0")
 PY
   )
   touch "$PACK_SIGNATURE_MARKER"

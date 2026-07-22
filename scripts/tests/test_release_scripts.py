@@ -74,6 +74,8 @@ def test_official_pack_signatures_have_an_explicit_frozen_bundle_marker() -> Non
     assert 'PACK_SIGNATURE_MARKER="packs/.signatures-required"' in build_text
     assert 'touch "$PACK_SIGNATURE_MARKER"' in build_text
     assert ".relative_to(root).as_posix()" in build_text
+    assert "while IFS= read -r -d '' manifest" in build_text
+    assert "sys.stdout.buffer.write" in build_text
     assert 'datas += [(_signature_marker, "packs")]' in spec
     assert '".signatures-required"' in validator
 
