@@ -15,7 +15,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 # Actions secret and is never present in the repository or application.
 RELEASE_PUBLIC_KEY = (
     "untrusted comment: minisign public key\n"
-    "RWSThEcV9IUiShiiuoXJLqLtPGcNWvMyHDbACD48bHGolaglLW5RdQxN"
+    "RWRLhEcV9IUiShiieoXJLqLtPGcNWvMyHDbACD48bHGolaglLW5RdQxN"
 )
 
 

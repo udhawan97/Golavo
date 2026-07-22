@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from golavo_core.ingest.snapshot import validate_pack
-from golavo_core.signatures import verify_minisign
+from golavo_core.signatures import RELEASE_PUBLIC_KEY, verify_minisign
 
 
 def _minisign_fixture(
@@ -54,6 +54,16 @@ def _pack(tmp_path: Path) -> Path:
     }
     (pack / "manifest.json").write_text(json.dumps(manifest, sort_keys=True) + "\n")
     return pack
+
+
+def test_pack_verifier_release_identity_matches_tauri_updater() -> None:
+    root = Path(__file__).resolve().parents[2]
+    config = json.loads(
+        (root / "desktop/src-tauri/tauri.updater.conf.json").read_text(encoding="utf-8")
+    )
+    updater_key = base64.b64decode(config["plugins"]["updater"]["pubkey"]).decode()
+
+    assert RELEASE_PUBLIC_KEY.strip().splitlines()[1] == updater_key.strip().splitlines()[1]
 
 
 def test_minisign_verifier_accepts_hashed_signature_and_global_comment(tmp_path: Path) -> None:
