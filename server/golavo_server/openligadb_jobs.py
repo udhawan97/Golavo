@@ -66,7 +66,12 @@ class OpenLigaDBCoordinator:
         if trigger != "manual" and settings["refresh_policy"] != "while_open":
             raise PermissionError("automatic OpenLigaDB refresh is not enabled")
         with self._lock:
-            if self._thread is not None and self._thread.is_alive() and self._job is not None:
+            if (
+                self._thread is not None
+                and self._thread.is_alive()
+                and self._job is not None
+                and self._job.get("state") in ("queued", "running")
+            ):
                 return {**self._job, "deduplicated": True}, True
             job_id = "olj_" + uuid.uuid4().hex
             now = openligadb_source.utc_z()

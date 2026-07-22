@@ -419,6 +419,49 @@ def test_coordinator_activates_atomically_then_reports_unchanged(monkeypatch, tm
     assert sealed.read_bytes() == sealed_before
 
 
+def test_terminal_job_is_not_deduplicated_while_worker_unwinds(monkeypatch, tmp_path) -> None:
+    _ledger(monkeypatch, tmp_path)
+    openligadb_state.save_settings(
+        {
+            "enabled": True,
+            "refresh_policy": "while_open",
+            "selected_competitions": ["bl1"],
+            "license_accepted_at_utc": "2026-07-15T00:00:00Z",
+        }
+    )
+    coordinator = openligadb_jobs.OpenLigaDBCoordinator()
+    terminal_persisted = Event()
+    release_worker = Event()
+    original_finish = coordinator._finish
+
+    def finish_then_wait(result: dict) -> None:
+        original_finish(result)
+        if not terminal_persisted.is_set():
+            terminal_persisted.set()
+            release_worker.wait(timeout=5)
+
+    monkeypatch.setattr(coordinator, "_finish", finish_then_wait)
+    first, _ = coordinator.start(trigger="manual", fetcher=FakeOpenLigaDB())
+    assert terminal_persisted.wait(timeout=5)
+    assert coordinator.get(first["job_id"])["state"] == "done"
+
+    try:
+        second, deduplicated = coordinator.start(trigger="manual", fetcher=FakeOpenLigaDB())
+        assert deduplicated is False
+        assert second["job_id"] != first["job_id"]
+    finally:
+        release_worker.set()
+
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        current = coordinator.get(second["job_id"])
+        if current and current["state"] not in ("queued", "running"):
+            break
+        time.sleep(0.01)
+    assert current is not None and current["state"] == "done", current
+    assert current["result"]["reason"] == "unchanged"
+
+
 def test_status_matches_published_contract(monkeypatch, tmp_path) -> None:
     _ledger(monkeypatch, tmp_path)
     payload = TestClient(server_main.app).get("/api/v1/overlays/openligadb/status").json()
