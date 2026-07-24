@@ -10,7 +10,7 @@ dependencies = [
   "cryptography==49.0.0",
   "jsonschema==4.26.0",
   "numpy==2.5.1",
-  "pandas==3.0.3",
+  "pandas==3.0.5",
   "pyarrow==25.0.0",
   "scipy==1.18.0",
 ]
