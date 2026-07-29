@@ -68,7 +68,7 @@ function snapshot(precision: "exact" | "day"): ConditionsSnapshot {
       context_pack_sha256: "b".repeat(64),
       index_fingerprint: "c".repeat(64),
       features: { place: "partial", venue: "partial", weather: "blocked" },
-      reason_codes: ["venue-coverage-is-world-cup-2026-only"],
+      reason_codes: ["venue-coverage-is-world-cup-2026-plus-cross-checked-club-grounds"],
     },
     match: {
       match_id: "m_test",

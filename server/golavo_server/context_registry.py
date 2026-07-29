@@ -249,7 +249,7 @@ def capabilities(index_fingerprint: str) -> dict[str, Any]:
         },
         "reason_codes": [
             "place-resolution-is-unique-exact-subset",
-            "venue-coverage-is-world-cup-2026-only",
+            "venue-coverage-is-world-cup-2026-plus-cross-checked-club-grounds",
             "schedule-coverage-is-index-only",
             "weather-is-per-user-open-meteo-fetch-shown-only-if-captured-before-kickoff",
         ],

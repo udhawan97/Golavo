@@ -426,6 +426,7 @@ def _smoke_running(timeout: float, stop_event: threading.Event) -> int:
         "geonames",
         "natural-earth",
         "openfootball-worldcup-json",
+        "openfootball-clubs",
         "wikidata",
     }
     if (
