@@ -22,6 +22,7 @@ from scripts.packlib import (  # noqa: E402
     PackBuildError,
     append_snapshot,
     fetch,
+    refresh_manifest_sha256,
     sha256,
     write_json,
 )
@@ -107,3 +108,60 @@ class TestAppendSnapshot:
         write_json(registry, {"note": "keep me", "snapshots": []})
         append_snapshot(registry, {"pack": "packs/a"})
         assert json.loads(registry.read_text())["note"] == "keep me"
+
+
+class TestRefreshManifestSha256:
+    """A pack whose manifest legitimately gains a derived file, re-registered.
+
+    ``append_snapshot`` refuses this by design, and rightly: it would let a
+    builder rewrite the upstream evidence an artifact was sealed against. But a
+    manifest that grew a derived, in-repo file (an exact-kickoff overlay, per-row
+    provenance) has the same upstream pin as before, and leaving the registered
+    digest stale fails validate_provenance for the whole repo.
+    """
+
+    def _registry(self, tmp_path: Path) -> Path:
+        registry = tmp_path / "snapshots.json"
+        append_snapshot(
+            registry,
+            {
+                "pack": "packs/a",
+                "manifest_sha256": "old",
+                "source_id": "s",
+                "upstream_ref": "abc123",
+                "retrieved_at_utc": "2026-07-11T02:36:12Z",
+            },
+        )
+        return registry
+
+    def test_the_registered_digest_follows_the_manifest(self, tmp_path: Path) -> None:
+        registry = self._registry(tmp_path)
+
+        assert refresh_manifest_sha256(registry, "packs/a", "new") is True
+
+        entry = json.loads(registry.read_text())["snapshots"][0]
+        assert entry["manifest_sha256"] == "new"
+
+    def test_the_upstream_pin_is_never_touched(self, tmp_path: Path) -> None:
+        """Only the derived digest moves; the evidence of what was fetched stays."""
+        registry = self._registry(tmp_path)
+
+        refresh_manifest_sha256(registry, "packs/a", "new")
+
+        entry = json.loads(registry.read_text())["snapshots"][0]
+        assert entry["upstream_ref"] == "abc123"
+        assert entry["retrieved_at_utc"] == "2026-07-11T02:36:12Z"
+        assert entry["source_id"] == "s"
+
+    def test_an_unchanged_digest_rewrites_nothing(self, tmp_path: Path) -> None:
+        registry = self._registry(tmp_path)
+        before = registry.read_bytes()
+
+        assert refresh_manifest_sha256(registry, "packs/a", "old") is False
+        assert registry.read_bytes() == before
+
+    def test_an_unregistered_pack_is_refused(self, tmp_path: Path) -> None:
+        """A pack must be registered by its own builder, never invented here."""
+        registry = self._registry(tmp_path)
+        with pytest.raises(PackBuildError, match="not registered"):
+            refresh_manifest_sha256(registry, "packs/ghost", "new")

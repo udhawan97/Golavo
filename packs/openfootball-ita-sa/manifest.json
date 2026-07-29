@@ -93,6 +93,10 @@
     {
       "name": "field_provenance.csv",
       "sha256": "8118bc6f325d719f48a1eeb4bf1d68b2bbd22c5b23d2759301da9f668b018acc"
+    },
+    {
+      "name": "kickoffs.csv",
+      "sha256": "3090fd45c0a8a40bbb680021e33e7995922a4494960f7c4f0324252087f6d1b5"
     }
   ],
   "license": "CC0-1.0",

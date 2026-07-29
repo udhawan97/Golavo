@@ -6,7 +6,13 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from golavo_core.ingest.domestictxt import DOMESTIC_TXT_TITLES, parse_domestic_txt
+from golavo_core.ingest import load_matches
+from golavo_core.ingest.domestictxt import (
+    DOMESTIC_TXT_TITLES,
+    LEAGUE_TIMEZONES,
+    domestic_kickoffs,
+    parse_domestic_txt,
+)
 from golavo_core.ingest.openfootball import canonical_team, load_openfootball_table
 
 # Verbatim head of openfootball/england 2026-27/1-premierleague.txt (CC0), the
@@ -247,6 +253,91 @@ def test_promoted_clubs_are_named_like_their_league_peers() -> None:
     # The token rules cannot collapse this legal name, so it would stand as the
     # one five-word entry in a table of short names ('Celta Vigo', 'Real Betis').
     assert canonical_team("Real Racing Club de Santander", "es.1") == "Racing Santander"
+
+
+def test_kickoff_overlay_resolves_the_printed_clock_against_league_civil_time() -> None:
+    """The clock upstream prints is league-local civil time, so DST must be honoured.
+
+    A naive read that stamped '20:00' as 20:00 UTC would place an August kickoff a
+    full hour late and close a seal window after the match had started.
+    """
+    frame = parse_domestic_txt(SAMPLE, season="2026-27", league_code="en.1")
+    overlay = domestic_kickoffs(frame, league_code="en.1")
+
+    august = overlay.loc[overlay["date"].eq(pd.Timestamp("2026-08-21"))].iloc[0]
+    assert august["kickoff_utc"] == pd.Timestamp("2026-08-21T19:00", tz="UTC")  # BST
+    january = overlay.loc[overlay["date"].eq(pd.Timestamp("2027-01-02"))].iloc[0]
+    assert january["kickoff_utc"] == pd.Timestamp("2027-01-02T15:00", tz="UTC")  # GMT
+
+
+def test_kickoff_overlay_carries_the_columns_the_splice_reads() -> None:
+    frame = parse_domestic_txt(SAMPLE, season="2026-27", league_code="en.1")
+    overlay = domestic_kickoffs(frame, league_code="en.1")
+
+    assert list(overlay.columns) == [
+        "date",
+        "home_team",
+        "away_team",
+        "tournament",
+        "kickoff_utc",
+    ]
+    # Team names are the canonical ones, or the overlay would key nothing.
+    assert overlay.iloc[0]["home_team"] == "Arsenal"
+    assert overlay["tournament"].eq("English Premier League").all()
+
+
+def test_kickoff_overlay_omits_a_fixture_upstream_has_not_timed_yet() -> None:
+    """No clock means no instant. An untimed fixture must stay day-precision."""
+    untimed = """= English Premier League 2026/27
+
+▪ Matchday 1
+  Fri Aug 21 2026
+           Arsenal FC              v Coventry City FC
+    20:00  Everton FC              v Fulham FC
+"""
+    frame = parse_domestic_txt(untimed, season="2026-27", league_code="en.1")
+    overlay = domestic_kickoffs(frame, league_code="en.1")
+
+    assert len(overlay) == 1
+    assert overlay.iloc[0]["home_team"] == "Everton"
+
+
+def test_every_supported_league_declares_the_zone_its_clocks_are_printed_in() -> None:
+    assert set(LEAGUE_TIMEZONES) == set(DOMESTIC_TXT_TITLES)
+
+
+def test_loader_sharpens_a_domestic_fixture_when_the_pack_ships_the_overlay(
+    tmp_path: Path,
+) -> None:
+    """End to end: a declared kickoffs.csv must reach the loaded match table.
+
+    Both search and the seal path load through ``load_matches``, so this is the
+    single point where an exact kickoff either arrives everywhere or nowhere.
+    """
+    pack = _mixed_pack(tmp_path)
+    frame = parse_domestic_txt(
+        (pack / "2026-27.en.1.txt").read_text(encoding="utf-8"),
+        season="2026-27",
+        league_code="en.1",
+    )
+    overlay = domestic_kickoffs(frame, league_code="en.1")
+    csv = overlay.to_csv(index=False, lineterminator="\n")
+    (pack / "kickoffs.csv").write_text(csv, encoding="utf-8")
+    manifest = json.loads((pack / "manifest.json").read_text(encoding="utf-8"))
+    manifest["files"].append(
+        {"name": "kickoffs.csv", "sha256": hashlib.sha256(csv.encode()).hexdigest()}
+    )
+    (pack / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    loaded = load_matches(pack)
+
+    fixture = loaded.loc[loaded["date"].eq(pd.Timestamp("2026-08-21"))].iloc[0]
+    assert fixture["kickoff_utc"] == pd.Timestamp("2026-08-21T19:00", tz="UTC")
+    assert fixture["kickoff_precision"] == "exact"
+    # The played .json season has no overlay row and must keep its day proxy.
+    played = loaded.loc[loaded["date"].eq(pd.Timestamp("2025-08-16"))].iloc[0]
+    assert played["kickoff_precision"] == "day"
+    assert bool(fixture["is_complete"]) is False
 
 
 def test_upstream_titles_are_translated_to_the_indexed_competition_label() -> None:

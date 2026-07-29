@@ -1,0 +1,381 @@
+date,home_team,away_team,tournament,kickoff_utc
+2026-08-21,Arsenal,Coventry City,English Premier League,2026-08-21 19:00:00+00:00
+2026-08-22,Hull City,Manchester United,English Premier League,2026-08-22 11:30:00+00:00
+2026-08-22,Ipswich Town,Sunderland,English Premier League,2026-08-22 14:00:00+00:00
+2026-08-22,Nottingham Forest,Leeds United,English Premier League,2026-08-22 14:00:00+00:00
+2026-08-22,Everton,Crystal Palace,English Premier League,2026-08-22 14:00:00+00:00
+2026-08-22,Brentford,Tottenham Hotspur,English Premier League,2026-08-22 16:30:00+00:00
+2026-08-23,Manchester City,Bournemouth,English Premier League,2026-08-23 13:00:00+00:00
+2026-08-23,Brighton & Hove Albion,Aston Villa,English Premier League,2026-08-23 13:00:00+00:00
+2026-08-23,Newcastle United,Liverpool,English Premier League,2026-08-23 15:30:00+00:00
+2026-08-24,Fulham,Chelsea,English Premier League,2026-08-24 19:00:00+00:00
+2026-08-29,Liverpool,Nottingham Forest,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Manchester United,Ipswich Town,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Sunderland,Fulham,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Crystal Palace,Manchester City,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Chelsea,Brighton & Hove Albion,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Aston Villa,Arsenal,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Tottenham Hotspur,Newcastle United,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Leeds United,Brentford,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Bournemouth,Everton,English Premier League,2026-08-29 14:00:00+00:00
+2026-08-29,Coventry City,Hull City,English Premier League,2026-08-29 14:00:00+00:00
+2026-09-05,Nottingham Forest,Tottenham Hotspur,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Manchester City,Coventry City,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Brighton & Hove Albion,Leeds United,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Brentford,Sunderland,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Ipswich Town,Liverpool,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Everton,Manchester United,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Fulham,Crystal Palace,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Hull City,Aston Villa,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Arsenal,Chelsea,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-05,Newcastle United,Bournemouth,English Premier League,2026-09-05 14:00:00+00:00
+2026-09-12,Crystal Palace,Ipswich Town,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Liverpool,Fulham,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Aston Villa,Nottingham Forest,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Tottenham Hotspur,Everton,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Bournemouth,Brentford,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Sunderland,Arsenal,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Coventry City,Brighton & Hove Albion,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Leeds United,Newcastle United,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Manchester United,Manchester City,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-12,Chelsea,Hull City,English Premier League,2026-09-12 14:00:00+00:00
+2026-09-19,Bournemouth,Liverpool,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Fulham,Manchester United,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Everton,Ipswich Town,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Leeds United,Crystal Palace,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Brighton & Hove Albion,Arsenal,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Tottenham Hotspur,Aston Villa,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Newcastle United,Hull City,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Nottingham Forest,Coventry City,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Manchester City,Sunderland,English Premier League,2026-09-19 14:00:00+00:00
+2026-09-19,Brentford,Chelsea,English Premier League,2026-09-19 14:00:00+00:00
+2026-10-10,Sunderland,Brighton & Hove Albion,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Arsenal,Leeds United,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Hull City,Everton,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Chelsea,Bournemouth,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Crystal Palace,Nottingham Forest,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Coventry City,Newcastle United,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Liverpool,Manchester City,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Ipswich Town,Fulham,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Manchester United,Tottenham Hotspur,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-10,Aston Villa,Brentford,English Premier League,2026-10-10 14:00:00+00:00
+2026-10-17,Fulham,Hull City,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Everton,Chelsea,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Bournemouth,Sunderland,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Leeds United,Manchester United,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Tottenham Hotspur,Coventry City,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Newcastle United,Aston Villa,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Nottingham Forest,Arsenal,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Brighton & Hove Albion,Crystal Palace,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Manchester City,Ipswich Town,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-17,Brentford,Liverpool,English Premier League,2026-10-17 14:00:00+00:00
+2026-10-24,Liverpool,Brighton & Hove Albion,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Crystal Palace,Newcastle United,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Aston Villa,Manchester City,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Manchester United,Bournemouth,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Arsenal,Everton,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Chelsea,Tottenham Hotspur,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Coventry City,Fulham,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Hull City,Brentford,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Ipswich Town,Nottingham Forest,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-24,Sunderland,Leeds United,English Premier League,2026-10-24 14:00:00+00:00
+2026-10-31,Newcastle United,Everton,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Manchester City,Brighton & Hove Albion,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Bournemouth,Leeds United,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Coventry City,Sunderland,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Chelsea,Manchester United,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Tottenham Hotspur,Crystal Palace,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Aston Villa,Fulham,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Hull City,Ipswich Town,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Brentford,Nottingham Forest,English Premier League,2026-10-31 15:00:00+00:00
+2026-10-31,Liverpool,Arsenal,English Premier League,2026-10-31 15:00:00+00:00
+2026-11-07,Arsenal,Hull City,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Nottingham Forest,Manchester City,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Leeds United,Tottenham Hotspur,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Fulham,Newcastle United,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Everton,Coventry City,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Crystal Palace,Liverpool,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Sunderland,Chelsea,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Ipswich Town,Bournemouth,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Brighton & Hove Albion,Brentford,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-07,Manchester United,Aston Villa,English Premier League,2026-11-07 15:00:00+00:00
+2026-11-21,Chelsea,Leeds United,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Manchester City,Fulham,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Aston Villa,Sunderland,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Liverpool,Manchester United,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Hull City,Brighton & Hove Albion,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Bournemouth,Nottingham Forest,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Tottenham Hotspur,Ipswich Town,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Brentford,Everton,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Coventry City,Crystal Palace,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-21,Newcastle United,Arsenal,English Premier League,2026-11-21 15:00:00+00:00
+2026-11-28,Leeds United,Coventry City,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Ipswich Town,Aston Villa,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Arsenal,Manchester City,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Manchester United,Brentford,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Everton,Liverpool,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Fulham,Bournemouth,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Nottingham Forest,Chelsea,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Brighton & Hove Albion,Newcastle United,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Sunderland,Tottenham Hotspur,English Premier League,2026-11-28 15:00:00+00:00
+2026-11-28,Crystal Palace,Hull City,English Premier League,2026-11-28 15:00:00+00:00
+2026-12-02,Tottenham Hotspur,Fulham,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Liverpool,Sunderland,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Hull City,Nottingham Forest,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Chelsea,Crystal Palace,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Aston Villa,Everton,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Brentford,Arsenal,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Coventry City,Ipswich Town,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Manchester City,Leeds United,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Newcastle United,Manchester United,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-02,Bournemouth,Brighton & Hove Albion,English Premier League,2026-12-02 20:00:00+00:00
+2026-12-05,Tottenham Hotspur,Arsenal,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Manchester United,Coventry City,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Leeds United,Ipswich Town,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Newcastle United,Sunderland,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Chelsea,Liverpool,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Brentford,Manchester City,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Bournemouth,Hull City,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Aston Villa,Crystal Palace,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Nottingham Forest,Brighton & Hove Albion,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-05,Everton,Fulham,English Premier League,2026-12-05 15:00:00+00:00
+2026-12-12,Sunderland,Nottingham Forest,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Crystal Palace,Manchester United,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Hull City,Tottenham Hotspur,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Brighton & Hove Albion,Everton,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Ipswich Town,Newcastle United,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Coventry City,Aston Villa,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Arsenal,Bournemouth,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Manchester City,Chelsea,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Liverpool,Leeds United,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-12,Fulham,Brentford,English Premier League,2026-12-12 15:00:00+00:00
+2026-12-19,Leeds United,Fulham,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Brighton & Hove Albion,Ipswich Town,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Nottingham Forest,Everton,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Brentford,Newcastle United,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Manchester City,Hull City,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Sunderland,Crystal Palace,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Bournemouth,Coventry City,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Arsenal,Manchester United,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Liverpool,Tottenham Hotspur,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-19,Chelsea,Aston Villa,English Premier League,2026-12-19 15:00:00+00:00
+2026-12-26,Aston Villa,Leeds United,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Manchester United,Nottingham Forest,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Crystal Palace,Arsenal,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Everton,Sunderland,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Coventry City,Chelsea,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Newcastle United,Manchester City,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Fulham,Brighton & Hove Albion,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Tottenham Hotspur,Bournemouth,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Hull City,Liverpool,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-26,Ipswich Town,Brentford,English Premier League,2026-12-26 15:00:00+00:00
+2026-12-30,Fulham,Arsenal,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Coventry City,Brentford,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Aston Villa,Liverpool,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Newcastle United,Nottingham Forest,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Hull City,Leeds United,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Manchester United,Sunderland,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Ipswich Town,Chelsea,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Tottenham Hotspur,Brighton & Hove Albion,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Everton,Manchester City,English Premier League,2026-12-30 20:00:00+00:00
+2026-12-30,Crystal Palace,Bournemouth,English Premier League,2026-12-30 20:00:00+00:00
+2027-01-02,Bournemouth,Aston Villa,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Brentford,Crystal Palace,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Leeds United,Everton,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Arsenal,Ipswich Town,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Sunderland,Hull City,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Liverpool,Coventry City,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Chelsea,Newcastle United,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Nottingham Forest,Fulham,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Brighton & Hove Albion,Manchester United,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-02,Manchester City,Tottenham Hotspur,English Premier League,2027-01-02 12:00:00+00:00
+2027-01-06,Arsenal,Brentford,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Leeds United,Manchester City,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Manchester United,Newcastle United,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Brighton & Hove Albion,Bournemouth,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Nottingham Forest,Hull City,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Fulham,Tottenham Hotspur,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Everton,Aston Villa,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Sunderland,Liverpool,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Crystal Palace,Chelsea,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-06,Ipswich Town,Coventry City,English Premier League,2027-01-06 12:00:00+00:00
+2027-01-16,Bournemouth,Ipswich Town,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Manchester City,Nottingham Forest,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Chelsea,Sunderland,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Brentford,Brighton & Hove Albion,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Aston Villa,Manchester United,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Tottenham Hotspur,Leeds United,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Coventry City,Everton,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Liverpool,Crystal Palace,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Hull City,Arsenal,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-16,Newcastle United,Fulham,English Premier League,2027-01-16 12:00:00+00:00
+2027-01-23,Ipswich Town,Hull City,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Everton,Brentford,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Sunderland,Coventry City,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Nottingham Forest,Bournemouth,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Arsenal,Newcastle United,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Leeds United,Chelsea,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Fulham,Aston Villa,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Manchester United,Liverpool,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Brighton & Hove Albion,Manchester City,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-23,Crystal Palace,Tottenham Hotspur,English Premier League,2027-01-23 12:00:00+00:00
+2027-01-30,Tottenham Hotspur,Sunderland,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Brentford,Manchester United,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Newcastle United,Brighton & Hove Albion,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Hull City,Crystal Palace,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Coventry City,Leeds United,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Bournemouth,Fulham,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Chelsea,Nottingham Forest,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Liverpool,Everton,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Manchester City,Arsenal,English Premier League,2027-01-30 12:00:00+00:00
+2027-01-30,Aston Villa,Ipswich Town,English Premier League,2027-01-30 12:00:00+00:00
+2027-02-06,Arsenal,Liverpool,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Brighton & Hove Albion,Hull City,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Sunderland,Aston Villa,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Crystal Palace,Coventry City,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Ipswich Town,Tottenham Hotspur,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Everton,Newcastle United,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Fulham,Manchester City,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Leeds United,Bournemouth,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Manchester United,Chelsea,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-06,Nottingham Forest,Brentford,English Premier League,2027-02-06 12:00:00+00:00
+2027-02-10,Everton,Leeds United,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Coventry City,Liverpool,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Hull City,Sunderland,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Aston Villa,Bournemouth,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Crystal Palace,Brentford,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Newcastle United,Chelsea,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Fulham,Nottingham Forest,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Tottenham Hotspur,Manchester City,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Manchester United,Brighton & Hove Albion,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-10,Ipswich Town,Arsenal,English Premier League,2027-02-10 12:00:00+00:00
+2027-02-20,Manchester City,Newcastle United,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Bournemouth,Crystal Palace,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Brentford,Coventry City,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Chelsea,Ipswich Town,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Liverpool,Hull City,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Arsenal,Fulham,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Nottingham Forest,Manchester United,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Brighton & Hove Albion,Tottenham Hotspur,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Sunderland,Everton,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-20,Leeds United,Aston Villa,English Premier League,2027-02-20 12:00:00+00:00
+2027-02-27,Crystal Palace,Sunderland,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Manchester United,Arsenal,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Ipswich Town,Brighton & Hove Albion,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Coventry City,Bournemouth,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Everton,Nottingham Forest,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Fulham,Leeds United,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Aston Villa,Chelsea,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Tottenham Hotspur,Liverpool,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Newcastle United,Brentford,English Premier League,2027-02-27 12:00:00+00:00
+2027-02-27,Hull City,Manchester City,English Premier League,2027-02-27 12:00:00+00:00
+2027-03-03,Nottingham Forest,Newcastle United,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Bournemouth,Tottenham Hotspur,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Manchester City,Everton,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Arsenal,Crystal Palace,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Leeds United,Hull City,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Sunderland,Manchester United,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Liverpool,Aston Villa,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Brighton & Hove Albion,Fulham,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Brentford,Ipswich Town,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-03,Chelsea,Coventry City,English Premier League,2027-03-03 12:00:00+00:00
+2027-03-13,Leeds United,Brighton & Hove Albion,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Tottenham Hotspur,Nottingham Forest,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Crystal Palace,Fulham,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Liverpool,Ipswich Town,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Coventry City,Manchester City,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Bournemouth,Newcastle United,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Chelsea,Arsenal,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Aston Villa,Hull City,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Manchester United,Everton,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-13,Sunderland,Brentford,English Premier League,2027-03-13 12:00:00+00:00
+2027-03-20,Brentford,Bournemouth,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Brighton & Hove Albion,Coventry City,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Manchester City,Manchester United,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Ipswich Town,Crystal Palace,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Arsenal,Sunderland,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Fulham,Liverpool,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Hull City,Chelsea,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Nottingham Forest,Aston Villa,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Everton,Tottenham Hotspur,English Premier League,2027-03-20 12:00:00+00:00
+2027-03-20,Newcastle United,Leeds United,English Premier League,2027-03-20 12:00:00+00:00
+2027-04-10,Sunderland,Ipswich Town,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Leeds United,Nottingham Forest,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Manchester United,Hull City,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Chelsea,Fulham,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Liverpool,Newcastle United,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Coventry City,Arsenal,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Bournemouth,Manchester City,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Crystal Palace,Everton,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Tottenham Hotspur,Brentford,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-10,Aston Villa,Brighton & Hove Albion,English Premier League,2027-04-10 12:00:00+00:00
+2027-04-17,Brighton & Hove Albion,Chelsea,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Fulham,Sunderland,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Brentford,Leeds United,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Nottingham Forest,Liverpool,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Hull City,Coventry City,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Arsenal,Aston Villa,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Ipswich Town,Manchester United,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Manchester City,Crystal Palace,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Newcastle United,Tottenham Hotspur,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-17,Everton,Bournemouth,English Premier League,2027-04-17 12:00:00+00:00
+2027-04-24,Chelsea,Manchester City,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Bournemouth,Arsenal,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Tottenham Hotspur,Hull City,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Manchester United,Crystal Palace,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Everton,Brighton & Hove Albion,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Nottingham Forest,Sunderland,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Newcastle United,Ipswich Town,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Aston Villa,Coventry City,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Brentford,Fulham,English Premier League,2027-04-24 12:00:00+00:00
+2027-04-24,Leeds United,Liverpool,English Premier League,2027-04-24 12:00:00+00:00
+2027-05-01,Sunderland,Newcastle United,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Brighton & Hove Albion,Nottingham Forest,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Coventry City,Manchester United,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Hull City,Bournemouth,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Manchester City,Brentford,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Fulham,Everton,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Liverpool,Chelsea,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Arsenal,Tottenham Hotspur,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Crystal Palace,Aston Villa,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-01,Ipswich Town,Leeds United,English Premier League,2027-05-01 12:00:00+00:00
+2027-05-08,Manchester City,Liverpool,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Leeds United,Arsenal,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Fulham,Ipswich Town,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Nottingham Forest,Crystal Palace,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Brentford,Aston Villa,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Newcastle United,Coventry City,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Brighton & Hove Albion,Sunderland,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Tottenham Hotspur,Chelsea,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Everton,Hull City,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-08,Bournemouth,Manchester United,English Premier League,2027-05-08 12:00:00+00:00
+2027-05-15,Hull City,Fulham,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Manchester United,Leeds United,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Crystal Palace,Brighton & Hove Albion,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Aston Villa,Newcastle United,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Chelsea,Everton,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Coventry City,Tottenham Hotspur,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Sunderland,Bournemouth,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Liverpool,Brentford,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Ipswich Town,Manchester City,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-15,Arsenal,Nottingham Forest,English Premier League,2027-05-15 12:00:00+00:00
+2027-05-23,Brentford,Hull City,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Newcastle United,Crystal Palace,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Tottenham Hotspur,Manchester United,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Leeds United,Sunderland,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Brighton & Hove Albion,Liverpool,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Nottingham Forest,Ipswich Town,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Bournemouth,Chelsea,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Fulham,Coventry City,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Everton,Arsenal,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-23,Manchester City,Aston Villa,English Premier League,2027-05-23 12:00:00+00:00
+2027-05-30,Ipswich Town,Everton,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Arsenal,Brighton & Hove Albion,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Liverpool,Bournemouth,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Coventry City,Nottingham Forest,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Aston Villa,Tottenham Hotspur,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Hull City,Newcastle United,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Manchester United,Fulham,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Sunderland,Manchester City,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Chelsea,Brentford,English Premier League,2027-05-30 12:00:00+00:00
+2027-05-30,Crystal Palace,Leeds United,English Premier League,2027-05-30 12:00:00+00:00

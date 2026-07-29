@@ -1,0 +1,307 @@
+date,home_team,away_team,tournament,kickoff_utc
+2026-08-22,Le Mans,Stade Brestois,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-22,Lens,Auxerre,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-22,Paris Saint-Germain,Stade Rennais,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-22,Troyes,Paris,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-22,Marseille,Strasbourg,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-22,Nice,Lorient,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-22,Angers,Lille,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-22,Toulouse,Lyon,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-22,Le Havre,Monaco,Ligue 1,2026-08-22 15:00:00+00:00
+2026-08-29,Monaco,Marseille,Ligue 1,2026-08-29 15:00:00+00:00
+2026-08-29,Strasbourg,Lens,Ligue 1,2026-08-29 15:00:00+00:00
+2026-08-29,Lorient,Troyes,Ligue 1,2026-08-29 15:00:00+00:00
+2026-08-29,Lyon,Le Havre,Ligue 1,2026-08-29 15:00:00+00:00
+2026-08-29,Paris,Nice,Ligue 1,2026-08-29 15:00:00+00:00
+2026-08-29,Auxerre,Angers,Ligue 1,2026-08-29 15:00:00+00:00
+2026-08-29,Stade Rennais,Le Mans,Ligue 1,2026-08-29 15:00:00+00:00
+2026-08-29,Stade Brestois,Toulouse,Ligue 1,2026-08-29 15:00:00+00:00
+2026-08-30,Lille,Paris Saint-Germain,Ligue 1,2026-08-30 18:45:00+00:00
+2026-09-05,Le Havre,Stade Brestois,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-05,Marseille,Paris,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-05,Lens,Lorient,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-05,Toulouse,Lille,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-05,Paris Saint-Germain,Monaco,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-05,Angers,Stade Rennais,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-05,Lyon,Auxerre,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-05,Troyes,Strasbourg,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-05,Nice,Le Mans,Ligue 1,2026-09-05 15:00:00+00:00
+2026-09-12,Lorient,Toulouse,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-12,Lille,Troyes,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-12,Le Mans,Lens,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-12,Strasbourg,Monaco,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-12,Auxerre,Nice,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-12,Stade Rennais,Marseille,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-12,Le Havre,Angers,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-12,Stade Brestois,Paris Saint-Germain,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-12,Paris,Lyon,Ligue 1,2026-09-12 15:00:00+00:00
+2026-09-19,Auxerre,Stade Brestois,Ligue 1,2026-09-19 15:00:00+00:00
+2026-09-19,Le Mans,Lorient,Ligue 1,2026-09-19 15:00:00+00:00
+2026-09-19,Nice,Lille,Ligue 1,2026-09-19 15:00:00+00:00
+2026-09-19,Paris,Strasbourg,Ligue 1,2026-09-19 15:00:00+00:00
+2026-09-19,Toulouse,Le Havre,Ligue 1,2026-09-19 15:00:00+00:00
+2026-09-19,Angers,Troyes,Ligue 1,2026-09-19 15:00:00+00:00
+2026-09-19,Monaco,Lens,Ligue 1,2026-09-19 15:00:00+00:00
+2026-09-19,Lyon,Stade Rennais,Ligue 1,2026-09-19 15:00:00+00:00
+2026-09-20,Marseille,Paris Saint-Germain,Ligue 1,2026-09-20 18:45:00+00:00
+2026-10-10,Stade Brestois,Angers,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-10,Stade Rennais,Auxerre,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-10,Lorient,Paris,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-10,Lens,Lyon,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-10,Nice,Strasbourg,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-10,Troyes,Marseille,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-10,Paris Saint-Germain,Le Mans,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-10,Monaco,Toulouse,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-10,Lille,Le Havre,Ligue 1,2026-10-10 15:00:00+00:00
+2026-10-17,Lorient,Monaco,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-17,Paris,Stade Rennais,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-17,Troyes,Lens,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-17,Lille,Stade Brestois,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-17,Le Mans,Toulouse,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-17,Strasbourg,Paris Saint-Germain,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-17,Le Havre,Auxerre,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-17,Angers,Marseille,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-17,Lyon,Nice,Ligue 1,2026-10-17 15:00:00+00:00
+2026-10-24,Marseille,Le Havre,Ligue 1,2026-10-24 15:00:00+00:00
+2026-10-24,Monaco,Lille,Ligue 1,2026-10-24 15:00:00+00:00
+2026-10-24,Stade Rennais,Strasbourg,Ligue 1,2026-10-24 15:00:00+00:00
+2026-10-24,Lens,Paris,Ligue 1,2026-10-24 15:00:00+00:00
+2026-10-24,Angers,Lorient,Ligue 1,2026-10-24 15:00:00+00:00
+2026-10-24,Stade Brestois,Nice,Ligue 1,2026-10-24 15:00:00+00:00
+2026-10-24,Toulouse,Troyes,Ligue 1,2026-10-24 15:00:00+00:00
+2026-10-24,Auxerre,Le Mans,Ligue 1,2026-10-24 15:00:00+00:00
+2026-10-25,Paris Saint-Germain,Lyon,Ligue 1,2026-10-25 19:45:00+00:00
+2026-10-31,Lille,Lens,Ligue 1,2026-10-31 16:00:00+00:00
+2026-10-31,Lyon,Angers,Ligue 1,2026-10-31 16:00:00+00:00
+2026-10-31,Lorient,Stade Brestois,Ligue 1,2026-10-31 16:00:00+00:00
+2026-10-31,Paris,Monaco,Ligue 1,2026-10-31 16:00:00+00:00
+2026-10-31,Troyes,Le Mans,Ligue 1,2026-10-31 16:00:00+00:00
+2026-10-31,Le Havre,Paris Saint-Germain,Ligue 1,2026-10-31 16:00:00+00:00
+2026-10-31,Marseille,Toulouse,Ligue 1,2026-10-31 16:00:00+00:00
+2026-10-31,Nice,Stade Rennais,Ligue 1,2026-10-31 16:00:00+00:00
+2026-10-31,Strasbourg,Auxerre,Ligue 1,2026-10-31 16:00:00+00:00
+2026-11-07,Le Mans,Monaco,Ligue 1,2026-11-07 16:00:00+00:00
+2026-11-07,Stade Brestois,Lyon,Ligue 1,2026-11-07 16:00:00+00:00
+2026-11-07,Le Havre,Lorient,Ligue 1,2026-11-07 16:00:00+00:00
+2026-11-07,Angers,Nice,Ligue 1,2026-11-07 16:00:00+00:00
+2026-11-07,Paris Saint-Germain,Troyes,Ligue 1,2026-11-07 16:00:00+00:00
+2026-11-07,Stade Rennais,Lille,Ligue 1,2026-11-07 16:00:00+00:00
+2026-11-07,Auxerre,Paris,Ligue 1,2026-11-07 16:00:00+00:00
+2026-11-07,Toulouse,Strasbourg,Ligue 1,2026-11-07 16:00:00+00:00
+2026-11-07,Lens,Marseille,Ligue 1,2026-11-07 19:45:00+00:00
+2026-11-21,Monaco,Auxerre,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-21,Troyes,Le Havre,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-21,Lens,Toulouse,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-21,Lille,Lyon,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-21,Paris,Angers,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-21,Lorient,Stade Rennais,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-21,Strasbourg,Stade Brestois,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-21,Nice,Paris Saint-Germain,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-21,Marseille,Le Mans,Ligue 1,2026-11-21 16:00:00+00:00
+2026-11-28,Stade Brestois,Paris,Ligue 1,2026-11-28 16:00:00+00:00
+2026-11-28,Le Mans,Lille,Ligue 1,2026-11-28 16:00:00+00:00
+2026-11-28,Toulouse,Stade Rennais,Ligue 1,2026-11-28 16:00:00+00:00
+2026-11-28,Auxerre,Marseille,Ligue 1,2026-11-28 16:00:00+00:00
+2026-11-28,Nice,Troyes,Ligue 1,2026-11-28 16:00:00+00:00
+2026-11-28,Angers,Lens,Ligue 1,2026-11-28 16:00:00+00:00
+2026-11-28,Le Havre,Strasbourg,Ligue 1,2026-11-28 16:00:00+00:00
+2026-11-28,Paris Saint-Germain,Lorient,Ligue 1,2026-11-28 16:00:00+00:00
+2026-11-28,Lyon,Monaco,Ligue 1,2026-11-28 16:00:00+00:00
+2026-12-05,Troyes,Lyon,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-05,Monaco,Angers,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-05,Lens,Le Havre,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-05,Lille,Auxerre,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-05,Marseille,Nice,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-05,Stade Rennais,Stade Brestois,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-05,Toulouse,Paris Saint-Germain,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-05,Strasbourg,Lorient,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-05,Paris,Le Mans,Ligue 1,2026-12-05 16:00:00+00:00
+2026-12-12,Nice,Lens,Ligue 1,2026-12-12 16:00:00+00:00
+2026-12-12,Paris Saint-Germain,Paris,Ligue 1,2026-12-12 16:00:00+00:00
+2026-12-12,Angers,Strasbourg,Ligue 1,2026-12-12 16:00:00+00:00
+2026-12-12,Stade Brestois,Troyes,Ligue 1,2026-12-12 16:00:00+00:00
+2026-12-12,Le Havre,Le Mans,Ligue 1,2026-12-12 16:00:00+00:00
+2026-12-12,Stade Rennais,Monaco,Ligue 1,2026-12-12 16:00:00+00:00
+2026-12-12,Lorient,Lille,Ligue 1,2026-12-12 16:00:00+00:00
+2026-12-12,Auxerre,Toulouse,Ligue 1,2026-12-12 16:00:00+00:00
+2026-12-13,Lyon,Marseille,Ligue 1,2026-12-13 19:45:00+00:00
+2027-01-02,Le Mans,Lyon,Ligue 1,2027-01-02 12:00:00+00:00
+2027-01-02,Stade Brestois,Marseille,Ligue 1,2027-01-02 12:00:00+00:00
+2027-01-02,Troyes,Stade Rennais,Ligue 1,2027-01-02 12:00:00+00:00
+2027-01-02,Toulouse,Angers,Ligue 1,2027-01-02 12:00:00+00:00
+2027-01-02,Monaco,Nice,Ligue 1,2027-01-02 12:00:00+00:00
+2027-01-02,Paris,Le Havre,Ligue 1,2027-01-02 12:00:00+00:00
+2027-01-02,Lorient,Auxerre,Ligue 1,2027-01-02 12:00:00+00:00
+2027-01-02,Lille,Strasbourg,Ligue 1,2027-01-02 12:00:00+00:00
+2027-01-03,Lens,Paris Saint-Germain,Ligue 1,2027-01-03 12:00:00+00:00
+2027-01-16,Marseille,Lille,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-16,Lyon,Lorient,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-16,Paris,Toulouse,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-16,Stade Rennais,Lens,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-16,Nice,Le Havre,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-16,Auxerre,Troyes,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-16,Strasbourg,Le Mans,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-16,Monaco,Stade Brestois,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-16,Angers,Paris Saint-Germain,Ligue 1,2027-01-16 12:00:00+00:00
+2027-01-23,Le Havre,Stade Rennais,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-23,Strasbourg,Lyon,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-23,Lille,Paris,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-23,Lens,Stade Brestois,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-23,Paris Saint-Germain,Auxerre,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-23,Troyes,Monaco,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-23,Lorient,Marseille,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-23,Le Mans,Angers,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-23,Toulouse,Nice,Ligue 1,2027-01-23 12:00:00+00:00
+2027-01-30,Paris,Auxerre,Ligue 1,2027-01-30 12:00:00+00:00
+2027-01-30,Lyon,Lille,Ligue 1,2027-01-30 12:00:00+00:00
+2027-01-30,Stade Rennais,Lorient,Ligue 1,2027-01-30 12:00:00+00:00
+2027-01-30,Le Mans,Nice,Ligue 1,2027-01-30 12:00:00+00:00
+2027-01-30,Marseille,Troyes,Ligue 1,2027-01-30 12:00:00+00:00
+2027-01-30,Angers,Le Havre,Ligue 1,2027-01-30 12:00:00+00:00
+2027-01-30,Stade Brestois,Strasbourg,Ligue 1,2027-01-30 12:00:00+00:00
+2027-01-30,Monaco,Paris Saint-Germain,Ligue 1,2027-01-30 12:00:00+00:00
+2027-01-30,Toulouse,Lens,Ligue 1,2027-01-30 12:00:00+00:00
+2027-02-06,Troyes,Lille,Ligue 1,2027-02-06 12:00:00+00:00
+2027-02-06,Lens,Angers,Ligue 1,2027-02-06 12:00:00+00:00
+2027-02-06,Le Havre,Toulouse,Ligue 1,2027-02-06 12:00:00+00:00
+2027-02-06,Lorient,Le Mans,Ligue 1,2027-02-06 12:00:00+00:00
+2027-02-06,Nice,Stade Brestois,Ligue 1,2027-02-06 12:00:00+00:00
+2027-02-06,Stade Rennais,Lyon,Ligue 1,2027-02-06 12:00:00+00:00
+2027-02-06,Strasbourg,Paris,Ligue 1,2027-02-06 12:00:00+00:00
+2027-02-06,Auxerre,Monaco,Ligue 1,2027-02-06 12:00:00+00:00
+2027-02-07,Paris Saint-Germain,Marseille,Ligue 1,2027-02-07 12:00:00+00:00
+2027-02-13,Stade Brestois,Stade Rennais,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-13,Paris,Troyes,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-13,Le Mans,Paris Saint-Germain,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-13,Lorient,Le Havre,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-13,Auxerre,Strasbourg,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-13,Toulouse,Monaco,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-13,Marseille,Angers,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-13,Lille,Nice,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-13,Lyon,Lens,Ligue 1,2027-02-13 12:00:00+00:00
+2027-02-20,Angers,Paris,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-20,Stade Rennais,Toulouse,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-20,Paris Saint-Germain,Stade Brestois,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-20,Strasbourg,Marseille,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-20,Nice,Auxerre,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-20,Le Havre,Lyon,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-20,Monaco,Le Mans,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-20,Lille,Lorient,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-20,Lens,Troyes,Ligue 1,2027-02-20 12:00:00+00:00
+2027-02-27,Strasbourg,Le Havre,Ligue 1,2027-02-27 12:00:00+00:00
+2027-02-27,Auxerre,Lille,Ligue 1,2027-02-27 12:00:00+00:00
+2027-02-27,Troyes,Nice,Ligue 1,2027-02-27 12:00:00+00:00
+2027-02-27,Stade Brestois,Monaco,Ligue 1,2027-02-27 12:00:00+00:00
+2027-02-27,Lorient,Angers,Ligue 1,2027-02-27 12:00:00+00:00
+2027-02-27,Marseille,Stade Rennais,Ligue 1,2027-02-27 12:00:00+00:00
+2027-02-27,Lyon,Toulouse,Ligue 1,2027-02-27 12:00:00+00:00
+2027-02-27,Le Mans,Paris,Ligue 1,2027-02-27 12:00:00+00:00
+2027-02-28,Paris Saint-Germain,Lens,Ligue 1,2027-02-28 12:00:00+00:00
+2027-03-06,Le Havre,Nice,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-06,Stade Rennais,Paris Saint-Germain,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-06,Lens,Strasbourg,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-06,Toulouse,Le Mans,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-06,Troyes,Lorient,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-06,Angers,Auxerre,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-06,Monaco,Lyon,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-06,Paris,Stade Brestois,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-06,Lille,Marseille,Ligue 1,2027-03-06 12:00:00+00:00
+2027-03-13,Nice,Toulouse,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-13,Paris,Lorient,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-13,Strasbourg,Angers,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-13,Le Mans,Stade Rennais,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-13,Stade Brestois,Lille,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-13,Le Havre,Lens,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-13,Marseille,Monaco,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-13,Auxerre,Paris Saint-Germain,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-13,Lyon,Troyes,Ligue 1,2027-03-13 12:00:00+00:00
+2027-03-20,Angers,Le Mans,Ligue 1,2027-03-20 12:00:00+00:00
+2027-03-20,Toulouse,Stade Brestois,Ligue 1,2027-03-20 12:00:00+00:00
+2027-03-20,Troyes,Auxerre,Ligue 1,2027-03-20 12:00:00+00:00
+2027-03-20,Stade Rennais,Paris,Ligue 1,2027-03-20 12:00:00+00:00
+2027-03-20,Monaco,Le Havre,Ligue 1,2027-03-20 12:00:00+00:00
+2027-03-20,Paris Saint-Germain,Strasbourg,Ligue 1,2027-03-20 12:00:00+00:00
+2027-03-20,Lens,Lille,Ligue 1,2027-03-20 12:00:00+00:00
+2027-03-20,Lorient,Nice,Ligue 1,2027-03-20 12:00:00+00:00
+2027-03-21,Marseille,Lyon,Ligue 1,2027-03-21 12:00:00+00:00
+2027-04-03,Le Havre,Troyes,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-03,Angers,Monaco,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-03,Le Mans,Marseille,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-03,Auxerre,Lens,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-03,Lille,Stade Rennais,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-03,Stade Brestois,Lorient,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-03,Strasbourg,Toulouse,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-03,Paris,Paris Saint-Germain,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-03,Nice,Lyon,Ligue 1,2027-04-03 12:00:00+00:00
+2027-04-10,Lorient,Lens,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-10,Marseille,Stade Brestois,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-10,Monaco,Stade Rennais,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-10,Troyes,Angers,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-10,Paris Saint-Germain,Le Havre,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-10,Lyon,Strasbourg,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-10,Le Mans,Auxerre,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-10,Lille,Toulouse,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-10,Nice,Paris,Ligue 1,2027-04-10 12:00:00+00:00
+2027-04-17,Auxerre,Lorient,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-17,Stade Brestois,Le Mans,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-17,Monaco,Strasbourg,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-17,Angers,Lyon,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-17,Lens,Nice,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-17,Stade Rennais,Troyes,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-17,Le Havre,Marseille,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-17,Paris Saint-Germain,Lille,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-17,Toulouse,Paris,Ligue 1,2027-04-17 12:00:00+00:00
+2027-04-24,Paris,Lens,Ligue 1,2027-04-24 12:00:00+00:00
+2027-04-24,Marseille,Auxerre,Ligue 1,2027-04-24 12:00:00+00:00
+2027-04-24,Lille,Monaco,Ligue 1,2027-04-24 12:00:00+00:00
+2027-04-24,Lorient,Paris Saint-Germain,Ligue 1,2027-04-24 12:00:00+00:00
+2027-04-24,Troyes,Toulouse,Ligue 1,2027-04-24 12:00:00+00:00
+2027-04-24,Nice,Angers,Ligue 1,2027-04-24 12:00:00+00:00
+2027-04-24,Lyon,Stade Brestois,Ligue 1,2027-04-24 12:00:00+00:00
+2027-04-24,Le Mans,Le Havre,Ligue 1,2027-04-24 12:00:00+00:00
+2027-04-24,Strasbourg,Stade Rennais,Ligue 1,2027-04-24 12:00:00+00:00
+2027-05-01,Strasbourg,Lille,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-01,Monaco,Lorient,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-01,Troyes,Stade Brestois,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-01,Lens,Le Mans,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-01,Paris Saint-Germain,Angers,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-01,Le Havre,Paris,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-01,Auxerre,Lyon,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-01,Stade Rennais,Nice,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-01,Toulouse,Marseille,Ligue 1,2027-05-01 12:00:00+00:00
+2027-05-08,Paris,Lille,Ligue 1,2027-05-08 12:00:00+00:00
+2027-05-08,Lorient,Strasbourg,Ligue 1,2027-05-08 12:00:00+00:00
+2027-05-08,Stade Brestois,Auxerre,Ligue 1,2027-05-08 12:00:00+00:00
+2027-05-08,Le Mans,Troyes,Ligue 1,2027-05-08 12:00:00+00:00
+2027-05-08,Stade Rennais,Le Havre,Ligue 1,2027-05-08 12:00:00+00:00
+2027-05-08,Lens,Monaco,Ligue 1,2027-05-08 12:00:00+00:00
+2027-05-08,Angers,Toulouse,Ligue 1,2027-05-08 12:00:00+00:00
+2027-05-08,Nice,Marseille,Ligue 1,2027-05-08 12:00:00+00:00
+2027-05-09,Lyon,Paris Saint-Germain,Ligue 1,2027-05-09 12:00:00+00:00
+2027-05-16,Monaco,Paris,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-16,Lyon,Le Mans,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-16,Paris Saint-Germain,Nice,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-16,Toulouse,Lorient,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-16,Stade Brestois,Le Havre,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-16,Marseille,Lens,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-16,Lille,Angers,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-16,Auxerre,Stade Rennais,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-16,Strasbourg,Troyes,Ligue 1,2027-05-16 12:00:00+00:00
+2027-05-22,Nice,Monaco,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-22,Angers,Stade Brestois,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-22,Lorient,Lyon,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-22,Troyes,Paris Saint-Germain,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-22,Le Mans,Strasbourg,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-22,Toulouse,Auxerre,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-22,Le Havre,Lille,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-22,Paris,Marseille,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-22,Lens,Stade Rennais,Ligue 1,2027-05-22 12:00:00+00:00
+2027-05-29,Monaco,Troyes,Ligue 1,2027-05-29 12:00:00+00:00
+2027-05-29,Paris Saint-Germain,Toulouse,Ligue 1,2027-05-29 12:00:00+00:00
+2027-05-29,Lille,Le Mans,Ligue 1,2027-05-29 12:00:00+00:00
+2027-05-29,Stade Brestois,Lens,Ligue 1,2027-05-29 12:00:00+00:00
+2027-05-29,Marseille,Lorient,Ligue 1,2027-05-29 12:00:00+00:00
+2027-05-29,Stade Rennais,Angers,Ligue 1,2027-05-29 12:00:00+00:00
+2027-05-29,Lyon,Paris,Ligue 1,2027-05-29 12:00:00+00:00
+2027-05-29,Auxerre,Le Havre,Ligue 1,2027-05-29 12:00:00+00:00
+2027-05-29,Strasbourg,Nice,Ligue 1,2027-05-29 12:00:00+00:00

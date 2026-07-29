@@ -33,8 +33,14 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from golavo_core.identity import normalize  # noqa: E402
 
-from scripts.packlib import Transport, fetch, sha256  # noqa: E402
+from scripts.packlib import (  # noqa: E402
+    Transport,
+    fetch,
+    refresh_manifest_sha256,
+    sha256,
+)
 
+SNAPSHOTS_PATH = REPO_ROOT / "packs/snapshots.json"
 SEASON = "2026-27"
 SOURCE_ID = "openfootball-football-json"
 _MAX_BYTES = 2_000_000
@@ -96,6 +102,26 @@ def _fetch(repo: str, path: str, ref: str, *, transport: Transport | None = None
     )
 
 
+def _declare_file(pack_dir: Path, name: str, payload: bytes, **extra: object) -> None:
+    """Write one pack file and declare it in the manifest with its hash.
+
+    Writing and declaring are a single step on purpose: validate_pack hashes only
+    what the manifest lists, and apply_exact_kickoffs fails closed on an
+    undeclared kickoffs.csv, so bytes that arrive without a declaration are
+    either invisible or a hard error. Re-declaring replaces the entry, because
+    this builder reruns whenever the pinned upstream bytes move.
+    """
+    (pack_dir / name).write_bytes(payload)
+    manifest_path = pack_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    files = [entry for entry in manifest["files"] if entry["name"] != name]
+    files.append({"name": name, "sha256": sha256(payload), **extra})
+    manifest["files"] = sorted(files, key=lambda entry: entry["name"])
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
 def _fixture_key(row) -> str:
     """A key that identifies ONE fixture.
 
@@ -141,7 +167,7 @@ def _provenance_rows(frame) -> list[dict[str, str]]:
 
 def build(check_only: bool = False) -> int:
     import pandas as pd
-    from golavo_core.ingest.domestictxt import parse_domestic_txt
+    from golavo_core.ingest.domestictxt import domestic_kickoffs, parse_domestic_txt
 
     drift = 0
     for code, (pack_name, repo, path, ref, committed_at, expected) in LEAGUES.items():
@@ -161,19 +187,11 @@ def build(check_only: bool = False) -> int:
                 drift += 1
             continue
 
-        (pack_dir / file_name).write_bytes(payload)
+        _declare_file(
+            pack_dir, file_name, payload, season=SEASON, source_match_count=expected
+        )
 
         manifest = json.loads((pack_dir / "manifest.json").read_text(encoding="utf-8"))
-        files = [e for e in manifest["files"] if e["name"] != file_name]
-        files.append(
-            {
-                "name": file_name,
-                "season": SEASON,
-                "sha256": sha256(payload),
-                "source_match_count": expected,
-            }
-        )
-        manifest["files"] = sorted(files, key=lambda e: e["name"])
         manifest["co_sources"] = [
             {
                 "source_id": co_source_id,
@@ -194,36 +212,46 @@ def build(check_only: bool = False) -> int:
         )
 
         provenance = frame.assign(co_source_id=co_source_id)
-        pd.DataFrame(
-            _provenance_rows(provenance),
-            columns=[
-                "date",
-                "home_team",
-                "away_team",
-                "identity_source_id",
-                "result_source_id",
-                "kickoff_source_id",
-                "venue_source_id",
-                "training_source_id",
-                "upstream_fixture_key",
-                "training_eligible",
-            ],
-        ).to_csv(pack_dir / "field_provenance.csv", index=False, lineterminator="\n")
-
-        # field_provenance.csv is itself pack bytes: declare and hash it too.
-        manifest = json.loads((pack_dir / "manifest.json").read_text(encoding="utf-8"))
-        files = [e for e in manifest["files"] if e["name"] != "field_provenance.csv"]
-        files.append(
-            {
-                "name": "field_provenance.csv",
-                "sha256": sha256((pack_dir / "field_provenance.csv").read_bytes()),
-            }
+        # field_provenance.csv and kickoffs.csv are themselves pack bytes: both
+        # are declared and hashed like any other file in the pack.
+        _declare_file(
+            pack_dir,
+            "field_provenance.csv",
+            pd.DataFrame(
+                _provenance_rows(provenance),
+                columns=[
+                    "date",
+                    "home_team",
+                    "away_team",
+                    "identity_source_id",
+                    "result_source_id",
+                    "kickoff_source_id",
+                    "venue_source_id",
+                    "training_source_id",
+                    "upstream_fixture_key",
+                    "training_eligible",
+                ],
+            ).to_csv(index=False, lineterminator="\n").encode("utf-8"),
         )
-        manifest["files"] = sorted(files, key=lambda e: e["name"])
-        (pack_dir / "manifest.json").write_text(
-            json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        overlay = domestic_kickoffs(frame, league_code=code)
+        _declare_file(
+            pack_dir,
+            "kickoffs.csv",
+            overlay.to_csv(index=False, lineterminator="\n").encode("utf-8"),
         )
-        print(f"{pack_name}: pinned {expected} {SEASON} fixtures from {repo}@{ref[:8]}")
+        # The pack's own snapshot pins the digest of the whole manifest, which
+        # every file written above has just moved. Re-register it here or the
+        # repo is left failing scripts/validate_provenance.py; the upstream pin
+        # this entry exists to protect is untouched.
+        refresh_manifest_sha256(
+            SNAPSHOTS_PATH,
+            pack_dir.relative_to(REPO_ROOT).as_posix(),
+            sha256((pack_dir / "manifest.json").read_bytes()),
+        )
+        print(
+            f"{pack_name}: pinned {expected} {SEASON} fixtures "
+            f"({len(overlay)} timed) from {repo}@{ref[:8]}"
+        )
     return drift
 
 

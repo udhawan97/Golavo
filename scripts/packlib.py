@@ -38,6 +38,7 @@ __all__ = [
     "Transport",
     "append_snapshot",
     "fetch",
+    "refresh_manifest_sha256",
     "sha256",
     "urlopen_transport",
     "write_json",
@@ -127,3 +128,30 @@ def append_snapshot(registry_path: Path, entry: dict[str, Any]) -> bool:
     snapshots.append(entry)
     write_json(registry_path, registry)
     return True
+
+
+def refresh_manifest_sha256(registry_path: Path, pack: str, manifest_sha256: str) -> bool:
+    """Re-register a pack's manifest digest, leaving its upstream pin untouched.
+
+    Returns True if the registry changed. ``append_snapshot`` refuses to rewrite a
+    retained entry, and must: it guards the evidence an artifact was sealed
+    against. But a manifest that gained a DERIVED, in-repo file — an exact-kickoff
+    overlay, per-row provenance — carries the same upstream_ref, retrieved_at_utc
+    and source_id as before, while validate_provenance compares the digest of the
+    whole manifest. Without this the builder leaves the repo failing its own
+    provenance gate, and the fix gets done by hand in a JSON file.
+
+    Only the digest moves. A pack that is not registered at all is refused: the
+    entry belongs to whichever builder first vendored the pack.
+    """
+    registry_path = Path(registry_path)
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    for entry in registry.get("snapshots", []):
+        if entry.get("pack") != pack:
+            continue
+        if entry.get("manifest_sha256") == manifest_sha256:
+            return False
+        entry["manifest_sha256"] = manifest_sha256
+        write_json(registry_path, registry)
+        return True
+    raise PackBuildError(f"{pack} is not registered in {registry_path}; build the pack first")

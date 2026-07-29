@@ -28,6 +28,7 @@ kept as date evidence only — exactly as the football.json loader treats them.
 from __future__ import annotations
 
 import re
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
@@ -42,6 +43,21 @@ DOMESTIC_TXT_TITLES: dict[str, str] = {
     "de.1": "Deutsche Bundesliga",
     "it.1": "Italian Serie A",
     "fr.1": "French Ligue 1",
+}
+
+# league code -> the IANA zone the printed clocks belong to. Upstream prints one
+# clock per time group in the league's own civil time, with no timezone token
+# anywhere in the file, so the zone has to be supplied here to read an instant
+# off a clock at all. Every club in all five leagues currently plays inside its
+# league's zone; a promoted side from a different one (Las Palmas or Tenerife in
+# La Liga) would need a per-venue zone instead, because upstream would still be
+# printing peninsular time for its away fixtures.
+LEAGUE_TIMEZONES: dict[str, str] = {
+    "en.1": "Europe/London",
+    "es.1": "Europe/Madrid",
+    "de.1": "Europe/Berlin",
+    "it.1": "Europe/Rome",
+    "fr.1": "Europe/Paris",
 }
 
 _TITLE = re.compile(r"^=\s+(?P<title>.+?)\s+(?P<season>\d{4}/\d{2})\s*$")
@@ -181,3 +197,30 @@ def parse_domestic_txt(text: str, *, season: str, league_code: str) -> pd.DataFr
     frame["neutral"] = frame["neutral"].astype("boolean")
     frame["is_complete"] = frame[["home_score", "away_score"]].notna().all(axis=1)
     return frame
+
+
+def domestic_kickoffs(frame: pd.DataFrame, *, league_code: str) -> pd.DataFrame:
+    """The exact-kickoff overlay rows for a parsed domestic fixture list.
+
+    Returns the frame ``golavo_core.ingest.apply_exact_kickoffs`` reads, holding a
+    row only for the fixtures upstream has actually timed. An untimed fixture is
+    omitted rather than guessed, so it keeps the honest 00:00 UTC day proxy.
+
+    The clock is resolved against the league's civil time, which is what makes
+    this worth doing: reading '20:00' as 20:00 UTC would put an August kickoff an
+    hour late and close a seal window after the match had already started.
+    A kickoff that lands in a DST gap raises rather than silently shifting.
+    """
+    try:
+        zone = ZoneInfo(LEAGUE_TIMEZONES[league_code])
+    except KeyError as exc:
+        raise ValueError(f"unsupported domestic league code: {league_code!r}") from exc
+
+    timed = frame.loc[frame["local_time"].notna()]
+    overlay = timed[["date", "home_team", "away_team", "tournament"]].copy()
+    local = pd.to_datetime(
+        timed["date"].dt.strftime("%Y-%m-%d") + " " + timed["local_time"].astype(str),
+        format="%Y-%m-%d %H:%M",
+    )
+    overlay["kickoff_utc"] = local.dt.tz_localize(zone).dt.tz_convert("UTC")
+    return overlay.reset_index(drop=True)

@@ -8,6 +8,7 @@ to be in on the day it was first run.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -17,8 +18,12 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.build_domestic_fixtures import _fetch, _provenance_rows  # noqa: E402
-from scripts.packlib import PackBuildError  # noqa: E402
+from scripts.build_domestic_fixtures import (  # noqa: E402
+    _declare_file,
+    _fetch,
+    _provenance_rows,
+)
+from scripts.packlib import PackBuildError, sha256  # noqa: E402
 
 
 def test_fetch_pins_the_url_from_the_league_table() -> None:
@@ -46,6 +51,45 @@ def test_fetch_refuses_an_oversized_fixture_file() -> None:
 
     with pytest.raises(PackBuildError, match="exceeds"):
         _fetch("england", "p.txt", "abc123", transport=transport)
+
+
+def _pack(tmp_path: Path) -> Path:
+    pack = tmp_path / "openfootball-eng-pl"
+    pack.mkdir()
+    (pack / "manifest.json").write_text(
+        json.dumps({"files": [{"name": "z.txt", "sha256": "0"}]}), encoding="utf-8"
+    )
+    return pack
+
+
+def test_a_written_pack_file_is_declared_with_its_hash(tmp_path: Path) -> None:
+    """Undeclared bytes fail closed at load, so writing and declaring are one step.
+
+    apply_exact_kickoffs raises on a kickoffs.csv the manifest does not list —
+    an unverified overlay must never be able to move a seal window.
+    """
+    pack = _pack(tmp_path)
+
+    _declare_file(pack, "kickoffs.csv", b"date,home_team\n")
+
+    manifest = json.loads((pack / "manifest.json").read_text(encoding="utf-8"))
+    entry = next(e for e in manifest["files"] if e["name"] == "kickoffs.csv")
+    assert entry["sha256"] == sha256(b"date,home_team\n")
+    assert (pack / "kickoffs.csv").read_bytes() == b"date,home_team\n"
+    assert [e["name"] for e in manifest["files"]] == ["kickoffs.csv", "z.txt"]
+
+
+def test_rebuilding_replaces_a_declaration_instead_of_duplicating_it(tmp_path: Path) -> None:
+    """The builder reruns whenever the pinned bytes move; twice must equal once."""
+    pack = _pack(tmp_path)
+
+    _declare_file(pack, "kickoffs.csv", b"first\n")
+    _declare_file(pack, "kickoffs.csv", b"second\n")
+
+    manifest = json.loads((pack / "manifest.json").read_text(encoding="utf-8"))
+    entries = [e for e in manifest["files"] if e["name"] == "kickoffs.csv"]
+    assert len(entries) == 1
+    assert entries[0]["sha256"] == sha256(b"second\n")
 
 
 def _frame(rows: list[dict]) -> pd.DataFrame:

@@ -1,0 +1,381 @@
+date,home_team,away_team,tournament,kickoff_utc
+2026-08-16,Atlético Madrid,Málaga,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Racing Santander,Villarreal,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Barcelona,Athletic Club,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Real Madrid,Real Sociedad,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Espanyol,Levante,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Sevilla,Rayo Vallecano,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Alavés,Getafe,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Deportivo La Coruña,Elche,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Celta Vigo,Osasuna,La Liga,2026-08-16 15:00:00+00:00
+2026-08-16,Valencia,Real Betis,La Liga,2026-08-16 15:00:00+00:00
+2026-08-23,Rayo Vallecano,Alavés,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Osasuna,Levante,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Málaga,Deportivo La Coruña,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Athletic Club,Sevilla,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Elche,Barcelona,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Valencia,Celta Vigo,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Getafe,Racing Santander,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Espanyol,Real Madrid,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Atlético Madrid,Villarreal,La Liga,2026-08-23 15:00:00+00:00
+2026-08-23,Real Betis,Real Sociedad,La Liga,2026-08-23 15:00:00+00:00
+2026-08-30,Alavés,Villarreal,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Sevilla,Atlético Madrid,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Barcelona,Rayo Vallecano,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Deportivo La Coruña,Valencia,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Celta Vigo,Athletic Club,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Real Sociedad,Espanyol,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Racing Santander,Elche,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Levante,Real Betis,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Real Madrid,Málaga,La Liga,2026-08-30 15:00:00+00:00
+2026-08-30,Osasuna,Getafe,La Liga,2026-08-30 15:00:00+00:00
+2026-09-06,Elche,Real Sociedad,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Valencia,Barcelona,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Rayo Vallecano,Racing Santander,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Espanyol,Sevilla,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Villarreal,Deportivo La Coruña,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Athletic Club,Atlético Madrid,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Alavés,Osasuna,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Getafe,Celta Vigo,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Málaga,Levante,La Liga,2026-09-06 15:00:00+00:00
+2026-09-06,Real Betis,Real Madrid,La Liga,2026-09-06 15:00:00+00:00
+2026-09-13,Getafe,Deportivo La Coruña,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Sevilla,Valencia,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Racing Santander,Alavés,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Villarreal,Real Betis,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Celta Vigo,Málaga,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Osasuna,Espanyol,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Real Sociedad,Atlético Madrid,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Levante,Barcelona,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Athletic Club,Elche,La Liga,2026-09-13 15:00:00+00:00
+2026-09-13,Real Madrid,Rayo Vallecano,La Liga,2026-09-13 15:00:00+00:00
+2026-09-16,Rayo Vallecano,Espanyol,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Deportivo La Coruña,Sevilla,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Alavés,Valencia,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Elche,Real Madrid,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Real Sociedad,Celta Vigo,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Málaga,Villarreal,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Atlético Madrid,Osasuna,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Levante,Athletic Club,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Real Betis,Getafe,La Liga,2026-09-16 15:00:00+00:00
+2026-09-16,Barcelona,Racing Santander,La Liga,2026-09-16 15:00:00+00:00
+2026-09-20,Atlético Madrid,Real Madrid,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Valencia,Real Sociedad,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Sevilla,Barcelona,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Athletic Club,Alavés,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Espanyol,Elche,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Osasuna,Rayo Vallecano,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Celta Vigo,Racing Santander,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Deportivo La Coruña,Real Betis,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Villarreal,Levante,La Liga,2026-09-20 15:00:00+00:00
+2026-09-20,Getafe,Málaga,La Liga,2026-09-20 15:00:00+00:00
+2026-10-11,Rayo Vallecano,Athletic Club,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Alavés,Atlético Madrid,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Barcelona,Getafe,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Real Betis,Osasuna,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Real Madrid,Villarreal,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Elche,Celta Vigo,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Levante,Sevilla,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Racing Santander,Valencia,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Málaga,Espanyol,La Liga,2026-10-11 15:00:00+00:00
+2026-10-11,Real Sociedad,Deportivo La Coruña,La Liga,2026-10-11 15:00:00+00:00
+2026-10-18,Villarreal,Elche,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Real Madrid,Sevilla,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Espanyol,Atlético Madrid,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Valencia,Athletic Club,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Celta Vigo,Alavés,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Real Betis,Barcelona,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Málaga,Real Sociedad,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Osasuna,Racing Santander,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Deportivo La Coruña,Levante,La Liga,2026-10-18 15:00:00+00:00
+2026-10-18,Getafe,Rayo Vallecano,La Liga,2026-10-18 15:00:00+00:00
+2026-10-25,Rayo Vallecano,Elche,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Alavés,Málaga,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Athletic Club,Getafe,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Sevilla,Osasuna,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Valencia,Villarreal,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Barcelona,Real Madrid,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Atlético Madrid,Deportivo La Coruña,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Celta Vigo,Real Betis,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Real Sociedad,Levante,La Liga,2026-10-25 16:00:00+00:00
+2026-10-25,Racing Santander,Espanyol,La Liga,2026-10-25 16:00:00+00:00
+2026-11-01,Real Betis,Málaga,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Villarreal,Espanyol,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Elche,Valencia,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Athletic Club,Real Sociedad,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Levante,Atlético Madrid,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Deportivo La Coruña,Osasuna,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Barcelona,Alavés,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Getafe,Sevilla,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Racing Santander,Real Madrid,La Liga,2026-11-01 16:00:00+00:00
+2026-11-01,Rayo Vallecano,Celta Vigo,La Liga,2026-11-01 16:00:00+00:00
+2026-11-08,Elche,Real Betis,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Osasuna,Athletic Club,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Sevilla,Alavés,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Valencia,Real Madrid,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Celta Vigo,Levante,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Real Sociedad,Rayo Vallecano,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Málaga,Racing Santander,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Espanyol,Deportivo La Coruña,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Atlético Madrid,Barcelona,La Liga,2026-11-08 16:00:00+00:00
+2026-11-08,Villarreal,Getafe,La Liga,2026-11-08 16:00:00+00:00
+2026-11-22,Athletic Club,Espanyol,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Barcelona,Villarreal,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Racing Santander,Real Sociedad,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Rayo Vallecano,Valencia,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Osasuna,Málaga,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Getafe,Atlético Madrid,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Real Madrid,Celta Vigo,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Alavés,Deportivo La Coruña,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Sevilla,Real Betis,La Liga,2026-11-22 16:00:00+00:00
+2026-11-22,Levante,Elche,La Liga,2026-11-22 16:00:00+00:00
+2026-11-29,Celta Vigo,Villarreal,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Elche,Atlético Madrid,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Real Betis,Rayo Vallecano,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Valencia,Osasuna,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Real Madrid,Alavés,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Espanyol,Getafe,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Real Sociedad,Sevilla,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Levante,Racing Santander,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Deportivo La Coruña,Barcelona,La Liga,2026-11-29 16:00:00+00:00
+2026-11-29,Málaga,Athletic Club,La Liga,2026-11-29 16:00:00+00:00
+2026-12-06,Osasuna,Elche,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Sevilla,Málaga,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Alavés,Espanyol,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Atlético Madrid,Real Betis,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Racing Santander,Deportivo La Coruña,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Barcelona,Celta Vigo,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Getafe,Valencia,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Athletic Club,Real Madrid,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Villarreal,Real Sociedad,La Liga,2026-12-06 16:00:00+00:00
+2026-12-06,Rayo Vallecano,Levante,La Liga,2026-12-06 16:00:00+00:00
+2026-12-13,Espanyol,Celta Vigo,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Málaga,Barcelona,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Real Madrid,Osasuna,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Deportivo La Coruña,Athletic Club,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Levante,Alavés,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Elche,Sevilla,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Villarreal,Rayo Vallecano,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Real Betis,Racing Santander,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Real Sociedad,Getafe,La Liga,2026-12-13 16:00:00+00:00
+2026-12-13,Atlético Madrid,Valencia,La Liga,2026-12-13 16:00:00+00:00
+2026-12-20,Athletic Club,Real Betis,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Getafe,Levante,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Alavés,Elche,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Valencia,Espanyol,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Osasuna,Villarreal,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Barcelona,Real Sociedad,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Celta Vigo,Atlético Madrid,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Rayo Vallecano,Málaga,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Deportivo La Coruña,Real Madrid,La Liga,2026-12-20 16:00:00+00:00
+2026-12-20,Sevilla,Racing Santander,La Liga,2026-12-20 16:00:00+00:00
+2027-01-03,Real Madrid,Getafe,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Real Sociedad,Osasuna,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Levante,Valencia,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Racing Santander,Athletic Club,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Málaga,Elche,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Real Betis,Alavés,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Celta Vigo,Deportivo La Coruña,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Espanyol,Barcelona,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Villarreal,Sevilla,La Liga,2027-01-03 12:00:00+00:00
+2027-01-03,Rayo Vallecano,Atlético Madrid,La Liga,2027-01-03 12:00:00+00:00
+2027-01-10,Athletic Club,Villarreal,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Elche,Getafe,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Real Madrid,Levante,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Osasuna,Barcelona,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Deportivo La Coruña,Rayo Vallecano,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Atlético Madrid,Racing Santander,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Alavés,Real Sociedad,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Sevilla,Celta Vigo,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Espanyol,Real Betis,La Liga,2027-01-10 12:00:00+00:00
+2027-01-10,Valencia,Málaga,La Liga,2027-01-10 12:00:00+00:00
+2027-01-17,Málaga,Real Madrid,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Barcelona,Elche,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Villarreal,Alavés,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Racing Santander,Osasuna,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Levante,Espanyol,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Celta Vigo,Valencia,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Getafe,Athletic Club,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Rayo Vallecano,Sevilla,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Real Betis,Deportivo La Coruña,La Liga,2027-01-17 12:00:00+00:00
+2027-01-17,Atlético Madrid,Real Sociedad,La Liga,2027-01-17 12:00:00+00:00
+2027-01-24,Real Madrid,Real Betis,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Getafe,Osasuna,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Valencia,Sevilla,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Elche,Rayo Vallecano,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Alavés,Barcelona,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Real Sociedad,Málaga,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Racing Santander,Celta Vigo,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Athletic Club,Levante,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Espanyol,Villarreal,La Liga,2027-01-24 12:00:00+00:00
+2027-01-24,Deportivo La Coruña,Atlético Madrid,La Liga,2027-01-24 12:00:00+00:00
+2027-01-31,Real Betis,Elche,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Rayo Vallecano,Real Madrid,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Atlético Madrid,Espanyol,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Celta Vigo,Getafe,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Villarreal,Racing Santander,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Levante,Real Sociedad,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Barcelona,Valencia,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Sevilla,Athletic Club,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Osasuna,Deportivo La Coruña,La Liga,2027-01-31 12:00:00+00:00
+2027-01-31,Málaga,Alavés,La Liga,2027-01-31 12:00:00+00:00
+2027-02-07,Athletic Club,Osasuna,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Alavés,Celta Vigo,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Real Betis,Sevilla,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Elche,Levante,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Espanyol,Rayo Vallecano,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Getafe,Villarreal,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Deportivo La Coruña,Málaga,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Real Sociedad,Real Madrid,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Valencia,Racing Santander,La Liga,2027-02-07 12:00:00+00:00
+2027-02-07,Barcelona,Atlético Madrid,La Liga,2027-02-07 12:00:00+00:00
+2027-02-14,Sevilla,Espanyol,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Osasuna,Atlético Madrid,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Celta Vigo,Rayo Vallecano,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Villarreal,Barcelona,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Real Sociedad,Real Betis,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Elche,Deportivo La Coruña,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Valencia,Alavés,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Levante,Málaga,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Racing Santander,Getafe,La Liga,2027-02-14 12:00:00+00:00
+2027-02-14,Real Madrid,Athletic Club,La Liga,2027-02-14 12:00:00+00:00
+2027-02-21,Alavés,Racing Santander,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Málaga,Real Betis,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Villarreal,Valencia,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Barcelona,Levante,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Athletic Club,Celta Vigo,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Espanyol,Osasuna,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Sevilla,Real Madrid,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Atlético Madrid,Elche,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Deportivo La Coruña,Real Sociedad,La Liga,2027-02-21 12:00:00+00:00
+2027-02-21,Rayo Vallecano,Getafe,La Liga,2027-02-21 12:00:00+00:00
+2027-02-28,Celta Vigo,Espanyol,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Levante,Deportivo La Coruña,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Málaga,Atlético Madrid,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Osasuna,Sevilla,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Real Madrid,Valencia,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Getafe,Alavés,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Athletic Club,Barcelona,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Racing Santander,Rayo Vallecano,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Real Betis,Villarreal,La Liga,2027-02-28 12:00:00+00:00
+2027-02-28,Real Sociedad,Elche,La Liga,2027-02-28 12:00:00+00:00
+2027-03-07,Barcelona,Real Betis,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Elche,Málaga,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Alavés,Athletic Club,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Rayo Vallecano,Osasuna,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Sevilla,Real Sociedad,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Atlético Madrid,Celta Vigo,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Villarreal,Real Madrid,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Valencia,Levante,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Deportivo La Coruña,Getafe,La Liga,2027-03-07 12:00:00+00:00
+2027-03-07,Espanyol,Racing Santander,La Liga,2027-03-07 12:00:00+00:00
+2027-03-14,Osasuna,Celta Vigo,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Elche,Villarreal,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Alavés,Sevilla,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Athletic Club,Valencia,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Real Betis,Levante,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Racing Santander,Atlético Madrid,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Málaga,Rayo Vallecano,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Getafe,Real Sociedad,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Barcelona,Deportivo La Coruña,La Liga,2027-03-14 12:00:00+00:00
+2027-03-14,Real Madrid,Espanyol,La Liga,2027-03-14 12:00:00+00:00
+2027-03-21,Villarreal,Málaga,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Sevilla,Elche,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Levante,Osasuna,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Celta Vigo,Real Madrid,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Rayo Vallecano,Barcelona,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Real Sociedad,Alavés,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Espanyol,Athletic Club,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Racing Santander,Real Betis,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Valencia,Deportivo La Coruña,La Liga,2027-03-21 12:00:00+00:00
+2027-03-21,Atlético Madrid,Getafe,La Liga,2027-03-21 12:00:00+00:00
+2027-04-04,Levante,Rayo Vallecano,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Barcelona,Sevilla,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Málaga,Osasuna,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Athletic Club,Racing Santander,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Deportivo La Coruña,Villarreal,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Real Sociedad,Valencia,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Elche,Alavés,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Real Madrid,Atlético Madrid,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Getafe,Espanyol,La Liga,2027-04-04 12:00:00+00:00
+2027-04-04,Real Betis,Celta Vigo,La Liga,2027-04-04 12:00:00+00:00
+2027-04-11,Rayo Vallecano,Real Sociedad,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Espanyol,Málaga,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Villarreal,Athletic Club,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Alavés,Real Betis,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Valencia,Getafe,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Sevilla,Deportivo La Coruña,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Celta Vigo,Elche,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Racing Santander,Barcelona,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Osasuna,Real Madrid,La Liga,2027-04-11 12:00:00+00:00
+2027-04-11,Atlético Madrid,Levante,La Liga,2027-04-11 12:00:00+00:00
+2027-04-18,Atlético Madrid,Sevilla,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Barcelona,Espanyol,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Levante,Villarreal,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Real Sociedad,Racing Santander,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Málaga,Valencia,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Deportivo La Coruña,Celta Vigo,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Elche,Osasuna,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Alavés,Rayo Vallecano,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Real Betis,Athletic Club,La Liga,2027-04-18 12:00:00+00:00
+2027-04-18,Getafe,Real Madrid,La Liga,2027-04-18 12:00:00+00:00
+2027-04-21,Getafe,Real Betis,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Valencia,Rayo Vallecano,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Celta Vigo,Barcelona,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Osasuna,Alavés,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Real Madrid,Elche,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Athletic Club,Deportivo La Coruña,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Racing Santander,Málaga,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Villarreal,Atlético Madrid,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Sevilla,Levante,La Liga,2027-04-21 12:00:00+00:00
+2027-04-21,Espanyol,Real Sociedad,La Liga,2027-04-21 12:00:00+00:00
+2027-05-02,Deportivo La Coruña,Racing Santander,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Celta Vigo,Sevilla,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Real Sociedad,Athletic Club,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Barcelona,Osasuna,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Rayo Vallecano,Villarreal,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Málaga,Getafe,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Real Betis,Valencia,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Elche,Espanyol,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Levante,Real Madrid,La Liga,2027-05-02 12:00:00+00:00
+2027-05-02,Atlético Madrid,Alavés,La Liga,2027-05-02 12:00:00+00:00
+2027-05-09,Valencia,Atlético Madrid,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Osasuna,Real Sociedad,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Alavés,Levante,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Athletic Club,Málaga,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Racing Santander,Sevilla,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Rayo Vallecano,Deportivo La Coruña,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Real Betis,Espanyol,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Real Madrid,Barcelona,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Getafe,Elche,La Liga,2027-05-09 12:00:00+00:00
+2027-05-09,Villarreal,Celta Vigo,La Liga,2027-05-09 12:00:00+00:00
+2027-05-16,Atlético Madrid,Rayo Vallecano,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Sevilla,Villarreal,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Real Sociedad,Barcelona,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Elche,Athletic Club,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Málaga,Celta Vigo,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Deportivo La Coruña,Alavés,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Levante,Getafe,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Espanyol,Valencia,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Real Madrid,Racing Santander,La Liga,2027-05-16 12:00:00+00:00
+2027-05-16,Osasuna,Real Betis,La Liga,2027-05-16 12:00:00+00:00
+2027-05-23,Atlético Madrid,Athletic Club,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Alavés,Real Madrid,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Sevilla,Getafe,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Villarreal,Osasuna,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Racing Santander,Levante,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Deportivo La Coruña,Espanyol,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Rayo Vallecano,Real Betis,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Barcelona,Málaga,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Valencia,Elche,La Liga,2027-05-23 12:00:00+00:00
+2027-05-23,Celta Vigo,Real Sociedad,La Liga,2027-05-23 12:00:00+00:00
+2027-05-30,Levante,Celta Vigo,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Real Madrid,Deportivo La Coruña,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Real Betis,Atlético Madrid,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Real Sociedad,Villarreal,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Málaga,Sevilla,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Elche,Racing Santander,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Athletic Club,Rayo Vallecano,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Espanyol,Alavés,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Getafe,Barcelona,La Liga,2027-05-30 12:00:00+00:00
+2027-05-30,Osasuna,Valencia,La Liga,2027-05-30 12:00:00+00:00
