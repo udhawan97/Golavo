@@ -659,10 +659,16 @@ export interface CompetitionScorers {
   teams: ShootoutTeamRow[];
 }
 
-// ---- Golavo Ratings (in-house national-team Elo, v0.1.0) --------------------
+// ---- Golavo Ratings (in-house Elo, v0.1.0) ----------------------------------
 // A leak-safe Elo table computed from the same CC0 results the models train on.
-// It is explicitly NOT the FIFA ranking; a rating as of an instant is a pure
-// replay of the past, so it never changes when later matches are appended.
+// It is explicitly NOT the FIFA ranking (nor a licensed club rating); a rating as
+// of an instant is a pure replay of the past, so it never changes when later
+// matches are appended.
+//
+// `scope` names the population the table was drawn from: "internationals" for the
+// single national-team pool, or a competition_id for one club competition. A
+// rating is comparable only inside its own scope, which is why the club tables
+// are per competition rather than one pooled league-agnostic number.
 
 export interface RatingCheckpoint {
   as_of_utc: string;
@@ -678,12 +684,12 @@ export interface RatingRow {
   history: RatingCheckpoint[];
 }
 
-export interface InternationalRatings {
+export interface RatingsTable {
   schema_version: "0.1.0";
   method: string;
   label: string;
   as_of_utc: string;
-  scope: "internationals";
+  scope: string;
   matches_counted: number;
   data_through_utc?: string;
   teams: RatingRow[];

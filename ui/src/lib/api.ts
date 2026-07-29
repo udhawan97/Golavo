@@ -20,7 +20,6 @@ import type {
   CompetitionAnalytics,
   CompetitionScorers,
   CompetitionsResponse,
-  InternationalRatings,
   DataRefreshJob,
   DataRefreshStatus,
   EvalSummary,
@@ -44,6 +43,7 @@ import type {
   PickResponse,
   PicksListResponse,
   PicksSummary,
+  RatingsTable,
   RecentMatchesResponse,
   ResearchTeamAnalytics,
   SealEligibility,
@@ -866,32 +866,49 @@ export async function fetchCompetitionScorers(
   );
 }
 
-function assertInternationalRatings(x: unknown, ctx: string): InternationalRatings {
-  const data = x as InternationalRatings;
+function assertRatingsTable(x: unknown, ctx: string): RatingsTable {
+  const data = x as RatingsTable;
   if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
   if (data.schema_version !== "0.1.0") throw new ContractError(`${ctx}: unsupported contract`);
   if (!Array.isArray(data.teams)) throw new ContractError(`${ctx}: teams must be an array`);
   return data;
 }
 
+function disconnectedRatings(scope: string): RatingsTable {
+  return {
+    schema_version: "0.1.0",
+    method: "elo-goal-weighted-v1",
+    label: "Golavo Ratings — connect the engine to read the table.",
+    as_of_utc: new Date().toISOString(),
+    scope,
+    matches_counted: 0,
+    teams: [],
+  };
+}
+
 export async function fetchInternationalRatings(
   options: { topN?: number } = {},
-): Promise<InternationalRatings> {
-  if (!API_BASE) {
-    return {
-      schema_version: "0.1.0",
-      method: "elo-goal-weighted-v1",
-      label: "Golavo Ratings — connect the engine to read the national-team table.",
-      as_of_utc: new Date().toISOString(),
-      scope: "internationals",
-      matches_counted: 0,
-      teams: [],
-    };
-  }
+): Promise<RatingsTable> {
+  if (!API_BASE) return disconnectedRatings("internationals");
   const query = options.topN ? `?top_n=${encodeURIComponent(options.topN)}` : "";
-  return assertInternationalRatings(
+  return assertRatingsTable(
     await getJson(`/api/v1/ratings/international${query}`),
     "ratings/international",
+  );
+}
+
+/** One club competition's table. Scoped per competition: the leagues in the index
+ *  meet only through the thin 2020+ UEFA fixtures, so a pooled number would rank
+ *  clubs against each other on almost no evidence connecting them. */
+export async function fetchClubRatings(
+  competitionId: string,
+  options: { topN?: number } = {},
+): Promise<RatingsTable> {
+  if (!API_BASE) return disconnectedRatings(competitionId);
+  const query = options.topN ? `?top_n=${encodeURIComponent(options.topN)}` : "";
+  return assertRatingsTable(
+    await getJson(`/api/v1/ratings/club/${encodeURIComponent(competitionId)}${query}`),
+    `ratings/club/${competitionId}`,
   );
 }
 

@@ -1,16 +1,36 @@
 /**
- * Golavo Ratings — the in-house national-team Elo table.
+ * Golavo Ratings — the in-house Elo tables.
  *
  * Computed from the same CC0 results the models train on, and leak-safe by
- * construction. It is explicitly not the FIFA ranking; the header says so and
- * every row carries its sample size, so the reader can weigh a rating built on
- * 90 matches against one built on 900.
+ * construction. It is explicitly not the FIFA ranking (nor a licensed club
+ * rating); the header says so and every row carries its sample size, so the
+ * reader can weigh a rating built on 90 matches against one built on 900.
+ *
+ * One scope at a time, deliberately. National teams are one pool because they
+ * meet across confederations; club sides are ranked inside a single competition,
+ * because the leagues in the index meet only through the thin 2020+ UEFA
+ * fixtures. Putting both in one table would invite a comparison the data cannot
+ * support.
  */
-import type { InternationalRatings, RatingRow } from "../lib/contract";
-import { fetchInternationalRatings } from "../lib/api";
+import { useState } from "react";
+import type { RatingsTable as RatingsTableData, RatingRow } from "../lib/contract";
+import { fetchClubRatings, fetchInternationalRatings } from "../lib/api";
+import { LEAGUES, leagueHubCategory } from "../lib/leagues";
 import { useAsync } from "../lib/hooks";
 import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
 import { ChevronRight } from "../components/icons";
+
+/** Internationals plus every club competition the catalog gives a stable id. */
+export const RATING_SCOPES: { id: string; name: string; club: boolean }[] = [
+  { id: "internationals", name: "Internationals", club: false },
+  ...LEAGUES.filter(
+    (league) => league.competitionId && leagueHubCategory(league) !== "international",
+  ).map((league) => ({
+    id: league.competitionId as string,
+    name: league.name,
+    club: true,
+  })),
+];
 
 /** A minimal inline sparkline of a team's rating across the monthly checkpoints. */
 function Trend({ row }: { row: RatingRow }) {
@@ -44,7 +64,7 @@ function Trend({ row }: { row: RatingRow }) {
   );
 }
 
-function RatingsTable({ table }: { table: InternationalRatings }) {
+function RatingsTable({ table }: { table: RatingsTableData }) {
   return (
     <div className="table-wrap">
       <table className="grid ratings-table">
@@ -78,7 +98,12 @@ function RatingsTable({ table }: { table: InternationalRatings }) {
 }
 
 export function Ratings() {
-  const state = useAsync(() => fetchInternationalRatings({ topN: 40 }), []);
+  const [scopeId, setScopeId] = useState(RATING_SCOPES[0].id);
+  const scope = RATING_SCOPES.find((entry) => entry.id === scopeId) ?? RATING_SCOPES[0];
+  const state = useAsync(
+    () => (scope.club ? fetchClubRatings(scope.id, { topN: 40 }) : fetchInternationalRatings({ topN: 40 })),
+    [scope.club, scope.id],
+  );
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <nav className="breadcrumb" aria-label="Breadcrumb">
@@ -89,26 +114,40 @@ export function Ratings() {
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
         <h1>Golavo Ratings</h1>
         <p className="measure dim" style={{ margin: 0 }}>
-          A national-team Elo table Golavo computes from the same public results it trains on —
-          goal-difference weighted, home advantage on non-neutral ground.{" "}
-          <strong>Not the FIFA ranking</strong> and not an official rating. Confederation coverage
-          varies with how densely a region's matches are recorded, so read a rating alongside its
-          match count.
+          An Elo table Golavo computes from the same public results it trains on — goal-difference
+          weighted, home advantage on non-neutral ground. <strong>Not the FIFA ranking</strong> and
+          not an official rating. Coverage varies with how densely a competition's matches are
+          recorded, so read a rating alongside its match count.
         </p>
       </header>
+      <label className="stack" style={{ ["--gap" as string]: ".3rem" }}>
+        <span className="small dim">Scope</span>
+        <select value={scopeId} onChange={(event) => setScopeId(event.target.value)}>
+          {RATING_SCOPES.map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {entry.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p className="small dim measure" style={{ margin: 0 }}>
+        {scope.club
+          ? "Club ratings are computed inside one competition. The leagues meet only through the 2020-21 onward UEFA fixtures, so a rating here is not comparable with one from another league."
+          : "National teams are rated as a single pool, which their cross-confederation fixtures support."}
+      </p>
       {state.status === "loading" ? (
         <BlockSkeleton lines={8} />
       ) : state.status === "error" ? (
         <ErrorState error={state.error} />
       ) : state.data.teams.length === 0 ? (
         <EmptyState title="Ratings unavailable">
-          Connect the Golavo engine to compute the national-team table.
+          Connect the Golavo engine to compute the {scope.name} table.
         </EmptyState>
       ) : (
         <>
           <RatingsTable table={state.data} />
           <p className="small dim" style={{ margin: 0 }}>
-            {state.data.matches_counted.toLocaleString()} completed internationals counted.
+            {state.data.matches_counted.toLocaleString()} completed {scope.name} matches counted.
             Leak-safe: a rating as of a date depends only on matches played by then.
           </p>
         </>

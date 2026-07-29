@@ -1,11 +1,16 @@
-"""Golavo Ratings — an in-house Elo table for national teams, computed from CC0 results.
+"""Golavo Ratings — an in-house Elo table computed from the CC0 results already indexed.
 
-There is no lawful open source for the official FIFA ranking, so Golavo computes
-its own rating from the same public-domain results it already trains on, using
-the exact Elo update the forecast model uses (``golavo_core.models.candidates``).
-It is leak-safe by construction: the table at an instant is a pure replay of the
-completed matches at or before that instant, so appending later results can never
-change an earlier rating.
+There is no lawful open source for either the official FIFA ranking or a club
+rating (ClubElo publishes no licence at all), so Golavo computes its own from the
+same public-domain results it already trains on, using the exact Elo update the
+forecast model uses (``golavo_core.models.candidates``). It is leak-safe by
+construction: the table at an instant is a pure replay of the completed matches
+at or before that instant, so appending later results can never change an earlier
+rating.
+
+The engine is population-agnostic — the caller passes the rows and names the
+``scope``. National teams meet across confederations often enough to be ranked as
+one pool; club leagues do not, so a club table is drawn per competition.
 
 The engine also snapshots each team's rating at monthly checkpoints in a single
 pass, giving a trajectory for the trend sparkline without re-fitting per month.
@@ -27,6 +32,7 @@ RATINGS_LABEL = (
     "Golavo Ratings — model-estimated strength from public results. "
     "Not the FIFA ranking and not an official rating."
 )
+INTERNATIONAL_SCOPE = "internationals"
 DEFAULT_TOP_N = 40
 
 def elo_trajectory(
@@ -34,13 +40,18 @@ def elo_trajectory(
     *,
     as_of_utc: str | pd.Timestamp | None,
     top_n: int = DEFAULT_TOP_N,
+    scope: str = "internationals",
 ) -> dict[str, Any]:
-    """The national-team Elo table as of ``as_of_utc`` plus each top team's history.
+    """The Elo table for ``rows`` as of ``as_of_utc`` plus each top team's history.
 
     Replays the shared Elo update over completed matches whose date is at or before
     the cutoff, in a single chronological pass, snapshotting ratings at monthly
     checkpoints. Returns the ranked current table (top ``top_n``) with a per-team
     checkpoint trajectory. Ties break by team name so the order is reproducible.
+
+    ``scope`` names the population ``rows`` was drawn from and is stamped on the
+    table. A rating is only comparable inside its own scope, so the caller decides
+    the population and the reader is told which one they are looking at.
     """
     if as_of_utc is None:
         raise ValueError("elo_trajectory requires an explicit as_of_utc cutoff")
@@ -51,7 +62,7 @@ def elo_trajectory(
         "method": RATINGS_METHOD,
         "label": RATINGS_LABEL,
         "as_of_utc": iso_utc(cutoff),
-        "scope": "internationals",
+        "scope": scope,
         "matches_counted": 0,
         "teams": [],
     }
