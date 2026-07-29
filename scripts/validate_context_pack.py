@@ -196,7 +196,13 @@ def validate() -> dict[str, int]:
             raise ValueError("conflicting Wikidata venue link must fail closed")
 
     source_ids = {source["source_id"] for source in manifest["sources"]}
-    expected_sources = {"geonames", "natural-earth", "openfootball-worldcup-json", "wikidata"}
+    expected_sources = {
+        "geonames",
+        "natural-earth",
+        "openfootball-worldcup-json",
+        "openfootball-clubs",
+        "wikidata",
+    }
     if source_ids != expected_sources:
         raise ValueError(f"context sources differ: expected {sorted(expected_sources)}")
     if manifest["display_only"] is not True or manifest["model_input"] is not False:

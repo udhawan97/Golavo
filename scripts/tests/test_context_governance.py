@@ -13,7 +13,10 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_context_pack_is_schema_valid_and_fail_closed() -> None:
     counts = validate_context_pack.validate()
     assert counts["places"] == 1497
-    assert counts["venues"] == 16
+    # 16 World Cup stadiums plus the 37 club grounds where the pinned CC0 source
+    # and the club's Wikidata home venue agree; the 9 that disagree are recorded
+    # as rejected in data/context/club_venue_allowlist.json and ship no venue.
+    assert counts["venues"] == 53
     assert counts["unresolved"] == 644
 
 

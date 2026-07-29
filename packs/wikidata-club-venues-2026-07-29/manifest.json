@@ -1,0 +1,157 @@
+{
+  "files": [
+    {
+      "name": "raw/Q1066373.json",
+      "sha256": "b5834eada19eb95247e4a670b27ce87e94c4b42a5fa07254ce2a71fa254da5d8"
+    },
+    {
+      "name": "raw/Q1121760.json",
+      "sha256": "c357e0d6f24a689721460a645dc15f62e3aed50c189b431473d3d068dcf41e52"
+    },
+    {
+      "name": "raw/Q127372.json",
+      "sha256": "2eb2eda4baf380d2aed3fbc7f1d8e8093c9c3dc6b2d397893776290210f08325"
+    },
+    {
+      "name": "raw/Q127429.json",
+      "sha256": "53e62158c7c5baa9c47359eb5364e91e09d4c756309eb74b280b1b14c961b984"
+    },
+    {
+      "name": "raw/Q129870.json",
+      "sha256": "a0c1d6f267445141a17c04ce0f24b697aea334f21109ef15b5641685a2e59654"
+    },
+    {
+      "name": "raw/Q1410402.json",
+      "sha256": "ef4e2ca5f1dba60d875c21f2700a7e2ebafefa165deb5f1c3ff1f1b89a15d567"
+    },
+    {
+      "name": "raw/Q1432517.json",
+      "sha256": "fc569f7be58b28efb58cd380e52ded3aa9b988647486723cb2c9fe1aeb64f02b"
+    },
+    {
+      "name": "raw/Q150928.json",
+      "sha256": "6610ce1bbf3c2e469841bba67516c4cd535425b8e7d01dc94d4deb31f8084118"
+    },
+    {
+      "name": "raw/Q151893.json",
+      "sha256": "5d549850a339ed47776ea040c8ffe00d2d4baab232c1721e1559dae4ab162c60"
+    },
+    {
+      "name": "raw/Q152349.json",
+      "sha256": "22d408a3f95fa2f8ad7f29efdcb897ca22e889315793b84bdb2101145cbffc66"
+    },
+    {
+      "name": "raw/Q154475.json",
+      "sha256": "bff00f5d6f0a7b00012946053900cfcb1058152c16b002fcd22daea994dd7341"
+    },
+    {
+      "name": "raw/Q1546623.json",
+      "sha256": "3c66ad34cf18eeb600f5f42a50768ab64c42903ff1a5fe7f32f630137b991056"
+    },
+    {
+      "name": "raw/Q157273.json",
+      "sha256": "15b7ff541c15d858a6f1232f18ec2d74cb0d474e6339de2b4af4c0f4dbaad607"
+    },
+    {
+      "name": "raw/Q163995.json",
+      "sha256": "34768ad926cb0ae9c34db31c7dc78ce3717f77fd1ba4e7876138b10c279acff6"
+    },
+    {
+      "name": "raw/Q167418.json",
+      "sha256": "50d3605b7bda8096e0c9061a88c77beb8bd27fc8e7920d152c14a39ca6a61ccd"
+    },
+    {
+      "name": "raw/Q171458.json",
+      "sha256": "88b2442bc100b1998e464ae5a9feadd432e193664620594d01eb664d9c5ec1f1"
+    },
+    {
+      "name": "raw/Q175339.json",
+      "sha256": "206996da677e0b22c8be5a5104a0b512cfe809ecaf3cf23e32913d287d8180cd"
+    },
+    {
+      "name": "raw/Q191774.json",
+      "sha256": "e88b5197581097e1c7c64ff84efb68f6ccacc32e5563862158e6317be918da71"
+    },
+    {
+      "name": "raw/Q193431.json",
+      "sha256": "e369abec32f8a1a9591c653b2fe8034c8de889cc5f88415dca189dc6d749dab8"
+    },
+    {
+      "name": "raw/Q202150.json",
+      "sha256": "ed737ba8d2fe2fb4a067e2adcfd78a56deecc1144248732023df00a2206787f2"
+    },
+    {
+      "name": "raw/Q210466.json",
+      "sha256": "0b78fd9e8d485ed99bfc296644fc52db3f90f01caca729bbb78761d67de5ad06"
+    },
+    {
+      "name": "raw/Q219462.json",
+      "sha256": "d23159b9dc903e5c46993687685ca5d2d2d2fd5558793e8901b184df515e28d4"
+    },
+    {
+      "name": "raw/Q318043.json",
+      "sha256": "cc7d9f5933f7812bda62d00c9a6f476bfc2b0995815c882044729ca76215d6b2"
+    },
+    {
+      "name": "raw/Q31969.json",
+      "sha256": "bab2d5c7cb08b1a320eeaceda8821986b1b0cb9c7c660fa8550bca59fcea7ea4"
+    },
+    {
+      "name": "raw/Q374883.json",
+      "sha256": "b85eb6039f96bc9ca242d684bff6dab5d8cae0b0a044ea5f90997b63a1d2c6a6"
+    },
+    {
+      "name": "raw/Q392494.json",
+      "sha256": "6ea4e6ee5550e12b9cba16c27b0fb10c72d19eaae3d9de8ae7db1af450ee0462"
+    },
+    {
+      "name": "raw/Q45671.json",
+      "sha256": "260627f741f1a5d50903853ca6cb89703462f8fafd2f89c87568db9c29b7e6e7"
+    },
+    {
+      "name": "raw/Q48159.json",
+      "sha256": "2b7237cf678ff6439820f8c542a1a20abf5890d5564e289da5372cda85ef418b"
+    },
+    {
+      "name": "raw/Q593446.json",
+      "sha256": "e8c4f995ba9f103b1d4e0ede1e58ee2008d7696b2fa0c26b3fd2852c36ebfec5"
+    },
+    {
+      "name": "raw/Q619094.json",
+      "sha256": "04ca640681bd5c7b5f29a634a79e2704cb103a9de88101b7f76289ae708ba093"
+    },
+    {
+      "name": "raw/Q619505.json",
+      "sha256": "15176593eaad14d7acdd303a4522a2865eee7fe59eefdffa53b795e63f12931c"
+    },
+    {
+      "name": "raw/Q619558.json",
+      "sha256": "af7de02c37626e6ac7b9ff739faaa891e02e942084e3e219a52fe347cec9a235"
+    },
+    {
+      "name": "raw/Q630160.json",
+      "sha256": "3ee00086730bee7492e0d74b779c301ebfc4f0ed669d10f451455c2778001726"
+    },
+    {
+      "name": "raw/Q749172.json",
+      "sha256": "98c7af7fdaf3ee80b412e096108a2102d9bc4e0d5ef3c6319d56d7242c965d5a"
+    },
+    {
+      "name": "raw/Q83457.json",
+      "sha256": "19f9f0883d07176e36028f7f9608f4219085b3bf21b27bc72d55cb7f874cced4"
+    },
+    {
+      "name": "raw/Q8507.json",
+      "sha256": "128aff00fcbd21806992ce1a30247f69b21cad04276f37fbf51a9cd4b5ac1fe4"
+    },
+    {
+      "name": "raw/Q854122.json",
+      "sha256": "a5e27a4aef37fcce3021aeae2c11c58a16cb690238a3d056489ee8f360d38869"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-29T00:00:00Z",
+  "source_id": "wikidata",
+  "upstream_ref": "entity-revisions:Q1066373@2460640178,Q1121760@2506982765,Q127372@2520252338,Q127429@2522802229,Q129870@2521197645,Q1410402@2506985237,Q1432517@2493159071,Q150928@2522603096,Q151893@2517400340,Q152349@2517428706,Q154475@2517439094,Q1546623@2438044756,Q157273@2517825875,Q163995@2522606544,Q167418@2517993223,Q171458@2522608988,Q175339@2504219260,Q191774@2522617708,Q193431@2522618899,Q202150@2522620766,Q210466@2493079383,Q219462@2516536915,Q318043@2519886283,Q31969@2516855047,Q374883@2517665439,Q392494@2516283480,Q45671@2522589168,Q48159@2520106887,Q593446@2448124007,Q619094@2460633282,Q619505@2440130610,Q619558@2513534935,Q630160@2515304456,Q749172@2493079556,Q83457@2522594434,Q8507@2517800242,Q854122@2522673573",
+  "url": "https://www.wikidata.org/wiki/Special:EntityData"
+}

@@ -41,6 +41,14 @@ software dependencies.
 - Attribution: European club competition data from openfootball/champions-league (Gerald Bauer and contributors), CC0-1.0.
 - Notes: Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone.
 
+### openfootball/clubs — **bundled**
+
+- Source: https://github.com/openfootball/clubs
+- Contributors: Gerald Bauer, openfootball contributors
+- License: CC0-1.0 (https://github.com/openfootball/clubs/blob/master/LICENSE.md)
+- Attribution: Club home grounds from openfootball/clubs (Gerald Bauer and contributors), CC0-1.0.
+- Notes: Vendored as a display-only venue-context enrichment pack; never joined to the match index and never a model input. It states a club's home ground, and the club's Wikidata entity must independently name the same ground through P115 (current statement only) and place it in the league's country, or no assignment is written and the venue stays unknown. Upstream is not maintained in step with reality — it still lists Tottenham at White Hart Lane and Everton at Goodison Park — so 9 of 46 current top-flight clubs are rejected by that cross-check and recorded in data/context/club_venue_allowlist.json. Assignments are pinned to the 2026-27 window they were verified for.
+
 ### openfootball/deutschland — **bundled**
 
 - Source: https://github.com/openfootball/deutschland

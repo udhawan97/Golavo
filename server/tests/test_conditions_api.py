@@ -213,10 +213,13 @@ def test_conditions_contract_rest_travel_and_local_time(client: TestClient) -> N
         "model_input": False,
         "source_id": None,
     }
+    # openfootball-clubs states a club ground; Wikidata corroborates it and
+    # supplies the coordinate and capacity, so both are in the attribution set.
     assert {source["source_id"] for source in body["sources"]} == {
         "geonames",
         "natural-earth",
         "openfootball-worldcup-json",
+        "openfootball-clubs",
         "wikidata",
     }
 

@@ -1,6 +1,324 @@
 {
-  "context_pack_version": "2026.07.15.1",
+  "context_pack_version": "2026.07.29.1",
   "entities": [
+    {
+      "canonical_label": "Waldstadion",
+      "claims": [
+        {
+          "claim_id": "ctxc_e076e25d84f6a0e6",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Eintracht Frankfurt",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Waldstadion"
+        },
+        {
+          "claim_id": "ctxc_0fc3951407a42488",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Eintracht Frankfurt",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Frankfurt am Main"
+        },
+        {
+          "claim_id": "ctxc_c113fa209c3f392a",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "15b7ff541c15d858a6f1232f18ec2d74cb0d474e6339de2b4af4c0f4dbaad607",
+              "source_id": "wikidata",
+              "source_record_id": "Q157273",
+              "source_revision": "2517825875"
+            }
+          ],
+          "value": 50.068611
+        },
+        {
+          "claim_id": "ctxc_93f0789191b54cfb",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "15b7ff541c15d858a6f1232f18ec2d74cb0d474e6339de2b4af4c0f4dbaad607",
+              "source_id": "wikidata",
+              "source_record_id": "Q157273",
+              "source_revision": "2517825875"
+            }
+          ],
+          "value": 8.645278
+        },
+        {
+          "claim_id": "ctxc_c551c9b6185e9223",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "15b7ff541c15d858a6f1232f18ec2d74cb0d474e6339de2b4af4c0f4dbaad607",
+              "source_id": "wikidata",
+              "source_record_id": "Q157273",
+              "source_revision": "2517825875"
+            }
+          ],
+          "value": 51500
+        }
+      ],
+      "entity_id": "venue_00aa3c2121eada9a",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:Eintracht Frankfurt",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q157273",
+          "source_revision": "2517825875"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Elland Road",
+      "claims": [
+        {
+          "claim_id": "ctxc_1231e92850220b89",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Leeds United FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Elland Road"
+        },
+        {
+          "claim_id": "ctxc_0ff40042afc13a4d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Leeds United FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Leeds"
+        },
+        {
+          "claim_id": "ctxc_a2d3d82998fcb1c6",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "15176593eaad14d7acdd303a4522a2865eee7fe59eefdffa53b795e63f12931c",
+              "source_id": "wikidata",
+              "source_record_id": "Q619505",
+              "source_revision": "2440130610"
+            }
+          ],
+          "value": 53.777777777778
+        },
+        {
+          "claim_id": "ctxc_3927e5ff9a30e24b",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "15176593eaad14d7acdd303a4522a2865eee7fe59eefdffa53b795e63f12931c",
+              "source_id": "wikidata",
+              "source_record_id": "Q619505",
+              "source_revision": "2440130610"
+            }
+          ],
+          "value": -1.5722222222222
+        },
+        {
+          "claim_id": "ctxc_0df4ab83c36f2f07",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "15176593eaad14d7acdd303a4522a2865eee7fe59eefdffa53b795e63f12931c",
+              "source_id": "wikidata",
+              "source_record_id": "Q619505",
+              "source_revision": "2440130610"
+            }
+          ],
+          "value": 37890
+        }
+      ],
+      "entity_id": "venue_03a3619d1bf2bb84",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Leeds United FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q619505",
+          "source_revision": "2440130610"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Roazhon Park",
+      "claims": [
+        {
+          "claim_id": "ctxc_9a4cae5ce28a9efa",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Stade Rennais FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Roazhon Park"
+        },
+        {
+          "claim_id": "ctxc_9ba1e6930e73cf26",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Stade Rennais FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Rennes"
+        },
+        {
+          "claim_id": "ctxc_c94b85afabe58369",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "c357e0d6f24a689721460a645dc15f62e3aed50c189b431473d3d068dcf41e52",
+              "source_id": "wikidata",
+              "source_record_id": "Q1121760",
+              "source_revision": "2506982765"
+            }
+          ],
+          "value": 48.10743
+        },
+        {
+          "claim_id": "ctxc_95455313dbe595bb",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "c357e0d6f24a689721460a645dc15f62e3aed50c189b431473d3d068dcf41e52",
+              "source_id": "wikidata",
+              "source_record_id": "Q1121760",
+              "source_revision": "2506982765"
+            }
+          ],
+          "value": -1.71282
+        },
+        {
+          "claim_id": "ctxc_1320a973c8df7757",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "c357e0d6f24a689721460a645dc15f62e3aed50c189b431473d3d068dcf41e52",
+              "source_id": "wikidata",
+              "source_record_id": "Q1121760",
+              "source_revision": "2506982765"
+            }
+          ],
+          "value": 31127
+        }
+      ],
+      "entity_id": "venue_04c98f65df1b62ea",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Stade Rennais FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q1121760",
+          "source_revision": "2506982765"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
     {
       "canonical_label": "AT&T Stadium",
       "claims": [
@@ -328,6 +646,112 @@
       "supersedes": null
     },
     {
+      "canonical_label": "Stamford Bridge",
+      "claims": [
+        {
+          "claim_id": "ctxc_ab551d52625350c9",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Chelsea FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stamford Bridge"
+        },
+        {
+          "claim_id": "ctxc_c78b073c02e9e6b8",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Chelsea FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "London"
+        },
+        {
+          "claim_id": "ctxc_9250f2ed56bd5be6",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "88b2442bc100b1998e464ae5a9feadd432e193664620594d01eb664d9c5ec1f1",
+              "source_id": "wikidata",
+              "source_record_id": "Q171458",
+              "source_revision": "2522608988"
+            }
+          ],
+          "value": 51.481666666667
+        },
+        {
+          "claim_id": "ctxc_ee7ccd5afe9a4d0c",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "88b2442bc100b1998e464ae5a9feadd432e193664620594d01eb664d9c5ec1f1",
+              "source_id": "wikidata",
+              "source_record_id": "Q171458",
+              "source_revision": "2522608988"
+            }
+          ],
+          "value": -0.19111111111111
+        },
+        {
+          "claim_id": "ctxc_3b807cea3e9cf837",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "88b2442bc100b1998e464ae5a9feadd432e193664620594d01eb664d9c5ec1f1",
+              "source_id": "wikidata",
+              "source_record_id": "Q171458",
+              "source_revision": "2522608988"
+            }
+          ],
+          "value": 41875
+        }
+      ],
+      "entity_id": "venue_203ac011632fba8c",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Chelsea FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q171458",
+          "source_revision": "2522608988"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
       "canonical_label": "Mercedes-Benz Stadium",
       "claims": [
         {
@@ -483,6 +907,854 @@
           "source_id": "wikidata",
           "source_record_id": "Q7007552",
           "source_revision": "2513747771"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Portman Road",
+      "claims": [
+        {
+          "claim_id": "ctxc_aa30701a0b4b711d",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Ipswich Town FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Portman Road"
+        },
+        {
+          "claim_id": "ctxc_1b5f2cf1c64c5629",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Ipswich Town FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Ipswich"
+        },
+        {
+          "claim_id": "ctxc_cb369e53c36a42a2",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "af7de02c37626e6ac7b9ff739faaa891e02e942084e3e219a52fe347cec9a235",
+              "source_id": "wikidata",
+              "source_record_id": "Q619558",
+              "source_revision": "2513534935"
+            }
+          ],
+          "value": 52.055
+        },
+        {
+          "claim_id": "ctxc_7f0b5ee9ffca7102",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "af7de02c37626e6ac7b9ff739faaa891e02e942084e3e219a52fe347cec9a235",
+              "source_id": "wikidata",
+              "source_record_id": "Q619558",
+              "source_revision": "2513534935"
+            }
+          ],
+          "value": 1.1452777777777778
+        },
+        {
+          "claim_id": "ctxc_4b7548f782e8de59",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "af7de02c37626e6ac7b9ff739faaa891e02e942084e3e219a52fe347cec9a235",
+              "source_id": "wikidata",
+              "source_record_id": "Q619558",
+              "source_revision": "2513534935"
+            }
+          ],
+          "value": 30311
+        }
+      ],
+      "entity_id": "venue_24e4789727e7cc81",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Ipswich Town FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q619558",
+          "source_revision": "2513534935"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Dean Court",
+      "claims": [
+        {
+          "claim_id": "ctxc_dfe3e9d24429f2d4",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:AFC Bournemouth",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Dean Court"
+        },
+        {
+          "claim_id": "ctxc_3292b9bd96240f5d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:AFC Bournemouth",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Bournemouth"
+        },
+        {
+          "claim_id": "ctxc_4e7fafa7a2465201",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "04ca640681bd5c7b5f29a634a79e2704cb103a9de88101b7f76289ae708ba093",
+              "source_id": "wikidata",
+              "source_record_id": "Q619094",
+              "source_revision": "2460633282"
+            }
+          ],
+          "value": 50.735278
+        },
+        {
+          "claim_id": "ctxc_f2b3b2c25e153f6c",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "04ca640681bd5c7b5f29a634a79e2704cb103a9de88101b7f76289ae708ba093",
+              "source_id": "wikidata",
+              "source_record_id": "Q619094",
+              "source_revision": "2460633282"
+            }
+          ],
+          "value": -1.838333
+        },
+        {
+          "claim_id": "ctxc_1bea3f8cb18dea0f",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "04ca640681bd5c7b5f29a634a79e2704cb103a9de88101b7f76289ae708ba093",
+              "source_id": "wikidata",
+              "source_record_id": "Q619094",
+              "source_revision": "2460633282"
+            }
+          ],
+          "value": 12000
+        }
+      ],
+      "entity_id": "venue_27c82ea15d14a742",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:AFC Bournemouth",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q619094",
+          "source_revision": "2460633282"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Stadion An der Alten Försterei",
+      "claims": [
+        {
+          "claim_id": "ctxc_a8c30a92c6e55a87",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:1. FC Union Berlin",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stadion An der Alten Försterei"
+        },
+        {
+          "claim_id": "ctxc_fbf8936ec31d09ca",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:1. FC Union Berlin",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Berlin"
+        },
+        {
+          "claim_id": "ctxc_64a1520e4190492c",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "98c7af7fdaf3ee80b412e096108a2102d9bc4e0d5ef3c6319d56d7242c965d5a",
+              "source_id": "wikidata",
+              "source_record_id": "Q749172",
+              "source_revision": "2493079556"
+            }
+          ],
+          "value": 52.457222
+        },
+        {
+          "claim_id": "ctxc_c320e2c8ebb4172c",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "98c7af7fdaf3ee80b412e096108a2102d9bc4e0d5ef3c6319d56d7242c965d5a",
+              "source_id": "wikidata",
+              "source_record_id": "Q749172",
+              "source_revision": "2493079556"
+            }
+          ],
+          "value": 13.568056
+        },
+        {
+          "claim_id": "ctxc_d7538b46ac14030f",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "98c7af7fdaf3ee80b412e096108a2102d9bc4e0d5ef3c6319d56d7242c965d5a",
+              "source_id": "wikidata",
+              "source_record_id": "Q749172",
+              "source_revision": "2493079556"
+            }
+          ],
+          "value": 21704
+        }
+      ],
+      "entity_id": "venue_30c28fd9b8f807fc",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:1. FC Union Berlin",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q749172",
+          "source_revision": "2493079556"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "WWK Arena",
+      "claims": [
+        {
+          "claim_id": "ctxc_ab0ebd4ca50567c6",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:FC Augsburg",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "WWK Arena"
+        },
+        {
+          "claim_id": "ctxc_4b9a1e0be5fd34cd",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:FC Augsburg",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Augsburg"
+        },
+        {
+          "claim_id": "ctxc_1db021ff45a5f846",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "50d3605b7bda8096e0c9061a88c77beb8bd27fc8e7920d152c14a39ca6a61ccd",
+              "source_id": "wikidata",
+              "source_record_id": "Q167418",
+              "source_revision": "2517993223"
+            }
+          ],
+          "value": 48.3233205
+        },
+        {
+          "claim_id": "ctxc_c291f54a7745ff5f",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "50d3605b7bda8096e0c9061a88c77beb8bd27fc8e7920d152c14a39ca6a61ccd",
+              "source_id": "wikidata",
+              "source_record_id": "Q167418",
+              "source_revision": "2517993223"
+            }
+          ],
+          "value": 10.8859261
+        },
+        {
+          "claim_id": "ctxc_c3803ecbcecd7a39",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "50d3605b7bda8096e0c9061a88c77beb8bd27fc8e7920d152c14a39ca6a61ccd",
+              "source_id": "wikidata",
+              "source_record_id": "Q167418",
+              "source_revision": "2517993223"
+            }
+          ],
+          "value": 30660
+        }
+      ],
+      "entity_id": "venue_3276cdfe115cd5d3",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:FC Augsburg",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q167418",
+          "source_revision": "2517993223"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Etihad Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_739285cabcbfe3f3",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Manchester City FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Etihad Stadium"
+        },
+        {
+          "claim_id": "ctxc_eeffcd27bf302f06",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Manchester City FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Manchester"
+        },
+        {
+          "claim_id": "ctxc_6d08f21c06cb9e3b",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "2b7237cf678ff6439820f8c542a1a20abf5890d5564e289da5372cda85ef418b",
+              "source_id": "wikidata",
+              "source_record_id": "Q48159",
+              "source_revision": "2520106887"
+            }
+          ],
+          "value": 53.483055555556
+        },
+        {
+          "claim_id": "ctxc_e5613e204e6ad9ee",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "2b7237cf678ff6439820f8c542a1a20abf5890d5564e289da5372cda85ef418b",
+              "source_id": "wikidata",
+              "source_record_id": "Q48159",
+              "source_revision": "2520106887"
+            }
+          ],
+          "value": -2.2002777777778
+        },
+        {
+          "claim_id": "ctxc_bb938ffddc0e3954",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "2b7237cf678ff6439820f8c542a1a20abf5890d5564e289da5372cda85ef418b",
+              "source_id": "wikidata",
+              "source_record_id": "Q48159",
+              "source_revision": "2520106887"
+            }
+          ],
+          "value": 55017
+        }
+      ],
+      "entity_id": "venue_3321dea46214a6e7",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Manchester City FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q48159",
+          "source_revision": "2520106887"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Mewa Arena",
+      "claims": [
+        {
+          "claim_id": "ctxc_e386f8932971a934",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:1. FSV Mainz 05",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Mewa Arena"
+        },
+        {
+          "claim_id": "ctxc_4117828f88bc558b",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:1. FSV Mainz 05",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Mainz"
+        },
+        {
+          "claim_id": "ctxc_08b83920dc73cae6",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "6ea4e6ee5550e12b9cba16c27b0fb10c72d19eaae3d9de8ae7db1af450ee0462",
+              "source_id": "wikidata",
+              "source_record_id": "Q392494",
+              "source_revision": "2516283480"
+            }
+          ],
+          "value": 49.984167
+        },
+        {
+          "claim_id": "ctxc_6bca7e17e6114fbc",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "6ea4e6ee5550e12b9cba16c27b0fb10c72d19eaae3d9de8ae7db1af450ee0462",
+              "source_id": "wikidata",
+              "source_record_id": "Q392494",
+              "source_revision": "2516283480"
+            }
+          ],
+          "value": 8.224167
+        },
+        {
+          "claim_id": "ctxc_c348a2341f530f55",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "6ea4e6ee5550e12b9cba16c27b0fb10c72d19eaae3d9de8ae7db1af450ee0462",
+              "source_id": "wikidata",
+              "source_record_id": "Q392494",
+              "source_revision": "2516283480"
+            }
+          ],
+          "value": 34034
+        }
+      ],
+      "entity_id": "venue_3ae78dcdcebeeb97",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:1. FSV Mainz 05",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q392494",
+          "source_revision": "2516283480"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Stade de la Meinau",
+      "claims": [
+        {
+          "claim_id": "ctxc_c01e08b52ed6ad8a",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:RC Strasbourg",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stade de la Meinau"
+        },
+        {
+          "claim_id": "ctxc_d8c567cad8487d34",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:RC Strasbourg",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Strasbourg"
+        },
+        {
+          "claim_id": "ctxc_26adc528238583ac",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "b85eb6039f96bc9ca242d684bff6dab5d8cae0b0a044ea5f90997b63a1d2c6a6",
+              "source_id": "wikidata",
+              "source_record_id": "Q374883",
+              "source_revision": "2517665439"
+            }
+          ],
+          "value": 48.55942
+        },
+        {
+          "claim_id": "ctxc_e895790581726c57",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "b85eb6039f96bc9ca242d684bff6dab5d8cae0b0a044ea5f90997b63a1d2c6a6",
+              "source_id": "wikidata",
+              "source_record_id": "Q374883",
+              "source_revision": "2517665439"
+            }
+          ],
+          "value": 7.75738
+        },
+        {
+          "claim_id": "ctxc_7704ceb90185f34e",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "b85eb6039f96bc9ca242d684bff6dab5d8cae0b0a044ea5f90997b63a1d2c6a6",
+              "source_id": "wikidata",
+              "source_record_id": "Q374883",
+              "source_revision": "2517665439"
+            }
+          ],
+          "value": 26109
+        }
+      ],
+      "entity_id": "venue_3ce86d19839c72dd",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:RC Strasbourg",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q374883",
+          "source_revision": "2517665439"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Red Bull Arena",
+      "claims": [
+        {
+          "claim_id": "ctxc_d3f0a3226b36822a",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:RB Leipzig",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Red Bull Arena"
+        },
+        {
+          "claim_id": "ctxc_4539b7c2c9a4997c",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:RB Leipzig",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Leipzig"
+        },
+        {
+          "claim_id": "ctxc_86d751ce88ea2c6f",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "0b78fd9e8d485ed99bfc296644fc52db3f90f01caca729bbb78761d67de5ad06",
+              "source_id": "wikidata",
+              "source_record_id": "Q210466",
+              "source_revision": "2493079383"
+            }
+          ],
+          "value": 51.345833
+        },
+        {
+          "claim_id": "ctxc_03641cf330c6ad72",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "0b78fd9e8d485ed99bfc296644fc52db3f90f01caca729bbb78761d67de5ad06",
+              "source_id": "wikidata",
+              "source_record_id": "Q210466",
+              "source_revision": "2493079383"
+            }
+          ],
+          "value": 12.348056
+        },
+        {
+          "claim_id": "ctxc_bc974421c9a9fd62",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "0b78fd9e8d485ed99bfc296644fc52db3f90f01caca729bbb78761d67de5ad06",
+              "source_id": "wikidata",
+              "source_record_id": "Q210466",
+              "source_revision": "2493079383"
+            }
+          ],
+          "value": 42000
+        }
+      ],
+      "entity_id": "venue_41a5128044e034ad",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:RB Leipzig",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q210466",
+          "source_revision": "2493079383"
         }
       ],
       "resolution_status": "resolved",
@@ -814,6 +2086,430 @@
       "supersedes": null
     },
     {
+      "canonical_label": "KC Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_37c98b12b0f5ce3b",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Hull City AFC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "KC Stadium"
+        },
+        {
+          "claim_id": "ctxc_1299c160f84cba2d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Hull City AFC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Hull"
+        },
+        {
+          "claim_id": "ctxc_12a5d293f5b69eec",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "3ee00086730bee7492e0d74b779c301ebfc4f0ed669d10f451455c2778001726",
+              "source_id": "wikidata",
+              "source_record_id": "Q630160",
+              "source_revision": "2515304456"
+            }
+          ],
+          "value": 53.746111111111
+        },
+        {
+          "claim_id": "ctxc_85c40376caea723b",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "3ee00086730bee7492e0d74b779c301ebfc4f0ed669d10f451455c2778001726",
+              "source_id": "wikidata",
+              "source_record_id": "Q630160",
+              "source_revision": "2515304456"
+            }
+          ],
+          "value": -0.36777777777778
+        },
+        {
+          "claim_id": "ctxc_2856960095983267",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "3ee00086730bee7492e0d74b779c301ebfc4f0ed669d10f451455c2778001726",
+              "source_id": "wikidata",
+              "source_record_id": "Q630160",
+              "source_revision": "2515304456"
+            }
+          ],
+          "value": 25400
+        }
+      ],
+      "entity_id": "venue_613e914f5460ba17",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Hull City AFC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q630160",
+          "source_revision": "2515304456"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Rheinenergiestadion",
+      "claims": [
+        {
+          "claim_id": "ctxc_10e08f7575188ff8",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:1. FC Köln",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Rheinenergiestadion"
+        },
+        {
+          "claim_id": "ctxc_ba125185f2994467",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:1. FC Köln",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Köln"
+        },
+        {
+          "claim_id": "ctxc_6ca941e6ad544817",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5d549850a339ed47776ea040c8ffe00d2d4baab232c1721e1559dae4ab162c60",
+              "source_id": "wikidata",
+              "source_record_id": "Q151893",
+              "source_revision": "2517400340"
+            }
+          ],
+          "value": 50.933611
+        },
+        {
+          "claim_id": "ctxc_6e4cbdff364f17cf",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5d549850a339ed47776ea040c8ffe00d2d4baab232c1721e1559dae4ab162c60",
+              "source_id": "wikidata",
+              "source_record_id": "Q151893",
+              "source_revision": "2517400340"
+            }
+          ],
+          "value": 6.875
+        },
+        {
+          "claim_id": "ctxc_5a6e8871ab6cdbcc",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5d549850a339ed47776ea040c8ffe00d2d4baab232c1721e1559dae4ab162c60",
+              "source_id": "wikidata",
+              "source_record_id": "Q151893",
+              "source_revision": "2517400340"
+            }
+          ],
+          "value": 46195
+        }
+      ],
+      "entity_id": "venue_62b338f5e79ead94",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:1. FC Köln",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q151893",
+          "source_revision": "2517400340"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "City Ground",
+      "claims": [
+        {
+          "claim_id": "ctxc_c1612c3364f012c7",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Nottingham Forest FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "City Ground"
+        },
+        {
+          "claim_id": "ctxc_6b53dab051078c48",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Nottingham Forest FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "West Bridgford"
+        },
+        {
+          "claim_id": "ctxc_ada0acc9d57cf041",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e8c4f995ba9f103b1d4e0ede1e58ee2008d7696b2fa0c26b3fd2852c36ebfec5",
+              "source_id": "wikidata",
+              "source_record_id": "Q593446",
+              "source_revision": "2448124007"
+            }
+          ],
+          "value": 52.94
+        },
+        {
+          "claim_id": "ctxc_aefebb9ed42ccdde",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e8c4f995ba9f103b1d4e0ede1e58ee2008d7696b2fa0c26b3fd2852c36ebfec5",
+              "source_id": "wikidata",
+              "source_record_id": "Q593446",
+              "source_revision": "2448124007"
+            }
+          ],
+          "value": -1.132778
+        },
+        {
+          "claim_id": "ctxc_e7d7e7d83f6be4c1",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e8c4f995ba9f103b1d4e0ede1e58ee2008d7696b2fa0c26b3fd2852c36ebfec5",
+              "source_id": "wikidata",
+              "source_record_id": "Q593446",
+              "source_revision": "2448124007"
+            }
+          ],
+          "value": 30404
+        }
+      ],
+      "entity_id": "venue_634403049fb180a3",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Nottingham Forest FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q593446",
+          "source_revision": "2448124007"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Allianz Riviera",
+      "claims": [
+        {
+          "claim_id": "ctxc_b8e3e708696ebb38",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:OGC Nice",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Allianz Riviera"
+        },
+        {
+          "claim_id": "ctxc_917f6555be422c57",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:OGC Nice",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Nice"
+        },
+        {
+          "claim_id": "ctxc_877bbca01e5dac45",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "2eb2eda4baf380d2aed3fbc7f1d8e8093c9c3dc6b2d397893776290210f08325",
+              "source_id": "wikidata",
+              "source_record_id": "Q127372",
+              "source_revision": "2520252338"
+            }
+          ],
+          "value": 43.70513
+        },
+        {
+          "claim_id": "ctxc_52bfad15c0c99921",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "2eb2eda4baf380d2aed3fbc7f1d8e8093c9c3dc6b2d397893776290210f08325",
+              "source_id": "wikidata",
+              "source_record_id": "Q127372",
+              "source_revision": "2520252338"
+            }
+          ],
+          "value": 7.19262
+        },
+        {
+          "claim_id": "ctxc_4f2da0c72a5d2521",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "2eb2eda4baf380d2aed3fbc7f1d8e8093c9c3dc6b2d397893776290210f08325",
+              "source_id": "wikidata",
+              "source_record_id": "Q127372",
+              "source_revision": "2520252338"
+            }
+          ],
+          "value": 36178
+        }
+      ],
+      "entity_id": "venue_642e7024c2484c65",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:OGC Nice",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q127372",
+          "source_revision": "2520252338"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
       "canonical_label": "Estadio Akron",
       "claims": [
         {
@@ -978,6 +2674,430 @@
       "supersedes": null
     },
     {
+      "canonical_label": "Stade Pierre-Mauroy",
+      "claims": [
+        {
+          "claim_id": "ctxc_aa62568d81c00044",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Lille OSC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stade Pierre-Mauroy"
+        },
+        {
+          "claim_id": "ctxc_6d3e6e63b802d67f",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Lille OSC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Lille"
+        },
+        {
+          "claim_id": "ctxc_b5881864891fb9fd",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "ef4e2ca5f1dba60d875c21f2700a7e2ebafefa165deb5f1c3ff1f1b89a15d567",
+              "source_id": "wikidata",
+              "source_record_id": "Q1410402",
+              "source_revision": "2506985237"
+            }
+          ],
+          "value": 50.611962
+        },
+        {
+          "claim_id": "ctxc_3bbf997c0db3ab5a",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "ef4e2ca5f1dba60d875c21f2700a7e2ebafefa165deb5f1c3ff1f1b89a15d567",
+              "source_id": "wikidata",
+              "source_record_id": "Q1410402",
+              "source_revision": "2506985237"
+            }
+          ],
+          "value": 3.130631
+        },
+        {
+          "claim_id": "ctxc_bb7e81f84f2b9173",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "ef4e2ca5f1dba60d875c21f2700a7e2ebafefa165deb5f1c3ff1f1b89a15d567",
+              "source_id": "wikidata",
+              "source_record_id": "Q1410402",
+              "source_revision": "2506985237"
+            }
+          ],
+          "value": 50000
+        }
+      ],
+      "entity_id": "venue_69813149bf619314",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Lille OSC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q1410402",
+          "source_revision": "2506985237"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Emirates Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_7ad1b92ee54fdd62",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Arsenal FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Emirates Stadium"
+        },
+        {
+          "claim_id": "ctxc_8b38b683d14a1feb",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Arsenal FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "London"
+        },
+        {
+          "claim_id": "ctxc_99dab0534cfa16c1",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "34768ad926cb0ae9c34db31c7dc78ce3717f77fd1ba4e7876138b10c279acff6",
+              "source_id": "wikidata",
+              "source_record_id": "Q163995",
+              "source_revision": "2522606544"
+            }
+          ],
+          "value": 51.555
+        },
+        {
+          "claim_id": "ctxc_d02fe50afad3cfb8",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "34768ad926cb0ae9c34db31c7dc78ce3717f77fd1ba4e7876138b10c279acff6",
+              "source_id": "wikidata",
+              "source_record_id": "Q163995",
+              "source_revision": "2522606544"
+            }
+          ],
+          "value": -0.10833333333333334
+        },
+        {
+          "claim_id": "ctxc_5824fa70b3543f1f",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "34768ad926cb0ae9c34db31c7dc78ce3717f77fd1ba4e7876138b10c279acff6",
+              "source_id": "wikidata",
+              "source_record_id": "Q163995",
+              "source_revision": "2522606544"
+            }
+          ],
+          "value": 60338
+        }
+      ],
+      "entity_id": "venue_6ab6a4185bea1dde",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Arsenal FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q163995",
+          "source_revision": "2522606544"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Selhurst Park",
+      "claims": [
+        {
+          "claim_id": "ctxc_0556d0fe99b37ca9",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Crystal Palace FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Selhurst Park"
+        },
+        {
+          "claim_id": "ctxc_a88dcb8710fd685d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Crystal Palace FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "London"
+        },
+        {
+          "claim_id": "ctxc_c4ca0c63ab7db2be",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "b5834eada19eb95247e4a670b27ce87e94c4b42a5fa07254ce2a71fa254da5d8",
+              "source_id": "wikidata",
+              "source_record_id": "Q1066373",
+              "source_revision": "2460640178"
+            }
+          ],
+          "value": 51.398333333333
+        },
+        {
+          "claim_id": "ctxc_fcc530cf0ae0de5a",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "b5834eada19eb95247e4a670b27ce87e94c4b42a5fa07254ce2a71fa254da5d8",
+              "source_id": "wikidata",
+              "source_record_id": "Q1066373",
+              "source_revision": "2460640178"
+            }
+          ],
+          "value": -0.085555555555556
+        },
+        {
+          "claim_id": "ctxc_68f352005c024fd3",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "b5834eada19eb95247e4a670b27ce87e94c4b42a5fa07254ce2a71fa254da5d8",
+              "source_id": "wikidata",
+              "source_record_id": "Q1066373",
+              "source_revision": "2460640178"
+            }
+          ],
+          "value": 26255
+        }
+      ],
+      "entity_id": "venue_6bf9a36db274d35c",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Crystal Palace FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q1066373",
+          "source_revision": "2460640178"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Anfield",
+      "claims": [
+        {
+          "claim_id": "ctxc_16091688357a831d",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Liverpool FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Anfield"
+        },
+        {
+          "claim_id": "ctxc_fb06ffeed9a5f727",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Liverpool FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Liverpool"
+        },
+        {
+          "claim_id": "ctxc_77eb275a127a8247",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "260627f741f1a5d50903853ca6cb89703462f8fafd2f89c87568db9c29b7e6e7",
+              "source_id": "wikidata",
+              "source_record_id": "Q45671",
+              "source_revision": "2522589168"
+            }
+          ],
+          "value": 53.43083333333333
+        },
+        {
+          "claim_id": "ctxc_46697b3d2e3283fa",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "260627f741f1a5d50903853ca6cb89703462f8fafd2f89c87568db9c29b7e6e7",
+              "source_id": "wikidata",
+              "source_record_id": "Q45671",
+              "source_revision": "2522589168"
+            }
+          ],
+          "value": -2.9608333333333334
+        },
+        {
+          "claim_id": "ctxc_79d351127a23973c",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "260627f741f1a5d50903853ca6cb89703462f8fafd2f89c87568db9c29b7e6e7",
+              "source_id": "wikidata",
+              "source_record_id": "Q45671",
+              "source_revision": "2522589168"
+            }
+          ],
+          "value": 53394
+        }
+      ],
+      "entity_id": "venue_6f0630339814acaa",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Liverpool FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q45671",
+          "source_revision": "2522589168"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
       "canonical_label": "MetLife Stadium",
       "claims": [
         {
@@ -1135,6 +3255,112 @@
           "source_id": "wikidata",
           "source_record_id": "Q10862290",
           "source_revision": "2515863352"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Parc des Princes",
+      "claims": [
+        {
+          "claim_id": "ctxc_f795a36c1af87764",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Paris Saint-Germain",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Parc des Princes"
+        },
+        {
+          "claim_id": "ctxc_c533e7866f8c19bb",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Paris Saint-Germain",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Paris"
+        },
+        {
+          "claim_id": "ctxc_d4914e29619463a4",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e369abec32f8a1a9591c653b2fe8034c8de889cc5f88415dca189dc6d749dab8",
+              "source_id": "wikidata",
+              "source_record_id": "Q193431",
+              "source_revision": "2522618899"
+            }
+          ],
+          "value": 48.84145
+        },
+        {
+          "claim_id": "ctxc_605c3552ea1b84c3",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e369abec32f8a1a9591c653b2fe8034c8de889cc5f88415dca189dc6d749dab8",
+              "source_id": "wikidata",
+              "source_record_id": "Q193431",
+              "source_revision": "2522618899"
+            }
+          ],
+          "value": 2.25305
+        },
+        {
+          "claim_id": "ctxc_7a9d2fe7167ac7ac",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e369abec32f8a1a9591c653b2fe8034c8de889cc5f88415dca189dc6d749dab8",
+              "source_id": "wikidata",
+              "source_record_id": "Q193431",
+              "source_revision": "2522618899"
+            }
+          ],
+          "value": 47930
+        }
+      ],
+      "entity_id": "venue_750b5d38ff9ef40f",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Paris Saint-Germain",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q193431",
+          "source_revision": "2522618899"
         }
       ],
       "resolution_status": "resolved",
@@ -1459,6 +3685,324 @@
       "supersedes": null
     },
     {
+      "canonical_label": "Stadium of Light",
+      "claims": [
+        {
+          "claim_id": "ctxc_5a0f551a5fe28b14",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Sunderland AFC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stadium of Light"
+        },
+        {
+          "claim_id": "ctxc_737d4aebc46a7e97",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Sunderland AFC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Sunderland"
+        },
+        {
+          "claim_id": "ctxc_aba77433822a41d3",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bab2d5c7cb08b1a320eeaceda8821986b1b0cb9c7c660fa8550bca59fcea7ea4",
+              "source_id": "wikidata",
+              "source_record_id": "Q31969",
+              "source_revision": "2516855047"
+            }
+          ],
+          "value": 54.91442906893247
+        },
+        {
+          "claim_id": "ctxc_9ceecc7482dac7e8",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bab2d5c7cb08b1a320eeaceda8821986b1b0cb9c7c660fa8550bca59fcea7ea4",
+              "source_id": "wikidata",
+              "source_record_id": "Q31969",
+              "source_revision": "2516855047"
+            }
+          ],
+          "value": -1.388172971350196
+        },
+        {
+          "claim_id": "ctxc_ce0f66428639e5f1",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bab2d5c7cb08b1a320eeaceda8821986b1b0cb9c7c660fa8550bca59fcea7ea4",
+              "source_id": "wikidata",
+              "source_record_id": "Q31969",
+              "source_revision": "2516855047"
+            }
+          ],
+          "value": 48339
+        }
+      ],
+      "entity_id": "venue_78a1ea7880c39347",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Sunderland AFC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q31969",
+          "source_revision": "2516855047"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Rhein-Neckar-Arena",
+      "claims": [
+        {
+          "claim_id": "ctxc_d6fe9a0037751706",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:TSG 1899 Hoffenheim",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Rhein-Neckar-Arena"
+        },
+        {
+          "claim_id": "ctxc_2745821044ce74f8",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:TSG 1899 Hoffenheim",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Sinsheim"
+        },
+        {
+          "claim_id": "ctxc_3272966e921047a4",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a0c1d6f267445141a17c04ce0f24b697aea334f21109ef15b5641685a2e59654",
+              "source_id": "wikidata",
+              "source_record_id": "Q129870",
+              "source_revision": "2521197645"
+            }
+          ],
+          "value": 49.239
+        },
+        {
+          "claim_id": "ctxc_788797330ec27471",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a0c1d6f267445141a17c04ce0f24b697aea334f21109ef15b5641685a2e59654",
+              "source_id": "wikidata",
+              "source_record_id": "Q129870",
+              "source_revision": "2521197645"
+            }
+          ],
+          "value": 8.888278
+        },
+        {
+          "claim_id": "ctxc_f8b9bbf62542ec51",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a0c1d6f267445141a17c04ce0f24b697aea334f21109ef15b5641685a2e59654",
+              "source_id": "wikidata",
+              "source_record_id": "Q129870",
+              "source_revision": "2521197645"
+            }
+          ],
+          "value": 30150
+        }
+      ],
+      "entity_id": "venue_82e2e239b2bebfb5",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:TSG 1899 Hoffenheim",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q129870",
+          "source_revision": "2521197645"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Stade Vélodrome",
+      "claims": [
+        {
+          "claim_id": "ctxc_e1e3aed8c731dafa",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Olympique de Marseille",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stade Vélodrome"
+        },
+        {
+          "claim_id": "ctxc_bce71192c4592775",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Olympique de Marseille",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Marseille"
+        },
+        {
+          "claim_id": "ctxc_557cabd410c02b77",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "ed737ba8d2fe2fb4a067e2adcfd78a56deecc1144248732023df00a2206787f2",
+              "source_id": "wikidata",
+              "source_record_id": "Q202150",
+              "source_revision": "2522620766"
+            }
+          ],
+          "value": 43.269241
+        },
+        {
+          "claim_id": "ctxc_c35ae3d63fa5c217",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "ed737ba8d2fe2fb4a067e2adcfd78a56deecc1144248732023df00a2206787f2",
+              "source_id": "wikidata",
+              "source_record_id": "Q202150",
+              "source_revision": "2522620766"
+            }
+          ],
+          "value": 5.394907
+        },
+        {
+          "claim_id": "ctxc_1a9253d5055f9600",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "ed737ba8d2fe2fb4a067e2adcfd78a56deecc1144248732023df00a2206787f2",
+              "source_id": "wikidata",
+              "source_record_id": "Q202150",
+              "source_revision": "2522620766"
+            }
+          ],
+          "value": 67394
+        }
+      ],
+      "entity_id": "venue_83a8e94fe4250a3a",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Olympique de Marseille",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q202150",
+          "source_revision": "2522620766"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
       "canonical_label": "SoFi Stadium",
       "claims": [
         {
@@ -1571,6 +4115,112 @@
           "source_id": "openfootball-worldcup-json",
           "source_record_id": "2026/stadium:Los Angeles (Inglewood)",
           "source_revision": "056c53ec82feb3fb68da63d1ce74ec59fc23e95d"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Allianz Arena",
+      "claims": [
+        {
+          "claim_id": "ctxc_692dc1902a56783a",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Bayern München",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Allianz Arena"
+        },
+        {
+          "claim_id": "ctxc_d16fc710d67c2f70",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Bayern München",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "München"
+        },
+        {
+          "claim_id": "ctxc_25419c669fc04d26",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "53e62158c7c5baa9c47359eb5364e91e09d4c756309eb74b280b1b14c961b984",
+              "source_id": "wikidata",
+              "source_record_id": "Q127429",
+              "source_revision": "2522802229"
+            }
+          ],
+          "value": 48.218775
+        },
+        {
+          "claim_id": "ctxc_56ce0040507ac89c",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "53e62158c7c5baa9c47359eb5364e91e09d4c756309eb74b280b1b14c961b984",
+              "source_id": "wikidata",
+              "source_record_id": "Q127429",
+              "source_revision": "2522802229"
+            }
+          ],
+          "value": 11.624752777778
+        },
+        {
+          "claim_id": "ctxc_63267a95e6fc7a97",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "53e62158c7c5baa9c47359eb5364e91e09d4c756309eb74b280b1b14c961b984",
+              "source_id": "wikidata",
+              "source_record_id": "Q127429",
+              "source_revision": "2522802229"
+            }
+          ],
+          "value": 66000
+        }
+      ],
+      "entity_id": "venue_8ad87cde497302b7",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:Bayern München",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q127429",
+          "source_revision": "2522802229"
         }
       ],
       "resolution_status": "resolved",
@@ -1899,6 +4549,218 @@
       "supersedes": null
     },
     {
+      "canonical_label": "Stade Océane",
+      "claims": [
+        {
+          "claim_id": "ctxc_d533a44c64debf4f",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Le Havre AC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stade Océane"
+        },
+        {
+          "claim_id": "ctxc_cd62a958e697778d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Le Havre AC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Le Havre"
+        },
+        {
+          "claim_id": "ctxc_eeb69f26d8a98586",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "d23159b9dc903e5c46993687685ca5d2d2d2fd5558793e8901b184df515e28d4",
+              "source_id": "wikidata",
+              "source_record_id": "Q219462",
+              "source_revision": "2516536915"
+            }
+          ],
+          "value": 49.4988
+        },
+        {
+          "claim_id": "ctxc_cec6dd02c34b4e24",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "d23159b9dc903e5c46993687685ca5d2d2d2fd5558793e8901b184df515e28d4",
+              "source_id": "wikidata",
+              "source_record_id": "Q219462",
+              "source_revision": "2516536915"
+            }
+          ],
+          "value": 0.1697
+        },
+        {
+          "claim_id": "ctxc_2a8fb78da561f47b",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "d23159b9dc903e5c46993687685ca5d2d2d2fd5558793e8901b184df515e28d4",
+              "source_id": "wikidata",
+              "source_record_id": "Q219462",
+              "source_revision": "2516536915"
+            }
+          ],
+          "value": 25178
+        }
+      ],
+      "entity_id": "venue_963fa5edb19cb297",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Le Havre AC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q219462",
+          "source_revision": "2516536915"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Old Trafford",
+      "claims": [
+        {
+          "claim_id": "ctxc_0b8e8bbbb29ae773",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Manchester United FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Old Trafford"
+        },
+        {
+          "claim_id": "ctxc_04f06acb92bf36bf",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Manchester United FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Manchester"
+        },
+        {
+          "claim_id": "ctxc_df771aa29f8d8801",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "19f9f0883d07176e36028f7f9608f4219085b3bf21b27bc72d55cb7f874cced4",
+              "source_id": "wikidata",
+              "source_record_id": "Q83457",
+              "source_revision": "2522594434"
+            }
+          ],
+          "value": 53.463055555556
+        },
+        {
+          "claim_id": "ctxc_2b577d733e1f595d",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "19f9f0883d07176e36028f7f9608f4219085b3bf21b27bc72d55cb7f874cced4",
+              "source_id": "wikidata",
+              "source_record_id": "Q83457",
+              "source_revision": "2522594434"
+            }
+          ],
+          "value": -2.2913888888889
+        },
+        {
+          "claim_id": "ctxc_d5db41b5d60683e8",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "19f9f0883d07176e36028f7f9608f4219085b3bf21b27bc72d55cb7f874cced4",
+              "source_id": "wikidata",
+              "source_record_id": "Q83457",
+              "source_revision": "2522594434"
+            }
+          ],
+          "value": 75731
+        }
+      ],
+      "entity_id": "venue_96a3d111981f91b0",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Manchester United FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q83457",
+          "source_revision": "2522594434"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
       "canonical_label": "NRG Stadium",
       "claims": [
         {
@@ -2052,6 +4914,218 @@
           "source_id": "wikidata",
           "source_record_id": "Q1058864",
           "source_revision": "2515304678"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Stade Francis Le Blé",
+      "claims": [
+        {
+          "claim_id": "ctxc_f3500d8d95c4de6b",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Stade Brestois 29",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stade Francis Le Blé"
+        },
+        {
+          "claim_id": "ctxc_385367968050ceaf",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Stade Brestois 29",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Brest"
+        },
+        {
+          "claim_id": "ctxc_af2db76640408fd5",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "fc569f7be58b28efb58cd380e52ded3aa9b988647486723cb2c9fe1aeb64f02b",
+              "source_id": "wikidata",
+              "source_record_id": "Q1432517",
+              "source_revision": "2493159071"
+            }
+          ],
+          "value": 48.40293
+        },
+        {
+          "claim_id": "ctxc_859ad02921e40da5",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "fc569f7be58b28efb58cd380e52ded3aa9b988647486723cb2c9fe1aeb64f02b",
+              "source_id": "wikidata",
+              "source_record_id": "Q1432517",
+              "source_revision": "2493159071"
+            }
+          ],
+          "value": -4.46148
+        },
+        {
+          "claim_id": "ctxc_2bff25437d56561b",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "fc569f7be58b28efb58cd380e52ded3aa9b988647486723cb2c9fe1aeb64f02b",
+              "source_id": "wikidata",
+              "source_record_id": "Q1432517",
+              "source_revision": "2493159071"
+            }
+          ],
+          "value": 15097
+        }
+      ],
+      "entity_id": "venue_a6c1a72e725e22cc",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Stade Brestois 29",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q1432517",
+          "source_revision": "2493159071"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Craven Cottage",
+      "claims": [
+        {
+          "claim_id": "ctxc_400c5116852c9430",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Fulham FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Craven Cottage"
+        },
+        {
+          "claim_id": "ctxc_133559dea59e19ee",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Fulham FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "London"
+        },
+        {
+          "claim_id": "ctxc_958ad7b77fbb91ae",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "cc7d9f5933f7812bda62d00c9a6f476bfc2b0995815c882044729ca76215d6b2",
+              "source_id": "wikidata",
+              "source_record_id": "Q318043",
+              "source_revision": "2519886283"
+            }
+          ],
+          "value": 51.475
+        },
+        {
+          "claim_id": "ctxc_cd23eecb208aabdf",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "cc7d9f5933f7812bda62d00c9a6f476bfc2b0995815c882044729ca76215d6b2",
+              "source_id": "wikidata",
+              "source_record_id": "Q318043",
+              "source_revision": "2519886283"
+            }
+          ],
+          "value": -0.22166666666667
+        },
+        {
+          "claim_id": "ctxc_d8d2c1b6e786df7f",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "cc7d9f5933f7812bda62d00c9a6f476bfc2b0995815c882044729ca76215d6b2",
+              "source_id": "wikidata",
+              "source_record_id": "Q318043",
+              "source_revision": "2519886283"
+            }
+          ],
+          "value": 25700
+        }
+      ],
+      "entity_id": "venue_b4191571c19eb275",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Fulham FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q318043",
+          "source_revision": "2519886283"
         }
       ],
       "resolution_status": "resolved",
@@ -2379,6 +5453,112 @@
       "supersedes": null
     },
     {
+      "canonical_label": "Mercedes-Benz Arena",
+      "claims": [
+        {
+          "claim_id": "ctxc_74f4a79617c7787c",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:VfB Stuttgart",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Mercedes-Benz Arena"
+        },
+        {
+          "claim_id": "ctxc_c90b9a8fc0a7c63a",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:VfB Stuttgart",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stuttgart"
+        },
+        {
+          "claim_id": "ctxc_603e27692c50b97f",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "22d408a3f95fa2f8ad7f29efdcb897ca22e889315793b84bdb2101145cbffc66",
+              "source_id": "wikidata",
+              "source_record_id": "Q152349",
+              "source_revision": "2517428706"
+            }
+          ],
+          "value": 48.792222
+        },
+        {
+          "claim_id": "ctxc_38c31ee819ea2d12",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "22d408a3f95fa2f8ad7f29efdcb897ca22e889315793b84bdb2101145cbffc66",
+              "source_id": "wikidata",
+              "source_record_id": "Q152349",
+              "source_revision": "2517428706"
+            }
+          ],
+          "value": 9.231944
+        },
+        {
+          "claim_id": "ctxc_d03ab08d93711f0c",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "22d408a3f95fa2f8ad7f29efdcb897ca22e889315793b84bdb2101145cbffc66",
+              "source_id": "wikidata",
+              "source_record_id": "Q152349",
+              "source_revision": "2517428706"
+            }
+          ],
+          "value": 60058
+        }
+      ],
+      "entity_id": "venue_cbdadc4df055423e",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:VfB Stuttgart",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q152349",
+          "source_revision": "2517428706"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
       "canonical_label": "BMO Field",
       "claims": [
         {
@@ -2533,6 +5713,748 @@
           "source_id": "wikidata",
           "source_record_id": "Q796351",
           "source_revision": "2513754951"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Griffin Park",
+      "claims": [
+        {
+          "claim_id": "ctxc_49dbc5e93735051e",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Brentford FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Griffin Park"
+        },
+        {
+          "claim_id": "ctxc_f92822bc5c37d7ed",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Brentford FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "London"
+        },
+        {
+          "claim_id": "ctxc_d5e5da6f1db3d5bc",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "3c66ad34cf18eeb600f5f42a50768ab64c42903ff1a5fe7f32f630137b991056",
+              "source_id": "wikidata",
+              "source_record_id": "Q1546623",
+              "source_revision": "2438044756"
+            }
+          ],
+          "value": 51.488167
+        },
+        {
+          "claim_id": "ctxc_3b85a4cb5d6af7d9",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "3c66ad34cf18eeb600f5f42a50768ab64c42903ff1a5fe7f32f630137b991056",
+              "source_id": "wikidata",
+              "source_record_id": "Q1546623",
+              "source_revision": "2438044756"
+            }
+          ],
+          "value": -0.302639
+        },
+        {
+          "claim_id": "ctxc_bbbef9c4687282ff",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "3c66ad34cf18eeb600f5f42a50768ab64c42903ff1a5fe7f32f630137b991056",
+              "source_id": "wikidata",
+              "source_record_id": "Q1546623",
+              "source_revision": "2438044756"
+            }
+          ],
+          "value": 14863
+        }
+      ],
+      "entity_id": "venue_d099ce23e18111cc",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Brentford FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q1546623",
+          "source_revision": "2438044756"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Signal Iduna Park",
+      "claims": [
+        {
+          "claim_id": "ctxc_3150859203760a86",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Borussia Dortmund",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Signal Iduna Park"
+        },
+        {
+          "claim_id": "ctxc_9211835281935e74",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Borussia Dortmund",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Dortmund"
+        },
+        {
+          "claim_id": "ctxc_9e1a39d6c6958902",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "6610ce1bbf3c2e469841bba67516c4cd535425b8e7d01dc94d4deb31f8084118",
+              "source_id": "wikidata",
+              "source_record_id": "Q150928",
+              "source_revision": "2522603096"
+            }
+          ],
+          "value": 51.4925
+        },
+        {
+          "claim_id": "ctxc_45a33f4fa7ab2329",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "6610ce1bbf3c2e469841bba67516c4cd535425b8e7d01dc94d4deb31f8084118",
+              "source_id": "wikidata",
+              "source_record_id": "Q150928",
+              "source_revision": "2522603096"
+            }
+          ],
+          "value": 7.451667
+        },
+        {
+          "claim_id": "ctxc_b6221b267e753540",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "6610ce1bbf3c2e469841bba67516c4cd535425b8e7d01dc94d4deb31f8084118",
+              "source_id": "wikidata",
+              "source_record_id": "Q150928",
+              "source_revision": "2522603096"
+            }
+          ],
+          "value": 81359
+        }
+      ],
+      "entity_id": "venue_d463a36e1c420ff2",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:Borussia Dortmund",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q150928",
+          "source_revision": "2522603096"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Groupama Stadium",
+      "claims": [
+        {
+          "claim_id": "ctxc_d742b3cbd7ab24d1",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Olympique Lyonnais",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Groupama Stadium"
+        },
+        {
+          "claim_id": "ctxc_b054172e26a67334",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Olympique Lyonnais",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Lyon"
+        },
+        {
+          "claim_id": "ctxc_1936d8e6cf8e51d8",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "128aff00fcbd21806992ce1a30247f69b21cad04276f37fbf51a9cd4b5ac1fe4",
+              "source_id": "wikidata",
+              "source_record_id": "Q8507",
+              "source_revision": "2517800242"
+            }
+          ],
+          "value": 45.765224
+        },
+        {
+          "claim_id": "ctxc_4027a713773ca125",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "128aff00fcbd21806992ce1a30247f69b21cad04276f37fbf51a9cd4b5ac1fe4",
+              "source_id": "wikidata",
+              "source_record_id": "Q8507",
+              "source_revision": "2517800242"
+            }
+          ],
+          "value": 4.982131
+        },
+        {
+          "claim_id": "ctxc_b1aaa66d4d718f82",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "128aff00fcbd21806992ce1a30247f69b21cad04276f37fbf51a9cd4b5ac1fe4",
+              "source_id": "wikidata",
+              "source_record_id": "Q8507",
+              "source_revision": "2517800242"
+            }
+          ],
+          "value": 59286
+        }
+      ],
+      "entity_id": "venue_db5070296db7f24f",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Olympique Lyonnais",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q8507",
+          "source_revision": "2517800242"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Villa Park",
+      "claims": [
+        {
+          "claim_id": "ctxc_a56b12c16a2070a7",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Aston Villa FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Villa Park"
+        },
+        {
+          "claim_id": "ctxc_00e78db6f1796530",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Aston Villa FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Birmingham"
+        },
+        {
+          "claim_id": "ctxc_a2272e9a747649a8",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "206996da677e0b22c8be5a5104a0b512cfe809ecaf3cf23e32913d287d8180cd",
+              "source_id": "wikidata",
+              "source_record_id": "Q175339",
+              "source_revision": "2504219260"
+            }
+          ],
+          "value": 52.509166666667
+        },
+        {
+          "claim_id": "ctxc_2faa3911a73d5ca2",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "206996da677e0b22c8be5a5104a0b512cfe809ecaf3cf23e32913d287d8180cd",
+              "source_id": "wikidata",
+              "source_record_id": "Q175339",
+              "source_revision": "2504219260"
+            }
+          ],
+          "value": -1.8847222222222
+        },
+        {
+          "claim_id": "ctxc_cc2cd04f83e03c9f",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "206996da677e0b22c8be5a5104a0b512cfe809ecaf3cf23e32913d287d8180cd",
+              "source_id": "wikidata",
+              "source_record_id": "Q175339",
+              "source_revision": "2504219260"
+            }
+          ],
+          "value": 42640
+        }
+      ],
+      "entity_id": "venue_e940feec128d41b4",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Aston Villa FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q175339",
+          "source_revision": "2504219260"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Stade Bollaert-Delelis",
+      "claims": [
+        {
+          "claim_id": "ctxc_7e9cfbbad577b330",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:RC Lens",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Stade Bollaert-Delelis"
+        },
+        {
+          "claim_id": "ctxc_c3b8045fa34acd15",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:RC Lens",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Lens"
+        },
+        {
+          "claim_id": "ctxc_c1a9c5c9929fad75",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a5e27a4aef37fcce3021aeae2c11c58a16cb690238a3d056489ee8f360d38869",
+              "source_id": "wikidata",
+              "source_record_id": "Q854122",
+              "source_revision": "2522673573"
+            }
+          ],
+          "value": 50.4329
+        },
+        {
+          "claim_id": "ctxc_16d581c05efe3f7f",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a5e27a4aef37fcce3021aeae2c11c58a16cb690238a3d056489ee8f360d38869",
+              "source_id": "wikidata",
+              "source_record_id": "Q854122",
+              "source_revision": "2522673573"
+            }
+          ],
+          "value": 2.81491
+        },
+        {
+          "claim_id": "ctxc_4417b76767fc0aa1",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a5e27a4aef37fcce3021aeae2c11c58a16cb690238a3d056489ee8f360d38869",
+              "source_id": "wikidata",
+              "source_record_id": "Q854122",
+              "source_revision": "2522673573"
+            }
+          ],
+          "value": 38058
+        }
+      ],
+      "entity_id": "venue_ef1d75fc390a9873",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:RC Lens",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q854122",
+          "source_revision": "2522673573"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Weserstadion",
+      "claims": [
+        {
+          "claim_id": "ctxc_e27449e558f92fd1",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Werder Bremen",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Weserstadion"
+        },
+        {
+          "claim_id": "ctxc_3c85c374c4c890cb",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Werder Bremen",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Bremen"
+        },
+        {
+          "claim_id": "ctxc_e46019700611ed39",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bff00f5d6f0a7b00012946053900cfcb1058152c16b002fcd22daea994dd7341",
+              "source_id": "wikidata",
+              "source_record_id": "Q154475",
+              "source_revision": "2517439094"
+            }
+          ],
+          "value": 53.066389
+        },
+        {
+          "claim_id": "ctxc_34eb4a54047f4403",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bff00f5d6f0a7b00012946053900cfcb1058152c16b002fcd22daea994dd7341",
+              "source_id": "wikidata",
+              "source_record_id": "Q154475",
+              "source_revision": "2517439094"
+            }
+          ],
+          "value": 8.8375
+        },
+        {
+          "claim_id": "ctxc_c0d6c844ac1063e1",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bff00f5d6f0a7b00012946053900cfcb1058152c16b002fcd22daea994dd7341",
+              "source_id": "wikidata",
+              "source_record_id": "Q154475",
+              "source_revision": "2517439094"
+            }
+          ],
+          "value": 42500
+        }
+      ],
+      "entity_id": "venue_f5cd91ca62885313",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:Werder Bremen",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q154475",
+          "source_revision": "2517439094"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "St James' Park",
+      "claims": [
+        {
+          "claim_id": "ctxc_fda222c68079d3ba",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "ground",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Newcastle United FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "St James' Park"
+        },
+        {
+          "claim_id": "ctxc_c800de09d7b001b7",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Newcastle United FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Newcastle upon Tyne"
+        },
+        {
+          "claim_id": "ctxc_1b2e0e0db8ad6a14",
+          "field": "latitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e88b5197581097e1c7c64ff84efb68f6ccacc32e5563862158e6317be918da71",
+              "source_id": "wikidata",
+              "source_record_id": "Q191774",
+              "source_revision": "2522617708"
+            }
+          ],
+          "value": 54.975555555556
+        },
+        {
+          "claim_id": "ctxc_6512ebbd6cf96486",
+          "field": "longitude",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P625",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e88b5197581097e1c7c64ff84efb68f6ccacc32e5563862158e6317be918da71",
+              "source_id": "wikidata",
+              "source_record_id": "Q191774",
+              "source_revision": "2522617708"
+            }
+          ],
+          "value": -1.6216666666667
+        },
+        {
+          "claim_id": "ctxc_25adbb9c35a7d6f7",
+          "field": "capacity",
+          "language": null,
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "P1083",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "e88b5197581097e1c7c64ff84efb68f6ccacc32e5563862158e6317be918da71",
+              "source_id": "wikidata",
+              "source_record_id": "Q191774",
+              "source_revision": "2522617708"
+            }
+          ],
+          "value": 52305
+        }
+      ],
+      "entity_id": "venue_fc17c1fbef2b7615",
+      "entity_kind": "venue",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Newcastle United FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        },
+        {
+          "source_id": "wikidata",
+          "source_record_id": "Q191774",
+          "source_revision": "2522617708"
         }
       ],
       "resolution_status": "resolved",

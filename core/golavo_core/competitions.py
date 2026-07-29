@@ -60,9 +60,13 @@ def _base_capabilities() -> dict[str, dict[str, Any]]:
         "conditions": _capability(
             "partial",
             "Rest is available when a prior indexed match exists; city, local-time, and "
-            "travel context require an exact city-country resolution. Stadium remains unknown.",
+            "travel context require an exact city-country resolution. A stadium is shown only "
+            "where a pinned CC0 ground and the club's Wikidata home venue agree, which they do "
+            "for 37 of the 46 current top-flight clubs upstream names a ground for.",
             "geonames",
             "natural-earth",
+            "openfootball-clubs",
+            "wikidata",
         ),
         "simulation": _capability(
             "blocked", "Verified rules and complete remaining fixtures are required."

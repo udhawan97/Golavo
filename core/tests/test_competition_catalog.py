@@ -81,9 +81,13 @@ def test_capabilities_never_claim_blocked_features_are_available() -> None:
         assert item["capabilities"]["weather_context"]["status"] == "partial"
         assert item["capabilities"]["weather_context"]["source_ids"] == ["open-meteo"]
         assert item["capabilities"]["conditions"]["status"] == "partial"
+        # A stadium claim needs both a pinned CC0 ground and the Wikidata home
+        # venue that corroborates it, so both are cited alongside the geo sources.
         assert item["capabilities"]["conditions"]["source_ids"] == [
             "geonames",
             "natural-earth",
+            "openfootball-clubs",
+            "wikidata",
         ]
     assert catalog["refresh_policy"]["byok_api"] == "blocked"
 

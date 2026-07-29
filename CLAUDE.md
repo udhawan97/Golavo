@@ -83,6 +83,8 @@ Env vars (all seven): `GOLAVO_TOKEN`, `GOLAVO_DATA_DIR`, `GOLAVO_HOST`, `GOLAVO_
 |---|---|
 | `data/index/*` | `make index` |
 | `data/context/manifest.json` | `scripts/build_context_manifest.py` |
+| `data/context/venue_*` (World Cup) | `scripts/build_venue_context.py` |
+| `data/context/venue_*` (clubs) + `club_venue_allowlist.json` | `scripts/build_club_venue_context.py`, then rebuild the context manifest |
 | `data/enrichment/*` | `scripts/build_geo_enrichment.py` |
 | `data/fixtures/sample_artifacts/` | `scripts/generate_sample_artifacts.py` |
 | `THIRD_PARTY_NOTICES.md` | `scripts/gen_third_party_notices.py` |

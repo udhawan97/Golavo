@@ -22,7 +22,7 @@
         "additionalProperties": false,
         "required": ["source_id", "upstream_ref", "retrieved_at_utc", "manifest_sha256", "license", "attribution"],
         "properties": {
-          "source_id": {"enum": ["geonames", "natural-earth", "wikidata", "openfootball-worldcup-json"]},
+          "source_id": {"enum": ["geonames", "natural-earth", "wikidata", "openfootball-worldcup-json", "openfootball-clubs"]},
           "upstream_ref": {"type": "string", "minLength": 1},
           "retrieved_at_utc": {"type": "string", "format": "date-time"},
           "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},

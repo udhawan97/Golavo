@@ -11,7 +11,7 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTEXT_VERSION = "2026.07.15.1"
+CONTEXT_VERSION = "2026.07.29.1"
 CREATED_AT = "2026-07-15T18:00:00Z"
 RUNTIME_PATHS = (
     "data/enrichment/places.json",
@@ -20,11 +20,18 @@ RUNTIME_PATHS = (
     "data/context/venue_entities.json",
     "data/context/venue_assignments.json",
 )
-SOURCE_IDS = (
-    "geonames",
-    "natural-earth",
-    "openfootball-worldcup-json",
-    "wikidata",
+# Every source that may appear in the runtime context. Attribution is emitted per
+# PACK rather than per source id: two packs now carry Wikidata entities (the World
+# Cup stadiums and the club grounds), each pinned to its own entity revisions, and
+# keying by source id silently dropped whichever one lost the collision.
+SOURCE_IDS = frozenset(
+    {
+        "geonames",
+        "natural-earth",
+        "openfootball-worldcup-json",
+        "openfootball-clubs",
+        "wikidata",
+    }
 )
 
 
@@ -41,12 +48,14 @@ def main() -> None:
         item["source_id"]: item
         for item in _read("data/sources/registry.json")["sources"]
     }
-    enrichments = {
-        item["source_id"]: item for item in _read("packs/enrichment.json")["snapshots"]
-    }
+    enrichments = sorted(
+        _read("packs/enrichment.json")["snapshots"], key=lambda item: item["pack"]
+    )
     sources = []
-    for source_id in SOURCE_IDS:
-        snapshot = enrichments[source_id]
+    for snapshot in enrichments:
+        source_id = str(snapshot["source_id"])
+        if source_id not in SOURCE_IDS:
+            raise ValueError(f"{snapshot['pack']}: {source_id} is not a declared context source")
         source = source_registry[source_id]
         sources.append(
             {

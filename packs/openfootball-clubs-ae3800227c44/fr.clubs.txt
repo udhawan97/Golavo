@@ -1,0 +1,336 @@
+====================================
+=  France
+
+#  note: see mc.txt for monaco
+
+
+Paris Saint-Germain, 1970, @ Parc des Princes,   Paris › Île-de-France
+  | Paris
+  | Paris SG | Paris St. Germain | Paris S. Germain | Paris Saint Germain
+  | Paris Saint-Germain FC
+  | Paris-Saint-Germain Football Club
+
+Paris FC,            Paris › Île-de-France
+  | Paris FC 98
+  | Paris Football Club
+
+##
+# Red Star History
+# - Red Star FC 93 (2003-2012)
+# - Red Star FC (2012-)
+Red Star FC,   Saint-Ouen › Île-de-France
+  | Red Star | Red Star 93
+  | Red Star Football Club
+
+
+Racing Club de France, 1882,    Paris (Colombes) › Île-de-France
+  | Racing Club de France Football
+  | Racing Paris
+  | RCF Paris
+  ## also known as Matra Racing, Racing Club, or Racing
+
+FC Versailles,  Paris (Paris 16)
+ |  Football Club de Versailles 78
+ | Versailles
+
+
+
+
+Amiens SC,             Amiens   › Hauts-de-France
+  | Amiens
+  | Amiens Sporting Club Football
+FC Chambly, 1989,   Chambly › Hauts-de-France
+  | Chambly
+  | Football Club Chambly Oise
+  | Football Club de Chambly Oise
+Angers SCO, 1919,            Angers   › Pays de la Loire   ##  Maine-et-Loire > Pays de la Loire
+  | Angers | Angers Sporting Club de l'Ouest | SCO Angers
+Girondins de Bordeaux, 1881, Bordeaux › Nouvelle-Aquitaine     ## Gironde > Aquitaine
+  | Bordeaux | Gir. Bordeaux | Girondins Bordeaux
+  | FC Girondins Bordeaux | FC Girondins de Bordeaux
+  | Football Club des Girondins de Bordeaux
+
+Stade Malherbe Caen,  1913,   Caen     ## Calvados > Lower Normandy
+  | Caen |  SM Caen | Stade Malherbe de Caen
+  | Stade Malherbe Caen-Calvados Basse-Normandie
+
+Dijon FCO, Dijon
+  | Dijon | FCO Dijon | Dijon Football | Dijon Football Côte-d'Or
+
+
+EA Guingamp, 1912, Guingamp   ## Côtes-d'Armor > Brittany
+  | Guingamp | En Avant Guingamp | En Avant de Guingamp
+Lille OSC,  1944,  @ Stade Pierre-Mauroy,   Lille      ## Nord > Nord-Pas-de-Calais
+  | Lille  | LOSC | LOSC Lille | OSC Lille
+  | Lille Olympique Sporting Club Lille Métropole
+Olympique Lyonnais, 1899,  @ Groupama Stadium,  Lyon      ## Lyon > Rhône-Alpes
+  | Lyon | Ol. Lyon | Olymp. Lyon | Olympique Lyon
+
+Olympique de Marseille, 1899,  @ Stade Vélodrome,  Marseille   ## Bouches-du-Rhône > Provence-Alpes-Côte d'Azur
+  | Marseille
+  | Ol. Marseille | Olymp. Marseille | Olympique Marseille
+
+FC Metz, 1932,  @ Stade Saint-Symphorien,  Metz      ## Moselle > Lorraine
+  | Metz | Football Club de Metz
+
+Montpellier HSC, 1974,  @ Stade de la Mosson,  Montpellier     ## Hérault > Languedoc-Roussillon
+  | Montpellier | HSC Montpellier | Montpellier Hérault SC
+  | Montpellier-Herault Sports Club
+  | Montpellier-Hérault Sport Club
+
+FC Nantes, 1943,  @ Stade de la Beaujoire-Louis Fonteneau,   Nantes      ## Loire-Atlantique > Pays de la Loire
+  | Nantes
+  | Football Club de Nantes
+  | Football Club de Nantes Atlantique
+OGC Nice, 1904,   @ Allianz Riviera,  Nice    ## Alpes-Maritimes > Provence-Alpes-Côte d'Azur
+  | Nice
+  | Olympique Gymnaste Club Nice Côte d'Azur
+  | Olympique Club Gymnaste Club de Nice-Côte d'Azur
+  | OGC Nizza [de]
+
+Stade Rennais FC, 1901,   @ Roazhon Park,  Rennes    ## Ille-et-Vilaine > Brittany
+  | Rennes | Stade Rennes
+  | Stade Rennais | Stade Rennais Football Club
+  | Stade Rennais FC 1901
+
+AS Saint-Étienne, 1919,  Saint-Étienne     ## Loire > Rhône-Alpes
+  | St-Étienne | Saint-Étienne
+  | AS St-Étienne | AS St. Étienne
+  | Association Sportive de Saint-Étienne
+  | Association Sportive de Saint-Étienne Loire
+
+RC Strasbourg,  @ Stade de la Meinau,  Strasbourg
+  | Strasbourg | Racing Strasbourg | RC Strasbourg Alsace
+  | Racing Club de Strasbourg Alsace
+  | Racing Straßburg [de]
+Toulouse FC, 1970,   @ Le Stadium,    Toulouse     ## Haute-Garonne > Midi-Pyrénées
+  | Toulouse | Toulouse Football Club | FC Toulouse
+ES Troyes AC, 1986, Troyes      ## Aube > Champagne-Ardenne
+  | Troyes | ESTAC Troyes | Espérance Sportive Troyes Aube Champagne
+  | Troyes AC
+Stade de Reims, 1931,  @ Stade Auguste-Delaune,  Reims    ## Marne > Champagne-Ardenne
+  | Reims | Stade Reims
+  | Stade de Reims Champagne
+Nîmes Olympique, Nîmes
+  | Nîmes | Olympique Nîmes | Nîmes Olympique SC
+
+AC Ajaccio, 1910,  Ajaccio   ## Corse-du-Sud > Corsica
+  | Ajaccio | Athletic Club Ajaccien
+GFC Ajaccio, 1910, Ajaccio    ## Corse-du-Sud > Corsica
+  | Ajaccio GFCO
+  | Gazélec Ajaccio | Gazélec Football Club Ajaccio
+
+AJ Auxerre, Auxerre
+  | Auxerre | Association de la Jeunesse Auxerroise
+Bourg-en-Bresse 01, Bourg-en-Bresse     ## use - Football Bourg-en-Bresse Péronnas 01 - why? why not?
+  | Bourg Peronnas | FC Bourg Peronnas
+Stade Brestois 29,  @ Stade Francis Le Blé,   Brest
+  | Brest | Stade Brest | Stade Brestois
+LB Châteauroux, Châteauroux
+  | Châteauroux | La Berrichonne de Châteauroux
+  | La Berrichonne
+
+
+Clermont Foot 63,  @ Stade Gabriel Montpied, Clermont
+  | Clermont | Clermont Foot
+  | Clermont Foot Auvergne
+
+Le Havre AC,  @ Stade Océane,  Le Havre
+  | Le Havre | Havre AC
+  | Le Havre Athletic Club
+  | Le Havre Athletic Club Football
+  | AC Le Havre
+
+RC Lens,  1906,    @ Stade Bollaert-Delelis,   Lens      ## Pas-de-Calais > Nord-Pas-de-Calais
+  | Lens | Racing Club de Lens
+FC Lorient, 1926,  @ Stade du Moustoir - Yves Allainmat,  Lorient     ## Morbihan > Brittany
+  | Lorient  | Football Club Lorient-Bretagne Sud
+  | Football Club Lorient
+AS Nancy Lorraine, Nancy
+  | Nancy | AS Nancy | AS Nancy-Lorraine | Association Sportive Nancy-Lorraine
+Chamois Niortais FC, Niort
+  | Niort |   Chamois Niortais | Chamois Niortais Football Club
+  | FC Chamois Niort
+US Orléans, Orléans
+  | Orléans | Union sportive Orléans Loiret football | US Orléans 45
+
+US Quevilly-Rouen Métropole,  Petit-Quevilly
+  | Quevilly Rouen | Quevilly-Rouen
+  | US Quevilly-Rouen
+  | Union sportive Quevilly-Rouen Métropole
+
+FC Sochaux-Montbéliard, Montbéliard
+  | Football Club Sochaux-Montbéliard
+  | Football Club de Sochaux-Montbéliard
+  | Sochaux | FC Sochaux
+
+
+Tours FC, Tours
+  | Tours | Tours Football Club | FC Tours
+Valenciennes FC, Valenciennes
+  | Valenciennes | Valenciennes Football Club | FC Valenciennes
+
+AC Arles-Avignon, Avignon
+  | Arles | Arles-Avignon | Athletic Club Arles-Avignon
+
+SC Bastia, 1905,  Bastia    ## Haute-Corse > Corsica
+  | Bastia
+  | Sporting Club de Bastia
+  | Sporting Club Bastiais
+
+CA Bastia, Bastia
+
+AS Beauvais Oise,  Beauvais Oise
+  | Beauvais
+
+Racing Besançon, Besançon
+  | Besançon | Besançon RC
+US Boulogne,  Boulogne-sur-Mer
+  | Boulogne
+AS Cannes, Cannes
+  | Cannes
+FCO Charleville, Charleville-Mézières
+  | Charleville
+US Créteil, Créteil
+  | Créteil  | US Créteil-Lusitanos | Union Sportive Créteil-Lusitanos
+SAS Épinal,  Épinal
+  | Épinal
+  | Stade Athletique Spinalien Épinal
+
+Évian TG FC, 2007, Thonon-les-Bains     ## Haute-Savoie > Rhône-Alpes
+  | Évian | Évian TG
+  | Évian Thonon Gaillard
+  | Évian Thonon Gaillard FC | Évian Thonon-Gaillard FC
+  | Évian Thonon Gaillard Football Club
+
+Grenoble Foot 38, Grenoble
+  | Grenoble | Grenoble Foot
+FC Gueugnon, Gueugnon
+  | Gueugnon
+FC Istres, Istres
+  | Istres
+
+Stade Lavallois, Laval
+  | Laval | Stade Lavallois Mayenne Football Club
+  | Stade Lavallois-Mayenne FC
+  | Stade Laval
+
+Le Mans FC,   Le Mans ›  Pays de la Loire
+  | Le Mans | Le Mans Football Club | Le Mans UC 72
+FC Libourne-Saint-Seurin, Libourne
+  | Libourne
+CS Louhans-Cuiseaux,   Louhans  ## and Cuiseaux
+  | Louhans-Cuis.
+
+FC Martigues, Martigues
+  | Football Club de Martigues
+  | Martigues
+
+FC Mulhouse, Mulhouse
+  | Mulhouse
+Perpignan FC,  Canet-en-Roussillon
+  | Perpignan
+
+
+FC Rouen,  Rouen
+  | FC Rouen 1899
+  | Football Club de Rouen 1899
+  | Rouen
+
+
+CS Sedan-Ardennes,  1919, Sedan
+  | Sedan | CS Sedan
+  | Club Sportif Sedan Ardennes
+
+FC Sète,  Sète
+  | Sete
+Stade Briochin, Saint-Brieuc
+  | St Brieuc
+Sporting Toulon Var, Toulon
+  | Toulon
+
+ASOA Valence, Valence   ## use Olympique Valence - why? why not?
+  | Valence
+Vannes OC,   Vannes
+  | Vannes
+Wasquehal Foot, Wasquehal     ## use ES Wasquehal - why? why not?
+  | Wasquehal
+
+Rodez AF, 1929,   Rodez › Occitanie
+  | Rodez | Rodez Aveyron | Rodez Aveyron Football
+
+AS Béziers, 2007,  Béziers › Occitanie
+  | Béziers | Avenir Sportif Béziers      ## check wikipedia -> AS Béziers (2007)
+
+
+Angoulême-Soyaux Charente, 1920, Angoulême
+  | Angoulême | AS Angoulême
+  | Angoulême CFC | Angoulême Charente FC
+# In 2019 following a merger with ASJ Soyaux-Charente
+#   they adopted the current name - Angoulême-Soyaux Charente
+#  name history:
+# AS Angoulême (ASA) (1948-92)
+# AS Angoulême-Charente 92 (ASAC92) (1992-2005)
+# Angoulême Charente Football Club (ACFC) (2005-2019)
+# Angoulême-Soyaux Charente (ASC) (2005-2019)
+
+
+Pau FC,    Pau    # Pyrénées-Atlantiques
+  | Pau Football Club
+  | FC Pau
+  | Pau
+
+# Bleuets Notre-Dame de Pau (1920-1959)
+# FC Pau (1959-1995)
+
+USL Dunkerque,   Dunkerque
+  | Dunkerque
+  | USLD
+  | Union sportive du littoral de Dunkerque
+# Union sportive de Malo-les-Bains (1900-1919)
+# Union sportive Dunkerque-Malo (1919-1927)
+# Union Racing Dunkerque-Malo (1927-1934)
+# Olympique dunkerquois (1934-1954)
+# Union sportive de Dunkerque (1954-1987)
+
+
+Le Puy,  Le Puy-en-Velay
+  | Le Puy Foot 43 Auvergne
+
+US Concarneau,  Concarneau
+  | Union Sportive Concarnoise
+  | Concarneau
+  | US Union Concarnoise
+
+FC Annecy,   Annecy
+  | Football Club d'Annecy
+  | Annecy
+  | Annecy FC
+
+SO Cholet,  Cholet
+  | Stade Olympique Choletais
+  | Cholet
+
+GOAL FC,  Chasselay
+  | Grand Ouest Association Lyonnaise Football Club
+
+Marignane GCB,  Marignane
+  | Marignane Gignac Côte Bleue Football Club
+  | Marignane Gignac CB
+  | Marignane Gignac
+  | Marignane
+  | US Marignane
+
+FC Villefranche,  Villefranche-sur-Saône
+  | Football Club Villefranche Beaujolais
+  | FC Villefranche Beaujolais
+  | FCVB
+  | Villefranche
+
+US Avranches,  Avranches
+  | L'Union Sportive Avranches Mont Saint Michel
+  | Avranches
+
+AS Saint-Priest, Saint-Priest
+  | Association Sportive de Saint Priest
+  | Saint-Priest

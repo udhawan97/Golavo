@@ -40,10 +40,10 @@
       "pin": "f942c6b",
       "citation_key": "fjelstul2023worldcup",
       "fields": "men's (1930-2022) + women's (1991-2019) World Cup history: matches, players, managers, referees, stadiums, events, awards",
-      "attribution": "Fjelstul World Cup Database v1.2.0 \u00a9 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.",
+      "attribution": "Fjelstul World Cup Database v1.2.0 © 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.",
       "share_alike": true,
       "verified": "2026-07-12",
-      "notes": "Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag \u2014 pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses only the men's 1930\u20132022 history."
+      "notes": "Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses only the men's 1930–2022 history."
     },
     {
       "source_id": "football-data-org",
@@ -104,7 +104,7 @@
       "license_url": "https://download.geonames.org/export/dump/readme.txt",
       "classification": "enrichment",
       "pin_strategy": "dump-date",
-      "fields": "city coordinates, country, timezone, altitude \u2014 bulk dumps (cities15000, countryInfo, timeZones)",
+      "fields": "city coordinates, country, timezone, altitude — bulk dumps (cities15000, countryInfo, timeZones)",
       "corrections": {
         "enabled": true,
         "license_namespace": "enrichment-cc-by-4.0",
@@ -126,7 +126,7 @@
     },
     {
       "source_id": "idsse",
-      "name": "IDSSE \u2014 integrated spatiotemporal + event data",
+      "name": "IDSSE — integrated spatiotemporal + event data",
       "contributors": [
         "Manuel Bassek",
         "Robert Rein",
@@ -140,15 +140,15 @@
       "pin_strategy": "figshare-doi",
       "citation_key": "bassek2025idsse",
       "fields": "7 elite German matches (~2.63 GB): synchronized TRACAB tracking + DFL event data (XML)",
-      "attribution": "IDSSE dataset, provided with authorization of the Deutsche Fu\u00dfball Liga (DFL); Bassek et al., Sci Data 12:195 (2025), CC BY 4.0.",
+      "attribution": "IDSSE dataset, provided with authorization of the Deutsche Fußball Liga (DFL); Bassek et al., Sci Data 12:195 (2025), CC BY 4.0.",
       "verified": "2026-07-12",
-      "notes": "Research-only (pipeline validation). 2.63 GB for 7 matches \u2014 not a user-facing pack. Attribution must name DFL and cite the paper."
+      "notes": "Research-only (pipeline validation). 2.63 GB for 7 matches — not a user-facing pack. Attribution must name DFL and cite the paper."
     },
     {
       "source_id": "martj42-international-results",
       "name": "martj42/international_results",
       "contributors": [
-        "Mart J\u00fcrisoo"
+        "Mart Jürisoo"
       ],
       "url": "https://github.com/martj42/international_results",
       "license": "CC0-1.0",
@@ -188,7 +188,7 @@
         "redistributable_export": true,
         "contribution_url": "https://github.com/martj42/international_results"
       },
-      "attribution": "International football results from martj42/international_results (Mart J\u00fcrisoo), CC0-1.0.",
+      "attribution": "International football results from martj42/international_results (Mart Jürisoo), CC0-1.0.",
       "verified": "2026-07-12",
       "notes": "Bundled and seal-eligible. Sole forward-seal training source. Date-only; exact kickoff requires the worldcup-json overlay."
     },
@@ -196,7 +196,7 @@
       "source_id": "martj42-womens-international-results",
       "name": "martj42/womens-international-results",
       "contributors": [
-        "Mart J\u00fcrisoo"
+        "Mart Jürisoo"
       ],
       "url": "https://github.com/martj42/womens-international-results",
       "license": "NONE",
@@ -223,7 +223,7 @@
       "recheck_by": "2026-10-01",
       "fields": "historical observed weather (temperature, precipitation, wind); bulk annual Parquet",
       "verified": "2026-07-12",
-      "notes": "BLOCKED: /license states CC BY 4.0 but the live /faq states CC BY-NC 4.0 \u2014 a contradiction that must be resolved in writing before adoption. Also no historical-FORECAST archive exists, so weather can only ever be context, never a backtested pre-match feature."
+      "notes": "BLOCKED: /license states CC BY 4.0 but the live /faq states CC BY-NC 4.0 — a contradiction that must be resolved in writing before adoption. Also no historical-FORECAST archive exists, so weather can only ever be context, never a backtested pre-match feature."
     },
     {
       "source_id": "natural-earth",
@@ -277,6 +277,23 @@
       "notes": "Bundled as three competition-isolated historical packs at commit abfaedd: Champions League 2020/21-2025/26, Europa League 2020/21-2024/25, Conference League 2021/22-2024/25. Every file passed exact declared-row, result-completeness, and format-era checks. Two cancelled Europa ties are retained in source bytes but excluded from the match index. Qualifiers are not bundled; kickoff precision is day-only because upstream local clocks have no timezone."
     },
     {
+      "source_id": "openfootball-clubs",
+      "name": "openfootball/clubs",
+      "contributors": [
+        "Gerald Bauer",
+        "openfootball contributors"
+      ],
+      "url": "https://github.com/openfootball/clubs",
+      "license": "CC0-1.0",
+      "license_url": "https://github.com/openfootball/clubs/blob/master/LICENSE.md",
+      "classification": "core",
+      "pin_strategy": "commit",
+      "fields": "club directory: canonical name, aliases, founding year, home ground and city — the ground is optional and mostly absent (89 of 203 English clubs carry one, 19 of 208 German, none at all in Spain or Italy)",
+      "attribution": "Club home grounds from openfootball/clubs (Gerald Bauer and contributors), CC0-1.0.",
+      "verified": "2026-07-29",
+      "notes": "Vendored as a display-only venue-context enrichment pack; never joined to the match index and never a model input. It states a club's home ground, and the club's Wikidata entity must independently name the same ground through P115 (current statement only) and place it in the league's country, or no assignment is written and the venue stays unknown. Upstream is not maintained in step with reality — it still lists Tottenham at White Hart Lane and Everton at Goodison Park — so 9 of 46 current top-flight clubs are rejected by that cross-check and recorded in data/context/club_venue_allowlist.json. Assignments are pinned to the 2026-27 window they were verified for."
+    },
+    {
       "source_id": "openfootball-deutschland",
       "name": "openfootball/deutschland",
       "contributors": [
@@ -293,7 +310,10 @@
         "adapter": "openfootball-deutschland",
         "repository": "openfootball/deutschland",
         "branch": "master",
-        "allowed_paths": ["<current-season>/1-bundesliga.txt", "LICENSE.md"],
+        "allowed_paths": [
+          "<current-season>/1-bundesliga.txt",
+          "LICENSE.md"
+        ],
         "default_interval_seconds": 86400,
         "max_file_bytes": 33554432,
         "max_snapshot_bytes": 67108864
@@ -320,7 +340,10 @@
         "adapter": "openfootball-england",
         "repository": "openfootball/england",
         "branch": "master",
-        "allowed_paths": ["<current-season>/1-premierleague.txt", "LICENSE.md"],
+        "allowed_paths": [
+          "<current-season>/1-premierleague.txt",
+          "LICENSE.md"
+        ],
         "default_interval_seconds": 86400,
         "max_file_bytes": 33554432,
         "max_snapshot_bytes": 67108864
@@ -347,7 +370,10 @@
         "adapter": "openfootball-espana",
         "repository": "openfootball/espana",
         "branch": "master",
-        "allowed_paths": ["<current-season>/1-liga.txt", "LICENSE.md"],
+        "allowed_paths": [
+          "<current-season>/1-liga.txt",
+          "LICENSE.md"
+        ],
         "default_interval_seconds": 86400,
         "max_file_bytes": 33554432,
         "max_snapshot_bytes": 67108864
@@ -391,7 +417,10 @@
         "adapter": "openfootball-europe",
         "repository": "openfootball/europe",
         "branch": "master",
-        "allowed_paths": ["france/<current-season>_fr1.txt", "LICENSE.md"],
+        "allowed_paths": [
+          "france/<current-season>_fr1.txt",
+          "LICENSE.md"
+        ],
         "default_interval_seconds": 86400,
         "max_file_bytes": 33554432,
         "max_snapshot_bytes": 67108864
@@ -470,7 +499,10 @@
         "adapter": "openfootball-italy",
         "repository": "openfootball/italy",
         "branch": "master",
-        "allowed_paths": ["<current-season>/1-seriea.txt", "LICENSE.md"],
+        "allowed_paths": [
+          "<current-season>/1-seriea.txt",
+          "LICENSE.md"
+        ],
         "default_interval_seconds": 86400,
         "max_file_bytes": 33554432,
         "max_snapshot_bytes": 67108864
@@ -586,10 +618,10 @@
         "redistributable_export": false,
         "contribution_url": "https://www.openligadb.de/"
       },
-      "attribution": "Datenquelle: OpenLigaDB (www.openligadb.de) \u2014 Open Database License (ODbL) v1.0.",
+      "attribution": "Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0.",
       "share_alike": true,
       "verified": "2026-07-15",
-      "notes": "Optional isolated, per-user ODbL overlay. No response bytes ship with Golavo. The v1 adapter is display-only and allowlists the current-season bl1, bl2, bl3 and dfb identities; it cannot train models, seal or settle forecasts, enter exports, or join the CC0/CC-BY core. A redistributed adapted database must itself honor ODbL and carry attribution/license information. Single-operator hobby service \u2014 feature must tolerate its permanent absence."
+      "notes": "Optional isolated, per-user ODbL overlay. No response bytes ship with Golavo. The v1 adapter is display-only and allowlists the current-season bl1, bl2, bl3 and dfb identities; it cannot train models, seal or settle forecasts, enter exports, or join the CC0/CC-BY core. A redistributed adapted database must itself honor ODbL and carry attribution/license information. Single-operator hobby service — feature must tolerate its permanent absence."
     },
     {
       "source_id": "pappalardo-wyscout-events",
@@ -656,7 +688,7 @@
       "license_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
       "classification": "enrichment",
       "pin_strategy": "entity-revisions",
-      "fields": "structured data only \u2014 stable entity ids, multilingual aliases, country/confederation, venue metadata",
+      "fields": "structured data only — stable entity ids, multilingual aliases, country/confederation, venue metadata",
       "corrections": {
         "enabled": true,
         "license_namespace": "enrichment-cc0",

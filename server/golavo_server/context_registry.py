@@ -101,6 +101,7 @@ def venue_for_match(row: Any) -> dict[str, Any]:
             "provenance": {},
         }
     city = _value(row, "city")
+    home_team = _value(row, "home_team")
     country = _value(row, "country")
     competition = _value(row, "competition")
     source_id = _value(row, "venue_source_id") or _value(row, "source_id")
@@ -115,8 +116,17 @@ def venue_for_match(row: Any) -> dict[str, Any]:
         match_date = None
     candidates = []
     for assignment in payload["assignments"]:
+        # A club assignment is keyed on the home team, a tournament assignment on
+        # the host city. Not one club row in the index carries a city, so keying
+        # both on the city would leave every club fixture unresolvable.
+        home_key = assignment.get("match_home_team")
+        scoped = (
+            str(home_team) == str(home_key)
+            if home_key
+            else str(city) == assignment["match_city"]
+        )
         if (
-            str(city) != assignment["match_city"]
+            not scoped
             or str(country) != assignment["match_country"]
             or str(competition) != assignment["competition"]
             or str(source_id) not in assignment["allowed_match_venue_source_ids"]

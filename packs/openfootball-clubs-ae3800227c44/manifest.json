@@ -1,0 +1,38 @@
+{
+  "files": [
+    {
+      "name": "CC0-1.0.txt",
+      "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    },
+    {
+      "name": "de.clubs.txt",
+      "sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+      "source_path": "europe/germany/de.clubs.txt"
+    },
+    {
+      "name": "eng.clubs.txt",
+      "sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+      "source_path": "europe/england/eng.clubs.txt"
+    },
+    {
+      "name": "es.clubs.txt",
+      "sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+      "source_path": "europe/spain/es.clubs.txt"
+    },
+    {
+      "name": "fr.clubs.txt",
+      "sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+      "source_path": "europe/france/fr.clubs.txt"
+    },
+    {
+      "name": "it.clubs.txt",
+      "sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+      "source_path": "europe/italy/it.clubs.txt"
+    }
+  ],
+  "license": "CC0-1.0",
+  "retrieved_at_utc": "2026-07-29T00:00:00Z",
+  "source_id": "openfootball-clubs",
+  "upstream_ref": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+  "url": "https://github.com/openfootball/clubs"
+}
