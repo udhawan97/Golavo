@@ -94,7 +94,9 @@ def test_phase_one_capabilities_match_the_shipped_analytics() -> None:
     assert premier["report_cards"]["status"] == "available"
     assert premier["strength_trends"]["status"] == "available"
     assert premier["rest_congestion"]["status"] == "available"
-    assert premier["schedule_difficulty"]["status"] == "blocked"
+    # Unblocked by the same 2026-27 certificate that unblocked the outlook; the
+    # UEFA competitions below have no certified schedule and stay blocked.
+    assert premier["schedule_difficulty"]["status"] == "available"
 
     euro = catalog["uefa-euro"]["capabilities"]
     assert euro["report_cards"]["status"] == "available"

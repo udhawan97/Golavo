@@ -571,9 +571,12 @@ export async function fetchCompetitionAnalytics(
         teams: [],
       },
       schedule_difficulty: {
-        status: "blocked",
-        reason: "A complete remaining-fixture list is required.",
+        status: "unavailable",
+        reason: "Connect the Golavo engine to rate the remaining schedule from the local index.",
         required_capability: "complete_remaining_fixtures",
+        method: "mean-remaining-opponent-elo-v1",
+        season: null,
+        teams: [],
       },
     };
   }

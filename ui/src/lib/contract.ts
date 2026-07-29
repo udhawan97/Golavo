@@ -299,11 +299,31 @@ export interface CompetitionAnalytics {
     coverage_note: string;
     teams: TeamWorkload[];
   };
-  schedule_difficulty: {
-    status: "blocked" | "unavailable";
-    reason: string;
-    required_capability: string;
-  };
+  schedule_difficulty: ScheduleDifficulty;
+}
+
+/** One team's remaining run-in, rated by who is left on its fixture list.
+ *  Only ever populated behind the double round-robin fixture certificate — over a
+ *  partial schedule this would rank teams by how much of the season Golavo holds. */
+export interface TeamScheduleDifficulty {
+  rank: number;
+  team: string;
+  own_rating: number;
+  matches_remaining: number;
+  home_remaining: number;
+  away_remaining: number;
+  mean_opponent_rating: number;
+}
+
+export interface ScheduleDifficulty {
+  status: AnalyticsStatus;
+  reason: string | null;
+  required_capability: string | null;
+  method: string;
+  season: string | null;
+  /** The competition whose Golavo Ratings scored the opponents. */
+  rating_scope?: string;
+  teams: TeamScheduleDifficulty[];
 }
 
 // ---- Historical team research ---------------------------------------------

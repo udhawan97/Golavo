@@ -6,7 +6,7 @@
  * it still renders its blocked state per request if a certificate ever fails.
  */
 import { useState } from "react";
-import type { CompetitionAnalytics, StrengthPoint } from "../lib/contract";
+import type { CompetitionAnalytics, ScheduleDifficulty, StrengthPoint } from "../lib/contract";
 import { fetchCompetitionAnalytics, fetchRecentMatches } from "../lib/api";
 import { num, utcDate } from "../lib/format";
 import { LEAGUES, leagueHubCategory } from "../lib/leagues";
@@ -242,13 +242,56 @@ function CompetitionAnalyticsPanel({ data }: { data: CompetitionAnalytics }) {
         </>
       )}
 
+      <ScheduleDifficultySection difficulty={data.schedule_difficulty} />
+    </section>
+  );
+}
+
+/** The remaining run-in, hardest first — or the honest reason there isn't one. */
+function ScheduleDifficultySection({ difficulty }: { difficulty: ScheduleDifficulty }) {
+  if (difficulty.status !== "available" || difficulty.teams.length === 0) {
+    return (
       <div className="callout callout--info" role="note">
         <div>
           <div className="callout__title">Schedule difficulty not calculated</div>
-          <p>{data.schedule_difficulty.reason}</p>
+          <p>{difficulty.reason}</p>
         </div>
       </div>
-    </section>
+    );
+  }
+  return (
+    <>
+      <h3>Remaining schedule {difficulty.season ? `· ${difficulty.season.replace("-", "–")}` : ""}</h3>
+      <div className="table-wrap">
+        <table className="grid analytics-table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Team</th>
+              <th scope="col">Left</th>
+              <th scope="col">Home</th>
+              <th scope="col">Mean opponent rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            {difficulty.teams.map((team) => (
+              <tr key={team.team}>
+                <td className="num">{team.rank}</td>
+                <th scope="row">{team.team}</th>
+                <td className="num">{team.matches_remaining}</td>
+                <td className="num dim">{team.home_remaining}</td>
+                <td className="num">{num(team.mean_opponent_rating, 1)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="small dim measure" style={{ margin: 0 }}>
+        Hardest run-in first, scored with this competition's own Golavo Ratings. Before a season
+        starts every side plays every other, so the only difference is that a team never faces
+        itself — the spread widens as fixtures are played off.
+      </p>
+    </>
   );
 }
 

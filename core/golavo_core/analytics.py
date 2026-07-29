@@ -2,9 +2,9 @@
 
 The module intentionally keeps the scope narrow: team strengths are comparable
 only inside one competition, workload counts only matches present in the index,
-and schedule difficulty stays blocked until a fixture source supplies an explicit
-completeness certificate.  Every calculation filters to ``as_of_utc`` before it
-selects teams or fits a model, so appending future rows cannot rewrite history.
+and schedule difficulty is computed only behind an explicit fixture-completeness
+certificate.  Every calculation filters to ``as_of_utc`` before it selects teams
+or fits a model, so appending future rows cannot rewrite history.
 """
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ from golavo_core.trends import month_end_checkpoints
 
 ANALYTICS_SCHEMA_VERSION = "0.1.0"
 MIN_STRENGTH_MATCHES = 8
+DIFFICULTY_METHOD = "mean-remaining-opponent-elo-v1"
 
 
 def _utc(value: str | pd.Timestamp | None) -> pd.Timestamp:
@@ -156,6 +157,137 @@ def _workload(frame: pd.DataFrame, teams: list[str], as_of: pd.Timestamp) -> dic
     }
 
 
+def _difficulty_blocked(reason: str, *, required_capability: str) -> dict[str, Any]:
+    return {
+        "status": "blocked",
+        "reason": reason,
+        "required_capability": required_capability,
+        "method": DIFFICULTY_METHOD,
+        "season": None,
+        "teams": [],
+    }
+
+
+def schedule_difficulty(
+    frame: pd.DataFrame,
+    competition_id: str,
+    *,
+    as_of_utc: str | pd.Timestamp | None = None,
+    season: str | None = None,
+) -> dict[str, Any]:
+    """Rank a competition's teams by the strength of the fixtures they have left.
+
+    Each side's remaining opponents are scored with the same competition-local
+    Golavo Rating the ratings table publishes, and the team's difficulty is the
+    mean of those opponent ratings — so a run-in is hard because of who is in it,
+    on the same evidence the reader can go and look at. Rank 1 is the hardest.
+
+    The fixture certificate is the gate, not a formality: over a partial schedule
+    this would rank teams by how much of their season Golavo happens to hold. A
+    competition with no verified standings rule has no expected team count, so
+    nothing can be certified for it at all, and it stays blocked.
+    """
+    from golavo_core.ratings import elo_trajectory
+    from golavo_core.season_outlook import certify_schedule
+    from golavo_core.standings import football_season, league_rule
+
+    as_of = _utc(as_of_utc)
+    try:
+        rule = league_rule(competition_id)
+    except ValueError as exc:
+        return _difficulty_blocked(
+            f"{exc}. Without one, no fixture list can be certified complete.",
+            required_capability="verified_standings_rule",
+        )
+
+    season_id = season or football_season(as_of)
+    competition_rows = frame.loc[frame["competition"].astype("string").eq(rule.source_name)].copy()
+    if competition_rows.empty:
+        return {
+            **_difficulty_blocked(
+                "No matches for this competition are present in Golavo's local index.",
+                required_capability="complete_remaining_fixtures",
+            ),
+            "season": season_id,
+        }
+    row_seasons = pd.to_datetime(competition_rows["kickoff_utc"], utc=True).map(football_season)
+    schedule = competition_rows.loc[row_seasons.eq(season_id)].copy()
+    certificate = certify_schedule(
+        schedule, expected_teams=rule.expected_teams, as_of_utc=as_of
+    )
+    if not certificate["complete_fixture_list"]:
+        return {
+            **_difficulty_blocked(
+                "The fixture list failed the double round-robin completeness certificate, so a "
+                "difficulty rating would rank teams on how much of the season Golavo holds.",
+                required_capability="complete_remaining_fixtures",
+            ),
+            "season": season_id,
+        }
+
+    complete = schedule["is_complete"].astype("boolean").fillna(False)
+    kickoff = pd.to_datetime(schedule["kickoff_utc"], utc=True)
+    remaining = schedule.loc[~complete & (kickoff > as_of)]
+    if remaining.empty:
+        return {
+            **_difficulty_blocked(
+                "Every fixture in this season has been played; no schedule remains to rate.",
+                required_capability="remaining_fixtures",
+            ),
+            "season": season_id,
+        }
+
+    teams = list(certificate["teams"])
+    table = elo_trajectory(
+        completed_view(competition_rows, as_of_utc=as_of).rows,
+        as_of_utc=as_of,
+        top_n=len(teams),
+        scope=competition_id,
+    )
+    # A promoted side with no history in this competition is unrated, and the Elo
+    # replay itself starts such a team at the initial rating — using the same
+    # value here keeps the two consistent instead of dropping the fixture.
+    from golavo_core.models.candidates import ELO_INITIAL
+
+    ratings = {str(row["team"]): float(row["rating"]) for row in table["teams"]}
+
+    rows: list[dict[str, Any]] = []
+    for team in teams:
+        home_rows = remaining.loc[remaining["home_team"].astype("string").eq(team)]
+        away_rows = remaining.loc[remaining["away_team"].astype("string").eq(team)]
+        opponents = [
+            *(str(value) for value in home_rows["away_team"]),
+            *(str(value) for value in away_rows["home_team"]),
+        ]
+        if not opponents:
+            continue
+        strengths = [ratings.get(opponent, ELO_INITIAL) for opponent in opponents]
+        rows.append(
+            {
+                "team": team,
+                "own_rating": round(ratings.get(team, ELO_INITIAL), 1),
+                "matches_remaining": len(opponents),
+                "home_remaining": int(len(home_rows)),
+                "away_remaining": int(len(away_rows)),
+                "mean_opponent_rating": round(sum(strengths) / len(strengths), 1),
+            }
+        )
+
+    # Hardest first; team name breaks ties so the order is reproducible.
+    rows.sort(key=lambda row: (-row["mean_opponent_rating"], row["team"]))
+    for rank, row in enumerate(rows, start=1):
+        row["rank"] = rank
+    return {
+        "status": "available",
+        "reason": None,
+        "required_capability": None,
+        "method": DIFFICULTY_METHOD,
+        "season": season_id,
+        "rating_scope": competition_id,
+        "teams": rows,
+    }
+
+
 def competition_analytics(
     frame: pd.DataFrame,
     competition_id: str,
@@ -200,12 +332,5 @@ def competition_analytics(
         "provenance": {"source_ids": source_ids},
         "strength_trends": strength,
         "rest_congestion": workload,
-        "schedule_difficulty": {
-            "status": "blocked",
-            "reason": (
-                "Golavo has no completeness certificate for this competition's remaining "
-                "fixtures. A partial schedule cannot produce an honest difficulty rating."
-            ),
-            "required_capability": "complete_remaining_fixtures",
-        },
+        "schedule_difficulty": schedule_difficulty(frame, competition_id, as_of_utc=as_of),
     }

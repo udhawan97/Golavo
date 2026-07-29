@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.17.2"
+CATALOG_VERSION = "2026.07.29.1"
 
 
 def _capability(
@@ -118,6 +118,14 @@ def _domestic(
         "available",
         "Standings rules are verified and the 2026-27 fixture list certifies complete, so the "
         "seeded outlook runs. It still fails closed per request if that certificate ever fails.",
+        "openfootball-football-json",
+        fixture_source_id,
+    )
+    capabilities["schedule_difficulty"] = _capability(
+        "available",
+        "The same certificate that unblocks the outlook supplies a complete remaining-fixture "
+        "list, so each team's run-in is rated by its remaining opponents' competition-local "
+        "Golavo Rating. It fails closed per request if that certificate ever fails.",
         "openfootball-football-json",
         fixture_source_id,
     )
