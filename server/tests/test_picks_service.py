@@ -204,14 +204,15 @@ def test_typed_failures_write_nothing(
     service: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     ledger, _ = service
+    now = _dt("2026-08-01T10:00:00Z")
     with pytest.raises(picks.PickError) as invalid:
-        picks.save_pick("m_up", True, 1, ledger=ledger)
+        picks.save_pick("m_up", True, 1, ledger=ledger, now_utc=now)
     assert invalid.value.reason_code == "invalid_score"
     with pytest.raises(picks.PickError) as complete:
-        picks.save_pick("m_done", 1, 0, ledger=ledger)
+        picks.save_pick("m_done", 1, 0, ledger=ledger, now_utc=now)
     assert complete.value.reason_code == "fixture_complete"
     with pytest.raises(picks.PickError) as unknown:
-        picks.save_pick("missing", 1, 0, ledger=ledger)
+        picks.save_pick("missing", 1, 0, ledger=ledger, now_utc=now)
     assert unknown.value.status_code == 404
 
     monkeypatch.setattr(
@@ -220,7 +221,7 @@ def test_typed_failures_write_nothing(
         lambda match_id: {"available": False, "reason": "no fit", "analysis": None},
     )
     with pytest.raises(picks.PickError) as unavailable:
-        picks.save_pick("m_up", 1, 0, ledger=ledger)
+        picks.save_pick("m_up", 1, 0, ledger=ledger, now_utc=now)
     assert unavailable.value.reason_code == "analysis_unavailable"
     assert not (ledger / "picks" / "drafts" / "m_up.json").exists()
 
