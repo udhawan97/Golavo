@@ -6,6 +6,28 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.17.1] - 2026-08-02
+
+### Fixed
+
+- Mobile primary navigation now keeps all four destinations legible at 320 px,
+  including Golavo's XL reading setting, without shrinking or hiding the chosen text size.
+- Back and Forward now restore the scroll position of the exact history entry. Opening
+  a Match Cockpit and returning to Matchday lands on the card that opened it, while a
+  deliberate new destination still starts at its heading.
+- Follow-history, all-proposal, and individual-evidence removal now open an explicit
+  Cancel/Remove choice. Cancel and Escape safely disarm the action and return keyboard
+  focus; the destructive action is separately named and never left as a relabelled button.
+- Reading Comfort returns keyboard focus to its `Aa` trigger after Escape.
+- Wide Track record, Backtests, My Season, and season-outlook tables now show a visible
+  horizontal-scroll cue and edge fade while columns remain, clear the cue at the right
+  edge, and expose the scroll region to keyboard users.
+
+### Documentation
+
+- Synchronized the public Matchday, privacy, README, version, and release surfaces with
+  the verified navigation, focus, table-discoverability, and local-data safety behavior.
+
 ## [0.17.0] - 2026-07-21
 
 ### Added
@@ -1463,7 +1485,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.17.1...HEAD
+[0.17.1]: https://github.com/udhawan97/Golavo/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/udhawan97/Golavo/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/udhawan97/Golavo/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/udhawan97/Golavo/compare/v0.14.2...v0.15.0

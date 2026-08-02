@@ -61,7 +61,8 @@ const INDEX_STAGE_CAP_MS = 45_000;
 
 export default function App() {
   useExternalLinks();
-  const [path] = useHashRoute();
+  const [route] = useHashRoute();
+  const { path } = route;
   const [prefs, setPrefs] = useReadingPrefs();
   // The splash paints before the app shell; warm reads as a dark surface there.
   const splashTheme = prefs.theme === "light" ? "light" : "dark";
@@ -106,8 +107,20 @@ export default function App() {
     return () => window.clearTimeout(id);
   }, [backendReady, warmup.phase]);
 
-  // Calm scroll reset on navigation (respects reduced-motion via CSS).
-  useEffect(() => { window.scrollTo({ top: 0 }); }, [path]);
+  // New destinations start at their heading. History traversal restores the
+  // exact entry instead, so a match cockpit never destroys browse context.
+  useEffect(() => {
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        window.scrollTo({ top: route.restoreScrollY, behavior: "auto" });
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, [route.entryKey, route.restoreScrollY]);
 
   // Hold the app behind a splash until the (slow-to-extract) engine is up, so a
   // long first launch never looks like a broken window. Stage 1 = the sidecar

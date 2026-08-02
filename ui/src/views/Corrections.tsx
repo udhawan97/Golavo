@@ -19,6 +19,7 @@ import {
 } from "../lib/corrections";
 import type { MatchDetailResponse } from "../lib/contract";
 import { openExternalUrl } from "../lib/external-links";
+import { EvidenceRemovalAction } from "../components/DataRemovalActions";
 
 const TYPE_LABELS: Record<CorrectionType, string> = {
   missing_fixture: "Missing fixture",
@@ -508,7 +509,6 @@ export function CorrectionReview({ proposalId }: { proposalId: string }) {
   const [proposalRetry, setProposalRetry] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [redactId, setRedactId] = useState<string | null>(null);
   const [reviewedExport, setReviewedExport] = useState(false);
   const [exportId, setExportId] = useState<string | null>(null);
 
@@ -586,18 +586,15 @@ export function CorrectionReview({ proposalId }: { proposalId: string }) {
   };
 
   const redact = async (evidenceId: string) => {
-    if (redactId !== evidenceId) {
-      setRedactId(evidenceId);
-      return;
-    }
     setBusy(true);
     setError(null);
     try {
       setProposal(await redactCorrectionEvidence(proposal, evidenceId));
-      setRedactId(null);
       await corrections.reload();
     } catch (cause) {
-      setError(cause instanceof Error ? cause : new Error(String(cause)));
+      const nextError = cause instanceof Error ? cause : new Error(String(cause));
+      setError(nextError);
+      throw nextError;
     } finally {
       setBusy(false);
     }
@@ -661,13 +658,11 @@ export function CorrectionReview({ proposalId }: { proposalId: string }) {
             {proposal.evidence.filter((item) => !item.redacted).map((item) => (
               <div className="settings__row" key={item.evidence_id}>
                 <span>{item.hostname} · {item.raw_bytes} bytes</span>
-                <button
-                  className="btn btn--ghost"
+                <EvidenceRemovalAction
+                  hostname={item.hostname}
                   disabled={busy}
-                  onClick={() => void redact(item.evidence_id)}
-                >
-                  {redactId === item.evidence_id ? "Confirm remove evidence" : "Remove evidence"}
-                </button>
+                  onConfirm={() => redact(item.evidence_id)}
+                />
               </div>
             ))}
           </div>

@@ -21,6 +21,16 @@ A fresh install with an empty record is still a full, useful page — the app op
 games, not on an empty ledger. The header carries Search, an **Aa** reading-comfort control,
 and a Settings gear.
 
+### Navigation and reading continuity
+
+- The four primary destinations remain separate down to 320 px, including with the XL
+  reading setting. Multi-word labels wrap inside their own target instead of colliding.
+- Opening a match and using Back returns to the Matchday card that opened it. A deliberate
+  jump to another primary destination still starts at that page's heading.
+- Escape closes the **Aa** reading panel and returns keyboard focus to the trigger.
+- Wide audit and season tables announce **More columns** while horizontal content remains;
+  the cue clears at the right edge, and the table region can be reached by keyboard.
+
 ## Match Cockpit
 
 Open **any** indexed match — past or upcoming, club or international — and Golavo computes a

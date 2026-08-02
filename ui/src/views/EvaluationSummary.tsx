@@ -7,6 +7,7 @@ import { METRIC_GLOSS } from "../lib/glossary";
 import { useAsync } from "../lib/hooks";
 import { ReliabilityDiagram } from "../components/ReliabilityDiagram";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
+import { ScrollableTable } from "../components/ScrollableTable";
 
 const cell = (v: number | undefined) => (v === undefined ? "—" : num(v, 3));
 
@@ -144,7 +145,11 @@ function ReportCardTable({ card, initiallyOpen }: { card: ReportCard; initiallyO
         <span className="upper muted">{card.competition}</span>
         <span className="small dim">{card.window_start.slice(0, 4)}–{card.window_end.slice(0, 4)}</span>
       </summary>
-      <div className="table-wrap" style={{ marginTop: ".8rem" }}>
+      <ScrollableTable
+        label={`${card.competition} report card`}
+        cue="More: evaluation metrics"
+        style={{ marginTop: ".8rem" }}
+      >
         <table className="grid">
           <thead>
             <tr>
@@ -175,7 +180,7 @@ function ReportCardTable({ card, initiallyOpen }: { card: ReportCard; initiallyO
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollableTable>
       <p className="small dim" style={{ margin: ".65rem 0 0" }}>
         Positive skill means lower log loss than climatology. {card.bootstrap.replicates.toLocaleString()} deterministic bootstrap samples; seed root {card.bootstrap.seed}.
       </p>
@@ -194,7 +199,11 @@ function FoldTable({ fold }: { fold: Fold }) {
           {fold.n_matches} matches
         </span>
       </div>
-      <div className="table-wrap" style={{ border: "none", borderRadius: 0 }}>
+      <ScrollableTable
+        label={`${fold.fold_id} backtest metrics`}
+        cue="More: fold metrics"
+        style={{ border: "none", borderRadius: 0 }}
+      >
         <table className="grid">
           <thead>
             <tr>
@@ -221,7 +230,7 @@ function FoldTable({ fold }: { fold: Fold }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollableTable>
     </div>
   );
 }

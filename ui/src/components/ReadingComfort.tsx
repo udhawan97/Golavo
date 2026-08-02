@@ -17,13 +17,18 @@ export function ReadingComfort({
 }) {
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   const panelId = useId();
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
       if (wrap.current && !wrap.current.contains(e.target as Node)) setOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      trigger.current?.focus();
+    };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
@@ -35,6 +40,7 @@ export function ReadingComfort({
   return (
     <div className="rc" ref={wrap}>
       <button
+        ref={trigger}
         type="button"
         className="icon-btn rc__trigger"
         aria-haspopup="true"

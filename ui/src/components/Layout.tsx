@@ -106,7 +106,7 @@ export function Layout({
             <span className="visually-hidden">Golavo</span>
           </a>
           <nav className="nav" aria-label="Primary">
-            <a href="#/" aria-current={isActive(path, "games") ? "page" : undefined}>Matchday</a>
+            <a href="#/" aria-current={isActive(path, "games") ? "page" : undefined}>Match<wbr />day</a>
             <a href="#/leagues" aria-current={isActive(path, "leagues") ? "page" : undefined}>Leagues</a>
             <a href="#/season" data-tour="nav-season" aria-current={isActive(path, "season") ? "page" : undefined}>My Season</a>
             <a href="#/lab" data-tour="nav-lab" aria-current={isActive(path, "lab") ? "page" : undefined}>Model Lab</a>

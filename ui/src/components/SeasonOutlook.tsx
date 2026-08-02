@@ -9,6 +9,7 @@ import type {
 import { fetchSeasonOutlook, fetchSeasonScenario } from "../lib/api";
 import { useAsync } from "../lib/hooks";
 import { BlockSkeleton } from "./states";
+import { ScrollableTable } from "./ScrollableTable";
 
 const VOICE_COPY: Record<SeasonOutlookVoice["voice_id"], string> = {
   elo_ordlogit: "Ratings",
@@ -29,7 +30,7 @@ export function scenarioRequest(
 
 function Table({ rows }: { rows: SeasonStandingRow[] }) {
   return (
-    <div className="table-wrap">
+    <ScrollableTable label="Current season table" cue="More: points and recent form">
       <table className="grid season-table">
         <thead>
           <tr>
@@ -48,7 +49,7 @@ function Table({ rows }: { rows: SeasonStandingRow[] }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollableTable>
   );
 }
 
@@ -85,7 +86,10 @@ export function SeasonOutlookBody({ outlook }: { outlook: Outlook }) {
           </button>
         ))}
       </div>
-      <div className="table-wrap">
+      <ScrollableTable
+        label={`${VOICE_COPY[selected.voice_id]} season probabilities`}
+        cue="More: model probabilities"
+      >
         <table className="grid season-probability-table">
           <thead><tr><th scope="col">Team</th><th scope="col">Title</th><th scope="col">Top 4</th><th scope="col">Relegation</th></tr></thead>
           <tbody>
@@ -99,7 +103,7 @@ export function SeasonOutlookBody({ outlook }: { outlook: Outlook }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollableTable>
       <details className="outlook-method">
         <summary>How this season is simulated</summary>
         <p>

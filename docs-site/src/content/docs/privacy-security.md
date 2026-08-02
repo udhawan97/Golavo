@@ -16,6 +16,9 @@ hosted forecasting backend. Core match exploration and deterministic analysis wo
 - **Following stays local.** Follow state and event history live in Application Support.
   Checks run on launch and periodically only while Golavo is open. No daemon, Login Item,
   LaunchAgent, cloud push, or closed-app monitoring is installed.
+- **Local removal stays explicit.** Follow history, all correction proposals, and individual
+  evidence captures each open a separate Cancel/Remove choice. Cancel or Escape disarms the
+  choice and restores focus; no removal occurs until the separately named destructive action.
 - **Research captures only selected sources.** Wikimedia discovery can suggest a page or
   entity. A fetch starts only after explicit selection and retains source text, URL,
   retrieval time and hash for local review. `GOLAVO_NO_RESEARCH=1` disables the lane.
@@ -35,6 +38,7 @@ hosted forecasting backend. Core match exploration and deterministic analysis wo
 | OpenLigaDB | Separate Application Support root and SQLite schema, ODbL-only source IDs, no bundled response bytes, display-only read model, explicit attribution, and deletion independent of core data. |
 | Research fetch | HTTPS host/path/method allowlists, DNS/IP checks, pinned connection target, redirect validation, response/time limits, hostile-markup sanitization, prompt fencing, exact quote matching, cancellation and a global kill switch. |
 | Corrections | User input begins untrusted; source URL and captured evidence are required before validation. Text is sanitized, history is append-only, conflicts fail closed, and external export requires a separate explicit action. |
+| Local deletion | Follow history, all-proposal removal, and individual-evidence removal disclose their exact scope, keep Cancel visible, support Escape, and do not mutate data until the separately named destructive action. |
 | Source packs | Upstream revisions and every vendored byte are SHA-256 checked against manifests. Official frozen bundles also require a detached Minisign signature over every active pack manifest; a missing or altered signature fails before pack data is read. Locally generated refresh generations use immutable receipts, verified manifests, and atomic activation instead. |
 | Forecast artifacts | Canonical payload hash and source/build identity; scoring appends a successor rather than mutating a sealed forecast. A portable proof download carries the connected lineage and any matching source manifests for offline verification. Research, follows, overlays and corrections have no probability write path. |
 | Optional AI | Numeric whitelist, schema/citation/quote guards, betting-language filter, loopback-only local endpoints, fixed cloud providers, no chain-of-thought exposure, and deterministic-only fallback. |

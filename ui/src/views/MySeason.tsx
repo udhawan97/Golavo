@@ -9,6 +9,7 @@ import { PitchIcon, ShieldCheckIcon, TrophyIcon } from "../components/icons";
 import { StatTile, TrustStrip } from "../components/primitives";
 import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
 import { utcDate } from "../lib/format";
+import { ScrollableTable } from "../components/ScrollableTable";
 
 type WindowFilter = "all" | "month" | "week";
 
@@ -88,7 +89,7 @@ function Leaderboard({ summary }: { summary: PicksSummary }) {
   return (
     <section className="panel">
       <div className="panel__head"><h2>Standings</h2></div>
-      <div className="table-wrap">
+      <ScrollableTable label="My Season standings" cue="More: points and recent form">
         <table className="grid">
           <thead><tr><th>Rival</th><th>Points</th><th>Exact</th><th>Winners</th><th>Bonus</th></tr></thead>
           <tbody>{seasonTable(summary).map((row) => (
@@ -99,7 +100,7 @@ function Leaderboard({ summary }: { summary: PicksSummary }) {
             </tr>
           ))}</tbody>
         </table>
-      </div>
+      </ScrollableTable>
       <p className="small dim" style={{ padding: "0 1rem" }}>† Winner-only rivals do not make exact-score calls.</p>
     </section>
   );
@@ -112,7 +113,7 @@ function History({ views }: { views: PickView[] }) {
   return (
     <section className="panel">
       <div className="panel__head"><h2>Pick history</h2></div>
-      <div className="table-wrap">
+      <ScrollableTable label="My Season pick history" cue="More: result and points">
         <table className="grid">
           <thead><tr><th>Match</th><th>Date</th><th>Your call</th><th>Final</th><th>Points</th></tr></thead>
           <tbody>{ordered.map((view) => (
@@ -125,7 +126,7 @@ function History({ views }: { views: PickView[] }) {
             </tr>
           ))}</tbody>
         </table>
-      </div>
+      </ScrollableTable>
     </section>
   );
 }

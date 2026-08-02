@@ -667,6 +667,39 @@ a:hover { text-decoration-color: currentColor; }
 
 /* ----------------------------------------------------------- tables ------- */
 .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+.table-scroll-shell { position: relative; min-width: 0; }
+.table-scroll-shell::after {
+  content: ""; position: absolute; z-index: 2; top: 0; right: 0; bottom: 0; width: 3rem;
+  pointer-events: none; opacity: 0; border-radius: 0 var(--radius) var(--radius) 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface-1) 92%, transparent));
+  transition: opacity .15s ease;
+}
+.table-scroll-shell[data-compact="true"][data-overflow="true"][data-at-end="false"]::after { opacity: 1; }
+.table-scroll__hint {
+  position: absolute; z-index: 3; top: .4rem; right: .45rem;
+  display: inline-flex; align-items: center; gap: .25rem;
+  padding: .22rem .45rem; border: 1px solid var(--gold-line); border-radius: var(--radius-pill);
+  color: var(--text); background: color-mix(in srgb, var(--surface-1) 92%, transparent);
+  box-shadow: var(--shadow-sm); font-size: var(--text-xs); font-weight: 650;
+  pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .15s ease;
+}
+.table-scroll-shell[data-compact="true"][data-overflow="true"][data-at-end="false"] .table-scroll__hint { opacity: 1; visibility: visible; }
+.table-wrap[role="region"]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+@media (max-width: 768px) {
+  .table-scroll-shell table.grid { border-collapse: separate; border-spacing: 0; }
+  .table-scroll-shell table.grid th:first-child,
+  .table-scroll-shell table.grid td:first-child {
+    position: sticky; left: 0; z-index: 1;
+    width: min(15rem, 72vw); min-width: min(15rem, 72vw); max-width: min(15rem, 72vw);
+    white-space: normal;
+    background: var(--surface-1); box-shadow: 1px 0 0 var(--border);
+  }
+  .table-scroll-shell table.grid th:first-child { z-index: 2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .table-scroll-shell::after,
+  .table-scroll__hint { transition: none; }
+}
 table.grid { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 560px; }
 table.grid th, table.grid td { padding: .6rem .8rem; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
 table.grid th:first-child, table.grid td:first-child { text-align: left; }
@@ -705,6 +738,8 @@ label.field { display: inline-flex; flex-direction: column; gap: .25rem; font-si
 }
 .btn:hover { border-color: var(--gold-line); background: var(--surface-3); }
 .btn--ghost { background: transparent; }
+.btn--danger { color: var(--red-ink); border-color: color-mix(in srgb, var(--red) 55%, var(--border)); background: var(--red-soft); }
+.btn--danger:hover { color: var(--text); border-color: var(--red-ink); background: color-mix(in srgb, var(--red) 28%, var(--surface-2)); }
 
 .breadcrumb { display: flex; align-items: center; gap: .4rem; font-size: .86rem; color: var(--text-muted); margin-bottom: .3rem; }
 .breadcrumb a { text-decoration: none; }
@@ -1425,6 +1460,17 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .settings__row .select { min-width: 12rem; }
 .settings__hint { font-size: var(--text-sm); color: var(--text-dim); line-height: 1.55; max-width: var(--measure); margin: 0; }
 .settings .panel__body > p.dim { font-size: var(--text-sm); line-height: 1.55; max-width: var(--measure); margin: 0; }
+.confirm-action { display: grid; justify-items: end; gap: var(--space-2); max-width: min(100%, 36rem); }
+.confirm-action__message,
+.confirm-action__error { margin: 0; color: var(--text-dim); font-size: var(--text-sm); line-height: 1.45; text-align: right; }
+.confirm-action__error { color: var(--red-ink); }
+.confirm-action__buttons { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--space-2); }
+@media (max-width: 480px) {
+  .settings__row > .confirm-action { width: 100%; justify-items: stretch; }
+  .confirm-action__message,
+  .confirm-action__error { text-align: left; }
+  .confirm-action__buttons { justify-content: flex-end; }
+}
 
 /* ------------------------------------------------------ startup splash ---- */
 .splash {
@@ -2356,8 +2402,15 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
    horizontally scrollable row with no affordance that more items exist. */
 @media (max-width: 640px) {
   .site-header__inner { flex-wrap: wrap; min-height: 0; padding-block: var(--space-2); row-gap: var(--space-1); }
-  .nav { order: 3; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; margin-left: 0; gap: .15rem; }
+  .nav { order: 3; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; margin-left: 0; gap: .25rem; }
   .nav a { min-width: 0; padding: .45rem .2rem; text-align: center; white-space: nowrap; font-size: .8rem; }
+}
+@media (max-width: 360px) {
+  .nav a {
+    min-height: 2.5rem; display: grid; place-items: center;
+    padding-inline: .1rem; line-height: 1.05; white-space: normal;
+    letter-spacing: -.03em;
+  }
 }
 
 /* ============================================================ pivot: Games,

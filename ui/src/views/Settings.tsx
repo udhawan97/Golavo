@@ -32,6 +32,10 @@ import { useFollows } from "../lib/follow-context";
 import { BellIcon } from "../components/icons";
 import { useCorrections } from "../lib/correction-context";
 import { ResearchSettingsPanel } from "../components/ResearchSettings";
+import {
+  FollowHistoryRemovalAction,
+  ProposalRemovalAction,
+} from "../components/DataRemovalActions";
 
 function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
@@ -140,8 +144,6 @@ export function Settings({
   const dataRefresh = useDataRefresh();
   const follows = useFollows();
   const corrections = useCorrections();
-  const [confirmRemoveFollows, setConfirmRemoveFollows] = useState(false);
-  const [confirmRemoveCorrections, setConfirmRemoveCorrections] = useState(false);
   const [aiProvider, setAiProvider] = useAiProvider();
   const [aiBackground, setAiBackground] = useAiBackground();
   const version = appVersionLabel(u.status?.appVersion);
@@ -359,26 +361,8 @@ export function Settings({
             </p>
             <div className="settings__row">
               <span>Local follow history</span>
-              <button
-                type="button"
-                className="btn btn--ghost"
-                onClick={() => {
-                  if (!confirmRemoveFollows) {
-                    setConfirmRemoveFollows(true);
-                    return;
-                  }
-                  void follows.removeHistory().finally(() => setConfirmRemoveFollows(false));
-                }}
-              >
-                {confirmRemoveFollows ? "Confirm remove follow history" : "Remove follow history"}
-              </button>
+              <FollowHistoryRemovalAction onConfirm={follows.removeHistory} />
             </div>
-            {confirmRemoveFollows && (
-              <p className="settings__hint" role="alert">
-                This removes followed-match subscriptions and their event history only. Forecasts,
-                picks, refresh generations, OpenLigaDB data, and user artifacts are not touched.
-              </p>
-            )}
             {follows.error && <p className="settings__hint" role="alert">{follows.error.message}</p>}
           </div>
           <div className="settings__row">
@@ -406,26 +390,8 @@ export function Settings({
             </p>
             <div className="settings__row">
               <span>Local proposal data</span>
-              <button
-                type="button"
-                className="btn btn--ghost"
-                onClick={() => {
-                  if (!confirmRemoveCorrections) {
-                    setConfirmRemoveCorrections(true);
-                    return;
-                  }
-                  void corrections.removeAll().finally(() => setConfirmRemoveCorrections(false));
-                }}
-              >
-                {confirmRemoveCorrections ? "Confirm remove all proposals" : "Remove all proposals"}
-              </button>
+              <ProposalRemovalAction onConfirm={corrections.removeAll} />
             </div>
-            {confirmRemoveCorrections && (
-              <p className="settings__hint" role="alert">
-                This removes every local proposal, evidence capture and staged export. It does not
-                touch source packs, forecasts, followed matches, picks, or OpenLigaDB data.
-              </p>
-            )}
             {corrections.error && <p className="settings__hint" role="alert">{corrections.error.message}</p>}
           </div>
         </div>

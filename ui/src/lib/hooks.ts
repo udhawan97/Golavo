@@ -1,22 +1,81 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/** Hash router. Returns the current path (without the leading '#') and a
- *  navigate helper. Defaults to "/". */
-export function useHashRoute(): [string, (to: string) => void] {
+const ROUTE_ENTRY_KEY = "__golavoRouteEntry";
+let routeEntrySequence = 0;
+
+export interface HashRouteState {
+  path: string;
+  entryKey: string;
+  restoreScrollY: number;
+}
+
+function routeEntryKey(): string {
+  const state = window.history.state as Record<string, unknown> | null;
+  return typeof state?.[ROUTE_ENTRY_KEY] === "string" ? state[ROUTE_ENTRY_KEY] : "";
+}
+
+function newRouteEntryKey(): string {
+  routeEntrySequence += 1;
+  return `golavo-${Date.now().toString(36)}-${routeEntrySequence.toString(36)}`;
+}
+
+function markRouteEntry(key: string): void {
+  const state = window.history.state;
+  const base = typeof state === "object" && state !== null ? state : {};
+  window.history.replaceState({ ...base, [ROUTE_ENTRY_KEY]: key }, "");
+}
+
+/** Hash router with per-history-entry scroll memory. New links start at the
+ *  destination heading; Back/Forward restore the exact entry they revisit. */
+export function useHashRoute(): [HashRouteState, (to: string) => void] {
   const read = () => {
     const h = window.location.hash.replace(/^#/, "");
     return h.length ? h : "/";
   };
-  const [path, setPath] = useState(read);
+  const initial = useRef<HashRouteState | null>(null);
+  if (initial.current === null) {
+    const entryKey = routeEntryKey() || newRouteEntryKey();
+    initial.current = {
+      path: read(),
+      entryKey,
+      restoreScrollY: 0,
+    };
+  }
+  const [route, setRoute] = useState<HashRouteState>(initial.current);
+  const current = useRef(route);
+  const knownEntries = useRef(new Set([route.entryKey]));
+  const scrollByEntry = useRef(new Map<string, number>());
+
   useEffect(() => {
-    const onHash = () => setPath(read());
+    markRouteEntry(current.current.entryKey);
+    const previousRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    const onHash = () => {
+      scrollByEntry.current.set(current.current.entryKey, window.scrollY);
+      const stateKey = routeEntryKey();
+      const revisiting = stateKey !== "" && stateKey !== current.current.entryKey && knownEntries.current.has(stateKey);
+      const entryKey = revisiting ? stateKey : newRouteEntryKey();
+      if (!revisiting) markRouteEntry(entryKey);
+      knownEntries.current.add(entryKey);
+      const next: HashRouteState = {
+        path: read(),
+        entryKey,
+        restoreScrollY: revisiting ? (scrollByEntry.current.get(entryKey) ?? 0) : 0,
+      };
+      current.current = next;
+      setRoute(next);
+    };
     window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    return () => {
+      scrollByEntry.current.set(current.current.entryKey, window.scrollY);
+      window.history.scrollRestoration = previousRestoration;
+      window.removeEventListener("hashchange", onHash);
+    };
   }, []);
   const navigate = useCallback((to: string) => {
     window.location.hash = to.startsWith("/") ? to : `/${to}`;
   }, []);
-  return [path, navigate];
+  return [route, navigate];
 }
 
 export type AsyncState<T> =

@@ -24,6 +24,7 @@ import { beginActivity, endActivity } from "../lib/activity";
 import { ReliabilityDiagram } from "../components/ReliabilityDiagram";
 import { InfoIcon } from "../components/icons";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
+import { ScrollableTable } from "../components/ScrollableTable";
 
 type SettlementState =
   | { status: "idle" }
@@ -286,7 +287,11 @@ function ChainsTable({
         Showing {filtered.length} of {chains.length} chains
       </p>
       <div className="card">
-        <div className="table-wrap" style={{ border: "none", borderRadius: 0 }}>
+        <ScrollableTable
+          label="Sealed forecast track record"
+          cue="More: sealed date, outcome and scores"
+          style={{ border: "none", borderRadius: 0 }}
+        >
           <table className="grid">
             <thead>
               <tr>
@@ -311,7 +316,7 @@ function ChainsTable({
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollableTable>
       </div>
       <p className="small dim" style={{ maxWidth: "70ch" }}>
         Result checks use pinned, hashed CC0 source snapshots. When two trusted

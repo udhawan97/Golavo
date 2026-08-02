@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.17.0" src="https://img.shields.io/badge/version-v0.17.0-6082b8?style=flat-square">
+  <img alt="version v0.17.1" src="https://img.shields.io/badge/version-v0.17.1-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -45,7 +45,7 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.17.0 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.17.1 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international and bundled-league seal→score loops, approved-source refresh, followed-match checks while the app
@@ -197,7 +197,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Models** | Climatological baseline, Elo ordinal-logit, independent Poisson, time-decayed Dixon–Coles, and bivariate Poisson; no permanent champion declared |
 | **Exact scores** | Goal-based seals include the coherent score grid they already imply, including an explicit high-score tail |
 | **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** or **Preview** arranged as six programme chapters. Casual keeps the essential story; Expert exposes fitted model internals, complete market rows, source proof, and the coherent score grid — machine-checked leak-safe, never averaged |
-| **Navigation** | Games-first home (recent + upcoming rails, offline), Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
+| **Navigation** | Games-first home (recent + upcoming rails, offline), text-safe mobile destinations, history-aware return to the exact Matchday card, Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
 | **Conditions Snapshot** | Read-only rest and travel context from the local index plus pinned GeoNames and Natural Earth side tables. City resolution is exact-name and country scoped; stadium remains unknown without a stadium-level source. Eligible upcoming fixtures can opt into an Open-Meteo forecast that is retained only when fetched before kickoff. Labeled “Context, not a model input.” |
 | **Tournament / Season outlooks** | The World Cup four-team bracket is exactly enumerated per voice. Five domestic standings rule sets run 10,000 seeded simulations only after a complete, gap-free schedule certificate. One-fixture conditional scenarios are ephemeral, clearly labelled, and never enter the seal ledger or model inputs. |
 | **Historical team research** | Seven isolated CC-BY-4.0 competition-era artifacts cover 1,941 Pappalardo/Wyscout matches and 3,251,294 events. Only team aggregates ship; raw events and player identities do not. |
@@ -206,7 +206,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Followed matches** | Local follow/unfollow, targeted source checks, deduplicated kickoff/venue/score/settlement history, optional desktop notifications, and exact closed-app disclosure. No account, cloud sync, daemon, Login Item, or LaunchAgent. |
 | **License-isolated overlay** | OpenLigaDB is optional, ODbL-attributed, display-only, stored under a separate overlay root, and removable. Exact source identities are used without fuzzy or automatic CC0 merging. |
 | **Corrections** | Local append-only proposals for fixtures, kickoff, aliases, venues, and scores. Evidence and source URL are mandatory before validation; conflicts fail closed; exports require an explicit final action. Nothing enters packs, training, calibration, or seals. |
-| **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, provenance, scored/voided/superseded states, Casual and Expert presentation, forecast readiness, verified-generation probability diffs, revision-pinned venue reference facts, deterministic history support, and reading-comfort themes |
+| **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, discoverable keyboard-focusable wide tables, provenance, scored/voided/superseded states, Casual and Expert presentation, forecast readiness, verified-generation probability diffs, revision-pinned venue reference facts, deterministic history support, and focus-safe reading-comfort themes |
 | **Facts** | Pre-registered deterministic templates; sample/freshness/base-rate guardrails; competition context, direct team comparisons and team-specific records separated; coincidences capped and quarantined |
 | **Evidence research** | User-selected capture from permissioned Wikimedia pages and entities, deterministic parsing before optional local AI fallback, immutable quote/hash receipts, cancellation/resume, and direct routing to the untrusted correction queue. DuckDuckGo HTML search is disabled. |
 | **AI Deep Read** | Implemented, off by default, and additive; local Ollama/llama.cpp and BYOK reads pass schema, citation, numeric-whitelist, grounding, and betting-language guards that fail closed to deterministic analysis only |
