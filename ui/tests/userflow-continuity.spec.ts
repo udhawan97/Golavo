@@ -13,6 +13,7 @@ test("320px primary navigation stays legible at M and XL reading sizes", async (
       const element = node as HTMLElement;
       const rect = element.getBoundingClientRect();
       return {
+        label: element.textContent,
         left: rect.left,
         right: rect.right,
         width: rect.width,
@@ -22,7 +23,7 @@ test("320px primary navigation stays legible at M and XL reading sizes", async (
     }));
 
     for (const metric of metrics) {
-      expect(metric.scrollWidth).toBeLessThanOrEqual(metric.clientWidth);
+      expect(metric.scrollWidth, `${metric.label} must stay inside its nav target`).toBeLessThanOrEqual(metric.clientWidth);
       expect(Math.abs(metric.width - metrics[0].width)).toBeLessThan(0.1);
     }
     for (let index = 1; index < metrics.length; index += 1) {
