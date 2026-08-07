@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 license = "Apache-2.0"
 authors = [{ name = "Umang Dhawan" }]
 dependencies = [
-  "cryptography==49.0.0",
+  "cryptography==50.0.0",
   "jsonschema==4.26.0",
   "numpy==2.5.1",
   "pandas==3.0.5",
