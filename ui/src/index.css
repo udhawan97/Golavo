@@ -2498,6 +2498,14 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .outlook-method p { max-width: 72ch; }
 .season-table { min-width: 440px; }
 .season-probability-table { min-width: 590px; }
+.run-in-title { margin: .35rem 0 0; font-size: var(--text-md); }
+.run-in-table { min-width: 640px; }
+.run-in-chips { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.run-in-chip { gap: .3rem; font-size: var(--text-xs); }
+.run-in-chip__side { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.run-in-chip__swing { padding-left: .3rem; border-left: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.run-in-chip--tough { border-color: color-mix(in srgb, var(--danger, #b3261e) 45%, var(--border)); }
+.run-in-chip--kind { border-color: color-mix(in srgb, var(--gold) 45%, var(--border)); }
 .scorers-panel {
   padding: clamp(1rem, 2.3vw, 1.5rem);
   border: 1px solid var(--border);

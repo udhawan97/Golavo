@@ -8,6 +8,7 @@ ledger.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from functools import cache
 from typing import Any
@@ -28,6 +29,11 @@ SEASON_OUTLOOK_LABEL = (
 DEFAULT_ITERATIONS = 10_000
 DEFAULT_SEED = 20_260_715
 MIN_TRAINING_MATCHES = 20
+STAKES = ("title", "top_four", "relegation")
+#: Importance is reported from one named voice; council voices are never blended.
+IMPORTANCE_VOICE_ID = "elo_ordlogit"
+#: A conditional branch thinner than this is sampling noise, so it abstains instead.
+MIN_BRANCH_RUNS = 200
 
 
 def _utc(value: str | pd.Timestamp | None) -> pd.Timestamp:
@@ -368,6 +374,77 @@ def _largest_remainder_percent(
     return units.astype(float) / 10.0
 
 
+def fixture_importance(
+    *,
+    home_scores: np.ndarray,
+    away_scores: np.ndarray,
+    home_flags: Mapping[str, np.ndarray],
+    away_flags: Mapping[str, np.ndarray],
+    home_team: str,
+    away_team: str,
+    min_branch_runs: int = MIN_BRANCH_RUNS,
+) -> dict[str, Any]:
+    """How far one fixture's result moves each club's season stakes.
+
+    Partitions simulation runs that already happened by this fixture's outcome
+    and compares the two branches; nothing is re-simulated.  A branch thinner
+    than ``min_branch_runs`` abstains rather than reporting a noisy conditional.
+    """
+    home_win = home_scores > away_scores
+    away_win = home_scores < away_scores
+    home_wins = int(np.count_nonzero(home_win))
+    away_wins = int(np.count_nonzero(away_win))
+    coverage = {
+        "home_wins": home_wins,
+        "draws": int(home_scores.size) - home_wins - away_wins,
+        "away_wins": away_wins,
+    }
+    sides = (
+        (home_team, "home", home_flags, home_win, away_win),
+        (away_team, "away", away_flags, away_win, home_win),
+    )
+    if min(home_wins, away_wins) < min_branch_runs:
+        return {
+            "status": "insufficient_coverage",
+            "score": None,
+            "coverage": coverage,
+            "clubs": [
+                {"team": team, "side": side, "score": None, "swings": None}
+                for team, side, _, _, _ in sides
+            ],
+        }
+    clubs: list[dict[str, Any]] = []
+    for team, side, flags, won, lost in sides:
+        won_runs = int(np.count_nonzero(won))
+        lost_runs = int(np.count_nonzero(lost))
+        swings = {
+            stake: round(
+                float(
+                    abs(
+                        int(np.count_nonzero(flags[stake] & won)) / won_runs
+                        - int(np.count_nonzero(flags[stake] & lost)) / lost_runs
+                    )
+                ),
+                9,
+            )
+            for stake in STAKES
+        }
+        clubs.append(
+            {
+                "team": team,
+                "side": side,
+                "score": max(swings.values()),
+                "swings": swings,
+            }
+        )
+    return {
+        "status": "ok",
+        "score": max(club["score"] for club in clubs),
+        "coverage": coverage,
+        "clubs": clubs,
+    }
+
+
 def _voice_simulation(
     *,
     voice_id: str,
@@ -381,7 +458,8 @@ def _voice_simulation(
     seed: int,
     dixon_coles: Any,
     model: Any | None,
-) -> dict[str, Any]:
+    importance_match_ids: set[str] | None = None,
+) -> tuple[dict[str, Any], dict[str, dict[str, Any]] | None]:
     team_index = {team: index for index, team in enumerate(teams)}
     current = standings_table(schedule, rule.competition_id, season=season, teams=teams)
     by_team = {row["team"]: row for row in current}
@@ -446,9 +524,9 @@ def _voice_simulation(
             return 0.5
         return knockout_advance_probability(model, teams[first], teams[second])
 
-    title_counts = np.zeros(len(teams), dtype=np.int64)
-    top_four_counts = np.zeros(len(teams), dtype=np.int64)
-    relegation_counts = np.zeros(len(teams), dtype=np.int64)
+    stake_flags = {
+        stake: np.zeros((iterations, len(teams)), dtype=bool) for stake in STAKES
+    }
     top_slots = min(4, len(teams))
     for iteration in range(iterations):
         if rule.head_to_head_on_points:
@@ -489,10 +567,14 @@ def _voice_simulation(
             relegated = order[relegated_index]
             if rng.random() > playoff_probability(safe, relegated):
                 order[safe_index], order[relegated_index] = relegated, safe
-        title_counts[order[0]] += 1
-        top_four_counts[order[:top_slots]] += 1
-        relegation_counts[order[-rule.relegation_slots :]] += 1
+        stake_flags["title"][iteration, order[0]] = True
+        stake_flags["top_four"][iteration, order[:top_slots]] = True
+        stake_flags["relegation"][iteration, order[-rule.relegation_slots :]] = True
 
+    title_counts = stake_flags["title"].sum(axis=0)
+    top_four_counts = stake_flags["top_four"].sum(axis=0)
+    relegation_counts = stake_flags["relegation"].sum(axis=0)
+    expected_points = points.mean(axis=0)
     title_display = _largest_remainder_percent(
         title_counts, iterations=iterations, slots=1, teams=teams
     )
@@ -511,6 +593,7 @@ def _voice_simulation(
             "title": round(float(title_counts[index] / iterations), 9),
             "top_four": round(float(top_four_counts[index] / iterations), 9),
             "relegation": round(float(relegation_counts[index] / iterations), 9),
+            "expected_points": round(float(expected_points[index]), 6),
             "display_percent": {
                 "title": float(title_display[index]),
                 "top_four": float(top_display[index]),
@@ -520,7 +603,24 @@ def _voice_simulation(
         for index, team in enumerate(teams)
     ]
     rows.sort(key=lambda row: (-row["title"], -row["top_four"], row["team"]))
-    return {
+    importance: dict[str, dict[str, Any]] | None = None
+    if importance_match_ids is not None:
+        importance = {}
+        for match_index, value in enumerate(schedule["match_id"].astype("string")):
+            match_id = str(value)
+            if match_id not in importance_match_ids:
+                continue
+            home_index = int(home_indices[match_index])
+            away_index = int(away_indices[match_index])
+            importance[match_id] = fixture_importance(
+                home_scores=all_home_scores[:, match_index],
+                away_scores=all_away_scores[:, match_index],
+                home_flags={stake: flags[:, home_index] for stake, flags in stake_flags.items()},
+                away_flags={stake: flags[:, away_index] for stake, flags in stake_flags.items()},
+                home_team=teams[home_index],
+                away_team=teams[away_index],
+            )
+    voice = {
         "voice_id": voice_id,
         "label": label,
         "role": role,
@@ -540,6 +640,7 @@ def _voice_simulation(
             "relegation": round(float(relegation_counts.sum() / iterations), 9),
         },
     }
+    return voice, importance
 
 
 def season_outlook(
@@ -660,47 +761,51 @@ def season_outlook(
     cutoff = _iso(as_of)
     elo = fit_model("elo_ordlogit", training, cutoff)
     dixon_coles = fit_model("dixon_coles", training, cutoff)
-    voices = [
-        _voice_simulation(
-            voice_id="elo_ordlogit",
-            label="Ratings voice",
-            role="voice",
-            rule=rule,
-            season=season_id,
-            teams=teams,
-            schedule=scenario_schedule,
-            iterations=iterations,
-            seed=seed,
-            dixon_coles=dixon_coles,
-            model=elo,
-        ),
-        _voice_simulation(
-            voice_id="dixon_coles",
-            label="Goal-model voice",
-            role="voice",
-            rule=rule,
-            season=season_id,
-            teams=teams,
-            schedule=scenario_schedule,
-            iterations=iterations,
-            seed=seed + 1,
-            dixon_coles=dixon_coles,
-            model=dixon_coles,
-        ),
-        _voice_simulation(
-            voice_id="equal-chance-baseline",
-            label="Equal-chance baseline",
-            role="baseline",
-            rule=rule,
-            season=season_id,
-            teams=teams,
-            schedule=scenario_schedule,
-            iterations=iterations,
-            seed=seed + 2,
-            dixon_coles=dixon_coles,
-            model=None,
-        ),
-    ]
+    ratings_voice, importance = _voice_simulation(
+        voice_id=IMPORTANCE_VOICE_ID,
+        label="Ratings voice",
+        role="voice",
+        rule=rule,
+        season=season_id,
+        teams=teams,
+        schedule=scenario_schedule,
+        iterations=iterations,
+        seed=seed,
+        dixon_coles=dixon_coles,
+        model=elo,
+        importance_match_ids={fixture["match_id"] for fixture in remaining_fixtures},
+    )
+    goal_voice, _ = _voice_simulation(
+        voice_id="dixon_coles",
+        label="Goal-model voice",
+        role="voice",
+        rule=rule,
+        season=season_id,
+        teams=teams,
+        schedule=scenario_schedule,
+        iterations=iterations,
+        seed=seed + 1,
+        dixon_coles=dixon_coles,
+        model=dixon_coles,
+    )
+    baseline_voice, _ = _voice_simulation(
+        voice_id="equal-chance-baseline",
+        label="Equal-chance baseline",
+        role="baseline",
+        rule=rule,
+        season=season_id,
+        teams=teams,
+        schedule=scenario_schedule,
+        iterations=iterations,
+        seed=seed + 2,
+        dixon_coles=dixon_coles,
+        model=None,
+    )
+    voices = [ratings_voice, goal_voice, baseline_voice]
+    for fixture in remaining_fixtures:
+        entry = (importance or {}).get(fixture["match_id"])
+        if entry is not None:
+            fixture["importance"] = {"voice_id": IMPORTANCE_VOICE_ID, **entry}
     return {
         "schema_version": SEASON_OUTLOOK_SCHEMA_VERSION,
         "status": "available",

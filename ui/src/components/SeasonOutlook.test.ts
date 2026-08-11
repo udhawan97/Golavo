@@ -1,8 +1,20 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import type { SeasonOutlook } from "../lib/contract";
-import { scenarioRequest, SeasonOutlookBody } from "./SeasonOutlook";
+import type {
+  SeasonFixtureImportance,
+  SeasonOutlook,
+  SeasonOutlookTeam,
+  SeasonRemainingFixture,
+} from "../lib/contract";
+import {
+  clubImportance,
+  opponentBands,
+  RunIn,
+  scenarioRequest,
+  SeasonOutlookBody,
+  topStake,
+} from "./SeasonOutlook";
 
 const BLOCKED: SeasonOutlook = {
   schema_version: "0.2.0",
@@ -26,6 +38,71 @@ const BLOCKED: SeasonOutlook = {
   current_table: [], remaining_fixtures: [], scenario: null,
   iterations: 0, seed: null, voices: [],
   provenance: { source_ids: [], index_sha256: "0".repeat(64) },
+};
+
+const RUN_IN_TEAMS: SeasonOutlookTeam[] = [
+  ["A", 70], ["B", 60], ["C", 50], ["D", 40],
+].map(([team, points]) => ({
+  team: team as string,
+  title: 0.25,
+  top_four: 1,
+  relegation: 0.25,
+  expected_points: points as number,
+  display_percent: { title: 25, top_four: 100, relegation: 25 },
+}));
+
+const OK_IMPORTANCE: SeasonFixtureImportance = {
+  voice_id: "elo_ordlogit",
+  status: "ok",
+  score: 0.23,
+  coverage: { home_wins: 4200, draws: 2100, away_wins: 3700 },
+  clubs: [
+    { team: "A", side: "home", score: 0.23, swings: { title: 0.23, top_four: 0.1, relegation: 0 } },
+    { team: "B", side: "away", score: 0.11, swings: { title: 0.02, top_four: 0.11, relegation: 0 } },
+  ],
+};
+
+const ABSTAINED_IMPORTANCE: SeasonFixtureImportance = {
+  voice_id: "elo_ordlogit",
+  status: "insufficient_coverage",
+  score: null,
+  coverage: { home_wins: 9950, draws: 50, away_wins: 0 },
+  clubs: [
+    { team: "C", side: "home", score: null, swings: null },
+    { team: "D", side: "away", score: null, swings: null },
+  ],
+};
+
+const RUN_IN_FIXTURES: SeasonRemainingFixture[] = [
+  {
+    match_id: "m-1", kickoff_utc: "2027-02-01T15:00:00Z",
+    home_team: "A", away_team: "B", importance: OK_IMPORTANCE,
+  },
+  {
+    match_id: "m-2", kickoff_utc: "2027-02-02T15:00:00Z",
+    home_team: "C", away_team: "D", importance: ABSTAINED_IMPORTANCE,
+  },
+];
+
+const WITH_IMPORTANCE: SeasonOutlook = {
+  ...BLOCKED,
+  status: "available",
+  reason_code: null,
+  reason: null,
+  iterations: 10_000,
+  seed: 42,
+  current_table: RUN_IN_TEAMS.map((team, index) => ({
+    position: index + 1, team: team.team, played: 4, won: 2, drawn: 1, lost: 1,
+    goals_for: 6, goals_against: 4, goal_difference: 2, points_adjustment: 0, points: 7,
+  })),
+  remaining_fixtures: RUN_IN_FIXTURES,
+  voices: [
+    {
+      voice_id: "elo_ordlogit", label: "Ratings voice", role: "voice",
+      scoreline_method: "declared method", teams: RUN_IN_TEAMS,
+      totals: { title: 1, top_four: 4, relegation: 1 },
+    },
+  ],
 };
 
 describe("SeasonOutlookBody", () => {
@@ -56,6 +133,46 @@ describe("SeasonOutlookBody", () => {
     expect(html).toContain("Baseline");
     expect(html).toContain("10,000 seeded runs");
     expect(html).toContain("25.0%");
+  });
+
+  it("shows the run-in with swings, and no badge where the engine abstained", () => {
+    const html = renderToStaticMarkup(createElement(RunIn, { outlook: WITH_IMPORTANCE }));
+    // Projected points come from the same voice that produced the swings.
+    expect(html).toContain("70.0");
+    expect(html).toContain("Ratings");
+    // A's title chance moves 23 points between winning and losing.
+    expect(html).toContain("23pp");
+    expect(html).toContain("11pp");
+    // The abstained fixture renders its opponents but never a fabricated number.
+    expect(html).toContain(">D<");
+    expect(html).not.toContain("0pp");
+  });
+
+  it("renders no run-in when the payload carries no importance", () => {
+    const without: SeasonOutlook = {
+      ...WITH_IMPORTANCE,
+      remaining_fixtures: WITH_IMPORTANCE.remaining_fixtures.map(({ importance, ...rest }) => {
+        void importance;
+        return rest;
+      }),
+    };
+    expect(renderToStaticMarkup(createElement(RunIn, { outlook: without }))).toBe("");
+  });
+
+  it("bands opponents by projected finish from one voice", () => {
+    const bands = opponentBands(RUN_IN_TEAMS);
+    expect(bands.get("A")).toBe("tough");
+    expect(bands.get("D")).toBe("kind");
+    // A team with no projected points cannot be banded rather than guessed at.
+    expect(opponentBands([{ ...RUN_IN_TEAMS[0], expected_points: undefined }]).size).toBe(0);
+  });
+
+  it("reads the leading stake and abstains with the engine", () => {
+    const fixture = WITH_IMPORTANCE.remaining_fixtures[0];
+    const club = clubImportance(fixture, "A");
+    expect(club && topStake(club)).toBe("title");
+    // The abstained fixture reports nothing for either club.
+    expect(clubImportance(WITH_IMPORTANCE.remaining_fixtures[1], "C")).toBeNull();
   });
 
   it("builds a bounded one-fixture hypothetical request", () => {

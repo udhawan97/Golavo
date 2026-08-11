@@ -6,6 +6,18 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- The season outlook now reports **what a remaining fixture is worth**: for each
+  unplayed match, how far winning instead of losing moves each club's title, top-four,
+  and relegation chances. The runs are the ones the outlook already simulated,
+  partitioned by that fixture's outcome, so no extra simulation happens and the swings
+  come from one named voice rather than a blend. A conditional branch thinner than 200
+  of the 10,000 runs reports `insufficient_coverage` instead of a noisy number.
+- Each voice now reports every club's **projected final points**, and the league view
+  gained a **run-in** table pairing those points with the next five opponents, banded by
+  the same voice's projected finish.
+
 ## [0.17.1] - 2026-08-02
 
 ### Fixed

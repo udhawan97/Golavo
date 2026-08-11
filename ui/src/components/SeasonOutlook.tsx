@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import type {
   SeasonForcedResult,
+  SeasonImportanceClub,
+  SeasonImportanceSwings,
   SeasonOutlook as Outlook,
+  SeasonOutlookTeam,
   SeasonOutlookVoice,
   SeasonRemainingFixture,
   SeasonStandingRow,
@@ -16,6 +19,56 @@ const VOICE_COPY: Record<SeasonOutlookVoice["voice_id"], string> = {
   dixon_coles: "Goals",
   "equal-chance-baseline": "Baseline",
 };
+
+const STAKE_COPY: Record<keyof SeasonImportanceSwings, string> = {
+  title: "title",
+  top_four: "top-four",
+  relegation: "relegation",
+};
+
+/** How many upcoming fixtures the run-in shows per club. */
+export const RUN_IN_LENGTH = 5;
+
+export type OpponentBand = "tough" | "even" | "kind";
+
+/**
+ * Bands opponents by the same voice's projected finish, so the run-in never
+ * joins a second rating source into a table built from one simulation.
+ */
+export function opponentBands(teams: SeasonOutlookTeam[]): Map<string, OpponentBand> {
+  const ranked = teams
+    .filter((team) => typeof team.expected_points === "number")
+    .slice()
+    .sort((left, right) => (right.expected_points ?? 0) - (left.expected_points ?? 0));
+  const third = Math.ceil(ranked.length / 3);
+  const bands = new Map<string, OpponentBand>();
+  ranked.forEach((team, index) => {
+    const band: OpponentBand =
+      index < third ? "tough" : index < ranked.length - third ? "even" : "kind";
+    bands.set(team.team, band);
+  });
+  return bands;
+}
+
+/** The reported swing for one club in one fixture, or null when it abstained. */
+export function clubImportance(
+  fixture: SeasonRemainingFixture,
+  team: string,
+): SeasonImportanceClub | null {
+  if (fixture.importance?.status !== "ok") return null;
+  return fixture.importance.clubs.find((club) => club.team === team) ?? null;
+}
+
+/** The stake a club has most riding on a fixture. */
+export function topStake(club: SeasonImportanceClub): keyof SeasonImportanceSwings | null {
+  const swings = club.swings;
+  if (!swings) return null;
+  let best: keyof SeasonImportanceSwings = "title";
+  for (const stake of ["top_four", "relegation"] as const) {
+    if (swings[stake] > swings[best]) best = stake;
+  }
+  return best;
+}
 
 export function scenarioRequest(
   fixture: SeasonRemainingFixture,
@@ -50,6 +103,82 @@ function Table({ rows }: { rows: SeasonStandingRow[] }) {
         </tbody>
       </table>
     </ScrollableTable>
+  );
+}
+
+export function RunIn({ outlook }: { outlook: Outlook }) {
+  const voiceId = outlook.remaining_fixtures.find((fixture) => fixture.importance)?.importance
+    ?.voice_id;
+  const voice = outlook.voices.find((item) => item.voice_id === voiceId);
+  if (!voice || outlook.remaining_fixtures.length === 0) return null;
+  const bands = opponentBands(voice.teams);
+  const projected = new Map(voice.teams.map((team) => [team.team, team.expected_points]));
+  const rows = outlook.current_table.map((row) => ({
+    team: row.team,
+    expected: projected.get(row.team),
+    fixtures: outlook.remaining_fixtures
+      .filter((fixture) => fixture.home_team === row.team || fixture.away_team === row.team)
+      .slice(0, RUN_IN_LENGTH),
+  }));
+  return (
+    <section className="stack" style={{ ["--gap" as string]: ".5rem" }}>
+      <h3 className="run-in-title">The run-in</h3>
+      <p className="small dim">
+        Projected points and the next {RUN_IN_LENGTH} opponents, from the{" "}
+        {VOICE_COPY[voice.voice_id]} voice&apos;s runs. A badge shows how far winning instead of
+        losing moves that club&apos;s biggest season stake, in percentage points. Fixtures whose
+        conditional branches were too thin to read carry no badge.
+      </p>
+      <ScrollableTable label="Run-in" cue="More: upcoming opponents">
+        <table className="grid run-in-table">
+          <thead>
+            <tr>
+              <th scope="col">Team</th>
+              <th scope="col">Projected pts</th>
+              <th scope="col">Next {RUN_IN_LENGTH}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.team}>
+                <th scope="row">{row.team}</th>
+                <td className="num">
+                  {typeof row.expected === "number" ? row.expected.toFixed(1) : "—"}
+                </td>
+                <td>
+                  <ul className="run-in-chips">
+                    {row.fixtures.map((fixture) => {
+                      const atHome = fixture.home_team === row.team;
+                      const opponent = atHome ? fixture.away_team : fixture.home_team;
+                      const club = clubImportance(fixture, row.team);
+                      const stake = club ? topStake(club) : null;
+                      return (
+                        <li key={fixture.match_id}>
+                          <span
+                            className={`chip run-in-chip run-in-chip--${bands.get(opponent) ?? "even"}`}
+                          >
+                            <span className="run-in-chip__side">{atHome ? "H" : "A"}</span>
+                            {opponent}
+                            {club?.score != null && stake && (
+                              <span
+                                className="run-in-chip__swing"
+                                title={`Winning instead of losing moves ${row.team}'s ${STAKE_COPY[stake]} chance by ${Math.round(club.score * 100)} percentage points.`}
+                              >
+                                {Math.round(club.score * 100)}pp
+                              </span>
+                            )}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </ScrollableTable>
+    </section>
   );
 }
 
@@ -104,6 +233,7 @@ export function SeasonOutlookBody({ outlook }: { outlook: Outlook }) {
           </tbody>
         </table>
       </ScrollableTable>
+      <RunIn outlook={outlook} />
       <details className="outlook-method">
         <summary>How this season is simulated</summary>
         <p>

@@ -565,6 +565,8 @@ export interface SeasonOutlookTeam {
   title: number;
   top_four: number;
   relegation: number;
+  /** Mean simulated final points across the voice's runs. */
+  expected_points?: number;
   display_percent: {
     title: number;
     top_four: number;
@@ -581,11 +583,37 @@ export interface SeasonOutlookVoice {
   totals: { title: number; top_four: number; relegation: number };
 }
 
+export interface SeasonImportanceSwings {
+  title: number;
+  top_four: number;
+  relegation: number;
+}
+
+export interface SeasonImportanceClub {
+  team: string;
+  side: "home" | "away";
+  score: number | null;
+  swings: SeasonImportanceSwings | null;
+}
+
+/**
+ * How far one fixture's result moves each club's season stakes, read off the
+ * runs the outlook already simulated. Abstains when a branch is too thin.
+ */
+export interface SeasonFixtureImportance {
+  voice_id: SeasonOutlookVoice["voice_id"];
+  status: "ok" | "insufficient_coverage";
+  score: number | null;
+  coverage: { home_wins: number; draws: number; away_wins: number };
+  clubs: SeasonImportanceClub[];
+}
+
 export interface SeasonRemainingFixture {
   match_id: string;
   kickoff_utc: string;
   home_team: string;
   away_team: string;
+  importance?: SeasonFixtureImportance;
 }
 
 export interface SeasonForcedResult {

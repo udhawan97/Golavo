@@ -36,6 +36,26 @@ score and rerun through the same three model voices. The response is stamped
 `hypothetical_only`, `persisted: false`, and `model_input: false`; it exists only in the
 current view, cannot be sealed, and does not change the canonical verified outlook.
 
+## The run-in: projected points and what a fixture moves
+
+An available domestic outlook also reports, for each remaining fixture, how far its
+result moves the two clubs' season stakes. Golavo does not simulate the season again
+to get this. It partitions the runs it already made by that fixture's simulated
+outcome and compares the branches: the swing is the gap between a club's title,
+top-four, or relegation chance when it wins that fixture and when it loses it. The
+reported number is the largest of those three swings, in percentage points.
+
+Two honesty limits apply. A conditional branch thinner than 200 of the 10,000 runs is
+sampling noise, so the fixture reports `insufficient_coverage` and no number at all —
+that is why a fixture one club is overwhelmingly expected to win may carry no swing,
+and why a fixture fixed by a hypothetical scenario never carries one. And because the
+council voices are never blended, every swing comes from a single named voice, which
+the payload states in `importance.voice_id`.
+
+Alongside it, each club's **projected points** is the mean final points across the same
+voice's runs. The run-in table bands upcoming opponents by that same projected finish
+rather than joining in a second rating source, so one table never mixes two models.
+
 ## Golden Boot and shootouts
 
 An international competition shows a leading-scorers table and a penalty-shootout

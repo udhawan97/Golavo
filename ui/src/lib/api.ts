@@ -49,6 +49,7 @@ import type {
   SealEligibility,
   SealResult,
   SeasonOutlook,
+  SeasonRemainingFixture,
   SeasonForcedResult,
   SettlementReport,
   SourceKind,
@@ -711,6 +712,26 @@ export async function cancelWorldCupRetrospective(jobId: string): Promise<void> 
   if (!res.ok) throw new ApiError("The retrospective could not be cancelled.", res.status);
 }
 
+/**
+ * Why a fixture's importance block cannot be trusted, or null when it is sound.
+ * An abstention must stay an abstention: the UI never fills the engine's gap.
+ */
+export function importanceViolation(fixtures: SeasonRemainingFixture[]): string | null {
+  for (const fixture of fixtures) {
+    const importance = fixture.importance;
+    if (!importance) continue;
+    if (importance.clubs.length !== 2) return "fixture importance must name both clubs";
+    const scores = [importance.score, ...importance.clubs.map((club) => club.score)];
+    if (importance.status === "insufficient_coverage") {
+      if (scores.some((value) => value !== null))
+        return "an abstained fixture may not carry a swing";
+    } else if (scores.some((value) => value === null || value < 0 || value > 1)) {
+      return "fixture importance contains an invalid swing";
+    }
+  }
+  return null;
+}
+
 function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {
   const data = x as SeasonOutlook;
   if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
@@ -746,6 +767,8 @@ function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {
           throw new ContractError(`${ctx}: ${voice.voice_id} contains an invalid probability`);
       }
     }
+    const violation = importanceViolation(data.remaining_fixtures);
+    if (violation) throw new ContractError(`${ctx}: ${violation}`);
   } else if (!data.reason || data.voices.length !== 0) {
     throw new ContractError(`${ctx}: non-simulated outlook requires a reason and no voices`);
   }

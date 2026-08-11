@@ -68,7 +68,59 @@
         "match_id": { "type": "string", "minLength": 1 },
         "kickoff_utc": { "type": "string", "format": "date-time" },
         "home_team": { "type": "string", "minLength": 1 },
-        "away_team": { "type": "string", "minLength": 1 }
+        "away_team": { "type": "string", "minLength": 1 },
+        "importance": { "$ref": "#/$defs/fixtureImportance" }
+      }
+    },
+    "importanceSwings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "top_four", "relegation"],
+      "properties": {
+        "title": { "type": "number", "minimum": 0, "maximum": 1 },
+        "top_four": { "type": "number", "minimum": 0, "maximum": 1 },
+        "relegation": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "importanceClub": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["team", "side", "score", "swings"],
+      "properties": {
+        "team": { "type": "string", "minLength": 1 },
+        "side": { "enum": ["home", "away"] },
+        "score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "swings": {
+          "oneOf": [{ "$ref": "#/$defs/importanceSwings" }, { "type": "null" }]
+        }
+      }
+    },
+    "fixtureImportance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voice_id", "status", "score", "coverage", "clubs"],
+      "properties": {
+        "voice_id": {
+          "enum": ["elo_ordlogit", "dixon_coles", "equal-chance-baseline"]
+        },
+        "status": { "enum": ["ok", "insufficient_coverage"] },
+        "score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["home_wins", "draws", "away_wins"],
+          "properties": {
+            "home_wins": { "type": "integer", "minimum": 0 },
+            "draws": { "type": "integer", "minimum": 0 },
+            "away_wins": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "clubs": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "$ref": "#/$defs/importanceClub" }
+        }
       }
     },
     "scenarioResult": {
@@ -180,6 +232,7 @@
         "title": { "type": "number", "minimum": 0, "maximum": 1 },
         "top_four": { "type": "number", "minimum": 0, "maximum": 1 },
         "relegation": { "type": "number", "minimum": 0, "maximum": 1 },
+        "expected_points": { "type": "number", "minimum": 0 },
         "display_percent": { "$ref": "#/$defs/displayPercent" }
       }
     },

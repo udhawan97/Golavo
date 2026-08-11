@@ -3,9 +3,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
-from golavo_core.season_outlook import certify_schedule, season_outlook
+from golavo_core.season_outlook import (
+    IMPORTANCE_VOICE_ID,
+    certify_schedule,
+    fixture_importance,
+    season_outlook,
+)
 from golavo_core.standings import LEAGUE_RULES, LeagueRule
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -255,6 +261,127 @@ def test_future_completed_training_poison_outside_target_season_is_ignored() -> 
         seed=7,
     )
     assert json.dumps(baseline, sort_keys=True) == json.dumps(poisoned, sort_keys=True)
+
+
+def _six_iteration_branches() -> dict[str, object]:
+    """Six iterations: home wins {0,4}, draws {1,3}, away wins {2,5}."""
+    return {
+        "home_scores": np.array([2, 1, 0, 1, 3, 0]),
+        "away_scores": np.array([0, 1, 2, 1, 1, 3]),
+        "home_team": "A",
+        "away_team": "B",
+        "home_flags": {
+            # Title in both home wins, in neither away win -> swing 1.0
+            "title": np.array([True, True, False, False, True, False]),
+            # Top four in both home wins and in one away win -> swing 0.5
+            "top_four": np.array([True, True, True, False, True, False]),
+            "relegation": np.zeros(6, dtype=bool),
+        },
+        "away_flags": {
+            # Away club: wins on {2,5}, loses on {0,4}. Title in one win -> swing 0.5
+            "title": np.array([False, False, True, False, False, False]),
+            "top_four": np.zeros(6, dtype=bool),
+            # Relegated in one of its two losses, never in a win -> swing 0.5
+            "relegation": np.array([False, False, False, False, True, False]),
+        },
+    }
+
+
+def test_fixture_importance_swings_match_hand_computation() -> None:
+    result = fixture_importance(**_six_iteration_branches(), min_branch_runs=2)
+
+    assert result["status"] == "ok"
+    assert result["coverage"] == {"home_wins": 2, "draws": 2, "away_wins": 2}
+    home, away = result["clubs"]
+    assert (home["team"], home["side"]) == ("A", "home")
+    assert home["swings"] == pytest.approx({"title": 1.0, "top_four": 0.5, "relegation": 0.0})
+    assert home["score"] == pytest.approx(1.0)
+    assert (away["team"], away["side"]) == ("B", "away")
+    assert away["swings"] == pytest.approx({"title": 0.5, "top_four": 0.0, "relegation": 0.5})
+    assert away["score"] == pytest.approx(0.5)
+    # Fixture importance is the larger of the two clubs, never a blend.
+    assert result["score"] == pytest.approx(1.0)
+
+
+def test_fixture_importance_abstains_below_the_branch_floor() -> None:
+    result = fixture_importance(**_six_iteration_branches(), min_branch_runs=3)
+
+    assert result["status"] == "insufficient_coverage"
+    assert result["score"] is None
+    # Coverage stays reported so the abstention is auditable.
+    assert result["coverage"] == {"home_wins": 2, "draws": 2, "away_wins": 2}
+    assert [club["swings"] for club in result["clubs"]] == [None, None]
+    assert [club["score"] for club in result["clubs"]] == [None, None]
+
+
+def test_season_outlook_reports_importance_and_expected_points() -> None:
+    frame = _synthetic_frame()
+    kwargs = {
+        "as_of_utc": "2026-09-01T00:00:00Z",
+        "season": "2026-27",
+        "iterations": 1_000,
+        "seed": 42,
+    }
+
+    first = season_outlook(frame, "test-league", **kwargs)
+    second = season_outlook(frame, "test-league", **kwargs)
+
+    assert json.dumps(first, sort_keys=True) == json.dumps(second, sort_keys=True)
+
+    fixtures = first["remaining_fixtures"]
+    assert fixtures, "the synthetic season must leave fixtures to simulate"
+    for fixture in fixtures:
+        importance = fixture["importance"]
+        assert importance["voice_id"] == IMPORTANCE_VOICE_ID
+        coverage = importance["coverage"]
+        assert sum(coverage.values()) == 1_000
+        clubs = importance["clubs"]
+        assert [club["team"] for club in clubs] == [fixture["home_team"], fixture["away_team"]]
+        if importance["status"] == "ok":
+            assert 0.0 <= importance["score"] <= 1.0
+            assert importance["score"] == pytest.approx(max(club["score"] for club in clubs))
+            for club in clubs:
+                assert set(club["swings"]) == {"title", "top_four", "relegation"}
+                assert all(0.0 <= value <= 1.0 for value in club["swings"].values())
+
+    for voice in first["voices"]:
+        assert all(row["expected_points"] >= 0.0 for row in voice["teams"])
+
+    # Point mass is conserved: every fixture pays 3 points on a decision and 2 on
+    # a draw, so the coverage counts and the expected points must agree.  Only the
+    # importance voice's runs produced those counts — voices are never blended.
+    ratings_voice = next(
+        voice for voice in first["voices"] if voice["voice_id"] == IMPORTANCE_VOICE_ID
+    )
+    assert sum(row["expected_points"] for row in ratings_voice["teams"]) == pytest.approx(
+        sum(row["points"] for row in first["current_table"])
+        + sum(3 - fixture["importance"]["coverage"]["draws"] / 1_000 for fixture in fixtures),
+        abs=1e-6,
+    )
+
+    contract_payload = json.loads(json.dumps(first))
+    contract_payload["provenance"]["index_sha256"] = "0" * 64
+    Draft202012Validator(SCHEMA, format_checker=FormatChecker()).validate(contract_payload)
+
+
+def test_forced_fixture_has_no_importance_to_report() -> None:
+    frame = _synthetic_frame()
+    result = season_outlook(
+        frame,
+        "test-league",
+        as_of_utc="2026-09-01T00:00:00Z",
+        season="2026-27",
+        iterations=1_000,
+        seed=42,
+        forced_results=[{"match_id": "season-4", "home_score": 3, "away_score": 1}],
+    )
+
+    forced = next(
+        fixture for fixture in result["remaining_fixtures"] if fixture["match_id"] == "season-4"
+    )
+    # Its outcome is fixed in this scenario, so one branch is empty and it abstains.
+    assert forced["importance"]["status"] == "insufficient_coverage"
+    assert forced["importance"]["coverage"] == {"home_wins": 1_000, "draws": 0, "away_wins": 0}
 
 
 def test_completed_result_after_cutoff_is_rejected_without_entering_the_table() -> None:
