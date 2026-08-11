@@ -1,5 +1,23 @@
 # Codex prompt — "What's at Stake": match importance + run-in difficulty
 
+**Status: SHIPPED in `97d4db4`** — implemented in-repo rather than handed to Codex.
+`fixture_importance` and per-voice `expected_points` live in
+`core/golavo_core/season_outlook.py`; the run-in table is in
+`ui/src/components/SeasonOutlook.tsx`; the payload contract gained
+`remainingFixture.importance` and `teamProbability.expected_points`. The prompt
+below is kept as the design record. Phases 3–7 of
+`docs/superpowers/specs/2026-08-11-whats-at-stake-design.md` are still open.
+
+Two things landed differently from the plan below, both deliberate:
+
+- **No "At stake" line on match cards / MatchDetail.** A season outlook fits two
+  models and runs 30,000 simulations; firing that from every match view to
+  annotate one fixture is the wrong trade. The swings are surfaced in the league
+  view, where that simulation is already being run.
+- **The run-in bands opponents by the outlook's own projected points**, not by a
+  second fetch of the Elo ratings endpoint. One table, one voice, no cross-source
+  join and no second provenance chain.
+
 Copy everything below the line into Codex, run from the repo root.
 
 ---
