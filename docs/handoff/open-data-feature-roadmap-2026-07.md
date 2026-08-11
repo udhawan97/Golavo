@@ -1,6 +1,12 @@
 # Open-data feature roadmap — verified 2026-07-16
 
-**Status: PLAN ONLY — nothing here is implemented.**
+**Status — updated 2026-08-11: no longer plan-only.** Shipped as phases of
+`docs/superpowers/plans/2026-07-16-open-data-program-plan.md` (per-phase evidence in its
+progress block): #1→P1, #3→P2, #4→P3, #7→P5 (`22893b3`), #9→P4 (`e5db72c`), #11→P7.
+Partial: #10→P6 — venue identity + capacity shipped (`0ff1aa2`,
+`packs/wikidata-club-venues-2026-07-29/`); manager tenures (P286) deliberately absent
+pending a revision-pinned tenure source. Not implemented: #2, #5, #6 (upstream still has
+no LICENSE — `blocked` in the registry), #8 (StatsBomb still `"rejected"`), #12, #13.
 
 **Method:** two-loop verification. Loop 1: a codebase map of every extension point
 (sources registry, fact registry, capability table, refresh allowlist, overlay

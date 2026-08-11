@@ -1,7 +1,7 @@
 # Open-Data Program Implementation Plan (10 phases, chronological)
 
-> **Progress — updated 2026-07-17.**
-> **Phase 1 (The Fixture Key): SHIPPED** on main (`52a4c08`; parser `f7d7d7f`, unlock
+> **Progress — updated 2026-08-11.**
+> **Phase 1 (The Fixture Key): SHIPPED** on main (`52a4c08`; parser `f6a38c2`, unlock
 > `52e8edc`, docs `f3e563a`, review fixes `47e6a39`). The season outlook runs for all
 > five leagues; full core+server suite **847 passed**; all six governance validators,
 > `ruff check .`, the byte-identical index rebuild and the docs-site build are green.
@@ -27,13 +27,22 @@
 > New parser (`core/golavo_core/ingest/footballcsv.py`), trimmed to never overlap the
 > football.json 2010+ rows, namespaced ids, its own source so it never trains a forecast
 > and is seal-ineligible. Fragmentation gate + byte-identical rebuild + all validators pass.
-> **Phase 4 (Club Seals): DEFERRED to the user** — it modifies the immutable seal→score
-> write + settlement paths (the app's core honesty guarantee); settlement is entirely
-> network-loader-based, so extending it to clubs needs a design decision (trusted club
-> result source + post-seal snapshot boundary for openfootball) that warrants owner input.
-> **Phases 5, 6, 8, 9, 10: not started** — each needs live external network or large
-> downloads (Open-Meteo per-user fetch; Wikidata SPARQL; Wyscout 77MB / SkillCorner ~1GB
-> LFS / StatsBomb) that this offline session cannot fully exercise end-to-end.
+> **Phase 4 (Club Seals): SHIPPED** (`e5db72c`) — club predictions on the record, graded
+> only when two independent result sources agree. `server/golavo_server/seal.py` resolves
+> a fixture to exactly one pinned CC0 pack server-side; `settlement.py` grades a club
+> seal only on two agreeing sources — and Golavo has fewer than two free club-result
+> sources today, so club seals stay honestly pending rather than settling off one feed.
+> **Phase 5 (Matchday Sky): SHIPPED** (`22893b3`) — per-user pre-kickoff Open-Meteo
+> forecast, display-only (`server/golavo_server/weather_source.py`, `weather_store.py`,
+> `weather.py`; `POST /api/v1/matches/{match_id}/weather/refresh`).
+> **Phase 6 (Reference Desk): PARTIAL** — venue identity + capacity shipped
+> (`packs/wikidata-club-venues-2026-07-29/`, `0ff1aa2`; `ui/src/components/ReferenceDesk.tsx`
+> in v0.17.0 `2045427` — CHANGELOG: "A guarded Reference Desk"). The current-manager
+> (P286) half is deliberately absent pending a revision-pinned tenure source; the UI
+> names the gap instead of turning a changeable lookup into a fact.
+> **Phases 8, 9, 10: not started** — the research-pack download lane does not exist
+> (`server/golavo_server/packs_lane.py` absent) and StatsBomb is still
+> `"classification": "rejected"` in `data/sources/registry.json`.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan phase-by-phase. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
