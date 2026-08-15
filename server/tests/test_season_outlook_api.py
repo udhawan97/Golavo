@@ -73,16 +73,16 @@ def test_conditional_season_scenario_is_ephemeral_and_contract_valid() -> None:
     path = "/api/v1/analytics/competitions/england-premier-league"
     params = {"as_of_utc": "2026-08-20T08:00:00Z"}
     base = client.get(f"{path}/season-outlook", params=params).json()
-    fixture = base["remaining_fixtures"][0]
+    fixtures = base["remaining_fixtures"][:2]
+    forced_results = [
+        {"match_id": fixtures[0]["match_id"], "home_score": 2, "away_score": 0},
+        {"match_id": fixtures[1]["match_id"], "home_score": 1, "away_score": 1},
+    ]
 
     response = client.post(
         f"{path}/season-scenario",
         params=params,
-        json={
-            "forced_results": [
-                {"match_id": fixture["match_id"], "home_score": 2, "away_score": 0}
-            ]
-        },
+        json={"forced_results": forced_results},
     )
 
     assert response.status_code == 200
@@ -91,6 +91,14 @@ def test_conditional_season_scenario_is_ephemeral_and_contract_valid() -> None:
     assert scenario["scenario"]["hypothetical_only"] is True
     assert scenario["scenario"]["persisted"] is False
     assert scenario["scenario"]["model_input"] is False
+    assert [
+        {
+            "match_id": result["match_id"],
+            "home_score": result["home_score"],
+            "away_score": result["away_score"],
+        }
+        for result in scenario["scenario"]["forced_results"]
+    ] == forced_results
     assert base["scenario"] is None
     # Re-reading the canonical outlook proves the scenario was not cached into it.
     assert client.get(f"{path}/season-outlook", params=params).json()["scenario"] is None

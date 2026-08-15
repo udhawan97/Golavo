@@ -1,11 +1,101 @@
 import { describe, expect, it } from "vitest";
-import type { SeasonFixtureImportance, SeasonRemainingFixture } from "./contract";
+import type {
+  SeasonFixtureImportance,
+  SeasonForcedResult,
+  SeasonOutlook,
+  SeasonRemainingFixture,
+} from "./contract";
 import {
+  assertSeasonScenarioResponse,
   importanceViolation,
   narrativeJobWasLost,
   refreshMatchWeather,
   WeatherRefreshError,
 } from "./api";
+
+function scenarioResponse(): SeasonOutlook {
+  const voice = (voiceId: "elo_ordlogit" | "dixon_coles" | "equal-chance-baseline") => ({
+    voice_id: voiceId,
+    label: voiceId,
+    role: voiceId === "equal-chance-baseline" ? "baseline" as const : "voice" as const,
+    scoreline_method: "declared method",
+    teams: [{
+      team: "A",
+      title: 1,
+      top_four: 1,
+      relegation: 0,
+      display_percent: { title: 100, top_four: 100, relegation: 0 },
+    }],
+    totals: { title: 1, top_four: 1, relegation: 0 },
+  });
+  return {
+    schema_version: "0.2.0",
+    status: "available",
+    label: "Season outlook — not a seal.",
+    competition_id: "test-league",
+    competition_name: "Test League",
+    season: "2026-27",
+    as_of_utc: "2026-08-20T08:00:00Z",
+    simulation_rule: "season-mc-2026.07.1",
+    ledger_status: "never_persisted_or_scored_as_a_seal",
+    reason_code: null,
+    reason: null,
+    standings_rule_id: "test-2026.1",
+    fixture_certificate: {
+      expected_teams: 2,
+      observed_teams: 2,
+      teams: ["A", "B"],
+      expected_matches: 2,
+      observed_matches: 2,
+      unique_ordered_pairs: 2,
+      duplicate_ordered_pairs: 0,
+      self_fixtures: 0,
+      incomplete_fixtures: 1,
+      past_result_gaps: 0,
+      future_completed_results: 0,
+      complete_fixture_list: true,
+    },
+    current_table: [],
+    remaining_fixtures: [{
+      match_id: "m-1",
+      kickoff_utc: "2027-02-01T15:00:00Z",
+      home_team: "A",
+      away_team: "B",
+    }],
+    scenario: {
+      hypothetical_only: true,
+      persisted: false,
+      model_input: false,
+      forced_results: [{
+        match_id: "m-1",
+        home_team: "A",
+        away_team: "B",
+        home_score: 2,
+        away_score: 1,
+      }],
+    },
+    iterations: 10_000,
+    seed: 42,
+    voices: [voice("elo_ordlogit"), voice("dixon_coles"), voice("equal-chance-baseline")],
+    provenance: { source_ids: ["test-source"], index_sha256: "0".repeat(64) },
+  };
+}
+
+const REQUEST: SeasonForcedResult[] = [{ match_id: "m-1", home_score: 2, away_score: 1 }];
+const EXPECTED_FIXTURES: SeasonRemainingFixture[] = [{
+  match_id: "m-1",
+  kickoff_utc: "2027-02-01T15:00:00Z",
+  home_team: "A",
+  away_team: "B",
+}];
+const EXPECTATION = {
+  competitionId: "test-league",
+  forcedResults: REQUEST,
+  fixtures: EXPECTED_FIXTURES,
+  season: "2026-27",
+  asOfUtc: "2026-08-20T08:00:00Z",
+  indexSha256: "0".repeat(64),
+};
 
 function fixture(importance?: SeasonFixtureImportance): SeasonRemainingFixture {
   return {
@@ -59,6 +149,91 @@ describe("season importance contract", () => {
     expect(importanceViolation([fixture({ ...SOUND, clubs: [SOUND.clubs[0]] })])).toContain(
       "both clubs",
     );
+  });
+});
+
+describe("season scenario response contract", () => {
+  it("accepts an available response that exactly matches the request", () => {
+    expect(assertSeasonScenarioResponse(
+      scenarioResponse(),
+      EXPECTATION,
+    ).scenario?.forced_results).toHaveLength(1);
+  });
+
+  it("rejects a canonical response and request identity mismatches", () => {
+    const canonical = scenarioResponse();
+    canonical.scenario = null;
+    expect(() => assertSeasonScenarioResponse(canonical, EXPECTATION))
+      .toThrow(/available conditional scenario/);
+
+    const competition = scenarioResponse();
+    competition.competition_id = "other-league";
+    expect(() => assertSeasonScenarioResponse(competition, EXPECTATION))
+      .toThrow(/response identity/);
+
+    const season = scenarioResponse();
+    season.season = "2027-28";
+    expect(() => assertSeasonScenarioResponse(season, EXPECTATION))
+      .toThrow(/response identity/);
+
+    const cutoff = scenarioResponse();
+    cutoff.as_of_utc = "2026-08-21T08:00:00Z";
+    expect(() => assertSeasonScenarioResponse(cutoff, EXPECTATION))
+      .toThrow(/response identity/);
+
+    const generation = scenarioResponse();
+    generation.provenance.index_sha256 = "1".repeat(64);
+    expect(() => assertSeasonScenarioResponse(generation, EXPECTATION))
+      .toThrow(/response identity/);
+  });
+
+  it("rejects response results that do not exactly match the submitted set", () => {
+    const score = scenarioResponse();
+    score.scenario!.forced_results[0].home_score = 3;
+    expect(() => assertSeasonScenarioResponse(score, EXPECTATION))
+      .toThrow(/submitted forced results/);
+
+    const match = scenarioResponse();
+    match.scenario!.forced_results[0].match_id = "m-2";
+    expect(() => assertSeasonScenarioResponse(match, EXPECTATION))
+      .toThrow(/invalid forced result|submitted forced results/);
+
+    const selfConsistentWrongTeams = scenarioResponse();
+    selfConsistentWrongTeams.remaining_fixtures[0].home_team = "Stale A";
+    selfConsistentWrongTeams.scenario!.forced_results[0].home_team = "Stale A";
+    expect(() => assertSeasonScenarioResponse(
+      selfConsistentWrongTeams,
+      EXPECTATION,
+    )).toThrow(/submitted forced results/);
+  });
+
+  it.each([
+    ["empty results", []],
+    ["duplicate ids", [
+      scenarioResponse().scenario!.forced_results[0],
+      scenarioResponse().scenario!.forced_results[0],
+    ]],
+    ["too many results", Array.from({ length: 13 }, (_, index) => ({
+      ...scenarioResponse().scenario!.forced_results[0],
+      match_id: `m-${index + 1}`,
+    }))],
+    ["fractional score", [{
+      ...scenarioResponse().scenario!.forced_results[0],
+      home_score: 1.5,
+    }]],
+    ["score over 20", [{
+      ...scenarioResponse().scenario!.forced_results[0],
+      away_score: 21,
+    }]],
+    ["non-string team", [{
+      ...scenarioResponse().scenario!.forced_results[0],
+      home_team: {} as unknown as string,
+    }]],
+  ])("rejects %s", (_name, forcedResults) => {
+    const response = scenarioResponse();
+    response.scenario!.forced_results = forcedResults;
+    expect(() => assertSeasonScenarioResponse(response, EXPECTATION))
+      .toThrow();
   });
 });
 

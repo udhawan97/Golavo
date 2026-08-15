@@ -151,7 +151,8 @@ def test_conditional_result_is_hypothetical_deterministic_and_never_mutates_inpu
         "iterations": 250,
         "seed": 17,
         "forced_results": [
-            {"match_id": "season-4", "home_score": 3, "away_score": 1}
+            {"match_id": "season-4", "home_score": 3, "away_score": 1},
+            {"match_id": "season-5", "home_score": 0, "away_score": 0},
         ],
     }
 
@@ -170,7 +171,14 @@ def test_conditional_result_is_hypothetical_deterministic_and_never_mutates_inpu
                 "away_team": "C",
                 "home_score": 3,
                 "away_score": 1,
-            }
+            },
+            {
+                "match_id": "season-5",
+                "home_team": "B",
+                "away_team": "D",
+                "home_score": 0,
+                "away_score": 0,
+            },
         ],
     }
     assert "season-4" in {fixture["match_id"] for fixture in first["remaining_fixtures"]}
@@ -204,6 +212,33 @@ def test_scenario_rejects_a_completed_or_unknown_fixture() -> None:
             "test-league",
             **common,
             forced_results=[{"match_id": "season-4", "home_score": 1.5, "away_score": 0}],
+        )
+    with pytest.raises(ValueError, match="between 0 and 20"):
+        season_outlook(
+            frame,
+            "test-league",
+            **common,
+            forced_results=[{"match_id": "season-4", "home_score": 21, "away_score": 0}],
+        )
+    with pytest.raises(ValueError, match="non-empty and unique"):
+        season_outlook(
+            frame,
+            "test-league",
+            **common,
+            forced_results=[
+                {"match_id": "season-4", "home_score": 1, "away_score": 0},
+                {"match_id": "season-4", "home_score": 0, "away_score": 1},
+            ],
+        )
+    with pytest.raises(ValueError, match="at most 12"):
+        season_outlook(
+            frame,
+            "test-league",
+            **common,
+            forced_results=[
+                {"match_id": "season-4", "home_score": 1, "away_score": 0}
+                for _ in range(13)
+            ],
         )
 
 

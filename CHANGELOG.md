@@ -8,6 +8,12 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- The **Season Scenario Composer** can now apply 1–12 unique future results in one
+  ephemeral run. It keeps one model voice selected, pairs teams by stable identity, and
+  shows the engine's conditional percentages beside the canonical verified outlook
+  without calculating a client-owned delta. Draft results survive a recoverable local
+  engine error; reset returns to the verified outlook. Nothing is saved, sealed, or used
+  as model input.
 - The season outlook now reports **what a remaining fixture is worth**: for each
   unplayed match, how far winning instead of losing moves each club's title, top-four,
   and relegation chances. The runs are the ones the outlook already simulated,

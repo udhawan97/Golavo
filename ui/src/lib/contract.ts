@@ -622,11 +622,16 @@ export interface SeasonForcedResult {
   away_score: number;
 }
 
+export interface SeasonScenarioResult extends SeasonForcedResult {
+  home_team: string;
+  away_team: string;
+}
+
 export interface SeasonScenario {
   hypothetical_only: true;
   persisted: false;
   model_input: false;
-  forced_results: SeasonForcedResult[];
+  forced_results: SeasonScenarioResult[];
 }
 
 export interface SeasonOutlook {

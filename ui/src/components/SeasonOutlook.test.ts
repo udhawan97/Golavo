@@ -175,17 +175,90 @@ describe("SeasonOutlookBody", () => {
     expect(clubImportance(WITH_IMPORTANCE.remaining_fixtures[1], "C")).toBeNull();
   });
 
-  it("builds a bounded one-fixture hypothetical request", () => {
+  it("builds a bounded multi-fixture hypothetical request", () => {
     const request = scenarioRequest(
-      { match_id: "m-1", kickoff_utc: "2026-08-22T14:00:00Z", home_team: "A", away_team: "B" },
-      2,
-      1,
+      RUN_IN_FIXTURES,
+      [
+        { id: 1, fixtureId: "m-1", homeScore: 2, awayScore: 1 },
+        { id: 2, fixtureId: "m-2", homeScore: 0, awayScore: 0 },
+      ],
     );
-    expect(request).toEqual([{ match_id: "m-1", home_score: 2, away_score: 1 }]);
+    expect(request).toEqual([
+      { match_id: "m-1", home_score: 2, away_score: 1 },
+      { match_id: "m-2", home_score: 0, away_score: 0 },
+    ]);
+    for (const invalidScore of [-1, 1.5, 21]) {
+      expect(() => scenarioRequest(
+        RUN_IN_FIXTURES,
+        [{ id: 1, fixtureId: "m-1", homeScore: invalidScore, awayScore: 0 }],
+      )).toThrow("whole numbers from 0 to 20");
+    }
     expect(() => scenarioRequest(
-      { match_id: "m-1", kickoff_utc: "2026-08-22T14:00:00Z", home_team: "A", away_team: "B" },
-      21,
-      0,
-    )).toThrow("whole numbers from 0 to 20");
+      RUN_IN_FIXTURES,
+      [
+        { id: 1, fixtureId: "m-1", homeScore: 1, awayScore: 0 },
+        { id: 2, fixtureId: "m-1", homeScore: 0, awayScore: 1 },
+      ],
+    )).toThrow("only once");
+    expect(() => scenarioRequest(RUN_IN_FIXTURES, [])).toThrow("1 to 12");
+    const thirteenFixtures = Array.from({ length: 13 }, (_, index) => ({
+      match_id: `m-${index}`,
+      kickoff_utc: "2026-08-22T14:00:00Z",
+      home_team: `Home ${index}`,
+      away_team: `Away ${index}`,
+    }));
+    expect(scenarioRequest(
+      thirteenFixtures.slice(0, 12),
+      thirteenFixtures.slice(0, 12).map((fixture, index) => ({
+        id: index,
+        fixtureId: fixture.match_id,
+        homeScore: 1,
+        awayScore: 0,
+      })),
+    )).toHaveLength(12);
+    expect(() => scenarioRequest(
+      thirteenFixtures,
+      thirteenFixtures.map((fixture, index) => ({
+        id: index,
+        fixtureId: fixture.match_id,
+        homeScore: 1,
+        awayScore: 0,
+      })),
+    )).toThrow("1 to 12");
+  });
+
+  it("pairs verified and conditional probabilities by team name", () => {
+    const conditional: SeasonOutlook = {
+      ...WITH_IMPORTANCE,
+      scenario: {
+        hypothetical_only: true,
+        persisted: false,
+        model_input: false,
+        forced_results: [{
+          match_id: "m-1",
+          home_team: "A",
+          away_team: "B",
+          home_score: 2,
+          away_score: 1,
+        }],
+      },
+      voices: [{
+        ...WITH_IMPORTANCE.voices[0],
+        teams: [...RUN_IN_TEAMS].reverse().map((team) => (
+          team.team === "A"
+            ? { ...team, display_percent: { ...team.display_percent, title: 33 } }
+            : team
+        )),
+      }],
+    };
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, {
+      outlook: conditional,
+      canonical: WITH_IMPORTANCE,
+    }));
+    expect(html).toContain("Verified");
+    expect(html).toContain("Conditional");
+    expect(html).toMatch(
+      /<th scope="row">A<\/th><td class="num">25\.0%<\/td><td class="num season-comparison__conditional">33\.0%/,
+    );
   });
 });

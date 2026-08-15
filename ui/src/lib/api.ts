@@ -746,15 +746,46 @@ function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {
     || !Array.isArray(data.voices)
   )
     throw new ContractError(`${ctx}: fixture certificate, table, fixtures, and voices are required`);
-  if (data.scenario !== null) {
+  const rawScenario = data.scenario as unknown;
+  if (rawScenario !== null) {
+    if (!rawScenario || typeof rawScenario !== "object" || Array.isArray(rawScenario))
+      throw new ContractError(`${ctx}: scenario must be an object or null`);
+    const scenario = rawScenario as SeasonOutlook["scenario"];
+    const results = scenario?.forced_results;
     if (
-      data.scenario.hypothetical_only !== true
-      || data.scenario.persisted !== false
-      || data.scenario.model_input !== false
-      || !Array.isArray(data.scenario.forced_results)
-      || data.scenario.forced_results.length === 0
+      scenario?.hypothetical_only !== true
+      || scenario.persisted !== false
+      || scenario.model_input !== false
+      || !Array.isArray(results)
+      || results.length === 0
+      || results.length > 12
     )
       throw new ContractError(`${ctx}: scenario must be explicitly ephemeral and hypothetical`);
+    const matchIds = new Set<string>();
+    const fixtures = new Map(data.remaining_fixtures.map((fixture) => [fixture.match_id, fixture]));
+    for (const result of results) {
+      if (!result || typeof result !== "object")
+        throw new ContractError(`${ctx}: scenario contains an invalid forced result`);
+      const scores = [result.home_score, result.away_score];
+      const fixture = typeof result.match_id === "string"
+        ? fixtures.get(result.match_id)
+        : undefined;
+      if (
+        typeof result.match_id !== "string"
+        || result.match_id.length === 0
+        || matchIds.has(result.match_id)
+        || typeof result.home_team !== "string"
+        || result.home_team.length === 0
+        || typeof result.away_team !== "string"
+        || result.away_team.length === 0
+        || scores.some((score) => !Number.isInteger(score) || score < 0 || score > 20)
+        || !fixture
+        || fixture.home_team !== result.home_team
+        || fixture.away_team !== result.away_team
+      )
+        throw new ContractError(`${ctx}: scenario contains an invalid forced result`);
+      matchIds.add(result.match_id);
+    }
   }
   if (data.status === "available") {
     if (data.iterations !== 10_000 || data.voices.length !== 3)
@@ -771,6 +802,58 @@ function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {
     if (violation) throw new ContractError(`${ctx}: ${violation}`);
   } else if (!data.reason || data.voices.length !== 0) {
     throw new ContractError(`${ctx}: non-simulated outlook requires a reason and no voices`);
+  }
+  return data;
+}
+
+/** Validate the dedicated conditional endpoint against both the season identity
+ * and the exact request that produced it, so stale or canonical responses never
+ * reach the comparison UI. */
+export interface SeasonScenarioExpectation {
+  competitionId: string,
+  forcedResults: SeasonForcedResult[],
+  fixtures: SeasonRemainingFixture[],
+  season: string,
+  asOfUtc: string,
+  indexSha256: string,
+}
+
+export function assertSeasonScenarioResponse(
+  value: unknown,
+  expected: SeasonScenarioExpectation,
+  ctx = `analytics/competitions/${expected.competitionId}/season-scenario`,
+): SeasonOutlook {
+  const data = assertSeasonOutlook(value, ctx);
+  if (data.status !== "available" || data.scenario === null)
+    throw new ContractError(`${ctx}: expected an available conditional scenario`);
+  if (
+    data.competition_id !== expected.competitionId
+    || data.season !== expected.season
+    || data.as_of_utc !== expected.asOfUtc
+    || data.provenance?.index_sha256 !== expected.indexSha256
+  )
+    throw new ContractError(`${ctx}: response identity does not match the canonical outlook`);
+  const requested = new Map(expected.forcedResults.map((result) => [result.match_id, result]));
+  const fixtures = new Map(expected.fixtures.map((fixture) => [fixture.match_id, fixture]));
+  const applied = data.scenario.forced_results;
+  if (
+    requested.size !== expected.forcedResults.length
+    || fixtures.size !== expected.fixtures.length
+    || applied.length !== expected.forcedResults.length
+  )
+    throw new ContractError(`${ctx}: response does not match the submitted forced results`);
+  for (const result of applied) {
+    const submitted = requested.get(result.match_id);
+    const fixture = fixtures.get(result.match_id);
+    if (
+      !submitted
+      || !fixture
+      || submitted.home_score !== result.home_score
+      || submitted.away_score !== result.away_score
+      || fixture.home_team !== result.home_team
+      || fixture.away_team !== result.away_team
+    )
+      throw new ContractError(`${ctx}: response does not match the submitted forced results`);
   }
   return data;
 }
@@ -836,7 +919,12 @@ export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonO
 export async function fetchSeasonScenario(
   competitionId: string,
   forcedResults: SeasonForcedResult[],
-  options: { asOfUtc: string; season: string },
+  options: {
+    asOfUtc: string;
+    season: string;
+    fixtures: SeasonRemainingFixture[];
+    indexSha256: string;
+  },
 ): Promise<SeasonOutlook> {
   if (!API_BASE) throw new Error("Conditional scenarios need the Golavo engine running locally.");
   const query = new URLSearchParams({ as_of_utc: options.asOfUtc, season: options.season });
@@ -849,9 +937,16 @@ export async function fetchSeasonScenario(
     },
   );
   if (!res.ok) throw new ApiError("The conditional season scenario could not run.", res.status);
-  return assertSeasonOutlook(
+  return assertSeasonScenarioResponse(
     await res.json(),
-    `analytics/competitions/${competitionId}/season-scenario`,
+    {
+      competitionId,
+      forcedResults,
+      fixtures: options.fixtures,
+      season: options.season,
+      asOfUtc: options.asOfUtc,
+      indexSha256: options.indexSha256,
+    },
   );
 }
 

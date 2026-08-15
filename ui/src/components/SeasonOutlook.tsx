@@ -28,8 +28,16 @@ const STAKE_COPY: Record<keyof SeasonImportanceSwings, string> = {
 
 /** How many upcoming fixtures the run-in shows per club. */
 export const RUN_IN_LENGTH = 5;
+export const MAX_SCENARIO_RESULTS = 12;
 
 export type OpponentBand = "tough" | "even" | "kind";
+
+export interface SeasonScenarioDraft {
+  id: number;
+  fixtureId: string;
+  homeScore: number;
+  awayScore: number;
+}
 
 /**
  * Bands opponents by the same voice's projected finish, so the run-in never
@@ -71,14 +79,33 @@ export function topStake(club: SeasonImportanceClub): keyof SeasonImportanceSwin
 }
 
 export function scenarioRequest(
-  fixture: SeasonRemainingFixture,
-  homeScore: number,
-  awayScore: number,
+  fixtures: SeasonRemainingFixture[],
+  drafts: SeasonScenarioDraft[],
 ): SeasonForcedResult[] {
-  if (![homeScore, awayScore].every((score) => Number.isInteger(score) && score >= 0 && score <= 20)) {
-    throw new Error("Scenario scores must be whole numbers from 0 to 20.");
+  if (drafts.length === 0 || drafts.length > MAX_SCENARIO_RESULTS) {
+    throw new Error(`A scenario needs 1 to ${MAX_SCENARIO_RESULTS} results.`);
   }
-  return [{ match_id: fixture.match_id, home_score: homeScore, away_score: awayScore }];
+  const fixtureIds = new Set(fixtures.map((fixture) => fixture.match_id));
+  const selected = new Set<string>();
+  return drafts.map((draft) => {
+    if (!fixtureIds.has(draft.fixtureId)) {
+      throw new Error("Every scenario result must use an available future fixture.");
+    }
+    if (selected.has(draft.fixtureId)) {
+      throw new Error("Each fixture can appear only once in a scenario.");
+    }
+    selected.add(draft.fixtureId);
+    if (![draft.homeScore, draft.awayScore].every(
+      (score) => Number.isInteger(score) && score >= 0 && score <= 20,
+    )) {
+      throw new Error("Scenario scores must be whole numbers from 0 to 20.");
+    }
+    return {
+      match_id: draft.fixtureId,
+      home_score: draft.homeScore,
+      away_score: draft.awayScore,
+    };
+  });
 }
 
 function Table({ rows }: { rows: SeasonStandingRow[] }) {
@@ -100,6 +127,107 @@ function Table({ rows }: { rows: SeasonStandingRow[] }) {
               <td className="num"><strong>{row.points}</strong></td>
             </tr>
           ))}
+        </tbody>
+      </table>
+    </ScrollableTable>
+  );
+}
+
+function ProbabilityTable({ voice }: { voice: SeasonOutlookVoice }) {
+  return (
+    <ScrollableTable
+      label={`${VOICE_COPY[voice.voice_id]} season probabilities`}
+      cue="More: model probabilities"
+    >
+      <table className="grid season-probability-table">
+        <thead><tr><th scope="col">Team</th><th scope="col">Title</th><th scope="col">Top 4</th><th scope="col">Relegation</th></tr></thead>
+        <tbody>
+          {voice.teams.map((team) => (
+            <tr key={team.team}>
+              <th scope="row">{team.team}</th>
+              <td className="num">{team.display_percent.title.toFixed(1)}%</td>
+              <td className="num">{team.display_percent.top_four.toFixed(1)}%</td>
+              <td className="num">{team.display_percent.relegation.toFixed(1)}%</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </ScrollableTable>
+  );
+}
+
+function ProbabilityComparison({
+  canonical,
+  conditional,
+  voiceId,
+}: {
+  canonical: Outlook;
+  conditional: Outlook;
+  voiceId: SeasonOutlookVoice["voice_id"];
+}) {
+  const verified = canonical.voices.find((voice) => voice.voice_id === voiceId);
+  const scenario = conditional.voices.find((voice) => voice.voice_id === voiceId);
+  if (!verified || !scenario) {
+    return (
+      <div className="callout callout--info" role="status">
+        <div>
+          <div className="callout__title">Conditional comparison unavailable</div>
+          <p>The local response did not include the same model voice on both sides.</p>
+        </div>
+      </div>
+    );
+  }
+  const verifiedTeamNames = new Set(verified.teams.map((team) => team.team));
+  const scenarioByTeam = new Map(scenario.teams.map((team) => [team.team, team]));
+  if (
+    verifiedTeamNames.size !== verified.teams.length
+    || scenarioByTeam.size !== scenario.teams.length
+    || verifiedTeamNames.size !== scenarioByTeam.size
+    || [...verifiedTeamNames].some((team) => !scenarioByTeam.has(team))
+  ) {
+    return (
+      <div className="callout callout--info" role="status">
+        <div>
+          <div className="callout__title">Conditional comparison unavailable</div>
+          <p>The local response did not include the same unique team set on both sides.</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <ScrollableTable
+      label={`${VOICE_COPY[voiceId]} verified and conditional season probabilities`}
+      cue="More: verified and conditional probabilities"
+    >
+      <table className="grid season-comparison-table">
+        <thead>
+          <tr>
+            <th scope="col" rowSpan={2}>Team</th>
+            <th scope="colgroup" colSpan={2}>Title</th>
+            <th scope="colgroup" colSpan={2}>Top 4</th>
+            <th scope="colgroup" colSpan={2}>Relegation</th>
+          </tr>
+          <tr>
+            <th scope="col">Verified</th><th scope="col" className="season-comparison__conditional">Conditional</th>
+            <th scope="col">Verified</th><th scope="col" className="season-comparison__conditional">Conditional</th>
+            <th scope="col">Verified</th><th scope="col" className="season-comparison__conditional">Conditional</th>
+          </tr>
+        </thead>
+        <tbody>
+          {verified.teams.map((team) => {
+            const compared = scenarioByTeam.get(team.team);
+            return (
+              <tr key={team.team}>
+                <th scope="row">{team.team}</th>
+                <td className="num">{team.display_percent.title.toFixed(1)}%</td>
+                <td className="num season-comparison__conditional">{compared ? `${compared.display_percent.title.toFixed(1)}%` : "—"}</td>
+                <td className="num">{team.display_percent.top_four.toFixed(1)}%</td>
+                <td className="num season-comparison__conditional">{compared ? `${compared.display_percent.top_four.toFixed(1)}%` : "—"}</td>
+                <td className="num">{team.display_percent.relegation.toFixed(1)}%</td>
+                <td className="num season-comparison__conditional">{compared ? `${compared.display_percent.relegation.toFixed(1)}%` : "—"}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </ScrollableTable>
@@ -182,7 +310,13 @@ export function RunIn({ outlook }: { outlook: Outlook }) {
   );
 }
 
-export function SeasonOutlookBody({ outlook }: { outlook: Outlook }) {
+export function SeasonOutlookBody({
+  outlook,
+  canonical,
+}: {
+  outlook: Outlook;
+  canonical?: Outlook;
+}) {
   const [voiceId, setVoiceId] = useState<SeasonOutlookVoice["voice_id"]>("elo_ordlogit");
   if (outlook.status !== "available") {
     const title = outlook.status === "complete"
@@ -199,11 +333,13 @@ export function SeasonOutlookBody({ outlook }: { outlook: Outlook }) {
       </>
     );
   }
-  const selected = outlook.voices.find((voice) => voice.voice_id === voiceId) ?? outlook.voices[0];
+  const voiceSource = canonical ?? outlook;
+  const selected = voiceSource.voices.find((voice) => voice.voice_id === voiceId)
+    ?? voiceSource.voices[0];
   return (
     <>
       <div className="outlook-voices" role="group" aria-label="Model voice">
-        {outlook.voices.map((voice) => (
+        {voiceSource.voices.map((voice) => (
           <button
             key={voice.voice_id}
             type="button"
@@ -215,25 +351,10 @@ export function SeasonOutlookBody({ outlook }: { outlook: Outlook }) {
           </button>
         ))}
       </div>
-      <ScrollableTable
-        label={`${VOICE_COPY[selected.voice_id]} season probabilities`}
-        cue="More: model probabilities"
-      >
-        <table className="grid season-probability-table">
-          <thead><tr><th scope="col">Team</th><th scope="col">Title</th><th scope="col">Top 4</th><th scope="col">Relegation</th></tr></thead>
-          <tbody>
-            {selected.teams.map((team) => (
-              <tr key={team.team}>
-                <th scope="row">{team.team}</th>
-                <td className="num">{team.display_percent.title.toFixed(1)}%</td>
-                <td className="num">{team.display_percent.top_four.toFixed(1)}%</td>
-                <td className="num">{team.display_percent.relegation.toFixed(1)}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </ScrollableTable>
-      <RunIn outlook={outlook} />
+      {canonical && outlook.scenario
+        ? <ProbabilityComparison canonical={canonical} conditional={outlook} voiceId={selected.voice_id} />
+        : <ProbabilityTable voice={selected} />}
+      <RunIn outlook={canonical ?? outlook} />
       <details className="outlook-method">
         <summary>How this season is simulated</summary>
         <p>
@@ -246,34 +367,72 @@ export function SeasonOutlookBody({ outlook }: { outlook: Outlook }) {
   );
 }
 
-function ScenarioBuilder({
+export function ScenarioBuilder({
   outlook,
+  activeScenario,
   onResult,
   onReset,
 }: {
   outlook: Outlook;
+  activeScenario: Outlook | null;
   onResult: (result: Outlook) => void;
   onReset: () => void;
 }) {
-  const [fixtureId, setFixtureId] = useState(outlook.remaining_fixtures[0]?.match_id ?? "");
-  const [homeScore, setHomeScore] = useState(1);
-  const [awayScore, setAwayScore] = useState(0);
+  const [drafts, setDrafts] = useState<SeasonScenarioDraft[]>(() => [{
+    id: 1,
+    fixtureId: outlook.remaining_fixtures[0]?.match_id ?? "",
+    homeScore: 1,
+    awayScore: 0,
+  }]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fixture = outlook.remaining_fixtures.find((item) => item.match_id === fixtureId);
-  const scoresValid = [homeScore, awayScore].every(
-    (score) => Number.isInteger(score) && score >= 0 && score <= 20,
-  );
+  const resultLimit = Math.min(MAX_SCENARIO_RESULTS, outlook.remaining_fixtures.length);
+  let requestValid = true;
+  try {
+    scenarioRequest(outlook.remaining_fixtures, drafts);
+  } catch {
+    requestValid = false;
+  }
+
+  function updateDraft(id: number, patch: Partial<SeasonScenarioDraft>) {
+    if (busy) return;
+    setDrafts((current) => current.map((draft) => (
+      draft.id === id ? { ...draft, ...patch, id } : draft
+    )));
+  }
+
+  function addDraft() {
+    if (busy) return;
+    setDrafts((current) => {
+      if (current.length >= resultLimit) return current;
+      const selected = new Set(current.map((draft) => draft.fixtureId));
+      const fixture = outlook.remaining_fixtures.find((item) => !selected.has(item.match_id));
+      if (!fixture) return current;
+      const nextId = current.reduce((largest, draft) => Math.max(largest, draft.id), 0) + 1;
+      return [...current, {
+        id: nextId,
+        fixtureId: fixture.match_id,
+        homeScore: 1,
+        awayScore: 0,
+      }];
+    });
+  }
 
   async function run() {
-    if (!fixture || !scoresValid) return;
+    if (!requestValid) return;
+    const forcedResults = scenarioRequest(outlook.remaining_fixtures, drafts);
     setBusy(true);
     setError(null);
     try {
       const result = await fetchSeasonScenario(
         outlook.competition_id,
-        scenarioRequest(fixture, homeScore, awayScore),
-        { asOfUtc: outlook.as_of_utc, season: outlook.season },
+        forcedResults,
+        {
+          asOfUtc: outlook.as_of_utc,
+          season: outlook.season,
+          fixtures: outlook.remaining_fixtures,
+          indexSha256: outlook.provenance.index_sha256,
+        },
       );
       onResult(result);
     } catch {
@@ -286,51 +445,107 @@ function ScenarioBuilder({
   if (outlook.remaining_fixtures.length === 0) return null;
   return (
     <details className="outlook-method season-scenario">
-      <summary>Try one conditional result</summary>
+      <summary>Compose a conditional run</summary>
       <div className="stack" style={{ ["--gap" as string]: ".7rem" }}>
         <p className="small dim">
-          Hypothetical only. The result is never saved, sealed, or used as model input.
+          Choose 1 to {resultLimit} future results and apply them together. Hypothetical only:
+          nothing is saved, sealed, or used as model input.
         </p>
-        <label className="field">
-          Fixture
-          <select className="select" value={fixtureId} onChange={(event) => setFixtureId(event.target.value)}>
-            {outlook.remaining_fixtures.map((item) => (
-              <option key={item.match_id} value={item.match_id}>
-                {item.home_team} vs {item.away_team}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="correction-two-col">
-          <label className="field">
-            Home score
-            <input
-              type="number"
-              min="0"
-              max="20"
-              step="1"
-              value={homeScore}
-              onChange={(event) => setHomeScore(Number(event.target.value))}
-            />
-          </label>
-          <label className="field">
-            Away score
-            <input
-              type="number"
-              min="0"
-              max="20"
-              step="1"
-              value={awayScore}
-              onChange={(event) => setAwayScore(Number(event.target.value))}
-            />
-          </label>
+        <ol className="season-scenario__results">
+          {drafts.map((draft, index) => {
+            const fixture = outlook.remaining_fixtures.find(
+              (item) => item.match_id === draft.fixtureId,
+            );
+            const selectedElsewhere = new Set(
+              drafts
+                .filter((item) => item.id !== draft.id)
+                .map((item) => item.fixtureId),
+            );
+            return (
+              <li key={draft.id}>
+                <fieldset className="season-scenario__result" disabled={busy}>
+                  <legend>Result {index + 1}</legend>
+                  <label className="field season-scenario__fixture">
+                    Fixture
+                    <select
+                      className="select"
+                      aria-label={`Fixture ${index + 1}`}
+                      value={draft.fixtureId}
+                      onChange={(event) => updateDraft(draft.id, { fixtureId: event.target.value })}
+                    >
+                      {outlook.remaining_fixtures
+                        .filter((item) => !selectedElsewhere.has(item.match_id))
+                        .map((item) => (
+                          <option key={item.match_id} value={item.match_id}>
+                            {item.home_team} vs {item.away_team}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                  <label className="field">
+                    {fixture?.home_team ?? "Home"} score
+                    <input
+                      type="number"
+                      min="0"
+                      max="20"
+                      step="1"
+                      value={draft.homeScore}
+                      onChange={(event) => updateDraft(draft.id, {
+                        homeScore: Number(event.target.value),
+                      })}
+                    />
+                  </label>
+                  <label className="field">
+                    {fixture?.away_team ?? "Away"} score
+                    <input
+                      type="number"
+                      min="0"
+                      max="20"
+                      step="1"
+                      value={draft.awayScore}
+                      onChange={(event) => updateDraft(draft.id, {
+                        awayScore: Number(event.target.value),
+                      })}
+                    />
+                  </label>
+                  {drafts.length > 1 && (
+                    <button
+                      type="button"
+                      className="btn season-scenario__remove"
+                      aria-label={`Remove result ${index + 1}`}
+                      onClick={() => setDrafts((current) => (
+                        current.filter((item) => item.id !== draft.id)
+                      ))}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </fieldset>
+              </li>
+            );
+          })}
+        </ol>
+        <div className="cluster season-scenario__add">
+          <button
+            type="button"
+            className="btn"
+            disabled={busy || drafts.length >= resultLimit}
+            onClick={addDraft}
+          >
+            Add another result
+          </button>
+          <span className="small dim" aria-live="polite">
+            {drafts.length} of {resultLimit} results
+          </span>
         </div>
         <div className="cluster">
-          <button type="button" className="btn btn--primary" disabled={busy || !fixture || !scoresValid} onClick={() => void run()}>
-            {busy ? "Running…" : "Run conditional scenario"}
+          <button type="button" className="btn btn--primary" disabled={busy || !requestValid} onClick={() => void run()}>
+            {busy ? "Running…" : `Run ${drafts.length}-result scenario`}
           </button>
-          {outlook.scenario && (
-            <button type="button" className="btn" onClick={onReset}>Reset to verified outlook</button>
+          {activeScenario && (
+            <button type="button" className="btn" disabled={busy} onClick={onReset}>
+              Reset to verified outlook
+            </button>
           )}
         </div>
         {error && <p className="small" role="alert">{error}</p>}
@@ -367,15 +582,32 @@ export function SeasonOutlook({ competitionId }: { competitionId: string }) {
           {displayed?.scenario && (
             <div className="callout callout--info" role="status">
               <div>
-                <div className="callout__title">Conditional result applied</div>
-                <p>This table exists only in this view. It is not a forecast or a saved result.</p>
+                <div className="callout__title">
+                  {displayed.scenario.forced_results.length} conditional{" "}
+                  {displayed.scenario.forced_results.length === 1 ? "result" : "results"} applied
+                </div>
+                <p>
+                  Verified and conditional engine values are shown together below. This comparison
+                  exists only in this view; it is not a forecast or a saved result.
+                </p>
+                <ul className="season-scenario__applied" aria-label="Applied conditional results">
+                  {displayed.scenario.forced_results.map((result) => (
+                    <li key={result.match_id} className="chip chip--neutral">
+                      {result.home_team} {result.home_score}–{result.away_score} {result.away_team}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           )}
-          <SeasonOutlookBody outlook={displayed ?? state.data} />
+          <SeasonOutlookBody
+            outlook={displayed ?? state.data}
+            canonical={scenario ? state.data : undefined}
+          />
           {state.data.status === "available" && (
             <ScenarioBuilder
-              outlook={displayed ?? state.data}
+              outlook={state.data}
+              activeScenario={scenario}
               onResult={setScenario}
               onReset={() => setScenario(null)}
             />
