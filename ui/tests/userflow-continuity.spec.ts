@@ -38,14 +38,12 @@ test("Back restores the Matchday card that opened the cockpit", async ({ page })
 
   const card = page.getByRole("link", { name: /Example Home 4 versus Example Away 4/ });
   await card.scrollIntoViewIfNeeded();
-  const before = await page.evaluate(() => window.scrollY);
-  expect(before).toBeGreaterThan(300);
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(300);
   await card.click();
   await expect(page.locator("h1").first()).toBeVisible();
 
   await page.goBack();
-  await expect(page.getByRole("link", { name: /Example Home 4 versus Example Away 4/ })).toBeVisible();
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before - 80);
+  await expect(card).toBeInViewport();
 
   await page.goForward();
   await expect(page.locator("h1").first()).toBeVisible();
