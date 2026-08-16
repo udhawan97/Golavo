@@ -15,7 +15,7 @@
   and see what the models predict, where they disagree, and why. Call the score,<br>
   race five transparent model rivals, or seal an expert prediction<br>
   before kickoff to put it on the record.<br>
-  No odds. No oracle. No moving the goalposts.
+  No bet placement. No oracle. No moving the goalposts.
 </p>
 
 <p align="center">
@@ -52,13 +52,17 @@
 > is open, provenance-first corrections, optional evidence-bound research, the World Cup 2026
 > retrospective (a backtest of every played match, never a record), and desktop
 > packaging are implemented. The isolated OpenLigaDB overlay is opt-in and display-only. The
+> Sportmonks connector is BYOK, foreground-click-only, and keeps predictions/odds in a
+> separate outside-signal panel. The
 > World Cup outlook and the domestic standings/season engine are implemented, and the 2026–27
 > fixture lists for the five bundled leagues now certify complete, so the seeded season
 > outlook runs (it still fails closed per request if a certificate fails). Official
 > bundles authenticate their pack manifests and checksum ledger; OS code signing,
 > notarization, a second independent club-result source, and observed
 > xG/lineups/injuries are not.
-> This is a football analysis workbench, **not a betting product**.
+> This is a football analysis workbench, **not a betting product**. Optional
+> Sportmonks odds/predictions are isolated, attributed outside signals — never a
+> Golavo forecast, model input, affiliate surface, or bet-placement path.
 
 ## Golavo at a glance
 
@@ -70,6 +74,7 @@
 | **Audit the system** | Model Lab or a forecast's Download proof action | Track record, chronological backtests, calibration, artifact hashes, and a portable offline-verifiable lineage bundle |
 | **Explore a competition** | Leagues & Europe | Competition-local strengths and workload, honest season gates, World Cup outlooks, and clearly era-badged historical team research |
 | **Follow a fixture** | Use Follow on Games or Match Cockpit | Source-aware change history and optional local notifications while Golavo is open; no hidden background service |
+| **Compare an outside signal** | Accept the first-run Sportmonks disclosure, add your token in Settings on macOS (or set `SPORTMONKS_API_TOKEN` before launch on Windows/Linux), then click Fetch outside signals on a match | Separately labelled provider probabilities and pre-match match-winner prices; never blended into Golavo's forecast |
 | **Inspect or improve data** | Settings → Data sources / Corrections | Approved-source health, an isolated optional ODbL overlay, and a local untrusted proposal queue that never edits source packs or forecasts |
 | **Build or review the code** | [Architecture](https://udhawan97.github.io/Golavo/architecture/) → [Build from source](https://udhawan97.github.io/Golavo/build-from-source/) | The Tauri → React → FastAPI → deterministic Python boundary, typed contracts, and local verification commands |
 
@@ -95,8 +100,8 @@ model rivals on exactly the matches you choose to play.
   your call strictly beats every available rival.
 - Rival calls stay hidden until you save yours. Goal models call exact scores; ratings and the
   historical baseline call only the outcome. An abstaining model never gets a made-up pick.
-- No money, odds, account, public leaderboard, or upload. The web preview is clearly labelled
-  practice mode; the desktop app keeps picks in its local ledger.
+- No money, wagering account, public leaderboard, or upload. Provider odds never enter Picks or
+  scoring. The web preview is clearly labelled practice mode; the desktop app keeps picks in its local ledger.
 
 [How picks and points work](https://udhawan97.github.io/Golavo/picks-and-points/) ·
 [Match Notes and optional enrichment](https://udhawan97.github.io/Golavo/match-enrichment/)
@@ -172,6 +177,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 🔄 | **Refresh eight approved CC0 repositories** — choose manual checks or consent to launch/while-open refresh | International and current big-five league continuity from exact allowlisted paths, immutable receipts, schema validation, two retained generations, and last-known-good rollback; no daemon runs after Golavo closes |
 | 👁️ | **Follow a match** — from Games or Match Cockpit | Deduplicated kickoff, venue, score, and settlement-availability changes with optional local notifications while the app is open |
 | 🧩 | **Enable OpenLigaDB** *(optional)* — accept the ODbL disclosure and choose an allowlisted competition | A removable, separately attributed display overlay whose bytes never enter the CC0 pack, model training, forecasts, calibration, or exports |
+| 📡 | **Enable Sportmonks outside signals** *(optional BYOK)* — accept the provider disclosure, save your token, then fetch on one match | Attributed external full-time probabilities and pre-match match-winner prices, held in memory only and structurally excluded from every Golavo forecast/score path |
 | ✍️ | **Propose a correction** — attach a source URL and captured evidence, then review locally | An append-only untrusted candidate with conflicts and license class kept explicit; acceptance changes display context only, never authoritative data or a sealed forecast |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
 | 🔏 | **Track a prediction — seal before kickoff** — freeze probabilities, model version, seed, parameters, cutoff, and inputs | An immutable claim the result cannot rewrite; the cockpit’s live preview, put on the record |
@@ -205,6 +211,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Approved-source refresh** | Consent-gated manual, launch, and while-open checks across eight fixed repositories: martj42, World Cup/football JSON, and five country Football.TXT sources. Current domestic schedules/results activate only from exact allowlisted paths after validation; failures keep the last-known-good generation. |
 | **Followed matches** | Local follow/unfollow, targeted source checks, deduplicated kickoff/venue/score/settlement history, optional desktop notifications, and exact closed-app disclosure. No account, cloud sync, daemon, Login Item, or LaunchAgent. |
 | **License-isolated overlay** | OpenLigaDB is optional, ODbL-attributed, display-only, stored under a separate overlay root, and removable. Exact source identities are used without fuzzy or automatic CC0 merging. |
+| **Outside signals** | Sportmonks Football API v3 is optional, paid BYOK, and foreground-click-only. Exact team/kickoff identity is required; responses remain in memory and cannot enter model inputs, verdicts, seals, settlement, calibration, scoring, AI evidence, or exports. No logos, bookmaker links, affiliate tracking, advice, or bet placement. |
 | **Corrections** | Local append-only proposals for fixtures, kickoff, aliases, venues, and scores. Evidence and source URL are mandatory before validation; conflicts fail closed; exports require an explicit final action. Nothing enters packs, training, calibration, or seals. |
 | **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, discoverable keyboard-focusable wide tables, provenance, scored/voided/superseded states, Casual and Expert presentation, forecast readiness, verified-generation probability diffs, revision-pinned venue reference facts, deterministic history support, and focus-safe reading-comfort themes |
 | **Facts** | Pre-registered deterministic templates; sample/freshness/base-rate guardrails; competition context, direct team comparisons and team-specific records separated; coincidences capped and quarantined |
@@ -212,7 +219,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **AI Deep Read** | Implemented, off by default, and additive; local Ollama/llama.cpp and BYOK reads pass schema, citation, numeric-whitelist, grounding, and betting-language guards that fail closed to deterministic analysis only |
 | **Desktop** | Tauri 2 shell supervising a PyInstaller/FastAPI sidecar on an ephemeral loopback port with a fresh per-launch token |
 | **Distribution** | macOS DMG and Windows MSI/EXE builds, signed updater payloads, signed aggregate checksums, and signed active pack manifests; OS signing/notarization still gated on real credentials |
-| **Not yet shipped** | Confirmed-lineup/BYOK data adapters, live event feeds, cups, leakage-safe historical weather forecasts, hash-chained multi-artifact ledger, OS-signed/notarized installers |
+| **Not yet shipped** | Confirmed-lineup/model-input data adapters, live event feeds, cups, leakage-safe historical weather forecasts, hash-chained multi-artifact ledger, OS-signed/notarized installers |
 
 </details>
 
@@ -413,6 +420,10 @@ cookie banners.
 - 🤖 **AI is explicit.** Local models stay on loopback. Cloud AI uses your own key only
   after you choose it; the key stays in environment/Keychain handling and is never
   written into artifacts, prompts, logs, caches, or responses.
+- 📡 **Outside signals are explicit.** Sportmonks stays off until you accept its
+  disclosure and add your own token. A provider request occurs only when you click on
+  a match; it sends that fixture's date/team names, keeps derived display values in
+  memory only, and cannot change or grade a Golavo forecast.
 - 🔐 **The desktop sidecar stays private.** It binds to an ephemeral `127.0.0.1` port
   behind a fresh per-launch token and dies with the app.
 

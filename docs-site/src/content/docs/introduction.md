@@ -3,7 +3,7 @@ title: Introduction
 description: What Golavo is, what it is not, and the principles that keep it trustworthy.
 ---
 
-Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals and certified domestic fixtures, backtests the top-5 European leagues, exposes competition-local analytics and honest outlook gates, ships an optional off-by-default AI narration layer, and builds an OS-unsigned desktop app whose updater and active data-pack manifests are authenticated. A **hash-chained** multi-artifact ledger and confirmed-lineup / BYOK data adapters remain planned (ADR-0001).
+Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals and certified domestic fixtures, backtests the top-5 European leagues, exposes competition-local analytics and honest outlook gates, ships optional off-by-default AI narration and a BYOK Sportmonks outside-signal panel, and builds an OS-unsigned desktop app whose updater and active data-pack manifests are authenticated. A **hash-chained** multi-artifact ledger and confirmed-lineup / model-input data adapters remain planned (ADR-0001).
 
 ## What Golavo is
 
@@ -14,7 +14,7 @@ Golavo is a local-first, open-source football forecasting project. It implements
 ## What Golavo is not
 
 - Not a **livescore** app — open-core results are delayed.
-- Not a **betting** tool — no odds, picks, "locks," bankroll advice, or affiliate links.
+- Not a **betting** tool — optional provider odds are informational outside signals only. There is no bet placement, bookmaker/affiliate link, "value," staking, "locks," or bankroll advice.
 - Not an **AI predictor** — the statistical engine owns every probability.
 - Not a **restricted-feed redistributor** — every bundled pack has a verified open-data license and isolated attribution boundary; proprietary-feed adapters would remain bring-your-own-key and never be re-shared.
 
@@ -26,7 +26,7 @@ Golavo is a local-first, open-source football forecasting project. It implements
 4. AI explains, researches, and proposes typed facts — it never edits numbers.
 5. Coincidence is not evidence, and the UI says which is which.
 6. Local by default; network access is opt-in and visible.
-7. No betting surface, ever.
+7. No betting workflow: outside odds/predictions stay attributed, opt-in, and structurally separate from Golavo forecasts.
 
 ## The words we use carefully
 
@@ -37,4 +37,4 @@ Golavo is a local-first, open-source football forecasting project. It implements
 | **AI** | Implemented and **off by default**. Its contract permits cited narrative, never probability ownership; it cannot change or improve a number. |
 | **Open** | The code is Apache-2.0; data packs declare their own license. Match-result packs are CC0-1.0, enrichment/research packs retain CC-BY attribution, and CC-BY-SA facts stay isolated. |
 | **Free** | No payment to Golavo, ever. Optional third-party keys/AI are paid by you, to those providers. |
-| **Live** | Golavo is not live. It uses pinned snapshots and records their retrieval time. |
+| **Live** | Golavo is not a livescore service. Core forecasts use pinned snapshots; optional outside signals are fetched only after a foreground click and show their capture time. |

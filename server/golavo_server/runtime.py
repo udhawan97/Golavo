@@ -80,6 +80,21 @@ def openligadb_dir() -> Path | None:
     return Path(override).expanduser().parent / "overlays" / "openligadb"
 
 
+def sportmonks_dir() -> Path | None:
+    """Writable settings root for the optional Sportmonks connector.
+
+    Provider consent is deliberately outside the forecast ledger and every
+    licensed data overlay. The connector does not persist provider responses;
+    this directory contains only the user's capability choices and the reviewed
+    terms version. The credential itself lives in the environment (source mode)
+    or macOS Keychain (packaged desktop app).
+    """
+    override = os.environ.get("GOLAVO_DATA_DIR")
+    if not override:
+        return None
+    return Path(override).expanduser().parent / "providers" / "sportmonks"
+
+
 def follows_dir() -> Path:
     """Local followed-match state under the mutable forecast ledger.
 

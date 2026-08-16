@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from golavo_core.proof import build_forecast_proof
@@ -37,6 +37,7 @@ from golavo_server import (
     retrospective,
     runtime,
     seal,
+    sportmonks,
 )
 from golavo_server import picks as pick_service
 from golavo_server import research as match_research
@@ -74,6 +75,9 @@ async def _require_launch_token(request: Request, call_next: Any) -> Any:
     match_research_path = path.startswith("/api/v1/research/") and not path.startswith(
         "/api/v1/research/competitions/"
     )
+    sportmonks_path = path.startswith("/api/v1/providers/sportmonks") or path.endswith(
+        "/outside-signals"
+    )
     if correction_path and token is None:
         return JSONResponse(
             {"detail": "correction routes require the private desktop launch token"},
@@ -82,6 +86,11 @@ async def _require_launch_token(request: Request, call_next: Any) -> Any:
     if match_research_path and token is None:
         return JSONResponse(
             {"detail": "match research requires the private desktop launch token"},
+            status_code=403,
+        )
+    if sportmonks_path and token is None:
+        return JSONResponse(
+            {"detail": "Sportmonks routes require the private desktop launch token"},
             status_code=403,
         )
     if correction_path and request.method not in {"GET", "OPTIONS"}:
@@ -98,6 +107,15 @@ async def _require_launch_token(request: Request, call_next: Any) -> Any:
             content_length = 0
         if content_length > 65536:
             return JSONResponse({"detail": "research request exceeds 64 KiB"}, status_code=413)
+    if sportmonks_path and request.method not in {"GET", "OPTIONS"}:
+        try:
+            content_length = int(request.headers.get("content-length", "0"))
+        except ValueError:
+            content_length = 0
+        if content_length > 16384:
+            return JSONResponse(
+                {"detail": "Sportmonks request exceeds 16 KiB"}, status_code=413
+            )
     if token is not None and request.method != "OPTIONS" and request.url.path.startswith("/api/"):
         if request.headers.get(runtime.TOKEN_HEADER) != token:
             return JSONResponse({"detail": "missing or invalid launch token"}, status_code=401)
@@ -1942,6 +1960,100 @@ async def refresh_match_weather(match_id: str, request: Request) -> dict[str, An
         ) from exc
     except matches.MatchIndexUnavailable as exc:
         raise HTTPException(status_code=503, detail="match index unavailable") from exc
+
+
+@app.get("/api/v1/providers/sportmonks/settings")
+def get_sportmonks_settings() -> dict[str, Any]:
+    """Consent, capability and redacted credential state; never the token."""
+    return sportmonks.status()
+
+
+@app.put("/api/v1/providers/sportmonks/settings")
+async def update_sportmonks_settings(request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail="request body must be valid JSON") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="request body must be an object")
+    try:
+        return await run_in_threadpool(sportmonks.configure, body)
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "sportmonks_terms_required", "message": str(exc)},
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"reason_code": "sportmonks_settings_rejected", "message": str(exc)},
+        ) from exc
+    except (OSError, RuntimeError) as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "sportmonks_settings_unavailable", "message": str(exc)},
+        ) from exc
+
+
+@app.put("/api/v1/providers/sportmonks/credential")
+async def save_sportmonks_credential(request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail="request body must be valid JSON") from exc
+    if not isinstance(body, dict) or set(body) != {"api_token"}:
+        raise HTTPException(status_code=422, detail="api_token is the only accepted field")
+    try:
+        return await run_in_threadpool(sportmonks.save_api_token, body.get("api_token"))
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"reason_code": "sportmonks_credential_rejected", "message": str(exc)},
+        ) from exc
+    except (OSError, RuntimeError) as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "sportmonks_credential_unavailable", "message": str(exc)},
+        ) from exc
+
+
+@app.delete("/api/v1/providers/sportmonks/credential")
+async def delete_sportmonks_credential() -> dict[str, Any]:
+    try:
+        return await run_in_threadpool(sportmonks.delete_api_token)
+    except (OSError, RuntimeError) as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"reason_code": "sportmonks_credential_unavailable", "message": str(exc)},
+        ) from exc
+
+
+@app.get("/api/v1/matches/{match_id}/outside-signals")
+async def get_match_outside_signals(match_id: str, response: Response) -> dict[str, Any]:
+    """Fetch external predictions/odds after a foreground user click.
+
+    The response is derived in memory and never joins Golavo's deterministic
+    analysis or immutable forecast artifacts.
+    """
+    try:
+        detail = await run_in_threadpool(matches.get_match, match_id, forecasts_dir=ARTIFACT_DIR)
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if detail is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    try:
+        payload = await run_in_threadpool(sportmonks.fetch_outside_signals, detail["match"])
+        response.headers["Cache-Control"] = "no-store"
+        return payload
+    except sportmonks.SportmonksError as exc:
+        raise HTTPException(
+            status_code=exc.status,
+            detail={
+                "reason_code": exc.code,
+                "message": str(exc),
+                "retryable": exc.retryable,
+            },
+        ) from exc
 
 
 @app.get("/api/v1/matches/{match_id}")

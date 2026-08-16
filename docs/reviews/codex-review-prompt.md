@@ -10,7 +10,7 @@ You are a **principal engineer, football data scientist, open-data licensing law
 
 ## A. The project
 
-**Golavo** — a local-first, open-source soccer match-intelligence app. A deterministic statistical engine owns every probability; optional local or BYOK cloud AI provides *cited* narrative only and never changes a number. Every forecast is **sealed before kickoff** (model + feature version + source content-hashes) and **scored after full time** into a public calibration record. It is explicitly **not** a betting product (no odds framing, picks, "locks", or bankroll advice).
+**Golavo** — a local-first, open-source soccer match-intelligence app. A deterministic statistical engine owns every Golavo probability; optional local or BYOK cloud AI provides *cited* narrative only and never changes a number. Every forecast is **sealed before kickoff** (model + feature version + source content-hashes) and **scored after full time** into a public calibration record. It is explicitly **not** a betting product: user-authorized provider odds/predictions may appear only as attributed, transient **Outside signals**, with no model input, bet placement, bookmaker/affiliate links, "value", staking, "locks", or bankroll advice.
 
 - **Code:** https://github.com/udhawan97/Golavo (public) · **Site/docs:** https://udhawan97.github.io/Golavo/ · **Code license:** Apache-2.0; data packs are separately licensed.
 - **Status:** **v0.1.0, unsigned pre-alpha — released.** The repo is a *working product*, not a scaffold. Implemented and tested at this commit:
@@ -57,9 +57,9 @@ football-data.co.uk (results + **corners/shots/cards**/odds) · **Understat** (c
 
 **Transfermarkt-derived datasets** and **DataHub football mirrors** are **REJECTED** (downstream CC0/PDDL labels do not cure upstream ToS/database-provenance problems). Also rejected: **FBref/Sports-Reference**, **Understat**, **Sofascore**, **FotMob**, unofficial **FPL** endpoints, **European Soccer DB**, **StatsBomb Open Data**, **eatpizzanot/soccer-dataset**, **EasySoccerData**.
 
-### BYOK (keyed adapters, user's own key; private/local display only) — planned, not shipped
+### BYOK (keyed adapters, user's own key; private/local display only)
 
-**football-data.org** (attribution required) · **API-Football** (no publication license). **OpenLigaDB** (ODbL) is a separate isolated overlay.
+**Sportmonks Football API v3** is the only shipped commercial outside-signal connector: off by default, explicit consent, foreground click only, response-memory only, and structurally barred from Golavo forecasts and evidence sinks. **football-data.org** and **API-Football** remain blocked for this role under their currently reviewed public contracts. **OpenLigaDB** (ODbL) is a separate isolated overlay.
 
 ### Field-level coverage × best open source
 

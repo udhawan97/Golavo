@@ -32,6 +32,7 @@ import { useFollows } from "../lib/follow-context";
 import { BellIcon } from "../components/icons";
 import { useCorrections } from "../lib/correction-context";
 import { ResearchSettingsPanel } from "../components/ResearchSettings";
+import { SportmonksSettings } from "../components/SportmonksSettings";
 import {
   FollowHistoryRemovalAction,
   ProposalRemovalAction,
@@ -374,6 +375,8 @@ export function Settings({
           </div>
           <hr style={{ width: "100%", border: 0, borderTop: "1px solid var(--line)" }} />
           <OpenLigaDBSettings />
+          <hr style={{ width: "100%", border: 0, borderTop: "1px solid var(--line)" }} />
+          <SportmonksSettings />
           <hr style={{ width: "100%", border: 0, borderTop: "1px solid var(--line)" }} />
           <div className="settings__field">
             <div className="settings__row">

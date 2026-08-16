@@ -49,7 +49,7 @@ From CONTRIBUTING.md — CI enforces most of them:
 2. Every displayed fact carries a source id.
 3. Only CC0/CC-BY data in the repo. Never commit proprietary, scraped, or user data.
 4. **ODbL stays isolated.** OpenLigaDB lives in its own pack and its own DB file. Joining it into the CC0 warehouse would trigger share-alike on the whole dataset.
-5. Not a betting product. No odds, "value", "units", "locks", bankroll advice, or affiliate links — in code, copy, or docs.
+5. Not a betting product. A user-authorized provider may appear only in the isolated **Outside signals** panel with attribution and a "not a Golavo forecast" label. Never add bet placement, bookmaker/affiliate links, "value", "units", "locks", bankroll/staking advice, or feed-derived model inputs.
 
 ## Gotchas
 
@@ -69,13 +69,13 @@ This is why `core/pyproject.toml` pins deps with `==` (pyarrow, pandas, numpy, s
 
 **Cache epochs guard against stale publishes.** `IndexSnapshot` carries `frame/fingerprint/epoch` so work started on an older generation can't publish into the cache after a refresh repoints the module globals in `server/golavo_server/matches.py`.
 
-**License isolation is AST-enforced, not grepped.** `scripts/validate_license_isolation.py` parses imports: the four `openligadb_*.py` modules may not import `golavo_core` or the core server services. `core/` may not import `overlay_odbl`; `fjelstul` (CC-BY-SA) may not appear in `core/golavo_core/ingest`. This constrains where you may put an import.
+**License isolation is AST-enforced, not grepped.** `scripts/validate_license_isolation.py` parses imports: the four `openligadb_*.py` modules and the proprietary `sportmonks.py` connector may not import `golavo_core` or core server services. `core/` may not reference either runtime adapter; `fjelstul` (CC-BY-SA) may not appear in `core/golavo_core/ingest`. This constrains where you may put an import.
 
-**Some routes are unusable in source mode.** `/api/v1/corrections*` and `/api/v1/research/*` hard-403 when `GOLAVO_TOKEN` is unset.
+**Some routes are unusable in source mode.** `/api/v1/corrections*`, `/api/v1/research/*`, and Sportmonks settings/outside-signal routes hard-403 when `GOLAVO_TOKEN` is unset.
 
 **`calibration` is imported lazily inside its handler** — numpy/pandas/scipy cost ~25s from the frozen sidecar and would block `/health`.
 
-Env vars (all seven): `GOLAVO_TOKEN`, `GOLAVO_DATA_DIR`, `GOLAVO_HOST`, `GOLAVO_PORT`, `GOLAVO_PARENT_PID`, `GOLAVO_SOURCE_SHA`, `GOLAVO_NO_RESEARCH`.
+Runtime env vars include `GOLAVO_TOKEN`, `GOLAVO_DATA_DIR`, `GOLAVO_HOST`, `GOLAVO_PORT`, `GOLAVO_PARENT_PID`, `GOLAVO_SOURCE_SHA`, `GOLAVO_NO_RESEARCH`, and optional `SPORTMONKS_API_TOKEN` for source-mode BYOK.
 
 ## Generated files — regenerate, don't edit
 

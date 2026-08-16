@@ -8,7 +8,7 @@ Thanks for helping build an honest football forecaster. This guide covers how th
 2. **Every displayed fact carries a source id.** No source, no ship.
 3. **Never commit proprietary or user data.** No football-data.org / API-Football responses, no StatsBomb data, no scraped feeds. Only CC0 / CC-BY sources belong in the repo, and only as small frozen demo fixtures under `data/fixtures/`.
 4. **ODbL stays isolated.** OpenLigaDB (ODbL) data lives in its own pack and its own database file. Never join it into the CC0 warehouse — that would trigger share-alike on the whole dataset. CI enforces this.
-5. **Golavo is not a betting product.** No odds, no "value," "units," "locks," bankroll advice, or affiliate links — in code, copy, or docs.
+5. **Golavo is not a betting product.** User-authorized odds/predictions may appear only in the isolated, attributed **Outside signals** panel and must remain structurally outside Golavo forecasts. No bet placement, bookmaker/affiliate links, "value," "units," "locks," or bankroll/staking advice.
 
 ## Repository layout
 

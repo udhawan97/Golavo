@@ -54,6 +54,7 @@ import { useFollows } from "../lib/follow-context";
 import { CorrectionButton } from "../components/CorrectionButton";
 import { CorrectionAnnotations } from "../components/CorrectionAnnotations";
 import { MatchResearch } from "../components/MatchResearch";
+import { OutsideSignals } from "../components/OutsideSignals";
 
 export function MatchDetail({ id }: { id: string }) {
   const state = useAsync(() => fetchMatch(id), [id]);
@@ -216,6 +217,8 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       <ConditionsSnapshot matchId={id} />
 
       <ReferenceDesk matchId={id} home={match.home_team} away={match.away_team} />
+
+      <OutsideSignals matchId={id} home={match.home_team} away={match.away_team} />
 
       <ForecastReadiness detail={detail} analysis={analysis} indexSha256={analysisFingerprint} />
       <VerifiedGenerationDiff matchId={id} analysis={analysis} indexSha256={analysisFingerprint} />

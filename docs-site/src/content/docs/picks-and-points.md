@@ -5,7 +5,8 @@ description: Call a score before kickoff, prove it stayed locked, and race five 
 
 Picks are Golavo's private score-calling game. They are separate from **sealing**: a pick is
 *your* call and scores simple game points; a seal is the expert trust record for a model forecast.
-Neither involves money, odds, an account, or a hosted leaderboard.
+Neither involves money, a wagering account, or a hosted leaderboard. Optional provider odds are
+isolated outside signals and never enter Picks, rival calls, or scoring.
 
 ## Make a call
 
@@ -51,8 +52,9 @@ In the web preview, picks live only in that browser's local storage and are prom
 and survive restarts. No pick is uploaded.
 
 :::note[No gambling mechanics]
-There is no money, wagering, odds feed, public account, or prize. Picks are a local comparison
-between your football judgment and five disclosed deterministic methods.
+There is no money, wagering workflow, public account, or prize. Picks are a local comparison
+between your football judgment and five disclosed deterministic methods; the optional outside
+signals panel cannot affect it.
 :::
 
 For the model-trust workflow, see [Model Lab & the track record](/Golavo/prediction-ledger/).

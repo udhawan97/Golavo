@@ -53,6 +53,7 @@ import { DataRefreshContext, useDataRefreshController } from "./lib/data-refresh
 import { OpenLigaDBContext, useOpenLigaDBController } from "./lib/openligadb-context";
 import { FollowContext, useFollowController } from "./lib/follow-context";
 import { CorrectionContext, useCorrectionController } from "./lib/correction-context";
+import { SportmonksWelcomeCard } from "./components/SportmonksWelcomeCard";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
  *  home's own warming card. A wedged index can never strand the user: search and
@@ -78,6 +79,7 @@ export default function App() {
   const corrections = useCorrectionController(backendReady && !holdForIndex);
   const openLigaDB = useOpenLigaDBController(backendReady && !holdForIndex);
   const [updateNoticeVisible, setUpdateNoticeVisible] = useState(false);
+  const [sportmonksNoticeVisible, setSportmonksNoticeVisible] = useState(false);
 
   // First-launch orientation. Seed returning users as "done" once so an update
   // never replays the newcomer tour. The home tour yields to the update-consent
@@ -91,6 +93,7 @@ export default function App() {
       && !updater.consentNeeded
       && !updater.sheetOpen
       && !updateNoticeVisible
+      && !sportmonksNoticeVisible
       && !updater.freshUpdateToast,
   );
 
@@ -170,6 +173,10 @@ export default function App() {
               </Layout>
               <UpdateSheet />
               <UpdateConsentCard />
+              <SportmonksWelcomeCard
+                eligible={onHome && !updater.consentNeeded && !updater.sheetOpen && !updateNoticeVisible}
+                onVisibilityChange={setSportmonksNoticeVisible}
+              />
               <UpdateAvailableToast onVisibilityChange={setUpdateNoticeVisible} />
               <UpdatedToast />
               <TourOverlay ctrl={homeTour} />

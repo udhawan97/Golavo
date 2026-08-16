@@ -7,6 +7,7 @@
     "odbl-pack": "ODbL-1.0 share-alike data; physically isolated user-data pack, never joined to core or another class.",
     "by-sa-pack": "CC-BY-SA-4.0 share-alike data; physically isolated pack, never joined to core, ODbL, or another class.",
     "research-pack": "CC-BY-4.0 (or MIT) historical event/tracking data; per-match artifacts only, raw tables never join the index.",
+    "per-user-context": "Optional user-authorized runtime context; never bundled, promoted to model input, or redistributed by Golavo.",
     "dev-only": "OSI-licensed software used only in dev/CI; never shipped in a runtime dependency set.",
     "rejected": "Terms verified incompatible with free/open redistribution; recorded so CI can forbid its use.",
     "blocked": "Would be usable but a live blocker (license contradiction, gated host, missing LICENSE) prevents adoption; recheck_by set."
@@ -662,6 +663,21 @@
       "attribution": "Tracking data courtesy of SkillCorner and PySport (SkillCorner Open Data, MIT).",
       "verified": "2026-07-12",
       "notes": "Optional research pack. Preserve documented limits (~97% ID accuracy; extrapolated frames flagged)."
+    },
+    {
+      "source_id": "sportmonks-v3",
+      "name": "Sportmonks Football API v3",
+      "contributors": [
+        "Sportmonks"
+      ],
+      "url": "https://www.sportmonks.com/football-api/",
+      "license": "PROPRIETARY-SUBSCRIPTION",
+      "license_url": "https://www.sportmonks.com/terms-of-service/",
+      "classification": "per-user-context",
+      "fields": "user-authorized external full-time result probabilities and pre-match match-winner bookmaker prices",
+      "verified": "2026-08-16",
+      "recheck_by": "2027-02-16",
+      "notes": "Optional BYOK foreground connector. Sportmonks terms expressly permit apps and storage while prohibiting direct feed resale. Golavo requests data only after a match-level click, authenticates in a header, derives an attributed outside-signals response in memory, and persists no provider bytes. Exact team/kickoff identity is required. Values cannot enter models, verdicts, seals, settlement, calibration, scoring, AI evidence, or exports. No logos, photos, bookmaker links, affiliate tracking, staking advice, or bet placement are requested or displayed. The user's Sportmonks subscription and Odds & Predictions add-on govern availability and cost."
     },
     {
       "source_id": "statsbomb-open-data",

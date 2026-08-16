@@ -11,7 +11,7 @@ Contributions are welcome. The authoritative guide is [CONTRIBUTING.md](https://
 2. **Every displayed fact carries a source id.** No source, no ship.
 3. **Never commit proprietary or user data** — no football-data.org / API-Football responses, no StatsBomb data, no scraped feeds. Only CC0/CC-BY, and only small frozen demo fixtures.
 4. **ODbL stays isolated.** OpenLigaDB data/code never joins the CC0 core; CI enforces this.
-5. **Golavo is not a betting product** — no odds, "value," "units," "locks," or affiliate links, in code or copy.
+5. **Golavo is not a betting product** — user-authorized odds/predictions may appear only in the attributed **Outside signals** panel. No bet placement, bookmaker/affiliate links, "value," "units," "locks," or bankroll/staking advice.
 
 ## Workflow
 
