@@ -18,7 +18,8 @@
         "2021-22",
         "2022-23",
         "2023-24",
-        "2024-25"
+        "2024-25",
+        "2025-26"
       ],
       "code": "de.1",
       "competition": "Bundesliga",
@@ -28,21 +29,14 @@
         "three_recent_clean_folds": true,
         "usable_clean_seasons": true
       },
-      "flag_reasons": {
-        "2025-26": [
-          "12 of 306 results missing",
-          "12 divergent [0, 0] list-encoded scores"
-        ]
-      },
-      "flagged_seasons": [
+      "flag_reasons": {},
+      "flagged_seasons": [],
+      "fold_seasons": [
+        "2023-24",
+        "2024-25",
         "2025-26"
       ],
-      "fold_seasons": [
-        "2022-23",
-        "2023-24",
-        "2024-25"
-      ],
-      "latest_clean_season": "2024-25",
+      "latest_clean_season": "2025-26",
       "n_seasons": 16,
       "pack": "packs/openfootball-deu-bl",
       "seasons": {
@@ -61,9 +55,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2010/11",
           "negative_scores": 0,
@@ -86,9 +81,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2011/12",
           "negative_scores": 0,
@@ -111,9 +107,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2012/13",
           "negative_scores": 0,
@@ -136,9 +133,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2013/14",
           "negative_scores": 0,
@@ -161,9 +159,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2014/15",
           "negative_scores": 0,
@@ -186,9 +185,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2015/16",
           "negative_scores": 0,
@@ -211,9 +211,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2016/17",
           "negative_scores": 0,
@@ -236,9 +237,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2017/18",
           "negative_scores": 0,
@@ -261,9 +263,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2018/19",
           "negative_scores": 0,
@@ -286,9 +289,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2019/20",
           "negative_scores": 0,
@@ -311,9 +315,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2020/21",
           "negative_scores": 0,
@@ -336,9 +341,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2021/22",
           "negative_scores": 0,
@@ -361,9 +367,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2022/23",
           "negative_scores": 0,
@@ -386,9 +393,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2023/24",
           "negative_scores": 0,
@@ -411,9 +419,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2024/25",
           "negative_scores": 0,
@@ -426,7 +435,7 @@
             17,
             17
           ],
-          "clean": false,
+          "clean": true,
           "date_max": "2026-05-16",
           "date_min": "2025-08-22",
           "duplicate_ordered_pairs": 0,
@@ -436,16 +445,14 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 12,
-          "n_complete": 294,
+          "n_bare_list_scores": 12,
+          "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "Deutsche Bundesliga 2025/26",
           "negative_scores": 0,
-          "reasons": [
-            "12 of 306 results missing",
-            "12 divergent [0, 0] list-encoded scores"
-          ],
+          "reasons": [],
           "season": "2025-26",
           "self_matches": 0
         }
@@ -469,7 +476,8 @@
         "2021-22",
         "2022-23",
         "2023-24",
-        "2024-25"
+        "2024-25",
+        "2025-26"
       ],
       "code": "en.1",
       "competition": "English Premier League",
@@ -479,21 +487,14 @@
         "three_recent_clean_folds": true,
         "usable_clean_seasons": true
       },
-      "flag_reasons": {
-        "2025-26": [
-          "27 of 380 results missing",
-          "27 divergent [0, 0] list-encoded scores"
-        ]
-      },
-      "flagged_seasons": [
+      "flag_reasons": {},
+      "flagged_seasons": [],
+      "fold_seasons": [
+        "2023-24",
+        "2024-25",
         "2025-26"
       ],
-      "fold_seasons": [
-        "2022-23",
-        "2023-24",
-        "2024-25"
-      ],
-      "latest_clean_season": "2024-25",
+      "latest_clean_season": "2025-26",
       "n_seasons": 16,
       "pack": "packs/openfootball-eng-pl",
       "seasons": {
@@ -512,9 +513,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2010/11",
           "negative_scores": 0,
@@ -537,9 +539,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2011/12",
           "negative_scores": 0,
@@ -562,9 +565,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2012/13",
           "negative_scores": 0,
@@ -587,9 +591,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2013/14",
           "negative_scores": 0,
@@ -612,9 +617,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2014/15",
           "negative_scores": 0,
@@ -637,9 +643,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2015/16",
           "negative_scores": 0,
@@ -662,9 +669,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2016/17",
           "negative_scores": 0,
@@ -687,9 +695,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2017/18",
           "negative_scores": 0,
@@ -712,9 +721,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2018/19",
           "negative_scores": 0,
@@ -737,9 +747,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2019/20",
           "negative_scores": 0,
@@ -762,9 +773,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2020/21",
           "negative_scores": 0,
@@ -787,9 +799,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2021/22",
           "negative_scores": 0,
@@ -812,9 +825,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2022/23",
           "negative_scores": 0,
@@ -837,9 +851,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2023/24",
           "negative_scores": 0,
@@ -862,9 +877,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2024/25",
           "negative_scores": 0,
@@ -877,7 +893,7 @@
             19,
             19
           ],
-          "clean": false,
+          "clean": true,
           "date_max": "2026-05-24",
           "date_min": "2025-08-15",
           "duplicate_ordered_pairs": 0,
@@ -887,16 +903,14 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 27,
-          "n_complete": 353,
+          "n_bare_list_scores": 27,
+          "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "English Premier League 2025/26",
           "negative_scores": 0,
-          "reasons": [
-            "27 of 380 results missing",
-            "27 divergent [0, 0] list-encoded scores"
-          ],
+          "reasons": [],
           "season": "2025-26",
           "self_matches": 0
         }
@@ -917,7 +931,8 @@
         "2020-21",
         "2021-22",
         "2022-23",
-        "2023-24"
+        "2023-24",
+        "2025-26"
       ],
       "code": "es.1",
       "competition": "La Liga",
@@ -930,22 +945,17 @@
       "flag_reasons": {
         "2024-25": [
           "10 of 380 results missing"
-        ],
-        "2025-26": [
-          "15 of 380 results missing",
-          "15 divergent [0, 0] list-encoded scores"
         ]
       },
       "flagged_seasons": [
-        "2024-25",
-        "2025-26"
+        "2024-25"
       ],
       "fold_seasons": [
-        "2021-22",
         "2022-23",
-        "2023-24"
+        "2023-24",
+        "2025-26"
       ],
-      "latest_clean_season": "2023-24",
+      "latest_clean_season": "2025-26",
       "n_seasons": 14,
       "pack": "packs/openfootball-esp-ll",
       "seasons": {
@@ -964,9 +974,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2012/13",
           "negative_scores": 0,
@@ -989,9 +1000,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2013/14",
           "negative_scores": 0,
@@ -1014,9 +1026,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2014/15",
           "negative_scores": 0,
@@ -1039,9 +1052,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2015/16",
           "negative_scores": 0,
@@ -1064,9 +1078,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2016/17",
           "negative_scores": 0,
@@ -1089,9 +1104,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2017/18",
           "negative_scores": 0,
@@ -1114,9 +1130,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2018/19",
           "negative_scores": 0,
@@ -1139,9 +1156,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2019/20",
           "negative_scores": 0,
@@ -1164,9 +1182,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2020/21",
           "negative_scores": 0,
@@ -1189,9 +1208,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2021/22",
           "negative_scores": 0,
@@ -1214,9 +1234,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2022/23",
           "negative_scores": 0,
@@ -1239,9 +1260,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Primera Divisi\u00f3n de Espa\u00f1a 2023/24",
           "negative_scores": 0,
@@ -1264,9 +1286,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 370,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Spain Primera Divisi\u00f3n 2024/25",
           "negative_scores": 0,
@@ -1281,7 +1304,7 @@
             19,
             19
           ],
-          "clean": false,
+          "clean": true,
           "date_max": "2026-05-24",
           "date_min": "2025-08-15",
           "duplicate_ordered_pairs": 0,
@@ -1291,16 +1314,14 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 15,
-          "n_complete": 365,
+          "n_bare_list_scores": 15,
+          "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Spain Primera Divisi\u00f3n 2025/26",
           "negative_scores": 0,
-          "reasons": [
-            "15 of 380 results missing",
-            "15 divergent [0, 0] list-encoded scores"
-          ],
+          "reasons": [],
           "season": "2025-26",
           "self_matches": 0
         }
@@ -1334,8 +1355,7 @@
           "101 of 380 results missing"
         ],
         "2025-26": [
-          "24 of 306 results missing",
-          "23 divergent [0, 0] list-encoded scores"
+          "1 of 306 results missing"
         ]
       },
       "flagged_seasons": [
@@ -1366,9 +1386,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2014/15",
           "negative_scores": 0,
@@ -1391,9 +1412,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2015/16",
           "negative_scores": 0,
@@ -1416,9 +1438,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2016/17",
           "negative_scores": 0,
@@ -1441,9 +1464,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2017/18",
           "negative_scores": 0,
@@ -1466,9 +1490,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2018/19",
           "negative_scores": 0,
@@ -1491,9 +1516,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 279,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2019/20",
           "negative_scores": 0,
@@ -1518,9 +1544,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2020/21",
           "negative_scores": 0,
@@ -1543,9 +1570,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2021/22",
           "negative_scores": 0,
@@ -1568,9 +1596,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "French Ligue 1 2022/23",
           "negative_scores": 0,
@@ -1593,9 +1622,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "French Ligue 1 2023/24",
           "negative_scores": 0,
@@ -1618,9 +1648,10 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 306,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "French Ligue 1 2024/25",
           "negative_scores": 0,
@@ -1643,15 +1674,15 @@
             17,
             17
           ],
-          "n_anomalous_encoding": 23,
-          "n_complete": 282,
+          "n_bare_list_scores": 23,
+          "n_complete": 305,
           "n_matches": 306,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 18,
           "name": "French Ligue 1 2025/26",
           "negative_scores": 0,
           "reasons": [
-            "24 of 306 results missing",
-            "23 divergent [0, 0] list-encoded scores"
+            "1 of 306 results missing"
           ],
           "season": "2025-26",
           "self_matches": 0
@@ -1672,7 +1703,8 @@
         "2020-21",
         "2021-22",
         "2022-23",
-        "2023-24"
+        "2023-24",
+        "2025-26"
       ],
       "code": "it.1",
       "competition": "Serie A",
@@ -1685,22 +1717,17 @@
       "flag_reasons": {
         "2024-25": [
           "10 of 380 results missing"
-        ],
-        "2025-26": [
-          "36 of 380 results missing",
-          "36 divergent [0, 0] list-encoded scores"
         ]
       },
       "flagged_seasons": [
-        "2024-25",
-        "2025-26"
+        "2024-25"
       ],
       "fold_seasons": [
-        "2021-22",
         "2022-23",
-        "2023-24"
+        "2023-24",
+        "2025-26"
       ],
-      "latest_clean_season": "2023-24",
+      "latest_clean_season": "2025-26",
       "n_seasons": 13,
       "pack": "packs/openfootball-ita-sa",
       "seasons": {
@@ -1719,9 +1746,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2013/14",
           "negative_scores": 0,
@@ -1744,9 +1772,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2014/15",
           "negative_scores": 0,
@@ -1769,9 +1798,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2015/16",
           "negative_scores": 0,
@@ -1794,9 +1824,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2016/17",
           "negative_scores": 0,
@@ -1819,9 +1850,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2017/18",
           "negative_scores": 0,
@@ -1844,9 +1876,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2018/19",
           "negative_scores": 0,
@@ -1869,9 +1902,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2019/20",
           "negative_scores": 0,
@@ -1894,9 +1928,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2020/21",
           "negative_scores": 0,
@@ -1919,9 +1954,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2021/22",
           "negative_scores": 0,
@@ -1944,9 +1980,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2022/23",
           "negative_scores": 0,
@@ -1969,9 +2006,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2023/24",
           "negative_scores": 0,
@@ -1994,9 +2032,10 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 0,
+          "n_bare_list_scores": 0,
           "n_complete": 370,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2024/25",
           "negative_scores": 0,
@@ -2011,7 +2050,7 @@
             19,
             19
           ],
-          "clean": false,
+          "clean": true,
           "date_max": "2026-05-24",
           "date_min": "2025-08-23",
           "duplicate_ordered_pairs": 0,
@@ -2021,16 +2060,14 @@
             19,
             19
           ],
-          "n_anomalous_encoding": 36,
-          "n_complete": 344,
+          "n_bare_list_scores": 36,
+          "n_complete": 380,
           "n_matches": 380,
+          "n_non_zero_bare_scores": 0,
           "n_teams": 20,
           "name": "Italian Serie A 2025/26",
           "negative_scores": 0,
-          "reasons": [
-            "36 of 380 results missing",
-            "36 divergent [0, 0] list-encoded scores"
-          ],
+          "reasons": [],
           "season": "2025-26",
           "self_matches": 0
         }

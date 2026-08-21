@@ -1,17 +1,17 @@
 {
-  "context_pack_version": "2026.07.29.1",
+  "context_pack_version": "2026.08.21.1",
   "created_at_utc": "2026-07-15T18:00:00Z",
   "display_only": true,
   "files": [
     {
-      "bytes": 888329,
+      "bytes": 902387,
       "path": "data/enrichment/places.json",
-      "sha256": "c5c3bf86283680a908c1c83448a6d38bcdb148e8a16a3d87876f0d35895f416e"
+      "sha256": "9d205d0ebc883fd2b06393061e4af31914ed428181ca0ef542f280731fc227a3"
     },
     {
-      "bytes": 100428,
+      "bytes": 100186,
       "path": "data/enrichment/places.meta.json",
-      "sha256": "5bd86783d43a59f1d69cce33f518358916cc60937fc43335287e345394ff2099"
+      "sha256": "a5d78c2e9c8844ea277467ab05aeefc921a62a9a5fa0f9ba0a79023d63025761"
     },
     {
       "bytes": 915042,
@@ -19,19 +19,19 @@
       "sha256": "c9200afc5cad0b3d0c07ce88ba5719cee473c8b16969feaa7d98ed6d2382ed91"
     },
     {
-      "bytes": 226585,
+      "bytes": 326776,
       "path": "data/context/venue_entities.json",
-      "sha256": "7cf8c2771ce9178c223ea1c9f8399195f92d187d2e3b30b7eb7340f2cafad596"
+      "sha256": "475d5c662888f33a43c3ef50d54abe0edf6ec5e4834da36cc35ba0799612b5d0"
     },
     {
-      "bytes": 38605,
+      "bytes": 77002,
       "path": "data/context/venue_assignments.json",
-      "sha256": "14e3e5f51e1238a7c06d92ede0c1bbce795c6254abe8a2210a26677cfda1ce20"
+      "sha256": "a55bb91b5c563dd608bf25dac2e47a6515a6485dbf72ec79a25c2666be870841"
     }
   ],
   "limits": {
-    "entity_count": 1550,
-    "runtime_bytes": 2168989,
+    "entity_count": 1623,
+    "runtime_bytes": 2321393,
     "wikidata_entity_count": 52
   },
   "model_input": false,

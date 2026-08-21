@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.07.29.1"
+CATALOG_VERSION = "2026.08.21.2"
 
 
 def _capability(
@@ -60,9 +60,11 @@ def _base_capabilities() -> dict[str, dict[str, Any]]:
         "conditions": _capability(
             "partial",
             "Rest is available when a prior indexed match exists; city, local-time, and "
-            "travel context require an exact city-country resolution. A stadium is shown only "
-            "where a pinned CC0 ground and the club's Wikidata home venue agree, which they do "
-            "for 37 of the 46 current top-flight clubs upstream names a ground for.",
+            "travel context require an exact city-country resolution, which the pinned CC0 club "
+            "file supplies for 92 of the 96 clubs in the five 2026-27 top-flight schedules. A "
+            "stadium is a separate, stricter claim, shown only where that pinned ground and the "
+            "club's Wikidata home venue agree — 37 clubs, because upstream names no ground at "
+            "all for a Spanish or Italian one.",
             "geonames",
             "natural-earth",
             "openfootball-clubs",
@@ -121,7 +123,10 @@ def _domestic(
     capabilities["simulation"] = _capability(
         "available",
         "Standings rules are verified and the 2026-27 fixture list certifies complete, so the "
-        "seeded outlook runs. It still fails closed per request if that certificate ever fails.",
+        "seeded outlook runs. It still fails closed per request if that certificate ever fails. "
+        "A promoted club with no recent history in this competition is simulated — the other "
+        "clubs' projections require it — but every team row carries the count behind it, "
+        "because the per-match council abstains on that club's fixtures.",
         "openfootball-football-json",
         fixture_source_id,
     )

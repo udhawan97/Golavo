@@ -16,8 +16,9 @@ SCHEMA = REPO_ROOT / "docs/contracts/forecast_artifact.schema.json"
 
 # Adjudicated per-league expectations; see docs/handoff/openfootball-audit.md and
 # docs/handoff/team-canonicalization.md. Row counts are fixtures (played or not),
-# complete counts exclude missing/[0, 0]-encoded results, club counts are the
-# proven canonical identities.
+# complete counts exclude only results upstream genuinely has none for — the bare
+# `score` list 2025-26 uses for a goalless draw IS a result — and club counts are
+# the proven canonical identities.
 # Row counts are the football.json seasons plus the 2026-27 Football.TXT fixture
 # list bundled beside them (ingest.domestictxt). Every 'complete' count below is
 # unchanged by that addition: a schedule contributes fixtures, never results.
@@ -28,11 +29,11 @@ EXPECTED = {
         "pack": "packs/openfootball-esp-ll",
         "competition": "La Liga",
         "rows": 14 * 380 + 380,
-        "complete": 14 * 380 - 10 - 15,
+        "complete": 14 * 380 - 10,
         "clubs": 34,
-        "clean": 12,
-        "flagged": ["2024-25", "2025-26"],
-        "fold_seasons": ["2021-22", "2022-23", "2023-24"],
+        "clean": 13,
+        "flagged": ["2024-25"],
+        "fold_seasons": ["2022-23", "2023-24", "2025-26"],
         "summary": "docs/handoff/eval_summary_laliga.json",
         "fold_sizes": [380, 380, 380],
     },
@@ -40,11 +41,11 @@ EXPECTED = {
         "pack": "packs/openfootball-deu-bl",
         "competition": "Bundesliga",
         "rows": 16 * 306 + 306,
-        "complete": 16 * 306 - 12,
+        "complete": 16 * 306,
         "clubs": 33,
-        "clean": 15,
-        "flagged": ["2025-26"],
-        "fold_seasons": ["2022-23", "2023-24", "2024-25"],
+        "clean": 16,
+        "flagged": [],
+        "fold_seasons": ["2023-24", "2024-25", "2025-26"],
         "summary": "docs/handoff/eval_summary_bundesliga.json",
         "fold_sizes": [306, 306, 306],
     },
@@ -52,11 +53,11 @@ EXPECTED = {
         "pack": "packs/openfootball-ita-sa",
         "competition": "Serie A",
         "rows": 13 * 380 + 380,
-        "complete": 13 * 380 - 10 - 36,
+        "complete": 13 * 380 - 10,
         "clubs": 38,
-        "clean": 11,
-        "flagged": ["2024-25", "2025-26"],
-        "fold_seasons": ["2021-22", "2022-23", "2023-24"],
+        "clean": 12,
+        "flagged": ["2024-25"],
+        "fold_seasons": ["2022-23", "2023-24", "2025-26"],
         "summary": "docs/handoff/eval_summary_seriea.json",
         "fold_sizes": [380, 380, 380],
     },
@@ -64,7 +65,7 @@ EXPECTED = {
         "pack": "packs/openfootball-fra-l1",
         "competition": "Ligue 1",
         "rows": 9 * 380 + 4 * 306,
-        "complete": 9 * 380 + 3 * 306 - 101 - 24,
+        "complete": 9 * 380 + 3 * 306 - 101 - 1,
         "clubs": 35,
         "clean": 10,
         "flagged": ["2019-20", "2025-26"],

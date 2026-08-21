@@ -274,10 +274,38 @@ def _review_lookup(path: Path) -> dict[str, dict[str, Any]]:
     return result
 
 
+def _club_home_pairs() -> pd.DataFrame:
+    """The home cities the reviewed club venue assignments name.
+
+    A club fixture carries no city of its own: upstream states a club's home city
+    in the pinned club file, not on the match row. An index-only request set
+    therefore never asks for the city a club actually plays in, and resolves one
+    only by the accident of an international having been played in the same
+    place — which is why Manchester resolved and Bournemouth did not.
+
+    Asking for the reviewed home cities too is what lets a club fixture have a
+    place at all. It widens only the request set; each pair still has to win the
+    same unique-exact-match rule or wait for a checked-in review.
+    """
+    path = ROOT / "data/context/venue_assignments.json"
+    if not path.is_file():
+        return pd.DataFrame(columns=["city", "country"], dtype="object")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    rows = [
+        {"city": str(item["match_city"]), "country": str(item["match_country"])}
+        for item in payload.get("assignments", [])
+        if item.get("match_home_team") and item.get("match_city") and item.get("match_country")
+    ]
+    return pd.DataFrame(rows, columns=["city", "country"], dtype="object")
+
+
 def _derive_places(geonames_dir: Path, output_dir: Path) -> dict[str, Any]:
     index = pd.read_parquet(ROOT / "data/index/matches_index.parquet", columns=["city", "country"])
     pairs = (
-        index[["city", "country"]]
+        pd.concat(
+            [index[["city", "country"]].astype("object"), _club_home_pairs()],
+            ignore_index=True,
+        )
         .dropna()
         .drop_duplicates()
         .sort_values(["country", "city"], kind="mergesort")

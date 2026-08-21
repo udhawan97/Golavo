@@ -1,6 +1,2856 @@
 {
-  "context_pack_version": "2026.07.29.1",
+  "context_pack_version": "2026.08.21.1",
   "entities": [
+    {
+      "canonical_label": "Troyes",
+      "claims": [
+        {
+          "claim_id": "ctxc_46343d1b60c78a08",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:ES Troyes AC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Troyes"
+        },
+        {
+          "claim_id": "ctxc_a18fdb22b6332c67",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:ES Troyes AC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Troyes"
+        }
+      ],
+      "entity_id": "place_0564742d616f796d",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:ES Troyes AC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Bilbao",
+      "claims": [
+        {
+          "claim_id": "ctxc_345b4edb47a1be20",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Athletic Club Bilbao",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Bilbao"
+        },
+        {
+          "claim_id": "ctxc_f8faee4d4245ed50",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Athletic Club Bilbao",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Bilbao"
+        }
+      ],
+      "entity_id": "place_11d710e9f2f0d19c",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Athletic Club Bilbao",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Sevilla",
+      "claims": [
+        {
+          "claim_id": "ctxc_55897f2b402ce1d9",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Real Betis",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Sevilla"
+        },
+        {
+          "claim_id": "ctxc_0327a9447f3f7c8a",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Real Betis",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Sevilla"
+        }
+      ],
+      "entity_id": "place_14ede952994217c6",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Real Betis",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Gelsenkirchen",
+      "claims": [
+        {
+          "claim_id": "ctxc_73b79abcca36bac9",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:FC Schalke 04",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Gelsenkirchen"
+        },
+        {
+          "claim_id": "ctxc_d80fbe301e4e73c7",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:FC Schalke 04",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Gelsenkirchen"
+        }
+      ],
+      "entity_id": "place_1e3c8afb2fdcbb6d",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:FC Schalke 04",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Firenze",
+      "claims": [
+        {
+          "claim_id": "ctxc_90db4952200c367f",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:ACF Fiorentina",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Firenze"
+        },
+        {
+          "claim_id": "ctxc_9e16d84b7e0c7c16",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:ACF Fiorentina",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Firenze"
+        }
+      ],
+      "entity_id": "place_1f4bd2b0ab5ec4b2",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:ACF Fiorentina",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Bologna",
+      "claims": [
+        {
+          "claim_id": "ctxc_e8e89d3989fb9ece",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Bologna FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Bologna"
+        },
+        {
+          "claim_id": "ctxc_838d4cfb2c3e7a38",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Bologna FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Bologna"
+        }
+      ],
+      "entity_id": "place_225ef47fb07a5b85",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Bologna FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Parma",
+      "claims": [
+        {
+          "claim_id": "ctxc_0d78e0b10a167ee6",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Parma Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Parma"
+        },
+        {
+          "claim_id": "ctxc_c3934c7a2581988d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Parma Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Parma"
+        }
+      ],
+      "entity_id": "place_23935843fe1b2122",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Parma Calcio",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Falmer",
+      "claims": [
+        {
+          "claim_id": "ctxc_1b5715571df27124",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Brighton & Hove Albion FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Falmer"
+        },
+        {
+          "claim_id": "ctxc_9875fa84614db1d0",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Brighton & Hove Albion FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Falmer"
+        }
+      ],
+      "entity_id": "place_2c10a448e21243f8",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Brighton & Hove Albion FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Paderborn",
+      "claims": [
+        {
+          "claim_id": "ctxc_eb000f9855c00e55",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:SC Paderborn 07",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Paderborn"
+        },
+        {
+          "claim_id": "ctxc_f2c6c3b28c5aa114",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:SC Paderborn 07",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Paderborn"
+        }
+      ],
+      "entity_id": "place_2c634da0a80a2523",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:SC Paderborn 07",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Madrid",
+      "claims": [
+        {
+          "claim_id": "ctxc_a98f2907868d9a78",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Atlético Madrid",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Madrid"
+        },
+        {
+          "claim_id": "ctxc_78dd972c1a21bf54",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Atlético Madrid",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Madrid"
+        }
+      ],
+      "entity_id": "place_340ded21f1090f64",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Atlético Madrid",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Auxerre",
+      "claims": [
+        {
+          "claim_id": "ctxc_5cd4ec0cf4ba3707",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:AJ Auxerre",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Auxerre"
+        },
+        {
+          "claim_id": "ctxc_a1fc8299b18016b6",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:AJ Auxerre",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Auxerre"
+        }
+      ],
+      "entity_id": "place_384fa668bab4ffa3",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:AJ Auxerre",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Pamplona",
+      "claims": [
+        {
+          "claim_id": "ctxc_816d528c412a0a0f",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:CA Osasuna",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Pamplona"
+        },
+        {
+          "claim_id": "ctxc_ea2be6a71893f22b",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:CA Osasuna",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Pamplona"
+        }
+      ],
+      "entity_id": "place_3a39a57d81d336d7",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:CA Osasuna",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Madrid",
+      "claims": [
+        {
+          "claim_id": "ctxc_401f5c0c898af64c",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Rayo Vallecano",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Madrid"
+        },
+        {
+          "claim_id": "ctxc_81cc7516449c0dcd",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Rayo Vallecano",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Madrid"
+        }
+      ],
+      "entity_id": "place_3adab4197067e37d",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Rayo Vallecano",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Monza",
+      "claims": [
+        {
+          "claim_id": "ctxc_538e3e37e1d8342f",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:AC Monza",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Monza"
+        },
+        {
+          "claim_id": "ctxc_d4023a60bccd0990",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:AC Monza",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Monza"
+        }
+      ],
+      "entity_id": "place_40a30a47808271dd",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:AC Monza",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Le Mans",
+      "claims": [
+        {
+          "claim_id": "ctxc_37016f6525608971",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Le Mans FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Le Mans"
+        },
+        {
+          "claim_id": "ctxc_71fb6c3e20f04aa9",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Le Mans FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Le Mans"
+        }
+      ],
+      "entity_id": "place_4488cd401f3a0d53",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Le Mans FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Madrid",
+      "claims": [
+        {
+          "claim_id": "ctxc_75edb8c730ac0ada",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Real Madrid",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Madrid"
+        },
+        {
+          "claim_id": "ctxc_e41294944daa99cb",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Real Madrid",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Madrid"
+        }
+      ],
+      "entity_id": "place_45acddc6828123d6",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Real Madrid",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Barcelona",
+      "claims": [
+        {
+          "claim_id": "ctxc_707efba8c18f37cf",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:FC Barcelona",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Barcelona"
+        },
+        {
+          "claim_id": "ctxc_ebab9e8ea6f1193f",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:FC Barcelona",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Barcelona"
+        }
+      ],
+      "entity_id": "place_4bd03c6288f7d708",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:FC Barcelona",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Milano",
+      "claims": [
+        {
+          "claim_id": "ctxc_0603b49e90cdaa01",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:FC Internazionale Milano",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Milano"
+        },
+        {
+          "claim_id": "ctxc_0d15f9c40aebc19d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:FC Internazionale Milano",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Milano"
+        }
+      ],
+      "entity_id": "place_4da458a55d096d59",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:FC Internazionale Milano",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Napoli",
+      "claims": [
+        {
+          "claim_id": "ctxc_a18102eae793212f",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:SSC Napoli",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Napoli"
+        },
+        {
+          "claim_id": "ctxc_96af5a175a247423",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:SSC Napoli",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Napoli"
+        }
+      ],
+      "entity_id": "place_574412e86c8409be",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:SSC Napoli",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Cagliari",
+      "claims": [
+        {
+          "claim_id": "ctxc_2f1a6c86b8cfcb8b",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Cagliari Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Cagliari"
+        },
+        {
+          "claim_id": "ctxc_5ba352088b1b93ff",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Cagliari Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Cagliari"
+        }
+      ],
+      "entity_id": "place_5d1b900d518dee90",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Cagliari Calcio",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Bergamo",
+      "claims": [
+        {
+          "claim_id": "ctxc_4851085754ac8021",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Atalanta Bergamo",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Bergamo"
+        },
+        {
+          "claim_id": "ctxc_1a1a7121ffab1729",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Atalanta Bergamo",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Bergamo"
+        }
+      ],
+      "entity_id": "place_5e74e0ffb28fd0e9",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Atalanta Bergamo",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Genova",
+      "claims": [
+        {
+          "claim_id": "ctxc_1a6282e79303011c",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Genoa CFC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Genova"
+        },
+        {
+          "claim_id": "ctxc_d594efbadbb4916f",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Genoa CFC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Genova"
+        }
+      ],
+      "entity_id": "place_66a757b920b00087",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Genoa CFC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "San Sebastián",
+      "claims": [
+        {
+          "claim_id": "ctxc_eee452dfbd374d14",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Real Sociedad",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "San Sebastián"
+        },
+        {
+          "claim_id": "ctxc_0a823d07033001fe",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Real Sociedad",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "San Sebastián"
+        }
+      ],
+      "entity_id": "place_6e6e202007c95f72",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Real Sociedad",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Paris",
+      "claims": [
+        {
+          "claim_id": "ctxc_a657d3daccdf8371",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Paris Saint-Germain",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Paris"
+        },
+        {
+          "claim_id": "ctxc_cbc21db974682801",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Paris Saint-Germain",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Paris"
+        }
+      ],
+      "entity_id": "place_750b5d38ff9ef40f",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Paris Saint-Germain",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Liverpool",
+      "claims": [
+        {
+          "claim_id": "ctxc_3f5d8845db6b1f55",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Everton FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Liverpool"
+        },
+        {
+          "claim_id": "ctxc_12aeff20eb0bd591",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Everton FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Liverpool"
+        }
+      ],
+      "entity_id": "place_765aa93f433222ba",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Everton FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Milano",
+      "claims": [
+        {
+          "claim_id": "ctxc_39a1631c7f539a9d",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:AC Milan",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Milano"
+        },
+        {
+          "claim_id": "ctxc_0da7b7cfa04b9031",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:AC Milan",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Milano"
+        }
+      ],
+      "entity_id": "place_7777327c95ba0cd5",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:AC Milan",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Mönchengladbach",
+      "claims": [
+        {
+          "claim_id": "ctxc_3bc7f63ae5ef0024",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Bor. Mönchengladbach",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Mönchengladbach"
+        },
+        {
+          "claim_id": "ctxc_fc6692c1c1d9bc14",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Bor. Mönchengladbach",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Mönchengladbach"
+        }
+      ],
+      "entity_id": "place_79b7278f6eda60de",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:Bor. Mönchengladbach",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Leverkusen",
+      "claims": [
+        {
+          "claim_id": "ctxc_8c7803ea08c60e3a",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Bayer 04 Leverkusen",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Leverkusen"
+        },
+        {
+          "claim_id": "ctxc_639c8b049e47dcb5",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Bayer 04 Leverkusen",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Leverkusen"
+        }
+      ],
+      "entity_id": "place_7bd5038e4a250ffd",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:Bayer 04 Leverkusen",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Torino",
+      "claims": [
+        {
+          "claim_id": "ctxc_2e33f6f83ed121e6",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Torino FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Torino"
+        },
+        {
+          "claim_id": "ctxc_f0e07be1ae46700d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Torino FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Torino"
+        }
+      ],
+      "entity_id": "place_82f2b5be985eb60b",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Torino FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Valencia",
+      "claims": [
+        {
+          "claim_id": "ctxc_439e833f4fc7fd5f",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Levante UD",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Valencia"
+        },
+        {
+          "claim_id": "ctxc_2e570d053cb80a82",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Levante UD",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Valencia"
+        }
+      ],
+      "entity_id": "place_86cf40947770609d",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Levante UD",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Lorient",
+      "claims": [
+        {
+          "claim_id": "ctxc_761a32b1bc13f59c",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:FC Lorient",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Lorient"
+        },
+        {
+          "claim_id": "ctxc_37edbbccd77d63e8",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:FC Lorient",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Lorient"
+        }
+      ],
+      "entity_id": "place_870dd2c2e84ebd72",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:FC Lorient",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Vitoria",
+      "claims": [
+        {
+          "claim_id": "ctxc_dcc6f5a1d81045dd",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Deportivo Alavés",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Vitoria"
+        },
+        {
+          "claim_id": "ctxc_2ad68eff5582b06e",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Deportivo Alavés",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Vitoria"
+        }
+      ],
+      "entity_id": "place_8deff66b62709a80",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Deportivo Alavés",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Torino",
+      "claims": [
+        {
+          "claim_id": "ctxc_bf1c1198bafb25c8",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Juventus",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Torino"
+        },
+        {
+          "claim_id": "ctxc_590b8086a76a5c5d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Juventus",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Torino"
+        }
+      ],
+      "entity_id": "place_8fbd868612317a3a",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Juventus",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Roma",
+      "claims": [
+        {
+          "claim_id": "ctxc_711c56930647e548",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:SS Lazio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Roma"
+        },
+        {
+          "claim_id": "ctxc_feab756abc9b6640",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:SS Lazio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Roma"
+        }
+      ],
+      "entity_id": "place_8fcfdb1b8eff5611",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:SS Lazio",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Coventry",
+      "claims": [
+        {
+          "claim_id": "ctxc_cf261f3fec2cb4d3",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Coventry City FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Coventry"
+        },
+        {
+          "claim_id": "ctxc_424b8dda09cf565d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Coventry City FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Coventry"
+        }
+      ],
+      "entity_id": "place_980b357beb792973",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Coventry City FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Venezia",
+      "claims": [
+        {
+          "claim_id": "ctxc_00a23b96158d84bc",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Venezia FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Venezia"
+        },
+        {
+          "claim_id": "ctxc_a8ac60dd94a023f7",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Venezia FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Venezia"
+        }
+      ],
+      "entity_id": "place_9e22b1f8b3abf8ee",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Venezia FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Roma",
+      "claims": [
+        {
+          "claim_id": "ctxc_d98bb2af99f8f0b0",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:AS Roma",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Roma"
+        },
+        {
+          "claim_id": "ctxc_2e471a9766e98ff6",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:AS Roma",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Roma"
+        }
+      ],
+      "entity_id": "place_9fcaad908ddb4ba0",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:AS Roma",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Vigo",
+      "claims": [
+        {
+          "claim_id": "ctxc_4d12c477fea75e2b",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:RC Celta Vigo",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Vigo"
+        },
+        {
+          "claim_id": "ctxc_2fb24ee1a90f6169",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:RC Celta Vigo",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Vigo"
+        }
+      ],
+      "entity_id": "place_a0e3e4f36bdcaf80",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:RC Celta Vigo",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "La Coruña",
+      "claims": [
+        {
+          "claim_id": "ctxc_3ce12e1406b625f1",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:RCD La Coruña",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "La Coruña"
+        },
+        {
+          "claim_id": "ctxc_c347724426a23098",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:RCD La Coruña",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "La Coruña"
+        }
+      ],
+      "entity_id": "place_a284b391b39fc49d",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:RCD La Coruña",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Málaga",
+      "claims": [
+        {
+          "claim_id": "ctxc_1e71a8c07778ad3e",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Málaga CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Málaga"
+        },
+        {
+          "claim_id": "ctxc_1e61b8750da4f5b5",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Málaga CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Málaga"
+        }
+      ],
+      "entity_id": "place_ada9b9a9ef840024",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Málaga CF",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Barcelona",
+      "claims": [
+        {
+          "claim_id": "ctxc_45253297cd28dc94",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:RCD Espanyol",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Barcelona"
+        },
+        {
+          "claim_id": "ctxc_50da197a30bcfe12",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:RCD Espanyol",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Barcelona"
+        }
+      ],
+      "entity_id": "place_af0ec20e8c73a71e",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:RCD Espanyol",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Valencia",
+      "claims": [
+        {
+          "claim_id": "ctxc_cd371ea579fbe6f3",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Valencia CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Valencia"
+        },
+        {
+          "claim_id": "ctxc_f81e91358d5912e0",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Valencia CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Valencia"
+        }
+      ],
+      "entity_id": "place_b68b97970a0971c9",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Valencia CF",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Hamburg",
+      "claims": [
+        {
+          "claim_id": "ctxc_859885ab9c063401",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Hamburger SV",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Hamburg"
+        },
+        {
+          "claim_id": "ctxc_336a8dead2f34818",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:Hamburger SV",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Hamburg"
+        }
+      ],
+      "entity_id": "place_bad03462feb936ea",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:Hamburger SV",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Santander",
+      "claims": [
+        {
+          "claim_id": "ctxc_a641191f4268cfeb",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Real Racing Santander",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Santander"
+        },
+        {
+          "claim_id": "ctxc_837558362303d948",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Real Racing Santander",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Santander"
+        }
+      ],
+      "entity_id": "place_bd98ff750b9525c2",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Real Racing Santander",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Sevilla",
+      "claims": [
+        {
+          "claim_id": "ctxc_774f1005b72e561e",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Sevilla FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Sevilla"
+        },
+        {
+          "claim_id": "ctxc_33da08e1c4b16cea",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Sevilla FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Sevilla"
+        }
+      ],
+      "entity_id": "place_c99878ae0c471d1e",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Sevilla FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Udine",
+      "claims": [
+        {
+          "claim_id": "ctxc_843bcaf038251a9a",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Udinese Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Udine"
+        },
+        {
+          "claim_id": "ctxc_bfac51e32ba6d55c",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Udinese Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Udine"
+        }
+      ],
+      "entity_id": "place_c99e62e318fcbb03",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Udinese Calcio",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Freiburg",
+      "claims": [
+        {
+          "claim_id": "ctxc_c690e222b3bbcf3d",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:SC Freiburg",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Freiburg"
+        },
+        {
+          "claim_id": "ctxc_b46aab81497549e4",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "5e0d22d19880a17bfff665a1643835c91d2cabf9dd9c6052e2f4a041eb15afa7",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/germany/de.clubs.txt:SC Freiburg",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Freiburg"
+        }
+      ],
+      "entity_id": "place_ca07f1bda4b5fc90",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/germany/de.clubs.txt:SC Freiburg",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Madrid",
+      "claims": [
+        {
+          "claim_id": "ctxc_fb53e8af7c12eff6",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Getafe CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Madrid"
+        },
+        {
+          "claim_id": "ctxc_57d2306c643f7c5d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Getafe CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Madrid"
+        }
+      ],
+      "entity_id": "place_cf5a3c7f26733d4e",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Getafe CF",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Toulouse",
+      "claims": [
+        {
+          "claim_id": "ctxc_160d712a1b28625e",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Toulouse FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Toulouse"
+        },
+        {
+          "claim_id": "ctxc_0eb58928047149ae",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Toulouse FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Toulouse"
+        }
+      ],
+      "entity_id": "place_d5e6246c7a016926",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Toulouse FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Como",
+      "claims": [
+        {
+          "claim_id": "ctxc_0f44133188d171dd",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Como 1907",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Como"
+        },
+        {
+          "claim_id": "ctxc_2780e53635f7a571",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Como 1907",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Como"
+        }
+      ],
+      "entity_id": "place_e4fe48d98ece2b23",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Como 1907",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Sassuolo",
+      "claims": [
+        {
+          "claim_id": "ctxc_a427bd27c4bc3199",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:US Sassuolo Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Sassuolo"
+        },
+        {
+          "claim_id": "ctxc_dea200c44e967427",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:US Sassuolo Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Sassuolo"
+        }
+      ],
+      "entity_id": "place_e7d24f68dff3e200",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:US Sassuolo Calcio",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Villarreal",
+      "claims": [
+        {
+          "claim_id": "ctxc_8aa03e64c99c6462",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Villarreal CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Villarreal"
+        },
+        {
+          "claim_id": "ctxc_a1776537db3c80f9",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Villarreal CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Villarreal"
+        }
+      ],
+      "entity_id": "place_e82549f35ca299dd",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Villarreal CF",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "London",
+      "claims": [
+        {
+          "claim_id": "ctxc_6233638b3761285b",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Tottenham Hotspur FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "London"
+        },
+        {
+          "claim_id": "ctxc_70b9c70a6b0c65a2",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "272bf00c7cc8991a0dc98493d0963fab18f07435098637a968f700015e83e93e",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/england/eng.clubs.txt:Tottenham Hotspur FC",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "London"
+        }
+      ],
+      "entity_id": "place_ed8e74e1a1775809",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/england/eng.clubs.txt:Tottenham Hotspur FC",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Elche",
+      "claims": [
+        {
+          "claim_id": "ctxc_161544b2351bee4d",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Elche CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Elche"
+        },
+        {
+          "claim_id": "ctxc_029989007b3aa1d9",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "057b6d2fa987ed488d9881b4741f65859be3649d78860aff25d3e1308e2c693a",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/spain/es.clubs.txt:Elche CF",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Elche"
+        }
+      ],
+      "entity_id": "place_edb5ce3092d343a6",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/spain/es.clubs.txt:Elche CF",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Frosinone",
+      "claims": [
+        {
+          "claim_id": "ctxc_049f15054c943ef3",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Frosinone Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Frosinone"
+        },
+        {
+          "claim_id": "ctxc_11ba93e204741181",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:Frosinone Calcio",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Frosinone"
+        }
+      ],
+      "entity_id": "place_f8d4d34cccd692b4",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:Frosinone Calcio",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Lecce",
+      "claims": [
+        {
+          "claim_id": "ctxc_ea3e405cec8c38b7",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:US Lecce",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Lecce"
+        },
+        {
+          "claim_id": "ctxc_2ede0988f9f1dada",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "a82c16981a2a2d8eb24e687f1b254c993f146ed1fa224e01e4a174ef6ca960a1",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/italy/it.clubs.txt:US Lecce",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Lecce"
+        }
+      ],
+      "entity_id": "place_fa05c2cc94ab01c7",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/italy/it.clubs.txt:US Lecce",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
+    {
+      "canonical_label": "Angers",
+      "claims": [
+        {
+          "claim_id": "ctxc_b261ab403e3dd1c7",
+          "field": "canonical_label",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Angers SCO",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Angers"
+        },
+        {
+          "claim_id": "ctxc_aa0783db3d9fd13d",
+          "field": "source_city",
+          "language": "en",
+          "precision": null,
+          "source_refs": [
+            {
+              "field": "city",
+              "retrieved_at_utc": "2026-07-29T00:00:00Z",
+              "snapshot_sha256": "bfdba243242c950759cfeb4de3541ecd319885753cee2e9f4719ce78875aca07",
+              "source_id": "openfootball-clubs",
+              "source_record_id": "europe/france/fr.clubs.txt:Angers SCO",
+              "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+            }
+          ],
+          "value": "Angers"
+        }
+      ],
+      "entity_id": "place_fa435e9bda1297d7",
+      "entity_kind": "place",
+      "identifiers": [
+        {
+          "source_id": "openfootball-clubs",
+          "source_record_id": "europe/france/fr.clubs.txt:Angers SCO",
+          "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b"
+        }
+      ],
+      "resolution_status": "resolved",
+      "supersedes": null
+    },
     {
       "canonical_label": "Waldstadion",
       "claims": [

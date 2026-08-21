@@ -24,7 +24,7 @@ function scenarioResponse(): SeasonOutlook {
       title: 1,
       top_four: 1,
       relegation: 0,
-      display_percent: { title: 100, top_four: 100, relegation: 0 },
+      display_percent: { title: 100, top_four: 100, relegation: 0 }, history_coverage: { matches: 40, model_floor: 10, status: "ok" as const },
     }],
     totals: { title: 1, top_four: 1, relegation: 0 },
   });

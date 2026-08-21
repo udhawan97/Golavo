@@ -1,0 +1,874 @@
+{
+  "clubs": [
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Augsburg"
+    },
+    {
+      "city": "Leverkusen",
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": null,
+      "source_club_name": "Bayer 04 Leverkusen",
+      "status": "accepted",
+      "team": "Bayer Leverkusen"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Bayern München"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Borussia Dortmund"
+    },
+    {
+      "city": "Mönchengladbach",
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": null,
+      "source_club_name": "Bor. Mönchengladbach",
+      "status": "accepted",
+      "team": "Borussia Mönchengladbach"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Eintracht Frankfurt"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "no pinned club line states a home city for this club",
+      "source_club_name": null,
+      "status": "rejected",
+      "team": "Elversberg"
+    },
+    {
+      "city": "Freiburg",
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": null,
+      "source_club_name": "SC Freiburg",
+      "status": "accepted",
+      "team": "Freiburg"
+    },
+    {
+      "city": "Hamburg",
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": null,
+      "source_club_name": "Hamburger SV",
+      "status": "accepted",
+      "team": "Hamburger SV"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Hoffenheim"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Köln"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Mainz"
+    },
+    {
+      "city": "Paderborn",
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": null,
+      "source_club_name": "SC Paderborn 07",
+      "status": "accepted",
+      "team": "Paderborn"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "RB Leipzig"
+    },
+    {
+      "city": "Gelsenkirchen",
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": null,
+      "source_club_name": "FC Schalke 04",
+      "status": "accepted",
+      "team": "Schalke"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Stuttgart"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Union Berlin"
+    },
+    {
+      "city": null,
+      "competition": "Bundesliga",
+      "league_code": "de.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Werder Bremen"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Arsenal"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Aston Villa"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Bournemouth"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Brentford"
+    },
+    {
+      "city": "Falmer",
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": null,
+      "source_club_name": "Brighton & Hove Albion FC",
+      "status": "accepted",
+      "team": "Brighton & Hove Albion"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Chelsea"
+    },
+    {
+      "city": "Coventry",
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": null,
+      "source_club_name": "Coventry City FC",
+      "status": "accepted",
+      "team": "Coventry City"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Crystal Palace"
+    },
+    {
+      "city": "Liverpool",
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": null,
+      "source_club_name": "Everton FC",
+      "status": "accepted",
+      "team": "Everton"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Fulham"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Hull City"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Ipswich Town"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Leeds United"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Liverpool"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Manchester City"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Manchester United"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Newcastle United"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Nottingham Forest"
+    },
+    {
+      "city": null,
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Sunderland"
+    },
+    {
+      "city": "London",
+      "competition": "English Premier League",
+      "league_code": "en.1",
+      "reason": null,
+      "source_club_name": "Tottenham Hotspur FC",
+      "status": "accepted",
+      "team": "Tottenham Hotspur"
+    },
+    {
+      "city": "Vitoria",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Deportivo Alavés",
+      "status": "accepted",
+      "team": "Alavés"
+    },
+    {
+      "city": "Bilbao",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Athletic Club Bilbao",
+      "status": "accepted",
+      "team": "Athletic Club"
+    },
+    {
+      "city": "Madrid",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Atlético Madrid",
+      "status": "accepted",
+      "team": "Atlético Madrid"
+    },
+    {
+      "city": "Barcelona",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "FC Barcelona",
+      "status": "accepted",
+      "team": "Barcelona"
+    },
+    {
+      "city": "Vigo",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "RC Celta Vigo",
+      "status": "accepted",
+      "team": "Celta Vigo"
+    },
+    {
+      "city": "La Coruña",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "RCD La Coruña",
+      "status": "accepted",
+      "team": "Deportivo La Coruña"
+    },
+    {
+      "city": "Elche",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Elche CF",
+      "status": "accepted",
+      "team": "Elche"
+    },
+    {
+      "city": "Barcelona",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "RCD Espanyol",
+      "status": "accepted",
+      "team": "Espanyol"
+    },
+    {
+      "city": "Madrid",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Getafe CF",
+      "status": "accepted",
+      "team": "Getafe"
+    },
+    {
+      "city": "Valencia",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Levante UD",
+      "status": "accepted",
+      "team": "Levante"
+    },
+    {
+      "city": "Málaga",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Málaga CF",
+      "status": "accepted",
+      "team": "Málaga"
+    },
+    {
+      "city": "Pamplona",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "CA Osasuna",
+      "status": "accepted",
+      "team": "Osasuna"
+    },
+    {
+      "city": "Santander",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Real Racing Santander",
+      "status": "accepted",
+      "team": "Racing Santander"
+    },
+    {
+      "city": "Madrid",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Rayo Vallecano",
+      "status": "accepted",
+      "team": "Rayo Vallecano"
+    },
+    {
+      "city": "Sevilla",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Real Betis",
+      "status": "accepted",
+      "team": "Real Betis"
+    },
+    {
+      "city": "Madrid",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Real Madrid",
+      "status": "accepted",
+      "team": "Real Madrid"
+    },
+    {
+      "city": "San Sebastián",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Real Sociedad",
+      "status": "accepted",
+      "team": "Real Sociedad"
+    },
+    {
+      "city": "Sevilla",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Sevilla FC",
+      "status": "accepted",
+      "team": "Sevilla"
+    },
+    {
+      "city": "Valencia",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Valencia CF",
+      "status": "accepted",
+      "team": "Valencia"
+    },
+    {
+      "city": "Villarreal",
+      "competition": "La Liga",
+      "league_code": "es.1",
+      "reason": null,
+      "source_club_name": "Villarreal CF",
+      "status": "accepted",
+      "team": "Villarreal"
+    },
+    {
+      "city": "Angers",
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": null,
+      "source_club_name": "Angers SCO",
+      "status": "accepted",
+      "team": "Angers"
+    },
+    {
+      "city": "Auxerre",
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": null,
+      "source_club_name": "AJ Auxerre",
+      "status": "accepted",
+      "team": "Auxerre"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Le Havre"
+    },
+    {
+      "city": "Le Mans",
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": null,
+      "source_club_name": "Le Mans FC",
+      "status": "accepted",
+      "team": "Le Mans"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Lens"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Lille"
+    },
+    {
+      "city": "Lorient",
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": null,
+      "source_club_name": "FC Lorient",
+      "status": "accepted",
+      "team": "Lorient"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Lyon"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Marseille"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "no pinned club line states a home city for this club",
+      "source_club_name": null,
+      "status": "rejected",
+      "team": "Monaco"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Nice"
+    },
+    {
+      "city": "Paris",
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": null,
+      "source_club_name": "Paris Saint-Germain",
+      "status": "accepted",
+      "team": "Paris"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Paris Saint-Germain"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Stade Brestois"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Stade Rennais"
+    },
+    {
+      "city": null,
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": "a cross-checked stadium assignment already states this club's city",
+      "source_club_name": null,
+      "status": "skipped",
+      "team": "Strasbourg"
+    },
+    {
+      "city": "Toulouse",
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": null,
+      "source_club_name": "Toulouse FC",
+      "status": "accepted",
+      "team": "Toulouse"
+    },
+    {
+      "city": "Troyes",
+      "competition": "Ligue 1",
+      "league_code": "fr.1",
+      "reason": null,
+      "source_club_name": "ES Troyes AC",
+      "status": "accepted",
+      "team": "Troyes"
+    },
+    {
+      "city": "Bergamo",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Atalanta Bergamo",
+      "status": "accepted",
+      "team": "Atalanta"
+    },
+    {
+      "city": "Bologna",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Bologna FC",
+      "status": "accepted",
+      "team": "Bologna"
+    },
+    {
+      "city": "Cagliari",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Cagliari Calcio",
+      "status": "accepted",
+      "team": "Cagliari"
+    },
+    {
+      "city": "Como",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Como 1907",
+      "status": "accepted",
+      "team": "Como"
+    },
+    {
+      "city": "Firenze",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "ACF Fiorentina",
+      "status": "accepted",
+      "team": "Fiorentina"
+    },
+    {
+      "city": "Frosinone",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Frosinone Calcio",
+      "status": "accepted",
+      "team": "Frosinone"
+    },
+    {
+      "city": "Genova",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Genoa CFC",
+      "status": "accepted",
+      "team": "Genoa"
+    },
+    {
+      "city": "Milano",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "FC Internazionale Milano",
+      "status": "accepted",
+      "team": "Inter"
+    },
+    {
+      "city": "Torino",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Juventus",
+      "status": "accepted",
+      "team": "Juventus"
+    },
+    {
+      "city": "Roma",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "SS Lazio",
+      "status": "accepted",
+      "team": "Lazio"
+    },
+    {
+      "city": "Lecce",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "US Lecce",
+      "status": "accepted",
+      "team": "Lecce"
+    },
+    {
+      "city": "Milano",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "AC Milan",
+      "status": "accepted",
+      "team": "Milan"
+    },
+    {
+      "city": "Monza",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "AC Monza",
+      "status": "accepted",
+      "team": "Monza"
+    },
+    {
+      "city": "Napoli",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "SSC Napoli",
+      "status": "accepted",
+      "team": "Napoli"
+    },
+    {
+      "city": "Parma",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Parma Calcio",
+      "status": "accepted",
+      "team": "Parma"
+    },
+    {
+      "city": "Roma",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "AS Roma",
+      "status": "accepted",
+      "team": "Roma"
+    },
+    {
+      "city": "Sassuolo",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "US Sassuolo Calcio",
+      "status": "accepted",
+      "team": "Sassuolo"
+    },
+    {
+      "city": "Torino",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Torino FC",
+      "status": "accepted",
+      "team": "Torino"
+    },
+    {
+      "city": "Udine",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Udinese Calcio",
+      "status": "accepted",
+      "team": "Udinese"
+    },
+    {
+      "city": "Venezia",
+      "competition": "Serie A",
+      "league_code": "it.1",
+      "reason": null,
+      "source_club_name": "Venezia FC",
+      "status": "accepted",
+      "team": "Venezia"
+    }
+  ],
+  "clubs_commit": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+  "clubs_pack": "packs/openfootball-clubs-ae3800227c44",
+  "review_rule": "The pinned CC0 club file states the club's home city. It is read for the 2026-27 window only, and only for a club whose stadium lane produced no assignment. A club whose pinned line states no city yields nothing.",
+  "reviewed_at_utc": "2026-08-21T00:00:00Z",
+  "reviewed_by": "pinned-openfootball-club-city-read-v1",
+  "schema_version": "0.1.0"
+}

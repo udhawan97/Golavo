@@ -6,12 +6,6 @@ reported honestly and no test fold is used for parameter tuning.
 
 | Fold | Matches | Model | Log loss | Brier | ECE | RPS |
 |---|---:|---|---:|---:|---:|---:|
-| BUNDESLIGA2022-23 | 306 | climatological | 1.056926 | 0.637581 | 0.022700 | 0.226274 |
-| BUNDESLIGA2022-23 | 306 | elo_ordlogit | 0.994742 | 0.593951 | 0.067309 | 0.204428 |
-| BUNDESLIGA2022-23 | 306 | poisson_independent | 0.993079 | 0.592216 | 0.033680 | 0.203599 |
-| BUNDESLIGA2022-23 | 306 | dixon_coles | 0.996970 | 0.595059 | 0.048262 | 0.205367 |
-| BUNDESLIGA2022-23 | 306 | bivariate_poisson | 0.993079 | 0.592216 | 0.033680 | 0.203599 |
-| BUNDESLIGA2022-23 | 306 | contextual_dixon_coles | 0.990538 | 0.590718 | 0.050078 | 0.202967 |
 | BUNDESLIGA2023-24 | 306 | climatological | 1.075414 | 0.650504 | 0.014993 | 0.227685 |
 | BUNDESLIGA2023-24 | 306 | elo_ordlogit | 1.026377 | 0.614837 | 0.025895 | 0.211122 |
 | BUNDESLIGA2023-24 | 306 | poisson_independent | 1.019685 | 0.609168 | 0.048443 | 0.207836 |
@@ -24,12 +18,18 @@ reported honestly and no test fold is used for parameter tuning.
 | BUNDESLIGA2024-25 | 306 | dixon_coles | 1.033773 | 0.620569 | 0.083670 | 0.217313 |
 | BUNDESLIGA2024-25 | 306 | bivariate_poisson | 1.035314 | 0.621655 | 0.088557 | 0.217355 |
 | BUNDESLIGA2024-25 | 306 | contextual_dixon_coles | 1.032225 | 0.619319 | 0.096533 | 0.216982 |
+| BUNDESLIGA2025-26 | 306 | climatological | 1.070648 | 0.647849 | 0.009511 | 0.231412 |
+| BUNDESLIGA2025-26 | 306 | elo_ordlogit | 0.993090 | 0.591617 | 0.076657 | 0.203864 |
+| BUNDESLIGA2025-26 | 306 | poisson_independent | 0.970437 | 0.574005 | 0.062786 | 0.195694 |
+| BUNDESLIGA2025-26 | 306 | dixon_coles | 0.968683 | 0.573420 | 0.059309 | 0.195597 |
+| BUNDESLIGA2025-26 | 306 | bivariate_poisson | 0.970437 | 0.574005 | 0.062786 | 0.195694 |
+| BUNDESLIGA2025-26 | 306 | contextual_dixon_coles | 0.962067 | 0.569671 | 0.047641 | 0.193754 |
 
 ## Interpretation
 
 Historical, not live. Data is a pinned openfootball snapshot (CC0) that passed the
 club-coverage gate for completed seasons only (docs/handoff/openfootball-audit.md).
-The partial 2025-26 capture is excluded; each fold trains on all prior clean seasons from 2010-11. A Bundesliga season is 306 matches (18 clubs).
+All 16 seasons from 2010-11 are clean, so the folds are the three most recent of them. A Bundesliga season is 306 matches (18 clubs).
 
 Elo is a baseline, not a champion. Unlike the near-neutral international folds, club
 matches carry a real home advantage, so home-aware candidates have room to help — but

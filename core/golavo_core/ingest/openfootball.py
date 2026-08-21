@@ -3,11 +3,11 @@
 Produces exactly the same typed frame as the martj42 loader so every downstream
 model, evaluation, and seal path is source-agnostic. One pack per league; the
 league is read from each season file's name (``<season>.<code>.json``) and
-tagged with the registry competition below. Only a well-formed ``score.ft``
-two-integer object counts as a completed result; openfootball's divergent
-``[0, 0]`` list encoding and empty ``{}`` scores (partial captures) are treated
-as INCOMPLETE, never fabricated as real results. See
-docs/handoff/openfootball-audit.md.
+tagged with the registry competition below. A completed result is a well-formed
+two-integer full time score in either shape upstream writes it: the usual
+``score.ft`` object, or the bare ``score`` list the 2025-26 files use. An empty
+``{}`` score is a partial capture and stays INCOMPLETE, never fabricated as a
+real result. See docs/handoff/openfootball-audit.md.
 """
 
 from __future__ import annotations
@@ -132,22 +132,56 @@ def canonical_team(name: str, league: str = "en.1") -> str:
     return _strip_legal_tokens(raw)
 
 
+def _pair(value: object) -> tuple[int, int] | None:
+    if isinstance(value, list) and len(value) == 2 and all(type(x) is int for x in value):
+        return value[0], value[1]
+    return None
+
+
 def _extract_ft(match: dict) -> tuple[int, int] | None:
+    """The recorded full-time score, in either shape upstream writes it.
+
+    Upstream serializes a goalless draw as a bare ``score`` list from 2025-26,
+    where every earlier season wrote ``{"ft": [0, 0]}``. Golavo read only the
+    object form and so discarded 113 real results across the five leagues — 27
+    in the Premier League alone — and disqualified every 2025-26 season as an
+    incomplete capture.
+
+    The bare list is a result, not a placeholder, on three independent grounds:
+    it appears in no season before 2025-26; in the files where it appears the
+    object-form ``[0, 0]`` count drops to exactly zero, so the two shapes are
+    complementary rather than concurrent; and every one matches a played goalless
+    draw in the Football.TXT the Premier League pack already co-sources, at the
+    commit it already pins (``afc118c3``). That second source agrees with
+    football.json on all 380 results of the season, not merely the 27.
+
+    An empty ``{}`` score stays incomplete: that is a fixture upstream has no
+    result for, which is a different thing and still fails closed.
+    """
     score = match.get("score")
     if isinstance(score, dict):
-        ft = score.get("ft")
-        if isinstance(ft, list) and len(ft) == 2 and all(isinstance(x, int) for x in ft):
-            return ft[0], ft[1]
-    return None
+        return _pair(score.get("ft"))
+    bare = _pair(score)
+    if bare is not None and bare != (0, 0):
+        # The evidence above covers the goalless case and only that: every bare
+        # list in every pinned pack is [0, 0]. A non-zero bare pair is an
+        # encoding nobody has checked against a second source, so it stops the
+        # build rather than entering the index as a result on the strength of a
+        # shape that was never verified for it.
+        raise ValueError(
+            f"openfootball bare score list {list(bare)} is not [0, 0]; "
+            "this encoding was only verified for goalless draws"
+        )
+    return bare
 
 
 def _extract_ht(match: dict) -> tuple[int, int] | None:
     """Return a recorded half-time score, never an inferred one."""
     score = match.get("score")
+    # Only the object form carries one. The bare list states a full-time score
+    # and nothing else, so those rows have no half time rather than a guessed one.
     if isinstance(score, dict):
-        ht = score.get("ht")
-        if isinstance(ht, list) and len(ht) == 2 and all(type(x) is int for x in ht):
-            return ht[0], ht[1]
+        return _pair(score.get("ht"))
     return None
 
 

@@ -339,7 +339,7 @@ def main() -> None:
         ROOT / "data/context/venue_entities.json",
         {
             "schema_version": "0.1.0",
-            "context_pack_version": "2026.07.15.1",
+            "context_pack_version": "2026.08.21.1",
             "entities": sorted(venue_entities, key=lambda item: item["entity_id"]),
         },
     )

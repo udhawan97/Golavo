@@ -572,6 +572,17 @@ export interface SeasonOutlookTeam {
     top_four: number;
     relegation: number;
   };
+  /**
+   * How much trainable history this club has, on the same floor the per-match
+   * council abstains below. A promoted club must still be simulated for the
+   * other projections to mean anything, but its number rests on the model's
+   * prior rather than on evidence — so it is labelled rather than shown bare.
+   */
+  history_coverage: {
+    matches: number;
+    model_floor: number;
+    status: "ok" | "below_model_floor" | "unknown";
+  };
 }
 
 export interface SeasonOutlookVoice {

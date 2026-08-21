@@ -6,12 +6,6 @@ reported honestly and no test fold is used for parameter tuning.
 
 | Fold | Matches | Model | Log loss | Brier | ECE | RPS |
 |---|---:|---|---:|---:|---:|---:|
-| SERIEA2021-22 | 380 | climatological | 1.090016 | 0.661707 | 0.049895 | 0.235122 |
-| SERIEA2021-22 | 380 | elo_ordlogit | 1.005193 | 0.600153 | 0.035990 | 0.205079 |
-| SERIEA2021-22 | 380 | poisson_independent | 1.006514 | 0.600835 | 0.047287 | 0.205287 |
-| SERIEA2021-22 | 380 | dixon_coles | 1.004468 | 0.599787 | 0.035758 | 0.205112 |
-| SERIEA2021-22 | 380 | bivariate_poisson | 1.006514 | 0.600835 | 0.047287 | 0.205287 |
-| SERIEA2021-22 | 380 | contextual_dixon_coles | 1.006603 | 0.601900 | 0.037855 | 0.206017 |
 | SERIEA2022-23 | 380 | climatological | 1.079223 | 0.653455 | 0.010146 | 0.229689 |
 | SERIEA2022-23 | 380 | elo_ordlogit | 1.004013 | 0.599253 | 0.057751 | 0.203444 |
 | SERIEA2022-23 | 380 | poisson_independent | 1.011996 | 0.604271 | 0.052915 | 0.205197 |
@@ -24,12 +18,18 @@ reported honestly and no test fold is used for parameter tuning.
 | SERIEA2023-24 | 380 | dixon_coles | 0.998515 | 0.598882 | 0.034237 | 0.195708 |
 | SERIEA2023-24 | 380 | bivariate_poisson | 1.002934 | 0.600315 | 0.027857 | 0.195791 |
 | SERIEA2023-24 | 380 | contextual_dixon_coles | 0.996728 | 0.597808 | 0.042267 | 0.195408 |
+| SERIEA2025-26 | 380 | climatological | 1.089181 | 0.660920 | 0.039694 | 0.234131 |
+| SERIEA2025-26 | 380 | elo_ordlogit | 1.010163 | 0.604212 | 0.040130 | 0.206315 |
+| SERIEA2025-26 | 380 | poisson_independent | 1.010628 | 0.604754 | 0.038638 | 0.206421 |
+| SERIEA2025-26 | 380 | dixon_coles | 1.009573 | 0.604217 | 0.019279 | 0.206332 |
+| SERIEA2025-26 | 380 | bivariate_poisson | 1.010628 | 0.604754 | 0.038638 | 0.206421 |
+| SERIEA2025-26 | 380 | contextual_dixon_coles | 1.010870 | 0.604822 | 0.035789 | 0.206688 |
 
 ## Interpretation
 
 Historical, not live. Data is a pinned openfootball snapshot (CC0) that passed the
 club-coverage gate for completed seasons only (docs/handoff/openfootball-audit.md).
-Folds stop at 2023-24 because the 2024-25 capture is missing its final matchday (10 results); 2025-26 is a partial capture. Training reaches back to 2013-14.
+The folds skip 2024-25, whose capture is missing its final matchday (10 results); its played matches remain training rows. Training reaches back to 2013-14.
 
 Elo is a baseline, not a champion. Unlike the near-neutral international folds, club
 matches carry a real home advantage, so home-aware candidates have room to help — but

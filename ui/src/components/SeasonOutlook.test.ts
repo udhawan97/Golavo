@@ -48,7 +48,7 @@ const RUN_IN_TEAMS: SeasonOutlookTeam[] = [
   top_four: 1,
   relegation: 0.25,
   expected_points: points as number,
-  display_percent: { title: 25, top_four: 100, relegation: 25 },
+  display_percent: { title: 25, top_four: 100, relegation: 25 }, history_coverage: { matches: 40, model_floor: 10, status: "ok" as const },
 }));
 
 const OK_IMPORTANCE: SeasonFixtureImportance = {
@@ -116,7 +116,7 @@ describe("SeasonOutlookBody", () => {
   it("keeps available model voices separate", () => {
     const teams = ["A", "B", "C", "D"].map((team) => ({
       team, title: 0.25, top_four: 1, relegation: 0.25,
-      display_percent: { title: 25, top_four: 100, relegation: 25 },
+      display_percent: { title: 25, top_four: 100, relegation: 25 }, history_coverage: { matches: 40, model_floor: 10, status: "ok" as const },
     }));
     const available: SeasonOutlook = {
       ...BLOCKED, status: "available", reason_code: null, reason: null,
@@ -260,5 +260,122 @@ describe("SeasonOutlookBody", () => {
     expect(html).toMatch(
       /<th scope="row">A<\/th><td class="num">25\.0%<\/td><td class="num season-comparison__conditional">33\.0%/,
     );
+  });
+});
+
+describe("Clubs the models have no history for", () => {
+  const withCoverage = (status: "ok" | "below_model_floor", matches: number) => ({
+    matches,
+    model_floor: 10,
+    status,
+  });
+
+  it("labels a below-floor club and never lets its number read as evidence", () => {
+    const outlook = {
+      ...WITH_IMPORTANCE,
+      voices: [{
+        voice_id: "elo_ordlogit" as const, label: "Ratings voice", role: "voice" as const,
+        scoreline_method: "declared method",
+        teams: RUN_IN_TEAMS.map((team, index) => ({
+          ...team,
+          history_coverage: index === 0 ? withCoverage("below_model_floor", 0) : withCoverage("ok", 40),
+        })),
+        totals: { title: 1, top_four: 4, relegation: 1 },
+      }],
+    };
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, { outlook }));
+
+    expect(html).toContain("no model history");
+    // The promoted club is still simulated — suppressing it would corrupt every
+    // other club's projection — so the row stays and carries the caveat instead.
+    expect(html).toContain(RUN_IN_TEAMS[0].team);
+    expect(html).toContain("the per-match council abstains");
+    expect(html).toContain("0 of the 10 recent matches");
+  });
+
+  it("says nothing when every club clears the floor", () => {
+    const outlook = {
+      ...WITH_IMPORTANCE,
+      voices: [{
+        voice_id: "elo_ordlogit" as const, label: "Ratings voice", role: "voice" as const,
+        scoreline_method: "declared method",
+        teams: RUN_IN_TEAMS.map((team) => ({ ...team, history_coverage: withCoverage("ok", 40) })),
+        totals: { title: 1, top_four: 4, relegation: 1 },
+      }],
+    };
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, { outlook }));
+
+    expect(html).not.toContain("no model history");
+    expect(html).not.toContain("the per-match council abstains");
+  });
+
+  it("stays silent on an older payload that carries no coverage at all", () => {
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, { outlook: WITH_IMPORTANCE }));
+    expect(html).not.toContain("no model history");
+  });
+});
+
+
+describe("The caveat follows the number to every table", () => {
+  const thin = { matches: 0, model_floor: 10, status: "below_model_floor" as const };
+  const ok = { matches: 40, model_floor: 10, status: "ok" as const };
+
+  function voiceWith(first: SeasonOutlookTeam["history_coverage"]) {
+    return {
+      voice_id: "elo_ordlogit" as const, label: "Ratings voice", role: "voice" as const,
+      scoreline_method: "declared method",
+      teams: RUN_IN_TEAMS.map((team, index) => ({
+        ...team, history_coverage: index === 0 ? first : ok,
+      })),
+      totals: { title: 1, top_four: 4, relegation: 1 },
+    };
+  }
+
+  it("labels the club in the scenario comparison, not just the plain table", () => {
+    // The comparison replaces the plain table the moment a what-if is entered,
+    // so a caveat that lives only in the plain table disappears exactly when
+    // the reader starts exploring.
+    const canonical = { ...WITH_IMPORTANCE, voices: [voiceWith(thin)] };
+    const conditional = {
+      ...WITH_IMPORTANCE,
+      scenario: { forced_results: [] },
+      voices: [voiceWith(thin)],
+    } as unknown as typeof WITH_IMPORTANCE;
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, {
+      outlook: conditional, canonical,
+    }));
+
+    expect(html).toContain("no model history");
+    expect(html).toContain("the per-match council abstains");
+  });
+
+  it("treats an unknown coverage status as a caveat, never as evidence", () => {
+    // The field exists to withhold confidence; anything short of an
+    // affirmative "ok" must not render as a fully-grounded row.
+    const unknown = { matches: 0, model_floor: 10, status: "unknown" as const };
+    const outlook = { ...WITH_IMPORTANCE, voices: [voiceWith(unknown)] };
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, { outlook }));
+
+    expect(html).toContain("no model history");
+  });
+
+  it("lists three or more clubs readably", () => {
+    const teams = ["A", "B", "C"].map((team) => ({
+      team, title: 0.1, top_four: 0.3, relegation: 0.3,
+      display_percent: { title: 10, top_four: 30, relegation: 30 },
+      history_coverage: thin,
+    }));
+    const outlook = {
+      ...WITH_IMPORTANCE,
+      voices: [{
+        voice_id: "elo_ordlogit" as const, label: "Ratings voice", role: "voice" as const,
+        scoreline_method: "declared method", teams,
+        totals: { title: 1, top_four: 4, relegation: 1 },
+      }],
+    };
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, { outlook }));
+
+    expect(html).toContain("A, B and C");
+    expect(html).not.toContain("A and B and C");
   });
 });

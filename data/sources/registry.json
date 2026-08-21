@@ -460,7 +460,7 @@
         "max_file_bytes": 33554432,
         "max_snapshot_bytes": 67108864
       },
-      "fields": "top-five European league files published through 2025-26; season completeness is certified per league and 2025-26 is incomplete in the audited snapshot (no 2026-27 files published as of verified date)",
+      "fields": "top-five European league files published through 2025-26; season completeness is certified per league. 2025-26 is complete for the Premier League, Bundesliga, La Liga and Serie A once the bare-list goalless draw this season's files use is read as the result it is; Ligue 1 has one cancelled fixture. No 2026-27 files are published as of the verified date",
       "corrections": {
         "enabled": true,
         "license_namespace": "core-cc0",

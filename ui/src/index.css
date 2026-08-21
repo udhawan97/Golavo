@@ -2526,6 +2526,27 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .outlook-method p { max-width: 72ch; }
 .season-table { min-width: 440px; }
 .season-probability-table { min-width: 590px; }
+/* A club the models have no recent history for: the number is a prior, not
+   evidence, and must not read as equally grounded as the rows around it. */
+.season-probability-table__thin {
+  display: inline-block;
+  margin-left: 0.5em;
+  padding: 0.05em 0.45em;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.7em;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  opacity: 0.75;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.season-probability-table__note {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
 .season-comparison-table { min-width: 880px; }
 .season-comparison__conditional {
   background: color-mix(in srgb, var(--gold-soft) 46%, transparent);

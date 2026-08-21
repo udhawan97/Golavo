@@ -24,14 +24,14 @@ function voice(
       title: firstTitle / 100,
       top_four: 1,
       relegation: 0,
-      display_percent: { title: firstTitle, top_four: 100, relegation: 0 },
+      display_percent: { title: firstTitle, top_four: 100, relegation: 0 }, history_coverage: { matches: 40, model_floor: 10, status: "ok" as const },
     },
     {
       team: "B",
       title: (100 - firstTitle) / 100,
       top_four: 1,
       relegation: 0,
-      display_percent: { title: 100 - firstTitle, top_four: 100, relegation: 0 },
+      display_percent: { title: 100 - firstTitle, top_four: 100, relegation: 0 }, history_coverage: { matches: 40, model_floor: 10, status: "ok" as const },
     },
   ];
   return {

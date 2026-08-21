@@ -2743,6 +2743,25 @@
       "candidate_entity_ids": [],
       "decision": "unresolved",
       "entity_kind": "place",
+      "observed_label": "Falmer",
+      "rationale": "No exact GeoNames candidate in the audited country scope.",
+      "resolution_id": "ctxr_dda3b750f48350db",
+      "resolved_entity_id": null,
+      "reviewed_at_utc": null,
+      "reviewed_by": null,
+      "scope": {
+        "competition_id": null,
+        "country": "England",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:england|falmer"
+    },
+    {
+      "candidate_entity_ids": [],
+      "decision": "unresolved",
+      "entity_kind": "place",
       "observed_label": "Fitzwilliam",
       "rationale": "No exact GeoNames candidate in the audited country scope.",
       "resolution_id": "ctxr_e8ebd5bec029200c",
@@ -4252,28 +4271,6 @@
       },
       "source_id": "geonames",
       "source_record_id": "lookup:germany|frankfurt"
-    },
-    {
-      "candidate_entity_ids": [
-        "place_361aec710e213b7f",
-        "place_ab7684add0c49c1c"
-      ],
-      "decision": "ambiguous",
-      "entity_kind": "place",
-      "observed_label": "Freiburg",
-      "rationale": "Multiple exact GeoNames candidates require a checked-in review.",
-      "resolution_id": "ctxr_3b2e9129b1a9d8f8",
-      "resolved_entity_id": null,
-      "reviewed_at_utc": null,
-      "reviewed_by": null,
-      "scope": {
-        "competition_id": null,
-        "country": "Germany",
-        "valid_from": null,
-        "valid_to": null
-      },
-      "source_id": "geonames",
-      "source_record_id": "lookup:germany|freiburg"
     },
     {
       "candidate_entity_ids": [
@@ -5969,27 +5966,6 @@
       },
       "source_id": "geonames",
       "source_record_id": "lookup:italy|montecatini terme"
-    },
-    {
-      "candidate_entity_ids": [
-        "place_612406def08d5f71"
-      ],
-      "decision": "unresolved",
-      "entity_kind": "place",
-      "observed_label": "Napoli",
-      "rationale": "Exact GeoNames alias/ascii match awaits a checked-in manual review.",
-      "resolution_id": "ctxr_0a878602bc8505ac",
-      "resolved_entity_id": null,
-      "reviewed_at_utc": null,
-      "reviewed_by": null,
-      "scope": {
-        "competition_id": null,
-        "country": "Italy",
-        "valid_from": null,
-        "valid_to": null
-      },
-      "source_id": "geonames",
-      "source_record_id": "lookup:italy|napoli"
     },
     {
       "candidate_entity_ids": [],
@@ -8040,6 +8016,27 @@
     },
     {
       "candidate_entity_ids": [
+        "place_b373dbbe6a382b23"
+      ],
+      "decision": "unresolved",
+      "entity_kind": "place",
+      "observed_label": "Girne",
+      "rationale": "Exact GeoNames alias/ascii match awaits a checked-in manual review.",
+      "resolution_id": "ctxr_d7e5894eaac91397",
+      "resolved_entity_id": null,
+      "reviewed_at_utc": null,
+      "reviewed_by": null,
+      "scope": {
+        "competition_id": null,
+        "country": "Northern Cyprus",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:northern cyprus|girne"
+    },
+    {
+      "candidate_entity_ids": [
         "place_12a3ae8cd9acdfba"
       ],
       "decision": "unresolved",
@@ -8100,6 +8097,25 @@
       },
       "source_id": "geonames",
       "source_record_id": "lookup:northern cyprus|morphou"
+    },
+    {
+      "candidate_entity_ids": [],
+      "decision": "unresolved",
+      "entity_kind": "place",
+      "observed_label": "North Nicosia",
+      "rationale": "No exact GeoNames candidate in the audited country scope.",
+      "resolution_id": "ctxr_f31ccb85f543682a",
+      "resolved_entity_id": null,
+      "reviewed_at_utc": null,
+      "reviewed_by": null,
+      "scope": {
+        "competition_id": null,
+        "country": "Northern Cyprus",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:northern cyprus|north nicosia"
     },
     {
       "candidate_entity_ids": [],
@@ -10284,27 +10300,6 @@
     },
     {
       "candidate_entity_ids": [
-        "place_318bab0944142824"
-      ],
-      "decision": "unresolved",
-      "entity_kind": "place",
-      "observed_label": "San Sebastián",
-      "rationale": "Exact GeoNames alias/ascii match awaits a checked-in manual review.",
-      "resolution_id": "ctxr_1a92cf2649c99181",
-      "resolved_entity_id": null,
-      "reviewed_at_utc": null,
-      "reviewed_by": null,
-      "scope": {
-        "competition_id": null,
-        "country": "Spain",
-        "valid_from": null,
-        "valid_to": null
-      },
-      "source_id": "geonames",
-      "source_record_id": "lookup:spain|san sebastian"
-    },
-    {
-      "candidate_entity_ids": [
         "place_acaea44fc3913939"
       ],
       "decision": "unresolved",
@@ -11777,25 +11772,6 @@
       },
       "source_id": "geonames",
       "source_record_id": "lookup:united states|dallas"
-    },
-    {
-      "candidate_entity_ids": [],
-      "decision": "unresolved",
-      "entity_kind": "place",
-      "observed_label": "Dallas (Arlington)",
-      "rationale": "No exact GeoNames candidate in the audited country scope.",
-      "resolution_id": "ctxr_29cdafcebf139cc7",
-      "resolved_entity_id": null,
-      "reviewed_at_utc": null,
-      "reviewed_by": null,
-      "scope": {
-        "competition_id": null,
-        "country": "United States",
-        "valid_from": null,
-        "valid_to": null
-      },
-      "source_id": "geonames",
-      "source_record_id": "lookup:united states|dallas (arlington)"
     },
     {
       "candidate_entity_ids": [],

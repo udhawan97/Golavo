@@ -133,26 +133,76 @@ function Table({ rows }: { rows: SeasonStandingRow[] }) {
   );
 }
 
-function ProbabilityTable({ voice }: { voice: SeasonOutlookVoice }) {
+/** A club whose row rests on the model's prior rather than on evidence about it.
+ *  "unknown" counts too: the field exists to withhold confidence, so anything
+ *  that is not an affirmative "ok" is treated as a caveat rather than ignored. */
+function belowModelFloor(team: SeasonOutlookTeam): boolean {
+  const status = team.history_coverage?.status;
+  return status !== undefined && status !== "ok";
+}
+
+/** "A", "A and B", "A, B and C" — a season can promote more than two clubs. */
+function nameList(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
+function ThinHistoryChip({ team }: { team: SeasonOutlookTeam }) {
+  const coverage = team.history_coverage;
+  if (!coverage || coverage.status === "ok") return null;
   return (
-    <ScrollableTable
-      label={`${VOICE_COPY[voice.voice_id]} season probabilities`}
-      cue="More: model probabilities"
+    <span
+      className="season-probability-table__thin"
+      title={`${coverage.matches} of the ${coverage.model_floor} recent matches this competition's models need. This row is the model's prior, not evidence about ${team.team}.`}
     >
-      <table className="grid season-probability-table">
-        <thead><tr><th scope="col">Team</th><th scope="col">Title</th><th scope="col">Top 4</th><th scope="col">Relegation</th></tr></thead>
-        <tbody>
-          {voice.teams.map((team) => (
-            <tr key={team.team}>
-              <th scope="row">{team.team}</th>
-              <td className="num">{team.display_percent.title.toFixed(1)}%</td>
-              <td className="num">{team.display_percent.top_four.toFixed(1)}%</td>
-              <td className="num">{team.display_percent.relegation.toFixed(1)}%</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </ScrollableTable>
+      no model history
+    </span>
+  );
+}
+
+function ThinHistoryNote({ teams }: { teams: SeasonOutlookTeam[] }) {
+  const thin = teams.filter(belowModelFloor);
+  if (thin.length === 0) return null;
+  return (
+    <p className="season-probability-table__note" role="note">
+      {nameList(thin.map((team) => team.team))}
+      {thin.length > 1 ? " have" : " has"} no recent history in this competition, so the
+      per-match council abstains on {thin.length > 1 ? "their" : "its"} fixtures. The
+      {thin.length > 1 ? " rows above are" : " row above is"} the model&rsquo;s prior filling
+      a gap it cannot measure, and the voices disagree most exactly there.
+    </p>
+  );
+}
+
+function ProbabilityTable({ voice }: { voice: SeasonOutlookVoice }) {
+  // A club below the model floor still has to be simulated — the other clubs'
+  // projections depend on it — but its row rests on the model's prior, not on
+  // evidence about that club. Say so beside the number instead of leaving the
+  // reader to assume the whole table is equally grounded.
+  return (
+    <>
+      <ScrollableTable
+        label={`${VOICE_COPY[voice.voice_id]} season probabilities`}
+        cue="More: model probabilities"
+      >
+        <table className="grid season-probability-table">
+          <thead><tr><th scope="col">Team</th><th scope="col">Title</th><th scope="col">Top 4</th><th scope="col">Relegation</th></tr></thead>
+          <tbody>
+            {voice.teams.map((team) => {
+              return (
+                <tr key={team.team}>
+                  <th scope="row">{team.team}<ThinHistoryChip team={team} /></th>
+                  <td className="num">{team.display_percent.title.toFixed(1)}%</td>
+                  <td className="num">{team.display_percent.top_four.toFixed(1)}%</td>
+                  <td className="num">{team.display_percent.relegation.toFixed(1)}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </ScrollableTable>
+      <ThinHistoryNote teams={voice.teams} />
+    </>
   );
 }
 
@@ -195,6 +245,7 @@ function ProbabilityComparison({
     );
   }
   return (
+    <>
     <ScrollableTable
       label={`${VOICE_COPY[voiceId]} verified and conditional season probabilities`}
       cue="More: verified and conditional probabilities"
@@ -218,7 +269,7 @@ function ProbabilityComparison({
             const compared = scenarioByTeam.get(team.team);
             return (
               <tr key={team.team}>
-                <th scope="row">{team.team}</th>
+                <th scope="row">{team.team}<ThinHistoryChip team={team} /></th>
                 <td className="num">{team.display_percent.title.toFixed(1)}%</td>
                 <td className="num season-comparison__conditional">{compared ? `${compared.display_percent.title.toFixed(1)}%` : "—"}</td>
                 <td className="num">{team.display_percent.top_four.toFixed(1)}%</td>
@@ -231,6 +282,8 @@ function ProbabilityComparison({
         </tbody>
       </table>
     </ScrollableTable>
+    <ThinHistoryNote teams={verified.teams} />
+    </>
   );
 }
 
@@ -241,6 +294,8 @@ export function RunIn({ outlook }: { outlook: Outlook }) {
   if (!voice || outlook.remaining_fixtures.length === 0) return null;
   const bands = opponentBands(voice.teams);
   const projected = new Map(voice.teams.map((team) => [team.team, team.expected_points]));
+  // The same below-floor clubs appear here with a projected-points number.
+  const thinTeams = new Map(voice.teams.map((team) => [team.team, team]));
   const rows = outlook.current_table.map((row) => ({
     team: row.team,
     expected: projected.get(row.team),
@@ -269,7 +324,13 @@ export function RunIn({ outlook }: { outlook: Outlook }) {
           <tbody>
             {rows.map((row) => (
               <tr key={row.team}>
-                <th scope="row">{row.team}</th>
+                <th scope="row">
+                  {row.team}
+                  {(() => {
+                    const team = thinTeams.get(row.team);
+                    return team ? <ThinHistoryChip team={team} /> : null;
+                  })()}
+                </th>
                 <td className="num">
                   {typeof row.expected === "number" ? row.expected.toFixed(1) : "—"}
                 </td>

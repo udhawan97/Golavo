@@ -84,28 +84,33 @@ def _claim_map(entity: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {str(item["field"]): item for item in entity.get("claims", [])}
 
 
-def venue_for_match(row: Any) -> dict[str, Any]:
-    try:
-        payload = _load()
-    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
-        return {
-            "status": "unknown",
-            "reason": "context-pack-unavailable",
-            "entity_id": None,
-            "name": None,
-            "latitude": None,
-            "longitude": None,
-            "capacity": None,
-            "identity_link_status": "unknown",
-            "identity_conflict_reason": None,
-            "provenance": {},
-        }
+def _scoped_assignments(payload: dict[str, Any], row: Any) -> list[dict[str, Any]]:
+    """Every reviewed assignment whose scope covers this match row.
+
+    Shared by the stadium and the home-city lanes so the two can never disagree
+    about which assignment governs a match: one place decides scope, and both
+    read the answer.
+    """
     city = _value(row, "city")
     home_team = _value(row, "home_team")
     country = _value(row, "country")
     competition = _value(row, "competition")
-    source_id = _value(row, "venue_source_id") or _value(row, "source_id")
+    # An index row carries venue_source_id as a column; an API match detail nests
+    # it under provenance.venue. Reading only the column made the two lanes scope
+    # differently the moment a row's venue provenance differs from its source.
+    source_id = _value(row, "venue_source_id")
+    if source_id is None:
+        provenance = _value(row, "provenance")
+        if isinstance(provenance, dict):
+            source_id = provenance.get("venue")
+    source_id = source_id or _value(row, "source_id")
+    # An API match detail carries a kickoff but no calendar date, so fall back to
+    # the kickoff's own day. The two agree for every club fixture in the index;
+    # they part only on World Cup rows whose late local kickoff crosses UTC
+    # midnight, and those carry a city of their own and never reach this lane.
     raw_date = _value(row, "date")
+    if raw_date is None:
+        raw_date = _value(row, "kickoff_utc")
     try:
         match_date = (
             raw_date.date()
@@ -137,6 +142,60 @@ def venue_for_match(row: Any) -> dict[str, Any]:
         ):
             continue
         candidates.append(assignment)
+    return candidates
+
+
+def reviewed_home_city(row: Any) -> dict[str, Any] | None:
+    """The home city the reviewed assignment states for this match, or None.
+
+    The same pinned CC0 club file that names a club's ground names the city it
+    plays in, and the venue entity records that city as its own sourced claim.
+    Club match rows carry no city of their own, so without this the city — and
+    with it the local kickoff and every travel leg — stays unknown even for a
+    club whose stadium is already resolved.
+
+    Fails closed exactly like the stadium lane: no assignment, or more than one,
+    yields None rather than a guess.
+    """
+    try:
+        payload = _load()
+    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
+        return None
+    candidates = _scoped_assignments(payload, row)
+    if len({item["venue_entity_id"] for item in candidates}) != 1:
+        return None
+    assignment = candidates[0]
+    entity = payload["venues"].get(str(assignment["venue_entity_id"]))
+    if entity is None:
+        return None
+    claim = _claim_map(entity).get("source_city")
+    if not claim or not claim.get("value"):
+        return None
+    return {
+        "city": str(claim["value"]),
+        "country": str(assignment["match_country"]),
+        "claim_id": claim["claim_id"],
+        "source_refs": claim["source_refs"],
+    }
+
+
+def venue_for_match(row: Any) -> dict[str, Any]:
+    try:
+        payload = _load()
+    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
+        return {
+            "status": "unknown",
+            "reason": "context-pack-unavailable",
+            "entity_id": None,
+            "name": None,
+            "latitude": None,
+            "longitude": None,
+            "capacity": None,
+            "identity_link_status": "unknown",
+            "identity_conflict_reason": None,
+            "provenance": {},
+        }
+    candidates = _scoped_assignments(payload, row)
     entity_ids = {item["venue_entity_id"] for item in candidates}
     if not candidates:
         return {
@@ -168,6 +227,22 @@ def venue_for_match(row: Any) -> dict[str, Any]:
     entity = payload["venues"].get(next(iter(entity_ids)))
     if entity is None:
         raise OSError("venue assignment refers to a missing entity")
+    if entity.get("entity_kind") != "venue":
+        # A club-home-city assignment states where the club plays, not which
+        # ground it plays on. Reporting its city as a stadium would invent the
+        # one fact the cross-check exists to withhold.
+        return {
+            "status": "unknown",
+            "reason": "no-reviewed-stadium-assignment",
+            "entity_id": None,
+            "name": None,
+            "latitude": None,
+            "longitude": None,
+            "capacity": None,
+            "identity_link_status": "unknown",
+            "identity_conflict_reason": None,
+            "provenance": {},
+        }
     claims = _claim_map(entity)
 
     def claim_value(field: str) -> Any:

@@ -12,12 +12,18 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_context_pack_is_schema_valid_and_fail_closed() -> None:
     counts = validate_context_pack.validate()
-    assert counts["places"] == 1497
+    # Every place a pinned source asks for and GeoNames answers uniquely. The
+    # club home cities are part of that request set, so a club fixture can have
+    # a place at all — before they were asked for, a club's city resolved only
+    # where an international happened to have been played in the same city.
+    assert counts["places"] == 1513
     # 16 World Cup stadiums plus the 37 club grounds where the pinned CC0 source
     # and the club's Wikidata home venue agree; the 9 that disagree are recorded
     # as rejected in data/context/club_venue_allowlist.json and ship no venue.
-    assert counts["venues"] == 53
-    assert counts["unresolved"] == 644
+    # The other 57 are `place` entities: a club home city with no ground, which
+    # is every Spanish and Italian club, because upstream states none for them.
+    assert counts["venues"] == 110
+    assert counts["unresolved"] == 643
 
 
 @pytest.mark.parametrize(
@@ -54,7 +60,11 @@ def test_no_alias_or_collision_uses_a_population_tiebreak() -> None:
         (ROOT / "data/enrichment/places.meta.json").read_text(encoding="utf-8")
     )
     assert metadata["ambiguous_pairs"] == 82
-    assert metadata["alias_pending_pairs"] == 175
+    # Still pending a checked-in review, and still resolving to nothing until one
+    # exists — an alias match never promotes itself. The 13 that were reviewed
+    # are named with their rationale in data/context/place_alias_reviews.json.
+    assert metadata["alias_pending_pairs"] == 174
+    assert metadata["manual_review_count"] == 13
     assert "population" not in metadata["matching"].casefold()
 
 
@@ -82,3 +92,47 @@ def test_index_context_provenance_canary_fails(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError, match="display-only context sources"):
         validate_context_pack.validate_display_boundary(tmp_path)
+
+
+def test_a_club_may_not_hold_two_scoped_venue_assignments() -> None:
+    """The stadium lane and the home-city lane both write club assignments.
+
+    If a club ends up with one of each, context_registry sees two scoped
+    assignments: venue_for_match returns "conflict" and reviewed_home_city
+    returns None, so the club loses stadium, city, local kickoff and travel at
+    once — while both builds and `make validate` report success. Only a gate
+    catches that, because the build order that currently prevents it is a
+    convention, not a constraint.
+    """
+    import pytest
+
+    from scripts.validate_context_pack import check_one_assignment_per_club
+
+    def assignment(entity_id: str) -> dict:
+        return {
+            "competition": "La Liga",
+            "match_home_team": "Barcelona",
+            "venue_entity_id": entity_id,
+        }
+
+    # One assignment per club is fine, and so is the same one listed twice.
+    check_one_assignment_per_club([assignment("venue_a")])
+    check_one_assignment_per_club([assignment("venue_a"), assignment("venue_a")])
+    # A tournament assignment has no home team and is never scoped this way.
+    check_one_assignment_per_club([{"competition": "FIFA World Cup", "match_home_team": None}])
+
+    with pytest.raises(ValueError, match="at most one scoped venue assignment"):
+        check_one_assignment_per_club([assignment("venue_a"), assignment("place_b")])
+
+
+def test_the_committed_context_pack_holds_one_assignment_per_club() -> None:
+    import json
+    from pathlib import Path
+
+    from scripts.validate_context_pack import check_one_assignment_per_club
+
+    root = Path(__file__).resolve().parents[2]
+    payload = json.loads(
+        (root / "data/context/venue_assignments.json").read_text(encoding="utf-8")
+    )
+    check_one_assignment_per_club(payload["assignments"])

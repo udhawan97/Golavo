@@ -49,7 +49,9 @@ fixtures. Snapshots are immutable, retained, and registered in `packs/snapshots.
 | World Cup 2026 fixture overlay | exact knockout kickoffs and bracket context (openfootball, CC0) | ✅ seal timing + exact four-team outlook; excluded from model training |
 | Historical event research | 1,941 matches / 3,251,294 events: 2017/18 big five, Euro 2016, World Cup 2018 (Pappalardo/Wyscout, CC BY 4.0) | ✅ isolated team-only summaries; never train, seal, or simulate |
 | Conditions context | city, timezone, elevation, rest, travel routes (GeoNames + Natural Earth) | ✅ display only; not a model input |
-| Pre-kickoff weather | user-triggered Open-Meteo forecast for an eligible upcoming fixture | ✅ retained only when fetched before kickoff; display only; never a model input |
+| Club home city and local kickoff | 92 of the 96 clubs in the five 2026-27 top-flight schedules (openfootball/clubs, CC0 + GeoNames) | ✅ display only; a club fixture carries no city of its own, so the city comes from the pinned club file |
+| Club stadium | 37 clubs, where the pinned CC0 ground and the club's Wikidata home venue agree | ✅ display only; no ground is stated upstream for any Spanish or Italian club, so those stay unknown |
+| Pre-kickoff weather | user-triggered Open-Meteo forecast for an eligible upcoming fixture, including any club fixture whose home city resolves | ✅ retained only when fetched before kickoff; display only; never a model input |
 | Historical weather forecasts | no accepted issued-before-kickoff source | 🚫 blocked; observed weather is not substituted |
 | Club half-time scores | recorded on many rows across EPL/Bundesliga 2010-11 → 2025-26, La Liga 2012-13 → 2025-26, Serie A 2013-14 → 2025-26, and Ligue 1 2014-15 → 2025-26 | ✅ descriptive comeback/lead facts only; missing HT rows are excluded |
 | Men's World Cup history | tournaments, standings, team appearances, and individual awards, 1930–2022 (Fjelstul, CC-BY-SA-4.0) | ✅ isolated descriptive facts only; never joined to the forecast index |
@@ -73,11 +75,29 @@ certified** — openfootball's live cadence is unverified until a season is obse
 
 | League | Verdict | Clean seasons | Excluded, and why |
 |---|---|---|---|
-| English Premier League | ACCEPT_HISTORICAL | 33 (1992-93 → 2024-25) | 2025-26 partial capture (27 unfinalized `[0, 0]`-encoded results) |
-| La Liga | ACCEPT_HISTORICAL | 12 (2012-13 → 2023-24) | 2024-25 missing its final matchday (10 results); 2025-26 partial capture |
-| Bundesliga | ACCEPT_HISTORICAL | 62 (1963-64 → 2024-25) | 2025-26 partial capture |
-| Serie A | ACCEPT_HISTORICAL | 11 (2013-14 → 2023-24) | 2024-25 missing its final matchday (10 results); 2025-26 partial capture |
-| Ligue 1 | ACCEPT_HISTORICAL | 10 (2014-15 → 2024-25) | 2019-20 abandoned in the COVID-19 pandemic (101 fixtures unplayed); 2025-26 partial capture |
+| English Premier League | ACCEPT_HISTORICAL | 34 (1992-93 → 2025-26) | none — every vendored season is clean |
+| La Liga | ACCEPT_HISTORICAL | 13 (2012-13 → 2025-26) | 2024-25 missing its final matchday (10 results) |
+| Bundesliga | ACCEPT_HISTORICAL | 63 (1963-64 → 2025-26) | none — every vendored season is clean |
+| Serie A | ACCEPT_HISTORICAL | 12 (2013-14 → 2025-26) | 2024-25 missing its final matchday (10 results) |
+| Ligue 1 | ACCEPT_HISTORICAL | 10 (2014-15 → 2024-25) | 2019-20 abandoned in the COVID-19 pandemic (101 fixtures unplayed); 2025-26 has one cancelled fixture, so 305 of 306 |
+
+2025-26 counts as clean for four of the five leagues as of 2026-08-21. Upstream
+serializes a **goalless draw** as a bare `score` list in that season's files, where
+every earlier season wrote `{"ft": [0, 0]}`. Golavo read only the object form and
+so discarded 113 real results — 27 of them Premier League — and disqualified the
+season as a partial capture. The bare list is a result: it appears in no earlier
+season, the object-form `[0, 0]` count drops to exactly zero in the files that use
+it, and each row matches a played goalless draw in the separately pinned
+Football.TXT. Those rows carry no half-time score and are excluded from half-time
+facts rather than having one inferred.
+
+A club promoted into a league carries no recent history there, so the per-match
+council abstains on its fixtures — 74 of the 380 Premier League fixtures in
+2026-27, because Coventry City and Hull City both sit below the models' floor of
+10 recent matches. The season simulation still has to place those clubs or every
+other club's projection is wrong, so it does, and each team row carries the match
+count behind it. Where that count is zero the number is the model's prior rather
+than evidence about the club, and the voices disagree most exactly there.
 
 Missing results are **excluded, never fabricated**. Ligue 1 contracted from 20 to 18 clubs in 2023-24; the audit derives each season's expected match count from its actual team count and also checks that count against the league's constitutional size.
 
@@ -106,7 +126,7 @@ Half-time coverage is **row-level, not season-complete**. The openfootball files
 history, and also in partial recent captures. The Second-half story therefore counts only matches
 with two valid half-time scores. It never infers a half-time result from the final score.
 
-The same five candidate models are backtested on each league's three most recent clean seasons as strictly chronological folds (EPL, Bundesliga, Ligue 1: 2022-23 → 2024-25; La Liga, Serie A: 2021-22 → 2023-24). Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and no model is crowned a champion. Each league is modeled independently — there is no cross-league strength calibration.
+The same five candidate models are backtested on each league's three most recent clean seasons as strictly chronological folds (EPL and Bundesliga: 2023-24 → 2025-26; La Liga and Serie A: 2022-23, 2023-24, 2025-26, skipping the incomplete 2024-25 capture; Ligue 1: 2022-23 → 2024-25, since its 2025-26 has a cancelled fixture). Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and no model is crowned a champion. Each league is modeled independently — there is no cross-league strength calibration.
 
 International evaluation uses strictly chronological World Cup 2022, Euro 2024, and World Cup 2026 tournament windows. These are test folds, not promises of a live fixture service.
 
