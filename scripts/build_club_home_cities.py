@@ -119,18 +119,26 @@ def _pinned_pack() -> tuple[Path, str, dict[str, tuple[str, str]]]:
     return pack, str(manifest["upstream_ref"]), parsed
 
 
-def _indexed_teams(competition: str) -> set[str]:
-    """The clubs actually playing this competition in the assignment's window."""
+def _indexed_teams_by_competition() -> dict[str, set[str]]:
+    """Each competition's clubs in the assignment window, from one index read.
+
+    Read once rather than per league: the index is 100k rows and this needs three
+    of its 27 columns.
+    """
     import pandas as pd
 
-    frame = pd.read_parquet(ROOT / "data/index/matches_index.parquet")
+    frame = pd.read_parquet(
+        ROOT / "data/index/matches_index.parquet",
+        columns=["competition", "kickoff_utc", "home_team"],
+    )
     kickoff = pd.to_datetime(frame["kickoff_utc"], utc=True)
     season = frame.loc[
-        frame["competition"].astype("string").eq(competition)
-        & (kickoff >= f"{VALID_FROM}T00:00:00Z")
-        & (kickoff <= f"{VALID_TO}T23:59:59Z")
+        (kickoff >= f"{VALID_FROM}T00:00:00Z") & (kickoff <= f"{VALID_TO}T23:59:59Z")
     ]
-    return {str(value) for value in season["home_team"].dropna().unique()}
+    return {
+        str(competition): {str(team) for team in rows["home_team"].dropna().unique()}
+        for competition, rows in season.groupby(season["competition"].astype("string"))
+    }
 
 
 def _by_team(clubs: list[ClubCity]) -> tuple[dict[str, ClubCity], set[str]]:
@@ -235,13 +243,14 @@ def build(check_only: bool = False) -> int:
         if item.get("match_home_team") and str(item["venue_entity_id"]).startswith("venue_")
     }
 
+    indexed_by_competition = _indexed_teams_by_competition()
     verdicts: list[dict[str, Any]] = []
     entities: list[dict[str, Any]] = []
     assignments: list[dict[str, Any]] = []
     for league_code, (_name, source_path, competition, country) in LEAGUES.items():
         text, source_sha = sources[league_code]
         lookup, ambiguous = _by_team(parse_club_cities(text, league_code=league_code))
-        for team in sorted(_indexed_teams(competition)):
+        for team in sorted(indexed_by_competition.get(competition, set())):
             verdict: dict[str, Any] = {
                 "league_code": league_code,
                 "competition": competition,
@@ -303,7 +312,10 @@ def build(check_only: bool = False) -> int:
         if not str(item["venue_entity_id"]).startswith("place_")
     ]
     next_entities = {
-        "schema_version": existing_entities["schema_version"],
+        # Carry unknown top-level keys forward, exactly as the assignments write
+        # below does — enumerating them would silently drop the first field the
+        # registry grows.
+        **{k: v for k, v in existing_entities.items() if k != "entities"},
         "context_pack_version": CONTEXT_PACK_VERSION,
         "entities": sorted([*kept_entities, *entities], key=lambda item: item["entity_id"]),
     }

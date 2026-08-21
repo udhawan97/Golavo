@@ -29,7 +29,7 @@ derived-n arithmetic alone cannot see).
 - Upstream serializes a **goalless draw** as a bare `score` list from 2025-26,
   where every earlier season wrote `{"ft": [0, 0]}`. An earlier reading of this
   audit took the bare list for an unfinalized placeholder, because it appears in
-  no completed season and is uniformly zero — so 114 real results across the five
+  no completed season and is uniformly zero — so 113 real results across the five
   leagues, 27 of them Premier League, were discarded and every 2025-26 season was
   disqualified as a partial capture.
 - It is a result, on three independent grounds. It appears in no season before

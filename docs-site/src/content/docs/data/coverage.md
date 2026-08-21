@@ -84,7 +84,7 @@ certified** — openfootball's live cadence is unverified until a season is obse
 2025-26 counts as clean for four of the five leagues as of 2026-08-21. Upstream
 serializes a **goalless draw** as a bare `score` list in that season's files, where
 every earlier season wrote `{"ft": [0, 0]}`. Golavo read only the object form and
-so discarded 114 real results — 27 of them Premier League — and disqualified the
+so discarded 113 real results — 27 of them Premier League — and disqualified the
 season as a partial capture. The bare list is a result: it appears in no earlier
 season, the object-form `[0, 0]` count drops to exactly zero in the files that use
 it, and each row matches a played goalless draw in the separately pinned

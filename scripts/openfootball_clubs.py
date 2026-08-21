@@ -88,7 +88,15 @@ def _city_from_fields(fields: list[str]) -> str:
     if len(fields) < 2:
         return ""
     tail = fields[-1].strip()
-    return "" if not tail or tail.isdigit() else tail
+    if not tail or tail.isdigit():
+        return ""
+    # Upstream sometimes drops the comma after the founding year, so the tail
+    # reads "1966       Chemnitz". Taking that whole string as a city would write
+    # a year into a sourced claim, so a year-led tail states no city at all.
+    head = tail.split(maxsplit=1)[0]
+    if len(head) == 4 and head.isdigit():
+        return ""
+    return tail
 
 
 def parse_club_cities(text: str, *, league_code: str) -> list[ClubCity]:

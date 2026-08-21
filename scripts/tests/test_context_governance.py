@@ -92,3 +92,47 @@ def test_index_context_provenance_canary_fails(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError, match="display-only context sources"):
         validate_context_pack.validate_display_boundary(tmp_path)
+
+
+def test_a_club_may_not_hold_two_scoped_venue_assignments() -> None:
+    """The stadium lane and the home-city lane both write club assignments.
+
+    If a club ends up with one of each, context_registry sees two scoped
+    assignments: venue_for_match returns "conflict" and reviewed_home_city
+    returns None, so the club loses stadium, city, local kickoff and travel at
+    once — while both builds and `make validate` report success. Only a gate
+    catches that, because the build order that currently prevents it is a
+    convention, not a constraint.
+    """
+    import pytest
+
+    from scripts.validate_context_pack import check_one_assignment_per_club
+
+    def assignment(entity_id: str) -> dict:
+        return {
+            "competition": "La Liga",
+            "match_home_team": "Barcelona",
+            "venue_entity_id": entity_id,
+        }
+
+    # One assignment per club is fine, and so is the same one listed twice.
+    check_one_assignment_per_club([assignment("venue_a")])
+    check_one_assignment_per_club([assignment("venue_a"), assignment("venue_a")])
+    # A tournament assignment has no home team and is never scoped this way.
+    check_one_assignment_per_club([{"competition": "FIFA World Cup", "match_home_team": None}])
+
+    with pytest.raises(ValueError, match="at most one scoped venue assignment"):
+        check_one_assignment_per_club([assignment("venue_a"), assignment("place_b")])
+
+
+def test_the_committed_context_pack_holds_one_assignment_per_club() -> None:
+    import json
+    from pathlib import Path
+
+    from scripts.validate_context_pack import check_one_assignment_per_club
+
+    root = Path(__file__).resolve().parents[2]
+    payload = json.loads(
+        (root / "data/context/venue_assignments.json").read_text(encoding="utf-8")
+    )
+    check_one_assignment_per_club(payload["assignments"])

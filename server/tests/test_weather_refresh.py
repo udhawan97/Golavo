@@ -123,3 +123,29 @@ def test_a_club_fixture_resolves_its_coordinates_from_the_reviewed_home_city(
     assert ctx["status"] == "forecast"
     # The row's own (absent) city was tried first, then the reviewed one.
     assert asked == [(None, "England"), ("London", "England")]
+
+
+def test_refresh_reaches_the_real_match_lookup(tmp_path, monkeypatch) -> None:
+    """Every other test here stubs get_match, so none of them touch its signature.
+
+    forecasts_dir is keyword-only with no default, and omitting it raised
+    TypeError inside refresh() — which the route does not catch, so every
+    weather refresh returned 500 while this suite stayed green. This test calls
+    the real lookup against the committed index so the signature is exercised.
+    """
+    from golavo_server import conditions, runtime
+
+    monkeypatch.setattr(runtime, "weather_dir", lambda: tmp_path)
+    monkeypatch.setattr(conditions, "resolve_coords", lambda city, country: (51.5, -0.1))
+
+    with pytest.raises(weather.WeatherRefreshError) as exc:
+        weather.refresh(
+            "m_does_not_exist",
+            now_utc=datetime(2026, 8, 1, tzinfo=UTC),
+            transport=lambda _u: _OPEN_METEO,
+        )
+
+    # A 404 means the lookup ran and returned None. A TypeError would escape
+    # WeatherRefreshError entirely and fail this test.
+    assert exc.value.status == 404
+    assert exc.value.reason_code == "match_not_found"

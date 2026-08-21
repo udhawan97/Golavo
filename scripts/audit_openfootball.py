@@ -63,18 +63,11 @@ def expected_team_count(code: str, season: str) -> int:
     return EXPECTED_TEAMS[code]
 
 
-def _pair(value: object) -> tuple[int, int] | None:
-    if isinstance(value, list) and len(value) == 2 and all(type(x) is int for x in value):
-        return value[0], value[1]
-    return None
-
-
-def _extract_ft(match: dict) -> tuple[int, int] | None:
-    """Return (home, away) for a two-integer full time score in either shape."""
-    score = match.get("score")
-    if isinstance(score, dict):
-        return _pair(score.get("ft"))
-    return _pair(score)
+# The audit decides which seasons are clean enough to be folds and the loader
+# decides which rows carry a result; if they disagreed about what a result is, a
+# season could certify clean under one rule and ingest under another. One
+# definition, imported, makes that impossible.
+from golavo_core.ingest.openfootball import _extract_ft  # noqa: E402
 
 
 def _season_stats(code: str, season: str, name: str, matches: list[dict]) -> dict:
@@ -86,6 +79,7 @@ def _season_stats(code: str, season: str, name: str, matches: list[dict]) -> dic
     negative = 0
     self_matches = 0
     bare_list_scores = 0
+    non_zero_bare = 0
     dates: list[str] = []
     for m in matches:
         t1, t2 = m.get("team1"), m.get("team2")
@@ -97,7 +91,15 @@ def _season_stats(code: str, season: str, name: str, matches: list[dict]) -> dic
             self_matches += 1
         if isinstance(m.get("score"), list):
             bare_list_scores += 1
-        ft = _extract_ft(m)
+        try:
+            ft = _extract_ft(m)
+        except ValueError:
+            # The loader refuses a bare list that is not [0, 0], because that
+            # encoding was only ever verified for goalless draws. The audit's job
+            # is to describe the pack rather than stop, so it records the row and
+            # disqualifies the season instead of raising.
+            non_zero_bare += 1
+            ft = None
         if ft is not None:
             complete += 1
             if ft[0] < 0 or ft[1] < 0:
@@ -115,6 +117,7 @@ def _season_stats(code: str, season: str, name: str, matches: list[dict]) -> dic
         "n_matches": len(matches),
         "n_complete": complete,
         "n_bare_list_scores": bare_list_scores,
+        "n_non_zero_bare_scores": non_zero_bare,
         "n_teams": n_teams,
         "expected_teams": expected_teams,
         "expected_matches": expected_matches,
@@ -140,6 +143,11 @@ def _flag_reasons(s: dict) -> list[str]:
         reasons.append(f"{s['n_matches']} fixtures, double round robin needs {s['expected_matches']}")
     if s["n_complete"] != s["n_matches"]:
         reasons.append(f"{s['n_matches'] - s['n_complete']} of {s['n_matches']} results missing")
+    if s["n_non_zero_bare_scores"]:
+        reasons.append(
+            f"{s['n_non_zero_bare_scores']} bare-list scores are not [0, 0]; that encoding "
+            "is only verified for goalless draws"
+        )
     if s["self_matches"]:
         reasons.append(f"{s['self_matches']} self-matches")
     if s["negative_scores"]:
@@ -316,7 +324,7 @@ def _write_reports(result: dict) -> None:
         "- Upstream serializes a **goalless draw** as a bare `score` list from 2025-26,",
         "  where every earlier season wrote `{\"ft\": [0, 0]}`. An earlier reading of this",
         "  audit took the bare list for an unfinalized placeholder, because it appears in",
-        "  no completed season and is uniformly zero — so 114 real results across the five",
+        "  no completed season and is uniformly zero — so 113 real results across the five",
         "  leagues, 27 of them Premier League, were discarded and every 2025-26 season was",
         "  disqualified as a partial capture.",
         "- It is a result, on three independent grounds. It appears in no season before",

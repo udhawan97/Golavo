@@ -447,7 +447,10 @@ def fixture_importance(
 
 
 def team_history_coverage(
-    training: pd.DataFrame, as_of: pd.Timestamp, teams: list[str]
+    training: pd.DataFrame,
+    as_of: pd.Timestamp,
+    teams: list[str],
+    source_ids: list[str] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Each team's trainable history, on the exact floor a seal abstains below.
 
@@ -460,12 +463,21 @@ def team_history_coverage(
 
     Suppressing the row is not an option — the club really is in the league, and
     the other 19 projections only mean anything if it is simulated. So the count
-    travels beside the number and the reader is told which is which, on the same
-    ``MIN_TEAM_MATCHES`` floor and decay window the seal path abstains on.
+    travels beside the number and the reader is told which is which.
+
+    It has to be the same count the seal path abstains on, or the outlook and the
+    council can disagree about which clubs are forecastable — the one thing this
+    field exists to prevent. That path scopes a fixture's training view to its own
+    competition AND its own source, so ``source_ids`` narrows the same way here.
+    The Premier League already carries two source ids (footballcsv deep history
+    and football.json), and they only fail to collide today because footballcsv
+    stops eight years outside the window.
     """
     start = pd.Timestamp(as_of) - pd.Timedelta(days=DECAY_WINDOW_DAYS)
     dates = pd.to_datetime(training["date"], utc=True)
     window = training.loc[dates >= start]
+    if source_ids:
+        window = window.loc[window["source_id"].astype("string").isin(list(source_ids))]
     home = window["home_team"].astype("string")
     away = window["away_team"].astype("string")
     coverage: dict[str, dict[str, Any]] = {}
@@ -797,7 +809,7 @@ def season_outlook(
             ),
         )
     cutoff = _iso(as_of)
-    coverage = team_history_coverage(training, as_of, teams)
+    coverage = team_history_coverage(training, as_of, teams, source_ids)
     elo = fit_model("elo_ordlogit", training, cutoff)
     dixon_coles = fit_model("dixon_coles", training, cutoff)
     ratings_voice, importance = _voice_simulation(

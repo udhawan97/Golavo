@@ -95,7 +95,15 @@ def _scoped_assignments(payload: dict[str, Any], row: Any) -> list[dict[str, Any
     home_team = _value(row, "home_team")
     country = _value(row, "country")
     competition = _value(row, "competition")
-    source_id = _value(row, "venue_source_id") or _value(row, "source_id")
+    # An index row carries venue_source_id as a column; an API match detail nests
+    # it under provenance.venue. Reading only the column made the two lanes scope
+    # differently the moment a row's venue provenance differs from its source.
+    source_id = _value(row, "venue_source_id")
+    if source_id is None:
+        provenance = _value(row, "provenance")
+        if isinstance(provenance, dict):
+            source_id = provenance.get("venue")
+    source_id = source_id or _value(row, "source_id")
     # An API match detail carries a kickoff but no calendar date, so fall back to
     # the kickoff's own day. The two agree for every club fixture in the index;
     # they part only on World Cup rows whose late local kickoff crosses UTC

@@ -48,7 +48,12 @@ def refresh(
         weather_store,
     )
 
-    detail = matches.get_match(match_id)
+    # forecasts_dir is keyword-only with no default; omitting it raised TypeError
+    # here, which main.py does not catch, so every weather refresh 500'd. Every
+    # test in this module monkeypatches get_match, so the suite stayed green
+    # while the route was dead — test_refresh_reaches_the_real_match_lookup is
+    # the one that does not.
+    detail = matches.get_match(match_id, forecasts_dir=runtime.data_dir())
     if detail is None:
         raise WeatherRefreshError(404, "match_not_found", "no indexed match with that id")
     match = detail["match"]

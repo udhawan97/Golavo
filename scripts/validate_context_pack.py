@@ -148,6 +148,34 @@ def _read_from(root: Path, relative: str) -> Any:
     return json.loads((root / relative).read_text(encoding="utf-8"))
 
 
+def check_one_assignment_per_club(assignments: list[dict[str, Any]]) -> None:
+    """A club must never hold two scoped assignments. Raises if one does.
+
+    Two lanes write club records into these files — the stadium lane and the
+    home-city lane — and a club must never end up with one of each. Two
+    assignments scoped to one match make context_registry return "conflict" for
+    the stadium and None for the city, so the club silently loses stadium, city,
+    local kickoff and travel all at once, while both builds report success.
+
+    The city lane skips clubs the stadium lane already covers, but nothing stops
+    the stadium lane from later covering a club the city lane already had — the
+    day a Wikidata refresh adds a ground for a Spanish or Italian club. So the
+    invariant is checked here rather than left to the build order.
+    """
+    scoped: dict[tuple[str, str], set[str]] = {}
+    for assignment in assignments:
+        home_team = assignment.get("match_home_team")
+        if not home_team:
+            continue
+        key = (str(assignment["competition"]), str(home_team))
+        scoped.setdefault(key, set()).add(str(assignment["venue_entity_id"]))
+    doubled = sorted(key for key, ids in scoped.items() if len(ids) > 1)
+    if doubled:
+        raise ValueError(
+            f"a club may hold at most one scoped venue assignment; these hold more: {doubled}"
+        )
+
+
 def validate() -> dict[str, int]:
     manifest = _read("data/context/manifest.json")
     places = _read("data/enrichment/places.json")
@@ -194,6 +222,8 @@ def validate() -> dict[str, int]:
             raise ValueError("accepted Wikidata venue link must carry exactly one QID")
         if assignment["wikidata_link_status"] == "conflicting" and qids:
             raise ValueError("conflicting Wikidata venue link must fail closed")
+
+    check_one_assignment_per_club(assignments["assignments"])
 
     source_ids = {source["source_id"] for source in manifest["sources"]}
     expected_sources = {

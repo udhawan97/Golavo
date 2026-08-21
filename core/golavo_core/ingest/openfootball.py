@@ -143,7 +143,7 @@ def _extract_ft(match: dict) -> tuple[int, int] | None:
 
     Upstream serializes a goalless draw as a bare ``score`` list from 2025-26,
     where every earlier season wrote ``{"ft": [0, 0]}``. Golavo read only the
-    object form and so discarded 114 real results across the five leagues — 27
+    object form and so discarded 113 real results across the five leagues — 27
     in the Premier League alone — and disqualified every 2025-26 season as an
     incomplete capture.
 
@@ -161,7 +161,18 @@ def _extract_ft(match: dict) -> tuple[int, int] | None:
     score = match.get("score")
     if isinstance(score, dict):
         return _pair(score.get("ft"))
-    return _pair(score)
+    bare = _pair(score)
+    if bare is not None and bare != (0, 0):
+        # The evidence above covers the goalless case and only that: every bare
+        # list in every pinned pack is [0, 0]. A non-zero bare pair is an
+        # encoding nobody has checked against a second source, so it stops the
+        # build rather than entering the index as a result on the strength of a
+        # shape that was never verified for it.
+        raise ValueError(
+            f"openfootball bare score list {list(bare)} is not [0, 0]; "
+            "this encoding was only verified for goalless draws"
+        )
+    return bare
 
 
 def _extract_ht(match: dict) -> tuple[int, int] | None:

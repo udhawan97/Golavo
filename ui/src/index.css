@@ -2532,7 +2532,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
   display: inline-block;
   margin-left: 0.5em;
   padding: 0.05em 0.45em;
-  border: 1px solid var(--rule, currentColor);
+  border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 0.7em;
   font-weight: 400;

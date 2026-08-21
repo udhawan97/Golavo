@@ -578,7 +578,7 @@ export interface SeasonOutlookTeam {
    * other projections to mean anything, but its number rests on the model's
    * prior rather than on evidence — so it is labelled rather than shown bare.
    */
-  history_coverage?: {
+  history_coverage: {
     matches: number;
     model_floor: number;
     status: "ok" | "below_model_floor" | "unknown";
