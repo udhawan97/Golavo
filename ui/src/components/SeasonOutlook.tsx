@@ -134,25 +134,55 @@ function Table({ rows }: { rows: SeasonStandingRow[] }) {
 }
 
 function ProbabilityTable({ voice }: { voice: SeasonOutlookVoice }) {
+  // A club below the model floor still has to be simulated — the other clubs'
+  // projections depend on it — but its row rests on the model's prior, not on
+  // evidence about that club. Say so beside the number instead of leaving the
+  // reader to assume the whole table is equally grounded.
+  const thin = voice.teams.filter((team) => team.history_coverage?.status === "below_model_floor");
   return (
-    <ScrollableTable
-      label={`${VOICE_COPY[voice.voice_id]} season probabilities`}
-      cue="More: model probabilities"
-    >
-      <table className="grid season-probability-table">
-        <thead><tr><th scope="col">Team</th><th scope="col">Title</th><th scope="col">Top 4</th><th scope="col">Relegation</th></tr></thead>
-        <tbody>
-          {voice.teams.map((team) => (
-            <tr key={team.team}>
-              <th scope="row">{team.team}</th>
-              <td className="num">{team.display_percent.title.toFixed(1)}%</td>
-              <td className="num">{team.display_percent.top_four.toFixed(1)}%</td>
-              <td className="num">{team.display_percent.relegation.toFixed(1)}%</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </ScrollableTable>
+    <>
+      <ScrollableTable
+        label={`${VOICE_COPY[voice.voice_id]} season probabilities`}
+        cue="More: model probabilities"
+      >
+        <table className="grid season-probability-table">
+          <thead><tr><th scope="col">Team</th><th scope="col">Title</th><th scope="col">Top 4</th><th scope="col">Relegation</th></tr></thead>
+          <tbody>
+            {voice.teams.map((team) => {
+              const coverage = team.history_coverage;
+              const belowFloor = coverage?.status === "below_model_floor";
+              return (
+                <tr key={team.team}>
+                  <th scope="row">
+                    {team.team}
+                    {belowFloor && (
+                      <span
+                        className="season-probability-table__thin"
+                        title={`${coverage.matches} of the ${coverage.model_floor} recent matches this competition's models need. This row is the model's prior, not evidence about ${team.team}.`}
+                      >
+                        no model history
+                      </span>
+                    )}
+                  </th>
+                  <td className="num">{team.display_percent.title.toFixed(1)}%</td>
+                  <td className="num">{team.display_percent.top_four.toFixed(1)}%</td>
+                  <td className="num">{team.display_percent.relegation.toFixed(1)}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </ScrollableTable>
+      {thin.length > 0 && (
+        <p className="season-probability-table__note" role="note">
+          {thin.map((team) => team.team).join(" and ")}
+          {thin.length > 1 ? " have" : " has"} no recent history in this competition, so the
+          per-match council abstains on {thin.length > 1 ? "their" : "its"} fixtures. The
+          {thin.length > 1 ? " rows above are" : " row above is"} the model&rsquo;s prior filling
+          a gap it cannot measure, and the voices disagree most exactly there.
+        </p>
+      )}
+    </>
   );
 }
 

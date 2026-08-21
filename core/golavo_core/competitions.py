@@ -13,7 +13,7 @@ import copy
 from typing import Any
 
 CATALOG_SCHEMA_VERSION = "0.1.0"
-CATALOG_VERSION = "2026.08.21.1"
+CATALOG_VERSION = "2026.08.21.2"
 
 
 def _capability(
@@ -123,7 +123,10 @@ def _domestic(
     capabilities["simulation"] = _capability(
         "available",
         "Standings rules are verified and the 2026-27 fixture list certifies complete, so the "
-        "seeded outlook runs. It still fails closed per request if that certificate ever fails.",
+        "seeded outlook runs. It still fails closed per request if that certificate ever fails. "
+        "A promoted club with no recent history in this competition is simulated — the other "
+        "clubs' projections require it — but every team row carries the count behind it, "
+        "because the per-match council abstains on that club's fixtures.",
         "openfootball-football-json",
         fixture_source_id,
     )

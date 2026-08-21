@@ -432,3 +432,70 @@ def test_completed_result_after_cutoff_is_rejected_without_entering_the_table() 
     assert result["reason_code"] == "future_result_leak"
     assert result["fixture_certificate"]["future_completed_results"] == 1
     assert all(row["played"] <= 4 for row in result["current_table"])
+
+
+def test_a_club_below_the_model_floor_is_simulated_but_labelled() -> None:
+    """A promoted club must be simulated, and must not read as forecastable.
+
+    The council abstains on a club with too little history, yet the season
+    simulation still has to place it somewhere or every other club's projection
+    is wrong. So the number exists — and carries the count that says it rests on
+    the model's prior rather than on evidence about that club.
+    """
+    frame = _synthetic_frame()
+    outlook = season_outlook(
+        frame,
+        "test-league",
+        as_of_utc="2026-09-01T00:00:00Z",
+        season="2026-27",
+        iterations=200,
+        seed=42,
+    )
+
+    for voice in outlook["voices"]:
+        for row in voice["teams"]:
+            coverage = row["history_coverage"]
+            assert coverage["model_floor"] == 10
+            assert coverage["status"] in {"ok", "below_model_floor"}
+            # The floor decides the label, and nothing else does.
+            assert (coverage["status"] == "ok") == (coverage["matches"] >= 10)
+        # Every club is still simulated: the probabilities have to sum over the
+        # whole league or the table is not a table.
+        assert len(voice["teams"]) == len(outlook["fixture_certificate"]["teams"])
+
+    contract_payload = json.loads(json.dumps(outlook))
+    contract_payload["provenance"]["index_sha256"] = "0" * 64
+    Draft202012Validator(SCHEMA, format_checker=FormatChecker()).validate(contract_payload)
+
+
+def test_history_coverage_counts_only_the_window_the_models_fit_on() -> None:
+    """History outside the decay window is not history the models can use.
+
+    Hull City has 114 Premier League matches in the index and none inside the
+    window, so an all-time count would call it covered while the council
+    abstains on all 38 of its fixtures. The count has to be the one the model
+    actually uses.
+    """
+    from golavo_core.artifacts import DECAY_WINDOW_DAYS
+    from golavo_core.season_outlook import team_history_coverage
+
+    as_of = pd.Timestamp("2026-09-01T00:00:00Z")
+    stale = as_of - pd.Timedelta(days=DECAY_WINDOW_DAYS + 30)
+    recent = as_of - pd.Timedelta(days=7)
+    training = pd.DataFrame(
+        [
+            *(
+                {"date": stale, "home_team": "Old", "away_team": "Other"}
+                for _ in range(50)
+            ),
+            *(
+                {"date": recent, "home_team": "Fresh", "away_team": "Other"}
+                for _ in range(12)
+            ),
+        ]
+    )
+    coverage = team_history_coverage(training, as_of, ["Old", "Fresh"])
+
+    assert coverage["Old"] == {"matches": 0, "model_floor": 10, "status": "below_model_floor"}
+    assert coverage["Fresh"]["matches"] == 12
+    assert coverage["Fresh"]["status"] == "ok"

@@ -27,127 +27,328 @@
     "provenance"
   ],
   "properties": {
-    "schema_version": { "const": "0.2.0" },
-    "status": { "enum": ["blocked", "complete", "available"] },
-    "label": { "type": "string", "minLength": 1 },
-    "competition_id": { "type": "string", "minLength": 1 },
-    "competition_name": { "type": "string", "minLength": 1 },
-    "season": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$" },
-    "as_of_utc": { "type": "string", "format": "date-time" },
-    "simulation_rule": { "const": "season-mc-2026.07.1" },
-    "ledger_status": { "const": "never_persisted_or_scored_as_a_seal" },
-    "reason_code": { "type": ["string", "null"] },
-    "reason": { "type": ["string", "null"] },
-    "standings_rule_id": { "type": "string", "minLength": 1 },
-    "fixture_certificate": { "$ref": "#/$defs/fixtureCertificate" },
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "status": {
+      "enum": [
+        "blocked",
+        "complete",
+        "available"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "competition_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "competition_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "season": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}$"
+    },
+    "as_of_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "simulation_rule": {
+      "const": "season-mc-2026.07.1"
+    },
+    "ledger_status": {
+      "const": "never_persisted_or_scored_as_a_seal"
+    },
+    "reason_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "standings_rule_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fixture_certificate": {
+      "$ref": "#/$defs/fixtureCertificate"
+    },
     "current_table": {
       "type": "array",
-      "items": { "$ref": "#/$defs/standingRow" }
+      "items": {
+        "$ref": "#/$defs/standingRow"
+      }
     },
-    "iterations": { "type": "integer", "minimum": 0 },
-    "seed": { "type": ["integer", "null"], "minimum": 0 },
+    "iterations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "seed": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
     "voices": {
       "type": "array",
-      "items": { "$ref": "#/$defs/voice" }
+      "items": {
+        "$ref": "#/$defs/voice"
+      }
     },
     "remaining_fixtures": {
       "type": "array",
-      "items": { "$ref": "#/$defs/remainingFixture" }
+      "items": {
+        "$ref": "#/$defs/remainingFixture"
+      }
     },
     "scenario": {
-      "oneOf": [{ "$ref": "#/$defs/scenario" }, { "type": "null" }]
+      "oneOf": [
+        {
+          "$ref": "#/$defs/scenario"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
-    "provenance": { "$ref": "#/$defs/provenance" }
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    }
   },
   "$defs": {
     "remainingFixture": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["match_id", "kickoff_utc", "home_team", "away_team"],
+      "required": [
+        "match_id",
+        "kickoff_utc",
+        "home_team",
+        "away_team"
+      ],
       "properties": {
-        "match_id": { "type": "string", "minLength": 1 },
-        "kickoff_utc": { "type": "string", "format": "date-time" },
-        "home_team": { "type": "string", "minLength": 1 },
-        "away_team": { "type": "string", "minLength": 1 },
-        "importance": { "$ref": "#/$defs/fixtureImportance" }
+        "match_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kickoff_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "home_team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "away_team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "importance": {
+          "$ref": "#/$defs/fixtureImportance"
+        }
       }
     },
     "importanceSwings": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "top_four", "relegation"],
+      "required": [
+        "title",
+        "top_four",
+        "relegation"
+      ],
       "properties": {
-        "title": { "type": "number", "minimum": 0, "maximum": 1 },
-        "top_four": { "type": "number", "minimum": 0, "maximum": 1 },
-        "relegation": { "type": "number", "minimum": 0, "maximum": 1 }
+        "title": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "top_four": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "relegation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
       }
     },
     "importanceClub": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["team", "side", "score", "swings"],
+      "required": [
+        "team",
+        "side",
+        "score",
+        "swings"
+      ],
       "properties": {
-        "team": { "type": "string", "minLength": 1 },
-        "side": { "enum": ["home", "away"] },
-        "score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "side": {
+          "enum": [
+            "home",
+            "away"
+          ]
+        },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
         "swings": {
-          "oneOf": [{ "$ref": "#/$defs/importanceSwings" }, { "type": "null" }]
+          "oneOf": [
+            {
+              "$ref": "#/$defs/importanceSwings"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
     "fixtureImportance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["voice_id", "status", "score", "coverage", "clubs"],
+      "required": [
+        "voice_id",
+        "status",
+        "score",
+        "coverage",
+        "clubs"
+      ],
       "properties": {
         "voice_id": {
-          "enum": ["elo_ordlogit", "dixon_coles", "equal-chance-baseline"]
+          "enum": [
+            "elo_ordlogit",
+            "dixon_coles",
+            "equal-chance-baseline"
+          ]
         },
-        "status": { "enum": ["ok", "insufficient_coverage"] },
-        "score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "status": {
+          "enum": [
+            "ok",
+            "insufficient_coverage"
+          ]
+        },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
         "coverage": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["home_wins", "draws", "away_wins"],
+          "required": [
+            "home_wins",
+            "draws",
+            "away_wins"
+          ],
           "properties": {
-            "home_wins": { "type": "integer", "minimum": 0 },
-            "draws": { "type": "integer", "minimum": 0 },
-            "away_wins": { "type": "integer", "minimum": 0 }
+            "home_wins": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "draws": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "away_wins": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         },
         "clubs": {
           "type": "array",
           "minItems": 2,
           "maxItems": 2,
-          "items": { "$ref": "#/$defs/importanceClub" }
+          "items": {
+            "$ref": "#/$defs/importanceClub"
+          }
         }
       }
     },
     "scenarioResult": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["match_id", "home_team", "away_team", "home_score", "away_score"],
+      "required": [
+        "match_id",
+        "home_team",
+        "away_team",
+        "home_score",
+        "away_score"
+      ],
       "properties": {
-        "match_id": { "type": "string", "minLength": 1 },
-        "home_team": { "type": "string", "minLength": 1 },
-        "away_team": { "type": "string", "minLength": 1 },
-        "home_score": { "type": "integer", "minimum": 0, "maximum": 20 },
-        "away_score": { "type": "integer", "minimum": 0, "maximum": 20 }
+        "match_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "home_team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "away_team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "home_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "away_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        }
       }
     },
     "scenario": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["hypothetical_only", "persisted", "model_input", "forced_results"],
+      "required": [
+        "hypothetical_only",
+        "persisted",
+        "model_input",
+        "forced_results"
+      ],
       "properties": {
-        "hypothetical_only": { "const": true },
-        "persisted": { "const": false },
-        "model_input": { "const": false },
+        "hypothetical_only": {
+          "const": true
+        },
+        "persisted": {
+          "const": false
+        },
+        "model_input": {
+          "const": false
+        },
         "forced_results": {
           "type": "array",
           "minItems": 1,
           "maxItems": 12,
-          "items": { "$ref": "#/$defs/scenarioResult" }
+          "items": {
+            "$ref": "#/$defs/scenarioResult"
+          }
         }
       }
     },
@@ -169,18 +370,56 @@
         "complete_fixture_list"
       ],
       "properties": {
-        "expected_teams": { "type": "integer", "minimum": 2 },
-        "observed_teams": { "type": "integer", "minimum": 0 },
-        "teams": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "expected_matches": { "type": "integer", "minimum": 2 },
-        "observed_matches": { "type": "integer", "minimum": 0 },
-        "unique_ordered_pairs": { "type": "integer", "minimum": 0 },
-        "duplicate_ordered_pairs": { "type": "integer", "minimum": 0 },
-        "self_fixtures": { "type": "integer", "minimum": 0 },
-        "incomplete_fixtures": { "type": "integer", "minimum": 0 },
-        "past_result_gaps": { "type": "integer", "minimum": 0 },
-        "future_completed_results": { "type": "integer", "minimum": 0 },
-        "complete_fixture_list": { "type": "boolean" }
+        "expected_teams": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "observed_teams": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "expected_matches": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "observed_matches": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unique_ordered_pairs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "duplicate_ordered_pairs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "self_fixtures": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "incomplete_fixtures": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "past_result_gaps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "future_completed_results": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "complete_fixture_list": {
+          "type": "boolean"
+        }
       }
     },
     "standingRow": {
@@ -200,80 +439,242 @@
         "points"
       ],
       "properties": {
-        "position": { "type": "integer", "minimum": 1 },
-        "team": { "type": "string", "minLength": 1 },
-        "played": { "type": "integer", "minimum": 0 },
-        "won": { "type": "integer", "minimum": 0 },
-        "drawn": { "type": "integer", "minimum": 0 },
-        "lost": { "type": "integer", "minimum": 0 },
-        "goals_for": { "type": "integer", "minimum": 0 },
-        "goals_against": { "type": "integer", "minimum": 0 },
-        "goal_difference": { "type": "integer" },
-        "points_adjustment": { "type": "integer" },
-        "points": { "type": "integer" }
+        "position": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "played": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "won": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "drawn": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lost": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "goals_for": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "goals_against": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "goal_difference": {
+          "type": "integer"
+        },
+        "points_adjustment": {
+          "type": "integer"
+        },
+        "points": {
+          "type": "integer"
+        }
       }
     },
     "displayPercent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "top_four", "relegation"],
+      "required": [
+        "title",
+        "top_four",
+        "relegation"
+      ],
       "properties": {
-        "title": { "type": "number", "minimum": 0, "maximum": 100 },
-        "top_four": { "type": "number", "minimum": 0, "maximum": 100 },
-        "relegation": { "type": "number", "minimum": 0, "maximum": 100 }
+        "title": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "top_four": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "relegation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
       }
     },
     "teamProbability": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["team", "title", "top_four", "relegation", "display_percent"],
+      "required": [
+        "team",
+        "title",
+        "top_four",
+        "relegation",
+        "display_percent",
+        "history_coverage"
+      ],
       "properties": {
-        "team": { "type": "string", "minLength": 1 },
-        "title": { "type": "number", "minimum": 0, "maximum": 1 },
-        "top_four": { "type": "number", "minimum": 0, "maximum": 1 },
-        "relegation": { "type": "number", "minimum": 0, "maximum": 1 },
-        "expected_points": { "type": "number", "minimum": 0 },
-        "display_percent": { "$ref": "#/$defs/displayPercent" }
+        "team": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "top_four": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "relegation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "expected_points": {
+          "type": "number",
+          "minimum": 0
+        },
+        "display_percent": {
+          "$ref": "#/$defs/displayPercent"
+        },
+        "history_coverage": {
+          "$ref": "#/$defs/historyCoverage"
+        }
       }
     },
     "totals": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "top_four", "relegation"],
+      "required": [
+        "title",
+        "top_four",
+        "relegation"
+      ],
       "properties": {
-        "title": { "type": "number", "minimum": 0 },
-        "top_four": { "type": "number", "minimum": 0 },
-        "relegation": { "type": "number", "minimum": 0 }
+        "title": {
+          "type": "number",
+          "minimum": 0
+        },
+        "top_four": {
+          "type": "number",
+          "minimum": 0
+        },
+        "relegation": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     },
     "voice": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["voice_id", "label", "role", "scoreline_method", "teams", "totals"],
+      "required": [
+        "voice_id",
+        "label",
+        "role",
+        "scoreline_method",
+        "teams",
+        "totals"
+      ],
       "properties": {
         "voice_id": {
-          "enum": ["elo_ordlogit", "dixon_coles", "equal-chance-baseline"]
+          "enum": [
+            "elo_ordlogit",
+            "dixon_coles",
+            "equal-chance-baseline"
+          ]
         },
-        "label": { "type": "string", "minLength": 1 },
-        "role": { "enum": ["voice", "baseline"] },
-        "scoreline_method": { "type": "string", "minLength": 1 },
-        "teams": { "type": "array", "items": { "$ref": "#/$defs/teamProbability" } },
-        "totals": { "$ref": "#/$defs/totals" }
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "enum": [
+            "voice",
+            "baseline"
+          ]
+        },
+        "scoreline_method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/teamProbability"
+          }
+        },
+        "totals": {
+          "$ref": "#/$defs/totals"
+        }
       }
     },
     "provenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source_ids", "index_sha256"],
+      "required": [
+        "source_ids",
+        "index_sha256"
+      ],
       "properties": {
-        "source_ids": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-        "training_source_ids": {
+        "source_ids": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "uniqueItems": true
         },
-        "training_data_through_utc": { "type": "string", "format": "date-time" },
-        "index_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        "training_source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "training_data_through_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "index_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "historyCoverage": {
+      "description": "How much trainable history this club has in this competition, on the same floor the per-match council abstains below. A promoted club can be simulated without being forecastable; this says which.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "matches",
+        "model_floor",
+        "status"
+      ],
+      "properties": {
+        "matches": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "model_floor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "below_model_floor",
+            "unknown"
+          ]
+        }
       }
     }
   }

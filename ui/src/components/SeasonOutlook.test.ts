@@ -262,3 +262,55 @@ describe("SeasonOutlookBody", () => {
     );
   });
 });
+
+describe("Clubs the models have no history for", () => {
+  const withCoverage = (status: "ok" | "below_model_floor", matches: number) => ({
+    matches,
+    model_floor: 10,
+    status,
+  });
+
+  it("labels a below-floor club and never lets its number read as evidence", () => {
+    const outlook = {
+      ...WITH_IMPORTANCE,
+      voices: [{
+        voice_id: "elo_ordlogit" as const, label: "Ratings voice", role: "voice" as const,
+        scoreline_method: "declared method",
+        teams: RUN_IN_TEAMS.map((team, index) => ({
+          ...team,
+          history_coverage: index === 0 ? withCoverage("below_model_floor", 0) : withCoverage("ok", 40),
+        })),
+        totals: { title: 1, top_four: 4, relegation: 1 },
+      }],
+    };
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, { outlook }));
+
+    expect(html).toContain("no model history");
+    // The promoted club is still simulated — suppressing it would corrupt every
+    // other club's projection — so the row stays and carries the caveat instead.
+    expect(html).toContain(RUN_IN_TEAMS[0].team);
+    expect(html).toContain("the per-match council abstains");
+    expect(html).toContain("0 of the 10 recent matches");
+  });
+
+  it("says nothing when every club clears the floor", () => {
+    const outlook = {
+      ...WITH_IMPORTANCE,
+      voices: [{
+        voice_id: "elo_ordlogit" as const, label: "Ratings voice", role: "voice" as const,
+        scoreline_method: "declared method",
+        teams: RUN_IN_TEAMS.map((team) => ({ ...team, history_coverage: withCoverage("ok", 40) })),
+        totals: { title: 1, top_four: 4, relegation: 1 },
+      }],
+    };
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, { outlook }));
+
+    expect(html).not.toContain("no model history");
+    expect(html).not.toContain("the per-match council abstains");
+  });
+
+  it("stays silent on an older payload that carries no coverage at all", () => {
+    const html = renderToStaticMarkup(createElement(SeasonOutlookBody, { outlook: WITH_IMPORTANCE }));
+    expect(html).not.toContain("no model history");
+  });
+});

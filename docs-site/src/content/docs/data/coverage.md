@@ -91,6 +91,14 @@ it, and each row matches a played goalless draw in the separately pinned
 Football.TXT. Those rows carry no half-time score and are excluded from half-time
 facts rather than having one inferred.
 
+A club promoted into a league carries no recent history there, so the per-match
+council abstains on its fixtures — 74 of the 380 Premier League fixtures in
+2026-27, because Coventry City and Hull City both sit below the models' floor of
+10 recent matches. The season simulation still has to place those clubs or every
+other club's projection is wrong, so it does, and each team row carries the match
+count behind it. Where that count is zero the number is the model's prior rather
+than evidence about the club, and the voices disagree most exactly there.
+
 Missing results are **excluded, never fabricated**. Ligue 1 contracted from 20 to 18 clubs in 2023-24; the audit derives each season's expected match count from its actual team count and also checks that count against the league's constitutional size.
 
 ## Historical UEFA club coverage

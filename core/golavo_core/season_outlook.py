@@ -16,12 +16,13 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from golavo_core.artifacts import DECAY_WINDOW_DAYS, MIN_TEAM_MATCHES
 from golavo_core.ingest import training_rows
 from golavo_core.models import fit_model
 from golavo_core.outlook import knockout_advance_probability
 from golavo_core.standings import LeagueRule, football_season, league_rule, standings_table
 
-SEASON_OUTLOOK_SCHEMA_VERSION = "0.2.0"
+SEASON_OUTLOOK_SCHEMA_VERSION = "0.3.0"
 SEASON_OUTLOOK_RULE = "season-mc-2026.07.1"
 SEASON_OUTLOOK_LABEL = (
     "Season outlook — a seeded simulation from current model fits. Not a sealed forecast."
@@ -445,6 +446,39 @@ def fixture_importance(
     }
 
 
+def team_history_coverage(
+    training: pd.DataFrame, as_of: pd.Timestamp, teams: list[str]
+) -> dict[str, dict[str, Any]]:
+    """Each team's trainable history, on the exact floor a seal abstains below.
+
+    A promoted club can have no history in this competition at all, and the
+    simulation still has to place it somewhere in the table — so it produces a
+    number for a club the per-match council refuses to forecast. Coventry City
+    enters 2026-27 with 0 trainable matches, and two voices put its relegation at
+    64% and 9%: that spread is the models' priors talking, not evidence about
+    Coventry.
+
+    Suppressing the row is not an option — the club really is in the league, and
+    the other 19 projections only mean anything if it is simulated. So the count
+    travels beside the number and the reader is told which is which, on the same
+    ``MIN_TEAM_MATCHES`` floor and decay window the seal path abstains on.
+    """
+    start = pd.Timestamp(as_of) - pd.Timedelta(days=DECAY_WINDOW_DAYS)
+    dates = pd.to_datetime(training["date"], utc=True)
+    window = training.loc[dates >= start]
+    home = window["home_team"].astype("string")
+    away = window["away_team"].astype("string")
+    coverage: dict[str, dict[str, Any]] = {}
+    for team in teams:
+        matches = int((home.eq(team) | away.eq(team)).sum())
+        coverage[team] = {
+            "matches": matches,
+            "model_floor": MIN_TEAM_MATCHES,
+            "status": "ok" if matches >= MIN_TEAM_MATCHES else "below_model_floor",
+        }
+    return coverage
+
+
 def _voice_simulation(
     *,
     voice_id: str,
@@ -458,6 +492,7 @@ def _voice_simulation(
     seed: int,
     dixon_coles: Any,
     model: Any | None,
+    history_coverage: dict[str, dict[str, Any]],
     importance_match_ids: set[str] | None = None,
 ) -> tuple[dict[str, Any], dict[str, dict[str, Any]] | None]:
     team_index = {team: index for index, team in enumerate(teams)}
@@ -599,6 +634,9 @@ def _voice_simulation(
                 "top_four": float(top_display[index]),
                 "relegation": float(relegation_display[index]),
             },
+            # Whether this club's number rests on evidence or on the model's
+            # prior. Simulating it is unavoidable; showing it unlabelled is not.
+            "history_coverage": history_coverage[team],
         }
         for index, team in enumerate(teams)
     ]
@@ -759,6 +797,7 @@ def season_outlook(
             ),
         )
     cutoff = _iso(as_of)
+    coverage = team_history_coverage(training, as_of, teams)
     elo = fit_model("elo_ordlogit", training, cutoff)
     dixon_coles = fit_model("dixon_coles", training, cutoff)
     ratings_voice, importance = _voice_simulation(
@@ -772,6 +811,7 @@ def season_outlook(
         iterations=iterations,
         seed=seed,
         dixon_coles=dixon_coles,
+        history_coverage=coverage,
         model=elo,
         importance_match_ids={fixture["match_id"] for fixture in remaining_fixtures},
     )
@@ -786,6 +826,7 @@ def season_outlook(
         iterations=iterations,
         seed=seed + 1,
         dixon_coles=dixon_coles,
+        history_coverage=coverage,
         model=dixon_coles,
     )
     baseline_voice, _ = _voice_simulation(
@@ -799,6 +840,7 @@ def season_outlook(
         iterations=iterations,
         seed=seed + 2,
         dixon_coles=dixon_coles,
+        history_coverage=coverage,
         model=None,
     )
     voices = [ratings_voice, goal_voice, baseline_voice]
