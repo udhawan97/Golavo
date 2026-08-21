@@ -2067,7 +2067,7 @@
   "source_snapshot": {
     "license": "CC0-1.0",
     "retrieved_at_utc": "2026-07-11T03:26:49Z",
-    "sha256": "36097c618657b533bd3161dee0d70bb0a89f7fde92c6dfe9b63b3edd334fb350",
+    "sha256": "008aacf7a2b9b19371374a5c0be17cdbfdca3bad0b563668944a6dfec7bfa82e",
     "snapshot_id": "sp_a5dd38b3bcbe",
     "source_id": "openfootball-football-json",
     "upstream_ref": "a5dd38b3bcbe3aa2477cf400f569264253d51431",

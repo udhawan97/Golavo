@@ -8,28 +8,49 @@
 
 | League | Verdict | Clean seasons | Flagged | Backtest folds |
 |---|---|---|---|---|
-| Bundesliga | **ACCEPT_HISTORICAL** | 15 (2010-11 → 2024-25) | 2025-26 | 2022-23, 2023-24, 2024-25 |
-| English Premier League | **ACCEPT_HISTORICAL** | 15 (2010-11 → 2024-25) | 2025-26 | 2022-23, 2023-24, 2024-25 |
-| La Liga | **ACCEPT_HISTORICAL** | 12 (2012-13 → 2023-24) | 2024-25, 2025-26 | 2021-22, 2022-23, 2023-24 |
+| Bundesliga | **ACCEPT_HISTORICAL** | 16 (2010-11 → 2025-26) | none | 2023-24, 2024-25, 2025-26 |
+| English Premier League | **ACCEPT_HISTORICAL** | 16 (2010-11 → 2025-26) | none | 2023-24, 2024-25, 2025-26 |
+| La Liga | **ACCEPT_HISTORICAL** | 13 (2012-13 → 2025-26) | 2024-25 | 2022-23, 2023-24, 2025-26 |
 | Ligue 1 | **ACCEPT_HISTORICAL** | 10 (2014-15 → 2024-25) | 2019-20, 2025-26 | 2022-23, 2023-24, 2024-25 |
-| Serie A | **ACCEPT_HISTORICAL** | 11 (2013-14 → 2023-24) | 2024-25, 2025-26 | 2021-22, 2022-23, 2023-24 |
+| Serie A | **ACCEPT_HISTORICAL** | 12 (2013-14 → 2025-26) | 2024-25 | 2022-23, 2023-24, 2025-26 |
 
 A season is **clean** only when, with n = the actual number of teams in the file:
 it has exactly n·(n−1) fixtures, every one carrying a well-formed two-integer
-`score.ft`; every team plays exactly n−1 home and n−1 away; there are no
+full time score in either shape upstream writes it — the `score.ft` object or
+the bare `score` list; every team plays exactly n−1 home and n−1 away; there are no
 self-matches, duplicate ordered pairs, or negative scores; and n equals the
 league's constitutional size for that season (20 for the Premier League, La Liga,
 Serie A; 18 for the Bundesliga; 20 for Ligue 1 through 2022-23, 18 from 2023-24 —
 the last check catches a season that silently dropped a whole club, which the
 derived-n arithmetic alone cannot see).
 
+## The 2025-26 bare-list score (corrected 2026-08-21)
+
+- Upstream serializes a **goalless draw** as a bare `score` list from 2025-26,
+  where every earlier season wrote `{"ft": [0, 0]}`. An earlier reading of this
+  audit took the bare list for an unfinalized placeholder, because it appears in
+  no completed season and is uniformly zero — so 114 real results across the five
+  leagues, 27 of them Premier League, were discarded and every 2025-26 season was
+  disqualified as a partial capture.
+- It is a result, on three independent grounds. It appears in no season before
+  2025-26. In the files where it appears the object-form `[0, 0]` count drops to
+  exactly zero, so the two shapes are complementary rather than concurrent. And
+  every one matches a played goalless draw in the Football.TXT the Premier League
+  pack already co-sources, at the commit it already pins (`afc118c3`) — a second
+  source that agrees with football.json on **all 380** results of that season,
+  not merely the 27. No contradiction was found in any league.
+- The same file at upstream HEAD additionally carries goalscorers with minutes,
+  penalties and own goals: 1,045 Premier League goals across 353 scoring matches,
+  the other 27 being exactly these goalless draws. That detail does not exist at
+  any commit this repo pins, so it is noted here and not vendored.
+- Those rows carry no half-time score, because the bare list states a full time
+  score and nothing else. They are excluded from half-time facts rather than
+  having one inferred from the final score.
+
 ## Recurring anomalies (why seasons are excluded)
 
-- **Partial 2025-26 captures (every league).** The pin was taken 2026-05-30;
-  unfinalized results appear either as a divergent `[0, 0]` LIST encoding (seen
-  in no completed season, uniformly zero — the signature of placeholders, not real
-  goalless draws) or as empty `{}` scores. Golavo treats both as INCOMPLETE and
-  never fabricates them as results.
+- **Empty `{}` scores.** A fixture upstream has no result for at this capture.
+  Still INCOMPLETE, and never fabricated as a result.
 - **La Liga & Serie A 2024-25.** The entire final Matchday 38 (10 fixtures each,
   played 2025-05-23/25) has empty `{}` scores at this capture — the seasons were
   completed in reality, but this snapshot's record of them is incomplete, so they
@@ -47,22 +68,18 @@ missing is the remainder of the season, which only disqualifies the season as a
 
 - **Pack:** `packs/openfootball-deu-bl`
 - **Seasons vendored:** 16
-- **Clean seasons:** 15 (2010-11 → 2024-25)
-- **Flagged seasons:** 2025-26
-- **Backtest folds (3 most recent clean):** 2022-23, 2023-24, 2024-25
+- **Clean seasons:** 16 (2010-11 → 2025-26)
+- **Flagged seasons:** none
+- **Backtest folds (3 most recent clean):** 2023-24, 2024-25, 2025-26
 
 | Criterion | Result | Basis |
 |---|---|---|
-| Usable clean seasons (≥10) | PASS | 15 complete double-round-robin seasons |
+| Usable clean seasons (≥10) | PASS | 16 complete double-round-robin seasons |
 | Structural consistency (all seasons) | PASS | no self-matches, negative scores, duplicate ordered pairs, or team-count mismatches |
-| Latest clean season present | PASS | 2024-25 |
-| Three recent clean folds | PASS | 2022-23, 2023-24, 2024-25 |
+| Latest clean season present | PASS | 2025-26 |
+| Three recent clean folds | PASS | 2023-24, 2024-25, 2025-26 |
 
-**Excluded seasons and why:**
-
-- `2025-26` — 12 of 306 results missing; 12 divergent [0, 0] list-encoded scores
-
-| Season | Fixtures | Complete | Anomalous | Teams | Home/team | Away/team | Clean |
+| Season | Fixtures | Complete | Bare-list 0-0 | Teams | Home/team | Away/team | Clean |
 |---|--:|--:|--:|--:|:--:|:--:|:--:|
 | 2010-11 | 306 | 306 | 0 | 18 | 17–17 | 17–17 | yes |
 | 2011-12 | 306 | 306 | 0 | 18 | 17–17 | 17–17 | yes |
@@ -79,28 +96,24 @@ missing is the remainder of the season, which only disqualifies the season as a
 | 2022-23 | 306 | 306 | 0 | 18 | 17–17 | 17–17 | yes |
 | 2023-24 | 306 | 306 | 0 | 18 | 17–17 | 17–17 | yes |
 | 2024-25 | 306 | 306 | 0 | 18 | 17–17 | 17–17 | yes |
-| 2025-26 | 306 | 294 | 12 | 18 | 17–17 | 17–17 | NO |
+| 2025-26 | 306 | 306 | 12 | 18 | 17–17 | 17–17 | yes |
 
 ## English Premier League (`en.1`) — **ACCEPT_HISTORICAL**
 
 - **Pack:** `packs/openfootball-eng-pl`
 - **Seasons vendored:** 16
-- **Clean seasons:** 15 (2010-11 → 2024-25)
-- **Flagged seasons:** 2025-26
-- **Backtest folds (3 most recent clean):** 2022-23, 2023-24, 2024-25
+- **Clean seasons:** 16 (2010-11 → 2025-26)
+- **Flagged seasons:** none
+- **Backtest folds (3 most recent clean):** 2023-24, 2024-25, 2025-26
 
 | Criterion | Result | Basis |
 |---|---|---|
-| Usable clean seasons (≥10) | PASS | 15 complete double-round-robin seasons |
+| Usable clean seasons (≥10) | PASS | 16 complete double-round-robin seasons |
 | Structural consistency (all seasons) | PASS | no self-matches, negative scores, duplicate ordered pairs, or team-count mismatches |
-| Latest clean season present | PASS | 2024-25 |
-| Three recent clean folds | PASS | 2022-23, 2023-24, 2024-25 |
+| Latest clean season present | PASS | 2025-26 |
+| Three recent clean folds | PASS | 2023-24, 2024-25, 2025-26 |
 
-**Excluded seasons and why:**
-
-- `2025-26` — 27 of 380 results missing; 27 divergent [0, 0] list-encoded scores
-
-| Season | Fixtures | Complete | Anomalous | Teams | Home/team | Away/team | Clean |
+| Season | Fixtures | Complete | Bare-list 0-0 | Teams | Home/team | Away/team | Clean |
 |---|--:|--:|--:|--:|:--:|:--:|:--:|
 | 2010-11 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2011-12 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
@@ -117,29 +130,28 @@ missing is the remainder of the season, which only disqualifies the season as a
 | 2022-23 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2023-24 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2024-25 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
-| 2025-26 | 380 | 353 | 27 | 20 | 19–19 | 19–19 | NO |
+| 2025-26 | 380 | 380 | 27 | 20 | 19–19 | 19–19 | yes |
 
 ## La Liga (`es.1`) — **ACCEPT_HISTORICAL**
 
 - **Pack:** `packs/openfootball-esp-ll`
 - **Seasons vendored:** 14
-- **Clean seasons:** 12 (2012-13 → 2023-24)
-- **Flagged seasons:** 2024-25, 2025-26
-- **Backtest folds (3 most recent clean):** 2021-22, 2022-23, 2023-24
+- **Clean seasons:** 13 (2012-13 → 2025-26)
+- **Flagged seasons:** 2024-25
+- **Backtest folds (3 most recent clean):** 2022-23, 2023-24, 2025-26
 
 | Criterion | Result | Basis |
 |---|---|---|
-| Usable clean seasons (≥10) | PASS | 12 complete double-round-robin seasons |
+| Usable clean seasons (≥10) | PASS | 13 complete double-round-robin seasons |
 | Structural consistency (all seasons) | PASS | no self-matches, negative scores, duplicate ordered pairs, or team-count mismatches |
-| Latest clean season present | PASS | 2023-24 |
-| Three recent clean folds | PASS | 2021-22, 2022-23, 2023-24 |
+| Latest clean season present | PASS | 2025-26 |
+| Three recent clean folds | PASS | 2022-23, 2023-24, 2025-26 |
 
 **Excluded seasons and why:**
 
 - `2024-25` — 10 of 380 results missing
-- `2025-26` — 15 of 380 results missing; 15 divergent [0, 0] list-encoded scores
 
-| Season | Fixtures | Complete | Anomalous | Teams | Home/team | Away/team | Clean |
+| Season | Fixtures | Complete | Bare-list 0-0 | Teams | Home/team | Away/team | Clean |
 |---|--:|--:|--:|--:|:--:|:--:|:--:|
 | 2012-13 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2013-14 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
@@ -154,7 +166,7 @@ missing is the remainder of the season, which only disqualifies the season as a
 | 2022-23 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2023-24 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2024-25 | 380 | 370 | 0 | 20 | 19–19 | 19–19 | NO |
-| 2025-26 | 380 | 365 | 15 | 20 | 19–19 | 19–19 | NO |
+| 2025-26 | 380 | 380 | 15 | 20 | 19–19 | 19–19 | yes |
 
 ## Ligue 1 (`fr.1`) — **ACCEPT_HISTORICAL**
 
@@ -174,9 +186,9 @@ missing is the remainder of the season, which only disqualifies the season as a
 **Excluded seasons and why:**
 
 - `2019-20` — 101 of 380 results missing
-- `2025-26` — 24 of 306 results missing; 23 divergent [0, 0] list-encoded scores
+- `2025-26` — 1 of 306 results missing
 
-| Season | Fixtures | Complete | Anomalous | Teams | Home/team | Away/team | Clean |
+| Season | Fixtures | Complete | Bare-list 0-0 | Teams | Home/team | Away/team | Clean |
 |---|--:|--:|--:|--:|:--:|:--:|:--:|
 | 2014-15 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2015-16 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
@@ -189,29 +201,28 @@ missing is the remainder of the season, which only disqualifies the season as a
 | 2022-23 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2023-24 | 306 | 306 | 0 | 18 | 17–17 | 17–17 | yes |
 | 2024-25 | 306 | 306 | 0 | 18 | 17–17 | 17–17 | yes |
-| 2025-26 | 306 | 282 | 23 | 18 | 17–17 | 17–17 | NO |
+| 2025-26 | 306 | 305 | 23 | 18 | 17–17 | 17–17 | NO |
 
 ## Serie A (`it.1`) — **ACCEPT_HISTORICAL**
 
 - **Pack:** `packs/openfootball-ita-sa`
 - **Seasons vendored:** 13
-- **Clean seasons:** 11 (2013-14 → 2023-24)
-- **Flagged seasons:** 2024-25, 2025-26
-- **Backtest folds (3 most recent clean):** 2021-22, 2022-23, 2023-24
+- **Clean seasons:** 12 (2013-14 → 2025-26)
+- **Flagged seasons:** 2024-25
+- **Backtest folds (3 most recent clean):** 2022-23, 2023-24, 2025-26
 
 | Criterion | Result | Basis |
 |---|---|---|
-| Usable clean seasons (≥10) | PASS | 11 complete double-round-robin seasons |
+| Usable clean seasons (≥10) | PASS | 12 complete double-round-robin seasons |
 | Structural consistency (all seasons) | PASS | no self-matches, negative scores, duplicate ordered pairs, or team-count mismatches |
-| Latest clean season present | PASS | 2023-24 |
-| Three recent clean folds | PASS | 2021-22, 2022-23, 2023-24 |
+| Latest clean season present | PASS | 2025-26 |
+| Three recent clean folds | PASS | 2022-23, 2023-24, 2025-26 |
 
 **Excluded seasons and why:**
 
 - `2024-25` — 10 of 380 results missing
-- `2025-26` — 36 of 380 results missing; 36 divergent [0, 0] list-encoded scores
 
-| Season | Fixtures | Complete | Anomalous | Teams | Home/team | Away/team | Clean |
+| Season | Fixtures | Complete | Bare-list 0-0 | Teams | Home/team | Away/team | Clean |
 |---|--:|--:|--:|--:|:--:|:--:|:--:|
 | 2013-14 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2014-15 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
@@ -225,4 +236,4 @@ missing is the remainder of the season, which only disqualifies the season as a
 | 2022-23 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2023-24 | 380 | 380 | 0 | 20 | 19–19 | 19–19 | yes |
 | 2024-25 | 380 | 370 | 0 | 20 | 19–19 | 19–19 | NO |
-| 2025-26 | 380 | 344 | 36 | 20 | 19–19 | 19–19 | NO |
+| 2025-26 | 380 | 380 | 36 | 20 | 19–19 | 19–19 | yes |

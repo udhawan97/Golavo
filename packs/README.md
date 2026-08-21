@@ -40,9 +40,10 @@ revision, license, schema, and schedule checks pass.
 | `openfootball-ita-sa/` | Serie A seasons 2013-14 → 2025-26 (historical only) | CC0-1.0 |
 | `openfootball-fra-l1/` | Ligue 1 seasons 2014-15 → 2025-26 (historical only) | CC0-1.0 |
 
-Vendored season files include flagged partial captures (e.g. every league's
-2025-26); the audit gate — not the pack contents — decides which seasons the
-engine may treat as clean.
+Vendored season files include seasons the audit flags (Ligue 1's 2025-26, which
+has a cancelled fixture, and the La Liga and Serie A 2024-25 captures, which are
+missing their final matchday); the audit gate — not the pack contents — decides
+which seasons the engine may treat as clean.
 
 ## Snapshot retention
 

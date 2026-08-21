@@ -34,15 +34,26 @@ def test_openfootball_loader_schema_and_counts() -> None:
     # 16 football.json seasons + the 2026-27 Football.TXT fixture list, which
     # football.json does not publish (see ingest.domestictxt).
     assert len(frame) == 16 * 380 + 380
-    # Unchanged by the fixture list: 15 clean seasons (380 each) complete + the
-    # partial 2025-26 capture (353). A schedule must add no result at all.
-    assert int(frame["is_complete"].sum()) == 15 * 380 + 353
+    # Unchanged by the fixture list: all 16 football.json seasons are complete,
+    # 2025-26 included once its bare-list goalless draws are read as results.
+    # A schedule must add no result at all.
+    assert int(frame["is_complete"].sum()) == 16 * 380
     assert not any(str(team).endswith(" FC") for team in frame["home_team"].unique())
     assert frame["match_id"].is_unique
     assert bool(frame["neutral"].any()) is False
     assert set(frame["tournament"].unique()) == {"English Premier League"}
-    # incomplete rows carry NA scores; the [0, 0] anomaly is never fabricated as a result.
+    # Only the 2026-27 schedule is incomplete, and it carries NA scores: a fixture
+    # with no result never gets a fabricated one.
     assert frame.loc[~frame["is_complete"], "home_score"].isna().all()
+    # In 2025-26 the 27 bare-list rows are the only completed ones with no half
+    # time: that shape states a full-time score and nothing else, so the half is
+    # recorded as missing rather than inferred from the final score.
+    season = frame[
+        frame["is_complete"]
+        & frame["date"].between("2025-08-01", "2026-06-30")
+    ]
+    assert len(season) == 380
+    assert int(season["ht_home_score"].isna().sum()) == 27
     assert str(frame["ht_home_score"].dtype) == "Int16"
     assert frame["kickoff_precision"].eq("day").all()
     assert frame["kickoff_utc"].dt.hour.eq(0).all()
@@ -61,9 +72,9 @@ def test_audit_verdict_accept_historical() -> None:
 
     result = audit_league(PACK, "en.1")
     assert result["verdict"] == "ACCEPT_HISTORICAL"
-    assert len(result["clean_seasons"]) == 15
-    assert result["flagged_seasons"] == ["2025-26"]
-    assert result["fold_seasons"] == ["2022-23", "2023-24", "2024-25"]
+    assert len(result["clean_seasons"]) == 16
+    assert result["flagged_seasons"] == []
+    assert result["fold_seasons"] == ["2023-24", "2024-25", "2025-26"]
 
 
 def test_club_evaluation_gate_and_schema() -> None:

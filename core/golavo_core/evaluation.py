@@ -44,9 +44,12 @@ FOLDS = (
 # Club season folds: for each accepted league, the three most recent CLEAN
 # seasons per the audit gate (docs/handoff/openfootball-audit.md). Every audited
 # fold season starts after Aug 1 and ends before Jun 30, so the shared window
-# convention holds. La Liga and Serie A folds stop at 2023-24 because their
-# 2024-25 captures are missing the final matchday; Ligue 1 excludes the
-# COVID-abandoned 2019-20 and is a 380-match league through 2022-23, 306 after.
+# convention holds. 2025-26 became a clean season once the bare-list goalless
+# draw was read as the result it is, so four of the five leagues now fold on it;
+# La Liga and Serie A skip 2024-25, whose capture is missing its final matchday,
+# and Ligue 1 cannot fold on 2025-26 at all because one fixture was cancelled.
+# Ligue 1 also excludes the COVID-abandoned 2019-20 and is a 380-match league
+# through 2022-23, 306 after.
 # Leagues are modeled independently — domestic files carry no inter-league
 # matches, so there is NO cross-league strength calibration.
 
@@ -61,15 +64,15 @@ def _season_fold(prefix: str, competition: str, first_year: int) -> dict[str, st
 
 
 CLUB_FOLDS = tuple(
-    _season_fold("EPL", "English Premier League", year) for year in (2022, 2023, 2024)
+    _season_fold("EPL", "English Premier League", year) for year in (2023, 2024, 2025)
 )
 CLUB_FOLDS_BY_COMPETITION: dict[str, tuple[dict[str, str], ...]] = {
     "English Premier League": CLUB_FOLDS,
-    "La Liga": tuple(_season_fold("LALIGA", "La Liga", year) for year in (2021, 2022, 2023)),
+    "La Liga": tuple(_season_fold("LALIGA", "La Liga", year) for year in (2022, 2023, 2025)),
     "Bundesliga": tuple(
-        _season_fold("BUNDESLIGA", "Bundesliga", year) for year in (2022, 2023, 2024)
+        _season_fold("BUNDESLIGA", "Bundesliga", year) for year in (2023, 2024, 2025)
     ),
-    "Serie A": tuple(_season_fold("SERIEA", "Serie A", year) for year in (2021, 2022, 2023)),
+    "Serie A": tuple(_season_fold("SERIEA", "Serie A", year) for year in (2022, 2023, 2025)),
     "Ligue 1": tuple(_season_fold("LIGUE1-", "Ligue 1", year) for year in (2022, 2023, 2024)),
 }
 
@@ -497,25 +500,26 @@ def write_evaluation(
 # Per-league exclusion notes, mirroring docs/handoff/openfootball-audit.md.
 _CLUB_REPORT_NOTES: dict[str, str] = {
     "English Premier League": (
-        "The partial 2025-26 capture is excluded; each fold trains on all prior clean "
-        "seasons from 2010-11."
+        "All 16 seasons from 2010-11 are clean, so the folds are the three most recent "
+        "of them and each trains on every prior season."
     ),
     "La Liga": (
-        "Folds stop at 2023-24 because the 2024-25 capture is missing its final matchday "
-        "(10 results); 2025-26 is a partial capture. Training reaches back to 2012-13."
+        "The folds skip 2024-25, whose capture is missing its final matchday (10 results); "
+        "its played matches remain training rows. Training reaches back to 2012-13."
     ),
     "Bundesliga": (
-        "The partial 2025-26 capture is excluded; each fold trains on all prior clean "
-        "seasons from 2010-11. A Bundesliga season is 306 matches (18 clubs)."
+        "All 16 seasons from 2010-11 are clean, so the folds are the three most recent "
+        "of them. A Bundesliga season is 306 matches (18 clubs)."
     ),
     "Serie A": (
-        "Folds stop at 2023-24 because the 2024-25 capture is missing its final matchday "
-        "(10 results); 2025-26 is a partial capture. Training reaches back to 2013-14."
+        "The folds skip 2024-25, whose capture is missing its final matchday (10 results); "
+        "its played matches remain training rows. Training reaches back to 2013-14."
     ),
     "Ligue 1": (
         "The COVID-abandoned 2019-20 season is excluded as a fold (its 279 played matches "
-        "remain training rows) and 2025-26 is a partial capture. Ligue 1 contracted from "
-        "20 to 18 clubs in 2023-24, so folds are 380 then 306 matches."
+        "remain training rows), and 2025-26 cannot be one because a fixture was cancelled, "
+        "leaving 305 of 306. Ligue 1 contracted from 20 to 18 clubs in 2023-24, so folds "
+        "are 380 then 306 matches."
     ),
 }
 

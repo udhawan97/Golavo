@@ -75,11 +75,21 @@ certified** — openfootball's live cadence is unverified until a season is obse
 
 | League | Verdict | Clean seasons | Excluded, and why |
 |---|---|---|---|
-| English Premier League | ACCEPT_HISTORICAL | 33 (1992-93 → 2024-25) | 2025-26 partial capture (27 unfinalized `[0, 0]`-encoded results) |
-| La Liga | ACCEPT_HISTORICAL | 12 (2012-13 → 2023-24) | 2024-25 missing its final matchday (10 results); 2025-26 partial capture |
-| Bundesliga | ACCEPT_HISTORICAL | 62 (1963-64 → 2024-25) | 2025-26 partial capture |
-| Serie A | ACCEPT_HISTORICAL | 11 (2013-14 → 2023-24) | 2024-25 missing its final matchday (10 results); 2025-26 partial capture |
-| Ligue 1 | ACCEPT_HISTORICAL | 10 (2014-15 → 2024-25) | 2019-20 abandoned in the COVID-19 pandemic (101 fixtures unplayed); 2025-26 partial capture |
+| English Premier League | ACCEPT_HISTORICAL | 34 (1992-93 → 2025-26) | none — every vendored season is clean |
+| La Liga | ACCEPT_HISTORICAL | 13 (2012-13 → 2025-26) | 2024-25 missing its final matchday (10 results) |
+| Bundesliga | ACCEPT_HISTORICAL | 63 (1963-64 → 2025-26) | none — every vendored season is clean |
+| Serie A | ACCEPT_HISTORICAL | 12 (2013-14 → 2025-26) | 2024-25 missing its final matchday (10 results) |
+| Ligue 1 | ACCEPT_HISTORICAL | 10 (2014-15 → 2024-25) | 2019-20 abandoned in the COVID-19 pandemic (101 fixtures unplayed); 2025-26 has one cancelled fixture, so 305 of 306 |
+
+2025-26 counts as clean for four of the five leagues as of 2026-08-21. Upstream
+serializes a **goalless draw** as a bare `score` list in that season's files, where
+every earlier season wrote `{"ft": [0, 0]}`. Golavo read only the object form and
+so discarded 114 real results — 27 of them Premier League — and disqualified the
+season as a partial capture. The bare list is a result: it appears in no earlier
+season, the object-form `[0, 0]` count drops to exactly zero in the files that use
+it, and each row matches a played goalless draw in the separately pinned
+Football.TXT. Those rows carry no half-time score and are excluded from half-time
+facts rather than having one inferred.
 
 Missing results are **excluded, never fabricated**. Ligue 1 contracted from 20 to 18 clubs in 2023-24; the audit derives each season's expected match count from its actual team count and also checks that count against the league's constitutional size.
 
@@ -108,7 +118,7 @@ Half-time coverage is **row-level, not season-complete**. The openfootball files
 history, and also in partial recent captures. The Second-half story therefore counts only matches
 with two valid half-time scores. It never infers a half-time result from the final score.
 
-The same five candidate models are backtested on each league's three most recent clean seasons as strictly chronological folds (EPL, Bundesliga, Ligue 1: 2022-23 → 2024-25; La Liga, Serie A: 2021-22 → 2023-24). Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and no model is crowned a champion. Each league is modeled independently — there is no cross-league strength calibration.
+The same five candidate models are backtested on each league's three most recent clean seasons as strictly chronological folds (EPL and Bundesliga: 2023-24 → 2025-26; La Liga and Serie A: 2022-23, 2023-24, 2025-26, skipping the incomplete 2024-25 capture; Ligue 1: 2022-23 → 2024-25, since its 2025-26 has a cancelled fixture). Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and no model is crowned a champion. Each league is modeled independently — there is no cross-league strength calibration.
 
 International evaluation uses strictly chronological World Cup 2022, Euro 2024, and World Cup 2026 tournament windows. These are test folds, not promises of a live fixture service.
 

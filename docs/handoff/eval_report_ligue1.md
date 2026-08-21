@@ -29,7 +29,7 @@ reported honestly and no test fold is used for parameter tuning.
 
 Historical, not live. Data is a pinned openfootball snapshot (CC0) that passed the
 club-coverage gate for completed seasons only (docs/handoff/openfootball-audit.md).
-The COVID-abandoned 2019-20 season is excluded as a fold (its 279 played matches remain training rows) and 2025-26 is a partial capture. Ligue 1 contracted from 20 to 18 clubs in 2023-24, so folds are 380 then 306 matches.
+The COVID-abandoned 2019-20 season is excluded as a fold (its 279 played matches remain training rows), and 2025-26 cannot be one because a fixture was cancelled, leaving 305 of 306. Ligue 1 contracted from 20 to 18 clubs in 2023-24, so folds are 380 then 306 matches.
 
 Elo is a baseline, not a champion. Unlike the near-neutral international folds, club
 matches carry a real home advantage, so home-aware candidates have room to help — but

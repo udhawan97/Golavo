@@ -329,7 +329,8 @@ origins, local times, and stadiums render as unknown rather than being guessed.
 | **UEFA Europa League** | 5 complete main-competition editions, 2020-21→2024-25 | Not in accepted pack | Historical browsing + competition-local strength/rest analytics |
 | **UEFA Conference League** | 4 complete main-competition editions, 2021-22→2024-25 | Not in accepted pack | Historical browsing + competition-local strength/rest analytics |
 
-Every partial 2025-26 domestic-league capture is excluded. UEFA qualifiers are not bundled,
+A season enters the clean set only through the audit gate: 2025-26 passes for four of the
+five leagues, and Ligue 1's does not because one fixture was cancelled. UEFA qualifiers are not bundled,
 and historical results do not imply a complete future schedule. Free access is not the same as
 lawful open data, and a filename is not a provenance strategy. Read the
 [coverage audit](docs/handoff/openfootball-audit.md) or the

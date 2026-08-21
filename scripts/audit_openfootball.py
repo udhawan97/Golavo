@@ -19,11 +19,12 @@ league's constitutional size for that season: 20 for the Premier League,
 La Liga, and Serie A; 18 for the Bundesliga; 20 for Ligue 1 through 2022-23 and
 18 from 2023-24.
 
-A result counts as COMPLETE only when ``score.ft`` is a two-integer list.
-Openfootball's divergent ``[0, 0]`` LIST encoding (uniformly zero, only in
-2025-26 captures) and empty ``{}``/missing scores are treated as INCOMPLETE —
-never fabricated as real results. Incomplete seasons are excluded from the
-clean set but their *played* matches remain legitimate training evidence.
+A result counts as COMPLETE when a two-integer full time score is present in
+either shape upstream writes it: the usual ``score.ft`` object, or the bare
+``score`` list the 2025-26 files use for a goalless draw. Empty ``{}``/missing
+scores are still INCOMPLETE — never fabricated as real results. Incomplete
+seasons are excluded from the clean set but their *played* matches remain
+legitimate training evidence.
 Independent second-source cross-checking (footballcsv) stays DEFERRED: it is
 stale to ~2020/21 and uses divergent team names.
 """
@@ -62,14 +63,18 @@ def expected_team_count(code: str, season: str) -> int:
     return EXPECTED_TEAMS[code]
 
 
+def _pair(value: object) -> tuple[int, int] | None:
+    if isinstance(value, list) and len(value) == 2 and all(type(x) is int for x in value):
+        return value[0], value[1]
+    return None
+
+
 def _extract_ft(match: dict) -> tuple[int, int] | None:
-    """Return (home, away) only for a well-formed dict `score.ft`; else None."""
+    """Return (home, away) for a two-integer full time score in either shape."""
     score = match.get("score")
     if isinstance(score, dict):
-        ft = score.get("ft")
-        if isinstance(ft, list) and len(ft) == 2 and all(isinstance(x, int) for x in ft):
-            return ft[0], ft[1]
-    return None
+        return _pair(score.get("ft"))
+    return _pair(score)
 
 
 def _season_stats(code: str, season: str, name: str, matches: list[dict]) -> dict:
@@ -80,7 +85,7 @@ def _season_stats(code: str, season: str, name: str, matches: list[dict]) -> dic
     complete = 0
     negative = 0
     self_matches = 0
-    anomalous_encoding = 0
+    bare_list_scores = 0
     dates: list[str] = []
     for m in matches:
         t1, t2 = m.get("team1"), m.get("team2")
@@ -91,7 +96,7 @@ def _season_stats(code: str, season: str, name: str, matches: list[dict]) -> dic
         if t1 == t2:
             self_matches += 1
         if isinstance(m.get("score"), list):
-            anomalous_encoding += 1
+            bare_list_scores += 1
         ft = _extract_ft(m)
         if ft is not None:
             complete += 1
@@ -109,7 +114,7 @@ def _season_stats(code: str, season: str, name: str, matches: list[dict]) -> dic
         "name": name,
         "n_matches": len(matches),
         "n_complete": complete,
-        "n_anomalous_encoding": anomalous_encoding,
+        "n_bare_list_scores": bare_list_scores,
         "n_teams": n_teams,
         "expected_teams": expected_teams,
         "expected_matches": expected_matches,
@@ -135,8 +140,6 @@ def _flag_reasons(s: dict) -> list[str]:
         reasons.append(f"{s['n_matches']} fixtures, double round robin needs {s['expected_matches']}")
     if s["n_complete"] != s["n_matches"]:
         reasons.append(f"{s['n_matches'] - s['n_complete']} of {s['n_matches']} results missing")
-    if s["n_anomalous_encoding"]:
-        reasons.append(f"{s['n_anomalous_encoding']} divergent [0, 0] list-encoded scores")
     if s["self_matches"]:
         reasons.append(f"{s['self_matches']} self-matches")
     if s["negative_scores"]:
@@ -255,13 +258,13 @@ def _league_md(result: dict) -> list[str]:
             lines.append(f"- `{season}` — {reasons}")
     lines += [
         "",
-        "| Season | Fixtures | Complete | Anomalous | Teams | Home/team | Away/team | Clean |",
+        "| Season | Fixtures | Complete | Bare-list 0-0 | Teams | Home/team | Away/team | Clean |",
         "|---|--:|--:|--:|--:|:--:|:--:|:--:|",
     ]
     for season in sorted(result["seasons"]):
         s = result["seasons"][season]
         lines.append(
-            f"| {season} | {s['n_matches']} | {s['n_complete']} | {s['n_anomalous_encoding']} | "
+            f"| {season} | {s['n_matches']} | {s['n_complete']} | {s['n_bare_list_scores']} | "
             f"{s['n_teams']} | {s['home_per_team_range'][0]}–{s['home_per_team_range'][1]} | "
             f"{s['away_per_team_range'][0]}–{s['away_per_team_range'][1]} | "
             f"{'yes' if s['clean'] else 'NO'} |"
@@ -300,20 +303,41 @@ def _write_reports(result: dict) -> None:
         "",
         "A season is **clean** only when, with n = the actual number of teams in the file:",
         "it has exactly n·(n−1) fixtures, every one carrying a well-formed two-integer",
-        "`score.ft`; every team plays exactly n−1 home and n−1 away; there are no",
+        "full time score in either shape upstream writes it — the `score.ft` object or",
+        "the bare `score` list; every team plays exactly n−1 home and n−1 away; there are no",
         "self-matches, duplicate ordered pairs, or negative scores; and n equals the",
         "league's constitutional size for that season (20 for the Premier League, La Liga,",
         "Serie A; 18 for the Bundesliga; 20 for Ligue 1 through 2022-23, 18 from 2023-24 —",
         "the last check catches a season that silently dropped a whole club, which the",
         "derived-n arithmetic alone cannot see).",
         "",
+        "## The 2025-26 bare-list score (corrected 2026-08-21)",
+        "",
+        "- Upstream serializes a **goalless draw** as a bare `score` list from 2025-26,",
+        "  where every earlier season wrote `{\"ft\": [0, 0]}`. An earlier reading of this",
+        "  audit took the bare list for an unfinalized placeholder, because it appears in",
+        "  no completed season and is uniformly zero — so 114 real results across the five",
+        "  leagues, 27 of them Premier League, were discarded and every 2025-26 season was",
+        "  disqualified as a partial capture.",
+        "- It is a result, on three independent grounds. It appears in no season before",
+        "  2025-26. In the files where it appears the object-form `[0, 0]` count drops to",
+        "  exactly zero, so the two shapes are complementary rather than concurrent. And",
+        "  every one matches a played goalless draw in the Football.TXT the Premier League",
+        "  pack already co-sources, at the commit it already pins (`afc118c3`) — a second",
+        "  source that agrees with football.json on **all 380** results of that season,",
+        "  not merely the 27. No contradiction was found in any league.",
+        "- The same file at upstream HEAD additionally carries goalscorers with minutes,",
+        "  penalties and own goals: 1,045 Premier League goals across 353 scoring matches,",
+        "  the other 27 being exactly these goalless draws. That detail does not exist at",
+        "  any commit this repo pins, so it is noted here and not vendored.",
+        "- Those rows carry no half-time score, because the bare list states a full time",
+        "  score and nothing else. They are excluded from half-time facts rather than",
+        "  having one inferred from the final score.",
+        "",
         "## Recurring anomalies (why seasons are excluded)",
         "",
-        "- **Partial 2025-26 captures (every league).** The pin was taken 2026-05-30;",
-        "  unfinalized results appear either as a divergent `[0, 0]` LIST encoding (seen",
-        "  in no completed season, uniformly zero — the signature of placeholders, not real",
-        "  goalless draws) or as empty `{}` scores. Golavo treats both as INCOMPLETE and",
-        "  never fabricates them as results.",
+        "- **Empty `{}` scores.** A fixture upstream has no result for at this capture.",
+        "  Still INCOMPLETE, and never fabricated as a result.",
         "- **La Liga & Serie A 2024-25.** The entire final Matchday 38 (10 fixtures each,",
         "  played 2025-05-23/25) has empty `{}` scores at this capture — the seasons were",
         "  completed in reality, but this snapshot's record of them is incomplete, so they",

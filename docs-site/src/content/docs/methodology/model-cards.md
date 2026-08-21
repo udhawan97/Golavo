@@ -77,223 +77,223 @@ Every candidate beats the climatological baseline on log loss on every fold; the
 
 - **Scope:** English Premier League (historical, completed seasons only — **not live**).
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
-- **Folds:** EPL2022-23, EPL2023-24, EPL2024-25 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
+- **Folds:** EPL2023-24, EPL2024-25, EPL2025-26 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
 
 **Competition report cards** (positive skill means lower log loss than climatology):
 
-**English Premier League report card** (2022-08-01 to 2025-06-30):
+**English Premier League report card** (2023-08-01 to 2026-06-30):
 
 | Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
 |---|---:|---:|---:|---:|---:|
-| climatological (baseline) | 1140 / 3 | 1.0623 | +0.0% (+0.0% to +0.0%) | 0.0298 | 6.0 (6–6) |
-| Elo ordinal-logit | 1140 / 3 | 0.9924 | +6.6% (+5.0% to +8.1%) | 0.0622 | 2.3 (1–5) |
-| independent Poisson | 1140 / 3 | 1.0065 | +5.2% (+3.3% to +7.2%) | 0.0542 | 2.0 (1–3) |
-| time-decayed Dixon-Coles | 1140 / 3 | 1.0104 | +4.9% (+2.9% to +6.9%) | 0.0528 | 4.3 (4–5) |
-| bivariate Poisson | 1140 / 3 | 1.0065 | +5.2% (+3.3% to +7.2%) | 0.0542 | 3.0 (2–4) |
-| Dixon-Coles with per-club home advantage and rest days | 1140 / 3 | 1.0097 | +4.9% (+3.0% to +6.9%) | 0.0554 | 3.3 (2–5) |
+| climatological (baseline) | 1140 / 3 | 1.0732 | +0.0% (+0.0% to +0.0%) | 0.0252 | 6.0 (6–6) |
+| Elo ordinal-logit | 1140 / 3 | 1.0065 | +6.2% (+4.6% to +7.7%) | 0.0579 | 3.7 (1–5) |
+| independent Poisson | 1140 / 3 | 1.0105 | +5.8% (+4.0% to +7.6%) | 0.0543 | 2.3 (1–3) |
+| time-decayed Dixon-Coles | 1140 / 3 | 1.0112 | +5.8% (+4.0% to +7.5%) | 0.0575 | 3.3 (1–5) |
+| bivariate Poisson | 1140 / 3 | 1.0105 | +5.8% (+4.0% to +7.7%) | 0.0543 | 3.3 (2–4) |
+| Dixon-Coles with per-club home advantage and rest days | 1140 / 3 | 1.0115 | +5.7% (+3.9% to +7.6%) | 0.0679 | 2.3 (2–3) |
 
 Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
 
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
-| Model | EPL2022-23 | EPL2023-24 | EPL2024-25 |
+| Model | EPL2023-24 | EPL2024-25 | EPL2025-26 |
 |---|---:|---:|---:|
-| climatological (baseline) | 1.0495 | 1.0551 | 1.0822 |
-| Elo ordinal-logit | **1.0064** | 0.9634 | **1.0075** |
-| independent Poisson | 1.0250 | **0.9494** | 1.0451 |
-| time-decayed Dixon-Coles | 1.0272 | 0.9587 | 1.0452 |
-| bivariate Poisson | 1.0250 | 0.9494 | 1.0451 |
-| Dixon-Coles with per-club home advantage and rest days | 1.0282 | 0.9582 | 1.0428 |
+| climatological (baseline) | 1.0551 | 1.0822 | 1.0823 |
+| Elo ordinal-logit | 0.9634 | **1.0075** | 1.0487 |
+| independent Poisson | **0.9494** | 1.0451 | 1.0370 |
+| time-decayed Dixon-Coles | 0.9587 | 1.0452 | **1.0298** |
+| bivariate Poisson | 0.9494 | 1.0451 | 1.0370 |
+| Dixon-Coles with per-club home advantage and rest days | 0.9582 | 1.0428 | 1.0336 |
 
 Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and none is crowned a champion.
 
-**Calibration — most recent fold (EPL2024-25):**
+**Calibration — most recent fold (EPL2025-26):**
 
 | Model | Brier | ECE | RPS |
 |---|---:|---:|---:|
-| climatological (baseline) | 0.6565 | 0.0437 | 0.2358 |
-| Elo ordinal-logit | 0.6025 | 0.0362 | 0.2092 |
-| independent Poisson | 0.6296 | 0.0601 | 0.2229 |
-| time-decayed Dixon-Coles | 0.6292 | 0.0536 | 0.2228 |
-| bivariate Poisson | 0.6296 | 0.0601 | 0.2229 |
-| Dixon-Coles with per-club home advantage and rest days | 0.6268 | 0.0588 | 0.2217 |
+| climatological (baseline) | 0.6551 | 0.0224 | 0.2276 |
+| Elo ordinal-logit | 0.6322 | 0.0390 | 0.2164 |
+| independent Poisson | 0.6236 | 0.0438 | 0.2120 |
+| time-decayed Dixon-Coles | 0.6183 | 0.0591 | 0.2100 |
+| bivariate Poisson | 0.6236 | 0.0438 | 0.2120 |
+| Dixon-Coles with per-club home advantage and rest days | 0.6215 | 0.0806 | 0.2117 |
 
-**Reliability — Elo ordinal-logit on EPL2024-25** (Wilson 95% intervals; empty bins omitted):
+**Reliability — time-decayed Dixon-Coles on EPL2025-26** (Wilson 95% intervals; empty bins omitted):
 
 | Confidence bin | n | Empirical | Wilson 95% |
 |---|---:|---:|---|
-| 0.3–0.4 | 82 | 0.354 | [0.26, 0.46] |
-| 0.4–0.5 | 160 | 0.475 | [0.40, 0.55] |
-| 0.5–0.6 | 85 | 0.588 | [0.48, 0.69] |
-| 0.6–0.7 | 42 | 0.643 | [0.49, 0.77] |
-| 0.7–0.8 | 11 | 0.909 | [0.62, 0.98] |
+| 0.3–0.4 | 71 | 0.493 | [0.38, 0.61] |
+| 0.4–0.5 | 162 | 0.364 | [0.29, 0.44] |
+| 0.5–0.6 | 90 | 0.544 | [0.44, 0.64] |
+| 0.6–0.7 | 48 | 0.667 | [0.53, 0.78] |
+| 0.7–0.8 | 9 | 0.778 | [0.45, 0.94] |
 
 ## La Liga
 
 - **Scope:** La Liga (historical, completed seasons only — **not live**).
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
-- **Folds:** LALIGA2021-22, LALIGA2022-23, LALIGA2023-24 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
+- **Folds:** LALIGA2022-23, LALIGA2023-24, LALIGA2025-26 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
 
 **Competition report cards** (positive skill means lower log loss than climatology):
 
-**La Liga report card** (2021-08-01 to 2024-06-30):
+**La Liga report card** (2022-08-01 to 2026-06-30):
 
 | Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
 |---|---:|---:|---:|---:|---:|
-| climatological (baseline) | 1140 / 3 | 1.0699 | +0.0% (+0.0% to +0.0%) | 0.0232 | 6.0 (6–6) |
-| Elo ordinal-logit | 1140 / 3 | 1.0032 | +6.2% (+4.7% to +7.8%) | 0.0555 | 4.3 (3–5) |
-| independent Poisson | 1140 / 3 | 0.9898 | +7.5% (+5.5% to +9.5%) | 0.0451 | 2.7 (1–4) |
-| time-decayed Dixon-Coles | 1140 / 3 | 0.9892 | +7.5% (+5.6% to +9.5%) | 0.0485 | 2.0 (1–3) |
-| bivariate Poisson | 1140 / 3 | 0.9898 | +7.5% (+5.5% to +9.4%) | 0.0451 | 3.7 (2–5) |
-| Dixon-Coles with per-club home advantage and rest days | 1140 / 3 | 0.9917 | +7.3% (+5.3% to +9.3%) | 0.0368 | 2.3 (1–4) |
+| climatological (baseline) | 1140 / 3 | 1.0590 | +0.0% (+0.0% to +0.0%) | 0.0241 | 6.0 (6–6) |
+| Elo ordinal-logit | 1140 / 3 | 0.9994 | +5.6% (+4.1% to +7.2%) | 0.0663 | 5.0 (5–5) |
+| independent Poisson | 1140 / 3 | 0.9830 | +7.2% (+5.3% to +9.0%) | 0.0457 | 2.0 (1–3) |
+| time-decayed Dixon-Coles | 1140 / 3 | 0.9840 | +7.1% (+5.1% to +9.0%) | 0.0533 | 2.3 (1–3) |
+| bivariate Poisson | 1140 / 3 | 0.9830 | +7.2% (+5.3% to +9.0%) | 0.0457 | 2.3 (1–4) |
+| Dixon-Coles with per-club home advantage and rest days | 1140 / 3 | 0.9876 | +6.7% (+4.7% to +8.7%) | 0.0394 | 3.3 (2–4) |
 
 Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
 
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
-| Model | LALIGA2021-22 | LALIGA2022-23 | LALIGA2023-24 |
+| Model | LALIGA2022-23 | LALIGA2023-24 | LALIGA2025-26 |
 |---|---:|---:|---:|
-| climatological (baseline) | 1.0811 | 1.0519 | 1.0767 |
-| Elo ordinal-logit | 1.0058 | 1.0006 | 1.0030 |
-| independent Poisson | 1.0089 | **0.9863** | 0.9743 |
-| time-decayed Dixon-Coles | 1.0045 | 0.9936 | **0.9694** |
-| bivariate Poisson | 1.0089 | 0.9863 | 0.9743 |
-| Dixon-Coles with per-club home advantage and rest days | **1.0040** | 0.9986 | 0.9725 |
+| climatological (baseline) | 1.0519 | 1.0767 | 1.0484 |
+| Elo ordinal-logit | 1.0006 | 1.0030 | 0.9946 |
+| independent Poisson | **0.9863** | 0.9743 | 0.9883 |
+| time-decayed Dixon-Coles | 0.9936 | **0.9694** | 0.9891 |
+| bivariate Poisson | 0.9863 | 0.9743 | **0.9883** |
+| Dixon-Coles with per-club home advantage and rest days | 0.9986 | 0.9725 | 0.9917 |
 
 Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and none is crowned a champion.
 
-**Calibration — most recent fold (LALIGA2023-24):**
+**Calibration — most recent fold (LALIGA2025-26):**
 
 | Model | Brier | ECE | RPS |
 |---|---:|---:|---:|
-| climatological (baseline) | 0.6512 | 0.0219 | 0.2240 |
-| Elo ordinal-logit | 0.5986 | 0.0711 | 0.1991 |
-| independent Poisson | 0.5795 | 0.0272 | 0.1904 |
-| time-decayed Dixon-Coles | 0.5765 | 0.0458 | 0.1894 |
-| bivariate Poisson | 0.5795 | 0.0272 | 0.1904 |
-| Dixon-Coles with per-club home advantage and rest days | 0.5785 | 0.0227 | 0.1904 |
+| climatological (baseline) | 0.6314 | 0.0309 | 0.2232 |
+| Elo ordinal-logit | 0.5915 | 0.0711 | 0.2049 |
+| independent Poisson | 0.5870 | 0.0600 | 0.2032 |
+| time-decayed Dixon-Coles | 0.5874 | 0.0578 | 0.2033 |
+| bivariate Poisson | 0.5870 | 0.0600 | 0.2032 |
+| Dixon-Coles with per-club home advantage and rest days | 0.5892 | 0.0557 | 0.2040 |
 
-**Reliability — time-decayed Dixon-Coles on LALIGA2023-24** (Wilson 95% intervals; empty bins omitted):
+**Reliability — bivariate Poisson on LALIGA2025-26** (Wilson 95% intervals; empty bins omitted):
 
 | Confidence bin | n | Empirical | Wilson 95% |
 |---|---:|---:|---|
-| 0.3–0.4 | 73 | 0.342 | [0.24, 0.46] |
-| 0.4–0.5 | 132 | 0.508 | [0.42, 0.59] |
-| 0.5–0.6 | 84 | 0.512 | [0.41, 0.62] |
-| 0.6–0.7 | 53 | 0.660 | [0.53, 0.77] |
-| 0.7–0.8 | 23 | 0.870 | [0.68, 0.95] |
-| 0.8–0.9 | 15 | 0.867 | [0.62, 0.96] |
+| 0.3–0.4 | 72 | 0.333 | [0.24, 0.45] |
+| 0.4–0.5 | 143 | 0.483 | [0.40, 0.56] |
+| 0.5–0.6 | 95 | 0.484 | [0.39, 0.58] |
+| 0.6–0.7 | 40 | 0.775 | [0.62, 0.88] |
+| 0.7–0.8 | 27 | 0.852 | [0.68, 0.94] |
+| 0.8–0.9 | 3 | 1.000 | [0.44, 1.00] |
 
 ## Bundesliga
 
 - **Scope:** Bundesliga (historical, completed seasons only — **not live**).
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
-- **Folds:** BUNDESLIGA2022-23, BUNDESLIGA2023-24, BUNDESLIGA2024-25 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
+- **Folds:** BUNDESLIGA2023-24, BUNDESLIGA2024-25, BUNDESLIGA2025-26 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
 
 **Competition report cards** (positive skill means lower log loss than climatology):
 
-**Bundesliga report card** (2022-08-01 to 2025-06-30):
+**Bundesliga report card** (2023-08-01 to 2026-06-30):
 
 | Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
 |---|---:|---:|---:|---:|---:|
-| climatological (baseline) | 918 / 3 | 1.0751 | +0.0% (+0.0% to +0.0%) | 0.0346 | 6.0 (6–6) |
-| Elo ordinal-logit | 918 / 3 | 1.0149 | +5.6% (+3.9% to +7.3%) | 0.0374 | 2.7 (1–4) |
-| independent Poisson | 918 / 3 | 1.0160 | +5.5% (+3.4% to +7.6%) | 0.0569 | 2.3 (1–4) |
-| time-decayed Dixon-Coles | 918 / 3 | 1.0198 | +5.1% (+3.1% to +7.1%) | 0.0588 | 4.0 (3–5) |
-| bivariate Poisson | 918 / 3 | 1.0160 | +5.5% (+3.4% to +7.6%) | 0.0569 | 3.3 (2–5) |
-| Dixon-Coles with per-club home advantage and rest days | 918 / 3 | 1.0199 | +5.1% (+3.2% to +7.1%) | 0.0706 | 2.7 (1–5) |
+| climatological (baseline) | 918 / 3 | 1.0797 | +0.0% (+0.0% to +0.0%) | 0.0302 | 6.0 (6–6) |
+| Elo ordinal-logit | 918 / 3 | 1.0144 | +6.0% (+4.5% to +7.7%) | 0.0405 | 3.0 (1–5) |
+| independent Poisson | 918 / 3 | 1.0085 | +6.6% (+4.6% to +8.6%) | 0.0666 | 2.7 (1–4) |
+| time-decayed Dixon-Coles | 918 / 3 | 1.0104 | +6.4% (+4.4% to +8.4%) | 0.0625 | 3.0 (2–4) |
+| bivariate Poisson | 918 / 3 | 1.0085 | +6.6% (+4.7% to +8.6%) | 0.0666 | 3.7 (2–5) |
+| Dixon-Coles with per-club home advantage and rest days | 918 / 3 | 1.0104 | +6.4% (+4.4% to +8.4%) | 0.0698 | 2.7 (1–5) |
 
 Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
 
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
-| Model | BUNDESLIGA2022-23 | BUNDESLIGA2023-24 | BUNDESLIGA2024-25 |
+| Model | BUNDESLIGA2023-24 | BUNDESLIGA2024-25 | BUNDESLIGA2025-26 |
 |---|---:|---:|---:|
-| climatological (baseline) | 1.0569 | 1.0754 | 1.0930 |
-| Elo ordinal-logit | 0.9947 | 1.0264 | **1.0237** |
-| independent Poisson | 0.9931 | **1.0197** | 1.0353 |
-| time-decayed Dixon-Coles | 0.9970 | 1.0287 | 1.0338 |
-| bivariate Poisson | 0.9931 | 1.0197 | 1.0353 |
-| Dixon-Coles with per-club home advantage and rest days | **0.9905** | 1.0369 | 1.0322 |
+| climatological (baseline) | 1.0754 | 1.0930 | 1.0706 |
+| Elo ordinal-logit | 1.0264 | **1.0237** | 0.9931 |
+| independent Poisson | **1.0197** | 1.0353 | 0.9704 |
+| time-decayed Dixon-Coles | 1.0287 | 1.0338 | 0.9687 |
+| bivariate Poisson | 1.0197 | 1.0353 | 0.9704 |
+| Dixon-Coles with per-club home advantage and rest days | 1.0369 | 1.0322 | **0.9621** |
 
 Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and none is crowned a champion.
 
-**Calibration — most recent fold (BUNDESLIGA2024-25):**
+**Calibration — most recent fold (BUNDESLIGA2025-26):**
 
 | Model | Brier | ECE | RPS |
 |---|---:|---:|---:|
-| climatological (baseline) | 0.6643 | 0.0662 | 0.2379 |
-| Elo ordinal-logit | 0.6140 | 0.0189 | 0.2130 |
-| independent Poisson | 0.6217 | 0.0886 | 0.2174 |
-| time-decayed Dixon-Coles | 0.6206 | 0.0837 | 0.2173 |
-| bivariate Poisson | 0.6217 | 0.0886 | 0.2174 |
-| Dixon-Coles with per-club home advantage and rest days | 0.6193 | 0.0965 | 0.2170 |
+| climatological (baseline) | 0.6478 | 0.0095 | 0.2314 |
+| Elo ordinal-logit | 0.5916 | 0.0767 | 0.2039 |
+| independent Poisson | 0.5740 | 0.0628 | 0.1957 |
+| time-decayed Dixon-Coles | 0.5734 | 0.0593 | 0.1956 |
+| bivariate Poisson | 0.5740 | 0.0628 | 0.1957 |
+| Dixon-Coles with per-club home advantage and rest days | 0.5697 | 0.0476 | 0.1938 |
 
-**Reliability — Elo ordinal-logit on BUNDESLIGA2024-25** (Wilson 95% intervals; empty bins omitted):
+**Reliability — Dixon-Coles with per-club home advantage and rest days on BUNDESLIGA2025-26** (Wilson 95% intervals; empty bins omitted):
 
 | Confidence bin | n | Empirical | Wilson 95% |
 |---|---:|---:|---|
-| 0.3–0.4 | 59 | 0.390 | [0.28, 0.52] |
-| 0.4–0.5 | 139 | 0.432 | [0.35, 0.51] |
-| 0.5–0.6 | 73 | 0.548 | [0.43, 0.66] |
-| 0.6–0.7 | 30 | 0.733 | [0.56, 0.86] |
-| 0.7–0.8 | 5 | 0.800 | [0.38, 0.96] |
+| 0.3–0.4 | 60 | 0.400 | [0.29, 0.53] |
+| 0.4–0.5 | 108 | 0.426 | [0.34, 0.52] |
+| 0.5–0.6 | 69 | 0.551 | [0.43, 0.66] |
+| 0.6–0.7 | 45 | 0.800 | [0.66, 0.89] |
+| 0.7–0.8 | 16 | 0.938 | [0.72, 0.99] |
+| 0.8–0.9 | 8 | 0.750 | [0.41, 0.93] |
 
 ## Serie A
 
 - **Scope:** Serie A (historical, completed seasons only — **not live**).
 - **Source snapshot:** openfootball `a5dd38b3bcbe`, retrieved 2026-07-11 (CC0-1.0).
-- **Folds:** SERIEA2021-22, SERIEA2022-23, SERIEA2023-24 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
+- **Folds:** SERIEA2022-23, SERIEA2023-24, SERIEA2025-26 — strictly chronological; fitting and decay selection use only rows before each fold's cutoff.
 
 **Competition report cards** (positive skill means lower log loss than climatology):
 
-**Serie A report card** (2021-08-01 to 2024-06-30):
+**Serie A report card** (2022-08-01 to 2026-06-30):
 
 | Model | Matches / folds | Log loss | Skill vs baseline (95% CI) | ECE | Fold rank |
 |---|---:|---:|---:|---:|---:|
-| climatological (baseline) | 1140 / 3 | 1.0857 | +0.0% (+0.0% to +0.0%) | 0.0248 | 6.0 (6–6) |
-| Elo ordinal-logit | 1140 / 3 | 1.0091 | +7.1% (+5.7% to +8.6%) | 0.0425 | 2.7 (1–5) |
-| independent Poisson | 1140 / 3 | 1.0071 | +7.2% (+5.3% to +9.2%) | 0.0427 | 3.0 (3–3) |
-| time-decayed Dixon-Coles | 1140 / 3 | 1.0040 | +7.5% (+5.6% to +9.4%) | 0.0453 | 1.7 (1–2) |
-| bivariate Poisson | 1140 / 3 | 1.0071 | +7.2% (+5.2% to +9.2%) | 0.0427 | 4.0 (4–4) |
-| Dixon-Coles with per-club home advantage and rest days | 1140 / 3 | 1.0056 | +7.4% (+5.5% to +9.3%) | 0.0467 | 3.7 (1–5) |
+| climatological (baseline) | 1140 / 3 | 1.0855 | +0.0% (+0.0% to +0.0%) | 0.0214 | 6.0 (6–6) |
+| Elo ordinal-logit | 1140 / 3 | 1.0108 | +6.9% (+5.4% to +8.3%) | 0.0439 | 2.7 (1–5) |
+| independent Poisson | 1140 / 3 | 1.0085 | +7.1% (+5.2% to +9.0%) | 0.0398 | 3.0 (3–3) |
+| time-decayed Dixon-Coles | 1140 / 3 | 1.0057 | +7.3% (+5.4% to +9.2%) | 0.0398 | 1.7 (1–2) |
+| bivariate Poisson | 1140 / 3 | 1.0085 | +7.1% (+5.2% to +9.0%) | 0.0398 | 4.0 (4–4) |
+| Dixon-Coles with per-club home advantage and rest days | 1140 / 3 | 1.0071 | +7.2% (+5.2% to +9.1%) | 0.0460 | 3.7 (1–5) |
 
 Skill intervals use 2,000 seeded, fold-stratified match-bootstrap samples.
 
 **Log loss by fold** (primary metric; lower is better; **bold** = best in fold):
 
-| Model | SERIEA2021-22 | SERIEA2022-23 | SERIEA2023-24 |
+| Model | SERIEA2022-23 | SERIEA2023-24 | SERIEA2025-26 |
 |---|---:|---:|---:|
-| climatological (baseline) | 1.0900 | 1.0792 | 1.0880 |
-| Elo ordinal-logit | 1.0052 | **1.0040** | 1.0182 |
-| independent Poisson | 1.0065 | 1.0120 | 1.0029 |
-| time-decayed Dixon-Coles | **1.0045** | 1.0091 | 0.9985 |
-| bivariate Poisson | 1.0065 | 1.0120 | 1.0029 |
-| Dixon-Coles with per-club home advantage and rest days | 1.0066 | 1.0136 | **0.9967** |
+| climatological (baseline) | 1.0792 | 1.0880 | 1.0892 |
+| Elo ordinal-logit | **1.0040** | 1.0182 | 1.0102 |
+| independent Poisson | 1.0120 | 1.0029 | 1.0106 |
+| time-decayed Dixon-Coles | 1.0091 | 0.9985 | **1.0096** |
+| bivariate Poisson | 1.0120 | 1.0029 | 1.0106 |
+| Dixon-Coles with per-club home advantage and rest days | 1.0136 | **0.9967** | 1.0109 |
 
 Every candidate beats the climatological baseline on log loss on every fold; the best model varies by fold and none is crowned a champion.
 
-**Calibration — most recent fold (SERIEA2023-24):**
+**Calibration — most recent fold (SERIEA2025-26):**
 
 | Model | Brier | ECE | RPS |
 |---|---:|---:|---:|
-| climatological (baseline) | 0.6587 | 0.0144 | 0.2245 |
-| Elo ordinal-logit | 0.6109 | 0.0337 | 0.2010 |
-| independent Poisson | 0.6003 | 0.0279 | 0.1958 |
-| time-decayed Dixon-Coles | 0.5989 | 0.0342 | 0.1957 |
-| bivariate Poisson | 0.6003 | 0.0279 | 0.1958 |
-| Dixon-Coles with per-club home advantage and rest days | 0.5978 | 0.0423 | 0.1954 |
+| climatological (baseline) | 0.6609 | 0.0397 | 0.2341 |
+| Elo ordinal-logit | 0.6042 | 0.0401 | 0.2063 |
+| independent Poisson | 0.6048 | 0.0386 | 0.2064 |
+| time-decayed Dixon-Coles | 0.6042 | 0.0193 | 0.2063 |
+| bivariate Poisson | 0.6048 | 0.0386 | 0.2064 |
+| Dixon-Coles with per-club home advantage and rest days | 0.6048 | 0.0358 | 0.2067 |
 
-**Reliability — Dixon-Coles with per-club home advantage and rest days on SERIEA2023-24** (Wilson 95% intervals; empty bins omitted):
+**Reliability — time-decayed Dixon-Coles on SERIEA2025-26** (Wilson 95% intervals; empty bins omitted):
 
 | Confidence bin | n | Empirical | Wilson 95% |
 |---|---:|---:|---|
-| 0.3–0.4 | 58 | 0.414 | [0.30, 0.54] |
-| 0.4–0.5 | 128 | 0.453 | [0.37, 0.54] |
-| 0.5–0.6 | 97 | 0.485 | [0.39, 0.58] |
-| 0.6–0.7 | 63 | 0.714 | [0.59, 0.81] |
-| 0.7–0.8 | 32 | 0.656 | [0.48, 0.80] |
-| 0.8–0.9 | 2 | 0.500 | [0.09, 0.91] |
+| 0.3–0.4 | 69 | 0.304 | [0.21, 0.42] |
+| 0.4–0.5 | 134 | 0.448 | [0.37, 0.53] |
+| 0.5–0.6 | 104 | 0.548 | [0.45, 0.64] |
+| 0.6–0.7 | 57 | 0.649 | [0.52, 0.76] |
+| 0.7–0.8 | 16 | 0.875 | [0.64, 0.97] |
 
 ## Ligue 1
 
