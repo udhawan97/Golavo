@@ -120,6 +120,25 @@
       ],
       "competition": "English Premier League",
       "conflict_reason": null,
+      "match_city": "Falmer",
+      "match_country": "England",
+      "match_home_team": "Brighton & Hove Albion",
+      "source_city": "Falmer",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/england/eng.clubs.txt:Brighton & Hove Albion FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_2c10a448e21243f8",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "English Premier League",
+      "conflict_reason": null,
       "match_city": "London",
       "match_country": "England",
       "match_home_team": "Chelsea",
@@ -139,6 +158,25 @@
       ],
       "competition": "English Premier League",
       "conflict_reason": null,
+      "match_city": "Coventry",
+      "match_country": "England",
+      "match_home_team": "Coventry City",
+      "source_city": "Coventry",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/england/eng.clubs.txt:Coventry City FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_980b357beb792973",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "English Premier League",
+      "conflict_reason": null,
       "match_city": "London",
       "match_country": "England",
       "match_home_team": "Crystal Palace",
@@ -151,6 +189,25 @@
       "venue_entity_id": "venue_6bf9a36db274d35c",
       "wikidata_candidate_qid": "Q1066373",
       "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "English Premier League",
+      "conflict_reason": null,
+      "match_city": "Liverpool",
+      "match_country": "England",
+      "match_home_team": "Everton",
+      "source_city": "Liverpool",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/england/eng.clubs.txt:Everton FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_765aa93f433222ba",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
     },
     {
       "allowed_match_venue_source_ids": [
@@ -346,6 +403,63 @@
       "allowed_match_venue_source_ids": [
         "openfootball-football-json"
       ],
+      "competition": "English Premier League",
+      "conflict_reason": null,
+      "match_city": "London",
+      "match_country": "England",
+      "match_home_team": "Tottenham Hotspur",
+      "source_city": "London",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/england/eng.clubs.txt:Tottenham Hotspur FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_ed8e74e1a1775809",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Ligue 1",
+      "conflict_reason": null,
+      "match_city": "Angers",
+      "match_country": "France",
+      "match_home_team": "Angers",
+      "source_city": "Angers",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/france/fr.clubs.txt:Angers SCO",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_fa435e9bda1297d7",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Ligue 1",
+      "conflict_reason": null,
+      "match_city": "Auxerre",
+      "match_country": "France",
+      "match_home_team": "Auxerre",
+      "source_city": "Auxerre",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/france/fr.clubs.txt:AJ Auxerre",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_384fa668bab4ffa3",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
       "competition": "Ligue 1",
       "conflict_reason": null,
       "match_city": "Le Havre",
@@ -360,6 +474,25 @@
       "venue_entity_id": "venue_963fa5edb19cb297",
       "wikidata_candidate_qid": "Q219462",
       "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Ligue 1",
+      "conflict_reason": null,
+      "match_city": "Le Mans",
+      "match_country": "France",
+      "match_home_team": "Le Mans",
+      "source_city": "Le Mans",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/france/fr.clubs.txt:Le Mans FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_4488cd401f3a0d53",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
     },
     {
       "allowed_match_venue_source_ids": [
@@ -398,6 +531,25 @@
       "venue_entity_id": "venue_69813149bf619314",
       "wikidata_candidate_qid": "Q1410402",
       "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Ligue 1",
+      "conflict_reason": null,
+      "match_city": "Lorient",
+      "match_country": "France",
+      "match_home_team": "Lorient",
+      "source_city": "Lorient",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/france/fr.clubs.txt:FC Lorient",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_870dd2c2e84ebd72",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
     },
     {
       "allowed_match_venue_source_ids": [
@@ -455,6 +607,25 @@
       "venue_entity_id": "venue_642e7024c2484c65",
       "wikidata_candidate_qid": "Q127372",
       "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Ligue 1",
+      "conflict_reason": null,
+      "match_city": "Paris",
+      "match_country": "France",
+      "match_home_team": "Paris",
+      "source_city": "Paris",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/france/fr.clubs.txt:Paris Saint-Germain",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_750b5d38ff9ef40f",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
     },
     {
       "allowed_match_venue_source_ids": [
@@ -536,6 +707,44 @@
       "allowed_match_venue_source_ids": [
         "openfootball-football-json"
       ],
+      "competition": "Ligue 1",
+      "conflict_reason": null,
+      "match_city": "Toulouse",
+      "match_country": "France",
+      "match_home_team": "Toulouse",
+      "source_city": "Toulouse",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/france/fr.clubs.txt:Toulouse FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_d5e6246c7a016926",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Ligue 1",
+      "conflict_reason": null,
+      "match_city": "Troyes",
+      "match_country": "France",
+      "match_home_team": "Troyes",
+      "source_city": "Troyes",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/france/fr.clubs.txt:ES Troyes AC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_0564742d616f796d",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
       "competition": "Bundesliga",
       "conflict_reason": null,
       "match_city": "Augsburg",
@@ -550,6 +759,25 @@
       "venue_entity_id": "venue_3276cdfe115cd5d3",
       "wikidata_candidate_qid": "Q167418",
       "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Bundesliga",
+      "conflict_reason": null,
+      "match_city": "Leverkusen",
+      "match_country": "Germany",
+      "match_home_team": "Bayer Leverkusen",
+      "source_city": "Leverkusen",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/germany/de.clubs.txt:Bayer 04 Leverkusen",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_7bd5038e4a250ffd",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
     },
     {
       "allowed_match_venue_source_ids": [
@@ -595,6 +823,25 @@
       ],
       "competition": "Bundesliga",
       "conflict_reason": null,
+      "match_city": "Mönchengladbach",
+      "match_country": "Germany",
+      "match_home_team": "Borussia Mönchengladbach",
+      "source_city": "Mönchengladbach",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/germany/de.clubs.txt:Bor. Mönchengladbach",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_79b7278f6eda60de",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Bundesliga",
+      "conflict_reason": null,
       "match_city": "Frankfurt am Main",
       "match_country": "Germany",
       "match_home_team": "Eintracht Frankfurt",
@@ -607,6 +854,44 @@
       "venue_entity_id": "venue_00aa3c2121eada9a",
       "wikidata_candidate_qid": "Q157273",
       "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Bundesliga",
+      "conflict_reason": null,
+      "match_city": "Freiburg",
+      "match_country": "Germany",
+      "match_home_team": "Freiburg",
+      "source_city": "Freiburg",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/germany/de.clubs.txt:SC Freiburg",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_ca07f1bda4b5fc90",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Bundesliga",
+      "conflict_reason": null,
+      "match_city": "Hamburg",
+      "match_country": "Germany",
+      "match_home_team": "Hamburger SV",
+      "source_city": "Hamburg",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/germany/de.clubs.txt:Hamburger SV",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_bad03462feb936ea",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
     },
     {
       "allowed_match_venue_source_ids": [
@@ -671,6 +956,25 @@
       ],
       "competition": "Bundesliga",
       "conflict_reason": null,
+      "match_city": "Paderborn",
+      "match_country": "Germany",
+      "match_home_team": "Paderborn",
+      "source_city": "Paderborn",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/germany/de.clubs.txt:SC Paderborn 07",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_2c634da0a80a2523",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Bundesliga",
+      "conflict_reason": null,
       "match_city": "Leipzig",
       "match_country": "Germany",
       "match_home_team": "RB Leipzig",
@@ -683,6 +987,25 @@
       "venue_entity_id": "venue_41a5128044e034ad",
       "wikidata_candidate_qid": "Q210466",
       "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Bundesliga",
+      "conflict_reason": null,
+      "match_city": "Gelsenkirchen",
+      "match_country": "Germany",
+      "match_home_team": "Schalke",
+      "source_city": "Gelsenkirchen",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/germany/de.clubs.txt:FC Schalke 04",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_1e3c8afb2fdcbb6d",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
     },
     {
       "allowed_match_venue_source_ids": [
@@ -743,6 +1066,386 @@
     },
     {
       "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Bergamo",
+      "match_country": "Italy",
+      "match_home_team": "Atalanta",
+      "source_city": "Bergamo",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Atalanta Bergamo",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_5e74e0ffb28fd0e9",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Bologna",
+      "match_country": "Italy",
+      "match_home_team": "Bologna",
+      "source_city": "Bologna",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Bologna FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_225ef47fb07a5b85",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Cagliari",
+      "match_country": "Italy",
+      "match_home_team": "Cagliari",
+      "source_city": "Cagliari",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Cagliari Calcio",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_5d1b900d518dee90",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Como",
+      "match_country": "Italy",
+      "match_home_team": "Como",
+      "source_city": "Como",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Como 1907",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_e4fe48d98ece2b23",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Firenze",
+      "match_country": "Italy",
+      "match_home_team": "Fiorentina",
+      "source_city": "Firenze",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:ACF Fiorentina",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_1f4bd2b0ab5ec4b2",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Frosinone",
+      "match_country": "Italy",
+      "match_home_team": "Frosinone",
+      "source_city": "Frosinone",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Frosinone Calcio",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_f8d4d34cccd692b4",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Genova",
+      "match_country": "Italy",
+      "match_home_team": "Genoa",
+      "source_city": "Genova",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Genoa CFC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_66a757b920b00087",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Milano",
+      "match_country": "Italy",
+      "match_home_team": "Inter",
+      "source_city": "Milano",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:FC Internazionale Milano",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_4da458a55d096d59",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Torino",
+      "match_country": "Italy",
+      "match_home_team": "Juventus",
+      "source_city": "Torino",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Juventus",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_8fbd868612317a3a",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Roma",
+      "match_country": "Italy",
+      "match_home_team": "Lazio",
+      "source_city": "Roma",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:SS Lazio",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_8fcfdb1b8eff5611",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Lecce",
+      "match_country": "Italy",
+      "match_home_team": "Lecce",
+      "source_city": "Lecce",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:US Lecce",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_fa05c2cc94ab01c7",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Milano",
+      "match_country": "Italy",
+      "match_home_team": "Milan",
+      "source_city": "Milano",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:AC Milan",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_7777327c95ba0cd5",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Monza",
+      "match_country": "Italy",
+      "match_home_team": "Monza",
+      "source_city": "Monza",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:AC Monza",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_40a30a47808271dd",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Napoli",
+      "match_country": "Italy",
+      "match_home_team": "Napoli",
+      "source_city": "Napoli",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:SSC Napoli",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_574412e86c8409be",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Parma",
+      "match_country": "Italy",
+      "match_home_team": "Parma",
+      "source_city": "Parma",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Parma Calcio",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_23935843fe1b2122",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Roma",
+      "match_country": "Italy",
+      "match_home_team": "Roma",
+      "source_city": "Roma",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:AS Roma",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_9fcaad908ddb4ba0",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Sassuolo",
+      "match_country": "Italy",
+      "match_home_team": "Sassuolo",
+      "source_city": "Sassuolo",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:US Sassuolo Calcio",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_e7d24f68dff3e200",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Torino",
+      "match_country": "Italy",
+      "match_home_team": "Torino",
+      "source_city": "Torino",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Torino FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_82f2b5be985eb60b",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Udine",
+      "match_country": "Italy",
+      "match_home_team": "Udinese",
+      "source_city": "Udine",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Udinese Calcio",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_c99e62e318fcbb03",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "Serie A",
+      "conflict_reason": null,
+      "match_city": "Venezia",
+      "match_country": "Italy",
+      "match_home_team": "Venezia",
+      "source_city": "Venezia",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/italy/it.clubs.txt:Venezia FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_9e22b1f8b3abf8ee",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
         "martj42-international-results",
         "openfootball-worldcup-json"
       ],
@@ -797,6 +1500,386 @@
       "venue_entity_id": "venue_66de2539bc8d484d",
       "wikidata_candidate_qid": "Q666183",
       "wikidata_link_status": "accepted"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Vitoria",
+      "match_country": "Spain",
+      "match_home_team": "Alavés",
+      "source_city": "Vitoria",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Deportivo Alavés",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_8deff66b62709a80",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Bilbao",
+      "match_country": "Spain",
+      "match_home_team": "Athletic Club",
+      "source_city": "Bilbao",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Athletic Club Bilbao",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_11d710e9f2f0d19c",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Madrid",
+      "match_country": "Spain",
+      "match_home_team": "Atlético Madrid",
+      "source_city": "Madrid",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Atlético Madrid",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_340ded21f1090f64",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Barcelona",
+      "match_country": "Spain",
+      "match_home_team": "Barcelona",
+      "source_city": "Barcelona",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:FC Barcelona",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_4bd03c6288f7d708",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Vigo",
+      "match_country": "Spain",
+      "match_home_team": "Celta Vigo",
+      "source_city": "Vigo",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:RC Celta Vigo",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_a0e3e4f36bdcaf80",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "La Coruña",
+      "match_country": "Spain",
+      "match_home_team": "Deportivo La Coruña",
+      "source_city": "La Coruña",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:RCD La Coruña",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_a284b391b39fc49d",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Elche",
+      "match_country": "Spain",
+      "match_home_team": "Elche",
+      "source_city": "Elche",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Elche CF",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_edb5ce3092d343a6",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Barcelona",
+      "match_country": "Spain",
+      "match_home_team": "Espanyol",
+      "source_city": "Barcelona",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:RCD Espanyol",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_af0ec20e8c73a71e",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Madrid",
+      "match_country": "Spain",
+      "match_home_team": "Getafe",
+      "source_city": "Madrid",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Getafe CF",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_cf5a3c7f26733d4e",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Valencia",
+      "match_country": "Spain",
+      "match_home_team": "Levante",
+      "source_city": "Valencia",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Levante UD",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_86cf40947770609d",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Málaga",
+      "match_country": "Spain",
+      "match_home_team": "Málaga",
+      "source_city": "Málaga",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Málaga CF",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_ada9b9a9ef840024",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Pamplona",
+      "match_country": "Spain",
+      "match_home_team": "Osasuna",
+      "source_city": "Pamplona",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:CA Osasuna",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_3a39a57d81d336d7",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Santander",
+      "match_country": "Spain",
+      "match_home_team": "Racing Santander",
+      "source_city": "Santander",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Real Racing Santander",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_bd98ff750b9525c2",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Madrid",
+      "match_country": "Spain",
+      "match_home_team": "Rayo Vallecano",
+      "source_city": "Madrid",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Rayo Vallecano",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_3adab4197067e37d",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Sevilla",
+      "match_country": "Spain",
+      "match_home_team": "Real Betis",
+      "source_city": "Sevilla",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Real Betis",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_14ede952994217c6",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Madrid",
+      "match_country": "Spain",
+      "match_home_team": "Real Madrid",
+      "source_city": "Madrid",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Real Madrid",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_45acddc6828123d6",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "San Sebastián",
+      "match_country": "Spain",
+      "match_home_team": "Real Sociedad",
+      "source_city": "San Sebastián",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Real Sociedad",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_6e6e202007c95f72",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Sevilla",
+      "match_country": "Spain",
+      "match_home_team": "Sevilla",
+      "source_city": "Sevilla",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Sevilla FC",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_c99878ae0c471d1e",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Valencia",
+      "match_country": "Spain",
+      "match_home_team": "Valencia",
+      "source_city": "Valencia",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Valencia CF",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_b68b97970a0971c9",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
+    },
+    {
+      "allowed_match_venue_source_ids": [
+        "openfootball-football-json"
+      ],
+      "competition": "La Liga",
+      "conflict_reason": null,
+      "match_city": "Villarreal",
+      "match_country": "Spain",
+      "match_home_team": "Villarreal",
+      "source_city": "Villarreal",
+      "source_id": "openfootball-clubs",
+      "source_record_id": "europe/spain/es.clubs.txt:Villarreal CF",
+      "source_revision": "ae3800227c449447b3a337fc0aac79a8f02f4c8b",
+      "valid_from": "2026-08-01",
+      "valid_to": "2027-06-30",
+      "venue_entity_id": "place_e82549f35ca299dd",
+      "wikidata_candidate_qid": null,
+      "wikidata_link_status": "unknown"
     },
     {
       "allowed_match_venue_source_ids": [

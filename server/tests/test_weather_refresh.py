@@ -84,3 +84,42 @@ def test_refresh_after_kickoff_is_refused(wired) -> None:
         )
     assert exc.value.status == 422
     assert exc.value.reason_code == "kickoff_passed"
+
+
+def test_a_club_fixture_resolves_its_coordinates_from_the_reviewed_home_city(
+    wired, monkeypatch
+) -> None:
+    """No club row carries a city, so without the assignment no club match could
+    ever be forecast — the top five leagues are entirely club fixtures."""
+    from golavo_server import conditions, matches
+
+    asked: list[tuple] = []
+
+    def only_london(city, country):
+        asked.append((city, country))
+        return (51.5074, -0.1278) if (city, country) == ("London", "England") else None
+
+    monkeypatch.setattr(conditions, "resolve_coords", only_london)
+    monkeypatch.setattr(
+        matches,
+        "get_match",
+        lambda mid, **_: _match(
+            match_id=mid,
+            city=None,
+            country="England",
+            home_team="Arsenal",
+            away_team="Chelsea",
+            competition="English Premier League",
+            source_id="openfootball-football-json",
+        ),
+    )
+
+    ctx = weather.refresh(
+        "m_club",
+        now_utc=datetime(2026, 8, 1, 9, tzinfo=UTC),
+        transport=lambda _url: _OPEN_METEO,
+    )
+
+    assert ctx["status"] == "forecast"
+    # The row's own (absent) city was tried first, then the reviewed one.
+    assert asked == [(None, "England"), ("London", "England")]

@@ -12,12 +12,18 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_context_pack_is_schema_valid_and_fail_closed() -> None:
     counts = validate_context_pack.validate()
-    assert counts["places"] == 1497
+    # Every place a pinned source asks for and GeoNames answers uniquely. The
+    # club home cities are part of that request set, so a club fixture can have
+    # a place at all — before they were asked for, a club's city resolved only
+    # where an international happened to have been played in the same city.
+    assert counts["places"] == 1513
     # 16 World Cup stadiums plus the 37 club grounds where the pinned CC0 source
     # and the club's Wikidata home venue agree; the 9 that disagree are recorded
     # as rejected in data/context/club_venue_allowlist.json and ship no venue.
-    assert counts["venues"] == 53
-    assert counts["unresolved"] == 644
+    # The other 57 are `place` entities: a club home city with no ground, which
+    # is every Spanish and Italian club, because upstream states none for them.
+    assert counts["venues"] == 110
+    assert counts["unresolved"] == 643
 
 
 @pytest.mark.parametrize(
@@ -54,7 +60,11 @@ def test_no_alias_or_collision_uses_a_population_tiebreak() -> None:
         (ROOT / "data/enrichment/places.meta.json").read_text(encoding="utf-8")
     )
     assert metadata["ambiguous_pairs"] == 82
-    assert metadata["alias_pending_pairs"] == 175
+    # Still pending a checked-in review, and still resolving to nothing until one
+    # exists — an alias match never promotes itself. The 13 that were reviewed
+    # are named with their rationale in data/context/place_alias_reviews.json.
+    assert metadata["alias_pending_pairs"] == 174
+    assert metadata["manual_review_count"] == 13
     assert "population" not in metadata["matching"].casefold()
 
 

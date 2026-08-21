@@ -47,8 +47,114 @@ class ClubGround:
     city: str
 
 
+@dataclass(frozen=True)
+class ClubCity:
+    """One club's pinned home city, with the alias names upstream gives it.
+
+    A ground is optional upstream and Spain and Italy state none at all, so the
+    ground-bearing reader sees no Spanish or Italian club. A city, though, is
+    stated for every club in every one of these files — which is why the city is
+    worth reading on its own rather than only as a field beside a ground.
+    """
+
+    name: str
+    team: str
+    city: str
+    alias_teams: tuple[str, ...]
+
+
 def _strip_comment(line: str) -> str:
     return line.split("#", 1)[0]
+
+
+def _is_club_line(raw_line: str) -> bool:
+    """Only a flush-left, non-reserve line introduces a club."""
+    return bool(raw_line) and raw_line[0] not in " \t=|" and not raw_line.startswith("ii)")
+
+
+def _city_from_fields(fields: list[str]) -> str:
+    """The city these comma-separated fields state, or "" if they state none.
+
+    Two shapes occur and neither is positional: with a ground marker the city
+    follows the ground ("name, 1886, @ ground, city"), and without one the city
+    is simply the last field ("name, city" in Spain, "name, 1919, city" in
+    France). A bare founding year is the one field that can trail a club line
+    without being a city, so a digits-only tail is read as "no city stated"
+    rather than as a place called 1919.
+    """
+    for index, field in enumerate(fields[1:], start=1):
+        if field.startswith("@"):
+            return fields[index + 1].strip() if index + 1 < len(fields) else ""
+    if len(fields) < 2:
+        return ""
+    tail = fields[-1].strip()
+    return "" if not tail or tail.isdigit() else tail
+
+
+def parse_club_cities(text: str, *, league_code: str) -> list[ClubCity]:
+    """Every club in ``text`` that states a home city, in file order.
+
+    Each club's indented ``|`` alias lines are collected with it, because the
+    index's canonical name for a club is often one of those aliases rather than
+    the headline name upstream prints — "Atalanta" against "Atalanta Bergamo".
+    A reserve-team (``ii)``) line ends the current club so its aliases are never
+    read as the senior side's.
+    """
+    clubs: list[ClubCity] = []
+    pending: list[str] = []
+    current: dict[str, str] | None = None
+
+    def flush() -> None:
+        if current is None:
+            return
+        aliases = tuple(
+            dict.fromkeys(
+                canonical_team(alias, league_code) for alias in pending if alias
+            )
+        )
+        clubs.append(
+            ClubCity(
+                name=current["name"],
+                team=current["team"],
+                city=current["city"],
+                alias_teams=aliases,
+            )
+        )
+
+    for raw_line in text.splitlines():
+        stripped = raw_line.strip()
+        if raw_line.startswith("ii)"):
+            flush()
+            current, pending = None, []
+            continue
+        if stripped.startswith("|"):
+            if current is not None:
+                pending.extend(
+                    part.strip()
+                    for part in _strip_comment(stripped).lstrip("|").split("|")
+                    if part.strip()
+                )
+            continue
+        if not _is_club_line(raw_line):
+            continue
+        line = _strip_comment(raw_line).strip()
+        if not line:
+            continue
+        fields = [field.strip() for field in line.split(",")]
+        city = _CITY_QUALIFIER.sub("", _city_from_fields(fields)).strip()
+        if not fields[0] or not city:
+            flush()
+            current, pending = None, []
+            continue
+        flush()
+        current = {
+            "name": fields[0],
+            "team": canonical_team(fields[0], league_code),
+            "city": city,
+        }
+        pending = []
+    flush()
+    return clubs
 
 
 def parse_clubs_txt(text: str, *, league_code: str) -> list[ClubGround]:

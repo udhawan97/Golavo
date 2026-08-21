@@ -228,3 +228,49 @@ describe("Conditions Snapshot honesty", () => {
     expect(html).not.toContain("Temperature");
   });
 });
+
+describe("Match location attribution", () => {
+  function withClubCity(): ConditionsSnapshot {
+    const base = snapshot("exact");
+    return {
+      ...base,
+      match: {
+        ...base.match,
+        location: {
+          ...base.match.location,
+          city: "Milano",
+          country: "Italy",
+          provenance: {
+            city: {
+              claim_id: "ctxc_city",
+              source_refs: [
+                {
+                  source_id: "openfootball-clubs",
+                  source_record_id: "europe/italy/it.clubs.txt:Inter",
+                  source_revision: "ae3800227c44",
+                  snapshot_sha256: "f".repeat(64),
+                  retrieved_at_utc: "2026-07-29T00:00:00Z",
+                  field: "city",
+                },
+              ],
+            },
+          },
+        },
+      },
+    };
+  }
+
+  it("credits the club file for a city it stated, not GeoNames", () => {
+    // A club fixture has no city of its own, so the city is the club file's
+    // claim while GeoNames still owns the coordinates derived from it.
+    const html = renderToStaticMarkup(createElement(SnapshotBody, { snapshot: withClubCity() }));
+    expect(html).toContain("Milano, Italy");
+    expect(html).toContain("Source ID: openfootball-clubs");
+  });
+
+  it("still credits GeoNames where the match row stated its own city", () => {
+    const html = renderToStaticMarkup(createElement(SnapshotBody, { snapshot: snapshot("exact") }));
+    expect(html).toContain("Inglewood, United States");
+    expect(html).toContain("Source ID: geonames");
+  });
+});

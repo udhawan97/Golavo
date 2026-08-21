@@ -49,7 +49,9 @@ fixtures. Snapshots are immutable, retained, and registered in `packs/snapshots.
 | World Cup 2026 fixture overlay | exact knockout kickoffs and bracket context (openfootball, CC0) | ✅ seal timing + exact four-team outlook; excluded from model training |
 | Historical event research | 1,941 matches / 3,251,294 events: 2017/18 big five, Euro 2016, World Cup 2018 (Pappalardo/Wyscout, CC BY 4.0) | ✅ isolated team-only summaries; never train, seal, or simulate |
 | Conditions context | city, timezone, elevation, rest, travel routes (GeoNames + Natural Earth) | ✅ display only; not a model input |
-| Pre-kickoff weather | user-triggered Open-Meteo forecast for an eligible upcoming fixture | ✅ retained only when fetched before kickoff; display only; never a model input |
+| Club home city and local kickoff | 92 of the 96 clubs in the five 2026-27 top-flight schedules (openfootball/clubs, CC0 + GeoNames) | ✅ display only; a club fixture carries no city of its own, so the city comes from the pinned club file |
+| Club stadium | 37 clubs, where the pinned CC0 ground and the club's Wikidata home venue agree | ✅ display only; no ground is stated upstream for any Spanish or Italian club, so those stay unknown |
+| Pre-kickoff weather | user-triggered Open-Meteo forecast for an eligible upcoming fixture, including any club fixture whose home city resolves | ✅ retained only when fetched before kickoff; display only; never a model input |
 | Historical weather forecasts | no accepted issued-before-kickoff source | 🚫 blocked; observed weather is not substituted |
 | Club half-time scores | recorded on many rows across EPL/Bundesliga 2010-11 → 2025-26, La Liga 2012-13 → 2025-26, Serie A 2013-14 → 2025-26, and Ligue 1 2014-15 → 2025-26 | ✅ descriptive comeback/lead facts only; missing HT rows are excluded |
 | Men's World Cup history | tournaments, standings, team appearances, and individual awards, 1930–2022 (Fjelstul, CC-BY-SA-4.0) | ✅ isolated descriptive facts only; never joined to the forecast index |

@@ -1,12 +1,12 @@
 {
-  "alias_pending_pairs": 175,
+  "alias_pending_pairs": 174,
   "ambiguous_pairs": 82,
   "attribution": "Data from GeoNames (geonames.org), CC BY 4.0.",
-  "manual_review_count": 0,
+  "manual_review_count": 13,
   "matching": "unique exact GeoNames primary name, or an explicit checked-in resolution",
-  "places_sha256": "c5c3bf86283680a908c1c83448a6d38bcdb148e8a16a3d87876f0d35895f416e",
-  "requested_pairs": 2215,
-  "resolved_pairs": 1571,
+  "places_sha256": "9d205d0ebc883fd2b06393061e4af31914ed428181ca0ef542f280731fc227a3",
+  "requested_pairs": 2239,
+  "resolved_pairs": 1596,
   "schema_version": "0.1.0",
   "source_dump_date": "2026-07-15",
   "source_id": "geonames",
@@ -972,6 +972,12 @@
     },
     {
       "candidate_entity_ids": [],
+      "city": "Falmer",
+      "country": "England",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
       "city": "Fitzwilliam",
       "country": "England",
       "reason": "unresolved"
@@ -1467,15 +1473,6 @@
         "place_fdc5a6791b4f1189"
       ],
       "city": "Frankfurt",
-      "country": "Germany",
-      "reason": "ambiguous"
-    },
-    {
-      "candidate_entity_ids": [
-        "place_361aec710e213b7f",
-        "place_ab7684add0c49c1c"
-      ],
-      "city": "Freiburg",
       "country": "Germany",
       "reason": "ambiguous"
     },
@@ -2066,14 +2063,6 @@
         "place_dcbe271760f3c42d"
       ],
       "city": "Montecatini Terme",
-      "country": "Italy",
-      "reason": "unresolved"
-    },
-    {
-      "candidate_entity_ids": [
-        "place_612406def08d5f71"
-      ],
-      "city": "Napoli",
       "country": "Italy",
       "reason": "unresolved"
     },
@@ -2787,6 +2776,14 @@
     },
     {
       "candidate_entity_ids": [
+        "place_b373dbbe6a382b23"
+      ],
+      "city": "Girne",
+      "country": "Northern Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [
         "place_12a3ae8cd9acdfba"
       ],
       "city": "Güzelyurt",
@@ -2806,6 +2803,12 @@
         "place_12a3ae8cd9acdfba"
       ],
       "city": "Morphou",
+      "country": "Northern Cyprus",
+      "reason": "unresolved"
+    },
+    {
+      "candidate_entity_ids": [],
+      "city": "North Nicosia",
       "country": "Northern Cyprus",
       "reason": "unresolved"
     },
@@ -3562,14 +3565,6 @@
     },
     {
       "candidate_entity_ids": [
-        "place_318bab0944142824"
-      ],
-      "city": "San Sebastián",
-      "country": "Spain",
-      "reason": "unresolved"
-    },
-    {
-      "candidate_entity_ids": [
         "place_acaea44fc3913939"
       ],
       "city": "Seville",
@@ -4096,12 +4091,6 @@
     },
     {
       "candidate_entity_ids": [],
-      "city": "Dallas (Arlington)",
-      "country": "United States",
-      "reason": "unresolved"
-    },
-    {
-      "candidate_entity_ids": [],
       "city": "Davidson",
       "country": "United States",
       "reason": "unresolved"
@@ -4516,5 +4505,5 @@
       "reason": "unresolved"
     }
   ],
-  "unresolved_pairs": 644
+  "unresolved_pairs": 643
 }

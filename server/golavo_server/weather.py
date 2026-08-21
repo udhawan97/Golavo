@@ -39,7 +39,14 @@ def refresh(
     ``now_utc`` is the recorded ``fetched_at`` and the kickoff comparison instant.
     ``transport`` is injected in tests; production uses the allowlisted default.
     """
-    from golavo_server import conditions, matches, runtime, weather_source, weather_store
+    from golavo_server import (
+        conditions,
+        context_registry,
+        matches,
+        runtime,
+        weather_source,
+        weather_store,
+    )
 
     detail = matches.get_match(match_id)
     if detail is None:
@@ -57,6 +64,16 @@ def refresh(
         )
 
     coords = conditions.resolve_coords(match.get("city"), match.get("country"))
+    if coords is None:
+        # A club fixture carries no city of its own, so without this no top-flight
+        # club match could ever be forecast. Its reviewed home-city assignment is
+        # where the city lives, and reading it here means the forecast is fetched
+        # for exactly the place the conditions panel names.
+        reviewed = context_registry.reviewed_home_city(match)
+        if reviewed is not None:
+            coords = conditions.resolve_coords(
+                reviewed["city"], match.get("country") or reviewed["country"]
+            )
     if coords is None:
         raise WeatherRefreshError(
             422, "location_unresolved", "no bundled coordinates for this fixture's venue"

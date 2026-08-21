@@ -11,7 +11,7 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTEXT_VERSION = "2026.07.29.1"
+CONTEXT_VERSION = "2026.08.21.1"
 CREATED_AT = "2026-07-15T18:00:00Z"
 RUNTIME_PATHS = (
     "data/enrichment/places.json",

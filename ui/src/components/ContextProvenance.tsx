@@ -8,12 +8,14 @@ const SOURCE_LABELS: Record<string, string> = {
   geonames: "GeoNames",
   "natural-earth": "Natural Earth",
   "openfootball-worldcup-json": "openfootball/worldcup.json",
+  "openfootball-clubs": "openfootball/clubs",
   wikidata: "Wikidata",
   "martj42-international-results": "international_results",
 };
 
 const SOURCE_TAG_LABELS: Record<string, string> = {
   "openfootball-worldcup-json": "OpenFootball",
+  "openfootball-clubs": "openfootball/clubs",
   "martj42-international-results": "international_results",
 };
 

@@ -22,7 +22,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.openfootball_clubs import parse_clubs_txt  # noqa: E402
+from scripts.openfootball_clubs import parse_club_cities, parse_clubs_txt  # noqa: E402
 
 ENGLAND = """====================================
 =  England
@@ -108,3 +108,71 @@ Lille OSC,  1944,  @ Stade Pierre-Mauroy,   Lille      ## Nord > Nord-Pas-de-Cal
         ("Parc des Princes", "Paris"),
         ("Stade Pierre-Mauroy", "Lille"),
     ]
+
+
+def test_the_city_reader_sees_clubs_the_ground_reader_cannot() -> None:
+    """A ground is optional upstream; a city is not.
+
+    Spain and Italy state no ground for a single club, so the ground reader sees
+    none of them. The city reader is what gives those two leagues any match
+    context at all.
+    """
+    spain = """====================================
+=  Spain • España
+
+
+== Comunidad de Madrid ==
+
+Atlético Madrid,    Madrid    ## use Atlético de Madrid - why? why not?
+  | Atlético | Atl. Madrid | Atlético de Madrid
+ii) Atlético Madrid B
+  | Ath Madrid B [en]
+
+Rayo Vallecano, Madrid › Comunidad de Madrid
+  | Rayo | Vallecano
+"""
+    assert parse_clubs_txt(spain, league_code="es.1") == []
+
+    cities = parse_club_cities(spain, league_code="es.1")
+    assert [(club.name, club.city) for club in cities] == [
+        ("Atlético Madrid", "Madrid"),
+        ("Rayo Vallecano", "Madrid"),
+    ]
+
+
+def test_a_reserve_team_never_takes_the_senior_sides_aliases() -> None:
+    """'ii)' ends the club above it, so its alias lines belong to nobody else."""
+    spain = """Atlético Madrid,    Madrid
+  | Atlético | Atl. Madrid
+ii) Atlético Madrid B
+  | Ath Madrid B [en]
+"""
+    club = parse_club_cities(spain, league_code="es.1")[0]
+    assert "Ath Madrid B [en]" not in club.alias_teams
+
+
+def test_an_alias_carries_the_name_the_index_actually_uses() -> None:
+    """Upstream's headline name is often not the index's canonical one."""
+    italy = """Atalanta Bergamo,            Bergamo
+  | At. Bergamo | Atalanta | Atalanta BC
+"""
+    club = parse_club_cities(italy, league_code="it.1")[0]
+    assert club.city == "Bergamo"
+    assert "Atalanta" in club.alias_teams
+
+
+def test_a_bare_founding_year_is_never_read_as_a_city() -> None:
+    """'Reading FC, 1871' states no city; the trailing field is a year."""
+    cities = parse_club_cities("Reading FC, 1871\nLuton Town, 1885, Luton\n", league_code="en.1")
+    assert [(club.name, club.city) for club in cities] == [("Luton Town", "Luton")]
+
+
+def test_the_city_still_follows_the_ground_where_one_is_printed() -> None:
+    cities = parse_club_cities(ENGLAND, league_code="en.1")
+    by_name = {club.name: club for club in cities}
+    assert by_name["Arsenal FC"].city == "London"
+    assert by_name["Manchester United FC"].city == "Manchester"
+    # Reading states a city and no ground — invisible to the ground reader, and
+    # exactly the club the city reader exists to reach.
+    assert by_name["Reading FC"].city == "Reading"
+    assert "Reading FC" not in {club.name for club in parse_clubs_txt(ENGLAND, league_code="en.1")}

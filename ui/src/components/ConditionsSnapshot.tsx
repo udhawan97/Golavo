@@ -369,7 +369,12 @@ export function SnapshotBody({
         <dl>
           <ConditionFact icon={<PinIcon size={18} />} label="Match location" available={location.status === "available"}>
             {location.status === "available" ? placeLabel(location) : "Not resolved"}
-            {location.status === "available" && <FactSource sourceId="geonames" />}
+            {/* A club fixture carries no city, so the city can come from the pinned
+                club file while GeoNames still owns the coordinates below it. Cite
+                whichever source actually stated this name. */}
+            {location.status === "available" && (
+              <FactSource sourceId={claimSourceId(location.provenance.city) ?? "geonames"} />
+            )}
           </ConditionFact>
           <ConditionFact icon={<PitchIcon size={18} />} label="Venue" available={venue.status === "available"}>
             <VenueValue snapshot={snapshot} />

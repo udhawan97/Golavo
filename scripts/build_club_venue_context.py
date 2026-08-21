@@ -57,7 +57,7 @@ WIKIDATA_PACK = ROOT / "packs" / "wikidata-club-venues-2026-07-29"
 ALLOWLIST_PATH = ROOT / "data/context/club_venue_allowlist.json"
 ENTITIES_PATH = ROOT / "data/context/venue_entities.json"
 ASSIGNMENTS_PATH = ROOT / "data/context/venue_assignments.json"
-CONTEXT_PACK_VERSION = "2026.07.29.1"
+CONTEXT_PACK_VERSION = "2026.08.21.1"
 
 # The season the assignment is verified for. A ground is only claimed for the
 # window it was cross-checked in — clubs move, and a 2011 fixture must not
@@ -555,16 +555,28 @@ def main() -> int:
         )
     )
 
-    # Merge, never overwrite: the World Cup lane owns its own records in these files.
+    # Merge, never overwrite: the World Cup lane owns its own records in these
+    # files, and so does the club home-city lane (build_club_home_cities.py),
+    # which reads the same pinned pack under the same source_id. Entity ids are
+    # kind-prefixed, so ownership is decided by prefix rather than by source —
+    # filtering on source_id alone would silently delete every place_ record.
     existing_entities = json.loads(ENTITIES_PATH.read_text(encoding="utf-8"))
     existing_assignments = json.loads(ASSIGNMENTS_PATH.read_text(encoding="utf-8"))
     kept_entities = [
         item
         for item in existing_entities["entities"]
-        if not any(i.get("source_id") == SOURCE_ID for i in item.get("identifiers", []))
+        if not (
+            str(item["entity_id"]).startswith("venue_")
+            and any(i.get("source_id") == SOURCE_ID for i in item.get("identifiers", []))
+        )
     ]
     kept_assignments = [
-        item for item in existing_assignments["assignments"] if item.get("source_id") != SOURCE_ID
+        item
+        for item in existing_assignments["assignments"]
+        if not (
+            str(item["venue_entity_id"]).startswith("venue_")
+            and item.get("source_id") == SOURCE_ID
+        )
     ]
     _write_json(
         ENTITIES_PATH,

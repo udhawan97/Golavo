@@ -91,6 +91,41 @@ ROWS = [
         "tournament": "FIFA World Cup",
         "competition": "FIFA World Cup",
     },
+    # Club fixtures, which never carry a city of their own. The first club has a
+    # cross-checked stadium in the committed registry; the second is Italian, and
+    # upstream states no ground for any Italian club, so it has a home city only.
+    {
+        **_row(
+            "m_club_ground",
+            "2026-08-21T19:00:00Z",
+            "Arsenal",
+            "Chelsea",
+            None,
+            "England",
+            precision="exact",
+            complete=False,
+            source_kind="club",
+        ),
+        "tournament": "English Premier League",
+        "competition": "English Premier League",
+        "source_id": "openfootball-football-json",
+    },
+    {
+        **_row(
+            "m_club_city_only",
+            "2026-08-23T18:45:00Z",
+            "Inter",
+            "Roma",
+            None,
+            "Italy",
+            precision="exact",
+            complete=False,
+            source_kind="club",
+        ),
+        "tournament": "Serie A",
+        "competition": "Serie A",
+        "source_id": "openfootball-football-json",
+    },
 ]
 
 
@@ -153,6 +188,7 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
                 "england|london": _place("London", "England", 51.5074, -0.1278, "Europe/London"),
                 "spain|madrid": _place("Madrid", "Spain", 40.4168, -3.7038, "Europe/Madrid"),
                 "france|paris": _place("Paris", "France", 48.8566, 2.3522, "Europe/Paris"),
+                "italy|milano": _place("Milano", "Italy", 45.4642, 9.1895, "Europe/Rome"),
             }
         ),
         encoding="utf-8",
@@ -335,3 +371,68 @@ def test_corrupt_context_generation_fails_every_display_surface_closed(
     assert capability.json()["status"] == "unavailable"
     assert client.get("/api/v1/matches/m_target/conditions").status_code == 503
     assert client.get("/api/v1/maps/world").status_code == 503
+
+
+def test_a_club_fixture_takes_its_place_from_the_reviewed_home_city(
+    client: TestClient,
+) -> None:
+    """No club row in the index carries a city, so the assignment has to supply it.
+
+    Reading only the row left every club match placeless — no local kickoff and
+    no travel leg — even where the same reviewed assignment had already resolved
+    the club's stadium and its coordinates.
+    """
+    body = client.get("/api/v1/matches/m_club_ground/conditions").json()
+    schema = json.loads(
+        (ROOT / "docs/contracts/conditions_snapshot.schema.json").read_text(encoding="utf-8")
+    )
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(body)
+
+    location = body["match"]["location"]
+    assert location["status"] == "available"
+    assert location["city"] == "London"
+    assert location["timezone"] == "Europe/London"
+    # A mixed-source place stays legible: the club file states the city, GeoNames
+    # owns every coordinate derived from it.
+    assert location["provenance"]["city"]["source_refs"][0]["source_id"] == "openfootball-clubs"
+    assert location["provenance"]["latitude"]["source_refs"][0]["source_id"] == "geonames"
+
+    local = body["match"]["local_kickoff"]
+    assert local["status"] == "available"
+    assert local["value"] == "2026-08-21T20:00:00+01:00"
+    assert body["match"]["venue"]["status"] == "available"
+
+
+def test_a_club_with_no_pinned_ground_still_gets_a_place_but_never_a_stadium(
+    client: TestClient,
+) -> None:
+    """openfootball states no ground for any Italian or Spanish club — and a city for every one.
+
+    Serie A and La Liga therefore have a home city and no stadium, which is the
+    honest pairing: the city is stated by a pinned source, and the ground that no
+    source states is not invented to go with it.
+    """
+    body = client.get("/api/v1/matches/m_club_city_only/conditions").json()
+
+    venue = body["match"]["venue"]
+    assert venue["status"] == "unknown"
+    assert venue["reason"] == "no-reviewed-stadium-assignment"
+    assert venue["name"] is None
+
+    location = body["match"]["location"]
+    assert location["status"] == "available"
+    assert location["city"] == "Milano"
+    assert location["provenance"]["city"]["source_refs"][0]["source_id"] == "openfootball-clubs"
+    assert body["match"]["local_kickoff"]["status"] == "available"
+
+
+def test_a_match_row_that_has_its_own_city_never_defers_to_a_club_assignment(
+    client: TestClient,
+) -> None:
+    """The row's own city is the sharper fact, and the only one that can place a
+    match played away from the club's home."""
+    body = client.get("/api/v1/matches/m_target/conditions").json()
+    location = body["match"]["location"]
+
+    assert location["city"] == "Paris"
+    assert "city" not in location["provenance"]

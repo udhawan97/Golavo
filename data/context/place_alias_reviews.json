@@ -1,4 +1,279 @@
 {
-  "schema_version": "0.1.0",
-  "resolutions": []
+  "resolutions": [
+    {
+      "candidate_entity_ids": [
+        "place_82efb885063e51a7"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Hull",
+      "rationale": "GeoNames 2645425 carries the primary name 'Kingston upon Hull' and 'Hull' among its alternate names; 'Hull' is that city's ordinary short form and is the only exact candidate in England.",
+      "resolution_id": "ctxr_8f28ebdad6e117bf",
+      "resolved_entity_id": "place_82efb885063e51a7",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "England",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:england|hull"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_361aec710e213b7f",
+        "place_ab7684add0c49c1c"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Freiburg",
+      "rationale": "Two candidates match this name. GeoNames 2925177 Freiburg (47.996, 7.852) matches on its own primary name and is Freiburg im Breisgau, the city upstream names; 2925192 Freiberg (50.911, 13.339) is a different city in Saxony that matches only through an alternate name.",
+      "resolution_id": "ctxr_3b2e9129b1a9d8f8",
+      "resolved_entity_id": "place_ab7684add0c49c1c",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Germany",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:germany|freiburg"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_413c6d2eb93333d3"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "München",
+      "rationale": "GeoNames 2867714 carries the primary name 'Munich' and 'München' among its alternate names; the endonym and the English exonym are the same Bavarian city, and it is the only exact candidate in Germany.",
+      "resolution_id": "ctxr_b579bd85ea7356fc",
+      "resolved_entity_id": "place_413c6d2eb93333d3",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Germany",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:germany|munchen"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_34f0fe5e796df2cd"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Firenze",
+      "rationale": "GeoNames 3176959 is Florence (43.779, 11.246); 'Firenze' is its Italian endonym and the only exact candidate in Italy.",
+      "resolution_id": "ctxr_d750dd74ffa38203",
+      "resolved_entity_id": "place_34f0fe5e796df2cd",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Italy",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:italy|firenze"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_2c58648a569520ef"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Genova",
+      "rationale": "GeoNames 3176219 is Genoa (44.405, 8.944); 'Genova' is its Italian endonym and the only exact candidate in Italy.",
+      "resolution_id": "ctxr_f2c81cf9f579f3c0",
+      "resolved_entity_id": "place_2c58648a569520ef",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Italy",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:italy|genova"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_f519f76a1858b062"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Milano",
+      "rationale": "GeoNames 3173435 is Milan (45.464, 9.190); 'Milano' is its Italian endonym and the only exact candidate in Italy.",
+      "resolution_id": "ctxr_2c8ca87def1e9c29",
+      "resolved_entity_id": "place_f519f76a1858b062",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Italy",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:italy|milano"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_612406def08d5f71"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Napoli",
+      "rationale": "GeoNames 3172394 is Naples (40.852, 14.268); 'Napoli' is its Italian endonym and the only exact candidate in Italy.",
+      "resolution_id": "ctxr_0a878602bc8505ac",
+      "resolved_entity_id": "place_612406def08d5f71",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Italy",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:italy|napoli"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_245aa7849ae5c9c5"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Roma",
+      "rationale": "GeoNames 3169070 is Rome (41.892, 12.511); 'Roma' is its Italian endonym and the only exact candidate in Italy.",
+      "resolution_id": "ctxr_801f378d431ace46",
+      "resolved_entity_id": "place_245aa7849ae5c9c5",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Italy",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:italy|roma"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_59a2044946056e07"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Torino",
+      "rationale": "GeoNames 3165524 is Turin (45.070, 7.687); 'Torino' is its Italian endonym and the only exact candidate in Italy.",
+      "resolution_id": "ctxr_d335c577911a974b",
+      "resolved_entity_id": "place_59a2044946056e07",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Italy",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:italy|torino"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_c932d26afbff5196"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Venezia",
+      "rationale": "GeoNames 3164603 is Venice (45.437, 12.333); 'Venezia' is its Italian endonym and the only exact candidate in Italy.",
+      "resolution_id": "ctxr_f54d90466795f290",
+      "resolved_entity_id": "place_c932d26afbff5196",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Italy",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:italy|venezia"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_609b3071cd5ed16a"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "La Coruña",
+      "rationale": "GeoNames 3119841 is A Coruña (43.371, -8.396); 'La Coruña' is its Castilian name and the only exact candidate in Spain.",
+      "resolution_id": "ctxr_cdc688cc09bde140",
+      "resolved_entity_id": "place_609b3071cd5ed16a",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Spain",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:spain|la coruna"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_318bab0944142824"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "San Sebastián",
+      "rationale": "GeoNames 3110044 has the primary name 'Donostia / San Sebastián', pairing the Basque and Spanish names for one city; 'San Sebastián' is the Spanish half and the only exact candidate in Spain.",
+      "resolution_id": "ctxr_1a92cf2649c99181",
+      "resolved_entity_id": "place_318bab0944142824",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Spain",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:spain|san sebastian"
+    },
+    {
+      "candidate_entity_ids": [
+        "place_c601224f319a3c59"
+      ],
+      "decision": "accepted",
+      "entity_kind": "place",
+      "observed_label": "Vitoria",
+      "rationale": "GeoNames 3104499 is the Basque capital, whose primary name 'Gasteiz / Vitoria' pairs the Basque and Spanish names for one city; 'Vitoria' is the Spanish half and the only exact candidate in Spain.",
+      "resolution_id": "ctxr_ce9baa97ca45e9a3",
+      "resolved_entity_id": "place_c601224f319a3c59",
+      "reviewed_at_utc": "2026-08-21T00:00:00Z",
+      "reviewed_by": "checked-in-maintainer-endonym-review-v1",
+      "scope": {
+        "competition_id": null,
+        "country": "Spain",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "source_id": "geonames",
+      "source_record_id": "lookup:spain|vitoria"
+    }
+  ],
+  "schema_version": "0.1.0"
 }

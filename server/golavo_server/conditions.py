@@ -157,6 +157,45 @@ def _location(city: Any, country: Any) -> dict[str, Any]:
     }
 
 
+def _match_location(row: Any) -> dict[str, Any]:
+    """One match row's place: its own city, else the reviewed club home city.
+
+    Upstream states a club's home city in the pinned club file, not on the match
+    row, so no club fixture in the index carries a city. Reading only the row
+    therefore left every club match placeless — no local kickoff, no travel leg —
+    even where the very same reviewed assignment had already resolved that club's
+    stadium and its coordinates.
+
+    The row's own city still wins where it has one: it is the sharper fact, and it
+    is the only one that can describe a match played away from the club's home.
+    When the reviewed city answers instead, the place cites the source that states
+    it, so a mixed-source place stays legible; GeoNames still owns every
+    coordinate, elevation and timezone derived from it.
+    """
+    import pandas as pd
+
+    city = None if pd.isna(row.get("city")) else str(row.get("city"))
+    country = None if pd.isna(row.get("country")) else str(row.get("country"))
+    if city is not None:
+        return _location(city, country)
+    reviewed = context_registry.reviewed_home_city(row)
+    if reviewed is None:
+        return _location(city, country)
+    location = _location(reviewed["city"], country or reviewed["country"])
+    if location["status"] != "available":
+        return location
+    return {
+        **location,
+        "provenance": {
+            **location["provenance"],
+            "city": {
+                "claim_id": reviewed["claim_id"],
+                "source_refs": reviewed["source_refs"],
+            },
+        },
+    }
+
+
 def _public_location(location: dict[str, Any]) -> dict[str, Any]:
     return {
         key: location[key]
@@ -296,8 +335,6 @@ def _unknown_gap(reason: str) -> dict[str, Any]:
 def _team_context(
     frame: Any, target: Any, side: str, destination: dict[str, Any]
 ) -> dict[str, Any]:
-    import pandas as pd
-
     team = str(target[f"{side}_team"])
     team_entity_id = _stable_id("team", f"{target['source_kind']}:{_norm(team)}")
     previous = _previous_match(frame, target, team)
@@ -326,10 +363,7 @@ def _team_context(
             },
         }
     gap = _gap(target, previous)
-    previous_location = _location(
-        None if pd.isna(previous.get("city")) else previous.get("city"),
-        None if pd.isna(previous.get("country")) else previous.get("country"),
-    )
+    previous_location = _match_location(previous)
     if previous_location["status"] != "available":
         reason = "previous-match-location-unknown"
         distance = None
@@ -533,9 +567,7 @@ def conditions_snapshot(
     if capability["status"] == "unavailable":
         raise OSError("context pack unavailable")
     target = selected.iloc[0]
-    city = None if pd.isna(target.get("city")) else str(target.get("city"))
-    country = None if pd.isna(target.get("country")) else str(target.get("country"))
-    destination = _location(city, country)
+    destination = _match_location(target)
     precision = (
         str(target.get("kickoff_precision") or "day")
         if not pd.isna(target.get("kickoff_precision", "day"))

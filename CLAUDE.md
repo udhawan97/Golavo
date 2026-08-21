@@ -59,6 +59,10 @@ This is why `core/pyproject.toml` pins deps with `==` (pyarrow, pandas, numpy, s
 
 **Server caches leak across tests.** Eleven server modules expose `reset_cache()` (`matches`, `analysis`, `analytics`, `ratings`, `scorers`, `outlook`, `retrospective`, `conditions`, `context_registry`, `correction_policy`, `research/policy`). A new server test that points one of them at a tmp fixture **without an `@pytest.fixture(autouse=True)` reset will pass alone and fail in suite order.** Copy the pattern at the top of `server/tests/test_matches_api.py`. `matches` is the one exception: its index cache records the `(index, meta)` pair it was read from and retires itself — and its derivatives — when those move, so repointing `matches.INDEX_PATH` needs no reset. `reset_cache()` there now only forces a re-read of the *same* path. There is only one conftest in the repo (`scripts/tests/conftest.py`, sys.path only) — no shared fixtures.
 
+**Two lanes share the club context registry, and ownership is by entity-id prefix.** `build_club_venue_context.py` owns the `venue_` records (a stadium, needing a pinned ground *and* Wikidata agreement); `build_club_home_cities.py` owns the `place_` records (a home city, needing only the pinned club file — which is the whole La Liga and Serie A story, since upstream names no ground for a single Spanish or Italian club). Both write `data/context/venue_entities.json` + `venue_assignments.json` under the same `source_id`, so **each merge filters on the id prefix, not on `source_id` — filtering on source alone silently deletes the other lane.** A club must never hold both: two assignments scoped to one match read as a conflict and resolve to nothing, so the city lane skips any club the stadium lane already covered.
+
+**A club fixture has no city of its own.** Not one club row in the index carries one, so `city`/`local_kickoff`/`travel` come from the reviewed assignment, not the row (`conditions._match_location`). This is also why `build_geo_enrichment.py` feeds the reviewed home cities into its request set: an index-only set never asks for a club's city and resolves one only by the accident of an international having been played there.
+
 **Contract versions are declared in three places** and cross-checked by `scripts/tests/test_contract_versions.py`: the JSON Schema, a Python constant the sidecar stamps, and a constant in `ui/src/lib/contract.ts`. Its `OWNERS` table must list every schema — **adding a file to `docs/contracts/` fails CI until you register its owners.** There is no codegen; `contract.ts` is maintained by hand and drift is caught by `server/tests/test_contract_drift.py`.
 
 **UI test split is load-bearing.** `ui/vite.config.ts` restricts vitest to `src/**/*.test.{ts,tsx}` and excludes `tests/**`. Specs in `ui/tests/*.spec.ts` run under Playwright only. A test placed in the wrong **directory** still silently never runs — this bit once already: the glob was `*.test.ts`, so `ProgrammePullNumber.test.tsx` sat uncollected and had never run.
@@ -84,7 +88,8 @@ Runtime env vars include `GOLAVO_TOKEN`, `GOLAVO_DATA_DIR`, `GOLAVO_HOST`, `GOLA
 | `data/index/*` | `make index` |
 | `data/context/manifest.json` | `scripts/build_context_manifest.py` |
 | `data/context/venue_*` (World Cup) | `scripts/build_venue_context.py` |
-| `data/context/venue_*` (clubs) + `club_venue_allowlist.json` | `scripts/build_club_venue_context.py`, then rebuild the context manifest |
+| `data/context/venue_*` (clubs) + `club_venue_allowlist.json` | `scripts/build_club_venue_context.py`, then `build_geo_enrichment.py --derive-only` and the context manifest |
+| `data/context/venue_*` (club home cities) + `club_home_city_allowlist.json` | `scripts/build_club_home_cities.py` (offline; reads the pinned clubs pack), then `build_geo_enrichment.py --derive-only` and the context manifest |
 | `data/enrichment/*` | `scripts/build_geo_enrichment.py` |
 | `data/fixtures/sample_artifacts/` | `scripts/generate_sample_artifacts.py` |
 | `THIRD_PARTY_NOTICES.md` | `scripts/gen_third_party_notices.py` |
