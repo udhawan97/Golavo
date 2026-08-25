@@ -53,6 +53,7 @@ import { DataRefreshContext, useDataRefreshController } from "./lib/data-refresh
 import { OpenLigaDBContext, useOpenLigaDBController } from "./lib/openligadb-context";
 import { FollowContext, useFollowController } from "./lib/follow-context";
 import { CorrectionContext, useCorrectionController } from "./lib/correction-context";
+import { CORRECTIONS_BACKEND_AVAILABLE } from "./lib/corrections";
 import { SportmonksWelcomeCard } from "./components/SportmonksWelcomeCard";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
@@ -76,7 +77,9 @@ export default function App() {
   const updater = useUpdaterController();
   const dataRefresh = useDataRefreshController(backendReady && !holdForIndex);
   const follows = useFollowController(backendReady && !holdForIndex);
-  const corrections = useCorrectionController(backendReady && !holdForIndex);
+  const corrections = useCorrectionController(
+    backendReady && !holdForIndex && CORRECTIONS_BACKEND_AVAILABLE,
+  );
   const openLigaDB = useOpenLigaDBController(backendReady && !holdForIndex);
   const [updateNoticeVisible, setUpdateNoticeVisible] = useState(false);
   const [sportmonksNoticeVisible, setSportmonksNoticeVisible] = useState(false);

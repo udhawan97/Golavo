@@ -16,6 +16,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight } from "../components/icons";
 import { ErrorState } from "../components/states";
+import { WorldCupHistoryArchive } from "../components/WorldCupHistoryArchive";
 import {
   cancelWorldCupRetrospective,
   fetchRetrospectiveJob,
@@ -406,15 +407,23 @@ export function WorldCupRetrospective() {
       <nav className="breadcrumb" aria-label="Breadcrumb">
         <a href="#/lab">Model Lab</a>
         <ChevronRight size={14} />
-        <span aria-current="page">World Cup 2026</span>
+        <span aria-current="page">World Cup lab</span>
       </nav>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
-        <h1>World Cup 2026 retrospective</h1>
+        <h1>World Cup lab</h1>
         <p className="measure dim" style={{ margin: 0 }}>
-          Every played match of the tournament, backtested at its own pre-kickoff cutoff — and, kept
-          deliberately separate, whether the models had any skill over the window at all.
+          A source-backed tournament archive and a 2026 model retrospective, kept deliberately
+          separate so historical facts never read like forecasts.
         </p>
       </header>
+
+      <WorldCupHistoryArchive />
+
+      <section className="stack" style={{ ["--gap" as string]: ".35rem" }} aria-labelledby="wc-2026-backtest-title">
+        <span className="eyebrow">2026 model retrospective</span>
+        <h2 id="wc-2026-backtest-title" style={{ margin: 0 }}>What Golavo would have said</h2>
+        <p className="small dim measure" style={{ margin: 0 }}>Every played match backtested at its own pre-kickoff cutoff, with model skill reported on a separate tournament fold.</p>
+      </section>
 
       {!data && !active && (
         <div className="stack" style={{ ["--gap" as string]: ".5rem" }}>

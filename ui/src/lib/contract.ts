@@ -416,6 +416,69 @@ export interface TournamentOutlook {
   };
 }
 
+// ---- World Cup history -----------------------------------------------------
+// Mirrors docs/contracts/world_cup_history.schema.json. This is a read-only
+// archive from an isolated CC-BY-SA pack; none of it is model input or a seal.
+
+export const WORLD_CUP_HISTORY_SCHEMA_VERSION = "0.1.0" as const;
+
+export interface WorldCupHistoryPedigree {
+  team_id: string;
+  team_name: string;
+  team_code: string;
+  appearances: number;
+  titles: number;
+  title_years: number[];
+  finals: number;
+  best_finish: number | null;
+}
+
+export interface WorldCupHistoryTournament {
+  tournament_id: string;
+  tournament_name: string;
+  year: number;
+  ended_on: string;
+  standings: Array<{
+    position: number;
+    team_id: string;
+    team_name: string;
+    team_code: string;
+  }>;
+  awards: Array<{
+    award: string;
+    player: string;
+    team_name: string;
+    team_code: string;
+  }>;
+}
+
+export interface WorldCupHistoryCategory {
+  id: "women" | "men";
+  label: string;
+  tournament_count: number;
+  first_year: number;
+  last_year: number;
+  pedigree: WorldCupHistoryPedigree[];
+  tournaments: WorldCupHistoryTournament[];
+}
+
+export interface WorldCupHistoryResponse {
+  schema_version: typeof WORLD_CUP_HISTORY_SCHEMA_VERSION;
+  source: {
+    source_id: "fjelstul-worldcup";
+    name: string;
+    creator: string;
+    copyright_notice: "© 2022 Joshua C. Fjelstul, Ph.D.";
+    license: "CC-BY-SA-4.0";
+    license_url: string;
+    url: string;
+    upstream_ref: string;
+    retrieved_at_utc: string;
+    modification_note: string;
+  };
+  categories: [WorldCupHistoryCategory, WorldCupHistoryCategory];
+}
+
 // ---- Tournament retrospective -----------------------------------------------
 // Mirrors docs/contracts/tournament_retrospective.schema.json. A per-match
 // backtest, never a seal: each row is scored at its own kickoff-1s cutoff, the

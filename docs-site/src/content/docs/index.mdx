@@ -178,9 +178,10 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
         <h3>Leagues, Europe, and eras</h3>
         <p>
           Follow competition-local strength and workload, inspect a domestic season’s
-          fixture gate, or switch between separate World Cup model voices. Historical
-          research stays collapsed behind its exact competition and era, and is never
-          a model input.
+          fixture gate, switch between separate World Cup model voices, or read the
+          women’s 1991–2019 record beside the men’s 1930–2022 archive. Historical
+          records and research stay pinned to their exact source, competition, and era;
+          neither is a model input.
         </p>
         <a class="gv-text-link" href="/Golavo/competition-analytics/">See the competitions <span aria-hidden="true">↗</span></a>
       </div>
@@ -193,6 +194,23 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
           write path.
         </p>
         <a class="gv-text-link" href="/Golavo/architecture/">Inspect the architecture <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+
+    <div class="gv-stage-grid gv-stage-grid--even">
+      <figure class="gv-shot">
+        <img src="/Golavo/screenshots/world-cup-history.png" alt="World Cup lab showing the women-first source-backed history archive, pedigree table, final four, and player awards" width="1030" height="2281" loading="lazy" decoding="async"/>
+        <figcaption><span>World Cup history</span> Women’s and men’s records, beside each other and outside every model.</figcaption>
+      </figure>
+      <div>
+        <h3>One archive, an explicit boundary</h3>
+        <p>
+          Titles, finals, appearances, final fours, and player awards come from one
+          hash-verified Fjelstul World Cup Database snapshot under CC-BY-SA-4.0.
+          Golavo selects and summarizes those rows; it never joins them to the forecast
+          index, trains on them, or turns them into a seal.
+        </p>
+        <a class="gv-text-link" href="/Golavo/data/coverage/#coverage-by-data-type">Inspect exact coverage <span aria-hidden="true">↗</span></a>
       </div>
     </div>
 
@@ -211,7 +229,7 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
   <section class="gv-closing" aria-labelledby="gv-closing-title">
     <p class="gv-kicker">No bet placement. No oracle. No moving the goalposts.</p>
     <h2 id="gv-closing-title" class="gv-display">Let the model speak once, then keep the tape running.</h2>
-    <p>Golavo is free, open source, local-first, and currently an unsigned v0.17.1 pre-alpha.</p>
+    <p>Golavo is free, open source, local-first, and currently an unsigned v0.18.0 pre-alpha.</p>
     <div class="gv-closing-actions">
       <a class="gv-action gv-action--primary" href="#gv-install-title">Choose how to run Golavo <span aria-hidden="true">→</span></a>
       <a class="gv-action" href="/Golavo/methodology/prediction/">Read the methodology</a>
@@ -221,7 +239,7 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
 </div>
 
 :::caution[Unsigned pre-alpha]
-Golavo is at **v0.17.1**, an OS-unsigned pre-alpha release. macOS Gatekeeper and Windows
+Golavo is at **v0.18.0**, an OS-unsigned pre-alpha release. macOS Gatekeeper and Windows
 SmartScreen will warn on first launch. In-app update verification is shipped;
 OS signing and notarization remain gated on real credentials. See
 [Installation](/Golavo/installation/) and the [Roadmap](/Golavo/roadmap/).

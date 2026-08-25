@@ -71,7 +71,7 @@ protects your data; it does not (yet) roll back the executable.
 | Layer | Status |
 |---|---|
 | Update authenticity | **Active** — every update is signed in CI and verified in-app against the embedded public key before install |
-| Download integrity | **Active** — `SHA256SUMS.txt` published with every release for manual verification |
+| Download integrity | **Active** — `SHA256SUMS.txt` and its detached signature are published with every release for manual integrity and authenticity checks |
 | macOS Developer ID + notarization | Not configured (Apple Developer Program) — Gatekeeper warns on **first install only**; in-app updates don't re-trigger it |
 | Windows code signing | Not configured (SignPath / Azure Trusted Signing) — SmartScreen warns on **first install only** |
 

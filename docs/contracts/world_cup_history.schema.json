@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golavo.local/schemas/world_cup_history.schema.json",
+  "title": "World Cup history archive",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source", "categories"],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "source": {"$ref": "#/$defs/Source"},
+    "categories": {
+      "type": "array",
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/Category"}, {"properties": {"id": {"const": "women"}}}]},
+        {"allOf": [{"$ref": "#/$defs/Category"}, {"properties": {"id": {"const": "men"}}}]}
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    }
+  },
+  "$defs": {
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "name", "creator", "copyright_notice", "license", "license_url", "url", "upstream_ref", "retrieved_at_utc", "modification_note"],
+      "properties": {
+        "source_id": {"const": "fjelstul-worldcup"},
+        "name": {"type": "string", "minLength": 1},
+        "creator": {"type": "string", "minLength": 1},
+        "copyright_notice": {"const": "© 2022 Joshua C. Fjelstul, Ph.D."},
+        "license": {"const": "CC-BY-SA-4.0"},
+        "license_url": {"type": "string", "format": "uri"},
+        "url": {"type": "string", "format": "uri"},
+        "upstream_ref": {"type": "string", "minLength": 1},
+        "retrieved_at_utc": {"type": "string", "format": "date-time"},
+        "modification_note": {"type": "string", "minLength": 1}
+      }
+    },
+    "Category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "tournament_count", "first_year", "last_year", "pedigree", "tournaments"],
+      "properties": {
+        "id": {"enum": ["men", "women"]},
+        "label": {"type": "string", "minLength": 1},
+        "tournament_count": {"type": "integer", "minimum": 1},
+        "first_year": {"type": "integer", "minimum": 1900, "maximum": 2200},
+        "last_year": {"type": "integer", "minimum": 1900, "maximum": 2200},
+        "pedigree": {"type": "array", "items": {"$ref": "#/$defs/Pedigree"}},
+        "tournaments": {"type": "array", "items": {"$ref": "#/$defs/Tournament"}, "minItems": 1}
+      }
+    },
+    "Pedigree": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["team_id", "team_name", "team_code", "appearances", "titles", "title_years", "finals", "best_finish"],
+      "properties": {
+        "team_id": {"type": "string", "minLength": 1},
+        "team_name": {"type": "string", "minLength": 1},
+        "team_code": {"type": "string", "minLength": 2},
+        "appearances": {"type": "integer", "minimum": 1},
+        "titles": {"type": "integer", "minimum": 0},
+        "title_years": {"type": "array", "items": {"type": "integer", "minimum": 1900, "maximum": 2200}, "uniqueItems": true},
+        "finals": {"type": "integer", "minimum": 0},
+        "best_finish": {"type": ["integer", "null"], "minimum": 1, "maximum": 4}
+      }
+    },
+    "Tournament": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tournament_id", "tournament_name", "year", "ended_on", "standings", "awards"],
+      "properties": {
+        "tournament_id": {"type": "string", "minLength": 1},
+        "tournament_name": {"type": "string", "minLength": 1},
+        "year": {"type": "integer", "minimum": 1900, "maximum": 2200},
+        "ended_on": {"type": "string", "format": "date"},
+        "standings": {"type": "array", "items": {"$ref": "#/$defs/Standing"}, "minItems": 4, "maxItems": 4},
+        "awards": {"type": "array", "items": {"$ref": "#/$defs/Award"}}
+      }
+    },
+    "Standing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["position", "team_id", "team_name", "team_code"],
+      "properties": {
+        "position": {"type": "integer", "minimum": 1, "maximum": 4},
+        "team_id": {"type": "string", "minLength": 1},
+        "team_name": {"type": "string", "minLength": 1},
+        "team_code": {"type": "string", "minLength": 2}
+      }
+    },
+    "Award": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["award", "player", "team_name", "team_code"],
+      "properties": {
+        "award": {"type": "string", "minLength": 1},
+        "player": {"type": "string", "minLength": 1},
+        "team_name": {"type": "string", "minLength": 1},
+        "team_code": {"type": "string", "minLength": 2}
+      }
+    }
+  }
+}

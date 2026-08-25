@@ -56,6 +56,7 @@ import type {
   TournamentOutlook,
   TournamentRetrospective,
   WorldMap,
+  WorldCupHistoryResponse,
 } from "./contract";
 import type { AiDepth, AiProvider, NarrativeResponse } from "./ai";
 import {
@@ -657,6 +658,42 @@ export async function fetchWorldCupOutlook(): Promise<TournamentOutlook> {
   return assertTournamentOutlook(
     await getJson("/api/v1/tournaments/worldcup-2026/outlook"),
     "tournaments/worldcup-2026/outlook",
+  );
+}
+
+function assertWorldCupHistory(x: unknown, ctx: string): WorldCupHistoryResponse {
+  const data = x as WorldCupHistoryResponse;
+  if (!data || typeof data !== "object" || data.schema_version !== "0.1.0")
+    throw new ContractError(`${ctx}: unsupported World Cup history contract`);
+  if (
+    data.source?.source_id !== "fjelstul-worldcup" ||
+    data.source.license !== "CC-BY-SA-4.0" ||
+    data.source.copyright_notice !== "© 2022 Joshua C. Fjelstul, Ph.D."
+  )
+    throw new ContractError(`${ctx}: unexpected history source or license`);
+  if (!Array.isArray(data.categories) || data.categories.length !== 2)
+    throw new ContractError(`${ctx}: expected separate women's and men's categories`);
+  if (data.categories[0]?.id !== "women" || data.categories[1]?.id !== "men")
+    throw new ContractError(`${ctx}: category order or identity drifted`);
+  for (const category of data.categories) {
+    if (
+      !Array.isArray(category.pedigree) ||
+      !Array.isArray(category.tournaments) ||
+      category.tournaments.length !== category.tournament_count ||
+      category.tournaments.some((tournament) => tournament.standings.length !== 4)
+    ) {
+      throw new ContractError(`${ctx}: incomplete category archive`);
+    }
+  }
+  return data;
+}
+
+/** Bundled historical facts are never mocked into the web-only preview. */
+export async function fetchWorldCupHistory(): Promise<WorldCupHistoryResponse | null> {
+  if (!API_BASE) return null;
+  return assertWorldCupHistory(
+    await getJson("/api/v1/tournaments/world-cup/history"),
+    "tournaments/world-cup/history",
   );
 }
 

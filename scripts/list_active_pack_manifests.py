@@ -13,13 +13,14 @@ from golavo_core.packstore import active_packs
 def active_manifest_paths(root: Path) -> tuple[str, ...]:
     """Return repository-relative POSIX paths for every active manifest."""
     root = root.resolve()
-    registry = root / "packs/snapshots.json"
     resolve = lambda declared: (root / declared).resolve()  # noqa: E731
-    paths = []
-    for pack in active_packs(registry, resolve=resolve):
-        manifest = (pack.directory / "manifest.json").resolve()
-        paths.append(manifest.relative_to(root).as_posix())
-    return tuple(paths)
+    paths: set[str] = set()
+    for registry_name in ("snapshots.json", "isolated.json"):
+        registry = root / "packs" / registry_name
+        for pack in active_packs(registry, resolve=resolve):
+            manifest = (pack.directory / "manifest.json").resolve()
+            paths.add(manifest.relative_to(root).as_posix())
+    return tuple(sorted(paths))
 
 
 def main(argv: list[str] | None = None) -> int:

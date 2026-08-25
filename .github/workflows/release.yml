@@ -97,6 +97,7 @@ jobs:
           npm run test:e2e --if-present
           cd ..
           npm --prefix docs-site ci
+          npm --prefix docs-site audit --omit=dev --audit-level=high
           npm --prefix docs-site run check
           npm --prefix docs-site run build
 

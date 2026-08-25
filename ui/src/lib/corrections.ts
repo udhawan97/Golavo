@@ -115,6 +115,11 @@ const runtime: RuntimeConfig =
   typeof window === "undefined" ? {} : (window.__GOLAVO_RUNTIME__ ?? {});
 const base = runtime.apiBase ?? (import.meta.env.VITE_GOLAVO_API as string | undefined);
 
+/** Correction routes intentionally require the private desktop launch token.
+ * A source-mode API URL has no token and must not be probed: doing so creates
+ * noisy 403s and can make a deliberately unavailable surface look broken. */
+export const CORRECTIONS_BACKEND_AVAILABLE = Boolean(runtime.apiBase && runtime.token);
+
 export class CorrectionApiError extends Error {
   readonly status: number;
   readonly reasonCode: string;

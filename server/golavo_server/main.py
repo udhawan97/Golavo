@@ -300,6 +300,17 @@ def get_world_cup_2026_outlook(as_of_utc: str | None = None) -> dict[str, Any]:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
+@app.get("/api/v1/tournaments/world-cup/history")
+def get_world_cup_history() -> dict[str, Any]:
+    """Men's and women's tournament history from one pinned, isolated pack."""
+    from golavo_server import world_cup_history
+
+    try:
+        return world_cup_history.build()
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
 @app.post("/api/v1/tournaments/worldcup-2026/retrospective")
 async def start_world_cup_2026_retrospective(
     request: Request, background_tasks: BackgroundTasks

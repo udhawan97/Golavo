@@ -63,6 +63,10 @@ OWNERS: dict[str, tuple[str | None, str | None]] = {
     "source_snapshot": (None, None),
     "tournament_outlook": ("golavo_core.outlook:OUTLOOK_SCHEMA_VERSION", None),
     "tournament_retrospective": ("golavo_core.retrospective:RETROSPECTIVE_SCHEMA_VERSION", None),
+    "world_cup_history": (
+        "golavo_server.world_cup_history:HISTORY_SCHEMA_VERSION",
+        "WORLD_CUP_HISTORY_SCHEMA_VERSION",
+    ),
     # Pins no schema_version of its own; carried inside other envelopes.
     "ai_narration": (None, None),
     "followed_match": ("golavo_server.follows:SCHEMA_VERSION", "FOLLOW_SCHEMA_VERSION"),

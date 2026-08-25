@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import shutil
 from pathlib import Path
 
@@ -46,12 +48,90 @@ def test_loader_returns_typed_mens_frames_and_none_when_absent(tmp_path: Path) -
     assert load_wc_history(tmp_path / "missing") is None
 
 
+def test_loader_exposes_the_bundled_womens_history_as_a_separate_lane() -> None:
+    history = load_wc_history(PACK, category="women")
+    assert history is not None
+    assert history.category == "women"
+    assert len(history.standings) == 32
+    assert len(history.appearances) == 136
+    assert len(history.awards) == 59
+    assert history.appearances["tournament_name"].str.contains("Women's World Cup").all()
+    assert set(history.standings.loc[history.standings["position"].eq(1), "team_name"]) == {
+        "Germany",
+        "Japan",
+        "Norway",
+        "United States",
+    }
+    assert history.upstream_ref == "f942c6b"
+    assert "Sissi" in set(history.awards["player"])
+    assert not history.awards["player"].str.contains("not applicable", case=False).any()
+
+
+def test_loader_rejects_an_unknown_world_cup_category() -> None:
+    with pytest.raises(ValueError, match="unsupported World Cup category"):
+        load_wc_history(PACK, category="mixed")  # type: ignore[arg-type]
+
+
 def test_loader_rejects_a_tampered_pack(tmp_path: Path) -> None:
     copied = tmp_path / "pack"
     shutil.copytree(PACK, copied)
     (copied / "tournaments.csv").write_text("tampered\n", encoding="utf-8")
-    with pytest.raises(ValueError, match="sha256 mismatch"):
+    with pytest.raises(ValueError, match="provenance hash mismatch"):
         load_wc_history(copied)
+
+
+def test_default_loader_requires_the_isolated_registry_declaration(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root = tmp_path / "resources"
+    copied = root / "packs" / PACK.name
+    copied.parent.mkdir(parents=True)
+    shutil.copytree(PACK, copied)
+    (root / "packs" / "isolated.json").write_text(
+        '{"schema_version":"0.1.0","snapshots":[]}\n', encoding="utf-8"
+    )
+    monkeypatch.setattr("golavo_core.resources.resource_root", lambda: root)
+
+    with pytest.raises(ValueError, match="exactly one declaration"):
+        load_wc_history()
+
+
+def test_official_archive_rejects_self_consistent_but_unsigned_tampering(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root = tmp_path / "resources"
+    copied = root / "packs" / PACK.name
+    copied.parent.mkdir(parents=True)
+    shutil.copytree(PACK, copied)
+    (copied / "tournaments.csv").write_text("tampered\n", encoding="utf-8")
+    manifest_path = copied / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    tournament = next(item for item in manifest["files"] if item["name"] == "tournaments.csv")
+    tournament["sha256"] = hashlib.sha256((copied / "tournaments.csv").read_bytes()).hexdigest()
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    registry = {
+        "schema_version": "0.1.0",
+        "snapshots": [
+            {
+                "pack": f"packs/{PACK.name}",
+                "source_id": "fjelstul-worldcup",
+                "upstream_ref": "f942c6b",
+                "retrieved_at_utc": "2026-07-14T04:03:17Z",
+                "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+            }
+        ],
+    }
+    (root / "packs" / "isolated.json").write_text(
+        json.dumps(registry) + "\n", encoding="utf-8"
+    )
+    (root / "packs" / ".signatures-required").touch()
+    monkeypatch.setattr("golavo_core.resources.resource_root", lambda: root)
+    monkeypatch.setattr("golavo_core.resources.is_frozen", lambda: True)
+
+    with pytest.raises(ValueError, match="missing manifest signature"):
+        load_wc_history()
 
 
 def test_pedigree_values_are_source_backed() -> None:

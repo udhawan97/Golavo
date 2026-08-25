@@ -1,6 +1,6 @@
 [project]
 name = "golavo-core"
-version = "0.17.1"
+version = "0.18.0"
 description = "Golavo modeling library: ingest, warehouse, models, ledger, facts."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -19,7 +19,7 @@ dependencies = [
 golavo = "golavo_core.cli:main"
 
 [project.optional-dependencies]
-dev = ["pytest==9.1.1", "ruff==0.16.2", "mypy==2.3.0", "hypothesis==6.165.5"]
+dev = ["pytest==9.1.1", "ruff==0.16.3", "mypy==2.3.1", "hypothesis==6.165.10"]
 
 [build-system]
 requires = ["hatchling"]

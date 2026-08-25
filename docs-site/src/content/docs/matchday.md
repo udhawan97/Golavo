@@ -176,6 +176,8 @@ The sealing, provenance, calibration, and evaluation machinery moved here, behin
   diagrams, kept strictly separate from the forward record.
 - **Methodologies** — why three of the five model families are really one voice, and how
   abstention works.
+- **World Cup lab** — the women-first 1991–2019 and men's 1930–2022 source-backed
+  tournament archive, followed by the deliberately separate 2026 model retrospective.
 - **Sealed forecasts** — the immutable forecast list.
 
 Old `#/ledger` and `#/eval` links redirect into the Lab, so existing bookmarks keep working.

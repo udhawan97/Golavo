@@ -1,6 +1,6 @@
 import { API_BASE, apiHeaders } from "./api";
 
-export type OpenLigaDBShortcut = "bl1" | "bl2" | "bl3" | "dfb";
+export type OpenLigaDBShortcut = "bl1" | "bl2" | "bl3" | "dfb" | "ffb1";
 export type OpenLigaDBRefreshPolicy = "manual" | "while_open";
 
 export interface OpenLigaDBErrorDetail {
@@ -118,7 +118,7 @@ const DISABLED_STATUS: OpenLigaDBStatus = {
   overlay_supported: false,
   enabled: false,
   refresh_policy: "manual",
-  selected_competitions: ["bl1", "bl2", "bl3", "dfb"],
+  selected_competitions: ["bl1", "bl2", "bl3", "dfb", "ffb1"],
   health: "disabled",
   display_only: true,
   license: {

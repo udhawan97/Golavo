@@ -54,7 +54,9 @@ fixtures. Snapshots are immutable, retained, and registered in `packs/snapshots.
 | Pre-kickoff weather | user-triggered Open-Meteo forecast for an eligible upcoming fixture, including any club fixture whose home city resolves | ✅ retained only when fetched before kickoff; display only; never a model input |
 | Historical weather forecasts | no accepted issued-before-kickoff source | 🚫 blocked; observed weather is not substituted |
 | Club half-time scores | recorded on many rows across EPL/Bundesliga 2010-11 → 2025-26, La Liga 2012-13 → 2025-26, Serie A 2013-14 → 2025-26, and Ligue 1 2014-15 → 2025-26 | ✅ descriptive comeback/lead facts only; missing HT rows are excluded |
+| Women's World Cup history | 8 tournaments, standings, 136 team appearances, and 59 individual awards, 1991–2019 (Fjelstul, CC-BY-SA-4.0) | ✅ isolated descriptive archive only; never joined to the forecast index |
 | Men's World Cup history | tournaments, standings, team appearances, and individual awards, 1930–2022 (Fjelstul, CC-BY-SA-4.0) | ✅ isolated descriptive facts only; never joined to the forecast index |
+| OpenLigaDB community overlay | optional current-season Bundesliga 1/2/3, DFB-Pokal, and Frauen-Bundesliga (`ffb1`) fixtures/results (ODbL-1.0) | ✅ separate per-user display overlay only; never bundled, trained, sealed, settled, or exported with CC0 data |
 | Lineups / minutes | no accepted open source | 🚫 unavailable |
 | Injuries / suspensions | no accepted open source | 🚫 unavailable |
 | Live corners / shots / cards | no accepted open source | 🚫 unavailable; historical research shot rates are era-scoped separately |

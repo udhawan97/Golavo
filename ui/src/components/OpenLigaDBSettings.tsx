@@ -9,6 +9,7 @@ const COMPETITIONS: Array<{ shortcut: OpenLigaDBShortcut; label: string }> = [
   { shortcut: "bl2", label: "2. Bundesliga" },
   { shortcut: "bl3", label: "3. Liga" },
   { shortcut: "dfb", label: "DFB-Pokal" },
+  { shortcut: "ffb1", label: "Frauen-Bundesliga" },
 ];
 
 function when(value: string | null): string {

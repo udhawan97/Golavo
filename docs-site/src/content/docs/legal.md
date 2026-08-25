@@ -16,9 +16,11 @@ restricted to those eight declared repository identities and exact allowlisted p
 captured revision, license, byte hash, and field-level role remains visible in provenance.
 
 The Fjelstul World Cup Database is vendored separately under CC-BY-SA-4.0. Its README and
-DESCRIPTION license evidence ship with the pack, attribution appears in the docs and third-party
-notices, and the pack remains facts-only: it is not combined with the CC0 match index or forecast
-training data. Modifications are limited to selecting and parsing the men's 1930–2022 history.
+DESCRIPTION license evidence ship with the pack, attribution appears in the app, docs, and
+third-party notices, and the pack remains facts-only: it is not combined with the CC0 match index
+or forecast training data. Required attribution: **© 2022 Joshua C. Fjelstul, Ph.D.** Golavo's
+modifications are limited to selecting, parsing, and summarizing the women's 1991–2019 and men's
+1930–2022 tournament, standings, appearance, and award rows as separately labelled reference lanes.
 
 Transfermarkt-derived and DataHub football datasets are rejected because a downstream CC0/PDDL label does not cure upstream ToS and database-provenance risk. The OpenLigaDB ODbL display overlay ships behind a separate consent and storage boundary; it never enters CC0 packs, training, forecasts, or exports.
 
