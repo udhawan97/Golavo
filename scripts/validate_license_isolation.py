@@ -50,6 +50,24 @@ SPORTMONKS_SOURCE_ID = "sportmonks-v3"
 SPORTMONKS_MODULE = "server/golavo_server/sportmonks.py"
 
 
+def _source_shortcuts(root: Path) -> set[str]:
+    """Read the executable shortcut tuple without importing the server package."""
+    path = root / "server/golavo_server/openligadb_source.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    for node in tree.body:
+        if (
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "COMPETITION_SHORTCUTS"
+                for target in node.targets
+            )
+        ):
+            value = ast.literal_eval(node.value)
+            if isinstance(value, tuple) and all(isinstance(item, str) for item in value):
+                return set(value)
+    raise ValueError("OpenLigaDB executable shortcut allowlist is missing or non-literal")
+
+
 def _load(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -74,7 +92,7 @@ def validate_policy(root: Path = REPO_ROOT) -> None:
         runtime.get("storage_boundary") != "overlays/openligadb"
         or runtime.get("host") != "api.openligadb.de"
         or runtime.get("methods") != ["GET"]
-        or set(runtime.get("competition_shortcuts") or []) != {"bl1", "bl2", "bl3", "dfb"}
+        or set(runtime.get("competition_shortcuts") or []) != _source_shortcuts(root)
     ):
         raise ValueError("OpenLigaDB runtime allowlist drifted")
     forbidden = set(policy.get("forbidden_sinks") or [])
@@ -100,12 +118,14 @@ def validate_registries(root: Path = REPO_ROOT) -> None:
     if len(matches) != 1:
         raise ValueError("source registry must contain exactly one OpenLigaDB entry")
     entry = matches[0]
+    registry_shortcuts = set((entry.get("overlay") or {}).get("competition_shortcuts") or [])
     if (
         entry.get("classification") != "odbl-pack"
         or entry.get("license") != LICENSE_ID
         or entry.get("share_alike") is not True
         or (entry.get("overlay") or {}).get("bundled_data") is not False
         or (entry.get("overlay") or {}).get("display_only") is not True
+        or registry_shortcuts != _source_shortcuts(root)
     ):
         raise ValueError("OpenLigaDB registry entry weakens the ODbL boundary")
     for relative in ("packs/snapshots.json", "packs/enrichment.json", "packs/isolated.json"):

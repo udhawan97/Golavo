@@ -13,6 +13,8 @@ true of approved-source refresh, the optional ODbL-isolated OpenLigaDB display o
 followed-match checks, provenance-first corrections, selected-source research, and deterministic
 history-support/model-gap/capability explanations, portable proof downloads, forecast
 readiness, verified-generation diffs, and ephemeral conditional season scenarios.
+The women-first World Cup history archive and current Frauen-Bundesliga OpenLigaDB
+display overlay are also current product behavior, not future promises.
 
 ## Remaining work
 

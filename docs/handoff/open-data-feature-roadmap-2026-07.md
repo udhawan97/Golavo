@@ -1,12 +1,18 @@
 # Open-data feature roadmap — verified 2026-07-16
 
-**Status — updated 2026-08-11: no longer plan-only.** Shipped as phases of
+**Status — updated 2026-08-25: no longer plan-only.** Shipped as phases of
 `docs/superpowers/plans/2026-07-16-open-data-program-plan.md` (per-phase evidence in its
-progress block): #1→P1, #3→P2, #4→P3, #7→P5 (`22893b3`), #9→P4 (`e5db72c`), #11→P7.
+progress block): #1→P1, #2→v0.18.0, #3→P2, #4→P3, #5→v0.18.0,
+#7→P5 (`22893b3`), #9→P4 (`e5db72c`), #11→P7.
 Partial: #10→P6 — venue identity + capacity shipped (`0ff1aa2`,
 `packs/wikidata-club-venues-2026-07-29/`); manager tenures (P286) deliberately absent
-pending a revision-pinned tenure source. Not implemented: #2, #5, #6 (upstream still has
-no LICENSE — `blocked` in the registry), #8 (StatsBomb still `"rejected"`), #12, #13.
+pending a revision-pinned tenure source. Not implemented: #6 (upstream still has no
+LICENSE — `blocked` in the registry), #8 (StatsBomb still `"rejected"`), #12, #13.
+
+**2026-08-25 execution note:** #2 and #5 are now implemented in the v0.18.0
+release work. Live re-verification found that OpenLigaDB renamed the current
+Frauen-Bundesliga shortcut from the roadmap's 2025 `fbl1` to 2026 `ffb1`; the
+implementation pins `ffb1` and keeps the older shortcut rejected.
 
 **Method:** two-loop verification. Loop 1: a codebase map of every extension point
 (sources registry, fact registry, capability table, refresh allowlist, overlay
@@ -57,14 +63,14 @@ around that.
 
 ### 2. Women's World Cup history — data already on disk
 
-- **Feature:** women's WC pedigree/awards facts and history surfaces (1991–2019,
+- **Feature (implemented in v0.18.0):** women's WC pedigree/awards facts and history surfaces (1991–2019,
   8 tournaments) beside the men's, era-badged.
 - **Data:** already bundled — `packs/fjelstul-worldcup-f942c6b` CSVs contain the
   women's tournament rows (verified in tournaments/standings/appearances/awards).
   CC-BY-SA isolation is already live.
-- **Real work:** `facts/wc_history.py:53-56` filters to "Men's World Cup" and
-  cascades men's-only ids everywhere — remove the filter, add women's fact
-  families + surfaces. No new license, no new pack, no new download.
+- **Implemented boundary:** the loader now requires an explicit category, the API exposes
+  both categories under one strict contract, and Model Lab presents the women-first
+  read-only archive. No new license, pack, or download was needed.
 
 ### 3. Scorers & shootouts deepening (internationals)
 
@@ -93,17 +99,17 @@ around that.
   trajectory emitter is new code, and trends today are per-competition; a
   cross-competition national-team scope is a deliberate (documented) choice.
 
-### 5. Frauen-Bundesliga in the OpenLigaDB overlay
+### 5. Frauen-Bundesliga in the OpenLigaDB overlay — implemented in v0.18.0
 
 - **Feature:** first women's club coverage — display-only overlay context, same
   honest boundary as bl1/bl2/bl3/dfb.
-- **Data:** verified populated: shortcut `fbl1`, season 2025 (2025-26), 182/182
-  matches finished. ODbL, same license as the existing overlay — zero new legal
-  cost. (2026-27 shortcut exists but is essentially empty so far.)
-- **Real work found by loop 2:** shortcuts are hardcoded in
-  `openligadb_source.py` (COMPETITION_SHORTCUTS, name prefixes, and three URL
-  regexes embedding `bl1|bl2|bl3|dfb`) as well as `packs/overlay-odbl/policy.json`
-  — a code+policy change, small but not policy-only.
+- **Data:** live re-verification on 2026-08-25 found the current shortcut is
+  `ffb1`, not the older roadmap value `fbl1`. Season 2026 exposes the current
+  Frauen Fußballbundesliga identity and populated matchdays. ODbL remains the
+  same license as the existing overlay.
+- **Implemented boundary:** code, schema, UI, and policy allowlists accept
+  `ffb1`; the retired identity is rejected. Consent, separate generations,
+  attribution, deletion, and the no-model/no-export boundary are unchanged.
 
 ---
 

@@ -58,6 +58,17 @@ Alongside it, each club's **projected points** is the mean final points across t
 voice's runs. The run-in table bands upcoming opponents by that same projected finish
 rather than joining in a second rating source, so one table never mixes two models.
 
+## World Cup history archive
+
+Model Lab → World Cup lab starts with a read-only tournament archive: the women's
+1991–2019 record first, with the men's 1930–2022 record available beside it. It shows
+titles, finals, appearances, each edition's final four, and recorded player awards.
+
+Every row comes from the pinned Fjelstul World Cup Database snapshot under
+CC-BY-SA-4.0. Golavo verifies the pack hash, filters and summarizes its rows, and shows
+the source, license, and pinned revision in the interface. The archive cannot train a
+model, alter a probability, enter an outlook, or become a seal.
+
 ## Golden Boot and shootouts
 
 An international competition shows a leading-scorers table and a penalty-shootout

@@ -7,6 +7,7 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 from threading import Event
+from urllib.error import HTTPError
 
 import pytest
 from fastapi.testclient import TestClient
@@ -104,6 +105,94 @@ class OfflineOpenLigaDB(FakeOpenLigaDB):
         raise openligadb_source.OpenLigaDBError("offline", "source is offline")
 
 
+class LiveShapedFrauenBundesliga:
+    """Pinned shape observed from the live ffb1 2026 group-one endpoints."""
+
+    def get_path(self, path: str, *, season: str, cancel=None, max_bytes=None):
+        assert season == "2026"
+        if path == "/getavailableleagues/2026":
+            payload = [
+                {
+                    "leagueId": 5972,
+                    "leagueName": "Frauen Fußballbundesliga",
+                    "leagueShortcut": "ffb1",
+                    "leagueSeason": "2026",
+                    "sport": {"sportId": 1, "sportName": "Fußball"},
+                }
+            ]
+        elif path == "/getavailablegroups/ffb1/2026":
+            payload = [
+                {"groupName": "1. Spieltag", "groupOrderID": 1, "groupID": 52505},
+                {"groupName": "27. Spieltag", "groupOrderID": 27, "groupID": 52531},
+            ]
+        elif path == "/getlastchangedate/ffb1/2026/1":
+            payload = "2026-08-21T20:14:01.357"
+        elif path == "/getlastchangedate/ffb1/2026/27":
+            raise openligadb_source.OpenLigaDBError(
+                "not_found", "OpenLigaDB returned HTTP 404", retryable=False
+            )
+        elif path == "/getmatchdata/ffb1/2026/1":
+            payload = [
+                {
+                    "matchID": 85162,
+                    "matchDateTime": "2026-08-21T18:20:00",
+                    "timeZoneID": None,
+                    "leagueId": 5972,
+                    "leagueName": "Frauen Fußballbundesliga",
+                    "leagueSeason": 2026,
+                    "leagueShortcut": "ffb1",
+                    "matchDateTimeUTC": "2026-08-21T16:20:00Z",
+                    "group": {
+                        "groupName": "1. Spieltag",
+                        "groupOrderID": 1,
+                        "groupID": 52505,
+                    },
+                    "team1": {
+                        "teamId": 6447,
+                        "teamName": "1. FC Union Berlin Frauen",
+                        "shortName": "Union Berlin",
+                    },
+                    "team2": {
+                        "teamId": 6063,
+                        "teamName": "FC Bayern München Frauen",
+                        "shortName": "Bayern",
+                    },
+                    "lastUpdateDateTime": "2026-08-21T20:14:01.357",
+                    "matchIsFinished": True,
+                    "matchResults": [
+                        {
+                            "pointsTeam1": 1,
+                            "pointsTeam2": 4,
+                            "resultTypeID": 2,
+                        }
+                    ],
+                    "goals": [],
+                }
+            ]
+        elif path == "/getmatchdata/ffb1/2026/27":
+            payload = []
+        else:  # pragma: no cover - the fixture freezes the exact endpoint set
+            raise AssertionError(path)
+        return openligadb_source.HttpResponse(
+            status=200,
+            headers={"content-type": "application/json; charset=utf-8"},
+            body=json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode(),
+            final_url=openligadb_source.API_ORIGIN + path,
+        )
+
+
+class MissingRevisionWithMatches(LiveShapedFrauenBundesliga):
+    def get_path(self, path: str, *, season: str, cancel=None, max_bytes=None):
+        if path == "/getmatchdata/ffb1/2026/27":
+            return openligadb_source.HttpResponse(
+                status=200,
+                headers={"content-type": "application/json"},
+                body=b'[{"unexpected":"source facts without revision metadata"}]',
+                final_url=openligadb_source.API_ORIGIN + path,
+            )
+        return super().get_path(path, season=season, cancel=cancel, max_bytes=max_bytes)
+
+
 def _ledger(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
     ledger = tmp_path / "Application Support" / "com.golavo.app" / "ledger"
     ledger.mkdir(parents=True)
@@ -142,6 +231,7 @@ def test_endpoint_allowlist_rejects_arbitrary_leagues_queries_hosts_and_redirect
     monkeypatch,
 ) -> None:
     assert openligadb_source.approved_path("/getmatchdata/bl1/2026/1", season="2026")
+    assert openligadb_source.approved_path("/getmatchdata/ffb1/2026/1", season="2026")
     assert not openligadb_source.approved_path("/getmatchdata/epl/2026/1", season="2026")
     assert not openligadb_source.approved_path("/getmatchdata/bl1/2026/Bayern", season="2026")
     assert not openligadb_source.approved_path("/getmatchdata/bl1/2026/1?x=1", season="2026")
@@ -167,6 +257,85 @@ def test_endpoint_allowlist_rejects_arbitrary_leagues_queries_hosts_and_redirect
     with pytest.raises(openligadb_source.OpenLigaDBError) as redirected:
         openligadb_source.ApiFetcher().get_path("/getmatchdata/bl1/2026/1", season="2026")
     assert redirected.value.code == "unsafe_redirect"
+
+
+def test_api_fetcher_classifies_missing_revision_resources(monkeypatch) -> None:
+    def missing(*_args, **_kwargs):
+        raise HTTPError(
+            openligadb_source.API_ORIGIN + "/getlastchangedate/ffb1/2026/27",
+            404,
+            "Not Found",
+            {},
+            None,
+        )
+
+    monkeypatch.setattr(openligadb_source, "urlopen", missing)
+    with pytest.raises(openligadb_source.OpenLigaDBError) as failure:
+        openligadb_source.ApiFetcher().get_path(
+            "/getlastchangedate/ffb1/2026/27", season="2026"
+        )
+    assert failure.value.code == "not_found"
+    assert failure.value.retryable is False
+
+
+def test_current_frauen_bundesliga_identity_is_allowlisted_but_retired_fbl1_is_not() -> None:
+    season = "2026"
+    row = {
+        "leagueId": 5972,
+        "leagueName": "Frauen Fußballbundesliga",
+        "leagueShortcut": "ffb1",
+        "leagueSeason": season,
+        "sport": {"sportId": 1, "sportName": "Fußball"},
+    }
+    resolved = openligadb_source._league_rows(json.dumps([row]).encode(), season)
+    assert resolved["ffb1"]["leagueId"] == 5972
+    assert openligadb_source.approved_path("/getavailablegroups/ffb1/2026", season=season)
+    assert not openligadb_source.approved_path("/getavailablegroups/fbl1/2026", season=season)
+
+
+def test_live_shaped_frauen_bundesliga_round_trips_without_inventing_timezone(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _ledger(monkeypatch, tmp_path)
+    staging = openligadb_state.staging_dir() / "live-shaped-ffb1"
+    staging.mkdir(parents=True)
+    snapshot = openligadb_source.capture_snapshot(
+        staging / "raw",
+        ["ffb1"],
+        fetcher=LiveShapedFrauenBundesliga(),
+        now=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+    manifest = openligadb_overlay.write_generation(staging, snapshot)
+    installed = openligadb_state.install_generation(staging, manifest["generation_id"])
+    openligadb_state.activate_generation(installed.name, activated_at_utc="2026-08-25T12:00:00Z")
+
+    result = openligadb_overlay.list_matches(shortcut="ffb1")
+    assert result["matches"][0]["source_match_id"] == 85162
+    assert result["matches"][0]["kickoff_utc"] == "2026-08-21T16:20:00Z"
+    database = openligadb_state.active_database()
+    assert database is not None
+    connection = openligadb_state.open_readonly_database(database)
+    try:
+        assert connection.execute(
+            "SELECT time_zone_id FROM matches WHERE source_match_id = 85162"
+        ).fetchone()[0] is None
+        revision = connection.execute(
+            "SELECT last_change_source_value, raw_sha256, raw_endpoint "
+            "FROM groups WHERE shortcut = 'ffb1' AND group_order_id = 27"
+        ).fetchone()
+        assert tuple(revision) == (None, None, None)
+    finally:
+        connection.close()
+
+
+def test_nonempty_group_without_revision_metadata_fails_closed(tmp_path: Path) -> None:
+    with pytest.raises(openligadb_source.OpenLigaDBConflict, match="matches but no last-change"):
+        openligadb_source.capture_snapshot(
+            tmp_path / "raw",
+            ["ffb1"],
+            fetcher=MissingRevisionWithMatches(),
+            now=datetime(2026, 8, 25, tzinfo=UTC),
+        )
 
 
 def test_source_capture_retains_raw_hashes_and_fails_closed_on_identity_conflict(tmp_path) -> None:

@@ -27,7 +27,7 @@ export function ModelLabHub() {
     },
     {
       href: "#/lab/worldcup-2026",
-      title: "World Cup 2026 retrospective",
+      title: "World Cup archive & 2026 retrospective",
       note: "Every match replayed at its own pre-kickoff cutoff, and — kept separate — whether the models had skill. A backtest, never a record.",
     },
     {

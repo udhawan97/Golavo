@@ -2524,6 +2524,40 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .outlook-method { padding-top: .1rem; }
 .outlook-method summary { color: var(--text-dim); cursor: pointer; font-size: var(--text-sm); }
 .outlook-method p { max-width: 72ch; }
+
+.wc-archive {
+  padding: clamp(1rem, 2vw, 1.4rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--surface-2) 92%, var(--wave) 8%), var(--surface));
+}
+.wc-archive__summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
+.wc-archive__summary > div { display: grid; gap: .1rem; padding: .7rem .8rem; border-left: 2px solid var(--wave); background: color-mix(in srgb, var(--surface-2) 90%, transparent); }
+.wc-archive__summary strong { font-family: var(--font-display); font-size: clamp(1.05rem, 2vw, 1.35rem); }
+.wc-archive__summary span { color: var(--text-muted); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .06em; }
+.wc-archive__edition { padding-top: .2rem; }
+.wc-archive__edition-grid { display: grid; grid-template-columns: minmax(13rem, .8fr) minmax(16rem, 1.2fr); gap: 1rem; }
+.wc-archive__edition-grid ol, .wc-archive__edition-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.wc-archive__edition-grid ol li { display: grid; grid-template-columns: 1.5rem 1fr auto; align-items: baseline; gap: .55rem; padding: .45rem .55rem; border-bottom: 1px solid var(--border); }
+.wc-archive__edition-grid ol li > span, .wc-archive__edition-grid small { color: var(--text-muted); font-family: var(--font-mono); }
+.wc-archive__edition-grid h4 { margin: 0 0 .45rem; }
+.wc-archive__edition-grid ul li { display: grid; gap: .05rem; padding: .4rem 0; border-bottom: 1px solid var(--border); }
+.wc-archive__edition-grid ul span { color: var(--text-muted); font-size: var(--text-sm); }
+@media (max-width: 640px) {
+  .wc-archive__summary { grid-template-columns: 1fr; }
+  .wc-archive__edition-grid { grid-template-columns: 1fr; }
+  .wc-archive .table-wrap { overflow: visible; border: 0; }
+  .wc-archive table.grid,
+  .wc-archive table.grid tbody,
+  .wc-archive table.grid tr { display: block; min-width: 0; width: 100%; }
+  .wc-archive table.grid thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+  .wc-archive table.grid tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: .65rem 0; border-bottom: 1px solid var(--border); }
+  .wc-archive table.grid tbody tr:first-child { border-top: 1px solid var(--border); }
+  .wc-archive table.grid th,
+  .wc-archive table.grid td { padding: .35rem .55rem; border: 0; text-align: left; white-space: normal; }
+  .wc-archive table.grid th { grid-column: 1 / -1; }
+  .wc-archive table.grid td::before { content: attr(data-label); display: block; margin-bottom: .15rem; color: var(--text-dim); font-size: var(--text-xs); font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+}
 .season-table { min-width: 440px; }
 .season-probability-table { min-width: 590px; }
 /* A club the models have no recent history for: the number is a prior, not

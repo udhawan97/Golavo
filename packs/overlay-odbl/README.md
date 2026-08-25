@@ -3,9 +3,11 @@
 An **optional, isolated** overlay built from **OpenLigaDB** data, which is under
 the **Open Database License (ODbL) 1.0**.
 
-Scope in v1: display-only Bundesliga 1/2/3 and DFB-Pokal fixtures/results from
-the current season. Golavo ships the adapter and policy, not OpenLigaDB response
-bytes. A user must accept the disclosure and opt in before the sidecar fetches.
+Scope in v1: display-only Bundesliga 1/2/3, Frauen-Bundesliga, and DFB-Pokal
+fixtures/results from the current season. The current women's league identity is
+`ffb1`; the retired `fbl1` shortcut is rejected rather than silently remapped.
+Golavo ships the adapter and policy, not OpenLigaDB response bytes. A user must
+accept the disclosure and opt in before the sidecar fetches.
 
 ## Rules
 

@@ -104,8 +104,6 @@ def render() -> str:
                          + (f" ({entry['license_url']})" if entry.get("license_url") else ""))
             if entry.get("attribution"):
                 lines.append(f"- Attribution: {entry['attribution']}")
-            if entry.get("citation_key"):
-                lines.append(f"- Citation key: `{entry['citation_key']}` (see CITATIONS.bib)")
             if entry.get("recheck_by"):
                 lines.append(f"- Recheck by: {entry['recheck_by']}")
             lines.append(f"- Notes: {entry['notes']}")

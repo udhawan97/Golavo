@@ -85,7 +85,9 @@ def test_active_pack_manifest_lister_is_nul_framed_and_portable() -> None:
     root = SCRIPTS.parent
     helper = _load("list_active_pack_manifests")
     paths = helper.active_manifest_paths(root)
-    assert len(paths) == 11
+    assert len(paths) == 13
+    assert "packs/fjelstul-worldcup-f942c6b/manifest.json" in paths
+    assert "packs/pappalardo-wyscout-research-2019/manifest.json" in paths
     assert all(not Path(path).is_absolute() and "\\" not in path for path in paths)
     assert all((root / path).is_file() for path in paths)
 

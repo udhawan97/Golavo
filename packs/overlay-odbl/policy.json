@@ -19,7 +19,7 @@
       "/getlastchangedate/{leagueShortcut}/{season}/{groupOrderId}",
       "/getmatchdata/{leagueShortcut}/{season}/{groupOrderId}"
     ],
-    "competition_shortcuts": ["bl1", "bl2", "bl3", "dfb"]
+    "competition_shortcuts": ["bl1", "bl2", "bl3", "dfb", "ffb1"]
   },
   "allowed_uses": ["isolated-display", "source-health", "manual-corroboration-view"],
   "forbidden_sinks": [

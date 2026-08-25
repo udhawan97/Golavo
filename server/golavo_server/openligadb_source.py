@@ -29,7 +29,7 @@ API_ORIGIN = "https://api.openligadb.de"
 ATTRIBUTION = "Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0."
 LICENSE_URL = "https://www.openligadb.de/lizenz"
 SOURCE_URL = "https://www.openligadb.de/"
-COMPETITION_SHORTCUTS = ("bl1", "bl2", "bl3", "dfb")
+COMPETITION_SHORTCUTS = ("bl1", "bl2", "bl3", "dfb", "ffb1")
 DEFAULT_INTERVAL_SECONDS = 12 * 60 * 60
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 MAX_SNAPSHOT_BYTES = 64 * 1024 * 1024
@@ -40,17 +40,21 @@ _EXPECTED_NAME_PREFIXES = {
     "bl2": ("2. Fußball-Bundesliga",),
     "bl3": ("3. Liga",),
     "dfb": ("DFB Pokal", "DFB-Pokal"),
+    # OpenLigaDB used fbl1 in 2025, then published the current 2026-27 league
+    # under ffb1. Golavo pins the current identity rather than silently querying
+    # the retired shortcut and presenting an empty competition as coverage.
+    "ffb1": ("Frauen Fußballbundesliga",),
 }
 _SEASON_RE = re.compile(r"^[0-9]{4}$")
 _APPROVED_PATHS = (
     re.compile(r"^/getavailableleagues/(?P<season>[0-9]{4})$"),
-    re.compile(r"^/getavailablegroups/(?P<shortcut>bl1|bl2|bl3|dfb)/(?P<season>[0-9]{4})$"),
+    re.compile(r"^/getavailablegroups/(?P<shortcut>bl1|bl2|bl3|dfb|ffb1)/(?P<season>[0-9]{4})$"),
     re.compile(
-        r"^/getlastchangedate/(?P<shortcut>bl1|bl2|bl3|dfb)/"
+        r"^/getlastchangedate/(?P<shortcut>bl1|bl2|bl3|dfb|ffb1)/"
         r"(?P<season>[0-9]{4})/(?P<group>[1-9][0-9]{0,2})$"
     ),
     re.compile(
-        r"^/getmatchdata/(?P<shortcut>bl1|bl2|bl3|dfb)/"
+        r"^/getmatchdata/(?P<shortcut>bl1|bl2|bl3|dfb|ffb1)/"
         r"(?P<season>[0-9]{4})/(?P<group>[1-9][0-9]{0,2})$"
     ),
 )
@@ -156,6 +160,12 @@ class ApiFetcher:
                 if exc.code in (429, 503):
                     raise OpenLigaDBError(
                         "rate_limited", f"OpenLigaDB returned HTTP {exc.code}"
+                    ) from exc
+                if exc.code == 404:
+                    raise OpenLigaDBError(
+                        "not_found",
+                        "OpenLigaDB returned HTTP 404",
+                        retryable=False,
                     ) from exc
                 raise OpenLigaDBError(
                     "upstream_http", f"OpenLigaDB returned HTTP {exc.code}"
@@ -497,9 +507,28 @@ def capture_snapshot(
         for group in groups:
             order = int(group["groupOrderID"])
             changed_path = f"/getlastchangedate/{shortcut}/{season}/{order}"
-            changed_body = fetch_store(
-                changed_path, f"{shortcut}/groups/{order:03d}-last-change.json"
-            )
+            matches_path = f"/getmatchdata/{shortcut}/{season}/{order}"
+            matches_relative = f"{shortcut}/groups/{order:03d}-matches.json"
+            matches_body: bytes | None = None
+            try:
+                changed_body = fetch_store(
+                    changed_path, f"{shortcut}/groups/{order:03d}-last-change.json"
+                )
+            except OpenLigaDBError as exc:
+                if exc.code != "not_found":
+                    raise
+                # OpenLigaDB advertises future groups before publishing their
+                # revision resource. Only an empty match response can safely
+                # cross that gap: it supplies no facts and needs no invented
+                # revision timestamp. A non-empty group still fails closed.
+                matches_body = fetch_store(matches_path, matches_relative)
+                matches_value = _loads(matches_body, f"{shortcut} group {order} matches")
+                if matches_value != []:
+                    raise OpenLigaDBConflict(
+                        f"{shortcut} group {order} has matches but no last-change resource"
+                    ) from exc
+                group["last_change_available"] = False
+                continue
             changed_value = _loads(changed_body, f"{shortcut} group {order} last change")
             if not isinstance(changed_value, str) or not changed_value.strip():
                 raise OpenLigaDBError(
@@ -507,9 +536,7 @@ def capture_snapshot(
                     f"{shortcut} group {order} returned an invalid last-change value",
                     retryable=False,
                 )
-            matches_path = f"/getmatchdata/{shortcut}/{season}/{order}"
-            matches_relative = f"{shortcut}/groups/{order:03d}-matches.json"
-            matches_body: bytes | None = None
+            group["last_change_available"] = True
             previous_changed = previous_receipts.get(changed_path)
             if previous_changed is not None and previous_root is not None:
                 previous_changed_path = (

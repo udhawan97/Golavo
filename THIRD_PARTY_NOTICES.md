@@ -147,7 +147,7 @@ software dependencies.
 - Contributors: Marcel Siegel, OpenLigaDB community
 - License: ODbL-1.0 (https://www.openligadb.de/lizenz)
 - Attribution: Datenquelle: OpenLigaDB (www.openligadb.de) — Open Database License (ODbL) v1.0.
-- Notes: Optional isolated, per-user ODbL overlay. No response bytes ship with Golavo. The v1 adapter is display-only and allowlists the current-season bl1, bl2, bl3 and dfb identities; it cannot train models, seal or settle forecasts, enter exports, or join the CC0/CC-BY core. A redistributed adapted database must itself honor ODbL and carry attribution/license information. Single-operator hobby service — feature must tolerate its permanent absence.
+- Notes: Optional isolated, per-user ODbL overlay. No response bytes ship with Golavo. The v1 adapter is display-only and allowlists the current-season bl1, bl2, bl3, dfb, and live-verified ffb1 identities; the retired fbl1 shortcut is rejected. It cannot train models, seal or settle forecasts, enter exports, or join the CC0/CC-BY core. A redistributed adapted database must itself honor ODbL and carry attribution/license information. Single-operator hobby service — feature must tolerate its permanent absence.
 
 ## Optional isolated packs — CC BY-SA (share-alike)
 
@@ -156,9 +156,8 @@ software dependencies.
 - Source: https://github.com/jfjelstul/worldcup
 - Contributors: Joshua C. Fjelstul
 - License: CC-BY-SA-4.0 (https://creativecommons.org/licenses/by-sa/4.0/legalcode)
-- Attribution: Fjelstul World Cup Database v1.2.0 © 2023 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; modifications noted.
-- Citation key: `fjelstul2023worldcup` (see CITATIONS.bib)
-- Notes: Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses only the men's 1930–2022 history.
+- Attribution: Fjelstul World Cup Database © 2022 Joshua C. Fjelstul, Ph.D., CC BY-SA 4.0; Golavo selects and summarizes pinned tournament, standings, appearance, and award rows.
+- Notes: Vendored as an isolated facts-only CC-BY-SA pack. Grant lives only in README+DESCRIPTION (no LICENSE file), no v1.2.0 tag — pinned at commit f942c6b with README+DESCRIPTION retained as license evidence. NEVER substitute WorldCups.ai downloads (CC BY-NC-SA). Golavo uses the women's 1991–2019 and men's 1930–2022 tournament, standings, appearance, and award history as separately labelled reference lanes.
 
 ### English Wikipedia — optional download, isolated pack
 
@@ -176,7 +175,6 @@ software dependencies.
 - Contributors: Manuel Bassek, Robert Rein, Hendrik Weber, Daniel Memmert
 - License: CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/)
 - Attribution: IDSSE dataset, provided with authorization of the Deutsche Fußball Liga (DFL); Bassek et al., Sci Data 12:195 (2025), CC BY 4.0.
-- Citation key: `bassek2025idsse` (see CITATIONS.bib)
 - Notes: Research-only (pipeline validation). 2.63 GB for 7 matches — not a user-facing pack. Attribution must name DFL and cite the paper.
 
 ### Pappalardo/Wyscout public soccer event dataset — **vendored, isolated pack**
@@ -185,7 +183,6 @@ software dependencies.
 - Contributors: Luca Pappalardo, Paolo Cintia, Alessio Rossi, Emanuele Massucco, Paolo Ferragina, Dino Pedreschi, Fosca Giannotti
 - License: CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/)
 - Attribution: Event data: Pappalardo et al., Sci Data 6:236 (2019), CC BY 4.0 (collected by Wyscout).
-- Citation key: `pappalardo2019dataset` (see CITATIONS.bib)
 - Notes: Vendored isolated derived pack: seven competition-and-era team summaries covering 1,941 matches and 3,251,294 events. Never blended into live models or simulations and never labeled 'observed xG'. Raw events and player identities are not redistributed; attribution and modification notices ship inside the pack.
 
 ### SkillCorner Open Data — optional download, isolated pack

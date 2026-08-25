@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  <img alt="version v0.17.1" src="https://img.shields.io/badge/version-v0.17.1-6082b8?style=flat-square">
+  <img alt="version v0.18.0" src="https://img.shields.io/badge/version-v0.18.0-6082b8?style=flat-square">
   <img alt="Local-first" src="https://img.shields.io/badge/runtime-local--first-0b6e4f?style=flat-square">
   <img alt="macOS and Windows" src="https://img.shields.io/badge/desktop-macOS_%2B_Windows-101312?style=flat-square">
   <img alt="Unsigned pre-alpha" src="https://img.shields.io/badge/status-unsigned_pre--alpha-d9622b?style=flat-square">
@@ -45,13 +45,15 @@
 </p>
 
 > [!WARNING]
-> Golavo is a **v0.17.1 pre-alpha** with OS-unsigned installers, built in the open. The
+> Golavo is a **v0.18.0 pre-alpha** with OS-unsigned installers, built in the open. The
 > deterministic engine, the on-demand multi-model **Match Cockpit** (Replay for a played
 > match, Preview for a scheduled one), Games-first browsing, historical backtests, the
 > international and bundled-league seal→score loops, approved-source refresh, followed-match checks while the app
 > is open, provenance-first corrections, optional evidence-bound research, the World Cup 2026
-> retrospective (a backtest of every played match, never a record), and desktop
-> packaging are implemented. The isolated OpenLigaDB overlay is opt-in and display-only. The
+> retrospective (a backtest of every played match, never a record), the women-first 1991–2019
+> and men's 1930–2022 World Cup history archive, and desktop packaging are implemented. The
+> isolated OpenLigaDB overlay is opt-in and display-only, including the current
+> Frauen-Bundesliga under its verified `ffb1` source identity. The
 > Sportmonks connector is BYOK, foreground-click-only, and keeps predictions/odds in a
 > separate outside-signal panel. The
 > World Cup outlook and the domestic standings/season engine are implemented, and the 2026–27
@@ -72,7 +74,7 @@
 | **Play the season** | Make a score call on any upcoming match | A kickoff-locked pick, simple points, and a private race against five deterministic rivals |
 | **Put a model prediction on the record** | Seal an eligible upcoming international or bundled-league fixture | An immutable expert claim that is scored or voided later without rewriting the original; club grading waits for two agreeing result sources |
 | **Audit the system** | Model Lab or a forecast's Download proof action | Track record, chronological backtests, calibration, artifact hashes, and a portable offline-verifiable lineage bundle |
-| **Explore a competition** | Leagues & Europe | Competition-local strengths and workload, honest season gates, World Cup outlooks, and clearly era-badged historical team research |
+| **Explore a competition** | Leagues & Europe or Model Lab → World Cup lab | Competition-local strengths and workload, honest season gates, World Cup outlooks, a women-first source-backed tournament archive, and clearly era-badged historical team research |
 | **Follow a fixture** | Use Follow on Games or Match Cockpit | Source-aware change history and optional local notifications while Golavo is open; no hidden background service |
 | **Compare an outside signal** | Accept the first-run Sportmonks disclosure, add your token in Settings on macOS (or set `SPORTMONKS_API_TOKEN` before launch on Windows/Linux), then click Fetch outside signals on a match | Separately labelled provider probabilities and pre-match match-winner prices; never blended into Golavo's forecast |
 | **Inspect or improve data** | Settings → Data sources / Corrections | Approved-source health, an isolated optional ODbL overlay, and a local untrusted proposal queue that never edits source packs or forecasts |
@@ -171,12 +173,13 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 🗺️ | **Open the Conditions Snapshot** — pinned GeoNames city context, local kickoff when exact, rest since each side's previous indexed match, an offline Natural Earth travel map, and an opt-in Open-Meteo forecast for eligible upcoming fixtures | Display-only context with visible attribution and explicit unknowns; weather is kept only when fetched before kickoff, and none of it enters a model |
 | 🏟️ | **Open a domestic league's Season outlook** — title, top-four and relegation odds per model voice, with an optional 1-to-12-result conditional run | Runs for all five bundled leagues after the complete-schedule gate. Verified and conditional engine values stay side by side; hypotheticals are never saved, sealed, or fed back into a model |
 | 🏆 | **Open the World Cup 2026 outlook** — switch between Ratings, Goals, and the baseline | Exact four-team bracket enumeration with a disclosed extra-time rule, never blended or written as a sealed forecast |
+| 📚 | **Open World Cup history** — switch between the women's 1991–2019 and men's 1930–2022 records | Titles, finals, appearances, final fours, and player awards from one hash-verified CC-BY-SA pack; reference history only, never training data or a seal |
 | 🔬 | **Open historical team research** — choose a club inside its exact competition-and-era disclosure | Team-only progressive passing, shot, event-run, and research-xT summaries from the 1,941-match Pappalardo/Wyscout corpus; never current-player data or a model input |
 | 🎟️ | **Make your score call** — edit until kickoff, then race five named model rivals | A fingerprinted local pick, simple 3 / 1 / +1 scoring, and My Season standings over only the matches you play |
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from; official bundles authenticate active manifest bytes before load |
 | 🔄 | **Refresh eight approved CC0 repositories** — choose manual checks or consent to launch/while-open refresh | International and current big-five league continuity from exact allowlisted paths, immutable receipts, schema validation, two retained generations, and last-known-good rollback; no daemon runs after Golavo closes |
 | 👁️ | **Follow a match** — from Games or Match Cockpit | Deduplicated kickoff, venue, score, and settlement-availability changes with optional local notifications while the app is open |
-| 🧩 | **Enable OpenLigaDB** *(optional)* — accept the ODbL disclosure and choose an allowlisted competition | A removable, separately attributed display overlay whose bytes never enter the CC0 pack, model training, forecasts, calibration, or exports |
+| 🧩 | **Enable OpenLigaDB** *(optional)* — accept the ODbL disclosure and choose Bundesliga 1/2/3, DFB-Pokal, or Frauen-Bundesliga | A removable, separately attributed display overlay whose bytes never enter the CC0 pack, model training, forecasts, calibration, or exports |
 | 📡 | **Enable Sportmonks outside signals** *(optional BYOK)* — accept the provider disclosure, save your token, then fetch on one match | Attributed external full-time probabilities and pre-match match-winner prices, held in memory only and structurally excluded from every Golavo forecast/score path |
 | ✍️ | **Propose a correction** — attach a source URL and captured evidence, then review locally | An append-only untrusted candidate with conflicts and license class kept explicit; acceptance changes display context only, never authoritative data or a sealed forecast |
 | 🧪 | **Test five deterministic candidates** — climatology, Elo, independent Poisson, Dixon–Coles, and bivariate Poisson | Chronological log loss, Brier, ECE, RPS, and reliability instead of a victory-lap accuracy percentage |
@@ -206,11 +209,12 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Navigation** | Games-first home (recent + upcoming rails, offline), text-safe mobile destinations, history-aware return to the exact Matchday card, Leagues browse hub, and a Model Lab that holds Track record, Backtests, Methodologies, and the sealed-forecast list. Old `#/ledger` and `#/eval` links redirect into the Lab |
 | **Conditions Snapshot** | Read-only rest and travel context from the local index plus pinned GeoNames and Natural Earth side tables. City resolution is exact-name and country scoped; stadium remains unknown without a stadium-level source. Eligible upcoming fixtures can opt into an Open-Meteo forecast that is retained only when fetched before kickoff. Labeled “Context, not a model input.” |
 | **Tournament / Season outlooks** | The World Cup four-team bracket is exactly enumerated per voice. Five domestic standings rule sets run 10,000 seeded simulations only after a complete, gap-free schedule certificate. A conditional run can apply 1–12 unique future results together, compares engine-produced values with the verified outlook, and never enters the seal ledger or model inputs. |
+| **World Cup history archive** | Women's 1991–2019 and men's 1930–2022 tournament records, pedigree, final fours, and awards from the isolated, pinned Fjelstul CC-BY-SA-4.0 pack. The archive is descriptive only and cannot train, forecast, simulate, or seal. |
 | **Historical team research** | Seven isolated CC-BY-4.0 competition-era artifacts cover 1,941 Pappalardo/Wyscout matches and 3,251,294 events. Only team aggregates ship; raw events and player identities do not. |
 | **Your Call / My Season** | Kickoff-locked score picks with SHA-256 integrity, durable local storage, five deterministic rivals, 3 / 1 / +1 scoring, standings, history, filters, cumulative points, and streaks |
 | **Approved-source refresh** | Consent-gated manual, launch, and while-open checks across eight fixed repositories: martj42, World Cup/football JSON, and five country Football.TXT sources. Current domestic schedules/results activate only from exact allowlisted paths after validation; failures keep the last-known-good generation. |
 | **Followed matches** | Local follow/unfollow, targeted source checks, deduplicated kickoff/venue/score/settlement history, optional desktop notifications, and exact closed-app disclosure. No account, cloud sync, daemon, Login Item, or LaunchAgent. |
-| **License-isolated overlay** | OpenLigaDB is optional, ODbL-attributed, display-only, stored under a separate overlay root, and removable. Exact source identities are used without fuzzy or automatic CC0 merging. |
+| **License-isolated overlay** | OpenLigaDB Bundesliga 1/2/3, DFB-Pokal, and current Frauen-Bundesliga (`ffb1`) context is optional, ODbL-attributed, display-only, stored under a separate overlay root, and removable. Exact source identities are used without fuzzy or automatic CC0 merging. |
 | **Outside signals** | Sportmonks Football API v3 is optional, paid BYOK, and foreground-click-only. Exact team/kickoff identity is required; responses remain in memory and cannot enter model inputs, verdicts, seals, settlement, calibration, scoring, AI evidence, or exports. No logos, bookmaker links, affiliate tracking, advice, or bet placement. |
 | **Corrections** | Local append-only proposals for fixtures, kickoff, aliases, venues, and scores. Evidence and source URL are mandatory before validation; conflicts fail closed; exports require an explicit final action. Nothing enters packs, training, calibration, or seals. |
 | **Workbench** | Match cockpit, forecast detail, historical Backtests, forward Track record, discoverable keyboard-focusable wide tables, provenance, scored/voided/superseded states, Casual and Expert presentation, forecast readiness, verified-generation probability diffs, revision-pinned venue reference facts, deterministic history support, and focus-safe reading-comfort themes |
@@ -222,6 +226,14 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **Not yet shipped** | Confirmed-lineup/model-input data adapters, live event feeds, cups, leakage-safe historical weather forecasts, hash-chained multi-artifact ledger, OS-signed/notarized installers |
 
 </details>
+
+<p align="center">
+  <img src="docs-site/public/screenshots/world-cup-history.png" alt="Golavo World Cup lab showing the women-first tournament history archive, source boundary, pedigree table, final four, and player awards" width="920">
+</p>
+
+<p align="center">
+  <sub><strong>History beside history.</strong> Women’s and men’s records share one explicit source boundary and never become prediction inputs.</sub>
+</p>
 
 ## The rule of the room
 
@@ -525,7 +537,8 @@ not a legally binding promise made to a spreadsheet.
 The shipped product already includes the deterministic engine, historical top-5 league
 backtests, the international forward seal→score loop, desktop apps with signed in-app
 updates, approved-source refresh, the optional ODbL-isolated OpenLigaDB overlay,
-followed matches, local correction review, evidence-bound research, optional guarded AI,
+including current Frauen-Bundesliga display context, the women-first World Cup history
+archive, followed matches, local correction review, evidence-bound research, optional guarded AI,
 deterministic explanation surfaces, the Commentator's Notebook, exact-score grids, Match
 Cockpit, Model Lab, and My Season. Those are current capabilities, not future roadmap items.
 

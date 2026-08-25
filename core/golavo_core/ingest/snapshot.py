@@ -123,6 +123,68 @@ def validate_pack(pack_dir: Path) -> dict[str, Any]:
     return manifest
 
 
+def validate_registered_pack(
+    pack_dir: Path,
+    registry_path: Path,
+    *,
+    expected_source_id: str | None = None,
+) -> dict[str, Any]:
+    """Validate a pack and its exact declaration in a snapshot registry.
+
+    Frozen loaders must not trust a directory merely because it has a
+    self-consistent manifest. The registry pins the allowed path and manifest
+    bytes; ``validate_pack`` then authenticates the manifest in official builds
+    and checks every declared file hash.
+    """
+    pack_dir = Path(pack_dir).resolve()
+    registry_path = Path(registry_path).resolve()
+    root = registry_path.parent.parent
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError) as exc:
+        raise ValueError(f"{registry_path}: missing or invalid snapshot registry") from exc
+    entries = registry.get("snapshots") if isinstance(registry, dict) else None
+    if not isinstance(entries, list):
+        raise ValueError(f"{registry_path}: snapshots must be an array")
+
+    matches: list[dict[str, Any]] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ValueError(f"{registry_path}: snapshot entry must be an object")
+        declared = entry.get("pack")
+        if not isinstance(declared, str) or not declared or "\\" in declared:
+            raise ValueError(f"{registry_path}: invalid pack path {declared!r}")
+        relative = Path(declared)
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ValueError(f"{registry_path}: unsafe pack path {declared!r}")
+        resolved = (root / relative).resolve()
+        if not resolved.is_relative_to(root):
+            raise ValueError(f"{registry_path}: pack path escapes the resource root")
+        if resolved == pack_dir:
+            matches.append(entry)
+    if len(matches) != 1:
+        raise ValueError(
+            f"{pack_dir}: expected exactly one declaration in {registry_path}, got {len(matches)}"
+        )
+
+    manifest = validate_pack(pack_dir)
+    declaration = matches[0]
+    manifest_sha256 = hashlib.sha256((pack_dir / "manifest.json").read_bytes()).hexdigest()
+    if declaration.get("manifest_sha256") != manifest_sha256:
+        raise ValueError(f"{pack_dir}: manifest hash disagrees with {registry_path.name}")
+    source_id = str(manifest.get("source_id") or "")
+    if declaration.get("source_id") != source_id:
+        raise ValueError(f"{pack_dir}: source id disagrees with {registry_path.name}")
+    if expected_source_id is not None and source_id != expected_source_id:
+        raise ValueError(f"{pack_dir}: unexpected source id {source_id!r}")
+    if str(declaration.get("upstream_ref") or "") != str(manifest.get("upstream_ref") or ""):
+        raise ValueError(f"{pack_dir}: upstream ref disagrees with {registry_path.name}")
+    manifest_retrieved = manifest.get("retrieved_at_utc") or manifest.get("retrieved_at")
+    if str(declaration.get("retrieved_at_utc") or "") != str(manifest_retrieved or ""):
+        raise ValueError(f"{pack_dir}: retrieval time disagrees with {registry_path.name}")
+    return manifest
+
+
 def snapshot_descriptor(pack_dir: Path) -> dict[str, str]:
     """Return the canonical artifact descriptor for a validated sourcepack."""
     manifest = validate_pack(pack_dir)

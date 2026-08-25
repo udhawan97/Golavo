@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from golavo_core.ingest.snapshot import validate_pack
+from golavo_core.ingest.snapshot import validate_pack, validate_registered_pack
 from golavo_core.signatures import RELEASE_PUBLIC_KEY, verify_minisign
 
 
@@ -155,3 +155,38 @@ def test_official_frozen_marker_requires_every_pack_signature(monkeypatch, tmp_p
 
     with pytest.raises(ValueError, match="missing manifest signature"):
         validate_pack(pack)
+
+
+def test_registered_pack_binds_manifest_bytes_path_and_source(tmp_path: Path) -> None:
+    root = tmp_path / "root"
+    root.mkdir()
+    pack = _pack(root)
+    registry = root / "packs" / "isolated.json"
+    registry.parent.mkdir(parents=True)
+    manifest = pack / "manifest.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "snapshots": [
+                    {
+                        "pack": "pack",
+                        "source_id": "test-source",
+                        "upstream_ref": "a" * 40,
+                        "retrieved_at_utc": "2026-07-21T00:00:00Z",
+                        "manifest_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest(),
+                    }
+                ]
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert validate_registered_pack(pack, registry, expected_source_id="test-source") == json.loads(
+        manifest.read_text(encoding="utf-8")
+    )
+    changed = json.loads(registry.read_text(encoding="utf-8"))
+    changed["snapshots"][0]["manifest_sha256"] = "b" * 64
+    registry.write_text(json.dumps(changed) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="manifest hash disagrees"):
+        validate_registered_pack(pack, registry, expected_source_id="test-source")

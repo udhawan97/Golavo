@@ -118,7 +118,7 @@ def _create_schema(connection: sqlite3.Connection) -> None:
         CREATE TABLE competitions (
           source_id TEXT NOT NULL CHECK(source_id = 'openligadb'),
           league_id INTEGER NOT NULL,
-          shortcut TEXT NOT NULL CHECK(shortcut IN ('bl1','bl2','bl3','dfb')),
+          shortcut TEXT NOT NULL CHECK(shortcut IN ('bl1','bl2','bl3','dfb','ffb1')),
           season TEXT NOT NULL CHECK(length(season) = 4),
           name TEXT NOT NULL,
           sport_id INTEGER NOT NULL CHECK(sport_id = 1),
@@ -133,9 +133,12 @@ def _create_schema(connection: sqlite3.Connection) -> None:
           group_id INTEGER NOT NULL,
           group_order_id INTEGER NOT NULL,
           name TEXT NOT NULL,
-          last_change_source_value TEXT NOT NULL,
-          raw_sha256 TEXT NOT NULL CHECK(length(raw_sha256) = 64),
-          raw_endpoint TEXT NOT NULL REFERENCES raw_responses(endpoint),
+          last_change_source_value TEXT,
+          raw_sha256 TEXT CHECK(raw_sha256 IS NULL OR length(raw_sha256) = 64),
+          raw_endpoint TEXT REFERENCES raw_responses(endpoint),
+          CHECK((last_change_source_value IS NULL AND raw_sha256 IS NULL AND raw_endpoint IS NULL)
+             OR (last_change_source_value IS NOT NULL AND raw_sha256 IS NOT NULL
+                 AND raw_endpoint IS NOT NULL)),
           PRIMARY KEY(shortcut, season, group_order_id),
           FOREIGN KEY(shortcut, season) REFERENCES competitions(shortcut, season)
         ) STRICT;
@@ -159,7 +162,7 @@ def _create_schema(connection: sqlite3.Connection) -> None:
           group_name TEXT NOT NULL,
           kickoff_utc TEXT NOT NULL,
           kickoff_local TEXT NOT NULL,
-          time_zone_id TEXT NOT NULL,
+          time_zone_id TEXT,
           home_source_team_id INTEGER NOT NULL REFERENCES teams(source_team_id),
           away_source_team_id INTEGER NOT NULL REFERENCES teams(source_team_id),
           home_team_name TEXT NOT NULL,
@@ -306,10 +309,26 @@ def build_database(staging: Path, snapshot: dict[str, Any]) -> Path:
                 order = int(group["groupOrderID"])
                 changed_endpoint = f"/getlastchangedate/{shortcut}/{season}/{order}"
                 matches_endpoint = f"/getmatchdata/{shortcut}/{season}/{order}"
-                changed_receipt = receipts[changed_endpoint]
                 match_receipt = receipts[matches_endpoint]
-                changed_value = _json_bytes(
-                    raw_root / changed_receipt["path"], f"{shortcut} group {order} last change"
+                changed_receipt = receipts.get(changed_endpoint)
+                last_change_available = group.get("last_change_available")
+                if last_change_available is False and changed_receipt is not None:
+                    raise openligadb_source.OpenLigaDBConflict(
+                        f"{shortcut} group {order} contradicts its revision availability"
+                    )
+                if last_change_available is not False and changed_receipt is None:
+                    raise openligadb_source.OpenLigaDBError(
+                        "invalid_schema",
+                        f"{shortcut} group {order} has no last-change receipt",
+                        retryable=False,
+                    )
+                changed_value = (
+                    _json_bytes(
+                        raw_root / changed_receipt["path"],
+                        f"{shortcut} group {order} last change",
+                    )
+                    if changed_receipt is not None
+                    else None
                 )
                 connection.execute(
                     """INSERT INTO groups
@@ -322,9 +341,9 @@ def build_database(staging: Path, snapshot: dict[str, Any]) -> Path:
                         group["groupID"],
                         order,
                         group["groupName"],
-                        str(changed_value),
-                        changed_receipt["sha256"],
-                        changed_receipt["endpoint"],
+                            str(changed_value) if changed_value is not None else None,
+                        changed_receipt["sha256"] if changed_receipt is not None else None,
+                        changed_receipt["endpoint"] if changed_receipt is not None else None,
                     ),
                 )
                 rows = _json_bytes(
@@ -333,6 +352,10 @@ def build_database(staging: Path, snapshot: dict[str, Any]) -> Path:
                 if not isinstance(rows, list):
                     raise openligadb_source.OpenLigaDBError(
                         "invalid_schema", "match response must be an array", retryable=False
+                    )
+                if changed_receipt is None and rows:
+                    raise openligadb_source.OpenLigaDBConflict(
+                        f"{shortcut} group {order} has matches but no last-change receipt"
                     )
                 for row in rows:
                     if not isinstance(row, dict):
@@ -405,9 +428,7 @@ def build_database(staging: Path, snapshot: dict[str, Any]) -> Path:
                                 _required_text(
                                     row.get("matchDateTime"), f"match {match_id}.local kickoff"
                                 ),
-                                _required_text(
-                                    row.get("timeZoneID"), f"match {match_id}.time zone"
-                                ),
+                                _optional_text(row.get("timeZoneID")),
                                 home_id,
                                 away_id,
                                 home_name,

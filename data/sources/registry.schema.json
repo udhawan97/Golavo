@@ -279,7 +279,7 @@
         "competition_shortcuts": {
           "type": "array",
           "minItems": 1,
-          "items": {"enum": ["bl1", "bl2", "bl3", "dfb"]},
+            "items": {"enum": ["bl1", "bl2", "bl3", "dfb", "ffb1"]},
           "uniqueItems": true
         },
         "default_interval_seconds": {"type": "integer", "minimum": 21600},

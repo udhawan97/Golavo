@@ -46,7 +46,8 @@ conflicting coordinates remain visible as unavailable; none of these values is a
 [OpenLigaDB](https://www.openligadb.de/) is an optional, keyless, per-user overlay under
 ODbL-1.0. Golavo ships the adapter and license disclosure, **not OpenLigaDB response bytes**.
 The user must accept the disclosure before fetching allowlisted current-season Bundesliga
-1/2/3 or DFB-Pokal data.
+1/2/3, DFB-Pokal, or Frauen-Bundesliga data. The women's competition uses the live-verified
+OpenLigaDB shortcut `ffb1`; the retired `fbl1` identity is rejected rather than guessed.
 
 Raw responses, receipts, the SQLite read model, manifests, attribution, and license notice
 live under the separate `overlays/openligadb` Application Support root. The v1 overlay is
@@ -59,7 +60,9 @@ touching forecasts, packs, picks, follows, or corrections.
 ## Isolated attributed research
 
 The Fjelstul World Cup Database is pinned under CC-BY-SA-4.0 and read only by the facts
-layer. The compact Pappalardo/Wyscout CC-BY-4.0 pack contains team-level summaries for
+and history-archive layers. It covers the women's 1991–2019 and men's 1930–2022 records;
+neither category enters the match index or forecast engine. The compact
+Pappalardo/Wyscout CC-BY-4.0 pack contains team-level summaries for
 seven competition/era slices; raw events and player identities do not ship. Both remain
 outside the core match index and model training. Golavo's disclosed “research xT” is a
 12×8 transition calculation, not observed xG.

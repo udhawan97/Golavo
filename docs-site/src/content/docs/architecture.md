@@ -328,6 +328,8 @@ those release controls can alter a sealed artifact.
   — the immutable forecast/resolution shape.
 - [`forecast_proof.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/forecast_proof.schema.json)
   — the portable offline-verifiable artifact lineage bundle.
+- [`world_cup_history.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/world_cup_history.schema.json)
+  — the isolated women’s and men’s tournament-history archive.
 - [`evidence_bundle.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/evidence_bundle.schema.json)
   — the constrained input to optional narration.
 - [`facts.schema.json`](https://github.com/udhawan97/Golavo/blob/main/docs/contracts/facts.schema.json)

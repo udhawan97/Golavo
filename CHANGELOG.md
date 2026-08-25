@@ -6,7 +6,19 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-08-25
+
 ### Added
+
+- **World Cup history, women first.** Model Lab now opens a hash-verified tournament
+  archive with the women's 1991–2019 record beside the men's 1930–2022 record. Titles,
+  finals, appearances, final fours, and player awards remain isolated CC-BY-SA-4.0
+  reference facts; they never enter the match index, train a model, change a probability,
+  or become a seal.
+- **Current Frauen-Bundesliga display context.** The opt-in OpenLigaDB overlay now accepts
+  the live-verified `ffb1` identity alongside Bundesliga 1/2/3 and DFB-Pokal. The retired
+  `fbl1` shortcut fails closed. ODbL bytes keep their separate consent, storage,
+  attribution, deletion, and no-model/no-export boundary.
 
 - The **Season Scenario Composer** can now apply 1–12 unique future results in one
   ephemeral run. It keeps one model voice selected, pairs teams by stable identity, and
@@ -23,6 +35,20 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Each voice now reports every club's **projected final points**, and the league view
   gained a **run-in** table pairing those points with the next five opponents, banded by
   the same voice's projected finish.
+
+### Fixed
+
+- Source mode no longer probes token-protected correction routes when no desktop token
+  exists, avoiding misleading authorization errors without weakening the installed-app
+  boundary.
+- World Cup award rows now treat the source's `not applicable` given-name sentinel as
+  missing data, so mononymous players are displayed correctly.
+
+### Documentation
+
+- Synchronized the README, public website, coverage/source guidance, architecture links,
+  roadmap, release integrity wording, screenshot evidence, and this release record with
+  the v0.18.0 product surface.
 
 ## [0.17.1] - 2026-08-02
 
@@ -1503,7 +1529,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.17.1...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/udhawan97/Golavo/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/udhawan97/Golavo/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/udhawan97/Golavo/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/udhawan97/Golavo/compare/v0.15.0...v0.16.0

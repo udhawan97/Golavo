@@ -8,10 +8,16 @@ ODbL 1.0. Golavo therefore stores every raw response and derived database in a
 separate per-user `overlays/openligadb` tree with its own immutable generations,
 active pointer, attribution and deletion lifecycle.
 
-The first release allowlists only `api.openligadb.de`, GET, the four path shapes
+The first release allowlisted only `api.openligadb.de`, GET, the four path shapes
 recorded in `packs/overlay-odbl/policy.json`, and the `bl1`, `bl2`, `bl3`, `dfb`
 shortcuts for the current European season. Arbitrary URLs, team filters, logos,
 and community-created competitions are rejected.
+
+Amendment (2026-08-25): the same frozen identity gate now includes `ffb1`, the
+current 2026-27 Frauen-Bundesliga shortcut published by OpenLigaDB. The 2025
+shortcut `fbl1` is not accepted for the current-season fetch because OpenLigaDB
+retired it. This adds women's club coverage without changing any consent,
+storage, attribution, identity, export, or display-only boundary in this ADR.
 
 V1 is display-only. It creates no core ids, performs no fuzzy reconciliation,
 and cannot feed the CC0 match index, model training, forecast sealing,

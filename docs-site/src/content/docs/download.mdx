@@ -42,7 +42,7 @@ are cryptographically signed and verified before installation. Follow the
 
 ## Verify a desktop download
 
-Download `SHA256SUMS.txt` from the same release as the installer.
+Download `SHA256SUMS.txt` and `SHA256SUMS.txt.sig` from the same release as the installer.
 
 ```bash
 # macOS — run in the folder containing the DMG and SHA256SUMS.txt
@@ -55,6 +55,8 @@ Get-FileHash .\Golavo_*_x64-setup.exe -Algorithm SHA256
 ```
 
 The versioned Windows filename changes each release; use the exact name you downloaded.
-A checksum match detects corruption or an incomplete download. The checksum file is not
-itself signed, so download both only from the official
-[Golavo releases](https://github.com/udhawan97/Golavo/releases).
+A checksum match detects corruption or an incomplete download. The detached `.sig`
+authenticates the checksum ledger against the same release identity embedded in Golavo;
+download all three files only from the official
+[Golavo releases](https://github.com/udhawan97/Golavo/releases). See
+[Installation](/Golavo/installation/) for the release-identity boundary.

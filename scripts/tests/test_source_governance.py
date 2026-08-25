@@ -113,3 +113,13 @@ def test_isolated_pack_must_be_absent_from_snapshots(tmp_path: Path) -> None:
 def test_committed_fjelstul_pack_is_hash_valid() -> None:
     repo = Path(__file__).resolve().parents[2]
     validate_isolated_packs(validate_sources.validate_registry(), repo_root=repo)
+
+
+def test_registry_and_notices_do_not_claim_a_missing_bibliography() -> None:
+    repo = Path(__file__).resolve().parents[2]
+    registry = json.loads((repo / "data/sources/registry.json").read_text(encoding="utf-8"))
+    fjelstul = next(
+        source for source in registry["sources"] if source["source_id"] == "fjelstul-worldcup"
+    )
+    assert fjelstul["citation_key"] == "fjelstul2022worldcup"
+    assert "CITATIONS.bib" not in (repo / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
