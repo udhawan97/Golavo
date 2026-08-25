@@ -10,12 +10,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from threading import Event
 from typing import Any
@@ -34,6 +36,8 @@ DEFAULT_INTERVAL_SECONDS = 12 * 60 * 60
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 MAX_SNAPSHOT_BYTES = 64 * 1024 * 1024
 TOTAL_RESPONSE_TIMEOUT_SECONDS = 60.0
+_RETRY_BACKOFF_SECONDS = (1.0, 2.0, 4.0)
+_MAX_RETRY_AFTER_SECONDS = 30.0
 
 _EXPECTED_NAME_PREFIXES = {
     "bl1": ("1. Fußball-Bundesliga",),
@@ -154,22 +158,52 @@ class ApiFetcher:
         )
         started = time.monotonic()
         try:
-            try:
-                response = urlopen(request, timeout=20)  # noqa: S310 - strict allowlist
-            except HTTPError as exc:
-                if exc.code in (429, 503):
+            for retry_index in range(len(_RETRY_BACKOFF_SECONDS) + 1):
+                try:
+                    remaining = _remaining_timeout_seconds(started)
+                    response = urlopen(  # noqa: S310 - strict allowlist
+                        request, timeout=min(20.0, remaining)
+                    )
+                    break
+                except HTTPError as exc:
+                    error_url = exc.geturl()
+                    _validate_url(error_url, season=season)
+                    if error_url != url:
+                        raise OpenLigaDBError(
+                            "unsafe_redirect",
+                            f"OpenLigaDB redirected {path} to a different endpoint",
+                            retryable=False,
+                        ) from exc
+                    if exc.code in (429, 503):
+                        if retry_index == len(_RETRY_BACKOFF_SECONDS):
+                            raise OpenLigaDBError(
+                                "rate_limited",
+                                f"OpenLigaDB returned HTTP {exc.code} after "
+                                f"{retry_index + 1} attempts",
+                            ) from exc
+                        delay = _retry_delay_seconds(
+                            exc, fallback=_RETRY_BACKOFF_SECONDS[retry_index]
+                        )
+                        if delay is None:
+                            raise OpenLigaDBError(
+                                "rate_limited",
+                                "OpenLigaDB Retry-After exceeds the 30-second retry budget",
+                            ) from exc
+                        if delay >= _remaining_timeout_seconds(started):
+                            raise OpenLigaDBError(
+                                "timeout", "OpenLigaDB request exceeded 60 seconds"
+                            ) from exc
+                        _wait_for_retry(delay, cancel=cancel)
+                        continue
+                    if exc.code == 404:
+                        raise OpenLigaDBError(
+                            "not_found",
+                            "OpenLigaDB returned HTTP 404",
+                            retryable=False,
+                        ) from exc
                     raise OpenLigaDBError(
-                        "rate_limited", f"OpenLigaDB returned HTTP {exc.code}"
+                        "upstream_http", f"OpenLigaDB returned HTTP {exc.code}"
                     ) from exc
-                if exc.code == 404:
-                    raise OpenLigaDBError(
-                        "not_found",
-                        "OpenLigaDB returned HTTP 404",
-                        retryable=False,
-                    ) from exc
-                raise OpenLigaDBError(
-                    "upstream_http", f"OpenLigaDB returned HTTP {exc.code}"
-                ) from exc
             with response:
                 final_url = response.geturl()
                 _validate_url(final_url, season=season)
@@ -191,8 +225,7 @@ class ApiFetcher:
                 while True:
                     if cancel is not None and cancel.is_set():
                         raise OpenLigaDBCancelled()
-                    if time.monotonic() - started > TOTAL_RESPONSE_TIMEOUT_SECONDS:
-                        raise OpenLigaDBError("timeout", "OpenLigaDB response exceeded 60 seconds")
+                    _remaining_timeout_seconds(started)
                     chunk = response.read(64 * 1024)
                     if not chunk:
                         break
@@ -215,6 +248,44 @@ class ApiFetcher:
         except (TimeoutError, URLError, OSError, ValueError) as exc:
             code = "timeout" if isinstance(exc, TimeoutError) else "offline"
             raise OpenLigaDBError(code, f"could not reach OpenLigaDB: {exc}") from exc
+
+
+def _remaining_timeout_seconds(started: float) -> float:
+    remaining = TOTAL_RESPONSE_TIMEOUT_SECONDS - (time.monotonic() - started)
+    if remaining <= 0:
+        raise OpenLigaDBError("timeout", "OpenLigaDB request exceeded 60 seconds")
+    return remaining
+
+
+def _retry_delay_seconds(error: HTTPError, *, fallback: float) -> float | None:
+    """Return a safe Retry-After delay; None means the provider asked for too long."""
+    value = error.headers.get("Retry-After") if error.headers is not None else None
+    if value is None:
+        return fallback
+    raw = str(value).strip()
+    try:
+        seconds = float(raw)
+    except ValueError:
+        try:
+            retry_at = parsedate_to_datetime(raw)
+            if retry_at.tzinfo is None:
+                return fallback
+            seconds = (retry_at.astimezone(UTC) - datetime.now(UTC)).total_seconds()
+        except (TypeError, ValueError, OverflowError):
+            return fallback
+    if not math.isfinite(seconds) or seconds < 0:
+        return fallback
+    if seconds > _MAX_RETRY_AFTER_SECONDS:
+        return None
+    return seconds
+
+
+def _wait_for_retry(delay: float, *, cancel: Event | None) -> None:
+    if cancel is not None:
+        if cancel.wait(timeout=delay):
+            raise OpenLigaDBCancelled()
+        return
+    time.sleep(delay)
 
 
 def _loads(payload: bytes, context: str) -> Any:

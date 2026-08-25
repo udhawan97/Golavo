@@ -30,3 +30,11 @@ No helper, LaunchAgent or always-running daemon is installed. Launch and
 periodic refresh requests originate in the visible UI and are permitted by the
 backend only when the stored overlay policy allows them. Closing Golavo stops
 the daemon worker thread and leaves staging inactive.
+
+Operational amendment (2026-08-25): the allowlisted network adapter retries
+transient HTTP 429 and 503 responses in place. It honors a valid `Retry-After`
+value up to 30 seconds, fails closed when the provider requests a longer wait,
+otherwise uses bounded 1/2/4-second backoff, and permits cancellation during
+every wait. Attempts, waits, and response reads share a 60-second request budget.
+Four failed attempts still fail the candidate closed and preserve the previous
+verified generation.
