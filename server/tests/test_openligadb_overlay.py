@@ -278,6 +278,218 @@ def test_api_fetcher_classifies_missing_revision_resources(monkeypatch) -> None:
     assert failure.value.retryable is False
 
 
+def test_api_fetcher_retries_429_after_retry_after_delay(monkeypatch) -> None:
+    path = "/getmatchdata/ffb1/2026/34"
+    attempts = 0
+    delays: list[float] = []
+
+    class SuccessResponse:
+        status = 200
+        headers = {"Content-Type": "application/json"}
+
+        def __init__(self) -> None:
+            self._body = b"[]"
+
+        def geturl(self):
+            return openligadb_source.API_ORIGIN + path
+
+        def read(self, _size):
+            body, self._body = self._body, b""
+            return body
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+    def rate_limited_then_success(*_args, **_kwargs):
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise HTTPError(
+                openligadb_source.API_ORIGIN + path,
+                429,
+                "Too Many Requests",
+                {"Retry-After": "2"},
+                None,
+            )
+        return SuccessResponse()
+
+    monkeypatch.setattr(openligadb_source, "urlopen", rate_limited_then_success)
+    monkeypatch.setattr(openligadb_source.time, "sleep", delays.append)
+
+    response = openligadb_source.ApiFetcher().get_path(path, season="2026")
+
+    assert response.body == b"[]"
+    assert attempts == 2
+    assert delays == [2.0]
+
+
+def test_api_fetcher_bounds_429_retries_without_retry_after(monkeypatch) -> None:
+    path = "/getmatchdata/ffb1/2026/34"
+    attempts = 0
+    delays: list[float] = []
+
+    def always_rate_limited(*_args, **_kwargs):
+        nonlocal attempts
+        attempts += 1
+        raise HTTPError(
+            openligadb_source.API_ORIGIN + path,
+            429,
+            "Too Many Requests",
+            {},
+            None,
+        )
+
+    monkeypatch.setattr(openligadb_source, "urlopen", always_rate_limited)
+    monkeypatch.setattr(openligadb_source.time, "sleep", delays.append)
+
+    with pytest.raises(openligadb_source.OpenLigaDBError, match="after 4 attempts") as failure:
+        openligadb_source.ApiFetcher().get_path(path, season="2026")
+
+    assert failure.value.code == "rate_limited"
+    assert failure.value.retryable is True
+    assert attempts == 4
+    assert delays == [1.0, 2.0, 4.0]
+
+
+def test_api_fetcher_uses_fallback_for_invalid_retry_after(monkeypatch) -> None:
+    error = HTTPError(
+        openligadb_source.API_ORIGIN + "/getmatchdata/ffb1/2026/34",
+        429,
+        "Too Many Requests",
+        {"Retry-After": "NaN"},
+        None,
+    )
+
+    assert openligadb_source._retry_delay_seconds(error, fallback=1.0) == 1.0
+
+
+def test_api_fetcher_rejects_retry_after_beyond_local_budget(monkeypatch) -> None:
+    path = "/getmatchdata/ffb1/2026/34"
+    attempts = 0
+    delays: list[float] = []
+
+    def rate_limited(*_args, **_kwargs):
+        nonlocal attempts
+        attempts += 1
+        raise HTTPError(
+            openligadb_source.API_ORIGIN + path,
+            429,
+            "Too Many Requests",
+            {"Retry-After": "3600"},
+            None,
+        )
+
+    monkeypatch.setattr(openligadb_source, "urlopen", rate_limited)
+    monkeypatch.setattr(openligadb_source.time, "sleep", delays.append)
+
+    with pytest.raises(openligadb_source.OpenLigaDBError, match="exceeds") as failure:
+        openligadb_source.ApiFetcher().get_path(path, season="2026")
+
+    assert failure.value.code == "rate_limited"
+    assert attempts == 1
+    assert delays == []
+
+
+def test_api_fetcher_allows_cancellation_during_retry_after(monkeypatch) -> None:
+    path = "/getmatchdata/ffb1/2026/34"
+    delays: list[float] = []
+
+    def rate_limited(*_args, **_kwargs):
+        raise HTTPError(
+            openligadb_source.API_ORIGIN + path,
+            429,
+            "Too Many Requests",
+            {"Retry-After": "30"},
+            None,
+        )
+
+    class CancelDuringWait:
+        def is_set(self):
+            return False
+
+        def wait(self, *, timeout):
+            delays.append(timeout)
+            return True
+
+    monkeypatch.setattr(openligadb_source, "urlopen", rate_limited)
+
+    with pytest.raises(openligadb_source.OpenLigaDBCancelled):
+        openligadb_source.ApiFetcher().get_path(
+            path,
+            season="2026",
+            cancel=CancelDuringWait(),
+        )
+
+    assert delays == [30.0]
+
+
+def test_api_fetcher_retries_share_total_timeout_budget(monkeypatch) -> None:
+    path = "/getmatchdata/ffb1/2026/34"
+    elapsed = 0.0
+    timeouts: list[float] = []
+
+    def monotonic():
+        return elapsed
+
+    def sleep(delay):
+        nonlocal elapsed
+        elapsed += delay
+
+    def slow_rate_limit(*_args, timeout, **_kwargs):
+        nonlocal elapsed
+        timeouts.append(timeout)
+        elapsed += timeout
+        raise HTTPError(
+            openligadb_source.API_ORIGIN + path,
+            429,
+            "Too Many Requests",
+            {},
+            None,
+        )
+
+    monkeypatch.setattr(openligadb_source, "urlopen", slow_rate_limit)
+    monkeypatch.setattr(openligadb_source.time, "monotonic", monotonic)
+    monkeypatch.setattr(openligadb_source.time, "sleep", sleep)
+
+    with pytest.raises(openligadb_source.OpenLigaDBError, match="exceeded 60 seconds") as failure:
+        openligadb_source.ApiFetcher().get_path(path, season="2026")
+
+    assert failure.value.code == "timeout"
+    assert elapsed == 60.0
+    assert timeouts == [20.0, 20.0, 17.0]
+
+
+def test_api_fetcher_does_not_retry_rate_limit_after_redirect(monkeypatch) -> None:
+    path = "/getmatchdata/ffb1/2026/34"
+    attempts = 0
+    delays: list[float] = []
+
+    def redirected_rate_limit(*_args, **_kwargs):
+        nonlocal attempts
+        attempts += 1
+        raise HTTPError(
+            openligadb_source.API_ORIGIN + "/getmatchdata/ffb1/2026/33",
+            429,
+            "Too Many Requests",
+            {"Retry-After": "2"},
+            None,
+        )
+
+    monkeypatch.setattr(openligadb_source, "urlopen", redirected_rate_limit)
+    monkeypatch.setattr(openligadb_source.time, "sleep", delays.append)
+
+    with pytest.raises(openligadb_source.OpenLigaDBError) as failure:
+        openligadb_source.ApiFetcher().get_path(path, season="2026")
+
+    assert failure.value.code == "unsafe_redirect"
+    assert failure.value.retryable is False
+    assert attempts == 1
+    assert delays == []
+
+
 def test_current_frauen_bundesliga_identity_is_allowlisted_but_retired_fbl1_is_not() -> None:
     season = "2026"
     row = {

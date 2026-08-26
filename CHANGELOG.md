@@ -6,6 +6,13 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- OpenLigaDB refreshes now recover from transient HTTP 429/503 responses with bounded,
+  cancellable retries that follow the provider's `Retry-After` guidance when it fits the
+  request budget, and otherwise fail closed instead of retrying early or discarding the
+  whole candidate snapshot on the first transient throttled request.
+
 ## [0.18.0] - 2026-08-25
 
 ### Added
