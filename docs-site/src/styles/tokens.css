@@ -64,6 +64,12 @@
   --gv-dur-major: 500ms;
   --gv-delay-hover: 800ms;
 
+  /* ---- Named elevation ---- */
+  --gv-shadow-search-field: 0 12px 34px -18px
+    color-mix(in oklch, var(--gv-ground-deep) 70%, transparent);
+  --gv-shadow-search-drawer: 0 24px 60px -22px
+    color-mix(in oklch, var(--gv-ground-deep) 90%, transparent);
+
   /* Legacy alias. */
   --gv-ease: var(--gv-ease-out);
 

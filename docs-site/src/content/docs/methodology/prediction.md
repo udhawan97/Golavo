@@ -75,7 +75,11 @@ The Backtests page also aggregates held-out folds into competition-specific repo
 
 League pages refit the shipped, time-decayed Poisson rate model at month-end cutoffs using only completed rows at or before each cutoff. Attack and defensive-resistance indices are centered on 100 and require at least eight matches. They are explicitly **within-competition indices**; comparing a 110 in one league with a 110 in another is invalid.
 
-Rest and congestion are descriptive counts from Golavo's local match index, not model inputs. They may miss competitions the index does not contain. Schedule difficulty remains unavailable until a source supplies a completeness-certified remaining fixture list; Golavo does not score a partial schedule.
+Rest and congestion are descriptive counts from Golavo's local match index, not model
+inputs. They may miss competitions the index does not contain. Schedule difficulty is
+available for the five certified 2026–27 domestic schedules and uses competition-local
+ratings over the complete remaining-fixture list. It fails closed for a request whose
+completeness certificate fails; unsupported or partial competitions remain blocked.
 
 ## Minimum-data gates
 

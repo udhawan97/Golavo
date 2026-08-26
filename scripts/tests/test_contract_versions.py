@@ -59,7 +59,10 @@ OWNERS: dict[str, tuple[str | None, str | None]] = {
     "research_capture": ("golavo_server.research.store:SCHEMA_VERSION", None),
     "research_run": ("golavo_server.research.store:SCHEMA_VERSION", None),
     "research_team_analytics": ("golavo_server.research.store:SCHEMA_VERSION", None),
-    "season_outlook": ("golavo_core.season_outlook:SEASON_OUTLOOK_SCHEMA_VERSION", None),
+    "season_outlook": (
+        "golavo_core.season_outlook:SEASON_OUTLOOK_SCHEMA_VERSION",
+        "SEASON_OUTLOOK_SCHEMA_VERSION",
+    ),
     "source_snapshot": (None, None),
     "tournament_outlook": ("golavo_core.outlook:OUTLOOK_SCHEMA_VERSION", None),
     "tournament_retrospective": ("golavo_core.retrospective:RETROSPECTIVE_SCHEMA_VERSION", None),

@@ -48,7 +48,7 @@ beforeEach(() => {
     items: [{ canonical_match_id: "m_run_in" }],
   } as never);
   vi.mocked(fetchSeasonOutlook).mockResolvedValue({
-    schema_version: "0.2.0",
+    schema_version: "0.3.0",
     status: "available",
     competition_id: "england-premier-league",
     current_table: [{

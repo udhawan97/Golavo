@@ -7,6 +7,14 @@ Golavo updates **from inside the app** — no git, no terminal. The updater is
 consent-first, every download is cryptographically verified before it installs,
 and your ledger is backed up before anything is touched.
 
+:::note[Two different backups]
+The updater's pre-install backup is automatic, short-lived, and tied to one update health
+check. Trust Center's source-on-`main` archive is user-requested, portable, checksummed,
+previewed before restore, and limited to forecasts, picks, and followed-match state. It
+does not include preferences, credentials, providers, overlays, weather, research,
+refresh generations, checkpoints, or caches.
+:::
+
 :::note[Which builds update in-app]
 Release builds from the [releases page](https://github.com/udhawan97/Golavo/releases)
 (v0.2.1 and later). Source checkouts update with `git pull`; development builds

@@ -63,8 +63,8 @@ export function MyTeams() {
   return <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
     <header><p className="eyebrow">Club room</p><h1>My Teams</h1><p className="dim">A local-only shortlist keyed by exact competition and team identity. It never changes a forecast or enables network access.</p></header>
     <section className="panel"><div className="panel__head"><h2>Add a club</h2></div><div className="panel__body controls">
-      <label>League <select value={competitionId} onChange={(event) => setCompetitionId(event.target.value)}>{AVAILABLE.map((league) => <option key={league.competitionId} value={league.competitionId}>{league.name}</option>)}</select></label>
-      <label>Team <select defaultValue="" key={competitionId} onChange={(event) => { if (event.target.value) add(event.target.value); event.target.value = ""; }}><option value="">Select…</option>{teams.map((team) => <option key={team} value={team}>{team}</option>)}</select></label>
+      <label>League <select className="select" value={competitionId} onChange={(event) => setCompetitionId(event.target.value)}>{AVAILABLE.map((league) => <option key={league.competitionId} value={league.competitionId}>{league.name}</option>)}</select></label>
+      <label>Team <select className="select" defaultValue="" key={competitionId} onChange={(event) => { if (event.target.value) add(event.target.value); event.target.value = ""; }}><option value="">Select…</option>{teams.map((team) => <option key={team} value={team}>{team}</option>)}</select></label>
     </div></section>
     {error && <p role="alert">{error}</p>}
     <section className="stack"><h2>Club room</h2>{favorites.length === 0 ? <div className="card card--pad"><p className="dim">Choose a club above to build your room.</p></div> : favorites.map((favorite) => <TeamCard key={`${favorite.competitionId}:${favorite.team}`} favorite={favorite} outlook={outlooks[favorite.competitionId]} followed={followed} picks={picks.byMatch} onRemove={() => remove(favorite)} />)}</section>

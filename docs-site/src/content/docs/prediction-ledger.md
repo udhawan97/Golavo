@@ -3,7 +3,13 @@ title: The Prediction Ledger
 description: How Golavo seals a forecast before kickoff and scores it after full time — and how you can verify a seal was never altered.
 ---
 
-Golavo's accountability spine is the versioned `ForecastArtifact` contract. A forecast is **sealed** before kickoff and a later result produces a separate **scored** artifact; the sealed file is never mutated. The forward loop supports men's senior full internationals and fixtures in certified domestic schedules. Club settlement remains stricter: it waits for two independent result sources to agree. A read-only calibration record aggregates what happened after the whistle, and a hash-chained multi-artifact ledger is still planned (ADR-0001).
+Golavo's accountability spine is the versioned `ForecastArtifact` contract. A forecast is **sealed** before kickoff and a later result produces a separate **scored** artifact; the sealed file is never mutated. The forward loop supports men's senior full internationals and fixtures in certified domestic schedules. Club settlement remains stricter: it waits for two independent result sources to agree. A read-only calibration record aggregates what happened after the whistle. Source `main` can also create local hash-chained checkpoints over the immutable forecast files, with external-authenticity, timing, migration, and recovery limits kept explicit.
+
+:::note[Availability]
+The in-app proof verifier, forecast-ledger archive/restore, local checkpoints, refresh
+application receipts, and guarded calibration slices are on repository `main` after v0.18.0.
+They are not in the v0.18.0 desktop installers. See [Trust Center](/Golavo/trust-center/).
+:::
 
 :::note[Seals are not picks]
 A **seal** freezes a model forecast for the expert trust record. A **pick** is your score call in
@@ -27,17 +33,27 @@ Each seal is an immutable JSON artifact (contract 0.2.0, additive over 0.1.0). T
 
 ## The forward loop, honestly
 
-The source publishes **dates, not kickoff times**, so Golavo uses a conservative day proxy: a fixture's `kickoff_utc` is 00:00 UTC on match day, and a seal must close **before that midnight** — a day-before cutoff. We do not fake precise kickoff times.
+Each row declares `kickoff_precision`. Rows with a verified exact kickoff close at that
+instant. Date-only rows use a conservative proxy at 00:00 UTC on match day, so their seal
+window closes before that midnight. Golavo never invents a precise kickoff time.
 
 Sealing enforces three invariants:
 
 1. **The data state must predate the seal.** `as_of` must be at or after the snapshot's *data-state anchor* — the pinned upstream ref's commit time (`upstream_committed_at_utc`, recorded by the snapshot builder and verifiable against the public upstream repository), falling back to our own retrieval time for packs built before the anchor existed. Both times are recorded; neither is ever backdated.
-2. **The seal must precede kickoff.** `as_of < kickoff_utc` under the day proxy above.
+2. **The seal must precede the row's cutoff.** `as_of < kickoff_utc`, using either the
+   verified exact instant or the declared date-only proxy above.
 3. **No training leakage.** Every training row is dated at or before the cutoff, and the target fixture must still be *scheduled* (no result) in the sealing snapshot — a played match is never re-forecast as if it were upcoming.
 
 Snapshots are **immutable and retained**: refreshing the source builds a *new* pinned pack next to the old ones, and `packs/snapshots.json` records every retained `{ref, retrieved_at_utc, manifest sha256}`. That is what makes the loop reproducible — CI replays a real seal→score transition from two vendored refs in which the same fixture moves from scheduled to completed.
 
-**What the artifact bytes can and cannot prove.** Artifacts are deterministic (no wall clock), so the bytes alone cannot prove *when* they were created. Forwardness is proven by **publication**: a genuine seal is committed and pushed to the public repository before the fixture's day-proxy kickoff, and the git history is the timestamped evidence. Retrospective seals against old data states are possible mechanically (the reproducible test depends on them) — they are test artifacts, never published as forecasts.
+**What the artifact bytes can and cannot prove.** Artifacts are deterministic (no wall
+clock), so the bytes and local checkpoint chain cannot externally attest *when* they were
+created. At runtime, Golavo enforces the cutoff and leakage invariants before writing a
+local seal. Publishing its digest or artifact to an independently timestamped public
+channel before the declared cutoff can add external timing evidence, but publication is
+not automatic and is not the definition of a valid local seal. Retrospective seals against
+old data states remain possible for reproducible tests; they are test artifacts, not
+forward forecasts.
 
 ## Forecast horizons
 
@@ -55,6 +71,11 @@ Scoring accepts an actual result only from a validated snapshot whose data state
 
 Real chains are aggregated into a calibration record — counts, running log loss and Brier over scored seals, reliability bins, and every sealed→scored/voided pair — served read-only at `GET /api/v1/calibration` and rendered in the workbench's **Ledger** view, entirely separate from the backtest evaluation folds.
 
+Competition and model-family slices are predeclared and withheld independently. A slice
+shows metrics only after 30 scored seals. Reliability needs at least 100 scored seals and
+three populated bins with at least 20 observations each. Every slice remains a descriptive
+local cut with selection and cold-start effects—not a confidence interval or model comparison.
+
 ## Verifying a seal
 
 Each artifact carries source hashes and a SHA-256 digest over canonical JSON, so its payload can be recomputed. The snapshot descriptors inside `inputs.snapshots` pin the exact upstream refs; `scripts/validate_provenance.py` re-verifies every retained pack byte-for-byte against its manifest and the registry. The append-only audit log (`audit.jsonl`) records every artifact append.
@@ -64,4 +85,21 @@ connected sealed/scored/voided lineage, source descriptors, any locally matching
 manifest bytes, contract versions, and a canonical bundle digest. `golavo verify-proof
 proof.json` validates it without a Golavo ledger, pack directory, or network connection.
 Source entries without embedded manifest bytes are labelled `descriptor-only`; the proof
-does not upgrade absent evidence. Cross-artifact hash chaining remains planned (ADR-0001).
+does not upgrade absent evidence. Trust Center can inspect the same proof locally without
+persisting the selected file. It reports artifact and source counts while distinguishing
+embedded-manifest checks from descriptor-only sources.
+
+## Local checkpoints and backup
+
+A checkpoint records the ids and file hashes of every verified `fa_*.json` artifact present,
+then links that snapshot to the previous local checkpoint. Verification detects changed bytes,
+cycles, explicitly missing artifacts, and new artifacts not yet in the current head. It does
+not prove external authenticity, when an artifact was created, or that a later explicit removal
+cannot happen. Cross-version migration, disaster recovery, and optional external anchoring are
+still separate gates.
+
+The Trust Center archive is a different tool. It can export, preview, and restore only
+forecast artifacts, picks, and followed-match state. Team favorites, credentials, providers,
+licensed overlays, weather, research captures, refresh generations, checkpoints, and caches
+are deliberately excluded. See [Trust Center](/Golavo/trust-center/) for the conflict and
+recovery path.

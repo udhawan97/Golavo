@@ -58,6 +58,17 @@ Alongside it, each club's **projected points** is the mean final points across t
 voice's runs. The run-in table bands upcoming opponents by that same projected finish
 rather than joining in a second rating source, so one table never mixes two models.
 
+## My Teams
+
+Source `main` can collect exact competition-and-club favorites in a local-only **My Teams**
+room. Each available club card reuses the current table and one disclosed outlook voice to
+show current/projected points, season stakes, and the next five fixtures with guarded
+importance plus follow/pick state. It does not blend voices or create a new simulation.
+
+Favorites are browser preferences, not a profile. If the active outlook no longer contains
+the exact saved identity after a rename, promotion, or relegation, Golavo preserves it and
+shows the mismatch instead of guessing. See [My Teams](/Golavo/my-teams/).
+
 ## World Cup history archive
 
 Model Lab → World Cup lab starts with a read-only tournament archive: the women's

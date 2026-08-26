@@ -6,12 +6,44 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Trust Center local integrity tools.** The source app can now verify an exported
+  forecast proof without persisting it, preview and restore a checksummed allowlisted
+  archive of forecasts/picks/follow state, create and verify local forecast-ledger
+  checkpoints, and inspect data-generation application/rollback receipts. The UI keeps
+  descriptor-only source bytes, local-only timing limits, archive exclusions, and receipt
+  gaps explicit instead of upgrading them into stronger proof.
+- **My Teams club room.** Users can keep exact competition-and-team favorites locally and
+  see current/projected points, one disclosed season-outlook voice, the next five fixtures,
+  guarded importance, and follow/pick state. A rename, promotion, or relegation mismatch
+  fails closed rather than guessing the club identity.
+- **Followed-match calendar export.** Settings can download an RFC 5545 calendar with
+  stable event identities for followed matches whose kickoff is exact UTC.
+  Date-only and unknown kickoffs are counted and omitted instead of receiving a guessed time.
+- **Guarded forward-record slices.** Model Lab can describe competition and model-family
+  cuts only after 30 scored seals; reliability remains held back until 100 seals and at
+  least three populated 20-observation bins. The cuts are labelled descriptive local
+  slices, not confidence intervals or model comparisons.
+
 ### Fixed
 
+- The source UI now accepts the current season-outlook `0.3.0` contract emitted by
+  the local engine, restoring live My Teams projections and league outlooks instead
+  of rejecting the response as an unsupported contract. The shared UI version constant
+  is now registered in the cross-language contract gate so future schema drift fails CI.
+- My Teams league and club selectors now use the shared themed select control, keeping
+  warm-theme text contrast above the required accessibility floor.
 - OpenLigaDB refreshes now recover from transient HTTP 429/503 responses with bounded,
   cancellable retries that follow the provider's `Retry-After` guidance when it fits the
   request budget, and otherwise fail closed instead of retrying early or discarding the
   whole candidate snapshot on the first transient throttled request.
+
+### Documentation
+
+- Synchronized the README and public site with the source-vs-v0.18.0 release boundary,
+  My Teams, Trust Center, calendar export, application receipts, local checkpoints,
+  archive exclusions/recovery limits, and guarded calibration slices.
 
 ## [0.18.0] - 2026-08-25
 

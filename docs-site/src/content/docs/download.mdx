@@ -8,6 +8,17 @@ import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
 Golavo runs on your computer in all three modes. There is no hosted forecasting
 service and no account requirement.
 
+<Aside type="note" title="Stable release versus source main">
+The desktop links install the newest packaged release, currently v0.18.0. Repository
+`main` is ahead with unreleased My Teams, calendar export, Trust Center, application
+receipt, checkpoint, archive, and calibration-slice work. **Run in your browser** covers
+the read paths and My Teams; archive restore and checkpoint creation require a desktop
+build from source with its private launch token. Follow the
+[current-main desktop build path](/Golavo/installation/#build-the-desktop-app-locally)
+for those mutations. Do not expect these tools in the
+v0.18.0 installers.
+</Aside>
+
 <CardGrid>
   <LinkCard title="Run in your browser" description="Source mode for macOS, Windows, or Linux" href="/Golavo/build-from-source/" />
   <LinkCard title="Download for macOS" description="Apple Silicon DMG from the latest stable release" href="https://github.com/udhawan97/Golavo/releases/latest" />
@@ -29,7 +40,7 @@ after you click **Update now**. You can always check manually in **Settings → 
 
 | Option | Requirements | Best for |
 |---|---|---|
-| **Browser UI** | Python 3.12+, Node 22+, source checkout | Developers, Linux, Intel Macs, and anyone who wants to inspect the code |
+| **Browser UI** | Python 3.12+, Node 22+, source checkout | Current `main`, developers, Linux, Intel Macs, and anyone who wants to inspect the code |
 | **macOS app** | Apple Silicon Mac | The simplest Mac install; no Python or Node required |
 | **Windows app** | 64-bit Windows 10 or 11 | The simplest Windows install; no Python or Node required |
 
@@ -45,8 +56,8 @@ are cryptographically signed and verified before installation. Follow the
 Download `SHA256SUMS.txt` and `SHA256SUMS.txt.sig` from the same release as the installer.
 
 ```bash
-# macOS — run in the folder containing the DMG and SHA256SUMS.txt
-shasum -a 256 -c SHA256SUMS.txt
+# macOS — verify only the Apple Silicon DMG you downloaded
+grep '  Golavo_.*_aarch64\.dmg$' SHA256SUMS.txt | shasum -a 256 -c -
 ```
 
 ```powershell
@@ -55,8 +66,17 @@ Get-FileHash .\Golavo_*_x64-setup.exe -Algorithm SHA256
 ```
 
 The versioned Windows filename changes each release; use the exact name you downloaded.
-A checksum match detects corruption or an incomplete download. The detached `.sig`
-authenticates the checksum ledger against the same release identity embedded in Golavo;
-download all three files only from the official
+A checksum match detects corruption or an incomplete download. To authenticate the
+checksum ledger with Minisign, use the updater public key pinned in
+[`tauri.updater.conf.json`](https://github.com/udhawan97/Golavo/blob/v0.18.0/desktop/src-tauri/tauri.updater.conf.json):
+
+```bash
+# Tauri publishes the Minisign text wrapped once in base64.
+openssl base64 -d -A -in SHA256SUMS.txt.sig -out SHA256SUMS.txt.minisig
+minisign -Vm SHA256SUMS.txt -x SHA256SUMS.txt.minisig \
+  -P RWRLhEcV9IUiShiieoXJLqLtPGcNWvMyHDbACD48bHGolaglLW5RdQxN
+```
+
+Download the installer, ledger, and ledger signature only from the official
 [Golavo releases](https://github.com/udhawan97/Golavo/releases). See
 [Installation](/Golavo/installation/) for the release-identity boundary.

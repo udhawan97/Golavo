@@ -29,7 +29,7 @@ function scenarioResponse(): SeasonOutlook {
     totals: { title: 1, top_four: 1, relegation: 0 },
   });
   return {
-    schema_version: "0.2.0",
+    schema_version: "0.3.0",
     status: "available",
     label: "Season outlook — not a seal.",
     competition_id: "test-league",

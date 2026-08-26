@@ -407,6 +407,19 @@ body {
   font-size: var(--gv-text-md);
   line-height: 1.6;
 }
+.gv-substrate .gv-source-badge {
+  display: inline-flex;
+  margin: 0 0 var(--gv-space-xs);
+  padding: var(--gv-space-3xs) var(--gv-space-xs);
+  border: var(--gv-rule-hair) solid var(--gv-engine);
+  border-radius: var(--gv-radius-cta);
+  color: var(--gv-engine);
+  font-size: var(--gv-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
 .gv-substrate .gv-text-link {
   margin-top: var(--gv-space-sm);
 }

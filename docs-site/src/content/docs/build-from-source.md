@@ -41,6 +41,22 @@ The Python launcher automatically uses `npm.cmd` on Windows and stops both servi
 when you press `Ctrl+C`. Git Bash or WSL can use the shorter `make setup` / `make dev`
 path above.
 
+## Build the current desktop source
+
+Browser source mode includes the read paths and My Teams. Trust Center archive restore
+and checkpoint creation additionally require the desktop source build's private launch
+token. After installing Rust and the Tauri prerequisites for your OS, build the bundle
+from the repository root:
+
+```bash
+packaging/build.sh aarch64-apple-darwin      # macOS Apple Silicon
+# or: packaging/build.sh x86_64-pc-windows-msvc
+```
+
+Open the resulting local app, then use **Settings → Proofs, backups & local integrity**
+or the footer's **Trust Center** link. The complete bundle/output notes are in
+[Installation → Build the desktop app locally](/Golavo/installation/#build-the-desktop-app-locally).
+
 ## Repository layout
 
 | Path | What | License |

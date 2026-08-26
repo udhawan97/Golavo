@@ -139,6 +139,11 @@ while the app is open.”** Closing Golavo stops checks. No daemon, Login Item o
 silently installed. Offline mode keeps the watchlist and event history available and shows the
 last verified source freshness.
 
+On source `main` after v0.18.0, **Settings → Followed matches** can export a static RFC 5545
+calendar. Only followed fixtures with an exact UTC kickoff become events; date-only or unknown
+times are counted and omitted rather than guessed. Stable follow identity produces a stable
+calendar UID, and the export does not create a subscription or background service.
+
 ## Corrections and selected-source research
 
 From a match, you can propose a fixture, kickoff, alias, venue or final-score correction. A source

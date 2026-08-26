@@ -12,7 +12,7 @@ export default defineConfig({
       title: "Golavo",
       favicon: "/favicon.svg",
       description:
-        "Local-first, open-source soccer match intelligence. A deterministic engine owns every probability; AI only cites and explains. Every forecast is sealed before kickoff and scored after full time.",
+        "Local-first, open-source soccer match intelligence. A deterministic engine owns every probability; AI only cites and explains. Eligible forecasts can be sealed before kickoff and scored or voided later when validated results are available.",
       tagline:
         "The numbers remember everything. The beautiful game still keeps the last word.",
       logo: {
@@ -73,6 +73,7 @@ export default defineConfig({
             { label: "Games & the Match Cockpit", slug: "matchday" },
             { label: "Competition analytics", slug: "competition-analytics" },
             { label: "Picks, points & My Season", slug: "picks-and-points" },
+            { label: "My Teams · source main", slug: "my-teams" },
           ],
         },
         {
@@ -107,6 +108,7 @@ export default defineConfig({
           label: "Trust & safety",
           items: [
             { label: "Privacy & security", slug: "privacy-security" },
+            { label: "Trust Center · source main", slug: "trust-center" },
             { label: "Updates & rollback", slug: "updates-rollback" },
             { label: "Legal & brand use", slug: "legal" },
           ],

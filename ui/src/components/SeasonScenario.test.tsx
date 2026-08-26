@@ -47,7 +47,7 @@ function voice(
 function outlook(conditional = false): SeasonOutlook {
   const titles = conditional ? [11, 22, 33] : [10, 20, 30];
   return {
-    schema_version: "0.2.0",
+    schema_version: "0.3.0",
     status: "available",
     label: "Season outlook — not a seal.",
     competition_id: "test-league",

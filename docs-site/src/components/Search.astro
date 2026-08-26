@@ -188,7 +188,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       align-items: center;
       gap: 0.5rem;
       height: 2.5rem;
-      padding: 0 0.5rem 0 0.7rem;
+      padding: 0 var(--gv-space-2xs) 0 var(--gv-space-xs);
       border: 1px solid var(--sl-color-hairline-light);
       border-radius: 999px;
       background: var(--gv-paper-2);
@@ -220,14 +220,14 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
     /* ⌘K chip — only on wider viewports, where there's room. */
     .gv-search__kbd {
       display: none;
-      gap: 0.15em;
+      gap: var(--gv-space-3xs);
       font-family: var(--gv-mono);
       font-size: 0.62rem;
       letter-spacing: 0.02em;
       color: var(--sl-color-gray-3);
     }
     .gv-search__kbd kbd {
-      padding: 0.1rem 0.3rem;
+      padding: var(--gv-space-3xs);
       border-radius: 0.3rem;
       background: color-mix(in srgb, var(--sl-color-gray-5) 45%, transparent);
       line-height: 1;
@@ -241,6 +241,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
     /* ---------- Expanded: the inline pill ---------- */
     .gv-search__field {
       position: absolute;
+      box-sizing: border-box;
       inset-inline-end: 0;
       top: 50%;
       translate: 0 -50%;
@@ -250,16 +251,16 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       width: 2.5rem; /* collapsed footprint, hidden behind the toggle */
       max-width: min(24rem, 62vw);
       height: 2.5rem;
-      padding: 0 0.35rem 0 0.85rem;
+      padding: 0 var(--gv-space-2xs) 0 var(--gv-space-xs);
       border: 1px solid transparent;
       border-radius: 999px;
       background: var(--gv-paper-2);
-      box-shadow: 0 12px 34px -18px rgba(0, 0, 0, 0.7);
+      box-shadow: var(--gv-shadow-search-field);
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
+      overflow: clip;
       transition:
-        width 0.5s var(--gv-ease, cubic-bezier(0.16, 0.7, 0.3, 1)),
         opacity 0.32s ease,
         border-color 0.3s ease,
         box-shadow 0.3s ease,
@@ -270,9 +271,9 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
+      overflow: visible;
       border-color: color-mix(in srgb, var(--gv-engine) 42%, var(--sl-color-hairline-light));
       transition:
-        width 0.5s var(--gv-ease, cubic-bezier(0.16, 0.7, 0.3, 1)),
         opacity 0.28s ease,
         border-color 0.3s ease,
         box-shadow 0.3s ease,
@@ -281,7 +282,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
     .gv-search.is-open .gv-search__field:focus-within {
       border-color: var(--gv-engine);
       box-shadow:
-        0 12px 34px -18px rgba(0, 0, 0, 0.7),
+        var(--gv-shadow-search-field),
         0 0 0 3px color-mix(in srgb, var(--gv-engine) 22%, transparent);
     }
     /* Fade the toggle out as the pill takes over its spot. */
@@ -365,7 +366,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       inset-inline-end: 0;
       width: max-content;
       max-width: 22rem;
-      padding: 0.55rem 0.8rem;
+      padding: var(--gv-space-2xs) var(--gv-space-xs);
       border: 1px solid var(--sl-color-hairline-light);
       border-radius: 0.7rem;
       background: var(--sl-color-bg-sidebar);
@@ -383,13 +384,13 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       max-height: min(66vh, 30rem);
       overflow-y: auto;
       margin: 0;
-      padding: 0.5rem;
+      padding: var(--gv-space-2xs);
       border: 1px solid var(--sl-color-gray-5);
       border-radius: 1rem;
       /* Opaque, and *lighter* than the page so it reads as an elevated panel
          (dark-mode elevation = lift toward white). Matches Starlight's modal. */
       background: var(--sl-color-gray-6);
-      box-shadow: 0 24px 60px -22px rgba(0, 0, 0, 0.9);
+      box-shadow: var(--gv-shadow-search-drawer);
       transform-origin: top right;
       animation: gvSearchDrop 0.34s var(--gv-ease, cubic-bezier(0.16, 0.7, 0.3, 1));
     }
@@ -398,13 +399,13 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
     }
     .gv-search .pagefind-ui__results-area {
       width: 100%;
-      padding: 0.25rem;
+      padding: var(--gv-space-3xs);
     }
     .gv-search .pagefind-ui__results {
       width: 100%;
     }
     .gv-search .pagefind-ui__message {
-      padding: 0.5rem 0.6rem 0.7rem;
+      padding: var(--gv-space-2xs) var(--gv-space-2xs) var(--gv-space-xs);
       font-size: 0.78rem;
       letter-spacing: 0.01em;
       color: var(--sl-color-gray-3);
@@ -413,7 +414,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
     .gv-search .pagefind-ui__result {
       border: 0 !important;
       border-radius: 0.7rem;
-      padding: 0.35rem 0.55rem !important;
+      padding: var(--gv-space-3xs) var(--gv-space-2xs) !important;
       background: transparent !important;
     }
     .gv-search .pagefind-ui__result:hover,
@@ -421,7 +422,7 @@ const label = Astro.locals.t?.("search.label") ?? "Search";
       background: color-mix(in srgb, var(--gv-engine) 11%, transparent) !important;
     }
     .gv-search .pagefind-ui__result-inner {
-      gap: 0.15rem !important;
+      gap: var(--gv-space-3xs) !important;
       background: transparent !important;
     }
     .gv-search .pagefind-ui__result-title,

@@ -4,16 +4,18 @@ description: How Golavo turns pinned source bytes into sealed forecasts, serves 
 ---
 
 Golavo is a **deterministic forecasting engine wrapped in a thin desktop app**.
-The Python core owns the science and every persisted number. FastAPI exposes
-those results — read-only, except one append-only route that seals a new
-forecast. React renders the workbench. Tauri supervises
+The Python core owns the science and every persisted forecast number. FastAPI exposes
+validated reads plus narrow, explicit local mutation routes for sealing/scoring,
+personal state, and recovery. React renders the workbench. Tauri supervises
 the packaged processes. Optional AI is a replaceable explanation client over a
 restricted evidence bundle — never a second forecasting engine.
 
-The diagrams below describe the implemented v0.2.0 architecture. DuckDB views,
-SQLite state, canonical entity graphs, and a hash-chained multi-artifact ledger
-remain **planned in [ADR-0001](https://github.com/udhawan97/Golavo/blob/main/docs/adr/0001-architecture.md)**;
-they are not presented here as shipped components.
+The diagrams below describe the implemented architecture. SQLite now owns followed-match
+state, and source `main` has local hash-chained checkpoints over immutable forecast files.
+Those checkpoints detect changes relative to earlier local heads; they do not prove external
+authenticity or creation time. Cross-version migration, disaster-recovery proof, optional
+external anchoring, DuckDB views, and a canonical entity graph remain broader work in
+[ADR-0001](https://github.com/udhawan97/Golavo/blob/main/docs/adr/0001-architecture.md).
 
 ## System map
 
@@ -29,7 +31,7 @@ ignore it entirely when reduced motion is enabled.
 |---|---|---|---|
 | **Tauri shell** | port/token bootstrap, sidecar lifecycle, health gate, webview config, gated updater | forecasts, model state, API data shaping | `desktop/src-tauri/src/lib.rs`, `health.rs`, `updater.rs` |
 | **React workbench** | navigation, loading/error/empty states, Casual/Expert presentation, provenance and calibration views | artifact mutation, inline statistics, hidden contract coercion | `ui/src/`, especially `lib/api.ts` and `lib/contract.ts` |
-| **FastAPI sidecar** | token gate; forecast / facts / match-search / cockpit-analysis / calibration / evaluation reads; an append-only seal route; optional narration orchestration | statistical computation inline, mutating a stored seal | `server/golavo_server/main.py` |
+| **FastAPI sidecar** | token gate; typed forecast / facts / match / calibration reads; append-only forecast transitions; local picks/follows/refresh/trust workflows; optional narration orchestration | statistical computation inline, mutating a stored seal, or turning a provider response into model input | `server/golavo_server/main.py` |
 | **Deterministic core** | ingest, normalization, candidate models, chronological evaluation, seal/score/void transitions, facts, evidence, calibration | UI state, desktop lifecycle, unrequested network access | `core/golavo_core/` |
 | **Data packs + artifacts** | reproducible source bytes, licenses, manifests, retained history, persisted forecast claims | code behavior or mutable live-feed state | `packs/`, `data/artifacts/`, `docs/contracts/` |
 | **AI gateway** | provider selection, transport, guard-validated narrative or fail-closed fallback | probability creation or mutation, direct artifact writes | `server/golavo_server/ai_gateway.py`, `core/golavo_core/ai/` |
@@ -69,7 +71,7 @@ backend.
 | `GET /api/v1/forecasts` | immutable artifacts, newest first | no |
 | `GET /api/v1/forecasts/{artifact_id}` | one canonical artifact | no |
 | `GET /api/v1/forecasts/{artifact_id}/facts` | precomputed Commentator's Notebook, or an honest unavailable envelope | no |
-| `GET /api/v1/matches/search` | search the deterministic ~77k-match index by team/competition | no |
+| `GET /api/v1/matches/search` | search the deterministic 100,000+-match index by team/competition | no |
 | `GET /api/v1/matches/competitions` | the competitions present in the index | no |
 | `GET /api/v1/matches/recent` | recent results for the Games home | no |
 | `GET /api/v1/matches/{match_id}` | one indexed match + its `seal_eligibility` verdict | no |
@@ -82,17 +84,22 @@ backend.
 | `GET /api/v1/tournaments/worldcup-2026/outlook` | exact bracket enumeration from current model fits; never a sealed forecast | no |
 | `POST /api/v1/tournaments/worldcup-2026/retrospective` | backtest every played 2026 World Cup match at its own pre-kickoff cutoff | no — nothing is persisted or scored as a seal |
 | `GET /api/v1/calibration` | recomputed forward record over real sealed→resolved chains | no |
+| `POST /api/v1/proofs/verify` | inspect an uploaded portable proof locally; the file is not persisted | no |
+| `GET /api/v1/personal/archive` | export an allowlisted checksummed archive of forecasts, picks, and follow state | no |
+| `POST /api/v1/personal/archive/restore` | restore only previewed allowlisted files after named conflict confirmation | **desktop-token mutation** |
+| `GET /api/v1/ledger/checkpoints` | verify the local checkpoint chain and report missing/new artifacts | no |
+| `POST /api/v1/ledger/checkpoints` | append a new local checkpoint after verifying every predecessor | **desktop-token mutation** |
 | `POST /api/v1/forecasts/{artifact_id}/narrative` | optional narration over a sealed forecast; may fail back to local-only | narrative only; never the seal |
 | `POST /api/v1/matches/{match_id}/narrative` | optional narration over a match's notebook + council | narrative only; never a seal |
 | `GET /api/v1/eval/summary` | historical chronological folds, separate from forward evidence | no |
 
-The table above is a representative selection, not the full surface: later
-releases added local-only routes for corrections, followed matches, approved-source
-refresh, the ODbL overlay, match research, and the World Cup retrospective. Every
-one of them is read-only or writes strictly outside the ledger, except the two
-named next.
+The table above is a representative selection, not the full surface. Other local routes
+cover corrections, followed matches, approved-source refresh, the ODbL overlay, research,
+and the World Cup retrospective. Provider/overlay/research writes stay outside the forecast
+ledger. Archive restore is the deliberately narrow exception: it can replace only the
+manifested forecast, pick, and follow files that preview already validated.
 
-**Two routes write a forecast artifact, and both only ever append.**
+**Two routes create a forecast artifact, and both only ever append.**
 `POST /matches/{id}/seal` runs the same deterministic engine as the `golavo seal`
 CLI (byte-identical) and appends a new immutable seal; the pack, training cutoff,
 and as-of are all resolved server-side, so a seal cannot be backdated or pointed
@@ -178,8 +185,9 @@ The international source publishes dates, not kickoff times. Where a pinned CC0
 overlay supplies a verified kickoff, Golavo uses it and marks the row `exact`;
 otherwise it falls back to 00:00 UTC on match day as a conservative proxy and
 marks the row `day`. It never invents a precise kickoff time, and it never treats
-a proxy as if it were one: today 94 of the index's 77,363 rows carry a verified
-kickoff, all of them 2026 World Cup fixtures.
+a proxy as if it were one. In the committed 100,525-row index snapshot, 1,846 rows
+carry a verified exact kickoff; generated metadata remains the authority as the index
+changes.
 
 That distinction is load-bearing. A date is not a time, so ordering by date alone
 treats every fixture on a day as simultaneous — which is exactly how a result from

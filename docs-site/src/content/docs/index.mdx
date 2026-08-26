@@ -12,8 +12,8 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
 {/*
   Hallmark · macrostructure: Feature Stack · design-system: design.md
   Three numbered stages, because a forecast is sealed before kickoff and scored
-  after full time — that order is real and irreversible. Everything that is
-  always true (architecture, the AI boundary, local data) lives in the
+  after full time — that order is real and irreversible. Cross-cutting contracts
+  (architecture, the AI boundary, and local data boundaries) live in the
   unnumbered substrate. Numbering anywhere else is decoration.
 */}
 
@@ -136,9 +136,9 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
     </div>
   </section>
 
-  {/* Unnumbered on purpose: the substrate is always true, not a step in the sequence. */}
+  {/* Unnumbered on purpose: these are cross-cutting contracts, not a step in the sequence. */}
   <section class="gv-substrate" aria-labelledby="gv-substrate-title">
-    <p class="gv-substrate-head" id="gv-substrate-title">Underneath every stage · always true, never a step</p>
+    <p class="gv-substrate-head" id="gv-substrate-title">Underneath every stage · boundaries, not a step</p>
 
     <div class="gv-stage-grid">
       <div>
@@ -166,13 +166,16 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
 
     <div class="gv-substrate-grid">
       <div>
+        <p class="gv-source-badge">Source main after v0.18.0 · not in current installers</p>
         <h3>Local data, with receipts</h3>
         <p>
           Refresh approved CC0 sources manually or with consent. Followed matches get
-          targeted checks and deduplicated change history. OpenLigaDB stays an
-          optional, display-only ODbL overlay whose bytes never join CC0 or model data.
+          targeted checks, deduplicated change history, and an exact-time calendar export.
+          Trust Center keeps application receipts, proof verification, ledger backup,
+          and local checkpoints together. OpenLigaDB stays an optional, display-only
+          ODbL overlay whose bytes never join CC0 or model data.
         </p>
-        <a class="gv-text-link" href="/Golavo/data/sources/">See the sources <span aria-hidden="true">↗</span></a>
+        <a class="gv-text-link" href="/Golavo/trust-center/">Open the trust boundary <span aria-hidden="true">↗</span></a>
       </div>
       <div>
         <h3>Leagues, Europe, and eras</h3>
@@ -186,14 +189,15 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
         <a class="gv-text-link" href="/Golavo/competition-analytics/">See the competitions <span aria-hidden="true">↗</span></a>
       </div>
       <div>
-        <h3>Private by architecture</h3>
+        <p class="gv-source-badge">Source main after v0.18.0 · not in current installers</p>
+        <h3>Your clubs, not a profile</h3>
         <p>
-          Tauri supervises a token-protected loopback service. React presents validated
-          views. FastAPI serves typed contracts. The deterministic Python core is the
-          only place a forecast can be made; optional narration stays outside that
-          write path.
+          My Teams keeps exact competition-and-club favorites in a local browser
+          preference. Current points, one named outlook voice, the next five fixtures,
+          guarded stakes, and follow/pick links share one room without an account,
+          sync service, or new model input.
         </p>
-        <a class="gv-text-link" href="/Golavo/architecture/">Inspect the architecture <span aria-hidden="true">↗</span></a>
+        <a class="gv-text-link" href="/Golavo/my-teams/">Build My Teams <span aria-hidden="true">↗</span></a>
       </div>
     </div>
 
@@ -229,7 +233,7 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
   <section class="gv-closing" aria-labelledby="gv-closing-title">
     <p class="gv-kicker">No bet placement. No oracle. No moving the goalposts.</p>
     <h2 id="gv-closing-title" class="gv-display">Let the model speak once, then keep the tape running.</h2>
-    <p>Golavo is free, open source, local-first, and currently an unsigned v0.18.0 pre-alpha.</p>
+    <p>Golavo is free, open source, local-first, and currently an unsigned v0.18.0 pre-alpha. Source <code>main</code> is ahead of that packaged release.</p>
     <div class="gv-closing-actions">
       <a class="gv-action gv-action--primary" href="#gv-install-title">Choose how to run Golavo <span aria-hidden="true">→</span></a>
       <a class="gv-action" href="/Golavo/methodology/prediction/">Read the methodology</a>
@@ -243,4 +247,8 @@ Golavo is at **v0.18.0**, an OS-unsigned pre-alpha release. macOS Gatekeeper and
 SmartScreen will warn on first launch. In-app update verification is shipped;
 OS signing and notarization remain gated on real credentials. See
 [Installation](/Golavo/installation/) and the [Roadmap](/Golavo/roadmap/).
+
+Repository `main` also contains verified, unreleased local tools — My Teams, followed-match
+calendar export, Trust Center proof/archive/checkpoint workflows, refresh application receipts,
+and guarded calibration slices. Build from source to use them before the next packaged release.
 :::

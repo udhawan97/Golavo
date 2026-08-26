@@ -13,19 +13,28 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
   aria-labelledby="gv-install-title"
 >
   <div class="gv-install-head">
-    <h2 id="gv-install-title" class="gv-stage-title">Three ways in. Everything stays local.</h2>
+    <h2 id="gv-install-title" class="gv-stage-title">Three ways in. Core forecasting stays local.</h2>
     <p>
       Use the browser UI from source, or install the desktop app with no Python
       or terminal required. The desktop buttons resolve directly to the newest
-      stable files published by Golavo's release workflow.
+      stable files published by Golavo's release workflow. Refreshes, research,
+      cloud AI, providers, and update checks remain separate opt-in network features.
     </p>
   </div>
+
+  <aside class="gv-release-boundary" aria-label="Release and source availability">
+    <strong>Choose the surface you want.</strong>
+    <span>
+      Desktop buttons install the newest packaged release. Source <code>main</code> may be
+      ahead; its unreleased changes are listed in the changelog and require a source build.
+    </span>
+  </aside>
 
   <div class="gv-install-grid">
     <article class="gv-install-card" data-install-platform="web">
       <p class="gv-install-platform">macOS · Windows · Linux</p>
       <h3>Run in your browser</h3>
-      <p>Clone the source, run one command, and Golavo opens at <code>127.0.0.1:5173</code>.</p>
+      <p>Clone the source, install dependencies once, then run <code>make dev</code>. Golavo opens at <code>127.0.0.1:5173</code>.</p>
       <a class="gv-install-button" href={`${base}/build-from-source/`}>
         See browser setup <span aria-hidden="true">→</span>
       </a>
@@ -148,6 +157,25 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
     color: var(--sl-color-gray-2);
     font-size: var(--gv-text-lg);
     line-height: 1.65;
+  }
+  .gv-release-boundary {
+    display: grid;
+    grid-template-columns: minmax(0, 0.4fr) minmax(0, 1fr);
+    gap: var(--gv-space-sm);
+    margin-top: var(--gv-space-md);
+    padding: var(--gv-space-sm) var(--gv-space-md);
+    border-block: var(--gv-rule-hair) solid var(--sl-color-hairline);
+    color: var(--sl-color-gray-2);
+    background: var(--gv-engine-quiet);
+    line-height: 1.55;
+  }
+  .gv-release-boundary strong {
+    color: var(--sl-color-white);
+    font-family: var(--gv-font-display);
+    font-style: normal;
+  }
+  .gv-release-boundary code {
+    font-family: var(--gv-font-mono);
   }
   .gv-install-grid {
     display: grid;
@@ -287,6 +315,11 @@ const releaseApi = `https://api.github.com/repos/${repo}/releases/latest`;
     .gv-install-button:hover,
     .gv-install-button:active {
       transform: none;
+    }
+  }
+  @media (max-width: 34rem) {
+    .gv-release-boundary {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

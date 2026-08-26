@@ -17,7 +17,7 @@ import {
 } from "./SeasonOutlook";
 
 const BLOCKED: SeasonOutlook = {
-  schema_version: "0.2.0",
+  schema_version: "0.3.0",
   status: "blocked",
   label: "Season outlook — not a seal.",
   competition_id: "england-premier-league",

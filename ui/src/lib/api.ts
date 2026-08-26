@@ -13,7 +13,11 @@
  *   GET {base}/api/v1/analytics/competitions/{id} -> CompetitionAnalytics
  *   POST {base}/api/v1/forecasts/settle   -> SettlementReport
  */
-import { ACCEPTED_SCHEMA_VERSIONS, ANALYSIS_SCHEMA_VERSION } from "./contract";
+import {
+  ACCEPTED_SCHEMA_VERSIONS,
+  ANALYSIS_SCHEMA_VERSION,
+  SEASON_OUTLOOK_SCHEMA_VERSION,
+} from "./contract";
 import type {
   CalibrationSummary,
   ArchivePreview,
@@ -862,7 +866,7 @@ export function importanceViolation(fixtures: SeasonRemainingFixture[]): string 
 function assertSeasonOutlook(x: unknown, ctx: string): SeasonOutlook {
   const data = x as SeasonOutlook;
   if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
-  if (data.schema_version !== "0.2.0" || data.simulation_rule !== "season-mc-2026.07.1")
+  if (data.schema_version !== SEASON_OUTLOOK_SCHEMA_VERSION || data.simulation_rule !== "season-mc-2026.07.1")
     throw new ContractError(`${ctx}: unsupported season outlook contract`);
   if (!["blocked", "complete", "available"].includes(data.status))
     throw new ContractError(`${ctx}: invalid status`);
@@ -998,7 +1002,7 @@ export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonO
       ? 18
       : 20;
     return {
-      schema_version: "0.2.0",
+      schema_version: SEASON_OUTLOOK_SCHEMA_VERSION,
       status: "blocked",
       label: "Season outlook — a seeded simulation from current model fits. Not a sealed forecast.",
       competition_id: competitionId,

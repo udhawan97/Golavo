@@ -19,6 +19,7 @@ export const ACCEPTED_SCHEMA_VERSIONS = ["0.1.0", "0.2.0"] as const;
 export const ANALYSIS_SCHEMA_VERSION = "0.5.0" as const;
 export const PICK_SCHEMA_VERSION = "0.1.0" as const;
 export const FOLLOW_SCHEMA_VERSION = "0.1.0" as const;
+export const SEASON_OUTLOOK_SCHEMA_VERSION = "0.3.0" as const;
 export type SchemaVersion = (typeof ACCEPTED_SCHEMA_VERSIONS)[number];
 
 export type ArtifactStatus = "sealed" | "scored" | "abstained" | "voided";
@@ -709,7 +710,7 @@ export interface SeasonScenario {
 }
 
 export interface SeasonOutlook {
-  schema_version: "0.2.0";
+  schema_version: typeof SEASON_OUTLOOK_SCHEMA_VERSION;
   status: "blocked" | "complete" | "available";
   label: string;
   competition_id: string;
