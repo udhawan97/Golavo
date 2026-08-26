@@ -120,12 +120,17 @@
     "FollowList": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schema_version", "items", "total", "unread_event_count"],
+      "required": [
+        "schema_version", "items", "total", "unread_event_count",
+        "calendar_exportable_count", "calendar_omitted_count"
+      ],
       "properties": {
         "schema_version": {"const": "0.1.0"},
         "items": {"type": "array", "items": {"$ref": "#/$defs/FollowedMatch"}},
         "total": {"type": "integer", "minimum": 0},
-        "unread_event_count": {"type": "integer", "minimum": 0}
+        "unread_event_count": {"type": "integer", "minimum": 0},
+        "calendar_exportable_count": {"type": "integer", "minimum": 0},
+        "calendar_omitted_count": {"type": "integer", "minimum": 0}
       }
     },
     "FollowSettings": {

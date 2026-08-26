@@ -381,6 +381,49 @@
           ]
         },
         "reliability_bins": {"type": "array", "items": {"$ref": "#/$defs/ReliabilityBin"}},
+        "slices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["dimension", "key", "n_scored", "metrics_status", "metrics", "reliability_status", "reliability_bins", "thresholds", "caveat"],
+            "properties": {
+              "dimension": {"enum": ["competition", "model_family"]},
+              "key": {"type": "string", "minLength": 1},
+              "n_scored": {"type": "integer", "minimum": 1},
+              "metrics_status": {"enum": ["available", "held_back"]},
+              "metrics": {
+                "oneOf": [
+                  {"type": "null"},
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["log_loss", "brier", "prob_assigned_to_outcome"],
+                    "properties": {
+                      "log_loss": {"type": "number", "minimum": 0},
+                      "brier": {"type": "number", "minimum": 0},
+                      "prob_assigned_to_outcome": {"type": "number", "minimum": 0, "maximum": 1}
+                    }
+                  }
+                ]
+              },
+              "reliability_status": {"enum": ["available", "held_back"]},
+              "reliability_bins": {"type": "array", "items": {"$ref": "#/$defs/ReliabilityBin"}},
+              "thresholds": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["metrics_min_scored", "reliability_min_scored", "reliability_min_bin", "reliability_min_bins"],
+                "properties": {
+                  "metrics_min_scored": {"const": 30},
+                  "reliability_min_scored": {"const": 100},
+                  "reliability_min_bin": {"const": 20},
+                  "reliability_min_bins": {"const": 3}
+                }
+              },
+              "caveat": {"type": "string", "minLength": 1}
+            }
+          }
+        },
         "chains": {"type": "array", "items": {"$ref": "#/$defs/CalibrationChain"}}
       }
     }

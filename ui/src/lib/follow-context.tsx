@@ -34,6 +34,8 @@ const EMPTY_LIST: FollowListResponse = {
   items: [],
   total: 0,
   unread_event_count: 0,
+  calendar_exportable_count: 0,
+  calendar_omitted_count: 0,
 };
 const EMPTY_SETTINGS: FollowSettings = {
   schema_version: "0.1.0",

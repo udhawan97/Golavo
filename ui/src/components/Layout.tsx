@@ -163,6 +163,10 @@ export function Layout({
             Golavo · Local Football Intelligence —{" "}
             <span className="dim">local-first, no account. Match updates are opt-in; picks lock at kickoff and score after full time.</span>
             {" · "}
+            <a href="#/trust">Trust Center</a>
+            {" · "}
+            <a href="#/teams">My Teams</a>
+            {" · "}
             <a href="#/settings">Settings</a>
           </span>
           <span className="dim">

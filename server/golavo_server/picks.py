@@ -28,6 +28,8 @@ from golavo_core.picks import (
     verify_pick_integrity,
 )
 
+from golavo_server import runtime
+
 _PICKS_LOCK = threading.Lock()
 _SAFE_MATCH_ID = re.compile(r"^[A-Za-z0-9_.-]+$")
 
@@ -450,6 +452,7 @@ def _analysis_snapshot(match_id: str, snapshot: Any) -> dict[str, Any]:
     return derived
 
 
+@runtime.user_state_guard
 def get_pick(
     match_id: str, *, ledger: Path, now_utc: datetime | None = None
 ) -> dict[str, Any] | None:
@@ -499,6 +502,7 @@ def get_pick(
         )
 
 
+@runtime.user_state_guard
 def save_pick(
     match_id: str,
     home_goals: Any,
@@ -598,6 +602,7 @@ def save_pick(
         )
 
 
+@runtime.user_state_guard
 def delete_pick(match_id: str, *, ledger: Path, now_utc: datetime | None = None) -> bool:
     resolved_now = _now(now_utc)
     with _PICKS_LOCK:
@@ -659,6 +664,7 @@ def _all_match_ids(ledger: Path) -> list[str]:
     return sorted(ids)
 
 
+@runtime.user_state_guard
 def list_picks(
     *,
     ledger: Path,
@@ -702,6 +708,7 @@ def list_picks(
     }
 
 
+@runtime.user_state_guard
 def picks_summary(
     *, ledger: Path, season: str | None = None, now_utc: datetime | None = None
 ) -> dict[str, Any]:

@@ -216,9 +216,7 @@ def verify_generation(path: Path) -> dict[str, Any]:
         )
     except (OSError, ValueError, TypeError) as exc:
         raise ValueError("generation index metadata is invalid") from exc
-    expected_parquet = (
-        index_meta.get("parquet_sha256") if isinstance(index_meta, dict) else None
-    )
+    expected_parquet = index_meta.get("parquet_sha256") if isinstance(index_meta, dict) else None
     actual_parquet = actual_hashes["index/matches_index.parquet"]
     if (
         not isinstance(expected_parquet, str)
@@ -331,44 +329,52 @@ def install_generation(staging: Path, generation_id: str) -> Path:
     return destination
 
 
+def _activate_generation_unlocked(generation_id: str, *, activated_at_utc: str) -> dict[str, Any]:
+    target = generation_dir(generation_id)
+    verify_generation(target)
+    current = load_pointer() or {}
+    old_active = current.get("active_generation_id")
+    previous = (
+        old_active
+        if isinstance(old_active, str) and old_active != generation_id
+        else current.get("previous_generation_id")
+    )
+    pointer = {
+        "schema_version": STATE_SCHEMA_VERSION,
+        "active_generation_id": generation_id,
+        "previous_generation_id": previous,
+        "activated_at_utc": activated_at_utc,
+    }
+    _atomic_json(pointer_path(), pointer)
+    return pointer
+
+
 def activate_generation(generation_id: str, *, activated_at_utc: str) -> dict[str, Any]:
     with activation_lock():
-        target = generation_dir(generation_id)
-        verify_generation(target)
-        current = load_pointer() or {}
-        old_active = current.get("active_generation_id")
-        previous = (
-            old_active
-            if isinstance(old_active, str) and old_active != generation_id
-            else current.get("previous_generation_id")
-        )
-        pointer = {
-            "schema_version": STATE_SCHEMA_VERSION,
-            "active_generation_id": generation_id,
-            "previous_generation_id": previous,
-            "activated_at_utc": activated_at_utc,
-        }
-        _atomic_json(pointer_path(), pointer)
-        return pointer
+        return _activate_generation_unlocked(generation_id, activated_at_utc=activated_at_utc)
+
+
+def _rollback_unlocked(*, activated_at_utc: str) -> dict[str, Any]:
+    pointer = load_pointer()
+    if pointer is None or not isinstance(pointer.get("previous_generation_id"), str):
+        raise ValueError("no previous refresh generation is available")
+    previous = str(pointer["previous_generation_id"])
+    current = pointer.get("active_generation_id")
+    verify_generation(generation_dir(previous))
+    replacement = {
+        "schema_version": STATE_SCHEMA_VERSION,
+        "active_generation_id": previous,
+        "previous_generation_id": current if isinstance(current, str) else None,
+        "activated_at_utc": activated_at_utc,
+        "rollback": True,
+    }
+    _atomic_json(pointer_path(), replacement)
+    return replacement
 
 
 def rollback(*, activated_at_utc: str) -> dict[str, Any]:
     with activation_lock():
-        pointer = load_pointer()
-        if pointer is None or not isinstance(pointer.get("previous_generation_id"), str):
-            raise ValueError("no previous refresh generation is available")
-        previous = str(pointer["previous_generation_id"])
-        current = pointer.get("active_generation_id")
-        verify_generation(generation_dir(previous))
-        replacement = {
-            "schema_version": STATE_SCHEMA_VERSION,
-            "active_generation_id": previous,
-            "previous_generation_id": current if isinstance(current, str) else None,
-            "activated_at_utc": activated_at_utc,
-            "rollback": True,
-        }
-        _atomic_json(pointer_path(), replacement)
-        return replacement
+        return _rollback_unlocked(activated_at_utc=activated_at_utc)
 
 
 def clean_staging(path: Path) -> None:

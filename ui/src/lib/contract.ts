@@ -866,7 +866,29 @@ export interface CalibrationSummary {
     prob_assigned_to_outcome: number;
   } | null;
   reliability_bins: ReliabilityBin[];
+  slices?: CalibrationSlice[];
   chains: CalibrationChain[];
+}
+
+export interface CalibrationSlice {
+  dimension: "competition" | "model_family";
+  key: string;
+  n_scored: number;
+  metrics_status: "available" | "held_back";
+  metrics: {
+    log_loss: number;
+    brier: number;
+    prob_assigned_to_outcome: number;
+  } | null;
+  reliability_status: "available" | "held_back";
+  reliability_bins: ReliabilityBin[];
+  thresholds: {
+    metrics_min_scored: 30;
+    reliability_min_scored: 100;
+    reliability_min_bin: 20;
+    reliability_min_bins: 3;
+  };
+  caveat: string;
 }
 
 export type SettlementPendingReason =
@@ -1250,6 +1272,8 @@ export interface FollowListResponse {
   items: FollowedMatch[];
   total: number;
   unread_event_count: number;
+  calendar_exportable_count: number;
+  calendar_omitted_count: number;
 }
 
 export interface FollowSettings {
@@ -1551,6 +1575,91 @@ export interface DataRefreshStatus {
   sources: RefreshSourceStatus[];
   job: DataRefreshJob | null;
   last_error: RefreshErrorDetail | null;
+}
+
+export interface RefreshReceipt {
+  schema_version: "0.1.0";
+  receipt_id: string;
+  operation: "refresh_activation" | "rollback";
+  outcome: "activated" | "rolled_back";
+  occurred_at_utc: string;
+  previous_generation_id: string | null;
+  active_generation_id: string;
+  previous_index_sha256: string | null;
+  active_index_sha256: string | null;
+  source_summaries: Array<{
+    source_id: string;
+    upstream_ref: string;
+    license: string;
+    file_count: number | null;
+  }>;
+  capability_summaries: Array<{
+    source_id: string;
+    competition: string | null;
+    season: string | null;
+    capability: string;
+    last_known_good: boolean;
+    schedule_certificate: Record<string, unknown> | null;
+  }>;
+  change_summary: {
+    status: string;
+    stable_identity_counts: {
+      added: number;
+      removed: number;
+      new_results: number;
+      rekeyed: number;
+    } | null;
+    unresolved_previous_rows?: number;
+    unresolved_active_rows?: number;
+    reason: string;
+  };
+  limitations: string[];
+}
+
+export interface RefreshReceiptList {
+  items: RefreshReceipt[];
+  application_gap: { job_id: string | null; message: string } | null;
+}
+
+export interface ProofVerificationResult {
+  verified: true;
+  root_artifact_id: string;
+  artifact_count: number;
+  source_count: number;
+  embedded_source_count: number;
+  descriptor_only_source_count: number;
+  source_checks: Array<{
+    source_id: string;
+    sha256: string;
+    status: "descriptor-only-not-verified" | "embedded-manifest-hash-valid";
+  }>;
+  bundle_sha256: string;
+  checks: Record<string, string>;
+  limits: string[];
+}
+
+export interface ArchivePreview {
+  schema_version: "0.1.0";
+  verified: true;
+  file_count: number;
+  total_bytes: number;
+  conflicts: string[];
+  requires_replace_confirmation: boolean;
+  excluded_categories: string[];
+  restored?: boolean;
+  replaced_conflicts?: boolean;
+  pre_restore_backup?: string;
+  pre_restore_backup_verified?: boolean;
+}
+
+export interface CheckpointStatus {
+  schema_version: "0.1.0";
+  verified: true;
+  checkpoint_count: number;
+  head: string | null;
+  missing_artifacts: string[];
+  uncheckpointed_artifacts: string[];
+  limits: string[];
 }
 
 export interface CompetitionSummary {

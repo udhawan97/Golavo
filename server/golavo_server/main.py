@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import json
 import re
+import zipfile
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from golavo_core.proof import build_forecast_proof
+from golavo_core.proof import build_forecast_proof, verify_forecast_proof
 from golavo_core.resources import resource
 from jsonschema import ValidationError
 from starlette.concurrency import run_in_threadpool
@@ -19,6 +21,7 @@ from golavo_server import (
     __version__,
     analysis,
     analytics,
+    calendar_export,
     conditions,
     context_registry,
     correction_exports,
@@ -27,12 +30,15 @@ from golavo_server import (
     correction_store,
     correction_validation,
     follows,
+    ledger_checkpoints,
     matches,
     openligadb_jobs,
     openligadb_overlay,
     openligadb_state,
     outlook,
+    personal_archive,
     refresh_jobs,
+    refresh_receipts,
     research_pack,
     retrospective,
     runtime,
@@ -69,6 +75,10 @@ app = FastAPI(title="Golavo", version=__version__)
 async def _require_launch_token(request: Request, call_next: Any) -> Any:
     token = runtime.launch_token()
     path = request.url.path
+    trust_mutation = request.method == "POST" and path in {
+        "/api/v1/personal/archive/restore",
+        "/api/v1/ledger/checkpoints",
+    }
     correction_path = path.startswith("/api/v1/corrections") or (
         path.startswith("/api/v1/matches/") and path.endswith("/corrections")
     )
@@ -93,6 +103,11 @@ async def _require_launch_token(request: Request, call_next: Any) -> Any:
             {"detail": "Sportmonks routes require the private desktop launch token"},
             status_code=403,
         )
+    if trust_mutation and token is None:
+        return JSONResponse(
+            {"detail": "destructive trust actions require the private desktop launch token"},
+            status_code=403,
+        )
     if correction_path and request.method not in {"GET", "OPTIONS"}:
         try:
             content_length = int(request.headers.get("content-length", "0"))
@@ -113,12 +128,18 @@ async def _require_launch_token(request: Request, call_next: Any) -> Any:
         except ValueError:
             content_length = 0
         if content_length > 16384:
-            return JSONResponse(
-                {"detail": "Sportmonks request exceeds 16 KiB"}, status_code=413
-            )
+            return JSONResponse({"detail": "Sportmonks request exceeds 16 KiB"}, status_code=413)
     if token is not None and request.method != "OPTIONS" and request.url.path.startswith("/api/"):
         if request.headers.get(runtime.TOKEN_HEADER) != token:
             return JSONResponse({"detail": "missing or invalid launch token"}, status_code=401)
+    if request.method != "OPTIONS" and path.startswith("/api/"):
+        try:
+            personal_archive.recover_pending(ARTIFACT_DIR)
+        except (OSError, ValueError, KeyError, json.JSONDecodeError):
+            return JSONResponse(
+                {"detail": "an interrupted ledger restore could not be recovered safely"},
+                status_code=503,
+            )
     return await call_next(request)
 
 
@@ -692,6 +713,23 @@ def forecast_proof(artifact_id: str) -> JSONResponse:
     )
 
 
+@app.post("/api/v1/proofs/verify")
+async def verify_portable_proof(request: Request) -> dict[str, Any]:
+    """Verify a bounded portable proof without writing it to disk."""
+    body = await _bounded_body(request, maximum=1024 * 1024, label="proof")
+    try:
+        proof = json.loads(body)
+        if not isinstance(proof, dict):
+            raise ValueError("proof must be a JSON object")
+        personal_archive._check_depth(proof)  # bounded before recursive schema validation
+        return verify_forecast_proof(proof)
+    except (ValueError, KeyError, ValidationError, RecursionError) as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"reason_code": "proof_invalid", "message": str(exc)},
+        ) from exc
+
+
 @app.get("/api/v1/forecasts/{artifact_id}/facts")
 def forecast_facts(artifact_id: str) -> dict[str, Any]:
     """Serve the deterministic Commentator's Notebook precomputed for one artifact.
@@ -855,6 +893,31 @@ def list_followed_matches(
         raise _follow_error(exc) from exc
 
 
+@app.get("/api/v1/follows/calendar.ics")
+def followed_matches_calendar() -> Response:
+    try:
+        items: list[dict[str, Any]] = []
+        offset = 0
+        while True:
+            listed = follows.list_follows(
+                ledger=ARTIFACT_DIR, state="active", limit=200, offset=offset, event_limit=0
+            )
+            page = listed["items"]
+            items.extend(page)
+            offset += len(page)
+            if not page or offset >= int(listed["total"]):
+                break
+        generated = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        content = calendar_export.build_calendar(items, generated_at_utc=generated)
+    except follows.FollowError as exc:
+        raise _follow_error(exc) from exc
+    return Response(
+        content=content,
+        media_type="text/calendar; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="golavo-followed-matches.ics"'},
+    )
+
+
 @app.get("/api/v1/follows/settings")
 def get_follow_settings() -> dict[str, Any]:
     try:
@@ -888,6 +951,7 @@ async def put_follow_settings(request: Request) -> dict[str, Any]:
 @app.post("/api/v1/follows/reconcile")
 async def reconcile_followed_matches() -> dict[str, Any]:
     """Reconcile against already-active local bytes; this route never reaches the network."""
+
     async def reconcile(stable: matches.StableGeneration) -> dict[str, Any]:
         stable.require_stable()
         return await run_in_threadpool(
@@ -1160,6 +1224,7 @@ async def create_correction(request: Request) -> JSONResponse:
     match_id = target_input.get("match_id")
     if correction_type != "missing_fixture" and not isinstance(match_id, str):
         raise HTTPException(status_code=422, detail="an exact match_id is required")
+
     async def propose(
         stable: matches.StableGeneration,
     ) -> tuple[dict[str, Any], bool]:
@@ -2354,6 +2419,106 @@ def fixtures_check() -> dict[str, Any]:
 def data_refresh_status() -> dict[str, Any]:
     """Source-specific check, activation, capability and rollback state."""
     return refresh_jobs.status()
+
+
+@app.get("/api/v1/data/receipts")
+def data_refresh_receipts(limit: int = 20) -> dict[str, Any]:
+    try:
+        result = refresh_receipts.list_receipts(limit=limit)
+        gap = refresh_jobs.application_receipt_gap(
+            result["items"], truncated_tail=bool(result.pop("truncated_tail", False))
+        )
+        return {
+            **result,
+            "application_gap": gap,
+        }
+    except RuntimeError:
+        return {
+            "schema_version": refresh_receipts.SCHEMA_VERSION,
+            "items": [],
+            "application_gap": None,
+        }
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(
+            status_code=500, detail="refresh receipt history failed verification"
+        ) from exc
+
+
+@app.get("/api/v1/personal/archive")
+def download_personal_archive() -> Response:
+    data, manifest = personal_archive.export_archive(ARTIFACT_DIR)
+    stamp = str(manifest["created_at_utc"])[:10]
+    return Response(
+        content=data,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="golavo-personal-{stamp}.zip"'},
+    )
+
+
+async def _bounded_body(request: Request, *, maximum: int, label: str) -> bytes:
+    claimed = request.headers.get("content-length")
+    if claimed is not None:
+        try:
+            if int(claimed) > maximum:
+                raise HTTPException(status_code=413, detail=f"{label} exceeds the size limit")
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="invalid Content-Length") from exc
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > maximum:
+            raise HTTPException(status_code=413, detail=f"{label} exceeds the size limit")
+    return bytes(body)
+
+
+async def _bounded_archive_body(request: Request) -> bytes:
+    return await _bounded_body(request, maximum=personal_archive.MAX_UNCOMPRESSED, label="archive")
+
+
+@app.post("/api/v1/personal/archive/preview")
+async def preview_personal_archive(request: Request) -> dict[str, Any]:
+    try:
+        preview, _ = personal_archive.inspect_archive(
+            await _bounded_archive_body(request), ledger=ARTIFACT_DIR
+        )
+        return preview
+    except (OSError, ValueError, KeyError, zipfile.BadZipFile) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/personal/archive/restore")
+async def restore_personal_archive(request: Request, replace: bool = False) -> dict[str, Any]:
+    try:
+        return personal_archive.restore_archive(
+            await _bounded_archive_body(request), ledger=ARTIFACT_DIR, replace=replace
+        )
+    except FileExistsError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except (OSError, ValueError, KeyError, zipfile.BadZipFile) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/ledger/checkpoints")
+def ledger_checkpoint_status() -> dict[str, Any]:
+    try:
+        return ledger_checkpoints.status(ARTIFACT_DIR)
+    except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
+        raise HTTPException(
+            status_code=500, detail="ledger checkpoint verification failed"
+        ) from exc
+
+
+@app.post("/api/v1/ledger/checkpoints")
+def create_ledger_checkpoint() -> dict[str, Any]:
+    try:
+        checkpoint = ledger_checkpoints.create(ARTIFACT_DIR)
+        return {
+            "created": True,
+            "checkpoint": checkpoint,
+            **ledger_checkpoints.status(ARTIFACT_DIR),
+        }
+    except (OSError, ValueError, KeyError, ValidationError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.post("/api/v1/data/refresh")

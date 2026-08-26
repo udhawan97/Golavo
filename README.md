@@ -179,6 +179,8 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 📦 | **Pin lawful open data** — retain source refs, licenses, manifests, and SHA-256 hashes | A forecast that can name the exact bytes it learned from; official bundles authenticate active manifest bytes before load |
 | 🔄 | **Refresh eight approved CC0 repositories** — choose manual checks or consent to launch/while-open refresh | International and current big-five league continuity from exact allowlisted paths, immutable receipts, schema validation, two retained generations, and last-known-good rollback; no daemon runs after Golavo closes |
 | 👁️ | **Follow a match** — from Games or Match Cockpit | Deduplicated kickoff, venue, score, and settlement-availability changes with optional local notifications while the app is open |
+| 🗓️ | **Export followed matches** — from Settings | A static RFC 5545 calendar with stable event identities and only exact UTC kickoffs; unknown times are omitted rather than guessed |
+| 🏠 | **Build My Teams** — choose a club from a verified domestic outlook | A local-only club room with table points, model-voice season stakes, a five-match run-in, guarded importance, and links into follow/pick flows, keyed by exact competition and team identity |
 | 🧩 | **Enable OpenLigaDB** *(optional)* — accept the ODbL disclosure and choose Bundesliga 1/2/3, DFB-Pokal, or Frauen-Bundesliga | A removable, separately attributed display overlay whose bytes never enter the CC0 pack, model training, forecasts, calibration, or exports |
 | 📡 | **Enable Sportmonks outside signals** *(optional BYOK)* — accept the provider disclosure, save your token, then fetch on one match | Attributed external full-time probabilities and pre-match match-winner prices, held in memory only and structurally excluded from every Golavo forecast/score path |
 | ✍️ | **Propose a correction** — attach a source URL and captured evidence, then review locally | An append-only untrusted candidate with conflicts and license class kept explicit; acceptance changes display context only, never authoritative data or a sealed forecast |
@@ -187,6 +189,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | 🥅 | **Explore the Score Outlook** — key goal signals in Casual; double chance, every total-goal line, distribution, exact-score matrix, and the outcome split beyond the grid in Expert | The same goal distribution behind the 1X2 forecast, with progressive depth instead of a decorative second guess |
 | 🧾 | **Score after full time** — write a linked scored or voided successor | Outcome, assigned probability, log loss, Brier, or a real void reason |
 | 📈 | **Keep a forward ledger** — aggregate genuine pre-kickoff seals separately from backtests | A calibration record that starts small because history is not available on back-order |
+| 🛡️ | **Open Trust Center** — verify a proof, back up the forecast ledger, or checkpoint it | Structured local verification, recoverable allowlisted archive/restore, data-application receipts, and a local hash chain whose limits stay visible |
 | 🗒️ | **Read the programme evidence** — venue-aware form timelines and streaks, fitted team style, guarded goal timing, head-to-head features, and competition/team records | Source-backed evidence separated into competition context, like-for-like team comparisons, and team-specific lanes, with sample/freshness guards and coincidences quarantined |
 | 🏆 | **Read the match's history** — club comeback/lead records from recorded half-time scores, plus a trophy-and-awards shelf on exact FIFA World Cup fixtures | Source-backed context with visible sample limits and as-of filtering, never a second forecast engine |
 | 🤖 | **Enable the AI Analyst Read** *(optional)* — use a local Ollama/llama.cpp model or bring a cloud key; optionally research a Wikimedia page or entity you explicitly select | A cited synthesis that connects engine-owned evidence without authoring a number. Research captures exact text, URL, retrieval time, and hash into the correction-review lane; search only discovers candidates and never makes a fact authoritative |
@@ -202,7 +205,7 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | --- | --- |
 | **Forward forecasting** | Men's senior full internationals and fixtures in the five pinned 2026–27 domestic schedules can be sealed before kickoff. International results score from retained snapshots; club results require two agreeing sources and otherwise remain pending. |
 | **Historical evaluation** | Internationals plus the men's top-5 European leagues, modeled independently over accepted completed seasons |
-| **Artifacts** | Versioned JSON contracts for forecasts, evidence bundles, facts, and AI narration; canonical payload hashes, source snapshot ids, and downloadable portable verification proofs |
+| **Artifacts** | Versioned JSON contracts for forecasts, evidence bundles, facts, and AI narration; canonical payload hashes, source snapshot ids, downloadable portable verification proofs, an in-app verifier, and local hash-chained checkpoints |
 | **Models** | Climatological baseline, Elo ordinal-logit, independent Poisson, time-decayed Dixon–Coles, and bivariate Poisson; no permanent champion declared |
 | **Exact scores** | Goal-based seals include the coherent score grid they already imply, including an explicit high-score tail |
 | **Match Cockpit** | On-demand analysis for **any** indexed match at the seal's own `kickoff − 1s` cutoff: a **Replay** or **Preview** arranged as six programme chapters. Casual keeps the essential story; Expert exposes fitted model internals, complete market rows, source proof, and the coherent score grid — machine-checked leak-safe, never averaged |
@@ -212,8 +215,10 @@ The model gets one chance to speak before kickoff. VAR is not available for JSON
 | **World Cup history archive** | Women's 1991–2019 and men's 1930–2022 tournament records, pedigree, final fours, and awards from the isolated, pinned Fjelstul CC-BY-SA-4.0 pack. The archive is descriptive only and cannot train, forecast, simulate, or seal. |
 | **Historical team research** | Seven isolated CC-BY-4.0 competition-era artifacts cover 1,941 Pappalardo/Wyscout matches and 3,251,294 events. Only team aggregates ship; raw events and player identities do not. |
 | **Your Call / My Season** | Kickoff-locked score picks with SHA-256 integrity, durable local storage, five deterministic rivals, 3 / 1 / +1 scoring, standings, history, filters, cumulative points, and streaks |
-| **Approved-source refresh** | Consent-gated manual, launch, and while-open checks across eight fixed repositories: martj42, World Cup/football JSON, and five country Football.TXT sources. Current domestic schedules/results activate only from exact allowlisted paths after validation; failures keep the last-known-good generation. |
-| **Followed matches** | Local follow/unfollow, targeted source checks, deduplicated kickoff/venue/score/settlement history, optional desktop notifications, and exact closed-app disclosure. No account, cloud sync, daemon, Login Item, or LaunchAgent. |
+| **My Teams** | Exact competition-and-team local favorites for the five certified domestic outlooks, with current/projected points, one disclosed model voice's season stakes, a five-match importance-labelled run-in, follow/pick routing, and fail-closed rename/promotion handling |
+| **Approved-source refresh** | Consent-gated manual, launch, and while-open checks across eight fixed repositories: martj42, World Cup/football JSON, and five country Football.TXT sources. Current domestic schedules/results activate only from exact allowlisted paths after validation; failures keep the last-known-good generation. Activations and rollbacks attempt a checksummed local application receipt with index/source/capability evidence; any secondary append gap is persisted in the job result and shown in Trust Center. |
+| **Followed matches** | Local follow/unfollow, targeted source checks, deduplicated kickoff/venue/score/settlement history, optional desktop notifications, and a static calendar export for exact kickoff times. No account, cloud sync, daemon, Login Item, or LaunchAgent. |
+| **Forecast-ledger archive** | Checksummed export, preview, named conflict confirmation, durable recovery journal, retained pre-restore backup, and an explicit allowlist limited to forecasts, picks, and followed-match state. Browser team favorites, credentials, providers, overlays, weather, research captures, refresh generations, checkpoints, and caches are excluded. |
 | **License-isolated overlay** | OpenLigaDB Bundesliga 1/2/3, DFB-Pokal, and current Frauen-Bundesliga (`ffb1`) context is optional, ODbL-attributed, display-only, stored under a separate overlay root, and removable. Exact source identities are used without fuzzy or automatic CC0 merging. |
 | **Outside signals** | Sportmonks Football API v3 is optional, paid BYOK, and foreground-click-only. Exact team/kickoff identity is required; responses remain in memory and cannot enter model inputs, verdicts, seals, settlement, calibration, scoring, AI evidence, or exports. No logos, bookmaker links, affiliate tracking, advice, or bet placement. |
 | **Corrections** | Local append-only proposals for fixtures, kickoff, aliases, venues, and scores. Evidence and source URL are mandatory before validation; conflicts fail closed; exports require an explicit final action. Nothing enters packs, training, calibration, or seals. |
@@ -540,15 +545,16 @@ updates, approved-source refresh, the optional ODbL-isolated OpenLigaDB overlay,
 including current Frauen-Bundesliga display context, the women-first World Cup history
 archive, followed matches, local correction review, evidence-bound research, optional guarded AI,
 deterministic explanation surfaces, the Commentator's Notebook, exact-score grids, Match
-Cockpit, Model Lab, and My Season. Those are current capabilities, not future roadmap items.
+Cockpit, Model Lab, My Season, My Teams, and Trust Center. Those are current capabilities,
+not future roadmap items.
 
 | Remaining workstream | What remains | Gate |
 |---|---|---|
 | **Live club continuity** | keep lawful schedules current beyond the pinned 2026–27 season and add a second independent result source for automatic grading | verified source licenses, complete coverage, cadence, cutoff semantics, and source agreement |
 | **League Outlook continuity** | refresh future schedules only after they pass the same complete, gap-free certificate as 2026–27 | lawful complete season state |
 | **Observed match data** | optional verified lineups, injuries, xG, scorers, corners, and cups | lawful licensed source; typed provenance-safe adapters |
-| **Ledger longevity** | cross-artifact hash chaining and verification | migration and recovery design proven against existing ledgers |
 | **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | real platform signing credentials and release-matrix validation |
+| **Checkpoint continuity** | prove cross-version checkpoint migration and disaster recovery, then consider optional external anchoring | fixture-led migration drills, recovery tests, explicit privacy/retention policy, and an independent anchor design |
 | **Product reach** | team/player/manager dossiers, community packs, and i18n | source-specific review and isolation tests |
 
 Entry criteria, kill switches, and the less photogenic details live in the

@@ -473,6 +473,23 @@ function RunningCalibration({ data }: { data: CalibrationSummary }) {
           </EmptyState>
         </div>
       )}
+      {(data.slices?.length ?? 0) > 0 && (
+        <div className="stack" style={{ ["--gap" as string]: ".75rem" }}>
+          <h3>Guarded descriptive slices</h3>
+          <p className="small dim">Competition and model-family cuts are predeclared. Each slice is withheld independently until it reaches 30 scored seals; reliability still requires 100 seals and three populated bins.</p>
+          <div className="league-grid">
+            {data.slices!.map((slice) => (
+              <div className="card card--pad stack" key={`${slice.dimension}:${slice.key}`}>
+                <span className="small upper muted">{slice.dimension.replace("_", " ")}</span>
+                <strong>{slice.key}</strong>
+                <span className="small">{slice.n_scored} scored seals</span>
+                {slice.metrics ? <span className="small num">Log loss {num(slice.metrics.log_loss, 3)} · Brier {num(slice.metrics.brier, 3)}</span> : <span className="small dim">Proper scores held back until 30.</span>}
+                <span className="small dim">{slice.caveat}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

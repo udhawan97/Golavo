@@ -17,7 +17,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from golavo_server import refresh_sources
+from golavo_server import calendar_export, refresh_sources, runtime
 
 SCHEMA_VERSION = "0.1.0"
 DATABASE_VERSION = 1
@@ -433,6 +433,7 @@ def _follow_view(
     }
 
 
+@runtime.user_state_guard
 def follow_match(
     match: dict[str, Any],
     *,
@@ -561,6 +562,7 @@ def follow_match(
         connection.close()
 
 
+@runtime.user_state_guard
 def list_follows(
     *,
     ledger: Path,
@@ -576,12 +578,20 @@ def list_follows(
     event_limit = max(0, min(int(event_limit), 100))
     connection = _connect(ledger, create=False)
     if connection is None:
-        return {"schema_version": SCHEMA_VERSION, "items": [], "total": 0, "unread_event_count": 0}
+        return {
+            "schema_version": SCHEMA_VERSION,
+            "items": [],
+            "total": 0,
+            "unread_event_count": 0,
+            "calendar_exportable_count": 0,
+            "calendar_omitted_count": 0,
+        }
     try:
         where = "" if state == "all" else "WHERE subscription_state=?"
         params: tuple[Any, ...] = () if state == "all" else (state,)
         total = connection.execute(
-            f"SELECT COUNT(*) FROM followed_matches {where}", params  # noqa: S608
+            f"SELECT COUNT(*) FROM followed_matches {where}",
+            params,  # noqa: S608
         ).fetchone()[0]
         rows = connection.execute(
             f"""SELECT * FROM followed_matches {where}
@@ -593,16 +603,30 @@ def list_follows(
             JOIN followed_matches f ON f.follow_id=e.follow_id
             WHERE e.read_at_utc IS NULL AND f.subscription_state='active'"""
         ).fetchone()[0]
+        calendar_rows = connection.execute(
+            """SELECT follow_id, current_snapshot_json FROM followed_matches
+            WHERE subscription_state='active'"""
+        ).fetchall()
+        calendar_exportable = sum(
+            1
+            for row in calendar_rows
+            if calendar_export.is_exportable(
+                {"follow_id": row["follow_id"], "current": _json(row["current_snapshot_json"])}
+            )
+        )
         return {
             "schema_version": SCHEMA_VERSION,
             "items": [_follow_view(connection, row, event_limit=event_limit) for row in rows],
             "total": int(total),
             "unread_event_count": int(unread),
+            "calendar_exportable_count": calendar_exportable,
+            "calendar_omitted_count": len(calendar_rows) - calendar_exportable,
         }
     finally:
         connection.close()
 
 
+@runtime.user_state_guard
 def get_follow_for_match(match_id: str, *, ledger: Path) -> dict[str, Any] | None:
     connection = _connect(ledger, create=False)
     if connection is None:
@@ -618,6 +642,7 @@ def get_follow_for_match(match_id: str, *, ledger: Path) -> dict[str, Any] | Non
         connection.close()
 
 
+@runtime.user_state_guard
 def unfollow(follow_id: str, *, ledger: Path, now: datetime | None = None) -> dict[str, Any]:
     timestamp = _now_z(now)
     connection = _connect(ledger, create=False)
@@ -656,6 +681,7 @@ def unfollow(follow_id: str, *, ledger: Path, now: datetime | None = None) -> di
         connection.close()
 
 
+@runtime.user_state_guard
 def remove_history(*, ledger: Path) -> dict[str, Any]:
     root = _database_path(ledger).parent
     path = root / DATABASE_NAME
@@ -679,6 +705,7 @@ def remove_history(*, ledger: Path) -> dict[str, Any]:
     return {"schema_version": SCHEMA_VERSION, "removed": removed}
 
 
+@runtime.user_state_guard
 def settings(*, ledger: Path, notifications_supported: bool) -> dict[str, Any]:
     connection = _connect(ledger, create=False)
     opt_in = False
@@ -697,6 +724,7 @@ def settings(*, ledger: Path, notifications_supported: bool) -> dict[str, Any]:
     }
 
 
+@runtime.user_state_guard
 def update_settings(
     notifications_opt_in: bool,
     *,
@@ -722,6 +750,7 @@ def update_settings(
     return settings(ledger=ledger, notifications_supported=notifications_supported)
 
 
+@runtime.user_state_guard
 def mark_read(
     event_ids: Iterable[str] | None,
     *,
@@ -753,6 +782,7 @@ def mark_read(
         connection.close()
 
 
+@runtime.user_state_guard
 def claim_notifications(
     *, ledger: Path, limit: int = 20, now: datetime | None = None
 ) -> dict[str, Any]:
@@ -798,6 +828,7 @@ def claim_notifications(
         connection.close()
 
 
+@runtime.user_state_guard
 def update_notification(
     event_id: str,
     status: str,
@@ -861,6 +892,7 @@ def _upstream_lookup(
     return matches._row_to_dict(selected.iloc[0], by_match_id, by_fixture)
 
 
+@runtime.user_state_guard
 def reconcile(
     *,
     ledger: Path,
@@ -1094,6 +1126,7 @@ def reconcile(
         connection.close()
 
 
+@runtime.user_state_guard
 def source_ids(*, ledger: Path) -> list[str]:
     connection = _connect(ledger, create=False)
     if connection is None:
@@ -1108,6 +1141,7 @@ def source_ids(*, ledger: Path) -> list[str]:
         connection.close()
 
 
+@runtime.user_state_guard
 def record_source_revisions(
     source_ids: Iterable[str],
     *,
@@ -1154,6 +1188,7 @@ def record_source_revisions(
         connection.close()
 
 
+@runtime.user_state_guard
 def record_conflicts(
     details: Iterable[dict[str, Any]],
     *,
@@ -1209,6 +1244,7 @@ def record_conflicts(
         connection.close()
 
 
+@runtime.user_state_guard
 def record_settlement_report(
     report: dict[str, Any], *, ledger: Path, now: datetime | None = None
 ) -> list[str]:
@@ -1231,10 +1267,9 @@ def record_settlement_report(
                 for item in scored:
                     if not isinstance(item, dict):
                         continue
-                    if (
-                        item.get("home_team") != snapshot.get("home_team")
-                        or item.get("away_team") != snapshot.get("away_team")
-                    ):
+                    if item.get("home_team") != snapshot.get("home_team") or item.get(
+                        "away_team"
+                    ) != snapshot.get("away_team"):
                         continue
                     source_id = str(item.get("source_id") or snapshot["source_id"])
                     event_id = _insert_event(

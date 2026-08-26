@@ -16,6 +16,9 @@ Environment:
 from __future__ import annotations
 
 import os
+import threading
+from collections.abc import Callable
+from functools import wraps
 from pathlib import Path
 
 from golavo_core.resources import resource
@@ -34,6 +37,24 @@ _EVAL_SUMMARY_NAMES = (
 
 # Header the desktop shell attaches to every request; compared against GOLAVO_TOKEN.
 TOKEN_HEADER = "x-golavo-token"
+
+# One desktop sidecar owns the user ledger. Every service that can read or write
+# archive-owned state shares this re-entrant lock so a verified export/restore
+# cannot race a follow, pick, seal, or settlement operation.
+USER_STATE_LOCK = threading.RLock()
+
+
+def user_state_guard[**Parameters, Result](
+    function: Callable[Parameters, Result],
+) -> Callable[Parameters, Result]:
+    """Serialize access to first-party ledger state across service modules."""
+
+    @wraps(function)
+    def guarded(*args: Parameters.args, **kwargs: Parameters.kwargs) -> Result:
+        with USER_STATE_LOCK:
+            return function(*args, **kwargs)
+
+    return guarded
 
 
 def data_dir() -> Path:

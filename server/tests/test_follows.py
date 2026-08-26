@@ -93,9 +93,7 @@ def test_follow_is_idempotent_and_refollow_preserves_history(tmp_path: Path) -> 
 def test_generation_commit_rolls_back_follow_and_reconciliation(tmp_path: Path) -> None:
     ledger = tmp_path / "ledger"
     with pytest.raises(follows.FollowError, match="index changed") as caught:
-        follows.follow_match(
-            _match(), ledger=ledger, generation_commit=lambda operation: False
-        )
+        follows.follow_match(_match(), ledger=ledger, generation_commit=lambda operation: False)
     assert caught.value.reason_code == "index_generation_changed"
     assert follows.list_follows(ledger=ledger)["total"] == 0
 
@@ -197,6 +195,25 @@ def test_openligadb_cannot_enter_core_follow_store(tmp_path: Path) -> None:
         assert exc.reason_code == "unsupported_follow_source"
     else:
         raise AssertionError("ODbL identities must fail closed")
+
+
+def test_follow_list_reports_calendar_inclusions_and_fail_closed_omissions(
+    tmp_path: Path,
+) -> None:
+    ledger = tmp_path / "ledger"
+    follows.follow_match(_match(), ledger=ledger)
+    follows.follow_match(
+        _match(
+            match_id="match-2",
+            upstream_fixture_key="fixture-2",
+            kickoff_precision="exact",
+        ),
+        ledger=ledger,
+    )
+
+    listed = follows.list_follows(ledger=ledger)
+    assert listed["calendar_exportable_count"] == 1
+    assert listed["calendar_omitted_count"] == 1
 
 
 def test_notifications_require_local_opt_in_and_claim_once(tmp_path: Path) -> None:
@@ -321,8 +338,7 @@ def test_follow_api_and_contract(monkeypatch, tmp_path: Path) -> None:
 
     schema = json.loads(
         (
-            Path(__file__).resolve().parents[2]
-            / "docs/contracts/followed_match.schema.json"
+            Path(__file__).resolve().parents[2] / "docs/contracts/followed_match.schema.json"
         ).read_text(encoding="utf-8")
     )
     Draft202012Validator(schema, format_checker=FormatChecker()).validate(listing)

@@ -16,10 +16,19 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from golavo_server import follows, matches, refresh, refresh_sources, refresh_state, runtime
+from golavo_server import (
+    follows,
+    matches,
+    refresh,
+    refresh_receipts,
+    refresh_sources,
+    refresh_state,
+    runtime,
+)
 
 JOB_SCHEMA_VERSION = "0.1.0"
 _BACKOFF_SECONDS = (15 * 60, 60 * 60, 6 * 60 * 60, 24 * 60 * 60)
+_RECEIPT_PENDING_KEY = "application_receipt_pending"
 
 
 def _parse_utc(value: object) -> datetime | None:
@@ -34,6 +43,88 @@ def _parse_utc(value: object) -> datetime | None:
 
 def _now_z() -> str:
     return refresh_sources.utc_z()
+
+
+def _mark_receipt_pending(
+    *,
+    operation: str,
+    previous_generation_id: str | None,
+    active_generation_id: str,
+    occurred_at_utc: str,
+    job_id: str | None,
+) -> dict[str, Any]:
+    marker = {
+        "operation": operation,
+        "previous_generation_id": previous_generation_id,
+        "active_generation_id": active_generation_id,
+        "occurred_at_utc": occurred_at_utc,
+        "job_id": job_id,
+        "error": None,
+    }
+    state = refresh_state.load_state()
+    state[_RECEIPT_PENDING_KEY] = marker
+    refresh_state.save_state(state)
+    return marker
+
+
+def _finish_receipt_marker(marker: dict[str, Any], error: str | None) -> None:
+    state = refresh_state.load_state()
+    current = state.get(_RECEIPT_PENDING_KEY)
+    if not isinstance(current, dict) or any(
+        current.get(key) != marker.get(key)
+        for key in ("operation", "active_generation_id", "occurred_at_utc")
+    ):
+        return
+    if error is None:
+        state.pop(_RECEIPT_PENDING_KEY, None)
+    else:
+        state[_RECEIPT_PENDING_KEY] = {**current, "error": error}
+    refresh_state.save_state(state)
+
+
+def _marker_targets_active(state: dict[str, Any]) -> bool:
+    marker = state.get(_RECEIPT_PENDING_KEY)
+    pointer = refresh_state.load_pointer()
+    return (
+        isinstance(marker, dict)
+        and isinstance(pointer, dict)
+        and marker.get("active_generation_id") == pointer.get("active_generation_id")
+    )
+
+
+def application_receipt_gap(
+    receipts: list[dict[str, Any]], *, truncated_tail: bool = False
+) -> dict[str, Any] | None:
+    """Return a durable activation/rollback receipt gap, if the active pointer proves one."""
+    state = refresh_state.load_state()
+    marker = state.get(_RECEIPT_PENDING_KEY)
+    if not isinstance(marker, dict) or not _marker_targets_active(state):
+        return (
+            {
+                "job_id": None,
+                "message": "refresh receipt history ended with an incomplete final record",
+            }
+            if truncated_tail
+            else None
+        )
+    completed = any(
+        receipt.get("operation") == marker.get("operation")
+        and receipt.get("active_generation_id") == marker.get("active_generation_id")
+        and receipt.get("occurred_at_utc") == marker.get("occurred_at_utc")
+        for receipt in receipts
+    )
+    if completed:
+        return None
+    return {
+        "job_id": marker.get("job_id"),
+        "message": str(
+            marker.get("error")
+            or (
+                "the process stopped after the active pointer changed and before "
+                "receipt append was confirmed"
+            )
+        ),
+    }
 
 
 def _sync_state_to_generation(
@@ -180,6 +271,9 @@ class RefreshCoordinator:
         persisted = refresh_state.load_state().get("job")
         if isinstance(persisted, dict) and (job_id is None or persisted.get("job_id") == job_id):
             if persisted.get("state") in ("queued", "running"):
+                activation_uncertain = persisted.get(
+                    "stage"
+                ) == "activating" or _marker_targets_active(refresh_state.load_state())
                 return {
                     **persisted,
                     "state": "failed",
@@ -187,8 +281,13 @@ class RefreshCoordinator:
                     "error": {
                         "code": "interrupted",
                         "message": (
-                            "the previous refresh stopped when Golavo closed; "
-                            "active data was unchanged"
+                            "the previous refresh stopped during activation; active data may "
+                            "have changed, so inspect the active generation and receipts"
+                            if activation_uncertain
+                            else (
+                                "the previous refresh stopped when Golavo closed; "
+                                "active data was unchanged"
+                            )
                         ),
                         "retryable": True,
                     },
@@ -529,9 +628,7 @@ class RefreshCoordinator:
                 ),
                 None,
             )
-            season_start = (
-                f"{domestic_season[:4]}-07-01" if domestic_season else "9999-07-01"
-            )
+            season_start = f"{domestic_season[:4]}-07-01" if domestic_season else "9999-07-01"
             candidate = refresh.merge_refresh_generation(
                 staging / "packs" / "internationals",
                 club_packs,
@@ -552,7 +649,46 @@ class RefreshCoordinator:
 
             self._update_job(stage="activating")
             installed = refresh_state.install_generation(staging, str(manifest["generation_id"]))
-            pointer = refresh_state.activate_generation(installed.name, activated_at_utc=_now_z())
+            activated_at_utc = _now_z()
+            receipt: dict[str, Any] | None = None
+            receipt_error: str | None = None
+            with refresh_state.activation_lock():
+                current_pointer = refresh_state.load_pointer() or {}
+                current_generation = current_pointer.get("active_generation_id")
+                previous_generation = (
+                    current_generation
+                    if isinstance(current_generation, str) and current_generation != installed.name
+                    else current_pointer.get("previous_generation_id")
+                )
+                marker = _mark_receipt_pending(
+                    operation="refresh_activation",
+                    previous_generation_id=(
+                        str(previous_generation) if isinstance(previous_generation, str) else None
+                    ),
+                    active_generation_id=installed.name,
+                    occurred_at_utc=activated_at_utc,
+                    job_id=str(self._job.get("job_id")) if self._job is not None else None,
+                )
+                try:
+                    pointer = refresh_state._activate_generation_unlocked(
+                        installed.name, activated_at_utc=activated_at_utc
+                    )
+                except BaseException:
+                    _finish_receipt_marker(marker, None)
+                    raise
+                try:
+                    receipt = refresh_receipts.append(
+                        operation="refresh_activation",
+                        previous_generation_id=pointer.get("previous_generation_id"),
+                        active_generation_id=installed.name,
+                        manifest=manifest,
+                        occurred_at_utc=pointer["activated_at_utc"],
+                    )
+                except (OSError, RuntimeError, ValueError) as exc:
+                    # The active pointer is already durable; its pending marker
+                    # becomes the explicit application gap.
+                    receipt_error = str(exc)
+                _finish_receipt_marker(marker, receipt_error)
             matches.repoint_to_refreshed()
             final_state = refresh_state.load_state()
             import pandas as pd
@@ -611,6 +747,8 @@ class RefreshCoordinator:
                     "capabilities": capabilities,
                     "failures": sorted(failures),
                     "follow_reconciliation": reconciliation,
+                    "application_receipt": receipt,
+                    "application_receipt_error": receipt_error,
                 }
             )
         except refresh_sources.RefreshCancelled:
@@ -639,9 +777,7 @@ class RefreshCoordinator:
                 source_status=state.get("sources", {}),
             )
             _reconcile_follows(state)
-            self._fail(
-                "source_conflict", str(exc), retryable=False, details=exc.details
-            )
+            self._fail("source_conflict", str(exc), retryable=False, details=exc.details)
         except refresh_sources.RefreshSourceError as exc:
             refresh_state.clean_staging(staging)
             self._fail(exc.code, str(exc), retryable=exc.retryable)
@@ -785,11 +921,47 @@ def status() -> dict[str, Any]:
 
 
 def rollback() -> dict[str, Any]:
-    pointer = refresh_state.rollback(activated_at_utc=_now_z())
-    active = refresh_state.generation_dir(str(pointer["active_generation_id"]))
-    manifest = refresh_state.verify_generation(active)
+    activated_at_utc = _now_z()
+    receipt: dict[str, Any] | None = None
+    receipt_error: str | None = None
+    with refresh_state.activation_lock():
+        current_pointer = refresh_state.load_pointer() or {}
+        target = current_pointer.get("previous_generation_id")
+        current = current_pointer.get("active_generation_id")
+        if not isinstance(target, str):
+            raise ValueError("no previous refresh generation is available")
+        marker = _mark_receipt_pending(
+            operation="rollback",
+            previous_generation_id=str(current) if isinstance(current, str) else None,
+            active_generation_id=target,
+            occurred_at_utc=activated_at_utc,
+            job_id=None,
+        )
+        try:
+            pointer = refresh_state._rollback_unlocked(activated_at_utc=activated_at_utc)
+        except BaseException:
+            _finish_receipt_marker(marker, None)
+            raise
+        active = refresh_state.generation_dir(str(pointer["active_generation_id"]))
+        manifest = refresh_state.verify_generation(active)
+        try:
+            receipt = refresh_receipts.append(
+                operation="rollback",
+                previous_generation_id=pointer.get("previous_generation_id"),
+                active_generation_id=str(pointer["active_generation_id"]),
+                manifest=manifest,
+                occurred_at_utc=str(pointer["activated_at_utc"]),
+            )
+        except (OSError, RuntimeError, ValueError) as exc:
+            receipt_error = str(exc)
+        _finish_receipt_marker(marker, receipt_error)
     state = refresh_state.load_state()
     _sync_state_to_generation(state, manifest, str(pointer["activated_at_utc"]))
     refresh_state.save_state(state)
     matches.repoint_to_refreshed()
-    return {"schema_version": "0.1.0", **pointer}
+    return {
+        "schema_version": "0.1.0",
+        **pointer,
+        "application_receipt": receipt,
+        "application_receipt_error": receipt_error,
+    }

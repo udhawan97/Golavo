@@ -16,6 +16,7 @@ import json
 import math
 from pathlib import Path
 
+import golavo_core.calibration as calibration_module
 import pytest
 from golavo_core.artifacts import (
     score_forecast,
@@ -298,6 +299,12 @@ def test_calibration_summary_aggregates_real_chains(tmp_path: Path) -> None:
         "prob_assigned_to_outcome": metrics["prob_assigned_to_outcome"],
     }
     assert sum(bin["count"] for bin in summary["reliability_bins"]) == 1
+    assert {item["dimension"] for item in summary["slices"]} == {
+        "competition",
+        "model_family",
+    }
+    assert all(item["metrics_status"] == "held_back" for item in summary["slices"])
+    assert all(item["reliability_bins"] == [] for item in summary["slices"])
     assert voided_chain["sealed_artifact_id"] == json.loads(sealed_voided.read_bytes())[
         "artifact_id"
     ]
@@ -318,6 +325,45 @@ def test_calibration_summary_of_an_empty_or_missing_ledger(tmp_path: Path) -> No
     assert summary["running"] is None
     assert summary["chains"] == []
     assert summary["reliability_bins"] == []
+    assert summary["slices"] == []
+
+
+def test_descriptive_slice_thresholds_and_sparse_bins_are_fail_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bins = [
+        {"count": 20, "accuracy": 0.4},
+        {"count": 20, "accuracy": 0.5},
+        {"count": 20, "accuracy": 0.6},
+        {"count": 19, "accuracy": 0.7},
+    ]
+    monkeypatch.setattr(
+        calibration_module,
+        "_metrics",
+        lambda *_args: {"log_loss": 1.0, "brier": 0.6, "reliability_bins": bins},
+    )
+
+    def chains(count: int) -> list[dict[str, object]]:
+        return [
+            {
+                "resolution": {"status": "scored", "actual": {"outcome": "home"}},
+                "probs": {"home": 0.5, "draw": 0.25, "away": 0.25},
+                "match": {"competition": "Threshold League"},
+                "family": "dixon_coles",
+            }
+            for _ in range(count)
+        ]
+
+    assert calibration_module._calibration_slices(chains(29))[0]["metrics"] is None
+    at_30 = calibration_module._calibration_slices(chains(30))[0]
+    assert at_30["metrics_status"] == "available"
+    assert at_30["reliability_status"] == "held_back"
+    assert calibration_module._calibration_slices(chains(99))[0][
+        "reliability_status"
+    ] == "held_back"
+    at_100 = calibration_module._calibration_slices(chains(100))[0]
+    assert at_100["reliability_status"] == "available"
+    assert [item["count"] for item in at_100["reliability_bins"]] == [20, 20, 20]
 
 
 def test_calibration_rejects_a_double_resolved_seal(tmp_path: Path) -> None:

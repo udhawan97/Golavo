@@ -147,18 +147,73 @@ def verify_forecast_proof(proof: dict[str, Any]) -> dict[str, Any]:
                 changed = True
     if connected != set(artifacts):
         raise ValueError("proof contains artifacts outside the root lineage")
+    artifact_sources: dict[tuple[str, str], dict[str, Any]] = {}
+    for artifact in artifacts.values():
+        for descriptor in artifact["inputs"]["snapshots"]:
+            key = (str(descriptor["source_id"]), str(descriptor["sha256"]))
+            previous = artifact_sources.get(key)
+            if previous is not None and previous != descriptor:
+                raise ValueError("proof artifacts disagree on a source descriptor")
+            artifact_sources[key] = descriptor
+    declared_sources: dict[tuple[str, str], dict[str, Any]] = {}
+    for source in proof["sources"]:
+        descriptor = source["descriptor"]
+        key = (str(descriptor["source_id"]), str(descriptor["sha256"]))
+        if key in declared_sources:
+            raise ValueError("proof contains a duplicate source descriptor")
+        declared_sources[key] = descriptor
+    if set(declared_sources) != set(artifact_sources):
+        raise ValueError("proof sources do not match the included artifact snapshots")
+    for key, descriptor in declared_sources.items():
+        if descriptor != artifact_sources[key]:
+            raise ValueError("proof source descriptor does not match its artifact snapshot")
+    embedded_sources = 0
+    descriptor_only_sources = 0
+    source_checks: list[dict[str, str]] = []
     for source in proof["sources"]:
         manifest_json = source.get("manifest_json")
         if manifest_json is None:
+            descriptor_only_sources += 1
+            source_checks.append(
+                {
+                    "source_id": str(source["descriptor"]["source_id"]),
+                    "sha256": str(source["descriptor"]["sha256"]),
+                    "status": "descriptor-only-not-verified",
+                }
+            )
             continue
+        embedded_sources += 1
         digest = hashlib.sha256(manifest_json.encode()).hexdigest()
         if digest != source["descriptor"]["sha256"]:
             raise ValueError("embedded source manifest hash mismatch")
         json.loads(manifest_json)
+        source_checks.append(
+            {
+                "source_id": str(source["descriptor"]["source_id"]),
+                "sha256": str(source["descriptor"]["sha256"]),
+                "status": "embedded-manifest-hash-valid",
+            }
+        )
     return {
         "verified": True,
         "root_artifact_id": root_id,
         "artifact_count": len(artifacts),
         "source_count": len(proof["sources"]),
+        "embedded_source_count": embedded_sources,
+        "descriptor_only_source_count": descriptor_only_sources,
+        "source_checks": source_checks,
         "bundle_sha256": expected,
+        "checks": {
+            "bundle_hash": "valid",
+            "included_artifacts": "hash-valid",
+            "included_lineage": "internally-connected",
+            "source_descriptors": "reconciled-to-artifact-snapshots",
+            "embedded_source_manifests": "hash-valid",
+        },
+        "limits": [
+            "This verifies only the bytes included in this portable proof.",
+            "Descriptor-only sources are identified but their external bytes are not verified.",
+            "It does not prove source authenticity, ledger completeness, creation time, "
+            "or forecast accuracy.",
+        ],
     }

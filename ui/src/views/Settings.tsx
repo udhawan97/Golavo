@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from "react";
 import { SCHEMA_VERSION } from "../lib/contract";
-import { defaultModelAssignment, fetchLocalModels, sourceDescription } from "../lib/api";
+import { defaultModelAssignment, downloadFollowCalendar, fetchLocalModels, sourceDescription } from "../lib/api";
 import type { LocalModelInfo } from "../lib/api";
 import { AI_PROVIDERS, useAiBackground, useAiModels, useAiProvider } from "../lib/ai";
 import type { AiProvider } from "../lib/ai";
@@ -316,15 +316,21 @@ export function Settings({
                 <p className="settings__hint" style={{ margin: ".2rem 0 0" }}>
                   {follows.list.total === 1 ? "1 match followed locally" : `${follows.list.total} matches followed locally`}
                 </p>
+                {follows.list.total > 0 && <p className="settings__hint" style={{ margin: ".2rem 0 0" }}>
+                  Calendar: {follows.list.calendar_exportable_count} exact-time {follows.list.calendar_exportable_count === 1 ? "match" : "matches"} included · {follows.list.calendar_omitted_count} date-only or unknown-time {follows.list.calendar_omitted_count === 1 ? "match" : "matches"} omitted. Golavo never guesses a kickoff time.
+                </p>}
               </div>
               {follows.list.total > 0 && (
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  onClick={() => void dataRefresh.refreshFollowedNow()}
-                >
-                  Check followed matches
-                </button>
+                <div className="controls">
+                  <button type="button" className="btn btn--ghost" disabled={follows.list.calendar_exportable_count === 0} onClick={() => void downloadFollowCalendar()}>Export calendar</button>
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    onClick={() => void dataRefresh.refreshFollowedNow()}
+                  >
+                    Check followed matches
+                  </button>
+                </div>
               )}
             </div>
             <p className="settings__hint">
@@ -365,6 +371,10 @@ export function Settings({
               <FollowHistoryRemovalAction onConfirm={follows.removeHistory} />
             </div>
             {follows.error && <p className="settings__hint" role="alert">{follows.error.message}</p>}
+          </div>
+          <div className="settings__row">
+            <span>Proofs, backups &amp; local integrity</span>
+            <a href="#/trust">Open Trust Center ›</a>
           </div>
           <div className="settings__row">
             <span>Map &amp; place data</span>

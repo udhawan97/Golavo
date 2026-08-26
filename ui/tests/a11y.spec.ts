@@ -15,6 +15,8 @@ const PAGES = [
   { name: "sealing-guide", path: "/#/guide/sealing" },
   { name: "picks-guide", path: "/#/guide/picks" },
   { name: "my-season", path: "/#/season" },
+  { name: "my-teams", path: "/#/teams" },
+  { name: "trust-center", path: "/#/trust" },
   // Table/form-dense routes: where a muted caption or header could slip contrast.
   { name: "search", path: "/#/matches" },
   { name: "leagues", path: "/#/leagues" },

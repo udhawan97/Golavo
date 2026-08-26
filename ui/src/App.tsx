@@ -34,6 +34,8 @@ const WorldCupRetrospective = lazy(() =>
 const SealingGuide = lazy(() => import("./views/SealingGuide").then((m) => ({ default: m.SealingGuide })));
 const PicksGuide = lazy(() => import("./views/PicksGuide").then((m) => ({ default: m.PicksGuide })));
 const MySeason = lazy(() => import("./views/MySeason").then((m) => ({ default: m.MySeason })));
+const MyTeams = lazy(() => import("./views/MyTeams").then((m) => ({ default: m.MyTeams })));
+const TrustCenter = lazy(() => import("./views/TrustCenter").then((m) => ({ default: m.TrustCenter })));
 import { UpdaterContext } from "./lib/updater-context";
 import { useUpdaterController } from "./lib/updater";
 import {
@@ -243,6 +245,7 @@ function Route({
   const league = path.match(/^\/league\/(.+)$/);
   if (league) return <LeagueView slug={safeDecode(league[1])} />;
   if (path === "/season") return <MySeason />;
+  if (path === "/teams") return <MyTeams />;
 
   // Model Lab — the relocated audit surface.
   if (path === "/lab") return <ModelLabHub />;
@@ -252,6 +255,7 @@ function Route({
   if (path === "/lab/forecasts") return <MatchdayList />;
   if (path === "/lab/worldcup-2026") return <WorldCupRetrospective />;
   if (path === "/lab/ratings") return <Ratings />;
+  if (path === "/trust") return <TrustCenter />;
 
   // Legacy routes kept alive for old links/exports.
   if (path === "/eval") return <Redirect to="/lab/backtests" />;

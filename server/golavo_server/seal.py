@@ -33,6 +33,8 @@ from typing import Any
 
 from golavo_core import resources
 
+from golavo_server import runtime
+
 # Default model for a sealed forecast. dixon_coles is the best matrix-capable
 # family on the committed international folds (it produces the exact-score grid the
 # UI shows); elo_ordlogit is the stronger pure-1X2 model but seals no grid.
@@ -293,6 +295,7 @@ def _write_notebook_best_effort(artifact: dict[str, Any], pack_dir: Path, ledger
         return
 
 
+@runtime.user_state_guard
 def seal_match(
     match_id: str,
     *,

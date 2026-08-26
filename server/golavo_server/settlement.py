@@ -34,6 +34,8 @@ from golavo_core.identity import fixture_date, normalize
 from golavo_core.ingest.snapshot import snapshot_anchor_utc
 from golavo_core.ingest.worldcup import final_score
 
+from golavo_server import runtime
+
 SCHEMA_VERSION = "0.2.0"
 RESULT_GRACE = timedelta(hours=3)
 MAX_PAYLOAD_BYTES = 25 * 1024 * 1024
@@ -291,6 +293,7 @@ def _iso(value: datetime) -> str:
     return value.astimezone(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+@runtime.user_state_guard
 def settle_pending_forecasts(
     artifact_dir: Path,
     *,

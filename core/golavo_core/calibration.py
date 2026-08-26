@@ -21,6 +21,10 @@ SCHEMA_VERSION = "0.2.0"
 _OUTCOME_INDEX = {"home": 0, "draw": 1, "away": 2}
 _ROOT_STATUSES = {"sealed", "abstained"}
 _RESOLUTION_STATUSES = {"scored", "voided"}
+SLICE_MIN_SCORED = 30
+SLICE_RELIABILITY_MIN_SCORED = 100
+SLICE_MIN_BIN = 20
+SLICE_MIN_BINS = 3
 
 
 def _load_ledger(artifact_dir: Path) -> list[dict[str, Any]]:
@@ -56,9 +60,7 @@ def _chain_pairs(
         if artifact["status"] not in _RESOLUTION_STATUSES:
             raise ValueError(f"{artifact['artifact_id']}: only scored/voided supersede a seal")
         if superseded in successors:
-            raise ValueError(
-                f"{superseded} has two successors; a seal resolves exactly once"
-            )
+            raise ValueError(f"{superseded} has two successors; a seal resolves exactly once")
         successors[superseded] = artifact
     roots = [artifact for artifact in artifacts if artifact.get("supersedes") is None]
     roots.sort(key=lambda a: (a["match"]["kickoff_utc"], a["artifact_id"]))
@@ -144,10 +146,78 @@ def calibration_summary(
         "counts": counts,
         "running": running,
         "reliability_bins": reliability_bins,
+        "slices": _calibration_slices(chains),
         "chains": chains,
     }
     _validate_calibration(summary)
     return summary
+
+
+def _calibration_slices(chains: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Predeclared, independently withheld descriptive cuts of the sealed ledger."""
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for chain in chains:
+        if chain["resolution"]["status"] != "scored" or chain["probs"] is None:
+            continue
+        groups.setdefault(("competition", str(chain["match"]["competition"])), []).append(chain)
+        groups.setdefault(("model_family", str(chain["family"])), []).append(chain)
+    result: list[dict[str, Any]] = []
+    for (dimension, key), rows in sorted(groups.items()):
+        n_scored = len(rows)
+        metrics_payload: dict[str, Any] | None = None
+        bins: list[dict[str, Any]] = []
+        reliability_status = "held_back"
+        if n_scored >= SLICE_MIN_SCORED:
+            probs = np.array(
+                [[row["probs"][name] for name in ("home", "draw", "away")] for row in rows],
+                dtype=float,
+            )
+            outcomes = np.array(
+                [_OUTCOME_INDEX[row["resolution"]["actual"]["outcome"]] for row in rows],
+                dtype=int,
+            )
+            computed = _metrics(probs, outcomes)
+            assigned = probs[np.arange(n_scored), outcomes]
+            metrics_payload = {
+                "log_loss": computed["log_loss"],
+                "brier": computed["brier"],
+                "prob_assigned_to_outcome": round(float(assigned.mean()), 6),
+            }
+            candidate_bins = computed["reliability_bins"]
+            qualifying = sum(
+                1
+                for item in candidate_bins
+                if item["count"] >= SLICE_MIN_BIN and item.get("accuracy") is not None
+            )
+            if n_scored >= SLICE_RELIABILITY_MIN_SCORED and qualifying >= SLICE_MIN_BINS:
+                bins = [
+                    item
+                    for item in candidate_bins
+                    if item["count"] >= SLICE_MIN_BIN and item.get("accuracy") is not None
+                ]
+                reliability_status = "available"
+        result.append(
+            {
+                "dimension": dimension,
+                "key": key,
+                "n_scored": n_scored,
+                "metrics_status": "available" if metrics_payload is not None else "held_back",
+                "metrics": metrics_payload,
+                "reliability_status": reliability_status,
+                "reliability_bins": bins,
+                "thresholds": {
+                    "metrics_min_scored": SLICE_MIN_SCORED,
+                    "reliability_min_scored": SLICE_RELIABILITY_MIN_SCORED,
+                    "reliability_min_bin": SLICE_MIN_BIN,
+                    "reliability_min_bins": SLICE_MIN_BINS,
+                },
+                "caveat": (
+                    "Descriptive local slice; selection and cold-start effects remain. "
+                    "It is not a confidence interval or a model comparison."
+                ),
+            }
+        )
+    return result
 
 
 def _validate_calibration(summary: dict[str, Any]) -> None:

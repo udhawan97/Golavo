@@ -74,13 +74,79 @@ def test_forecast_proof_route_exports_an_offline_verifiable_bundle(monkeypatch, 
     (ledger / real.name).write_text(real.read_text(), encoding="utf-8")
     monkeypatch.setattr(server_main, "ARTIFACT_DIR", ledger)
 
-    response = TestClient(server_main.app).get(f"/api/v1/forecasts/{real.stem}/proof")
+    client = TestClient(server_main.app)
+    response = client.get(f"/api/v1/forecasts/{real.stem}/proof")
 
     assert response.status_code == 200
     assert response.headers["content-disposition"] == (
         f'attachment; filename="{real.stem}.proof.json"'
     )
     assert verify_forecast_proof(response.json())["verified"] is True
+    verified = client.post("/api/v1/proofs/verify", content=response.content)
+    assert verified.status_code == 200
+    assert verified.json()["root_artifact_id"] == real.stem
+
+    too_large = client.post("/api/v1/proofs/verify", content=b"{" + b" " * (1024 * 1024))
+    assert too_large.status_code == 413
+    nested: object = {"value": 1}
+    for _ in range(70):
+        nested = {"child": nested}
+    deep = client.post("/api/v1/proofs/verify", content=json.dumps(nested))
+    assert deep.status_code == 422
+    assert "nesting" in deep.json()["detail"]["message"]
+
+
+def test_personal_archive_and_checkpoint_routes(monkeypatch, tmp_path) -> None:
+    ledger = tmp_path / "ledger"
+    ledger.mkdir()
+    real = next((REPO_ROOT / "data/fixtures/sample_artifacts").glob("fa_*.json"))
+    (ledger / real.name).write_bytes(real.read_bytes())
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", ledger)
+    client = TestClient(server_main.app)
+
+    exported = client.get("/api/v1/personal/archive")
+    assert exported.status_code == 200
+    assert exported.headers["content-type"].startswith("application/zip")
+    preview = client.post("/api/v1/personal/archive/preview", content=exported.content)
+    assert preview.json()["verified"] is True
+    assert preview.json()["conflicts"] == []
+
+    assert client.post("/api/v1/ledger/checkpoints").status_code == 403
+    monkeypatch.setenv("GOLAVO_TOKEN", "trust-token")
+    headers = {server_main.runtime.TOKEN_HEADER: "trust-token"}
+    created = client.post("/api/v1/ledger/checkpoints", headers=headers)
+    assert created.status_code == 200
+    assert created.json()["checkpoint_count"] == 1
+    assert client.get("/api/v1/ledger/checkpoints", headers=headers).json()["verified"] is True
+    restored = client.post(
+        "/api/v1/personal/archive/restore", content=exported.content, headers=headers
+    )
+    assert restored.status_code == 200
+
+
+def test_calendar_export_pages_through_every_follow(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(server_main, "ARTIFACT_DIR", tmp_path / "ledger")
+    items = [
+        {
+            "follow_id": f"fm_{index}",
+            "current": {
+                "match_id": f"m_{index}", "kickoff_utc": "2026-09-01T18:30:00Z",
+                "kickoff_precision": "exact", "home_team": f"Home {index}",
+                "away_team": "Away", "competition": "League",
+            },
+        }
+        for index in range(450)
+    ]
+
+    def page(**kwargs):
+        offset = kwargs["offset"]
+        limit = kwargs["limit"]
+        return {"items": items[offset:offset + limit], "total": len(items)}
+
+    monkeypatch.setattr(server_main.follows, "list_follows", page)
+    response = TestClient(server_main.app).get("/api/v1/follows/calendar.ics")
+    assert response.status_code == 200
+    assert response.text.count("BEGIN:VEVENT") == 450
 
 
 def test_a_lone_corrupt_seal_does_not_crash_the_list(monkeypatch, tmp_path) -> None:

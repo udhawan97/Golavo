@@ -16,12 +16,16 @@
 import { ACCEPTED_SCHEMA_VERSIONS, ANALYSIS_SCHEMA_VERSION } from "./contract";
 import type {
   CalibrationSummary,
+  ArchivePreview,
+  CheckpointStatus,
   ConditionsSnapshot,
   CompetitionAnalytics,
   CompetitionScorers,
   CompetitionsResponse,
   DataRefreshJob,
   DataRefreshStatus,
+  ProofVerificationResult,
+  RefreshReceiptList,
   EvalSummary,
   FixturesCheckResponse,
   FollowEvent,
@@ -516,6 +520,92 @@ export async function downloadForecastProof(id: string): Promise<void> {
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+async function downloadLocal(path: string, fallbackName: string): Promise<void> {
+  if (!API_BASE) throw new Error("This export needs the local Golavo engine.");
+  const res = await fetch(`${API_BASE}${path}`, { headers: apiHeaders() });
+  if (!res.ok) throw new ApiError("Export failed", res.status);
+  const blob = await res.blob();
+  const disposition = res.headers.get("content-disposition") ?? "";
+  const filename = disposition.match(/filename="([^"]+)"/)?.[1] ?? fallbackName;
+  const url = URL.createObjectURL(blob);
+  try {
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+export function downloadFollowCalendar(): Promise<void> {
+  return downloadLocal("/api/v1/follows/calendar.ics", "golavo-followed-matches.ics");
+}
+
+export function downloadPersonalArchive(): Promise<void> {
+  return downloadLocal("/api/v1/personal/archive", "golavo-personal.zip");
+}
+
+async function postFile<T>(path: string, file: File): Promise<T> {
+  if (!API_BASE) throw new Error("This action needs the local Golavo engine.");
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: { ...apiHeaders(), "content-type": file.type || "application/octet-stream" },
+    body: file,
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const body = (await res.json()) as { detail?: string | { message?: string } };
+      detail = typeof body.detail === "string" ? body.detail : body.detail?.message ?? detail;
+    } catch { /* retain status */ }
+    throw new Error(detail);
+  }
+  return res.json() as Promise<T>;
+}
+
+export function verifyProofFile(file: File): Promise<ProofVerificationResult> {
+  return postFile("/api/v1/proofs/verify", file);
+}
+
+export function previewPersonalArchive(file: File): Promise<ArchivePreview> {
+  return postFile("/api/v1/personal/archive/preview", file);
+}
+
+export async function restorePersonalArchive(
+  file: File,
+  replace: boolean,
+): Promise<ArchivePreview> {
+  const restored = await postFile<ArchivePreview>(
+    `/api/v1/personal/archive/restore?replace=${replace ? "true" : "false"}`,
+    file,
+  );
+  clearApiCache();
+  return restored;
+}
+
+export async function fetchRefreshReceipts(): Promise<RefreshReceiptList> {
+  if (!API_BASE) return { items: [], application_gap: null };
+  const body = await getJson("/api/v1/data/receipts") as Partial<RefreshReceiptList>;
+  return {
+    items: Array.isArray(body.items) ? body.items : [],
+    application_gap: body.application_gap ?? null,
+  };
+}
+
+export async function fetchCheckpointStatus(): Promise<CheckpointStatus> {
+  if (!API_BASE) return { schema_version: "0.1.0", verified: true, checkpoint_count: 0, head: null, missing_artifacts: [], uncheckpointed_artifacts: [], limits: [] };
+  return getJson("/api/v1/ledger/checkpoints") as Promise<CheckpointStatus>;
+}
+
+export async function createCheckpoint(): Promise<CheckpointStatus> {
+  if (!API_BASE) throw new Error("Checkpoints need the local Golavo engine.");
+  const res = await fetch(`${API_BASE}/api/v1/ledger/checkpoints`, { method: "POST", headers: apiHeaders() });
+  if (!res.ok) throw new ApiError("Could not create checkpoint", res.status);
+  clearApiCache();
+  return res.json() as Promise<CheckpointStatus>;
 }
 
 /**
@@ -1493,11 +1583,25 @@ export async function startDataRefresh(
 export async function fetchFollows(
   state: "active" | "unfollowed" | "all" = "active",
   eventLimit = 20,
+  limit = 100,
+  offset = 0,
 ): Promise<FollowListResponse> {
   if (!API_BASE) {
-    return { schema_version: "0.1.0", items: [], total: 0, unread_event_count: 0 };
+    return {
+      schema_version: "0.1.0",
+      items: [],
+      total: 0,
+      unread_event_count: 0,
+      calendar_exportable_count: 0,
+      calendar_omitted_count: 0,
+    };
   }
-  const query = new URLSearchParams({ state, event_limit: String(eventLimit) });
+  const query = new URLSearchParams({
+    state,
+    event_limit: String(eventLimit),
+    limit: String(limit),
+    offset: String(offset),
+  });
   const res = await fetch(`${API_BASE}/api/v1/follows?${query}`, { headers: apiHeaders() });
   if (!res.ok) throw new ApiError("Could not read followed matches", res.status);
   return (await res.json()) as FollowListResponse;
