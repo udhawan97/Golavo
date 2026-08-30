@@ -3,7 +3,12 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchRecentMatches } from "../lib/api";
-import { fetchSportmonksStatus, fetchTeamTransfers } from "../lib/sportmonks";
+import {
+  fetchSportmonksStatus,
+  fetchTeamTransfers,
+  SPORTMONKS_RESET_EVENT,
+  SportmonksApiError,
+} from "../lib/sportmonks";
 import { buildTransferClubOptions, Transfers } from "./Transfers";
 
 vi.mock("../lib/api", () => ({ fetchRecentMatches: vi.fn() }));
@@ -140,6 +145,19 @@ afterEach(() => {
 });
 
 describe("Transfer Desk", () => {
+  async function selectAndFetch(key = "English Premier League::Alpha FC") {
+    const select = container.querySelector("select");
+    if (!select) throw new Error("missing club selector");
+    await act(async () => {
+      select.value = key;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    const button = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Fetch transfer window",
+    );
+    await act(async () => button?.click());
+  }
+
   it("builds one stable club choice per exact local identity", () => {
     const options = buildTransferClubOptions({
       ...directory,
@@ -156,6 +174,74 @@ describe("Transfer Desk", () => {
     expect(fetchTeamTransfers).not.toHaveBeenCalled();
     expect(container.textContent).toContain("No provider request has been made yet");
 
+    await selectAndFetch();
+
+    expect(fetchTeamTransfers).toHaveBeenCalledWith("m-club", "home", expect.any(AbortSignal));
+    expect(container.textContent).toContain("Ada Forward");
+    expect(container.textContent).toContain("€42m");
+    expect(container.textContent).toContain("currency unspecified");
+    expect(container.textContent).toContain("Payment structure · not reported");
+    expect(container.textContent).not.toContain("installment estimate");
+    expect(container.textContent).toContain("raw responses not stored");
+    expect(container.textContent).toContain("Bounded read complete");
+    expect(container.textContent).toContain("not a complete club ledger");
+  });
+
+  it("labels page-bound truncation as a partial provider view", async () => {
+    vi.mocked(fetchTeamTransfers).mockResolvedValue({
+      ...response,
+      status: "partial",
+      coverage: { ...response.coverage, pages_fetched: 4, truncated: true },
+    } as never);
+    await act(async () => { root.render(<Transfers />); });
+    await selectAndFetch();
+    expect(container.textContent).toContain("Partial window");
+    expect(container.textContent).toContain("4-page safety bound was reached");
+  });
+
+  it.each([401, 403, 429, 503])("shows provider HTTP %s without keeping a stale result", async (statusCode) => {
+    vi.mocked(fetchTeamTransfers).mockRejectedValue(new SportmonksApiError(
+      "provider refused the transfer read",
+      statusCode,
+      "provider_error",
+    ));
+    await act(async () => { root.render(<Transfers />); });
+    await selectAndFetch();
+    expect(container.textContent).toContain("provider refused the transfer read");
+    expect(container.textContent).not.toContain("Ada Forward");
+    if (statusCode === 401 || statusCode === 403) {
+      expect(container.querySelector('a[href="#/settings"]')).not.toBeNull();
+    }
+  });
+
+  it("removes an earlier ledger before a failed refresh", async () => {
+    await act(async () => { root.render(<Transfers />); });
+    await selectAndFetch();
+    expect(container.textContent).toContain("Ada Forward");
+
+    vi.mocked(fetchTeamTransfers).mockRejectedValueOnce(new SportmonksApiError(
+      "rate limited during refresh",
+      429,
+      "rate_limited",
+    ));
+    const refresh = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Refresh transfer window",
+    );
+    await act(async () => refresh?.click());
+
+    expect(container.textContent).toContain("rate limited during refresh");
+    expect(container.textContent).not.toContain("Ada Forward");
+    expect(container.textContent).not.toContain("Bounded read complete");
+  });
+
+  it("aborts a superseded club request and suppresses its late response", async () => {
+    let resolveFirst: ((value: typeof response) => void) | null = null;
+    vi.mocked(fetchTeamTransfers).mockImplementationOnce((_match, _side, signal) => new Promise((resolve, reject) => {
+      resolveFirst = resolve as (value: typeof response) => void;
+      signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+    }) as never);
+    await act(async () => { root.render(<Transfers />); });
+
     const select = container.querySelector("select");
     if (!select) throw new Error("missing club selector");
     await act(async () => {
@@ -165,14 +251,25 @@ describe("Transfer Desk", () => {
     const button = [...container.querySelectorAll("button")].find(
       (candidate) => candidate.textContent === "Fetch transfer window",
     );
-    await act(async () => button?.click());
+    act(() => button?.click());
+    const signal = vi.mocked(fetchTeamTransfers).mock.calls[0][2];
+    expect(signal?.aborted).toBe(false);
 
-    expect(fetchTeamTransfers).toHaveBeenCalledWith("m-club", "home", expect.any(AbortSignal));
+    await act(async () => {
+      select.value = "English Premier League::Beta FC";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    expect(signal?.aborted).toBe(true);
+    await act(async () => resolveFirst?.(response));
+    expect(container.textContent).not.toContain("Ada Forward");
+  });
+
+  it("clears provider rows and aborts on connector reset", async () => {
+    await act(async () => { root.render(<Transfers />); });
+    await selectAndFetch();
     expect(container.textContent).toContain("Ada Forward");
-    expect(container.textContent).toContain("€42m");
-    expect(container.textContent).toContain("currency unspecified");
-    expect(container.textContent).toContain("Payment structure · not reported");
-    expect(container.textContent).not.toContain("installment estimate");
-    expect(container.textContent).toContain("raw responses not stored");
+    act(() => window.dispatchEvent(new Event(SPORTMONKS_RESET_EVENT)));
+    expect(container.textContent).not.toContain("Ada Forward");
+    expect(container.textContent).toContain("Checking the local provider connector");
   });
 });

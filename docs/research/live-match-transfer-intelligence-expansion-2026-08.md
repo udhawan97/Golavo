@@ -394,9 +394,12 @@ credentials remain outside responses, logs, caches, exports, and crash reports.
 ([source registry classification](../../data/sources/registry.json),
 [provenance-first corrections ADR](../adr/0008-provenance-first-corrections.md))
 
-## Implementation and release gates
+## Credentialed coverage and expansion gates
 
-Before any rich-match or transfer feature is released:
+v0.19 may publish the bounded, foreground-only transfer parser and UI as a fixture-tested
+capability because it makes no credentialed live-coverage claim, stores no provider response, and
+keeps the feature unavailable without the user's own access. Before Golavo claims live account
+coverage, expands the provider lane, or promotes any provider field beyond synthetic-fixture proof:
 
 1. Re-verify the provider terms, pricing, field coverage, and rate metadata with
    the user's actual account. Record exact league/season/fixture/player/transfer

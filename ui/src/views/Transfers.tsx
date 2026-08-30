@@ -119,6 +119,7 @@ export function Transfers() {
     activeRequest.current = controller;
     setLoading(true);
     setFetchError(null);
+    setResult(null);
     try {
       const value = await fetchTeamTransfers(selected.matchId, selected.side, controller.signal);
       if (!controller.signal.aborted && generation.current === requestGeneration) setResult(value);
@@ -239,15 +240,14 @@ function TransferResult({ value }: { value: TransferDeskResponse }) {
           <h2 id="transfer-results-title">{value.identity.golavo_team}</h2>
         </div>
         <span className={`chip ${value.status === "partial" ? "chip--neutral" : "chip--success"}`}>
-          {value.status === "partial" ? "Partial window" : "Window complete"}
+          {value.status === "partial" ? "Partial window" : "Bounded read complete"}
         </span>
       </div>
-      {value.status === "partial" && (
-        <p className="transfer-partial" role="status">
-          The 4-page safety bound was reached before the one-year window closed. These rows are a
-          partial provider view, not a complete club ledger.
-        </p>
-      )}
+      <p className="transfer-partial" role="status">
+        {value.status === "partial"
+          ? "The 4-page safety bound was reached before the one-year window closed. These rows are a partial provider view, not a complete club ledger."
+          : "The bounded provider read ended within its page and date limits. Subscription and source coverage can still be incomplete; this is not a complete club ledger."}
+      </p>
       {value.transfers.length === 0 ? (
         <p className="card card--pad dim">No identity-safe provider transfer rows were returned inside this window.</p>
       ) : (

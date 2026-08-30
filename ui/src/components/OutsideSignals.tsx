@@ -77,6 +77,34 @@ export function OutsideSignals({
       ))
     : settings?.enabled ? ["legacy_match_capability"] : [];
   if (!settings?.enabled || !matchCapabilities?.length) return null;
+  const hasPlayerLens = matchCapabilities.includes("player_lens");
+  const hasOutsideSignals = matchCapabilities.some((capability) => (
+    capability === "external_prediction"
+    || capability === "external_odds"
+    || capability === "legacy_match_capability"
+  ));
+  const fetchLabel = complete
+    ? hasPlayerLens && hasOutsideSignals
+      ? "Fetch final player stats & outside signals"
+      : hasPlayerLens
+        ? "Fetch final player stats"
+        : "Fetch outside signals"
+    : hasPlayerLens && hasOutsideSignals
+      ? "Fetch outside signals & player data"
+      : hasPlayerLens
+        ? "Fetch player data"
+        : "Fetch outside signals";
+  const refreshLabel = complete
+    ? hasPlayerLens && hasOutsideSignals
+      ? "Refresh final player stats & outside signals"
+      : hasPlayerLens
+        ? "Refresh final player stats"
+        : "Refresh outside signals"
+    : hasPlayerLens && hasOutsideSignals
+      ? "Refresh outside signals & player data"
+      : hasPlayerLens
+        ? "Refresh player data"
+        : "Refresh outside signals";
 
   const fetchNow = async () => {
     const requestedMatchId = matchId;
@@ -146,9 +174,7 @@ export function OutsideSignals({
             <button type="button" className="btn btn--primary" disabled={loading} onClick={() => void fetchNow()}>
               {loading
                 ? "Fetching from Sportmonks…"
-                : complete
-                  ? "Fetch final player stats & outside signals"
-                  : "Fetch outside signals & player data"}
+                : fetchLabel}
             </button>
             <span className="small dim">This click sends {home}, {away}, and the fixture date to Sportmonks.</span>
           </div>
@@ -211,7 +237,7 @@ export function OutsideSignals({
               {signals.identity.provider_league_id !== null && <span>{signals.identity.provider_league ?? "League"} <code>{signals.identity.provider_league_id}</code></span>}
               {signals.identity.provider_season_id !== null && <span>{signals.identity.provider_season ?? "Season"} <code>{signals.identity.provider_season_id}</code></span>}
               <button type="button" className="btn btn--ghost" disabled={loading} onClick={() => void fetchNow()}>
-                {loading ? "Refreshing…" : complete ? "Refresh final player stats" : "Refresh"}
+                {loading ? "Refreshing…" : refreshLabel}
               </button>
             </div>
           </>

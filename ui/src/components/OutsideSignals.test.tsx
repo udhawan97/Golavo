@@ -30,6 +30,7 @@ let root: Root;
 
 const status = {
   enabled: true,
+  capabilities: ["external_prediction", "external_odds", "player_lens"],
   credential: { configured: true },
   provider: {
     docs_url: "https://docs.sportmonks.com/v3/",
@@ -163,6 +164,21 @@ describe("OutsideSignals", () => {
     });
     expect(container.textContent).toContain("Fetch final player stats & outside signals");
     expect(fetchOutsideSignals).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [["player_lens"], "Fetch final player stats"],
+    [["external_prediction"], "Fetch outside signals"],
+    [["external_prediction", "player_lens"], "Fetch final player stats & outside signals"],
+  ])("derives completed-match actions from enabled capabilities", async (capabilities, expected) => {
+    vi.mocked(fetchSportmonksStatus).mockResolvedValue({ ...status, capabilities } as never);
+    await act(async () => {
+      root.render(<OutsideSignals matchId="m_1" home="Home" away="Away" complete />);
+    });
+    const button = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent?.startsWith("Fetch"),
+    );
+    expect(button?.textContent).toBe(expected);
   });
 
   it("does not contact Sportmonks until the user clicks fetch", async () => {

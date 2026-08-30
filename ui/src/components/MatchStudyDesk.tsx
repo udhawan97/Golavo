@@ -33,19 +33,38 @@ function ProbabilityValue({ value }: { value: number }) {
 export function MatchStudyDesk({
   analysis,
   loading,
+  error,
+  unavailableReason,
+  onRetry,
   home,
   away,
 }: {
   analysis: MatchAnalysis | null;
   loading: boolean;
+  error: Error | null;
+  unavailableReason: string | null;
+  onRetry: () => void;
   home: string;
   away: string;
 }) {
   if (loading) return <section id="match-study-desk" className="study-desk" aria-labelledby="study-desk-title"><BlockSkeleton lines={5} /></section>;
-  if (!analysis || analysis.abstained) {
+  if (error) {
+    return <section id="match-study-desk" className="study-desk" aria-labelledby="study-desk-title">
+      <header className="study-desk__header"><div><span className="upper">Deterministic match study</span><h2 id="study-desk-title">Study desk</h2></div><span className="chip chip--muted">Analysis error</span></header>
+      <p className="study-desk__empty" role="alert">The local analysis could not be loaded: {error.message}</p>
+      <div><button type="button" className="btn btn--ghost" onClick={onRetry}>Retry analysis</button></div>
+    </section>;
+  }
+  if (!analysis) {
     return <section id="match-study-desk" className="study-desk" aria-labelledby="study-desk-title">
       <header className="study-desk__header"><div><span className="upper">Deterministic match study</span><h2 id="study-desk-title">Study desk</h2></div><span className="chip chip--muted">No model read</span></header>
-      <p className="study-desk__empty">The local models did not clear the history needed to publish an honest analysis for this fixture.</p>
+      <p className="study-desk__empty">{unavailableReason ?? "No deterministic analysis is available for this fixture."}</p>
+    </section>;
+  }
+  if (analysis.abstained) {
+    return <section id="match-study-desk" className="study-desk" aria-labelledby="study-desk-title">
+      <header className="study-desk__header"><div><span className="upper">Deterministic match study</span><h2 id="study-desk-title">Study desk</h2></div><span className="chip chip--muted">Models abstained</span></header>
+      <p className="study-desk__empty">{analysis.abstain_reason ?? "The deterministic models abstained without publishing a probability."}</p>
     </section>;
   }
 
@@ -57,7 +76,14 @@ export function MatchStudyDesk({
   const btts = analysis.derived_markets?.btts ?? null;
   const cleanSheets = analysis.derived_markets?.clean_sheets ?? null;
   const support = analysisHistorySupport(analysis);
+  const supportMeaning = analysis.explanation?.history_support.meaning
+    ?? "Describes the amount of qualifying pre-cutoff match history; it is not confidence.";
   const disagreement = analysis.explanation?.disagreement ?? null;
+  const sourceIds = [...new Set([
+    analysis.match.source_id,
+    ...(analysis.explanation?.provenance.source_ids ?? []),
+    analysis.explanation?.provenance.engine_source_id,
+  ].filter((source): source is string => Boolean(source)))];
 
   return <section id="match-study-desk" className="study-desk" aria-labelledby="study-desk-title">
     <header className="study-desk__header">
@@ -117,6 +143,9 @@ export function MatchStudyDesk({
 
     <footer className="study-desk__footer">
       <span>Information cutoff <b className="num">{analysis.information_cutoff_utc}</b></span>
+      <span>History support means: {supportMeaning}</span>
+      <span>Model families: {voices.map((voice) => <code key={voice.family}>{voice.family}</code>)}</span>
+      <span>Sources: {sourceIds.map((source) => <code key={source}>{source}</code>)}</span>
       <span>Model-implied equivalents are `1 / probability`: no margin, market movement or recommendation.</span>
     </footer>
   </section>;

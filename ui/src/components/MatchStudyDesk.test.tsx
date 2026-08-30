@@ -58,7 +58,9 @@ const analysis = {
 
 describe("MatchStudyDesk", () => {
   it("keeps model voices separate and labels mathematical equivalents narrowly", () => {
-    const html = renderToStaticMarkup(createElement(MatchStudyDesk, { analysis, loading: false, home: "Alpha", away: "Beta" }));
+    const html = renderToStaticMarkup(createElement(MatchStudyDesk, {
+      analysis, loading: false, error: null, unavailableReason: null, onRetry: () => {}, home: "Alpha", away: "Beta",
+    }));
     expect(html).toContain("Elo ratings");
     expect(html).toContain("Dixon–Coles");
     expect(html).toContain("Voices split");
@@ -66,13 +68,65 @@ describe("MatchStudyDesk", () => {
     expect(html).toContain("no margin, market movement or recommendation");
     expect(html).not.toContain("best bet");
     expect(html).not.toContain("Clean-sheet edge");
+    expect(html).toContain("History support means: history");
+    expect(html).toContain("Model families:");
+    expect(html).toContain("elo_ordlogit");
+    expect(html).toContain("dixon_coles");
+    expect(html).toContain("Sources:");
+    expect(html).toContain("engine:match_analysis");
+    expect(html).toContain("test");
   });
 
   it("renders unsupported target forecasts as explicit unavailable states", () => {
-    const html = renderToStaticMarkup(createElement(MatchStudyDesk, { analysis, loading: false, home: "Alpha", away: "Beta" }));
+    const html = renderToStaticMarkup(createElement(MatchStudyDesk, {
+      analysis, loading: false, error: null, unavailableReason: null, onRetry: () => {}, home: "Alpha", away: "Beta",
+    }));
     expect(html).toContain("Scorer forecast");
     expect(html).toContain("Corner forecast");
     expect(html).toContain("Card forecast");
     expect(html.match(/Unavailable/g)).toHaveLength(3);
+  });
+
+  it("preserves the exact unavailable reason instead of inventing a history failure", () => {
+    const html = renderToStaticMarkup(createElement(MatchStudyDesk, {
+      analysis: null,
+      loading: false,
+      error: null,
+      unavailableReason: "This sample-data preview has no engine to fit the models.",
+      onRetry: () => {},
+      home: "Alpha",
+      away: "Beta",
+    }));
+    expect(html).toContain("This sample-data preview has no engine to fit the models.");
+    expect(html).not.toContain("did not clear the history");
+  });
+
+  it("renders request errors distinctly with a retry action", () => {
+    const html = renderToStaticMarkup(createElement(MatchStudyDesk, {
+      analysis: null,
+      loading: false,
+      error: new Error("engine offline"),
+      unavailableReason: null,
+      onRetry: () => {},
+      home: "Alpha",
+      away: "Beta",
+    }));
+    expect(html).toContain("Analysis error");
+    expect(html).toContain("engine offline");
+    expect(html).toContain("Retry analysis");
+  });
+
+  it("uses the engine abstention reason without relabeling it", () => {
+    const html = renderToStaticMarkup(createElement(MatchStudyDesk, {
+      analysis: { ...analysis, abstained: true, abstain_reason: "kickoff precision is unavailable" },
+      loading: false,
+      error: null,
+      unavailableReason: null,
+      onRetry: () => {},
+      home: "Alpha",
+      away: "Beta",
+    }));
+    expect(html).toContain("Models abstained");
+    expect(html).toContain("kickoff precision is unavailable");
   });
 });

@@ -112,6 +112,11 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
     analysisState.status === "ready" && analysisState.data.available
       ? analysisState.data.analysis
       : null;
+  const analysisUnavailableReason =
+    analysisState.status === "ready" && !analysisState.data.available
+      ? analysisState.data.reason
+      : null;
+  const analysisError = analysisState.status === "error" ? analysisState.error : null;
   const analysisFingerprint =
     analysisState.status === "ready"
       ? analysisState.data.provenance?.index_sha256 ?? null
@@ -219,6 +224,9 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
       <MatchStudyDesk
         analysis={analysis}
         loading={analysisState.status === "loading"}
+        error={analysisError}
+        unavailableReason={analysisUnavailableReason}
+        onRetry={() => setRetryTick((tick) => tick + 1)}
         home={match.home_team}
         away={match.away_team}
       />
@@ -322,7 +330,14 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
         dividerLabel="Model call · your pick"
         id="match-verdict"
       >
-        <MatchVerdict analysis={analysis} loading={analysisState.status === "loading"} home={match.home_team} away={match.away_team} />
+        <MatchVerdict
+          analysis={analysis}
+          loading={analysisState.status === "loading"}
+          error={analysisError}
+          unavailableReason={analysisUnavailableReason}
+          home={match.home_team}
+          away={match.away_team}
+        />
         <PickPanel
           match={match}
           analysis={analysis}
@@ -434,21 +449,30 @@ function ProgrammeChapter({
 function MatchVerdict({
   analysis,
   loading,
+  error,
+  unavailableReason,
   home,
   away,
 }: {
   analysis: MatchAnalysis | null;
   loading: boolean;
+  error: Error | null;
+  unavailableReason: string | null;
   home: string;
   away: string;
 }) {
   if (loading) return <BlockSkeleton lines={3} />;
   if (!analysis || analysis.abstained || !analysis.score_matrix) {
+    const reason = error
+      ? `The local analysis could not be loaded: ${error.message}`
+      : analysis?.abstain_reason
+        ?? unavailableReason
+        ?? "No deterministic verdict is available for this fixture.";
     return (
       <section className="programme-verdict" aria-labelledby="match-verdict-call">
         <span className="upper">Model call</span>
         <h3 id="match-verdict-call">No verdict issued</h3>
-        <p>The deterministic models did not clear the history needed to make an honest call.</p>
+        <p>{reason}</p>
       </section>
     );
   }

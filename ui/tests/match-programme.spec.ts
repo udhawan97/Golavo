@@ -18,7 +18,7 @@ test("match cockpit reads as a six-chapter programme ending in the verdict", asy
   const study = page.locator("#match-study-desk");
   await expect(study.getByRole("heading", { name: "Study desk" })).toBeVisible();
   await expect(study.getByText("No model read")).toBeVisible();
-  await expect(study).toContainText("did not clear the history needed");
+  await expect(study).toContainText("sample-data preview has no engine");
   await expect(study.getByText("Goals · 2.5 line")).toHaveCount(0);
   await expect(study).not.toContainText(/best bet|clean-sheet edge/i);
 
@@ -59,6 +59,23 @@ test("match cockpit reads as a six-chapter programme ending in the verdict", asy
   const verdict = page.locator("#match-verdict");
   await expect(verdict.locator(".programme-verdict")).toBeVisible();
   await expect(verdict.locator(".pick-ticket")).toBeVisible();
+});
+
+test("Study Desk chapter control is keyboard-operable and honors reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1000, height: 700 });
+  await page.goto(MATCH);
+  const jump = page.getByRole("button", { name: "Desk Study desk" });
+  await jump.focus();
+  await page.keyboard.press("Enter");
+  const study = page.locator("#match-study-desk");
+  await expect(study).toBeInViewport();
+  const styles = await study.evaluate((element) => {
+    const computed = getComputedStyle(element);
+    return { animationName: computed.animationName, transitionDuration: computed.transitionDuration };
+  });
+  expect(styles.animationName).toBe("none");
+  expect(Number.parseFloat(styles.transitionDuration)).toBeLessThan(0.001);
 });
 
 test("shared mode switch persists the existing forecast depth choice", async ({ page }) => {
