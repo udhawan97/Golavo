@@ -69,8 +69,8 @@
 > Sportmonks odds/predictions are isolated, attributed outside signals — never a
 > Golavo forecast, model input, affiliate surface, or bet-placement path.
 >
-> **Release boundary:** v0.19.0 is the intended packaged milestone represented by this
-> source. Provider-backed behavior still depends on the user's own token, subscription,
+> **Release boundary:** v0.19.0 is published as the stable desktop release from tag
+> `v0.19.0` at `15aa063fa31d58b1bc86c080171d708f7cba6504`. Provider-backed behavior still depends on the user's own token, subscription,
 > entitlement, and an explicit foreground fetch. Archive restore and checkpoint creation
 > require the installed desktop app's private launch token.
 

@@ -1,9 +1,9 @@
 # Golavo public-surface fact sheet
 
-Verified against the product source in the same commit as this file for the planned
-v0.19.0 release. The refresh started from
-`f3eb95148fc7bf413a4a02896de07dbeaf354e4f`; use the containing Git commit as the
-authority for later reads. This ledger exists to keep the README,
+Verified against the published stable v0.19.0 release and the product source. The
+release tag resolves to `15aa063fa31d58b1bc86c080171d708f7cba6504`; use that tag
+commit as the packaged-product authority and the containing Git commit as the authority
+for later documentation reads. This ledger exists to keep the README,
 documentation site, download paths, and release notes from collapsing source behavior,
 packaged-release behavior, and future work into one claim.
 
@@ -11,8 +11,8 @@ packaged-release behavior, and future work into one claim.
 
 | Claim | Status | Evidence | Public wording |
 |---|---|---|---|
-| Planned packaged release | v0.19.0; exact tag commit is filled by the release workflow | Release gate requires Apple Silicon DMG/app updater payload, Windows x64 EXE/MSI, `latest.json`, aggregate checksums, and detached signatures | Do not call v0.19.0 published until tag, assets, signatures, and stable release state are verified; keep the OS-unsigned warning |
-| Repository source | The containing release commit | Git history plus the current source, tests, and contract files | Claims below describe the v0.19.0 candidate and become packaged claims only after release verification |
+| Published packaged release | v0.19.0; tag commit `15aa063fa31d58b1bc86c080171d708f7cba6504` | Stable GitHub release verified with Apple Silicon DMG/app updater payload, Windows x64 EXE/MSI, `latest.json`, aggregate checksums, and detached signatures | v0.19.0 is published; retain the OS-unsigned warning |
+| Repository source | The containing documentation commit; packaged authority is the v0.19.0 tag | Git history plus the current source, tests, and contract files | Claims below describe the published v0.19.0 product unless their boundary says otherwise |
 | Public website | GitHub Pages from `docs-site/` on `main` | `.github/workflows/pages.yml`, `docs-site/astro.config.mjs` | The site may document source behavior, but every download surface must retain the release boundary |
 
 ## Current product claims
@@ -37,8 +37,8 @@ packaged-release behavior, and future work into one claim.
 
 | Path | Requirements | Availability |
 |---|---|---|
-| macOS desktop | Apple Silicon, unsigned DMG | v0.19.0 candidate; verify published asset before claiming availability |
-| Windows desktop | x64 Windows 10/11, unsigned EXE or MSI | v0.19.0 candidate; verify published assets before claiming availability |
+| macOS desktop | Apple Silicon, unsigned DMG | Published in v0.19.0; checksum and updater signatures verified against the pinned release identity |
+| Windows desktop | x64 Windows 10/11, unsigned EXE or MSI | Published in v0.19.0; checksum and updater signatures verified against the pinned release identity |
 | Browser/source mode | Python 3.12+, Node 22+, source checkout | Read paths; archive restore, checkpoints, and OS-keychain provider setup require a desktop build with its private launch token |
 
 ## Explicit non-claims
@@ -51,7 +51,7 @@ packaged-release behavior, and future work into one claim.
 - No OS-signed/notarized desktop installers.
 - No claim that a local checkpoint proves external authenticity or creation time. The
   recovery drill proves only that the archived local bytes rebuild a valid local chain.
-- No claim that v0.19.0 is published until its exact tag, assets, signatures, and public surfaces pass the release gate.
+- No claim that later releases are published until their exact tag, assets, signatures, and public surfaces pass the release gate.
 
 ## Refresh checklist
 
