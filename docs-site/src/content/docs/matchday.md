@@ -36,11 +36,12 @@ and a Settings gear.
 Open **any** indexed match — past or upcoming, club or international — and Golavo computes a
 leak-safe multi-model read **on demand**, at the seal's own `kickoff − 1s` cutoff. A validated,
 content-addressed local cache makes repeat exploration immediate; it is still a live read,
-never a sealed artifact. It is presented as a six-chapter matchday programme: **form**,
+never a sealed artifact. A compact **Study Desk** comes first, followed by a six-chapter
+matchday programme: **form**,
 **fitted style**, **history**, **model deliberation**, **verdict and your pick**, then the
 optional **analyst's column**.
 
-![Match Cockpit in Casual mode, opening with the form chapter](/Golavo/screenshots/match-cockpit.jpg)
+![Match Study Desk comparing separate Elo and Dixon–Coles voices, exact score, goal-line probabilities, and unavailable evidence lanes](/Golavo/screenshots/match-study-desk.png)
 
 - **Replay** — a played match, reconstructed using only data available before kickoff. It is
   **not** a forecast that existed at the time and never enters the track record; it just shows
@@ -49,6 +50,12 @@ optional **analyst's column**.
 
 Either way you get:
 
+- a fixed, non-ranked **Study Desk**: each deterministic model voice's W/D/L distribution,
+  council disagreement in percentage points, the goal voice's most-likely exact score,
+  over/under 2.5, both-teams-to-score, and both clean-sheet probabilities. `1 / probability`
+  is labelled a model-implied mathematical equivalent, with no market margin, movement,
+  ranking, or recommendation. Scorer, corner, and card forecasts are explicitly unavailable
+  until Golavo has approved point-in-time corpora and separate validated models for them;
 - a **Conditions Snapshot** before the programme chapters: city coordinates and elevation,
   venue-local kickoff only when the source has an exact instant, pre-match rest days, and
   great-circle travel from each side's previous indexed match. Routes use a bundled Natural
@@ -69,7 +76,7 @@ Either way you get:
   the two voices, known capability coverage, missing evidence, and hypothetical changes worth
   exploring. History support is not confidence, capability coverage is not accuracy, and the
   hypothetical list never changes a seal or quantifies missing lineups/injuries;
-- A glanceable **Score Outlook** with the balanced over/under line, clean-sheet edge,
+- A glanceable **Score Outlook** with the balanced over/under line, both clean-sheet probabilities,
   and goal peak. Expert adds double chance, every total-goal threshold, clean-sheet
   comparisons, the total-goal distribution, the coherent **exact-score grid**, and the exact
   home/draw/away split in the probability mass beyond that grid.
@@ -97,6 +104,11 @@ Three trust aids sit beside that read without becoming a third model voice:
   changes and never invokes AI or writes a seal.
 - **Reference Desk** shows only revision-pinned venue identity/capacity facts already present in
   the evidence bundle. Current-manager claims stay absent because Golavo has no pinned tenure pack.
+
+The optional Sportmonks panel remains outside that read. On completed fixtures its explicit action
+uses **Fetch final player stats** / **Refresh final player stats** wording. One fixture's player
+metrics are not relabelled as a multi-match form series. Provider predictions, prices, lineups, and
+statistics remain no-store context and cannot verify, alter, or replace a Golavo probability.
 
 ## My Season
 
@@ -139,12 +151,12 @@ while the app is open.”** Closing Golavo stops checks. No daemon, Login Item o
 silently installed. Offline mode keeps the watchlist and event history available and shows the
 last verified source freshness.
 
-Source `main` also collects recent typed changes for active followed matches into one Games
+Golavo also collects recent typed changes for active followed matches into one Games
 inbox. It displays at most 20 retained events per match and 50 events overall, so it is not
 the complete follow archive. **Mark these updates read** submits only the event ids currently
 displayed; it does not mark hidden or unfollowed history.
 
-On source `main` after v0.18.0, **Settings → Followed matches** can export a static RFC 5545
+**Settings → Followed matches** can export a static RFC 5545
 calendar. Only followed fixtures with an exact UTC kickoff become events; date-only or unknown
 times are counted and omitted rather than guessed. Stable follow identity produces a stable
 calendar UID, and the export does not create a subscription or background service.
@@ -175,6 +187,10 @@ plus a season-outlook gate that refuses to simulate an incomplete schedule. Cove
 pages also carry a collapsed historical research disclosure. It names the competition
 and era before showing team-only Pappalardo/Wyscout aggregates; those numbers are never
 mixed with current players, current matches, forecasts, or simulations.
+
+The hub also links to [Transfer Desk](/Golavo/transfers/), a separately enabled, explicit-click
+Sportmonks view over exact top-five club identities. It preserves provider transfer claims and
+names missing payment fields; it is not a roster, model-input, or rumour feed.
 
 ## Model Lab
 

@@ -20,6 +20,7 @@ const PAGES = [
   // Table/form-dense routes: where a muted caption or header could slip contrast.
   { name: "search", path: "/#/matches" },
   { name: "leagues", path: "/#/leagues" },
+  { name: "transfers", path: "/#/transfers" },
   { name: "premier-league", path: "/#/league/premier-league" },
   { name: "track-record", path: "/#/lab/track-record" },
   { name: "backtests", path: "/#/lab/backtests" },

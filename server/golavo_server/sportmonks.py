@@ -1,7 +1,7 @@
-"""Consent-gated, display-only Sportmonks outside signals.
+"""Consent-gated, display-only Sportmonks outside signals and transfers.
 
 This module is intentionally not part of ``golavo_core``. Sportmonks
-predictions, bookmaker prices, lineups, and player match statistics are
+predictions, bookmaker prices, lineups, player match statistics, and transfers are
 third-party context displayed beside a Golavo match; they never enter fitting,
 sealing, settlement, calibration, scoring, AI evidence, or exports. Requests
 happen only after an explicit UI action and responses are never persisted.
@@ -24,7 +24,7 @@ import threading
 import unicodedata
 from collections.abc import Callable
 from contextlib import contextmanager
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
@@ -44,12 +44,16 @@ TERMS_REVIEWED_DATE = "2026-08-30"
 TERMS_CONTENT_SHA256 = "43901aed7fd5e36e36205e814a064d5851ecb66df8387f0079a586bed6df8aeb"
 TERMS_ACCEPTANCE_VERSION = f"sportmonks-terms-sha256:{TERMS_CONTENT_SHA256}"
 SCHEMA_VERSION = "0.1.0"
-CAPABILITIES = ("external_prediction", "external_odds", "player_lens")
+CAPABILITIES = ("external_prediction", "external_odds", "player_lens", "transfer_desk")
+MATCH_CAPABILITIES = ("external_prediction", "external_odds", "player_lens")
 ENV_KEY = "SPORTMONKS_API_TOKEN"
 KEYCHAIN_SERVICE = "golavo-sportmonks"
 KEYCHAIN_ACCOUNT = "golavo"
 MAX_RESPONSE_BYTES = 2_000_000
 MAX_FIXTURE_PAGES = 4
+MAX_TRANSFER_PAGES = 4
+MAX_TRANSFERS_PER_PAGE = 50
+TRANSFER_WINDOW_DAYS = 365
 MATCH_WINNER_MARKET_ID = 1
 FULLTIME_RESULT_PREDICTION_TYPE_ID = 237
 TOP_FIVE_COMPETITIONS = {
@@ -175,9 +179,7 @@ def cancel_pending_requests() -> int:
     with _ACTIVE_REQUEST_LOCK:
         events = list(_ACTIVE_REQUESTS)
         connections = [
-            connection
-            for event in events
-            for connection in _ACTIVE_CONNECTIONS.get(event, set())
+            connection for event in events for connection in _ACTIVE_CONNECTIONS.get(event, set())
         ]
         for event in events:
             event.set()
@@ -221,7 +223,7 @@ def default_settings() -> dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,
         "enabled": False,
-        "capabilities": list(CAPABILITIES),
+        "capabilities": list(MATCH_CAPABILITIES),
         "terms_accepted_at_utc": None,
         "terms_acceptance_version": None,
     }
@@ -246,10 +248,7 @@ def load_settings() -> dict[str, Any]:
         or set(capabilities) - set(CAPABILITIES)
     ):
         return default_settings()
-    accepted = (
-        isinstance(accepted_at, str)
-        and accepted_version == TERMS_ACCEPTANCE_VERSION
-    )
+    accepted = isinstance(accepted_at, str) and accepted_version == TERMS_ACCEPTANCE_VERSION
     if enabled and not accepted:
         enabled = False
     return {
@@ -456,6 +455,7 @@ _ALLOWED_PATH = re.compile(
     rf"|fixtures/\d+\?include=lineups\.details\.type;metadata\.type&filters=lineupDetailTypes:{re.escape(PLAYER_METRIC_FILTER)}"
     r"|predictions/probabilities/fixtures/\d+\?include=type"
     r"|odds/pre-match/fixtures/\d+/markets/1\?include=bookmaker;market"
+    r"|transfers/teams/\d+\?include=player;type;fromTeam;toTeam;position&order=desc&per_page=50&page=[1-4]"
     r")\Z"
 )
 
@@ -483,7 +483,7 @@ def _request_json(path: str, token: str) -> tuple[dict[str, Any], str]:
                 "Accept": "application/json",
                 "Authorization": f"Bearer {token}",
                 "Cache-Control": "no-store",
-                "User-Agent": "Golavo/0.17 outside-signals",
+                "User-Agent": "Golavo/0.19 provider-context",
             },
         )
         response = connection.getresponse()
@@ -624,9 +624,7 @@ def _fixture_matches(fixture: dict[str, Any], match: dict[str, Any]) -> bool:
     if _normal_name(away.get("name")) != _normal_name(match.get("away_team")):
         return False
     try:
-        kickoff = datetime.fromisoformat(
-            str(match["kickoff_utc"]).replace("Z", "+00:00")
-        )
+        kickoff = datetime.fromisoformat(str(match["kickoff_utc"]).replace("Z", "+00:00"))
     except (KeyError, TypeError, ValueError):
         return False
     provider_timestamp = fixture.get("starting_at_timestamp")
@@ -635,9 +633,8 @@ def _fixture_matches(fixture: dict[str, Any], match: dict[str, Any]) -> bool:
     provider_kickoff = datetime.fromtimestamp(provider_timestamp, UTC)
     precision = match.get("kickoff_precision")
     if precision == "exact":
-        if (
-            match.get("competition") in SPORTMONKS_COMPETITION_NAMES
-            and not _domestic_scope_matches(fixture, match, kickoff)
+        if match.get("competition") in SPORTMONKS_COMPETITION_NAMES and not _domestic_scope_matches(
+            fixture, match, kickoff
         ):
             return False
         return abs(provider_timestamp - kickoff.timestamp()) <= 15 * 60
@@ -695,9 +692,7 @@ def _find_fixture(
         if not isinstance(pagination, dict):
             meta = payload.get("meta")
             pagination = meta.get("pagination") if isinstance(meta, dict) else None
-        if not isinstance(pagination, dict) or not isinstance(
-            pagination.get("has_more"), bool
-        ):
+        if not isinstance(pagination, dict) or not isinstance(pagination.get("has_more"), bool):
             raise SportmonksError(
                 "malformed_response", "Sportmonks pagination was malformed", status=502
             )
@@ -730,8 +725,7 @@ def _find_fixture(
     home = _participant(fixture, "home") or {}
     away = _participant(fixture, "away") or {}
     if any(
-        not isinstance(participant.get("id"), int)
-        or isinstance(participant.get("id"), bool)
+        not isinstance(participant.get("id"), int) or isinstance(participant.get("id"), bool)
         for participant in (home, away)
     ):
         raise SportmonksError(
@@ -756,9 +750,7 @@ def _unavailable(error: SportmonksError) -> dict[str, Any]:
     }
 
 
-def _prediction(
-    fixture_id: int, token: str, fetcher: Fetcher
-) -> tuple[dict[str, Any], str | None]:
+def _prediction(fixture_id: int, token: str, fetcher: Fetcher) -> tuple[dict[str, Any], str | None]:
     try:
         payload, digest = fetcher(
             f"/v3/football/predictions/probabilities/fixtures/{fixture_id}?include=type",
@@ -775,9 +767,7 @@ def _prediction(
                 continue
             prediction_type = row.get("type")
             developer_name = (
-                prediction_type.get("developer_name")
-                if isinstance(prediction_type, dict)
-                else None
+                prediction_type.get("developer_name") if isinstance(prediction_type, dict) else None
             )
             if (
                 row.get("type_id") == FULLTIME_RESULT_PREDICTION_TYPE_ID
@@ -857,9 +847,7 @@ def _prediction(
         return _unavailable(exc), None
 
 
-def _odds(
-    fixture_id: int, token: str, fetcher: Fetcher
-) -> tuple[dict[str, Any], str | None]:
+def _odds(fixture_id: int, token: str, fetcher: Fetcher) -> tuple[dict[str, Any], str | None]:
     try:
         payload, digest = fetcher(
             f"/v3/football/odds/pre-match/fixtures/{fixture_id}/markets/{MATCH_WINNER_MARKET_ID}"
@@ -981,11 +969,7 @@ def _lineup_confirmed(fixture: dict[str, Any]) -> bool | None:
         if not isinstance(kind, dict) or kind.get("developer_name") != "LINEUP_CONFIRMED":
             continue
         type_id = row.get("type_id")
-        if (
-            not isinstance(type_id, int)
-            or isinstance(type_id, bool)
-            or kind.get("id") != type_id
-        ):
+        if not isinstance(type_id, int) or isinstance(type_id, bool) or kind.get("id") != type_id:
             return None
         value = row.get("values")
         if isinstance(value, bool):
@@ -1010,9 +994,7 @@ def _metric_value(detail: dict[str, Any], unit: str) -> int | float | bool | Non
         return value if isinstance(value, bool) else None
     if unit in {"count", "minutes"}:
         return (
-            value
-            if isinstance(value, int) and not isinstance(value, bool) and value >= 0
-            else None
+            value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else None
         )
     if unit in {"percent", "provider_score"}:
         if isinstance(value, bool) or not isinstance(value, (int, float)):
@@ -1035,11 +1017,13 @@ def _player_lens(
     fetcher: Fetcher,
 ) -> tuple[dict[str, Any], str | None]:
     if competition not in TOP_FIVE_COMPETITIONS:
-        return _unavailable(SportmonksError(
-            "competition_not_supported",
-            "Player Lens is limited to Golavo's five supported domestic leagues",
-            status=404,
-        )), None
+        return _unavailable(
+            SportmonksError(
+                "competition_not_supported",
+                "Player Lens is limited to Golavo's five supported domestic leagues",
+                status=404,
+            )
+        ), None
     try:
         payload, digest = fetcher(
             f"/v3/football/fixtures/{fixture_id}"
@@ -1167,44 +1151,53 @@ def _player_lens(
                             status=502,
                         )
                     seen_types.add(type_id)
-                    metrics.append({
-                        "type_id": type_id,
-                        "developer_name": developer_name,
-                        "label": label,
-                        "group": kind.get("stat_group")
-                        if isinstance(kind.get("stat_group"), str) else None,
-                        "unit": unit,
-                        "value": value,
-                    })
-            players.append({
-                "lineup_id": lineup_id,
-                "player_id": player_id,
-                "team_id": team_id,
-                "name": player_name.strip(),
-                "jersey_number": row.get("jersey_number")
-                if isinstance(row.get("jersey_number"), int)
-                and not isinstance(row.get("jersey_number"), bool) else None,
-                "position_id": row.get("position_id")
-                if isinstance(row.get("position_id"), int)
-                and not isinstance(row.get("position_id"), bool) else None,
-                "participation": "starter" if participation_type == 11 else "substitute",
-                "metrics": sorted(
-                    metrics,
-                    key=lambda item: (item["label"].casefold(), item["type_id"]),
-                ),
-            })
+                    metrics.append(
+                        {
+                            "type_id": type_id,
+                            "developer_name": developer_name,
+                            "label": label,
+                            "group": kind.get("stat_group")
+                            if isinstance(kind.get("stat_group"), str)
+                            else None,
+                            "unit": unit,
+                            "value": value,
+                        }
+                    )
+            players.append(
+                {
+                    "lineup_id": lineup_id,
+                    "player_id": player_id,
+                    "team_id": team_id,
+                    "name": player_name.strip(),
+                    "jersey_number": row.get("jersey_number")
+                    if isinstance(row.get("jersey_number"), int)
+                    and not isinstance(row.get("jersey_number"), bool)
+                    else None,
+                    "position_id": row.get("position_id")
+                    if isinstance(row.get("position_id"), int)
+                    and not isinstance(row.get("position_id"), bool)
+                    else None,
+                    "participation": "starter" if participation_type == 11 else "substitute",
+                    "metrics": sorted(
+                        metrics,
+                        key=lambda item: (item["label"].casefold(), item["type_id"]),
+                    ),
+                }
+            )
         if not players:
             raise SportmonksError(
                 "player_data_unavailable",
                 "Sportmonks returned no identity-safe player rows for this fixture",
                 status=404,
             )
-        players.sort(key=lambda item: (
-            0 if item["team_id"] == home_team_id else 1,
-            0 if item["participation"] == "starter" else 1,
-            item["name"].casefold(),
-            item["player_id"],
-        ))
+        players.sort(
+            key=lambda item: (
+                0 if item["team_id"] == home_team_id else 1,
+                0 if item["participation"] == "starter" else 1,
+                item["name"].casefold(),
+                item["player_id"],
+            )
+        )
         confirmed = _lineup_confirmed(fixture)
         return {
             "status": "available",
@@ -1234,6 +1227,353 @@ def _player_lens(
         return _unavailable(exc), None
 
 
+def _provider_id(value: Any, label: str) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+        raise SportmonksError(
+            "transfer_schema_drift",
+            f"Sportmonks returned an invalid {label}",
+            status=502,
+        )
+    return value
+
+
+def _provider_text(value: Any, label: str, *, limit: int = 160) -> str:
+    if (
+        not isinstance(value, str)
+        or not value.strip()
+        or len(value) > limit
+        or any(unicodedata.category(character).startswith("C") for character in value)
+    ):
+        raise SportmonksError(
+            "transfer_schema_drift",
+            f"Sportmonks returned an invalid {label}",
+            status=502,
+        )
+    return value.strip()
+
+
+def _included_entity(
+    row: dict[str, Any], keys: tuple[str, ...], expected_id: int, label: str
+) -> dict[str, Any]:
+    values = [row.get(key) for key in keys if row.get(key) is not None]
+    if len(values) != 1 or not isinstance(values[0], dict):
+        raise SportmonksError(
+            "transfer_schema_drift",
+            f"Sportmonks returned no single included {label}",
+            status=502,
+        )
+    entity = values[0]
+    if _provider_id(entity.get("id"), f"{label} id") != expected_id:
+        raise SportmonksError(
+            "transfer_identity_mismatch",
+            f"Sportmonks {label} did not repeat the transfer identity",
+            status=502,
+        )
+    return entity
+
+
+def _transfer_date(value: Any) -> date:
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        raise SportmonksError(
+            "transfer_schema_drift",
+            "Sportmonks returned an invalid transfer date",
+            status=502,
+        )
+    try:
+        return date.fromisoformat(value)
+    except ValueError as exc:
+        raise SportmonksError(
+            "transfer_schema_drift",
+            "Sportmonks returned an invalid transfer date",
+            status=502,
+        ) from exc
+
+
+def _transfer_amount(value: Any) -> str | None:
+    if value is None:
+        return None
+    # The provider documents this as nullable free text. Golavo preserves the
+    # claim verbatim and never invents a numeric fee or currency from it.
+    if (
+        not isinstance(value, str)
+        or not value.strip()
+        or len(value) > 120
+        or any(unicodedata.category(character).startswith("C") for character in value)
+    ):
+        raise SportmonksError(
+            "transfer_schema_drift",
+            "Sportmonks returned an invalid provider amount string",
+            status=502,
+        )
+    return value
+
+
+def _parse_transfer_row(row: Any, provider_team_id: int) -> tuple[dict[str, Any], date]:
+    if not isinstance(row, dict):
+        raise SportmonksError(
+            "transfer_schema_drift", "Sportmonks returned a malformed transfer row", status=502
+        )
+    transfer_id = _provider_id(row.get("id"), "transfer id")
+    player_id = _provider_id(row.get("player_id"), "player id")
+    type_id = _provider_id(row.get("type_id"), "transfer type id")
+    from_team_id = _provider_id(row.get("from_team_id"), "from-team id")
+    to_team_id = _provider_id(row.get("to_team_id"), "to-team id")
+    if from_team_id == to_team_id or provider_team_id not in {from_team_id, to_team_id}:
+        raise SportmonksError(
+            "transfer_identity_mismatch",
+            "Sportmonks returned a transfer outside the selected team identity",
+            status=502,
+        )
+    completed = row.get("completed")
+    if not isinstance(completed, bool):
+        raise SportmonksError(
+            "transfer_schema_drift",
+            "Sportmonks returned an invalid transfer completion state",
+            status=502,
+        )
+    transfer_day = _transfer_date(row.get("date"))
+    player = _included_entity(row, ("player",), player_id, "player")
+    transfer_type = _included_entity(row, ("type",), type_id, "transfer type")
+    from_team = _included_entity(row, ("fromteam", "fromTeam"), from_team_id, "from team")
+    to_team = _included_entity(row, ("toteam", "toTeam"), to_team_id, "to team")
+    position_id_raw = row.get("position_id")
+    position_id = None
+    position_name = None
+    if position_id_raw is not None:
+        position_id = _provider_id(position_id_raw, "position id")
+        position = _included_entity(row, ("position",), position_id, "position")
+        position_name = _provider_text(position.get("name"), "position name")
+    return {
+        "transfer_id": transfer_id,
+        "direction": "arrival" if to_team_id == provider_team_id else "departure",
+        "date": transfer_day.isoformat(),
+        "completed": completed,
+        "player": {
+            "id": player_id,
+            "name": _provider_text(player.get("display_name", player.get("name")), "player name"),
+        },
+        "type": {
+            "id": type_id,
+            "name": _provider_text(transfer_type.get("name"), "transfer type name"),
+        },
+        "from_team": {
+            "id": from_team_id,
+            "name": _provider_text(from_team.get("name"), "from-team name"),
+        },
+        "to_team": {
+            "id": to_team_id,
+            "name": _provider_text(to_team.get("name"), "to-team name"),
+        },
+        "position": (
+            {"id": position_id, "name": position_name} if position_id is not None else None
+        ),
+        "provider_reported_amount": _transfer_amount(row.get("amount")),
+        "amount_label": "Provider-reported amount — currency unspecified",
+        "payment_breakdown": {
+            "status": "unavailable",
+            "reason_code": "provider_fields_not_reported",
+            "currency": None,
+            "installments": None,
+            "add_ons": None,
+            "sell_on_terms": None,
+            "agent_or_intermediary_fees": None,
+            "training_rewards": None,
+            "conditional_consideration": None,
+        },
+    }, transfer_day
+
+
+def _transfers(
+    provider_team_id: int,
+    token: str,
+    fetcher: Fetcher,
+    now_utc: datetime,
+) -> tuple[dict[str, Any], list[str]]:
+    end_date = now_utc.astimezone(UTC).date()
+    start_date = end_date - timedelta(days=TRANSFER_WINDOW_DAYS)
+    rows: list[dict[str, Any]] = []
+    hashes: list[str] = []
+    seen_ids: set[int] = set()
+    previous_date: date | None = None
+    window_closed = False
+    last_has_more = False
+    pages_fetched = 0
+    for page in range(1, MAX_TRANSFER_PAGES + 1):
+        path = (
+            f"/v3/football/transfers/teams/{provider_team_id}"
+            "?include=player;type;fromTeam;toTeam;position"
+            f"&order=desc&per_page={MAX_TRANSFERS_PER_PAGE}&page={page}"
+        )
+        payload, digest = fetcher(path, token)
+        hashes.append(digest)
+        pages_fetched = page
+        page_rows = payload.get("data")
+        if not isinstance(page_rows, list) or len(page_rows) > MAX_TRANSFERS_PER_PAGE:
+            raise SportmonksError(
+                "malformed_response",
+                "Sportmonks transfer rows exceeded the safe page contract",
+                status=502,
+            )
+        for source_row in page_rows:
+            parsed, transfer_day = _parse_transfer_row(source_row, provider_team_id)
+            if previous_date is not None and transfer_day > previous_date:
+                raise SportmonksError(
+                    "transfer_order_invalid",
+                    "Sportmonks transfer rows were not in descending date order",
+                    status=502,
+                )
+            previous_date = transfer_day
+            transfer_id = parsed["transfer_id"]
+            if transfer_id in seen_ids:
+                raise SportmonksError(
+                    "transfer_identity_ambiguous",
+                    "Sportmonks repeated a transfer identity",
+                    status=502,
+                )
+            seen_ids.add(transfer_id)
+            if transfer_day < start_date:
+                window_closed = True
+            elif transfer_day <= end_date:
+                rows.append(parsed)
+        pagination = payload.get("pagination")
+        if not isinstance(pagination, dict):
+            meta = payload.get("meta")
+            pagination = meta.get("pagination") if isinstance(meta, dict) else None
+        if not isinstance(pagination, dict) or not isinstance(pagination.get("has_more"), bool):
+            raise SportmonksError(
+                "malformed_response", "Sportmonks transfer pagination was malformed", status=502
+            )
+        last_has_more = pagination["has_more"]
+        if window_closed or not last_has_more:
+            break
+    truncated = last_has_more and not window_closed and pages_fetched == MAX_TRANSFER_PAGES
+    rows.sort(key=lambda item: (item["date"], item["transfer_id"]), reverse=True)
+    return {
+        "status": "partial" if truncated else "available",
+        "rows": rows,
+        "coverage": {
+            "window_start": start_date.isoformat(),
+            "window_end": end_date.isoformat(),
+            "window_days": TRANSFER_WINDOW_DAYS,
+            "pages_fetched": pages_fetched,
+            "page_limit": MAX_TRANSFER_PAGES,
+            "rows_per_page_limit": MAX_TRANSFERS_PER_PAGE,
+            "truncated": truncated,
+        },
+    }, hashes
+
+
+def _fetch_team_transfers(
+    match: dict[str, Any],
+    side: str,
+    *,
+    fetcher: Fetcher | None = None,
+    now_utc: datetime | None = None,
+) -> dict[str, Any]:
+    settings = load_settings()
+    if not settings["enabled"]:
+        raise SportmonksError(
+            "provider_disabled", "Enable Sportmonks in Settings before fetching", status=409
+        )
+    if settings["terms_acceptance_version"] != TERMS_ACCEPTANCE_VERSION:
+        raise SportmonksError(
+            "terms_review_required",
+            "Review the current Sportmonks disclosure in Settings",
+            status=409,
+        )
+    if "transfer_desk" not in settings["capabilities"]:
+        raise SportmonksError(
+            "capability_disabled", "Enable Transfer Desk in Settings before fetching", status=409
+        )
+    if match.get("competition") not in TOP_FIVE_COMPETITIONS:
+        raise SportmonksError(
+            "competition_not_supported",
+            "Transfer Desk is limited to Golavo's five supported domestic leagues",
+            status=404,
+        )
+    if side not in {"home", "away"}:
+        raise SportmonksError(
+            "team_side_invalid", "Transfer Desk requires the home or away team", status=422
+        )
+    token, _source = load_api_token()
+    if token is None:
+        raise SportmonksError(
+            "credential_missing", "Add your Sportmonks API token in Settings", status=409
+        )
+    transport = _cancellable_transport(fetcher or _request_json)
+    fixture, fixture_hashes, match_method = _find_fixture(match, token, transport)
+    team = _participant(fixture, side)
+    if team is None:
+        raise SportmonksError(
+            "fixture_identity_mismatch", "Sportmonks did not repeat the selected team", status=502
+        )
+    provider_team_id = _provider_id(team.get("id"), "selected team id")
+    provider_team_name = _provider_text(team.get("name"), "selected team name")
+    requested_at = (now_utc or datetime.now(UTC)).astimezone(UTC)
+    transfers, transfer_hashes = _transfers(provider_team_id, token, transport, requested_at)
+    league_id = fixture.get("league_id")
+    season_id = fixture.get("season_id")
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "status": transfers["status"],
+        "label": "Provider transfer records — not Golavo model evidence.",
+        "provider": {
+            "source_id": SOURCE_ID,
+            "name": SOURCE_NAME,
+            "docs_url": DOCS_URL,
+            "terms_url": TERMS_URL,
+        },
+        "identity": {
+            "golavo_match_id": match.get("match_id"),
+            "golavo_team": match.get("home_team" if side == "home" else "away_team"),
+            "golavo_side": side,
+            "provider_fixture_id": fixture["id"],
+            "provider_team_id": provider_team_id,
+            "provider_team": provider_team_name,
+            "provider_league_id": league_id
+            if isinstance(league_id, int) and not isinstance(league_id, bool)
+            else None,
+            "provider_season_id": season_id
+            if isinstance(season_id, int) and not isinstance(season_id, bool)
+            else None,
+            "match_method": match_method,
+        },
+        "transfers": transfers["rows"],
+        "coverage": transfers["coverage"],
+        "provenance": {
+            "fetched_at_utc": _utc_z(requested_at),
+            "terms_acceptance_version": TERMS_ACCEPTANCE_VERSION,
+            "raw_response_sha256": {
+                "fixture_pages": fixture_hashes,
+                "transfer_pages": transfer_hashes,
+            },
+            "raw_response_storage": "not_persisted",
+        },
+        "usage": {
+            "display": True,
+            "model_input": False,
+            "forecast_sealing": False,
+            "forecast_settlement": False,
+            "calibration": False,
+            "scoring": False,
+            "ai_evidence": False,
+            "exports": False,
+        },
+    }
+
+
+def fetch_team_transfers(
+    match: dict[str, Any],
+    side: str,
+    *,
+    fetcher: Fetcher | None = None,
+    now_utc: datetime | None = None,
+) -> dict[str, Any]:
+    cancel_event = threading.Event()
+    with _request_scope(cancel_event):
+        return _fetch_team_transfers(match, side, fetcher=fetcher, now_utc=now_utc)
+
+
 def _fetch_outside_signals(
     match: dict[str, Any], *, fetcher: Fetcher | None = None, now_utc: datetime | None = None
 ) -> dict[str, Any]:
@@ -1248,8 +1588,17 @@ def _fetch_outside_signals(
             "Review the current Sportmonks disclosure in Settings",
             status=409,
         )
+    enabled_match_capabilities = [
+        capability for capability in settings["capabilities"] if capability in MATCH_CAPABILITIES
+    ]
+    if not enabled_match_capabilities:
+        raise SportmonksError(
+            "capability_disabled",
+            "Enable a match-level Sportmonks capability in Settings before fetching",
+            status=409,
+        )
     if (
-        settings["capabilities"] == ["player_lens"]
+        enabled_match_capabilities == ["player_lens"]
         and match.get("competition") not in TOP_FIVE_COMPETITIONS
     ):
         raise SportmonksError(
@@ -1284,17 +1633,17 @@ def _fetch_outside_signals(
         "message": "Player Lens is disabled in Settings",
         "retryable": False,
     }
-    if "external_prediction" in settings["capabilities"]:
+    if "external_prediction" in enabled_match_capabilities:
         prediction, digest = _prediction(fixture_id, token, transport)
         hashes["prediction"] = digest
-    if "external_odds" in settings["capabilities"]:
+    if "external_odds" in enabled_match_capabilities:
         odds, digest = _odds(fixture_id, token, transport)
         hashes["odds"] = digest
     home = _participant(fixture, "home") or {}
     away = _participant(fixture, "away") or {}
     league_id = fixture.get("league_id")
     season_id = fixture.get("season_id")
-    if "player_lens" in settings["capabilities"]:
+    if "player_lens" in enabled_match_capabilities:
         player_lens, digest = _player_lens(
             fixture_id,
             int(home["id"]),
@@ -1309,10 +1658,7 @@ def _fetch_outside_signals(
         "external_odds": odds,
         "player_lens": player_lens,
     }
-    states = {
-        capability_results[capability]["status"]
-        for capability in settings["capabilities"]
-    }
+    states = {capability_results[capability]["status"] for capability in enabled_match_capabilities}
     overall = (
         "available"
         if states == {"available"}
@@ -1338,13 +1684,17 @@ def _fetch_outside_signals(
             "provider_home_team": home.get("name"),
             "provider_away_team": away.get("name"),
             "provider_league_id": league_id
-            if isinstance(league_id, int) and not isinstance(league_id, bool) else None,
+            if isinstance(league_id, int) and not isinstance(league_id, bool)
+            else None,
             "provider_league": fixture.get("league", {}).get("name")
-            if isinstance(fixture.get("league"), dict) else None,
+            if isinstance(fixture.get("league"), dict)
+            else None,
             "provider_season_id": season_id
-            if isinstance(season_id, int) and not isinstance(season_id, bool) else None,
+            if isinstance(season_id, int) and not isinstance(season_id, bool)
+            else None,
             "provider_season": fixture.get("season", {}).get("name")
-            if isinstance(fixture.get("season"), dict) else None,
+            if isinstance(fixture.get("season"), dict)
+            else None,
             "provider_kickoff_utc": (
                 _utc_z(datetime.fromtimestamp(fixture["starting_at_timestamp"], UTC))
                 if isinstance(fixture.get("starting_at_timestamp"), int)

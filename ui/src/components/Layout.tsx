@@ -169,6 +169,8 @@ export function Layout({
             {" · "}
             <a href="#/teams">My Teams</a>
             {" · "}
+            <a href="#/transfers">Transfer Desk</a>
+            {" · "}
             <a href="#/settings">Settings</a>
           </span>
           <span className="dim">

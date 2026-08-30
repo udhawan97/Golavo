@@ -86,6 +86,15 @@ function button(label: string): HTMLButtonElement {
 }
 
 describe("Sportmonks Settings cleanup", () => {
+  it("keeps Transfer Desk a separately enabled capability", () => {
+    const label = [...container.querySelectorAll("label")].find(
+      (candidate) => candidate.textContent?.includes("Transfer Desk"),
+    );
+    const input = label?.querySelector("input");
+    expect(input).not.toBeNull();
+    expect(input?.checked).toBe(false);
+  });
+
   it("resets live state before disabling the connector", async () => {
     const order: string[] = [];
     vi.mocked(resetSportmonksClientState).mockImplementation(() => { order.push("reset"); });

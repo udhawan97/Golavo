@@ -6,7 +6,25 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-08-30
+
 ### Added
+
+- **Match Study Desk.** Every modelled match now opens with one compact, fixed and
+  non-ranked instrument rail: separate Elo and Dixon–Coles W/D/L voices, the council's
+  percentage-point disagreement, the goal voice's most-likely exact score, over/under
+  2.5, BTTS, and both clean-sheet probabilities. Mathematical `1 / probability`
+  equivalents are labelled without margin, market movement, ranking, or recommendation;
+  scorer, corner, and card forecasts remain explicit unavailable states.
+- **Bounded Transfer Desk.** A separately enabled Sportmonks BYOK capability resolves one
+  selected top-five club through an exact fixture/team identity, then reads at most four
+  50-row pages over the preceding 365 days after an explicit click. Arrivals, departures,
+  provider IDs, date, completion, and nullable free-text amount remain attributed and
+  no-store. Truncation is visible; currency, installments, add-ons, sell-ons, agent fees,
+  training rewards, and conditional consideration are never inferred.
+- **Provider expansion evidence.** The implementation plan and primary-source research
+  record the accepted provider contract, transfer-schema limits, rejected scraper paths,
+  exact inspected open-source references/licenses, and deferred data/model gates.
 
 - **Actionable current-season club context.** My Teams now uses the complete shared
   follow controller, puts the real follow control beside every run-in fixture, records a
@@ -27,6 +45,9 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   lineups and player match statistics after an explicit click. Provider fixture/team/player/
   lineup/metric identities and predicted/confirmed/unavailable states are preserved;
   responses stay in memory and cannot enter models, seals, scoring, calibration, AI, or export.
+- **Completed-match player-stat actions.** Completed fixtures use explicit final-stat fetch
+  and refresh wording, retain the provider fetch time, and state that one fixture is not a
+  multi-match player-form series.
 - **Checkpoint continuity and rehearsed recovery.** Checkpoint format `0.2.0` can extend
   a verified `0.1.0` head without rewriting its hashed history. Forecast-ledger archive
   `0.2.0` includes only the verified head-reachable checkpoint records, accepts legacy
@@ -65,9 +86,10 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Documentation
 
-- Synchronized the README and public site with the source-vs-v0.18.0 release boundary,
+- Synchronized the README and public site with the v0.19.0 release boundary,
   My Teams, Trust Center, calendar export, application receipts, local checkpoints,
-  archive exclusions/recovery limits, and guarded calibration slices.
+  archive exclusions/recovery limits, guarded calibration slices, Match Study Desk,
+  Transfer Desk, provider-data limits, and the release/non-claim ledger.
 
 ## [0.18.0] - 2026-08-25
 
@@ -1592,7 +1614,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/udhawan97/Golavo/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/udhawan97/Golavo/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/udhawan97/Golavo/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/udhawan97/Golavo/compare/v0.16.0...v0.17.0

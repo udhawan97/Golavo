@@ -25,9 +25,9 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
     <h2 id="gv-stage-1-title" class="gv-stage-title">Open any match. Read both voices.</h2>
     <div class="gv-body">
       Golavo opens on games, not an audit form. Choose a fixture, past or
-      upcoming, and watch the ratings model and the goal model disagree — with
-      the source behind every claim and the uncertainty left visible. Nothing
-      here is on the record yet.
+      upcoming, and use the fixed Study Desk to compare separate W/D/L voices,
+      exact score and goal-line marginals — with the source behind every claim
+      and the uncertainty left visible. Nothing here is ranked or on the record yet.
     </div>
 
     <div class="gv-stage-grid gv-stage-grid--even">
@@ -36,8 +36,8 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
         <figcaption><span>Games</span> Internationals, the big-five leagues, and UEFA club competitions.</figcaption>
       </figure>
       <figure class="gv-shot">
-        <img src="/Golavo/screenshots/match-cockpit.jpg" alt="Golavo Match Cockpit presented as a six-chapter matchday programme in Casual mode" width="1440" height="900" loading="lazy" decoding="async"/>
-        <figcaption><span>Match Cockpit</span> Six chapters, one source-backed read.</figcaption>
+        <img src="/Golavo/screenshots/match-study-desk.png" alt="Golavo Match Study Desk comparing separate Elo and Dixon–Coles voices with exact-score and goal-model probability lenses" width="1030" height="579" loading="lazy" decoding="async"/>
+        <figcaption><span>Study Desk</span> Fixed lenses, separate voices, explicit evidence limits.</figcaption>
       </figure>
       <figure class="gv-shot gv-shot--contain">
         <picture>
@@ -55,7 +55,7 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
     <div class="gv-audience-grid" aria-label="Quick paths for readers and developers">
       <article class="gv-audience-card">
         <h3>For a casual read</h3>
-        <p>Games, model disagreement, three useful facts, the likely scoreline, and a clear “we don’t know” when data is thin.</p>
+        <p>Games, separate model voices, exact score and goal-line probabilities, three useful facts, and a clear “we don’t know” when data is thin.</p>
         <a class="gv-text-link" href="/Golavo/matchday/">Learn the Match Cockpit <span aria-hidden="true">↗</span></a>
       </article>
       <article class="gv-audience-card">
@@ -166,7 +166,7 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
 
     <div class="gv-substrate-grid">
       <div>
-        <p class="gv-source-badge">Source main after v0.18.0 · not in current installers</p>
+        <p class="gv-source-badge">Local integrity · bundled in v0.19.0</p>
         <h3>Local data, with receipts</h3>
         <p>
           Refresh approved CC0 sources manually or with consent. Followed matches get
@@ -184,12 +184,19 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
           fixture gate, switch between separate World Cup model voices, or read the
           women’s 1991–2019 record beside the men’s 1930–2022 archive. Historical
           records and research stay pinned to their exact source, competition, and era;
-          neither is a model input.
+          neither is a model input. A separately enabled Transfer Desk reads one
+          bounded provider window for an exact top-five club and leaves unknown
+          payment components visibly unknown.
         </p>
-        <a class="gv-text-link" href="/Golavo/competition-analytics/">See the competitions <span aria-hidden="true">↗</span></a>
+        <a class="gv-text-link" href="/Golavo/competition-analytics/">See the competitions <span aria-hidden="true">↗</span></a><br/>
+        <a class="gv-text-link" href="/Golavo/transfers/">Open Transfer Desk <span aria-hidden="true">↗</span></a>
+        <figure class="gv-shot">
+          <img src="/Golavo/screenshots/transfer-desk.png" alt="Golavo Transfer Desk before an explicit provider fetch, with exact club selection and the payment evidence boundary" width="1030" height="644" loading="lazy" decoding="async"/>
+          <figcaption><span>Transfer Desk</span> Foreground-only provider evidence; missing payment structure stays missing.</figcaption>
+        </figure>
       </div>
       <div>
-        <p class="gv-source-badge">Source main after v0.18.0 · not in current installers</p>
+        <p class="gv-source-badge">Local club room · bundled in v0.19.0</p>
         <h3>Your clubs, not a profile</h3>
         <p>
           My Teams keeps exact competition-and-club favorites in a local browser
@@ -233,7 +240,7 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
   <section class="gv-closing" aria-labelledby="gv-closing-title">
     <p class="gv-kicker">No bet placement. No oracle. No moving the goalposts.</p>
     <h2 id="gv-closing-title" class="gv-display">Let the model speak once, then keep the tape running.</h2>
-    <p>Golavo is free, open source, local-first, and currently an unsigned v0.18.0 pre-alpha. Source <code>main</code> is ahead of that packaged release.</p>
+    <p>Golavo is free, open source, local-first, and currently an unsigned v0.19.0 pre-alpha.</p>
     <div class="gv-closing-actions">
       <a class="gv-action gv-action--primary" href="#gv-install-title">Choose how to run Golavo <span aria-hidden="true">→</span></a>
       <a class="gv-action" href="/Golavo/methodology/prediction/">Read the methodology</a>
@@ -243,12 +250,11 @@ import CinematicProductStage from '../../components/CinematicProductStage.astro'
 </div>
 
 :::caution[Unsigned pre-alpha]
-Golavo is at **v0.18.0**, an OS-unsigned pre-alpha release. macOS Gatekeeper and Windows
+Golavo is at **v0.19.0**, an OS-unsigned pre-alpha release. macOS Gatekeeper and Windows
 SmartScreen will warn on first launch. In-app update verification is shipped;
 OS signing and notarization remain gated on real credentials. See
 [Installation](/Golavo/installation/) and the [Roadmap](/Golavo/roadmap/).
 
-Repository `main` also contains verified, unreleased local tools — My Teams, followed-match
-calendar export, Trust Center proof/archive/checkpoint workflows, refresh application receipts,
-and guarded calibration slices. Build from source to use them before the next packaged release.
+Provider-backed panels require the user's own token, subscription, entitlement, and foreground
+fetch. Transfer amounts are provider free text; missing payment components remain unavailable.
 :::

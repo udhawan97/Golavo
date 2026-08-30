@@ -154,7 +154,8 @@ def fake_repo(tmp_path: Path) -> Path:
         # cff-version reproduces the header line the version template must NOT match.
         "CITATION.cff": f'cff-version: 1.2.0\nversion: {v}\ndate-released: "2020-01-01"\n',
         "docs-site/src/components/Hero.astro": (
-            f'<span class="gh-status-dot"></span>v{v} · unsigned pre-alpha · local-first\n'
+            f'isNotFound ? "404 · page not found · local-first" : '
+            f'"v{v} · unsigned pre-alpha · local-first"\n'
         ),
         "docs-site/src/content/docs/index.mdx": (
             f"<p>Golavo is free, open source, local-first, and currently an "

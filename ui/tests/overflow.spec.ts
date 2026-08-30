@@ -11,6 +11,7 @@ const ROUTES = [
   { name: "my-season", path: "/#/season" },
   { name: "search", path: "/#/matches" },
   { name: "leagues", path: "/#/leagues" },
+  { name: "transfers", path: "/#/transfers" },
   { name: "league", path: "/#/league/premier-league" },
   { name: "match-cockpit", path: "/#/match/m_synthetic_played_01" },
   { name: "club-half-time", path: "/#/match/m_synthetic_played_05" },

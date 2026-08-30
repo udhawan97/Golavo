@@ -3,21 +3,17 @@ title: Trust Center
 description: Verify portable forecast evidence, back up or restore the allowlisted ledger, inspect local checkpoints, and read data-application receipts.
 ---
 
-:::note[Availability]
-Trust Center is verified on repository `main` after v0.18.0 and is not in the v0.18.0
-installers. Read-only proof/archive preview and status checks work in source mode. Archive
-restore and checkpoint creation require the private desktop launch token, so use a desktop
-build from current source for those mutations. Open it from **Settings → Proofs, backups
+:::note[Desktop mutation boundary]
+Read-only proof/archive preview and status checks work in source mode. Archive restore and
+checkpoint creation require the private desktop launch token, so use the installed desktop
+app for those mutations. Open it from **Settings → Proofs, backups
 & local integrity** or the footer. See [build the desktop app locally](/Golavo/installation/#build-the-desktop-app-locally).
 :::
 
 Trust Center groups four local integrity jobs without contacting a provider. They answer
 different questions and deliberately do not collapse into one “verified” badge.
 
-![Trust Center on source main with local proof verification, forecast-ledger backup and restore, ledger checkpoints, and data-application receipts](/Golavo/screenshots/trust-center-source-main.png)
-
-*Source-main evidence after v0.18.0, captured with isolated local data; this screen is not
-in the current installers.*
+![Trust Center with local proof verification, forecast-ledger backup and restore, ledger checkpoints, and data-application receipts](/Golavo/screenshots/trust-center-source-main.png)
 
 ## Verify a forecast proof
 

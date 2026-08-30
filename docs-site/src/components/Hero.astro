@@ -31,10 +31,10 @@ const cols = Array.from({ length: 20 }, (_, i) => -unit + i * unit);
   <div class="gh-inner">
     <div class="gh-copy">
       <p class="gh-status gh-enter" style="--d:0ms">
-        <span class="gh-status-dot"></span>{isNotFound ? "404 · page not found · local-first" : "v0.18.0 · unsigned pre-alpha · local-first"}
+        <span class="gh-status-dot"></span>{isNotFound ? "404 · page not found · local-first" : "v0.19.0 · unsigned pre-alpha · local-first"}
       </p>
       <p class="gh-source-status gh-enter" style="--d:25ms">
-        {isNotFound ? <>The requested documentation route is unavailable</> : <>Latest packaged release · source <code>main</code> is ahead</>}
+        {isNotFound ? <>The requested documentation route is unavailable</> : <>v0.19.0 release candidate · local-first</>}
       </p>
 
       <p class="gh-eyebrow gh-enter" style="--d:50ms">{isNotFound ? "Return to known ground" : "The local-first football match cockpit"}</p>
@@ -77,10 +77,10 @@ const cols = Array.from({ length: 20 }, (_, i) => -unit + i * unit);
 
       <div class="gh-frame gh-frame--main">
         <img
-          src={`${base}/screenshots/match-cockpit.jpg`}
-          alt="Golavo Match Cockpit showing a source-backed France versus Spain match programme"
-          width="1440"
-          height="900"
+          src={`${base}/screenshots/match-study-desk.png`}
+          alt="Golavo Match Study Desk comparing separate Elo and Dixon–Coles voices with exact-score and goal-model probability lenses"
+          width="1030"
+          height="579"
           loading="eager"
           fetchpriority="high"
           decoding="async"
@@ -111,8 +111,8 @@ const cols = Array.from({ length: 20 }, (_, i) => -unit + i * unit);
       />
 
       <figcaption id="gh-artifact-caption">
-        <span>Preview → seal → score</span>
-        One match, kept legible from first question to append-only local record.
+        <span>Study → predict → verify</span>
+        Separate model voices, fixed probability lenses, and explicit evidence limits.
       </figcaption>
     </figure>
   </div>

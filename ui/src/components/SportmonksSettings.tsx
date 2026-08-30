@@ -87,9 +87,9 @@ export function SportmonksSettings() {
     <div id="settings-sportmonks" className="settings__field stack" style={{ ["--gap" as string]: ".7rem", scrollMarginTop: "1rem" }}>
       <div className="settings__row">
         <div>
-          <label>Sportmonks outside signals</label>
+          <label>Sportmonks outside signals &amp; transfers</label>
           <p className="settings__hint" style={{ margin: ".2rem 0 0" }}>
-            Optional BYOK predictions, player match data, and bookmaker prices from a paid third-party football API.
+            Optional BYOK predictions, player match data, bookmaker prices, and team transfers from a paid third-party football API.
           </p>
         </div>
         <span className={`chip ${status.enabled ? "chip--success" : "chip--neutral"}`}>
@@ -100,7 +100,7 @@ export function SportmonksSettings() {
       <p className="settings__hint" style={{ margin: 0 }}>
         <b>Outside-signal boundary:</b> these values are labelled Sportmonks opinions. They never
         change a Golavo probability, model, verdict, seal, score, calibration, AI read, or export.
-        Golavo requests them only when you click on a match and does not persist the response.
+        Golavo requests them only when you click a fetch action and does not persist the response.
       </p>
 
       {!status.enabled ? (
@@ -114,9 +114,9 @@ export function SportmonksSettings() {
               />
               <span>
                 I understand Sportmonks is a paid third-party service, requests send this fixture’s
-                date and team names, its data may be incomplete, and its player data, odds, and
-                predictions are third-party context—not advice or Golavo forecasts. I have reviewed
-                the linked terms and privacy policy.
+                date and team names, its data may be incomplete, and its player data, odds,
+                predictions, and transfers are third-party context—not advice, Golavo forecasts, or
+                model evidence. I have reviewed the linked terms and privacy policy.
               </span>
             </label>
           )}
@@ -162,6 +162,14 @@ export function SportmonksSettings() {
                   disabled={busy || status.capabilities.length === 1 && status.capabilities[0] === "player_lens"}
                   onChange={() => toggleCapability("player_lens")}
                 />{" "}Top-five league Player Lens
+              </label>
+              <label className="small">
+                <input
+                  type="checkbox"
+                  checked={status.capabilities.includes("transfer_desk")}
+                  disabled={busy || status.capabilities.length === 1 && status.capabilities[0] === "transfer_desk"}
+                  onChange={() => toggleCapability("transfer_desk")}
+                />{" "}Top-five league Transfer Desk
               </label>
             </span>
           </div>
@@ -224,7 +232,7 @@ export function SportmonksSettings() {
 
       <p className="settings__hint" style={{ margin: 0 }}>
         Terms reviewed {status.provider.terms_reviewed_date} · pinned content SHA {status.provider.terms_content_sha256.slice(0, 12)}. Subscription and the Odds &amp;
-        Predictions, player-stat coverage, and any required add-ons are purchased directly from
+        Predictions, player-stat and transfer coverage, and any required add-ons are purchased directly from
         Sportmonks. No logos or player images are requested.{" "}
         <a href={status.provider.docs_url} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>API docs</a>
         {" · "}<a href={status.provider.pricing_url} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Pricing</a>

@@ -157,14 +157,22 @@ async function renderPanel(matchId = "m_1", home = "Home", away = "Away") {
 }
 
 describe("OutsideSignals", () => {
+  it("uses final-stat wording for a completed fixture", async () => {
+    await act(async () => {
+      root.render(<OutsideSignals matchId="m_1" home="Home" away="Away" complete />);
+    });
+    expect(container.textContent).toContain("Fetch final player stats & outside signals");
+    expect(fetchOutsideSignals).not.toHaveBeenCalled();
+  });
+
   it("does not contact Sportmonks until the user clicks fetch", async () => {
     await renderPanel();
     expect(fetchSportmonksStatus).toHaveBeenCalledOnce();
     expect(fetchOutsideSignals).not.toHaveBeenCalled();
-    expect(container.textContent).toContain("Fetch outside signals");
+    expect(container.textContent).toContain("Fetch outside signals & player data");
 
     const button = [...container.querySelectorAll("button")].find(
-      (candidate) => candidate.textContent === "Fetch outside signals",
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
     );
     await act(async () => button?.click());
 
@@ -204,13 +212,13 @@ describe("OutsideSignals", () => {
     );
     await renderPanel();
     const button = [...container.querySelectorAll("button")].find(
-      (candidate) => candidate.textContent === "Fetch outside signals",
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
     );
     await act(async () => button?.click());
 
     expect(container.textContent).toContain("Review the credential and plan");
     expect(container.querySelector('a[href="#/settings"]')).not.toBeNull();
-    expect(container.textContent).not.toContain("Fetch outside signals");
+    expect(container.textContent).not.toContain("Fetch outside signals & player data");
     },
   );
 
@@ -221,7 +229,7 @@ describe("OutsideSignals", () => {
     }) as never);
     await renderPanel();
     const button = [...container.querySelectorAll("button")].find(
-      (candidate) => candidate.textContent === "Fetch outside signals",
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
     );
     act(() => button?.click());
     const signal = vi.mocked(fetchOutsideSignals).mock.calls[0][1];
@@ -232,14 +240,14 @@ describe("OutsideSignals", () => {
     await act(async () => resolveFirst?.(response));
 
     expect(container.textContent).not.toContain("Ada Forward");
-    expect(container.textContent).toContain("Fetch outside signals");
+    expect(container.textContent).toContain("Fetch outside signals & player data");
     expect(container.textContent).toContain("Second Home, Second Away");
   });
 
   it("clears in-memory provider state when the connector is reset", async () => {
     await renderPanel();
     const button = [...container.querySelectorAll("button")].find(
-      (candidate) => candidate.textContent === "Fetch outside signals",
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
     );
     await act(async () => button?.click());
     expect(container.textContent).toContain("Ada Forward");

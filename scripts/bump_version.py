@@ -46,7 +46,11 @@ SPOTS: list[tuple[str, str, int]] = [
     ("CITATION.cff", "\nversion: {v}", 1),
     # Docs-site hardcoded "current version" mentions — these drift silently
     # because docs-site's build succeeds either way; only this check catches it.
-    ("docs-site/src/components/Hero.astro", ">v{v} · unsigned pre-alpha · local-first", 1),
+    (
+        "docs-site/src/components/Hero.astro",
+        ': "v{v} · unsigned pre-alpha · local-first"',
+        1,
+    ),
     ("docs-site/src/content/docs/index.mdx", "unsigned v{v} pre-alpha", 1),
     ("docs-site/src/content/docs/index.mdx", "Golavo is at **v{v}**", 1),
     ("README.md", 'alt="version v{v}"', 1),

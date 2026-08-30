@@ -14,12 +14,12 @@ followed-match checks, provenance-first corrections, selected-source research, a
 history-support/model-gap/capability explanations, portable proof downloads, forecast
 readiness, verified-generation diffs, and ephemeral conditional season scenarios.
 The women-first World Cup history archive and current Frauen-Bundesliga OpenLigaDB
-display overlay are also current product behavior, not future promises. Source `main`
-additionally has My Teams, exact-time followed-match calendar export, Trust Center proof
+display overlay are also current product behavior, not future promises. Golavo additionally
+has My Teams, exact-time followed-match calendar export, Trust Center proof
 inspection and allowlisted archive/restore, data-application receipts, local ledger
-checkpoints, guarded calibration slices, and a checkpoint-continuity archive that accepts
-legacy backups and rehearses recovery before mutation. These post-v0.18.0 tools remain unreleased
-until a later packaged version contains them.
+checkpoints, guarded calibration slices, a checkpoint-continuity archive that accepts
+legacy backups and rehearses recovery before mutation, the Match Study Desk, final-player-stat
+foreground wording, and a bounded provider-backed Transfer Desk.
 
 ## Remaining work
 
@@ -27,7 +27,8 @@ until a later packaged version contains them.
 |---|---|---|
 | **Live club settlement** | Add a second independent result source so club seals can grade automatically | Eight approved repositories now refresh international and current big-five league state while the app is open. One domestic Football.TXT result remains one source; settlement stays pending until an independent source agrees. |
 | **Future league continuity** | Carry the allowlisted country-repository adapters into each genuinely published season | Every new season must pass the same exact-path, license, provenance, identity, result, and complete-schedule gates. Absence or partial publication remains last-known-good, never inferred completeness. |
-| **Observed match data** | Optional lineups, injuries, xG, scorers, corners, and cups as typed features | Every field needs a lawful licensed source, retrieval timestamp, provenance record, and evidence that it improves forward metrics. Otherwise defer it. |
+| **Observed match data** | Multi-match player form plus optional injuries, xG, scorers, corners, cards, and cups as typed features. One-match Sportmonks player context already exists but is display-only. | Every model field needs a lawful point-in-time corpus, retrieval timestamp, provenance record, leakage controls, target-specific evaluation, and evidence that it improves forward metrics. Otherwise defer it. |
+| **Transfer payment evidence** | Add transaction-specific payment components only where a primary club or issuer disclosure supplies them | Keep the current provider amount as free text. Currency, installments, add-ons, sell-ons, agent fees, training rewards, and conditional consideration remain unknown until each exact source is reviewed. |
 | **Optional external checkpoint anchoring** | Decide whether an independent, opt-in anchor is worthwhile beyond local migration and recovery | Requires a provider-independent design, explicit privacy/retention/revocation policy, and proof that local-only operation remains complete. A local chain must never be described as external authenticity or timing proof. |
 | **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | Requires real credentials plus a green install/update/rollback matrix on both platforms. |
 | **Product reach** | Team/player/manager dossiers, community packs, and i18n | Each source and pack format needs its own license review, isolation boundary, signature policy, and failure tests. Current-manager claims stay absent until a revision-pinned tenure source exists. |

@@ -3,13 +3,7 @@ title: The Prediction Ledger
 description: How Golavo seals a forecast before kickoff and scores it after full time — and how you can verify a seal was never altered.
 ---
 
-Golavo's accountability spine is the versioned `ForecastArtifact` contract. A forecast is **sealed** before kickoff and a later result produces a separate **scored** artifact; the sealed file is never mutated. The forward loop supports men's senior full internationals and fixtures in certified domestic schedules. Club settlement remains stricter: it waits for two independent result sources to agree. A read-only calibration record aggregates what happened after the whistle. Source `main` can also create local hash-chained checkpoints over the immutable forecast files, with external-authenticity, timing, migration, and recovery limits kept explicit.
-
-:::note[Availability]
-The in-app proof verifier, forecast-ledger archive/restore, local checkpoints, refresh
-application receipts, and guarded calibration slices are on repository `main` after v0.18.0.
-They are not in the v0.18.0 desktop installers. See [Trust Center](/Golavo/trust-center/).
-:::
+Golavo's accountability spine is the versioned `ForecastArtifact` contract. A forecast is **sealed** before kickoff and a later result produces a separate **scored** artifact; the sealed file is never mutated. The forward loop supports men's senior full internationals and fixtures in certified domestic schedules. Club settlement remains stricter: it waits for two independent result sources to agree. A read-only calibration record aggregates what happened after the whistle. Golavo can also create local hash-chained checkpoints over the immutable forecast files, with external-authenticity, timing, migration, and recovery limits kept explicit. See [Trust Center](/Golavo/trust-center/).
 
 :::note[Seals are not picks]
 A **seal** freezes a model forecast for the expert trust record. A **pick** is your score call in

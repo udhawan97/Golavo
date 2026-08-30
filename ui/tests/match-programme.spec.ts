@@ -15,6 +15,13 @@ test("match cockpit reads as a six-chapter programme ending in the verdict", asy
   await expect(teaser.getByText("Same forecast · different depth")).toBeVisible();
   await expect(teaser.getByText("Most likely score")).toHaveCount(0);
 
+  const study = page.locator("#match-study-desk");
+  await expect(study.getByRole("heading", { name: "Study desk" })).toBeVisible();
+  await expect(study.getByText("No model read")).toBeVisible();
+  await expect(study).toContainText("did not clear the history needed");
+  await expect(study.getByText("Goals · 2.5 line")).toHaveCount(0);
+  await expect(study).not.toContainText(/best bet|clean-sheet edge/i);
+
   const chapters = [
     "The form book",
     "How they play",

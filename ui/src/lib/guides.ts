@@ -89,6 +89,20 @@ const GUIDES = {
       { label: "Search matches", href: "#/matches" },
     ],
   },
+  transfers: {
+    eyebrow: "Transfer Desk guide",
+    title: "Read provider transfer claims without filling the gaps",
+    summary: "One explicit fetch resolves an exact top-five club and keeps provider records separate from every Golavo model.",
+    steps: [
+      "Enable the separate Transfer Desk capability and select one local club identity.",
+      "Fetch the bounded one-year window and check whether its page coverage is complete or partial.",
+      "Treat the provider amount as currency-unspecified free text; payment components remain unavailable.",
+    ],
+    links: [
+      { label: "Provider Settings", href: "#/settings" },
+      { label: "Browse leagues", href: "#/leagues" },
+    ],
+  },
   season: {
     eyebrow: "My Season guide",
     title: "Make your call before kickoff",
@@ -171,6 +185,7 @@ export function guideForPath(path: string): PageGuide {
   if (path === "/settings") return GUIDES.settings;
   if (path === "/trust") return GUIDES.trust;
   if (path === "/teams") return GUIDES.teams;
+  if (path === "/transfers") return GUIDES.transfers;
   if (path.startsWith("/season")) return GUIDES.season;
   if (path.startsWith("/match/")) return GUIDES.match;
   if (path.startsWith("/forecast/")) return GUIDES.forecast;

@@ -85,8 +85,10 @@ async def _require_launch_token(request: Request, call_next: Any) -> Any:
     match_research_path = path.startswith("/api/v1/research/") and not path.startswith(
         "/api/v1/research/competitions/"
     )
-    sportmonks_path = path.startswith("/api/v1/providers/sportmonks") or path.endswith(
-        "/outside-signals"
+    sportmonks_path = (
+        path.startswith("/api/v1/providers/sportmonks")
+        or path.endswith("/outside-signals")
+        or re.fullmatch(r"/api/v1/matches/[^/]+/transfers/[^/]+", path) is not None
     )
     if correction_path and token is None:
         return JSONResponse(
@@ -2119,6 +2121,34 @@ async def get_match_outside_signals(match_id: str, response: Response) -> dict[s
         raise HTTPException(status_code=404, detail="match not found")
     try:
         payload = await run_in_threadpool(sportmonks.fetch_outside_signals, detail["match"])
+        response.headers["Cache-Control"] = "no-store"
+        return payload
+    except sportmonks.SportmonksError as exc:
+        raise HTTPException(
+            status_code=exc.status,
+            detail={
+                "reason_code": exc.code,
+                "message": str(exc),
+                "retryable": exc.retryable,
+            },
+        ) from exc
+
+
+@app.get("/api/v1/matches/{match_id}/transfers/{side}")
+async def get_match_team_transfers(
+    match_id: str, side: str, response: Response
+) -> dict[str, Any]:
+    """Fetch one exact team's current provider transfer window on a user click."""
+    try:
+        detail = await run_in_threadpool(matches.get_match, match_id, forecasts_dir=ARTIFACT_DIR)
+    except matches.MatchIndexUnavailable as exc:
+        raise HTTPException(status_code=503, detail="match index unavailable") from exc
+    if detail is None:
+        raise HTTPException(status_code=404, detail="match not found")
+    try:
+        payload = await run_in_threadpool(
+            sportmonks.fetch_team_transfers, detail["match"], side
+        )
         response.headers["Cache-Control"] = "no-store"
         return payload
     except sportmonks.SportmonksError as exc:

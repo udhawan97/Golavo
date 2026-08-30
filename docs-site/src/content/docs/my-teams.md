@@ -3,19 +3,11 @@ title: My Teams
 description: Keep exact club favorites locally and bring their table, one season-outlook voice, run-in, stakes, follows, and picks into one room.
 ---
 
-:::note[Availability]
-My Teams is verified on repository `main` after v0.18.0. It is not in the v0.18.0
-desktop installers. Run or build the current source to use it before the next release.
-:::
-
 My Teams is a local club room, not an account or a new forecast. It reuses the season
 outlook that Golavo already certifies for the five bundled domestic leagues and stores
 only the exact competition/team favorites you choose in the browser preference store.
 
-![My Teams on source main showing a local Augsburg favorite, projected points, five run-in fixtures, and guarded season-stake swings](/Golavo/screenshots/my-teams-source-main.png)
-
-*Source-main evidence after v0.18.0, captured against the local engine; this screen is not
-in the current installers.*
+![My Teams showing a local Augsburg favorite, projected points, five run-in fixtures, and guarded season-stake swings](/Golavo/screenshots/my-teams-source-main.png)
 
 ## Add a club
 

@@ -56,6 +56,7 @@ import { CorrectionAnnotations } from "../components/CorrectionAnnotations";
 import { MatchResearch } from "../components/MatchResearch";
 import { OutsideSignals } from "../components/OutsideSignals";
 import { CurrentSeasonMatchContext } from "../components/CurrentSeasonMatchContext";
+import { MatchStudyDesk } from "../components/MatchStudyDesk";
 
 export function MatchDetail({ id }: { id: string }) {
   const state = useAsync(() => fetchMatch(id), [id]);
@@ -215,11 +216,23 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
 
       <ProgrammeContents />
 
+      <MatchStudyDesk
+        analysis={analysis}
+        loading={analysisState.status === "loading"}
+        home={match.home_team}
+        away={match.away_team}
+      />
+
       <ConditionsSnapshot matchId={id} />
 
       <ReferenceDesk matchId={id} home={match.home_team} away={match.away_team} />
 
-      <OutsideSignals matchId={id} home={match.home_team} away={match.away_team} />
+      <OutsideSignals
+        matchId={id}
+        home={match.home_team}
+        away={match.away_team}
+        complete={match.is_complete}
+      />
 
       <CurrentSeasonMatchContext match={match} />
 
@@ -349,6 +362,7 @@ function Detail({ id, detail }: { id: string; detail: MatchDetailResponse }) {
 
 function ProgrammeContents() {
   const chapters = [
+    ["Desk", "Study desk", "match-study-desk"],
     ["01", "The form book", "programme-01"],
     ["02", "How they play", "programme-02"],
     ["03", "The history", "programme-03"],

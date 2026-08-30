@@ -8,6 +8,7 @@ vi.mock("./api", () => ({
 
 import {
   fetchOutsideSignals,
+  fetchTeamTransfers,
   resetSportmonksClientState,
   SPORTMONKS_RESET_EVENT,
 } from "./sportmonks";
@@ -35,14 +36,15 @@ describe("Sportmonks client request cleanup", () => {
 
     const first = fetchOutsideSignals("m_first");
     const second = fetchOutsideSignals("m_second");
-    expect(signals).toHaveLength(2);
+    const transfer = fetchTeamTransfers("m_first", "home");
+    expect(signals).toHaveLength(3);
     expect(signals.every((signal) => !signal.aborted)).toBe(true);
 
     resetSportmonksClientState();
 
     expect(signals.every((signal) => signal.aborted)).toBe(true);
     expect(resets).toBe(1);
-    const settled = await Promise.allSettled([first, second]);
-    expect(settled.map((result) => result.status)).toEqual(["rejected", "rejected"]);
+    const settled = await Promise.allSettled([first, second, transfer]);
+    expect(settled.map((result) => result.status)).toEqual(["rejected", "rejected", "rejected"]);
   });
 });

@@ -36,6 +36,7 @@ const PicksGuide = lazy(() => import("./views/PicksGuide").then((m) => ({ defaul
 const MySeason = lazy(() => import("./views/MySeason").then((m) => ({ default: m.MySeason })));
 const MyTeams = lazy(() => import("./views/MyTeams").then((m) => ({ default: m.MyTeams })));
 const TrustCenter = lazy(() => import("./views/TrustCenter").then((m) => ({ default: m.TrustCenter })));
+const Transfers = lazy(() => import("./views/Transfers").then((m) => ({ default: m.Transfers })));
 import { UpdaterContext } from "./lib/updater-context";
 import { useUpdaterController } from "./lib/updater";
 import {
@@ -242,6 +243,7 @@ function Route({
   if (forecast) return <ForecastDetail id={safeDecode(forecast[1])} />;
 
   if (path === "/leagues") return <LeaguesHub />;
+  if (path === "/transfers") return <Transfers />;
   const league = path.match(/^\/league\/(.+)$/);
   if (league) return <LeagueView slug={safeDecode(league[1])} />;
   if (path === "/season") return <MySeason />;

@@ -9,10 +9,10 @@ The newest stable desktop build is always available from the
 [latest GitHub release](https://github.com/udhawan97/Golavo/releases/latest). The website
 buttons below follow that same published release.
 
-Repository `main` can be ahead of that release. At this refresh, v0.18.0 is the newest
-packaged build, while My Teams, calendar export, Trust Center, application receipts,
-local checkpoints, ledger archive/restore, and guarded calibration slices require a
-source checkout. See [Download & run](/Golavo/download/) for the live boundary.
+v0.19.0 is the milestone described here. Always use the newest stable GitHub release as
+the publication authority; if its exact v0.19.0 assets are not yet present, build the candidate
+from source or wait for the release workflow. See [Download & run](/Golavo/download/) for the
+live boundary.
 
 - **Browser UI** — source mode on macOS, Windows, or Linux.
 - **macOS app** — Apple Silicon DMG, with no Python or terminal required.

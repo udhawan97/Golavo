@@ -1,6 +1,10 @@
 import { API_BASE, apiHeaders } from "./api";
 
-export type SportmonksCapability = "external_prediction" | "external_odds" | "player_lens";
+export type SportmonksCapability =
+  | "external_prediction"
+  | "external_odds"
+  | "player_lens"
+  | "transfer_desk";
 
 export interface SportmonksStatus {
   schema_version: "0.1.0";
@@ -135,6 +139,81 @@ export interface OutsideSignals {
   };
 }
 
+export interface TransferDeskResponse {
+  schema_version: "0.1.0";
+  status: "available" | "partial";
+  label: "Provider transfer records — not Golavo model evidence.";
+  provider: {
+    source_id: "sportmonks-v3";
+    name: string;
+    docs_url: string;
+    terms_url: string;
+  };
+  identity: {
+    golavo_match_id: string;
+    golavo_team: string;
+    golavo_side: "home" | "away";
+    provider_fixture_id: number;
+    provider_team_id: number;
+    provider_team: string;
+    provider_league_id: number | null;
+    provider_season_id: number | null;
+    match_method: OutsideSignals["identity"]["match_method"];
+  };
+  transfers: Array<{
+    transfer_id: number;
+    direction: "arrival" | "departure";
+    date: string;
+    completed: boolean;
+    player: { id: number; name: string };
+    type: { id: number; name: string };
+    from_team: { id: number; name: string };
+    to_team: { id: number; name: string };
+    position: { id: number; name: string } | null;
+    provider_reported_amount: string | null;
+    amount_label: "Provider-reported amount — currency unspecified";
+    payment_breakdown: {
+      status: "unavailable";
+      reason_code: "provider_fields_not_reported";
+      currency: null;
+      installments: null;
+      add_ons: null;
+      sell_on_terms: null;
+      agent_or_intermediary_fees: null;
+      training_rewards: null;
+      conditional_consideration: null;
+    };
+  }>;
+  coverage: {
+    window_start: string;
+    window_end: string;
+    window_days: 365;
+    pages_fetched: number;
+    page_limit: 4;
+    rows_per_page_limit: 50;
+    truncated: boolean;
+  };
+  provenance: {
+    fetched_at_utc: string;
+    terms_acceptance_version: string;
+    raw_response_sha256: {
+      fixture_pages: string[];
+      transfer_pages: string[];
+    };
+    raw_response_storage: "not_persisted";
+  };
+  usage: {
+    display: true;
+    model_input: false;
+    forecast_sealing: false;
+    forecast_settlement: false;
+    calibration: false;
+    scoring: false;
+    ai_evidence: false;
+    exports: false;
+  };
+}
+
 export class SportmonksApiError extends Error {
   constructor(
     message: string,
@@ -210,11 +289,11 @@ export function deleteSportmonksCredential(): Promise<SportmonksStatus> {
 }
 
 export const SPORTMONKS_RESET_EVENT = "golavo:sportmonks-reset";
-const activeOutsideSignalRequests = new Set<AbortController>();
+const activeSportmonksRequests = new Set<AbortController>();
 
 export function resetSportmonksClientState(): void {
-  for (const controller of activeOutsideSignalRequests) controller.abort();
-  activeOutsideSignalRequests.clear();
+  for (const controller of activeSportmonksRequests) controller.abort();
+  activeSportmonksRequests.clear();
   if (typeof window !== "undefined") window.dispatchEvent(new Event(SPORTMONKS_RESET_EVENT));
 }
 
@@ -228,12 +307,33 @@ export function fetchOutsideSignals(
   const abort = () => controller.abort();
   if (externalSignal?.aborted) abort();
   else externalSignal?.addEventListener("abort", abort, { once: true });
-  activeOutsideSignalRequests.add(controller);
+  activeSportmonksRequests.add(controller);
   return request<OutsideSignals>(
     `/api/v1/matches/${encodeURIComponent(matchId)}/outside-signals`,
     { cache: "no-store", signal: controller.signal },
   ).finally(() => {
     externalSignal?.removeEventListener("abort", abort);
-    activeOutsideSignalRequests.delete(controller);
+    activeSportmonksRequests.delete(controller);
+  });
+}
+
+export function fetchTeamTransfers(
+  matchId: string,
+  side: "home" | "away",
+  externalSignal?: AbortSignal,
+): Promise<TransferDeskResponse> {
+  // Like outside signals, this is a bounded foreground capture with no shared
+  // GET cache and no request on route mount.
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  if (externalSignal?.aborted) abort();
+  else externalSignal?.addEventListener("abort", abort, { once: true });
+  activeSportmonksRequests.add(controller);
+  return request<TransferDeskResponse>(
+    `/api/v1/matches/${encodeURIComponent(matchId)}/transfers/${side}`,
+    { cache: "no-store", signal: controller.signal },
+  ).finally(() => {
+    externalSignal?.removeEventListener("abort", abort);
+    activeSportmonksRequests.delete(controller);
   });
 }

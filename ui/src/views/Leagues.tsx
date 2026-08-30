@@ -54,6 +54,12 @@ export function LeaguesHub() {
           stay available as training context, while completed tournaments sit in the archive.
         </p>
       </header>
+      <a className="league-transfer-card" href="#/transfers">
+        <span className="upper">Provider-backed · opt-in</span>
+        <strong>Transfer Desk</strong>
+        <span>Inspect top-five arrivals, departures, reported fees, and explicit payment-data gaps.</span>
+        <ChevronRight size={18} />
+      </a>
       {groups.map((group) => (
         <section
           key={group.id}

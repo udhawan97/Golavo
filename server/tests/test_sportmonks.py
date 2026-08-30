@@ -92,41 +92,73 @@ def _fake_fetcher(calls: list[tuple[str, str]]):
             return {
                 "data": {
                     "id": 19427573,
-                    "metadata": [{
-                        "type_id": 572,
-                        "values": True,
-                        "type": {"id": 572, "developer_name": "LINEUP_CONFIRMED"},
-                    }],
-                    "lineups": [{
-                        "id": 501,
-                        "fixture_id": 19427573,
-                        "player_id": 601,
-                        "team_id": 14,
-                        "position_id": 27,
-                        "type_id": 11,
-                        "player_name": "Example Forward",
-                        "jersey_number": 9,
-                        "details": [{
-                            "id": 701,
+                    "metadata": [
+                        {
+                            "type_id": 572,
+                            "values": True,
+                            "type": {"id": 572, "developer_name": "LINEUP_CONFIRMED"},
+                        }
+                    ],
+                    "lineups": [
+                        {
+                            "id": 501,
                             "fixture_id": 19427573,
                             "player_id": 601,
                             "team_id": 14,
-                            "lineup_id": 501,
-                            "type_id": 52,
-                            "data": {"value": 1},
-                            "type": {
-                                "id": 52,
-                                "name": "Goals",
-                                "developer_name": "GOALS",
-                                "stat_group": "offensive",
-                            },
-                        }],
-                    }],
+                            "position_id": 27,
+                            "type_id": 11,
+                            "player_name": "Example Forward",
+                            "jersey_number": 9,
+                            "details": [
+                                {
+                                    "id": 701,
+                                    "fixture_id": 19427573,
+                                    "player_id": 601,
+                                    "team_id": 14,
+                                    "lineup_id": 501,
+                                    "type_id": 52,
+                                    "data": {"value": 1},
+                                    "type": {
+                                        "id": 52,
+                                        "name": "Goals",
+                                        "developer_name": "GOALS",
+                                        "stat_group": "offensive",
+                                    },
+                                }
+                            ],
+                        }
+                    ],
                 }
             }, "d" * 64
         raise AssertionError(path)
 
     return fetch
+
+
+def _transfer_row(
+    transfer_id: int,
+    transfer_date: str,
+    *,
+    from_team_id: int = 7,
+    to_team_id: int = 14,
+    amount: str | None = "€42m",
+) -> dict:
+    return {
+        "id": transfer_id,
+        "player_id": 6000 + transfer_id,
+        "type_id": 220,
+        "from_team_id": from_team_id,
+        "to_team_id": to_team_id,
+        "position_id": 27,
+        "date": transfer_date,
+        "completed": True,
+        "amount": amount,
+        "player": {"id": 6000 + transfer_id, "display_name": f"Player {transfer_id}"},
+        "type": {"id": 220, "name": "Transfer"},
+        "fromTeam": {"id": from_team_id, "name": f"Team {from_team_id}"},
+        "toTeam": {"id": to_team_id, "name": f"Team {to_team_id}"},
+        "position": {"id": 27, "name": "Forward"},
+    }
 
 
 def test_consent_defaults_off_and_requires_current_terms(monkeypatch, tmp_path) -> None:
@@ -142,6 +174,7 @@ def test_consent_defaults_off_and_requires_current_terms(monkeypatch, tmp_path) 
     assert sportmonks.TERMS_CONTENT_SHA256 in sportmonks.TERMS_ACCEPTANCE_VERSION
     assert configured["storage_policy"] == "derived_response_memory_only"
     assert configured["usage"]["model_input"] is False
+    assert "transfer_desk" not in configured["capabilities"]
 
 
 def test_exact_match_returns_separate_prediction_and_odds_without_persistence(
@@ -325,11 +358,13 @@ def test_fixture_match_rejects_ambiguous_participant_identity(
         if "/fixtures/date/" in path:
             participants = payload["data"][0]["participants"]
             if ambiguity == "duplicate_home":
-                participants.append({
-                    "id": 99,
-                    "name": "Manchester United",
-                    "meta": {"location": "home"},
-                })
+                participants.append(
+                    {
+                        "id": 99,
+                        "name": "Manchester United",
+                        "meta": {"location": "home"},
+                    }
+                )
             else:
                 participants[1]["id"] = participants[0]["id"]
         return payload, digest
@@ -339,9 +374,7 @@ def test_fixture_match_rejects_ambiguous_participant_identity(
     assert exc.value.code == "fixture_not_matched"
 
 
-def test_fixture_search_fails_closed_when_page_bound_is_truncated(
-    monkeypatch, tmp_path
-) -> None:
+def test_fixture_search_fails_closed_when_page_bound_is_truncated(monkeypatch, tmp_path) -> None:
     _wire_settings(monkeypatch, tmp_path)
     monkeypatch.setattr(sportmonks, "load_api_token", lambda: ("secret-token-value", "keychain"))
     calls: list[str] = []
@@ -531,9 +564,7 @@ def test_player_lens_quarantines_duplicate_metric_identity() -> None:
         ("string_count", "invalid value or unit"),
     ],
 )
-def test_player_lens_quarantines_metric_schema_drift(
-    mutation: str, expected_message: str
-) -> None:
+def test_player_lens_quarantines_metric_schema_drift(mutation: str, expected_message: str) -> None:
     base = _fake_fetcher([])
 
     def drifted(path: str, token: str):
@@ -580,16 +611,16 @@ def test_player_lens_accepts_typed_metrics_across_all_top_five_leagues(
         developer_name, label, _unit = sportmonks.PLAYER_METRIC_SCHEMA[type_id]
         detail["type_id"] = type_id
         detail["data"]["value"] = value
-        detail["type"].update({
-            "id": type_id,
-            "name": label,
-            "developer_name": developer_name,
-        })
+        detail["type"].update(
+            {
+                "id": type_id,
+                "name": label,
+                "developer_name": developer_name,
+            }
+        )
         return payload, digest
 
-    result, digest = sportmonks._player_lens(
-        19427573, 14, 9, competition, "secret", typed
-    )
+    result, digest = sportmonks._player_lens(19427573, 14, 9, competition, "secret", typed)
     metric = result["players"][0]["metrics"][0]
     assert result["status"] == "available"
     assert metric["type_id"] == type_id
@@ -613,11 +644,13 @@ def test_player_lens_rejects_invalid_values_for_every_unit(
         developer_name, label, _unit = sportmonks.PLAYER_METRIC_SCHEMA[type_id]
         detail["type_id"] = type_id
         detail["data"]["value"] = value
-        detail["type"].update({
-            "id": type_id,
-            "name": label,
-            "developer_name": developer_name,
-        })
+        detail["type"].update(
+            {
+                "id": type_id,
+                "name": label,
+                "developer_name": developer_name,
+            }
+        )
         return payload, digest
 
     result, digest = sportmonks._player_lens(
@@ -741,6 +774,213 @@ def test_overall_status_ignores_disabled_capabilities(monkeypatch, tmp_path, cap
         assert result[field]["status"] == expected
 
 
+def test_transfer_desk_preserves_provider_claims_without_inventing_payment_fields(
+    monkeypatch, tmp_path
+) -> None:
+    _wire_settings(monkeypatch, tmp_path)
+    sportmonks.configure({"capabilities": ["transfer_desk"]})
+    monkeypatch.setattr(sportmonks, "load_api_token", lambda: ("secret-token-value", "keychain"))
+    calls: list[str] = []
+
+    def fetch(path: str, _token: str):
+        calls.append(path)
+        if "/fixtures/date/" in path:
+            return _fixture_payload(), "a" * 64
+        if "/transfers/teams/14" in path:
+            return {
+                "data": [
+                    _transfer_row(31, "2026-08-01"),
+                    _transfer_row(
+                        30,
+                        "2026-07-15",
+                        from_team_id=14,
+                        to_team_id=8,
+                        amount=None,
+                    ),
+                ],
+                "pagination": {"has_more": False},
+            }, "e" * 64
+        raise AssertionError(path)
+
+    result = sportmonks.fetch_team_transfers(
+        MATCH,
+        "home",
+        fetcher=fetch,
+        now_utc=datetime(2026, 8, 30, 12, tzinfo=UTC),
+    )
+
+    assert result["status"] == "available"
+    assert result["label"] == "Provider transfer records — not Golavo model evidence."
+    assert result["identity"]["provider_team_id"] == 14
+    assert [row["direction"] for row in result["transfers"]] == ["arrival", "departure"]
+    assert result["transfers"][0]["provider_reported_amount"] == "€42m"
+    assert result["transfers"][1]["provider_reported_amount"] is None
+    assert result["transfers"][0]["amount_label"].endswith("currency unspecified")
+    breakdown = result["transfers"][0]["payment_breakdown"]
+    assert breakdown["status"] == "unavailable"
+    assert all(
+        value is None for key, value in breakdown.items() if key not in {"status", "reason_code"}
+    )
+    assert result["coverage"]["window_days"] == 365
+    assert result["coverage"]["truncated"] is False
+    assert result["provenance"]["raw_response_storage"] == "not_persisted"
+    assert result["usage"]["model_input"] is False
+    assert result["usage"]["ai_evidence"] is False
+    assert len(calls) == 2
+
+
+def test_transfer_desk_marks_the_bounded_window_partial() -> None:
+    calls: list[str] = []
+
+    def fetch(path: str, _token: str):
+        calls.append(path)
+        page = int(path.rsplit("page=", 1)[1])
+        return {
+            "data": [_transfer_row(100 - page, f"2026-08-0{5 - page}")],
+            "pagination": {"has_more": True},
+        }, str(page) * 64
+
+    result, hashes = sportmonks._transfers(
+        14,
+        "secret",
+        fetch,
+        datetime(2026, 8, 30, 12, tzinfo=UTC),
+    )
+
+    assert result["status"] == "partial"
+    assert result["coverage"]["truncated"] is True
+    assert result["coverage"]["pages_fetched"] == sportmonks.MAX_TRANSFER_PAGES
+    assert len(calls) == sportmonks.MAX_TRANSFER_PAGES
+    assert len(hashes) == sportmonks.MAX_TRANSFER_PAGES
+
+
+@pytest.mark.parametrize(
+    ("code", "status", "retryable"),
+    [
+        ("credential_rejected", 401, False),
+        ("plan_missing", 403, False),
+        ("rate_limited", 429, True),
+        ("provider_unavailable", 503, True),
+    ],
+)
+def test_transfer_desk_preserves_provider_failures(
+    monkeypatch, tmp_path, code: str, status: int, retryable: bool
+) -> None:
+    _wire_settings(monkeypatch, tmp_path)
+    sportmonks.configure({"capabilities": ["transfer_desk"]})
+    monkeypatch.setattr(sportmonks, "load_api_token", lambda: ("secret-token-value", "keychain"))
+    calls: list[str] = []
+
+    def failed(path: str, _token: str):
+        calls.append(path)
+        if "/fixtures/date/" in path:
+            return _fixture_payload(), "a" * 64
+        raise sportmonks.SportmonksError(
+            code, "Provider failure", status=status, retryable=retryable
+        )
+
+    with pytest.raises(sportmonks.SportmonksError) as exc:
+        sportmonks.fetch_team_transfers(MATCH, "home", fetcher=failed)
+
+    assert exc.value.code == code
+    assert exc.value.status == status
+    assert exc.value.retryable is retryable
+    assert len(calls) == 2
+    assert "/transfers/teams/14" in calls[-1]
+
+
+def test_disable_cancels_transfer_work_before_another_provider_page(monkeypatch, tmp_path) -> None:
+    _wire_settings(monkeypatch, tmp_path)
+    sportmonks.configure({"capabilities": ["transfer_desk"]})
+    monkeypatch.setattr(sportmonks, "load_api_token", lambda: ("secret-token-value", "keychain"))
+    transfer_started = threading.Event()
+    release_transfer = threading.Event()
+    calls: list[str] = []
+
+    def blocking(path: str, _token: str):
+        calls.append(path)
+        if "/fixtures/date/" in path:
+            return _fixture_payload(), "a" * 64
+        transfer_started.set()
+        assert release_transfer.wait(timeout=5)
+        return {
+            "data": [_transfer_row(31, "2026-08-01")],
+            "pagination": {"has_more": True},
+        }, "e" * 64
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(sportmonks.fetch_team_transfers, MATCH, "home", fetcher=blocking)
+        assert transfer_started.wait(timeout=5)
+        configured = sportmonks.configure({"enabled": False})
+        release_transfer.set()
+        with pytest.raises(sportmonks.SportmonksError) as exc:
+            future.result(timeout=5)
+
+    assert configured["enabled"] is False
+    assert exc.value.code == "request_cancelled"
+    assert sum("/transfers/" in path for path in calls) == 1
+    assert sportmonks.cancel_pending_requests() == 0
+
+
+@pytest.mark.parametrize("mutation", ["too_many", "pagination", "order", "format_control"])
+def test_transfer_desk_fails_closed_on_bounded_response_contract(mutation: str) -> None:
+    rows = [_transfer_row(31, "2026-08-01")]
+    pagination: object = {"has_more": False}
+    if mutation == "too_many":
+        rows = [_transfer_row(1000 + index, "2026-08-01") for index in range(51)]
+    elif mutation == "pagination":
+        pagination = {"has_more": "false"}
+    elif mutation == "order":
+        rows.append(_transfer_row(32, "2026-08-02"))
+    else:
+        rows[0]["player"]["display_name"] = "Player\u202e31"
+
+    def fetch(_path: str, _token: str):
+        return {"data": rows, "pagination": pagination}, "e" * 64
+
+    with pytest.raises(sportmonks.SportmonksError) as exc:
+        sportmonks._transfers(
+            14,
+            "secret",
+            fetch,
+            datetime(2026, 8, 30, 12, tzinfo=UTC),
+        )
+
+    assert exc.value.code in {
+        "malformed_response",
+        "transfer_order_invalid",
+        "transfer_schema_drift",
+    }
+
+
+@pytest.mark.parametrize("mutation", ["duplicate", "wrong_team", "numeric_amount"])
+def test_transfer_desk_fails_closed_on_ambiguous_or_undocumented_rows(mutation: str) -> None:
+    first = _transfer_row(31, "2026-08-01")
+    rows = [first]
+    if mutation == "duplicate":
+        rows.append({**first})
+    elif mutation == "wrong_team":
+        rows = [_transfer_row(31, "2026-08-01", from_team_id=7, to_team_id=8)]
+    else:
+        rows[0]["amount"] = 42_000_000
+
+    def fetch(_path: str, _token: str):
+        return {"data": rows, "pagination": {"has_more": False}}, "e" * 64
+
+    with pytest.raises(sportmonks.SportmonksError) as exc:
+        sportmonks._transfers(
+            14,
+            "secret",
+            fetch,
+            datetime(2026, 8, 30, 12, tzinfo=UTC),
+        )
+    assert exc.value.code in {
+        "transfer_identity_ambiguous",
+        "transfer_identity_mismatch",
+        "transfer_schema_drift",
+    }
+
+
 def test_keychain_write_keeps_token_out_of_process_arguments(monkeypatch) -> None:
     monkeypatch.setenv("GOLAVO_TOKEN", "launch-token")
     monkeypatch.setattr(sportmonks.sys, "platform", "darwin")
@@ -764,6 +1004,8 @@ def test_routes_are_private_even_for_reads(monkeypatch) -> None:
     client = TestClient(server_main.app)
     assert client.get("/api/v1/providers/sportmonks/settings").status_code == 403
     assert client.get("/api/v1/matches/m_exact/outside-signals").status_code == 403
+    assert client.get("/api/v1/matches/m_exact/transfers/home").status_code == 403
+    assert client.get("/api/v1/matches/m_exact/transfers/not-a-side").status_code == 403
 
 
 def test_outside_signal_route_forbids_http_caching(monkeypatch) -> None:
@@ -787,6 +1029,27 @@ def test_outside_signal_route_forbids_http_caching(monkeypatch) -> None:
     assert response.headers["cache-control"] == "no-store"
 
 
+def test_transfer_route_forbids_http_caching(monkeypatch) -> None:
+    monkeypatch.setenv("GOLAVO_TOKEN", "launch-token")
+    monkeypatch.setattr(
+        server_main.matches,
+        "get_match",
+        lambda _match_id, **_kwargs: {"match": MATCH},
+    )
+    monkeypatch.setattr(
+        sportmonks,
+        "fetch_team_transfers",
+        lambda _match, _side: {"status": "available"},
+    )
+    client = TestClient(server_main.app)
+    response = client.get(
+        "/api/v1/matches/m_exact/transfers/home",
+        headers={sportmonks.runtime.TOKEN_HEADER: "launch-token"},
+    )
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+
+
 def test_request_allowlist_rejects_arbitrary_paths() -> None:
     with pytest.raises(sportmonks.SportmonksError) as exc:
         sportmonks._request_json("/v3/football/fixtures/1?redirect=https://example.com", "secret")
@@ -804,3 +1067,14 @@ def test_request_allowlist_accepts_only_the_bounded_player_lens_shape() -> None:
     assert not sportmonks._ALLOWED_PATH.fullmatch(
         "/v3/football/fixtures/19427573?include=lineups.player;player.statistics"
     )
+
+
+def test_request_allowlist_accepts_only_the_bounded_transfer_shape() -> None:
+    allowed = (
+        "/v3/football/transfers/teams/14"
+        "?include=player;type;fromTeam;toTeam;position&order=desc&per_page=50&page=4"
+    )
+    assert sportmonks._ALLOWED_PATH.fullmatch(allowed)
+    assert not sportmonks._ALLOWED_PATH.fullmatch(allowed.replace("page=4", "page=5"))
+    assert not sportmonks._ALLOWED_PATH.fullmatch(allowed.replace("order=desc", "order=asc"))
+    assert not sportmonks._ALLOWED_PATH.fullmatch(allowed + "&include=rumours")

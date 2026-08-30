@@ -8,15 +8,12 @@ import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
 Golavo runs on your computer in all three modes. There is no hosted forecasting
 service and no account requirement.
 
-<Aside type="note" title="Stable release versus source main">
-The desktop links install the newest packaged release, currently v0.18.0. Repository
-`main` is ahead with unreleased My Teams, calendar export, Trust Center, application
-receipt, checkpoint, archive, and calibration-slice work. **Run in your browser** covers
-the read paths and My Teams; archive restore and checkpoint creation require a desktop
-build from source with its private launch token. Follow the
-[current-main desktop build path](/Golavo/installation/#build-the-desktop-app-locally)
-for those mutations. Do not expect these tools in the
-v0.18.0 installers.
+<Aside type="note" title="Stable release boundary">
+The desktop links install the newest published stable release. v0.19.0 is the milestone
+described by these docs, but publication is not complete until GitHub exposes its exact tag,
+installers, updater payloads, checksums, and signatures. **Run in your browser** covers read
+paths; archive restore, checkpoint creation, and OS-keychain provider setup require a desktop
+build with its private launch token.
 </Aside>
 
 <CardGrid>
@@ -68,7 +65,7 @@ Get-FileHash .\Golavo_*_x64-setup.exe -Algorithm SHA256
 The versioned Windows filename changes each release; use the exact name you downloaded.
 A checksum match detects corruption or an incomplete download. To authenticate the
 checksum ledger with Minisign, use the updater public key pinned in
-[`tauri.updater.conf.json`](https://github.com/udhawan97/Golavo/blob/v0.18.0/desktop/src-tauri/tauri.updater.conf.json):
+[`tauri.updater.conf.json`](https://github.com/udhawan97/Golavo/blob/v0.19.0/desktop/src-tauri/tauri.updater.conf.json):
 
 ```bash
 # Tauri publishes the Minisign text wrapped once in base64.

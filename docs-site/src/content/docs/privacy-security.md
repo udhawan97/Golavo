@@ -6,10 +6,9 @@ description: What Golavo stores locally, which optional actions use the network,
 Golavo runs from local files and has no accounts, telemetry, ads, crash reporter, or
 hosted forecasting backend. Core match exploration and deterministic analysis work offline.
 
-:::note[Source boundary]
-The Trust Center archive, checkpoint, proof-inspection, and application-receipt surfaces
-described below are on repository `main` after v0.18.0. Archive restore and checkpoint
-creation require the private desktop launch token; they are not open source-mode mutations.
+:::note[Desktop mutation boundary]
+Trust Center archive restore and checkpoint creation require the private desktop launch token;
+they are not open source-mode mutations. Read-only proof inspection and archive preview remain local.
 :::
 
 ## Privacy
@@ -36,9 +35,10 @@ creation require the private desktop launch token; they are not open source-mode
   environment variable, sent only in the selected provider request header, and excluded
   from artifacts, logs, caches and exports. Local models stay on loopback.
 - **Sportmonks is foreground and no-store.** After separate provider consent, one match-level
-  click sends the exact fixture date and team names. Derived probabilities, odds, lineups,
-  and player match statistics remain in memory and are excluded from models, seals, scoring,
-  calibration, AI evidence, archives, and exports.
+  click sends the exact fixture date and team names. A separately enabled Transfer Desk click
+  first resolves an exact fixture/team identity, then requests one bounded team transfer window.
+  Derived probabilities, odds, lineups, player match statistics, and transfer rows remain in memory
+  and are excluded from models, seals, scoring, calibration, AI evidence, archives, and exports.
 - **Update checks are separate.** Until you answer the one-time consent card, no update
   check occurs. Enabled checks ask GitHub for release metadata at most once a day; an
   installer downloads only after you click.
@@ -57,6 +57,7 @@ creation require the private desktop launch token; they are not open source-mode
 | Forecast artifacts | Canonical payload hash and source/build identity; scoring appends a successor rather than mutating a sealed forecast. A portable proof download carries the connected lineage and any matching source manifests for offline verification. Research, follows, overlays and corrections have no probability write path. |
 | Trust Center | Uploaded proofs and archives are checked locally. Archive paths, counts, sizes, hashes, contracts, SQLite content, conflicts, and any linked checkpoint chain are validated before restore; the forecast/checkpoint state is rehearsed in a disposable local directory. Restore/checkpoint mutations require the private desktop launch token. Local checkpoints do not prove external authenticity or timing. |
 | Optional AI | Numeric whitelist, schema/citation/quote guards, betting-language filter, loopback-only local endpoints, fixed cloud providers, no chain-of-thought exposure, and deterministic-only fallback. |
+| Sportmonks provider | Current terms acceptance, private launch-token routes, OS keychain or environment credential, exact fixture/team identity, fixed endpoint/query allowlist, response/page/time bounds, cancellation, no-store headers, raw-response hashes, and no model/AI/export permissions. |
 | Signed auto-update | Update payloads, official pack manifests, and the aggregate release checksum ledger are verified against Golavo's pinned release identity. Installers themselves are not yet OS code-signed/notarized. |
 
 ## Update and data recovery

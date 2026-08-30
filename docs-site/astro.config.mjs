@@ -72,8 +72,9 @@ export default defineConfig({
             { label: "Installation", slug: "installation" },
             { label: "Games & the Match Cockpit", slug: "matchday" },
             { label: "Competition analytics", slug: "competition-analytics" },
+            { label: "Transfer Desk", slug: "transfers" },
             { label: "Picks, points & My Season", slug: "picks-and-points" },
-            { label: "My Teams · source main", slug: "my-teams" },
+            { label: "My Teams", slug: "my-teams" },
           ],
         },
         {
