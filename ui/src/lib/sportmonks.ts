@@ -1,6 +1,6 @@
 import { API_BASE, apiHeaders } from "./api";
 
-export type SportmonksCapability = "external_prediction" | "external_odds";
+export type SportmonksCapability = "external_prediction" | "external_odds" | "player_lens";
 
 export interface SportmonksStatus {
   schema_version: "0.1.0";
@@ -63,8 +63,15 @@ export interface OutsideSignals {
     provider_away_team_id: number;
     provider_home_team: string;
     provider_away_team: string;
+    provider_league_id: number | null;
+    provider_league: string | null;
+    provider_season_id: number | null;
+    provider_season: string | null;
     provider_kickoff_utc: string | null;
-    match_method: "exact_normalized_teams_and_kickoff";
+    match_method:
+      | "exact_normalized_teams_and_kickoff"
+      | "exact_competition_season_teams_and_kickoff"
+      | "exact_competition_season_teams_and_calendar_date";
   };
   prediction:
     | UnavailableSignal
@@ -89,6 +96,33 @@ export interface OutsideSignals {
           updated_at_utc: string | null;
           decimal: { home: number; draw: number; away: number };
         }>;
+      };
+  player_lens:
+    | UnavailableSignal
+    | {
+        status: "available";
+        lineup_state: "confirmed" | "predicted" | "unverified";
+        players: Array<{
+          lineup_id: number;
+          player_id: number;
+          team_id: number;
+          name: string;
+          jersey_number: number | null;
+          position_id: number | null;
+          participation: "starter" | "substitute";
+          metrics: Array<{
+            type_id: number;
+            developer_name: string;
+            label: string;
+            group: string | null;
+            value: number | string | boolean;
+          }>;
+        }>;
+        coverage: {
+          player_count: number;
+          players_with_metrics: number;
+          missing_stat_is_zero: false;
+        };
       };
   provenance: {
     fetched_at_utc: string;

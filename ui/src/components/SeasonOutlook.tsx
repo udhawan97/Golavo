@@ -141,6 +141,13 @@ function belowModelFloor(team: SeasonOutlookTeam): boolean {
   return status !== undefined && status !== "ok";
 }
 
+export function projectionCoverageCaveat(projection: SeasonOutlookTeam): string | null {
+  const status = projection.history_coverage?.status;
+  return status !== undefined && status !== "ok"
+    ? "No qualifying recent model history for this club; these values are the model’s prior filling an evidence gap."
+    : null;
+}
+
 /** "A", "A and B", "A, B and C" — a season can promote more than two clubs. */
 function nameList(names: string[]): string {
   if (names.length <= 1) return names[0] ?? "";

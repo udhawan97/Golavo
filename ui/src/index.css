@@ -274,6 +274,12 @@ a:hover { text-decoration-color: currentColor; }
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
+.file-picker:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* -------------------------------------------------------------- layout ---- */
 .container { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: clamp(1rem, 3vw, 1.6rem); }
 .stack > * + * { margin-top: var(--gap, 1rem); }
@@ -1869,6 +1875,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .outside-signals__boundary { max-width: var(--measure); margin: 0; line-height: 1.55; }
 .outside-signals__fetch { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
 .outside-signals__grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: var(--space-4); }
+.outside-signal-card--wide { grid-column: 1 / -1; }
 .outside-signal-card {
   min-width: 0; padding: var(--space-4); border: 1px solid var(--border);
   border-radius: var(--radius-sm); background: var(--surface-2);
@@ -2560,6 +2567,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 }
 .season-table { min-width: 440px; }
 .season-probability-table { min-width: 590px; }
+.season-context-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 /* A club the models have no recent history for: the number is a prior, not
    evidence, and must not read as equally grounded as the rows around it. */
 .season-probability-table__thin {
@@ -2687,6 +2695,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .load-chip--elevated { color: var(--gold); border-color: var(--gold-line); }
 .load-chip--normal { color: var(--green); }
 @media (max-width: 700px) {
+  .season-context-grid { grid-template-columns: 1fr; }
   .analytics-focus__head { align-items: stretch; flex-direction: column; }
   .analytics-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .analytics-kpi { min-width: 0; }

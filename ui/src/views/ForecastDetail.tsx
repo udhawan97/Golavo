@@ -1,8 +1,8 @@
 import { Fragment, useState } from "react";
-import type { ForecastArtifact } from "../lib/contract";
+import type { CalibrationSummary, ForecastArtifact } from "../lib/contract";
 import type { ForecastMode } from "../lib/hooks";
 import { FAMILY_LABELS, HORIZON_LABELS } from "../lib/contract";
-import { downloadForecastProof, fetchForecast, fetchForecasts } from "../lib/api";
+import { downloadForecastProof, fetchCalibration, fetchForecast, fetchForecasts } from "../lib/api";
 import { deriveMarkets } from "../lib/markets";
 import { legacyHistorySupport } from "../lib/analysisPresentation";
 import { num, pct, pctWhole, inWords, largestRemainder, sealLeadTime, utc, utcDate } from "../lib/format";
@@ -19,13 +19,18 @@ import { Provenance } from "../components/Provenance";
 import { ScoredPanel } from "../components/ScoredPanel";
 import { AiDeepRead } from "../components/ai/AiDeepRead";
 import { CommentatorsNotebook } from "../components/CommentatorsNotebook";
+import { LocalTrackRecordContext } from "../components/LocalTrackRecordContext";
 import { BlockSkeleton, EmptyState, ErrorState, Loading } from "../components/states";
 
 export function ForecastDetail({ id }: { id: string }) {
   const state = useAsync(
-    () => Promise.all([fetchForecast(id), fetchForecasts()]),
+    () => Promise.all([
+      fetchForecast(id),
+      fetchForecasts(),
+    ]),
     [id],
   );
+  const calibrationState = useAsync(fetchCalibration, [id]);
 
   if (state.status === "loading") return (<><Loading label="Loading forecast" /><Breadcrumb /><div style={{ marginTop: "1rem" }}><BlockSkeleton /></div></>);
   if (state.status === "error") return (<><Breadcrumb /><ErrorState error={state.error} /></>);
@@ -38,17 +43,27 @@ export function ForecastDetail({ id }: { id: string }) {
   const previous = artifact.supersedes
     ? all.find((a) => a.artifact_id === artifact.supersedes) ?? null
     : null;
-  return <Detail artifact={artifact} supersededBy={supersededBy} previous={previous} />;
+  return <Detail
+    artifact={artifact}
+    supersededBy={supersededBy}
+    previous={previous}
+    calibrationState={calibrationState}
+  />;
 }
 
 function Detail({
   artifact,
   supersededBy,
   previous,
+  calibrationState,
 }: {
   artifact: ForecastArtifact;
   supersededBy: string | null;
   previous: ForecastArtifact | null;
+  calibrationState:
+    | { status: "loading" }
+    | { status: "error"; error: Error }
+    | { status: "ready"; data: CalibrationSummary };
 }) {
   const { match, forecast, status } = artifact;
   const [mode, setMode] = useForecastMode();
@@ -78,6 +93,7 @@ function Detail({
 
       <ForecastTrustStrip artifact={artifact} />
       <ProofExport artifactId={artifact.artifact_id} />
+      <CalibrationContextState artifact={artifact} state={calibrationState} />
 
       {artifact.supersedes && (
         <div className="callout callout--info">
@@ -136,6 +152,29 @@ function Detail({
       />
     </div>
   );
+}
+
+export function CalibrationContextState({
+  artifact,
+  state,
+}: {
+  artifact: ForecastArtifact;
+  state:
+    | { status: "loading" }
+    | { status: "error"; error: Error }
+    | { status: "ready"; data: CalibrationSummary };
+}) {
+  if (state.status === "ready") {
+    return <LocalTrackRecordContext artifact={artifact} calibration={state.data} />;
+  }
+  return <section className="panel" aria-labelledby="local-record-context-heading">
+    <div className="panel__head"><h2 id="local-record-context-heading">Relevant local sealed record</h2></div>
+    <div className="panel__body">
+      {state.status === "loading"
+        ? <><p className="small dim">Loading this independent local history…</p><BlockSkeleton lines={2} /></>
+        : <p className="small dim" role="status">Local sealed-record context is unavailable: {state.error.message}. The forecast above is unaffected.</p>}
+    </div>
+  </section>;
 }
 
 function ProofExport({ artifactId }: { artifactId: string }) {

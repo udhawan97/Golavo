@@ -49,8 +49,10 @@ export interface FollowController {
   settings: FollowSettings;
   permission: LocalNotificationPermission;
   loading: boolean;
+  markingRead: boolean;
   changingMatchId: string | null;
   error: Error | null;
+  markReadError: Error | null;
   byMatchId: ReadonlyMap<string, FollowedMatch>;
   follow: (matchId: string) => Promise<void>;
   unfollow: (followId: string, matchId?: string) => Promise<void>;
@@ -64,19 +66,41 @@ export interface FollowController {
 
 export const FollowContext = createContext<FollowController | null>(null);
 
+/** Load the complete active-follow set while preserving the server's global
+ * counters. FollowButton and every page-level summary must read this one list;
+ * a capped or separately fetched snapshot can mislabel an already-followed
+ * fixture after the user changes it elsewhere. */
+export async function fetchAllActiveFollows(): Promise<FollowListResponse> {
+  const pageSize = 200;
+  let offset = 0;
+  let latest: FollowListResponse = EMPTY_LIST;
+  const items: FollowedMatch[] = [];
+  while (true) {
+    const page = await fetchFollows("active", 20, pageSize, offset);
+    latest = page;
+    items.push(...page.items);
+    offset += page.items.length;
+    if (page.items.length === 0 || offset >= page.total) break;
+  }
+  return { ...latest, items, total: latest.total };
+}
+
 export function useFollowController(backendReady: boolean): FollowController {
   const [list, setList] = useState<FollowListResponse>(EMPTY_LIST);
   const [settings, setSettings] = useState<FollowSettings>(EMPTY_SETTINGS);
   const [permission, setPermission] = useState<LocalNotificationPermission>("unsupported");
   const [loading, setLoading] = useState(false);
+  const [markingRead, setMarkingRead] = useState(false);
   const [changingMatchId, setChangingMatchId] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const [markReadError, setMarkReadError] = useState<Error | null>(null);
   const reconciling = useRef<Promise<void> | null>(null);
+  const markingReadRef = useRef(false);
 
   const reload = useCallback(async () => {
     if (!backendReady) return;
     const [nextList, nextSettings, nextPermission] = await Promise.all([
-      fetchFollows("active", 20),
+      fetchAllActiveFollows(),
       fetchFollowSettings(),
       localNotificationPermission(),
     ]);
@@ -182,14 +206,41 @@ export function useFollowController(backendReady: boolean): FollowController {
   }, [reload]);
 
   const markAllRead = useCallback(async () => {
-    await markFollowEventsRead();
-    await reload();
+    if (markingReadRef.current) return;
+    markingReadRef.current = true;
+    setMarkingRead(true);
+    setError(null);
+    setMarkReadError(null);
+    try {
+      await markFollowEventsRead();
+      await reload();
+    } catch (cause) {
+      const failure = cause instanceof Error ? cause : new Error(String(cause));
+      setError(failure);
+      setMarkReadError(failure);
+    } finally {
+      markingReadRef.current = false;
+      setMarkingRead(false);
+    }
   }, [reload]);
 
   const markRead = useCallback(async (eventIds: string[]) => {
-    if (!eventIds.length) return;
-    await markFollowEventsRead(eventIds);
-    await reload();
+    if (!eventIds.length || markingReadRef.current) return;
+    markingReadRef.current = true;
+    setMarkingRead(true);
+    setError(null);
+    setMarkReadError(null);
+    try {
+      await markFollowEventsRead(eventIds);
+      await reload();
+    } catch (cause) {
+      const failure = cause instanceof Error ? cause : new Error(String(cause));
+      setError(failure);
+      setMarkReadError(failure);
+    } finally {
+      markingReadRef.current = false;
+      setMarkingRead(false);
+    }
   }, [reload]);
 
   const enableNotifications = useCallback(async () => {
@@ -220,8 +271,10 @@ export function useFollowController(backendReady: boolean): FollowController {
     settings,
     permission,
     loading,
+    markingRead,
     changingMatchId,
     error,
+    markReadError,
     byMatchId,
     follow,
     unfollow,

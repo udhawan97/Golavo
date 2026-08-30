@@ -31,9 +31,10 @@ LEAGUES: dict[str, tuple[str, str]] = {
     "fr.1": ("Ligue 1", "France"),
 }
 SEASON_FILE = re.compile(r"^(?P<season>\d{4}-\d{2})\.(?P<code>[a-z]{2}\.\d)\.json$")
-# football.json stops at 2025-26; later seasons are published only as
-# Football.TXT fixture lists, pinned into this same pack so a fixture keeps its
-# own league's history (see ingest.domestictxt).
+# The bundled football.json snapshot stops at 2025-26; its 2026-27 rows were
+# published later and enter installed apps only through the certified refresh.
+# The shipped 2026-27 Football.TXT fixtures stay in this pack so a fixture keeps
+# its own league's history (see ingest.domestictxt).
 SEASON_TXT_FILE = re.compile(r"^(?P<season>\d{4}-\d{2})\.(?P<code>[a-z]{2}\.\d)\.txt$")
 
 _SUFFIX = re.compile(r"\s+(?:FC|AFC)$")

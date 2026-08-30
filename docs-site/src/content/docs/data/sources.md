@@ -72,6 +72,24 @@ may suggest pages or entities; after explicit selection Golavo captures permitte
 retrieval time and hash, then routes extracted values into the untrusted local correction
 queue. DuckDuckGo HTML scraping is disabled. Search never makes a fact authoritative.
 
+## Optional BYOK provider context
+
+[Sportmonks Football API v3](https://www.sportmonks.com/football-api/) is an optional paid
+per-user connector, not a bundled data dependency. It stays off until the user reviews the
+current terms disclosure and provides a token. One foreground match click can request an
+exactly matched provider fixture, external probabilities/odds, and—within the five supported
+domestic leagues—lineups with player match statistics. Predicted, confirmed, and unavailable
+lineup states stay distinct; missing statistics are never treated as zero.
+
+The response remains in memory and is neither bundled nor exported. Provider fixture, team,
+player, lineup, and metric-type ids are preserved. No provider value can enter fitting,
+forecasts, verdicts, seals, settlement, scoring, calibration, AI evidence, or cross-league
+rankings. Logos and player photos are not requested. Top-five domestic and all day-precision
+matching requires exact competition/season scope and normalized teams with distinct numeric
+provider ids. Other supported matches retain exact-team and exact-kickoff matching and never
+receive Player Lens. A Football.TXT day-precision fixture can promote only one same-calendar-
+date candidate. Ambiguous candidates, remaps, and conflicts remain unavailable.
+
 ## Enforcement
 
 The registry records source ID, license class, attribution, approved hosts/paths,

@@ -119,7 +119,10 @@ def _build_index(path: Path, rows: list[dict]) -> None:
 
 
 @pytest.fixture(autouse=True)
-def _reset_cache():
+def _reset_cache(monkeypatch):
+    from golavo_server import runtime
+
+    monkeypatch.setattr(runtime, "analysis_cache_dir", lambda: None)
     matches.reset_cache()
     server_analysis.reset_cache()
     yield

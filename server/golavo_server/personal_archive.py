@@ -784,6 +784,8 @@ def _inspect_archive_unlocked(
             raise ValueError("archive file manifest is invalid")
         content: dict[str, bytes] = {}
         conflicts: list[str] = []
+        new_files: list[str] = []
+        identical_files: list[str] = []
         declared_names: set[str] = set()
         for entry in declared:
             if not isinstance(entry, dict) or not _allowed(str(entry.get("path", ""))):
@@ -798,7 +800,11 @@ def _inspect_archive_unlocked(
             _validate_content(name, value)
             content[name] = value
             destination = _safe_destination(ledger, name)
-            if destination.exists() and destination.read_bytes() != value:
+            if not destination.exists():
+                new_files.append(name)
+            elif destination.read_bytes() == value:
+                identical_files.append(name)
+            else:
                 conflicts.append(name)
         if declared_names != set(names) - {"manifest.json"}:
             raise ValueError("archive contents do not match its manifest")
@@ -824,6 +830,8 @@ def _inspect_archive_unlocked(
             "verified": True,
             "file_count": len(content),
             "total_bytes": sum(len(value) for value in content.values()),
+            "new_files": sorted(new_files),
+            "identical_files": sorted(identical_files),
             "conflicts": sorted(conflicts),
             "requires_replace_confirmation": bool(conflicts),
             "restore_preview_token": _restore_preview_token(content, ledger=ledger),
@@ -857,12 +865,8 @@ def restore_archive(
             raise FileExistsError(
                 "restore has conflicts; preview and explicitly confirm replacement"
             )
-        if (
-            preview["conflicts"]
-            and replace
-            and preview_token != preview["restore_preview_token"]
-        ):
-            raise ValueError("restore preview changed; preview again before replacing files")
+        if preview_token != preview["restore_preview_token"]:
+            raise ValueError("restore preview changed; preview again before restoring files")
         ledger.mkdir(parents=True, exist_ok=True)
 
         # Keep valid state as a verified escape hatch. If the current ledger is

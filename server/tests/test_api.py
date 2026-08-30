@@ -114,14 +114,17 @@ def test_personal_archive_and_checkpoint_routes(monkeypatch, tmp_path) -> None:
     assert client.post("/api/v1/ledger/checkpoints").status_code == 403
     monkeypatch.setenv("GOLAVO_TOKEN", "trust-token")
     headers = {server_main.runtime.TOKEN_HEADER: "trust-token"}
+    restored = client.post(
+        "/api/v1/personal/archive/restore"
+        f"?preview_token={preview.json()['restore_preview_token']}",
+        content=exported.content,
+        headers=headers,
+    )
+    assert restored.status_code == 200
     created = client.post("/api/v1/ledger/checkpoints", headers=headers)
     assert created.status_code == 200
     assert created.json()["checkpoint_count"] == 1
     assert client.get("/api/v1/ledger/checkpoints", headers=headers).json()["verified"] is True
-    restored = client.post(
-        "/api/v1/personal/archive/restore", content=exported.content, headers=headers
-    )
-    assert restored.status_code == 200
 
 
 def test_calendar_export_pages_through_every_follow(monkeypatch, tmp_path) -> None:

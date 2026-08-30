@@ -1644,6 +1644,8 @@ export interface ArchivePreview {
   verified: true;
   file_count: number;
   total_bytes: number;
+  new_files: string[];
+  identical_files: string[];
   conflicts: string[];
   requires_replace_confirmation: boolean;
   restore_preview_token: string;

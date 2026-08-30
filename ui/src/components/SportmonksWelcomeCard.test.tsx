@@ -41,7 +41,7 @@ beforeEach(() => {
   root = createRoot(container);
   vi.mocked(fetchSportmonksStatus).mockResolvedValue({
     terms_acceptance_version: null,
-    provider: { terms_acceptance_version: "sportmonks-terms-reviewed-2026-08-16" },
+    provider: { terms_acceptance_version: "sportmonks-terms-reviewed-2026-08-29" },
   } as never);
   vi.mocked(configureSportmonks).mockResolvedValue({} as never);
 });
@@ -81,7 +81,7 @@ describe("SportmonksWelcomeCard", () => {
 
     expect(configureSportmonks).toHaveBeenCalledWith({
       enabled: true,
-      capabilities: ["external_prediction", "external_odds"],
+      capabilities: ["external_prediction", "external_odds", "player_lens"],
       accept_terms: true,
     });
     expect(localStorage.getItem(SPORTMONKS_WELCOME_DECISION_KEY)).toBe("setup");

@@ -87,7 +87,7 @@ export function SportmonksSettings() {
         <div>
           <label>Sportmonks outside signals</label>
           <p className="settings__hint" style={{ margin: ".2rem 0 0" }}>
-            Optional BYOK predictions and bookmaker prices from a paid third-party football API.
+            Optional BYOK predictions, player match data, and bookmaker prices from a paid third-party football API.
           </p>
         </div>
         <span className={`chip ${status.enabled ? "chip--success" : "chip--neutral"}`}>
@@ -112,8 +112,9 @@ export function SportmonksSettings() {
               />
               <span>
                 I understand Sportmonks is a paid third-party service, requests send this fixture’s
-                date and team names, its data may be incomplete, and its odds/predictions are not
-                advice or Golavo forecasts. I have reviewed the linked terms and privacy policy.
+                date and team names, its data may be incomplete, and its player data, odds, and
+                predictions are third-party context—not advice or Golavo forecasts. I have reviewed
+                the linked terms and privacy policy.
               </span>
             </label>
           )}
@@ -151,6 +152,14 @@ export function SportmonksSettings() {
                   disabled={busy || status.capabilities.length === 1 && status.capabilities[0] === "external_odds"}
                   onChange={() => toggleCapability("external_odds")}
                 />{" "}Pre-match match-winner odds
+              </label>
+              <label className="small">
+                <input
+                  type="checkbox"
+                  checked={status.capabilities.includes("player_lens")}
+                  disabled={busy || status.capabilities.length === 1 && status.capabilities[0] === "player_lens"}
+                  onChange={() => toggleCapability("player_lens")}
+                />{" "}Top-five league Player Lens
               </label>
             </span>
           </div>
@@ -210,8 +219,8 @@ export function SportmonksSettings() {
 
       <p className="settings__hint" style={{ margin: 0 }}>
         Terms reviewed {status.provider.terms_reviewed_date}. Subscription and the Odds &amp;
-        Predictions add-on are purchased directly from Sportmonks. No logos or player images are
-        requested.{" "}
+        Predictions, player-stat coverage, and any required add-ons are purchased directly from
+        Sportmonks. No logos or player images are requested.{" "}
         <a href={status.provider.docs_url} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>API docs</a>
         {" · "}<a href={status.provider.pricing_url} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Pricing</a>
         {" · "}<a href={status.provider.terms_url} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Terms</a>

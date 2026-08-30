@@ -59,7 +59,7 @@ export function SportmonksWelcomeCard({
     <div className="consent-card consent-card--wide card" role="region" aria-label="Optional outside football signals">
       <p className="consent-card__title">Add outside football signals?</p>
       <p className="dim">
-        Golavo can show Sportmonks match probabilities and bookmaker prices in a separate panel.
+        Golavo can show Sportmonks match probabilities, top-five player match data, and bookmaker prices in a separate panel.
         They never change Golavo’s own forecast. Nothing is requested until you click on a match.
       </p>
       <p className="dim consent-card__hint">
@@ -79,7 +79,7 @@ export function SportmonksWelcomeCard({
             try {
               await configureSportmonks({
                 enabled: true,
-                capabilities: ["external_prediction", "external_odds"],
+                capabilities: ["external_prediction", "external_odds", "player_lens"],
                 accept_terms: true,
               });
               rememberDecision("setup");

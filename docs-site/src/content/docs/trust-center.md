@@ -34,7 +34,10 @@ forecast accuracy; it proves only the bytes included in that proof.
 **Download verified backup** writes a ZIP with fixed entry metadata and a checksummed
 manifest that records the export time.
 **Preview restore** validates its paths, sizes, hashes, contracts, SQLite follow database,
-and named conflicts before any replacement can occur. Archive format `0.2.0` also copies
+and classifies every file as new, byte-identical, or different before any replacement can
+occur. The classification comes from the same locked byte comparison that binds the restore
+preview. A token-free JSON preview report can be downloaded for local review; it is not
+authentication, timestamp evidence, or restore authorization. Archive format `0.2.0` also copies
 only the verified head-reachable checkpoint records and rebuilds them with the forecast
 files in a disposable ledger. Legacy `0.1.0` archives remain readable without inventing a
 checkpoint chain they never contained.
@@ -48,10 +51,11 @@ checkpoint chain they never contained.
 | | Refresh generations and derived caches |
 
 Archives are bounded to 5,000 files and 64 MiB uncompressed. Unsafe, duplicate, symlink,
-or out-of-allowlist paths fail closed. A conflicting restore stays disabled until you
+or out-of-allowlist paths fail closed. Every restore must present the state-bound token from
+its exact locked preview; a conflicting restore additionally stays disabled until you
 confirm replacement of the exact listed files. The restore uses a durable recovery journal
-bound to the previewed local file hashes; if any covered path changes, the confirmation
-expires and a new preview is required. It retains a pre-restore backup or quarantine copy
+bound to the previewed local file hashes; if any covered path changes, the preview expires
+and a new one is required. It retains a pre-restore backup or quarantine copy
 so interruption does not silently leave a half-applied ledger. Restore is withheld if the
 rehearsed post-restore state would leave the local checkpoint chain invalid.
 

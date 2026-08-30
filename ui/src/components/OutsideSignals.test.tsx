@@ -47,8 +47,12 @@ const response = {
     provider_away_team_id: 2,
     provider_home_team: "Home",
     provider_away_team: "Away",
+    provider_league_id: 8,
+    provider_league: "Premier League",
+    provider_season_id: 202627,
+    provider_season: "2026/2027",
     provider_kickoff_utc: "2026-08-20T18:00:00Z",
-    match_method: "exact_normalized_teams_and_kickoff",
+    match_method: "exact_competition_season_teams_and_kickoff",
   },
   prediction: {
     status: "available",
@@ -70,9 +74,30 @@ const response = {
       decimal: { home: 2.1, draw: 3.3, away: 3.8 },
     }],
   },
+  player_lens: {
+    status: "available",
+    lineup_state: "confirmed",
+    players: [{
+      lineup_id: 10,
+      player_id: 20,
+      team_id: 1,
+      name: "Ada Forward",
+      jersey_number: 9,
+      position_id: 27,
+      participation: "starter",
+      metrics: [{
+        type_id: 52,
+        developer_name: "GOALS",
+        label: "Goals",
+        group: "offensive",
+        value: 1,
+      }],
+    }],
+    coverage: { player_count: 1, players_with_metrics: 1, missing_stat_is_zero: false },
+  },
   provenance: {
     fetched_at_utc: "2026-08-20T17:05:00Z",
-    terms_acceptance_version: "sportmonks-terms-reviewed-2026-08-16",
+    terms_acceptance_version: "sportmonks-terms-reviewed-2026-08-29",
     raw_response_sha256: {},
     raw_response_storage: "not_persisted",
     model_input: false,
@@ -94,9 +119,9 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-async function renderPanel() {
+async function renderPanel(matchId = "m_1", home = "Home", away = "Away") {
   await act(async () => {
-    root.render(<OutsideSignals matchId="m_1" home="Home" away="Away" />);
+    root.render(<OutsideSignals matchId={matchId} home={home} away={away} />);
   });
 }
 
@@ -116,6 +141,10 @@ describe("OutsideSignals", () => {
     expect(fetchOutsideSignals).toHaveBeenCalledWith("m_1");
     expect(container.textContent).toContain("45.0%");
     expect(container.textContent).toContain("Example Book");
+    expect(container.textContent).toContain("Ada Forward");
+    expect(container.textContent).toContain("Confirmed lineup");
+    expect(container.textContent).toContain("No identity-safe lineup rows were supplied for this team");
+    expect(container.textContent).toContain("Missing means unavailable");
     expect(container.textContent).toContain("Not a Golavo forecast");
     expect(container.textContent).toContain("raw response not stored");
   });
@@ -148,4 +177,23 @@ describe("OutsideSignals", () => {
     expect(container.textContent).not.toContain("Fetch outside signals");
     },
   );
+
+  it("does not render a late response under a newly selected match", async () => {
+    let resolveFirst: ((value: typeof response) => void) | null = null;
+    vi.mocked(fetchOutsideSignals).mockImplementationOnce(() => new Promise((resolve) => {
+      resolveFirst = resolve as (value: typeof response) => void;
+    }) as never);
+    await renderPanel();
+    const button = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Fetch outside signals",
+    );
+    act(() => button?.click());
+
+    await renderPanel("m_2", "Second Home", "Second Away");
+    await act(async () => resolveFirst?.(response));
+
+    expect(container.textContent).not.toContain("Ada Forward");
+    expect(container.textContent).toContain("Fetch outside signals");
+    expect(container.textContent).toContain("Second Home, Second Away");
+  });
 });

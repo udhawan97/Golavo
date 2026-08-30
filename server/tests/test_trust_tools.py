@@ -214,9 +214,26 @@ def test_archive_round_trip_is_allowlisted_and_conflicts_require_confirmation(
     target.mkdir()
     preview, _ = personal_archive.inspect_archive(data, ledger=target)
     assert preview["verified"] is True
-    restored = personal_archive.restore_archive(data, ledger=target)
+    assert preview["new_files"] == [
+        f"ledger/{SAMPLE_ARTIFACT.name}",
+        "ledger/picks/drafts/match.json",
+    ]
+    assert preview["identical_files"] == []
+    with pytest.raises(ValueError, match="preview changed"):
+        personal_archive.restore_archive(data, ledger=target)
+    restored = personal_archive.restore_archive(
+        data, ledger=target, preview_token=preview["restore_preview_token"]
+    )
     assert restored["restored"] is True
     assert (target / "picks" / "drafts" / "match.json").read_text() == draft_bytes
+
+    identical, _ = personal_archive.inspect_archive(data, ledger=target)
+    assert identical["new_files"] == []
+    assert identical["identical_files"] == [
+        f"ledger/{SAMPLE_ARTIFACT.name}",
+        "ledger/picks/drafts/match.json",
+    ]
+    assert identical["conflicts"] == []
 
     (target / "picks" / "drafts" / "match.json").write_text("different")
     different = {**draft, "user_pick": {"home_goals": 2, "away_goals": 0, "outcome": "home"}}
@@ -259,7 +276,11 @@ def test_historical_archive_inspects_and_restores_without_checkpoint_declaration
     preview, _ = personal_archive.inspect_archive(stream.getvalue(), ledger=target)
     assert preview["schema_version"] == personal_archive.LEGACY_SCHEMA_VERSION
     assert preview["checkpoint_recovery"]["available"] is False
-    restored = personal_archive.restore_archive(stream.getvalue(), ledger=target)
+    restored = personal_archive.restore_archive(
+        stream.getvalue(),
+        ledger=target,
+        preview_token=preview["restore_preview_token"],
+    )
     assert restored["restored"] is True
     assert (target / SAMPLE_ARTIFACT.name).read_bytes() == artifact
 
@@ -324,6 +345,30 @@ def test_archive_replace_confirmation_expires_when_any_previewed_path_changes(
             preview_token=preview["restore_preview_token"],
         )
     assert {path: path.read_bytes() for path in (first, second)} == before
+
+
+def test_archive_preview_token_cannot_authorize_different_archive_bytes(
+    tmp_path: Path,
+) -> None:
+    source_a = tmp_path / "source-a" / "picks" / "drafts"
+    source_b = tmp_path / "source-b" / "picks" / "drafts"
+    source_a.mkdir(parents=True)
+    source_b.mkdir(parents=True)
+    (source_a / "match.json").write_text(json.dumps(_draft("match", 1)) + "\n")
+    (source_b / "match.json").write_text(json.dumps(_draft("match", 2)) + "\n")
+    archive_a, _ = personal_archive.export_archive(source_a.parents[1])
+    archive_b, _ = personal_archive.export_archive(source_b.parents[1])
+    target = tmp_path / "target"
+    preview_a, _ = personal_archive.inspect_archive(archive_a, ledger=target)
+
+    with pytest.raises(ValueError, match="preview changed"):
+        personal_archive.restore_archive(
+            archive_b,
+            ledger=target,
+            preview_token=preview_a["restore_preview_token"],
+        )
+
+    assert not target.exists()
 
 
 def test_archive_rejects_windows_separator_aliases_before_destination_mapping(
@@ -483,9 +528,14 @@ def test_archive_rejects_a_symlinked_pre_restore_backup_root(tmp_path: Path) -> 
     outside = tmp_path / "outside"
     outside.mkdir()
     (tmp_path / "target-archive-backups").symlink_to(outside, target_is_directory=True)
+    preview, _ = personal_archive.inspect_archive(archive, ledger=target)
 
     with pytest.raises(ValueError, match="symlink"):
-        personal_archive.restore_archive(archive, ledger=target)
+        personal_archive.restore_archive(
+            archive,
+            ledger=target,
+            preview_token=preview["restore_preview_token"],
+        )
     assert list(outside.iterdir()) == []
 
 
@@ -941,7 +991,11 @@ def test_checkpoint_migrates_legacy_chain_and_archive_recovers_it(tmp_path: Path
     preview, _ = personal_archive.inspect_archive(archive, ledger=recovered)
     assert preview["checkpoint_recovery"]["recovery_drill_verified"] is True
     assert preview["restore_blocked_reason"] is None
-    restored = personal_archive.restore_archive(archive, ledger=recovered)
+    restored = personal_archive.restore_archive(
+        archive,
+        ledger=recovered,
+        preview_token=preview["restore_preview_token"],
+    )
     assert restored["checkpoint_recovery"]["checkpoint_count"] == 2
     assert (recovered / "checkpoints" / f"lc_{legacy_head}.json").read_bytes() == legacy_bytes
     assert ledger_checkpoints.status(recovered) == migrated_status
@@ -968,8 +1022,13 @@ def test_checkpoint_archive_rolls_back_an_interrupted_head_replacement(
         return real_replace(source_path, destination_path)
 
     monkeypatch.setattr(personal_archive.os, "replace", fail_live_head)
+    preview, _ = personal_archive.inspect_archive(archive, ledger=target)
     with pytest.raises(OSError, match="checkpoint-head interruption"):
-        personal_archive.restore_archive(archive, ledger=target)
+        personal_archive.restore_archive(
+            archive,
+            ledger=target,
+            preview_token=preview["restore_preview_token"],
+        )
     assert failed is True
     assert ledger_checkpoints.status(target)["checkpoint_count"] == 0
     assert not (target / SAMPLE_ARTIFACT.name).exists()
@@ -998,8 +1057,13 @@ def test_checkpoint_archive_rolls_back_after_the_live_head_was_replaced(
         return result
 
     monkeypatch.setattr(personal_archive.os, "replace", replace_then_fail_on_live_head)
+    preview, _ = personal_archive.inspect_archive(archive, ledger=target)
     with pytest.raises(OSError, match="after checkpoint-head replacement"):
-        personal_archive.restore_archive(archive, ledger=target)
+        personal_archive.restore_archive(
+            archive,
+            ledger=target,
+            preview_token=preview["restore_preview_token"],
+        )
     assert failed is True
     assert ledger_checkpoints.status(target)["checkpoint_count"] == 0
     assert not (target / SAMPLE_ARTIFACT.name).exists()
@@ -1054,7 +1118,12 @@ def test_checkpoint_archive_repairs_corrupt_bytes_covered_by_the_archive(
     archive, _ = personal_archive.export_archive(source)
 
     target = tmp_path / "target"
-    personal_archive.restore_archive(archive, ledger=target)
+    initial_preview, _ = personal_archive.inspect_archive(archive, ledger=target)
+    personal_archive.restore_archive(
+        archive,
+        ledger=target,
+        preview_token=initial_preview["restore_preview_token"],
+    )
     paths = {
         "artifact": target / SAMPLE_ARTIFACT.name,
         "head": target / "checkpoints" / "head.json",

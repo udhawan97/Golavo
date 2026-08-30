@@ -36,10 +36,24 @@ When the local outlook is available, a card can show:
 - the next five remaining fixtures;
 - a guarded largest season-stake swing when both conditional branches have enough runs;
 - whether each fixture is followed and whether you have made a score pick;
+- the live follow/unfollow control from Golavo's one complete shared follow list;
+- a like-for-like local projection change after the source index changes, but only when
+  competition, season, team, voice, rule, seed, and iteration count still match;
 - direct links to the league and match views.
 
 Thin conditional branches keep the stake held back. The room never blends model voices,
 re-simulates a fixture in the UI, turns an outlook into a seal, or presents advice.
+
+## Move the shortlist
+
+**Export My Teams** writes a small versioned JSON file containing only exact competition
+ids and team names. **Preview import** parses a bounded file and checks every identity
+against the current local league catalog and certified table before enabling Apply. Imported
+league labels and routes are never trusted because the file cannot contain them. The default
+merges verified clubs; replacing the current shortlist requires a separate checkbox.
+
+This transfer is for preferences only. It does not carry forecasts, source data, account
+state, provider settings, or a claim that a club identity still exists.
 
 ## Local-data boundary
 

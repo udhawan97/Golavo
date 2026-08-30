@@ -460,7 +460,7 @@
         "max_file_bytes": 33554432,
         "max_snapshot_bytes": 67108864
       },
-      "fields": "top-five European league files published through 2025-26; season completeness is certified per league. 2025-26 is complete for the Premier League, Bundesliga, La Liga and Serie A once the bare-list goalless draw this season's files use is read as the result it is; Ligue 1 has one cancelled fixture. No 2026-27 files are published as of the verified date",
+      "fields": "top-five European league files through 2025-26 plus current 2026-27 schedule/result files; season completeness is certified per league. The country Football.TXT repositories remain the bundled 2026-27 fixture-identity co-sources, while runtime refresh can use the newly published 2026-27 JSON rows only through the existing all-source certificate and atomic activation gate",
       "corrections": {
         "enabled": true,
         "license_namespace": "core-cc0",
@@ -480,7 +480,7 @@
         "contribution_url": "https://github.com/openfootball/football.json"
       },
       "attribution": "Club football results from openfootball/football.json (Gerald Bauer and contributors), CC0-1.0.",
-      "verified": "2026-07-12",
+      "verified": "2026-08-29",
       "notes": "Bundled and refreshable as the verified historical base for five competition-specific league packs. Certified current schedules can be sealed; completed club settlement still requires an independent result source. Country-repository rows carry day-precision kickoff and exact field-level co-source provenance."
     },
     {
@@ -675,10 +675,10 @@
       "license": "PROPRIETARY-SUBSCRIPTION",
       "license_url": "https://www.sportmonks.com/terms-of-service/",
       "classification": "per-user-context",
-      "fields": "user-authorized external full-time result probabilities and pre-match match-winner bookmaker prices",
-      "verified": "2026-08-16",
-      "recheck_by": "2027-02-16",
-      "notes": "Optional BYOK foreground connector. Sportmonks terms expressly permit apps and storage while prohibiting direct feed resale. Golavo requests data only after a match-level click, authenticates in a header, derives an attributed outside-signals response in memory, and persists no provider bytes. Exact team/kickoff identity is required. Values cannot enter models, verdicts, seals, settlement, calibration, scoring, AI evidence, or exports. No logos, photos, bookmaker links, affiliate tracking, staking advice, or bet placement are requested or displayed. The user's Sportmonks subscription and Odds & Predictions add-on govern availability and cost."
+      "fields": "user-authorized external full-time result probabilities, pre-match match-winner bookmaker prices, and top-five fixture lineups with player match statistics",
+      "verified": "2026-08-29",
+      "recheck_by": "2027-02-28",
+      "notes": "Optional BYOK foreground connector. Sportmonks terms expressly permit apps and storage while prohibiting direct feed resale. Golavo requests data only after a match-level click, authenticates in a header, derives an attributed outside-signals response in memory, and persists no provider bytes. Top-five domestic and all day-precision matching requires exact competition/season scope plus exact normalized teams with distinct numeric provider ids; other supported matches retain exact-team and exact-kickoff matching and never receive Player Lens. Duplicate candidates and identity conflicts fail closed. Top-five Player Lens rows preserve provider fixture, team, player, lineup and metric-type identities; predicted, confirmed and unavailable states remain distinct, and missing metrics are never zero. Values cannot enter models, verdicts, seals, settlement, calibration, scoring, AI evidence, or exports. No logos, photos, bookmaker links, affiliate tracking, staking advice, or bet placement are requested or displayed. The user's Sportmonks subscription and field/add-on coverage govern availability and cost."
     },
     {
       "source_id": "statsbomb-open-data",

@@ -3,9 +3,14 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MyTeams } from "./MyTeams";
-import { fetchFollows, fetchSeasonOutlook } from "../lib/api";
+import { fetchSeasonOutlook } from "../lib/api";
+import type { SeasonOutlook } from "../lib/contract";
 
-vi.mock("../lib/api", () => ({ fetchFollows: vi.fn(), fetchSeasonOutlook: vi.fn() }));
+vi.mock("../lib/api", () => ({ fetchSeasonOutlook: vi.fn() }));
+vi.mock("../lib/follow-context", () => ({ useFollows: () => ({ error: null }) }));
+vi.mock("../components/FollowButton", () => ({
+  FollowButton: ({ matchId }: { matchId: string }) => <button type="button">Follow {matchId}</button>,
+}));
 vi.mock("../lib/picks", () => ({
   usePicks: () => ({
     byMatch: new Map([["m_run_in", {
@@ -43,14 +48,17 @@ beforeEach(() => {
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
-  vi.mocked(fetchFollows).mockResolvedValue({
-    schema_version: "0.1.0", total: 1, unread_event_count: 0,
-    items: [{ canonical_match_id: "m_run_in" }],
-  } as never);
   vi.mocked(fetchSeasonOutlook).mockResolvedValue({
     schema_version: "0.3.0",
     status: "available",
     competition_id: "england-premier-league",
+    season: "2026-27",
+    scenario: null,
+    seed: 42,
+    iterations: 10_000,
+    simulation_rule: "season-mc-2026.07.1",
+    as_of_utc: "2026-08-29T00:00:00Z",
+    provenance: { source_ids: ["openligadb-v2"], index_sha256: "a".repeat(64) },
     current_table: [{
       position: 2, team: "Exact Club", played: 30, won: 18, drawn: 6, lost: 6,
       goals_for: 55, goals_against: 30, goal_difference: 25, points_adjustment: 0, points: 60,
@@ -93,28 +101,106 @@ describe("MyTeams", () => {
     await act(async () => root.render(<MyTeams />));
     expect(container.textContent).toContain("Projected 74.2 pts");
     expect(container.textContent).toContain("5pp title swing");
-    expect(container.textContent).toContain("Followed");
+    expect(container.textContent).toContain("Follow m_run_in");
     expect(container.textContent).toContain("Pick 2–1");
     expect(container.querySelector('a[href="#/match/m_run_in"]')).not.toBeNull();
+    const importInput = container.querySelector<HTMLInputElement>('input[type="file"]');
+    expect(importInput?.classList.contains("visually-hidden")).toBe(true);
+    expect(importInput?.hasAttribute("hidden")).toBe(false);
+    importInput?.focus();
+    expect(document.activeElement).toBe(importInput);
   });
 
-  it("loads every follow page before labeling run-in matches", async () => {
-    vi.mocked(fetchFollows)
-      .mockResolvedValueOnce({
-        schema_version: "0.1.0", total: 201, unread_event_count: 0,
-        items: Array.from({ length: 200 }, (_, index) => ({
-          canonical_match_id: `earlier_${index}`,
+  it("resets replacement intent for every newly inspected import", async () => {
+    await act(async () => root.render(<MyTeams />));
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]')!;
+    const transfer = JSON.stringify({
+      schema_version: "0.1.0",
+      favorites: [{ competitionId: "england-premier-league", team: "Exact Club" }],
+    });
+    const select = async (name: string) => {
+      const file = new File([transfer], name, { type: "application/json" });
+      Object.defineProperty(file, "text", { value: vi.fn().mockResolvedValue(transfer) });
+      Object.defineProperty(input, "files", { configurable: true, value: [file] });
+      await act(async () => input.dispatchEvent(new Event("change", { bubbles: true })));
+    };
+    await select("first.json");
+    const replace = container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    await act(async () => replace.click());
+    expect(replace.checked).toBe(true);
+
+    await select("second.json");
+
+    expect(container.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked).toBe(false);
+  });
+
+  it("rejects an oversized import before reading its contents", async () => {
+    await act(async () => root.render(<MyTeams />));
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]')!;
+    const file = new File(["x".repeat(64 * 1024 + 1)], "oversized.json");
+    const read = vi.fn();
+    Object.defineProperty(file, "text", { value: read });
+    Object.defineProperty(input, "files", { configurable: true, value: [file] });
+
+    await act(async () => input.dispatchEvent(new Event("change", { bubbles: true })));
+
+    expect(read).not.toHaveBeenCalled();
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain("larger than 64 KiB");
+  });
+
+  it("keeps the newest import preview and its replacement intent when an older read finishes late", async () => {
+    await act(async () => root.render(<MyTeams />));
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]')!;
+    const transfer = JSON.stringify({
+      schema_version: "0.1.0",
+      favorites: [{ competitionId: "england-premier-league", team: "Exact Club" }],
+    });
+    let resolveFirstText: ((value: string) => void) | null = null;
+    const first = new File([transfer], "first.json", { type: "application/json" });
+    Object.defineProperty(first, "text", {
+      value: vi.fn(() => new Promise<string>((resolve) => { resolveFirstText = resolve; })),
+    });
+    const second = new File([transfer], "second.json", { type: "application/json" });
+    Object.defineProperty(second, "text", { value: vi.fn().mockResolvedValue(transfer) });
+
+    Object.defineProperty(input, "files", { configurable: true, value: [first] });
+    await act(async () => input.dispatchEvent(new Event("change", { bubbles: true })));
+    Object.defineProperty(input, "files", { configurable: true, value: [second] });
+    await act(async () => input.dispatchEvent(new Event("change", { bubbles: true })));
+    expect(container.textContent).toContain("Import preview · second.json");
+    const replace = container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    await act(async () => replace.click());
+    expect(replace.checked).toBe(true);
+
+    await act(async () => resolveFirstText?.(transfer));
+
+    expect(container.textContent).toContain("Import preview · second.json");
+    expect(container.textContent).not.toContain("Import preview · first.json");
+    expect(container.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked).toBe(true);
+  });
+
+  it("labels below-floor club projections as model priors", async () => {
+    const original = vi.mocked(fetchSeasonOutlook).getMockImplementation()!;
+    vi.mocked(fetchSeasonOutlook).mockImplementation(async (id) => {
+      const value = await original(id) as unknown as SeasonOutlook;
+      return {
+        ...value,
+        voices: value.voices.map((item) => ({
+          ...item,
+          teams: item.teams.map((team) => ({
+            ...team,
+            history_coverage: {
+              matches: 0,
+              model_floor: 30,
+              status: "below_model_floor" as const,
+            },
+          })),
         })),
-      } as never)
-      .mockResolvedValueOnce({
-        schema_version: "0.1.0", total: 201, unread_event_count: 0,
-        items: [{ canonical_match_id: "m_run_in" }],
-      } as never);
+      };
+    });
 
     await act(async () => root.render(<MyTeams />));
 
-    expect(fetchFollows).toHaveBeenNthCalledWith(1, "active", 0, 200, 0);
-    expect(fetchFollows).toHaveBeenNthCalledWith(2, "active", 0, 200, 200);
-    expect(container.textContent).toContain("Followed");
+    expect(container.textContent).toContain("model’s prior filling an evidence gap");
   });
 });

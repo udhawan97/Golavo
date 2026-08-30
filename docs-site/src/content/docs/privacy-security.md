@@ -35,6 +35,10 @@ creation require the private desktop launch token; they are not open source-mode
 - **BYOK keys stay yours.** Cloud-provider keys are read from the OS keychain or an
   environment variable, sent only in the selected provider request header, and excluded
   from artifacts, logs, caches and exports. Local models stay on loopback.
+- **Sportmonks is foreground and no-store.** After separate provider consent, one match-level
+  click sends the exact fixture date and team names. Derived probabilities, odds, lineups,
+  and player match statistics remain in memory and are excluded from models, seals, scoring,
+  calibration, AI evidence, archives, and exports.
 - **Update checks are separate.** Until you answer the one-time consent card, no update
   check occurs. Enabled checks ask GitHub for release metadata at most once a day; an
   installer downloads only after you click.

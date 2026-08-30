@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ArchivePreview, CheckpointStatus, ProofVerificationResult, RefreshReceipt } from "../lib/contract";
 import {
   createCheckpoint,
@@ -18,43 +18,127 @@ function ErrorText({ value }: { value: string | null }) {
   return value ? <p className="small" role="alert">{value}</p> : null;
 }
 
+export function archivePreviewReport(preview: ArchivePreview) {
+  return {
+    schema_version: "0.1.0",
+    report_kind: "local_non_authoritative_archive_preview",
+    archive_schema_version: preview.schema_version,
+    verified_archive_structure: preview.verified,
+    file_count: preview.file_count,
+    total_bytes: preview.total_bytes,
+    classifications: {
+      new_files: preview.new_files,
+      byte_identical_files: preview.identical_files,
+      different_local_files: preview.conflicts,
+    },
+    excluded_categories: preview.excluded_categories,
+    checkpoint_recovery: preview.checkpoint_recovery,
+    restore_blocked_reason: preview.restore_blocked_reason,
+    limitation: "Local preview report only; not external authentication, timestamp proof, or restore authorization.",
+  };
+}
+
+function downloadArchivePreviewReport(preview: ArchivePreview) {
+  const blob = new Blob([JSON.stringify(archivePreviewReport(preview), null, 2) + "\n"], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "golavo-archive-preview.json";
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function ClassifiedFiles({ label, files }: { label: string; files: string[] }) {
+  if (!files.length) return null;
+  return <div><span className="small"><strong>{label}</strong></span><ul className="small">{files.slice(0, 20).map((path) => <li key={path}><code>{path}</code></li>)}</ul>{files.length > 20 && <p className="small dim">And {files.length - 20} more.</p>}</div>;
+}
+
+interface ArchiveSelection {
+  file: File;
+  preview: ArchivePreview;
+}
+
+interface ProofSelection {
+  fileName: string;
+  result: ProofVerificationResult;
+}
+
 export function TrustCenter() {
   const checkpoint = useAsync(fetchCheckpointStatus, []);
   const receipts = useAsync(fetchRefreshReceipts, []);
-  const [proof, setProof] = useState<ProofVerificationResult | null>(null);
+  const [proofSelection, setProofSelection] = useState<ProofSelection | null>(null);
   const [proofError, setProofError] = useState<string | null>(null);
-  const [archiveFile, setArchiveFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<ArchivePreview | null>(null);
+  const [archiveSelection, setArchiveSelection] = useState<ArchiveSelection | null>(null);
   const [archiveError, setArchiveError] = useState<string | null>(null);
+  const [archiveRestoring, setArchiveRestoring] = useState(false);
   const [replace, setReplace] = useState(false);
   const [checkpointState, setCheckpointState] = useState<CheckpointStatus | null>(null);
   const [checkpointError, setCheckpointError] = useState<string | null>(null);
   const [checkpointInvalidated, setCheckpointInvalidated] = useState(false);
+  const archiveRequestGeneration = useRef(0);
+  const proofRequestGeneration = useRef(0);
+  const archiveRestoreInFlight = useRef(false);
+  const preview = archiveSelection?.preview ?? null;
+  const proof = proofSelection?.result ?? null;
 
   const inspectProof = async (file?: File) => {
     if (!file) return;
-    setProof(null); setProofError(null);
-    try { setProof(await verifyProofFile(file)); }
-    catch (error) { setProofError(error instanceof Error ? error.message : "Proof verification failed"); }
+    const generation = ++proofRequestGeneration.current;
+    setProofSelection(null); setProofError(null);
+    try {
+      const result = await verifyProofFile(file);
+      if (proofRequestGeneration.current === generation) {
+        setProofSelection({ fileName: file.name, result });
+      }
+    } catch (error) {
+      if (proofRequestGeneration.current === generation) {
+        setProofError(error instanceof Error ? error.message : "Proof verification failed");
+      }
+    }
   };
   const inspectArchive = async (file?: File) => {
-    if (!file) return;
-    setArchiveFile(file); setPreview(null); setReplace(false); setArchiveError(null);
-    try { setPreview(await previewPersonalArchive(file)); }
-    catch (error) { setArchiveError(error instanceof Error ? error.message : "Archive verification failed"); }
+    if (!file || archiveRestoreInFlight.current) return;
+    const generation = ++archiveRequestGeneration.current;
+    setArchiveSelection(null); setReplace(false); setArchiveError(null);
+    try {
+      const inspected = await previewPersonalArchive(file);
+      if (archiveRequestGeneration.current === generation) {
+        setArchiveSelection({ file, preview: inspected });
+      }
+    } catch (error) {
+      if (archiveRequestGeneration.current === generation) {
+        setArchiveError(error instanceof Error ? error.message : "Archive verification failed");
+      }
+    }
   };
   const restore = async () => {
-    if (!archiveFile || !preview || preview.restore_blocked_reason) return;
+    if (
+      !archiveSelection
+      || preview?.restore_blocked_reason
+      || archiveRestoreInFlight.current
+    ) return;
+    archiveRestoreInFlight.current = true;
+    setArchiveRestoring(true);
+    const selectionGeneration = archiveRequestGeneration.current;
+    const { file, preview: inspected } = archiveSelection;
     setArchiveError(null);
     let restored: ArchivePreview;
     try {
-      restored = await restorePersonalArchive(archiveFile, replace, preview.restore_preview_token);
+      restored = await restorePersonalArchive(file, replace, inspected.restore_preview_token);
     }
     catch (error) {
-      setArchiveError(error instanceof Error ? error.message : "Restore failed");
+      if (archiveRequestGeneration.current === selectionGeneration) {
+        setArchiveError(error instanceof Error ? error.message : "Restore failed");
+      }
+      archiveRestoreInFlight.current = false;
+      setArchiveRestoring(false);
       return;
     }
-    setPreview(restored);
+    if (archiveRequestGeneration.current === selectionGeneration) {
+      setArchiveSelection({ file, preview: restored });
+    }
     window.dispatchEvent(new Event(DATA_GENERATION_CHANGED_EVENT));
     setCheckpointInvalidated(true);
     setCheckpointState(null);
@@ -66,6 +150,9 @@ export function TrustCenter() {
       setCheckpointError(
         error instanceof Error ? error.message : "Checkpoint verification failed after restore",
       );
+    } finally {
+      archiveRestoreInFlight.current = false;
+      setArchiveRestoring(false);
     }
   };
   const checkpointValue = checkpointInvalidated
@@ -85,7 +172,7 @@ export function TrustCenter() {
         <div className="panel__body stack">
           <p className="small dim">Select an exported <code>.proof.json</code>. Verification runs in the local engine and does not persist the file.</p>
           <label className="small">Forecast proof file <input type="file" accept="application/json,.json" onChange={(event) => void inspectProof(event.target.files?.[0])} /></label>
-          {proof && <div className="callout callout--success"><div><div className="callout__title">Included bytes verified</div><p className="small">{proof.artifact_count} artifacts · {proof.embedded_source_count} embedded source manifests · {proof.descriptor_only_source_count} descriptor-only sources</p><ul className="small">{proof.source_checks.map((source) => <li key={`${source.source_id}:${source.sha256}`}>{source.source_id}: {source.status === "embedded-manifest-hash-valid" ? "embedded manifest hash valid" : "descriptor only — source bytes not verified"}</li>)}</ul><p className="small dim">{proof.limits.join(" ")}</p></div></div>}
+          {proof && <div className="callout callout--success"><div><div className="callout__title">Included bytes verified · {proofSelection?.fileName}</div><p className="small">{proof.artifact_count} artifacts · {proof.embedded_source_count} embedded source manifests · {proof.descriptor_only_source_count} descriptor-only sources</p><ul className="small">{proof.source_checks.map((source) => <li key={`${source.source_id}:${source.sha256}`}>{source.source_id}: {source.status === "embedded-manifest-hash-valid" ? "embedded manifest hash valid" : "descriptor only — source bytes not verified"}</li>)}</ul><p className="small dim">{proof.limits.join(" ")}</p></div></div>}
           <ErrorText value={proofError} />
         </div>
       </section>
@@ -94,8 +181,8 @@ export function TrustCenter() {
         <div className="panel__head"><h2>Forecast-ledger archive</h2></div>
         <div className="panel__body stack">
           <p className="small dim">Forecasts, picks, followed-match state, and the verified linked checkpoint chain when one exists. Team favorites, credentials, provider settings, licensed overlays, weather, research captures, refresh generations, and caches are excluded.</p>
-          <div className="controls"><button className="btn" type="button" onClick={() => void downloadPersonalArchive()}>Download verified backup</button><label className="btn btn--ghost">Preview restore<input className="visually-hidden" type="file" accept="application/zip,.zip" onChange={(event) => void inspectArchive(event.target.files?.[0])} /></label></div>
-          {preview && <div className="card card--pad stack"><strong>{preview.restored ? "Restore complete" : "Archive verified"}</strong><span className="small dim">{preview.file_count} files · {formatBytes(preview.total_bytes)} · {preview.conflicts.length} conflicts</span><p className="small">{preview.checkpoint_recovery.available ? `Recovery drill passed for ${preview.checkpoint_recovery.checkpoint_count} linked checkpoint(s)${preview.checkpoint_recovery.legacy_checkpoint_count ? `, including ${preview.checkpoint_recovery.legacy_checkpoint_count} legacy-format checkpoint(s)` : ""}.` : "No checkpoint chain was present; forecast, pick, and follow files remain recoverable."}</p>{preview.checkpoint_recovery.missing_artifacts.length > 0 && <p className="small dim">The recovered chain still records {preview.checkpoint_recovery.missing_artifacts.length} artifact(s) that were already absent when this backup was made.</p>}{preview.restore_blocked_reason && !preview.restored && <p className="small" role="alert">{preview.restore_blocked_reason}</p>}{preview.conflicts.length > 0 && !preview.restored && <div><span className="small"><strong>Different local files</strong></span><ul className="small">{preview.conflicts.slice(0, 20).map((path) => <li key={path}><code>{path}</code></li>)}</ul>{preview.conflicts.length > 20 && <p className="small dim">And {preview.conflicts.length - 20} more.</p>}</div>}{preview.requires_replace_confirmation && !preview.restored && !preview.restore_blocked_reason && <label className="small"><input type="checkbox" checked={replace} onChange={(event) => setReplace(event.target.checked)} /> Replace exactly the different local files listed above</label>}{!preview.restored && !preview.restore_blocked_reason && <button className="btn" type="button" disabled={preview.requires_replace_confirmation && !replace} onClick={() => void restore()}>Restore verified files</button>}{preview.restored && preview.pre_restore_backup && <p className="small dim">{preview.pre_restore_backup_verified === false ? "The prior corrupt bytes were preserved as an unverified quarantine copy" : "The verified pre-restore backup remains available locally as"} <code>{preview.pre_restore_backup}</code>.</p>}</div>}
+          <div className="controls"><button className="btn" type="button" onClick={() => void downloadPersonalArchive()}>Download verified backup</button><label className="btn btn--ghost file-picker">Preview restore<input className="visually-hidden" type="file" accept="application/zip,.zip" disabled={archiveRestoring} onChange={(event) => void inspectArchive(event.target.files?.[0])} /></label></div>
+          {preview && <div className="card card--pad stack"><strong>{preview.restored ? "Restore complete" : "Archive verified"}</strong><span className="small dim">{preview.file_count} files · {formatBytes(preview.total_bytes)} · {preview.new_files.length} new · {preview.identical_files.length} byte-identical · {preview.conflicts.length} different</span><p className="small">{preview.checkpoint_recovery.available ? `Recovery drill passed for ${preview.checkpoint_recovery.checkpoint_count} linked checkpoint(s)${preview.checkpoint_recovery.legacy_checkpoint_count ? `, including ${preview.checkpoint_recovery.legacy_checkpoint_count} legacy-format checkpoint(s)` : ""}.` : "No checkpoint chain was present; forecast, pick, and follow files remain recoverable."}</p>{preview.checkpoint_recovery.missing_artifacts.length > 0 && <p className="small dim">The recovered chain still records {preview.checkpoint_recovery.missing_artifacts.length} artifact(s) that were already absent when this backup was made.</p>}{preview.restore_blocked_reason && !preview.restored && <p className="small" role="alert">{preview.restore_blocked_reason}</p>}{!preview.restored && <><ClassifiedFiles label="New local files" files={preview.new_files} /><ClassifiedFiles label="Byte-identical local files" files={preview.identical_files} /><ClassifiedFiles label="Different local files" files={preview.conflicts} /><button className="btn btn--ghost" type="button" onClick={() => downloadArchivePreviewReport(preview)}>Download preview report</button><p className="small dim">The report omits the restore token and is informational, not authentication evidence.</p></>}{preview.requires_replace_confirmation && !preview.restored && !preview.restore_blocked_reason && <label className="small"><input type="checkbox" checked={replace} onChange={(event) => setReplace(event.target.checked)} /> Replace exactly the different local files listed above</label>}{!preview.restored && !preview.restore_blocked_reason && <button className="btn" type="button" disabled={archiveRestoring || (preview.requires_replace_confirmation && !replace)} onClick={() => void restore()}>{archiveRestoring ? "Restoring…" : "Restore verified files"}</button>}{preview.restored && preview.pre_restore_backup && <p className="small dim">{preview.pre_restore_backup_verified === false ? "The prior corrupt bytes were preserved as an unverified quarantine copy" : "The verified pre-restore backup remains available locally as"} <code>{preview.pre_restore_backup}</code>.</p>}</div>}
           <ErrorText value={archiveError} />
         </div>
       </section>

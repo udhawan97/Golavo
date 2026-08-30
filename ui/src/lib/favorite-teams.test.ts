@@ -1,5 +1,10 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { loadFavoriteTeams, saveFavoriteTeams } from "./favorite-teams";
+import {
+  favoriteTeamsTransferJson,
+  loadFavoriteTeams,
+  parseFavoriteTeamsTransfer,
+  saveFavoriteTeams,
+} from "./favorite-teams";
 
 beforeAll(() => {
   const values = new Map<string, string>();
@@ -33,5 +38,34 @@ describe("favorite team identities", () => {
       { competitionId: "england-premier-league", team: "Liverpool FC" },
     ]));
     expect(loadFavoriteTeams()).toEqual([]);
+  });
+
+  it("exports only canonical identities and round-trips the versioned file", () => {
+    const text = favoriteTeamsTransferJson([{
+      competitionId: "england-premier-league",
+      leagueSlug: "premier-league",
+      leagueName: "Premier League",
+      team: "Arsenal",
+    }]);
+    expect(text).not.toContain("leagueSlug");
+    expect(text).not.toContain("leagueName");
+    expect(parseFavoriteTeamsTransfer(text).favorites).toEqual([{
+      competitionId: "england-premier-league",
+      team: "Arsenal",
+    }]);
+  });
+
+  it("rejects imported metadata and duplicate exact identities", () => {
+    expect(() => parseFavoriteTeamsTransfer(JSON.stringify({
+      schema_version: "0.1.0",
+      favorites: [{ competitionId: "england-premier-league", team: "Arsenal", leagueName: "Trust me" }],
+    }))).toThrow("contain only an exact competitionId and team");
+    expect(() => parseFavoriteTeamsTransfer(JSON.stringify({
+      schema_version: "0.1.0",
+      favorites: [
+        { competitionId: "england-premier-league", team: "Arsenal" },
+        { competitionId: "england-premier-league", team: "Arsenal" },
+      ],
+    }))).toThrow("duplicates an earlier club");
   });
 });

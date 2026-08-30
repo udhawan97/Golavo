@@ -139,6 +139,11 @@ while the app is open.”** Closing Golavo stops checks. No daemon, Login Item o
 silently installed. Offline mode keeps the watchlist and event history available and shows the
 last verified source freshness.
 
+Source `main` also collects recent typed changes for active followed matches into one Games
+inbox. It displays at most 20 retained events per match and 50 events overall, so it is not
+the complete follow archive. **Mark these updates read** submits only the event ids currently
+displayed; it does not mark hidden or unfollowed history.
+
 On source `main` after v0.18.0, **Settings → Followed matches** can export a static RFC 5545
 calendar. Only followed fixtures with an exact UTC kickoff become events; date-only or unknown
 times are counted and omitted rather than guessed. Stable follow identity produces a stable

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { handleExternalLinkClick } from "../lib/external-links";
 import {
   fetchOutsideSignals,
@@ -28,11 +28,16 @@ export function OutsideSignals({
   const [signals, setSignals] = useState<OutsideSignalsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ message: string; status: number } | null>(null);
+  const activeMatchId = useRef(matchId);
+  const requestGeneration = useRef(0);
+  activeMatchId.current = matchId;
 
   useEffect(() => {
     let live = true;
+    requestGeneration.current += 1;
     setSignals(null);
     setError(null);
+    setLoading(false);
     void fetchSportmonksStatus().then(
       (value) => { if (live) setSettings(value); },
       () => { if (live) setSettings(null); },
@@ -43,20 +48,28 @@ export function OutsideSignals({
   if (!settings?.enabled) return null;
 
   const fetchNow = async () => {
+    const requestedMatchId = matchId;
+    const generation = ++requestGeneration.current;
+    const isCurrent = () => (
+      activeMatchId.current === requestedMatchId
+      && requestGeneration.current === generation
+    );
     setLoading(true);
     setError(null);
     try {
-      setSignals(await fetchOutsideSignals(matchId));
+      const value = await fetchOutsideSignals(requestedMatchId);
+      if (isCurrent()) setSignals(value);
     } catch (reason) {
       const value = reason instanceof SportmonksApiError
         ? { message: reason.message, status: reason.status }
         : { message: reason instanceof Error ? reason.message : String(reason), status: 0 };
+      if (!isCurrent()) return;
       if (value.status === 401 || value.status === 403 || value.status === 429) {
         setSignals(null);
       }
       setError(value);
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
   };
   const repairRequired = error?.status === 401 || error?.status === 403;
@@ -73,8 +86,9 @@ export function OutsideSignals({
       </div>
       <div className="panel__body stack" style={{ ["--gap" as string]: "1rem" }}>
         <p className="outside-signals__boundary">
-          Sportmonks’ probabilities and bookmaker prices sit beside this programme. They never
-          enter Golavo’s models, verdict, seal, score, calibration, AI read, or exports.
+          Sportmonks’ probabilities, lineups, player match statistics, and bookmaker prices sit
+          beside this programme. They never enter Golavo’s models, verdict, seal, score,
+          calibration, AI read, or exports.
         </p>
 
         {repairRequired ? (
@@ -139,6 +153,14 @@ export function OutsideSignals({
                   <p className="small dim">{unavailableMessage(signals.odds)}</p>
                 )}
               </article>
+
+              <PlayerLens
+                value={signals.player_lens}
+                home={home}
+                away={away}
+                homeTeamId={signals.identity.provider_home_team_id}
+                awayTeamId={signals.identity.provider_away_team_id}
+              />
             </div>
 
             <div className="outside-signals__provenance small dim">
@@ -146,6 +168,8 @@ export function OutsideSignals({
                 Exact provider fixture {signals.identity.provider_fixture_id} · fetched{" "}
                 {new Date(signals.provenance.fetched_at_utc).toLocaleString()} · raw response not stored
               </span>
+              {signals.identity.provider_league_id !== null && <span>{signals.identity.provider_league ?? "League"} <code>{signals.identity.provider_league_id}</code></span>}
+              {signals.identity.provider_season_id !== null && <span>{signals.identity.provider_season ?? "Season"} <code>{signals.identity.provider_season_id}</code></span>}
               <button type="button" className="btn btn--ghost" disabled={loading} onClick={() => void fetchNow()}>
                 {loading ? "Refreshing…" : "Refresh"}
               </button>
@@ -165,4 +189,43 @@ export function OutsideSignals({
       </div>
     </section>
   );
+}
+
+function PlayerLens({
+  value,
+  home,
+  away,
+  homeTeamId,
+  awayTeamId,
+}: {
+  value: OutsideSignalsResponse["player_lens"];
+  home: string;
+  away: string;
+  homeTeamId: number;
+  awayTeamId: number;
+}) {
+  if (value.status !== "available") return <article className="outside-signal-card outside-signal-card--wide" aria-labelledby="sportmonks-player-lens"><span className="upper">Provider player data</span><h3 id="sportmonks-player-lens">Player Lens</h3><p className="small dim">{unavailableMessage(value)}</p></article>;
+  const state = value.lineup_state === "confirmed"
+    ? "Confirmed lineup"
+    : value.lineup_state === "predicted"
+      ? "Provider-predicted lineup"
+      : "Lineup confirmation unavailable";
+  return <article className="outside-signal-card outside-signal-card--wide" aria-labelledby="sportmonks-player-lens">
+    <span className="upper">Provider player data</span>
+    <h3 id="sportmonks-player-lens">Player Lens</h3>
+    <p className="small"><strong>{state}</strong> · {value.coverage.players_with_metrics} of {value.coverage.player_count} players have supplied match statistics.</p>
+    <div className="two-col">{[[home, homeTeamId], [away, awayTeamId]].map(([team, teamId]) => {
+      const teamPlayers = value.players.filter((player) => player.team_id === teamId);
+      return <div key={teamId}>
+      <h4>{team}</h4>
+      {teamPlayers.length === 0 ? <p className="small dim">No identity-safe lineup rows were supplied for this team.</p> : <ol className="plain-list">{teamPlayers.map((player) => <li key={player.player_id}>
+        <details>
+          <summary><strong>{player.jersey_number === null ? "" : `${player.jersey_number} · `}{player.name}</strong> <span className="small dim">{player.participation === "starter" ? "starter" : "bench"} · {player.metrics.length} stats</span></summary>
+          {player.metrics.length > 0 ? <dl className="outside-signal-values">{player.metrics.map((metric) => <div key={metric.type_id}><dt>{metric.label}</dt><dd className="num">{typeof metric.value === "boolean" ? (metric.value ? "Yes" : "No") : metric.value}</dd></div>)}</dl> : <p className="small dim">No player statistics supplied for this fixture.</p>}
+        </details>
+      </li>)}</ol>}
+    </div>;
+    })}</div>
+    <p className="small dim">Missing means unavailable, never zero. Sportmonks player IDs and metric type IDs are preserved; no cross-league ranking or Golavo inference is made.</p>
+  </article>;
 }

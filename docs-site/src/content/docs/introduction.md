@@ -3,7 +3,7 @@ title: Introduction
 description: What Golavo is, what it is not, and the principles that keep it trustworthy.
 ---
 
-Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals and certified domestic fixtures, backtests the top-5 European leagues, exposes competition-local analytics, honest outlook gates, and a separate women-first World Cup history archive, ships optional off-by-default AI narration and a BYOK Sportmonks outside-signal panel, and builds an OS-unsigned desktop app whose updater and active data-pack manifests are authenticated. Repository `main` also has local hash-chained ledger checkpoints, backward-compatible chain continuation, and a disposable recovery drill with explicit limits; optional external anchoring and confirmed-lineup / model-input data adapters remain gated.
+Golavo is a local-first, open-source football forecasting project. It implements reproducible sealing and scoring for men's senior full internationals and certified domestic fixtures, backtests the top-5 European leagues, exposes competition-local analytics, honest outlook gates, and a separate women-first World Cup history archive, ships optional off-by-default AI narration and a BYOK Sportmonks outside-signal panel, and builds an OS-unsigned desktop app whose updater and active data-pack manifests are authenticated. Repository `main` also has local hash-chained ledger checkpoints, backward-compatible chain continuation, a disposable recovery drill with explicit limits, and exact-fixture Sportmonks player match context; optional external anchoring and any player-data model-input adapter remain gated.
 
 ## What Golavo is
 

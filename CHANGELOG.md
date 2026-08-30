@@ -8,6 +8,25 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Actionable current-season club context.** My Teams now uses the complete shared
+  follow controller, puts the real follow control beside every run-in fixture, records a
+  like-for-like local projection change only when the simulation identity is unchanged,
+  and can export or preview-import exact club identities without trusting imported route
+  or display metadata. Match Cockpit adds the certified 2026/27 table, projected points,
+  season stakes, as-of time, source ids, and index fingerprint for top-five fixtures.
+- **Recent followed-match update inbox.** Games collects typed changes from active
+  followed matches, orders them deterministically, discloses its per-match and total
+  bounds, and marks only the explicitly displayed unread event ids.
+- **Relevant local sealed record.** Forecast Detail shows independent competition and
+  model-family calibration slices when their predeclared thresholds pass. The context is
+  descriptive local history, never confidence for the open forecast or a comparison.
+- **Archive comparison report.** Trust Center classifies every verified archive entry as
+  new, byte-identical, or different from the same locked comparison used by restore, and
+  can download a non-authoritative token-free preview report.
+- **Top-five Player Lens.** The optional Sportmonks BYOK connector can fetch exact-fixture
+  lineups and player match statistics after an explicit click. Provider fixture/team/player/
+  lineup/metric identities and predicted/confirmed/unavailable states are preserved;
+  responses stay in memory and cannot enter models, seals, scoring, calibration, AI, or export.
 - **Checkpoint continuity and rehearsed recovery.** Checkpoint format `0.2.0` can extend
   a verified `0.1.0` head without rewriting its hashed history. Forecast-ledger archive
   `0.2.0` includes only the verified head-reachable checkpoint records, accepts legacy

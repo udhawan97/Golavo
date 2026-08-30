@@ -2,12 +2,13 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { TrustCenter } from "./TrustCenter";
+import { archivePreviewReport, TrustCenter } from "./TrustCenter";
 import {
   fetchCheckpointStatus,
   fetchRefreshReceipts,
   previewPersonalArchive,
   restorePersonalArchive,
+  verifyProofFile,
 } from "../lib/api";
 
 vi.mock("../lib/api", () => ({
@@ -27,6 +28,8 @@ const preview = {
   verified: true as const,
   file_count: 2,
   total_bytes: 2048,
+  new_files: ["ledger/fa_new.json"],
+  identical_files: [],
   conflicts: ["ledger/picks/drafts/match.json"],
   requires_replace_confirmation: true,
   restore_preview_token: "preview-token",
@@ -38,6 +41,22 @@ const preview = {
     missing_artifacts: [], uncheckpointed_artifacts: [],
   },
   restore_blocked_reason: null,
+};
+const proofResult = {
+  verified: true as const,
+  root_artifact_id: "fa_root",
+  artifact_count: 1,
+  source_count: 1,
+  embedded_source_count: 1,
+  descriptor_only_source_count: 0,
+  source_checks: [{
+    source_id: "openfootball",
+    sha256: "a".repeat(64),
+    status: "embedded-manifest-hash-valid" as const,
+  }],
+  bundle_sha256: "b".repeat(64),
+  checks: {},
+  limits: ["Local bytes only."],
 };
 
 beforeEach(() => {
@@ -51,6 +70,7 @@ beforeEach(() => {
     migration_required: false, missing_artifacts: [], uncheckpointed_artifacts: [], limits: [],
   });
   vi.mocked(fetchRefreshReceipts).mockResolvedValue({ items: [], application_gap: null });
+  vi.mocked(verifyProofFile).mockResolvedValue(proofResult);
   vi.mocked(previewPersonalArchive).mockResolvedValue(preview);
   vi.mocked(restorePersonalArchive).mockResolvedValue({
     ...preview, restored: true, replaced_conflicts: true,
@@ -68,21 +88,37 @@ async function renderCenter() {
   await act(async () => root.render(<TrustCenter />));
 }
 
-async function selectArchive() {
+async function selectProof(file: File) {
+  const input = container.querySelectorAll<HTMLInputElement>('input[type="file"]')[0];
+  Object.defineProperty(input, "files", { configurable: true, value: [file] });
+  await act(async () => input.dispatchEvent(new Event("change", { bubbles: true })));
+}
+
+async function selectArchive(file = new File(["archive"], "ledger.zip", { type: "application/zip" })) {
   const input = container.querySelectorAll<HTMLInputElement>('input[type="file"]')[1];
-  const file = new File(["archive"], "ledger.zip", { type: "application/zip" });
   Object.defineProperty(input, "files", { configurable: true, value: [file] });
   await act(async () => input.dispatchEvent(new Event("change", { bubbles: true })));
   return file;
 }
 
 describe("TrustCenter archive restore", () => {
+  it("builds a non-authoritative comparison report without its restore token", () => {
+    const report = archivePreviewReport(preview);
+    expect(report.classifications.new_files).toEqual(["ledger/fa_new.json"]);
+    expect(JSON.stringify(report)).not.toContain("preview-token");
+    expect(report.limitation).toContain("not external authentication");
+  });
+
   it("lists conflicts, refuses an unconfirmed replacement, then restores explicitly", async () => {
     const generationEvents = vi.fn();
     window.addEventListener("golavo-data-generation-changed", generationEvents);
     await renderCenter();
+    const archiveInput = container.querySelectorAll<HTMLInputElement>('input[type="file"]')[1];
+    archiveInput.focus();
+    expect(document.activeElement).toBe(archiveInput);
     const file = await selectArchive();
     expect(container.textContent).toContain("ledger/picks/drafts/match.json");
+    expect(container.textContent).toContain("ledger/fa_new.json");
     expect(container.textContent).toContain("Recovery drill passed for 2 linked checkpoint(s)");
     const restore = [...container.querySelectorAll("button")].find(
       (button) => button.textContent === "Restore verified files",
@@ -154,5 +190,88 @@ describe("TrustCenter archive restore", () => {
     expect([...container.querySelectorAll("button")].some(
       (button) => button.textContent === "Restore verified files",
     )).toBe(false);
+  });
+
+  it("binds restore to the newest file and ignores a superseded preview", async () => {
+    let resolveFirst: ((value: typeof preview) => void) | null = null;
+    let resolveSecond: ((value: typeof preview) => void) | null = null;
+    vi.mocked(previewPersonalArchive)
+      .mockImplementationOnce(() => new Promise((resolve) => { resolveFirst = resolve; }))
+      .mockImplementationOnce(() => new Promise((resolve) => { resolveSecond = resolve; }));
+    await renderCenter();
+    const first = new File(["first"], "first.zip", { type: "application/zip" });
+    const second = new File(["second"], "second.zip", { type: "application/zip" });
+    await selectArchive(first);
+    await selectArchive(second);
+    const secondPreview = {
+      ...preview,
+      new_files: ["ledger/second.json"],
+      conflicts: [],
+      requires_replace_confirmation: false,
+      restore_preview_token: "second-token",
+    };
+    await act(async () => resolveSecond?.(secondPreview));
+    await act(async () => resolveFirst?.({
+      ...preview,
+      new_files: ["ledger/first.json"],
+      restore_preview_token: "first-token",
+    }));
+
+    expect(container.textContent).toContain("ledger/second.json");
+    expect(container.textContent).not.toContain("ledger/first.json");
+    const restore = [...container.querySelectorAll("button")].find(
+      (button) => button.textContent === "Restore verified files",
+    )!;
+    await act(async () => restore.click());
+    expect(restorePersonalArchive).toHaveBeenCalledWith(second, false, "second-token");
+  });
+
+  it("binds proof results to the newest selected filename", async () => {
+    let resolveFirst: ((value: typeof proofResult) => void) | null = null;
+    let resolveSecond: ((value: typeof proofResult) => void) | null = null;
+    vi.mocked(verifyProofFile)
+      .mockImplementationOnce(() => new Promise((resolve) => { resolveFirst = resolve; }))
+      .mockImplementationOnce(() => new Promise((resolve) => { resolveSecond = resolve; }));
+    await renderCenter();
+    await selectProof(new File(["first"], "first.proof.json"));
+    await selectProof(new File(["second"], "second.proof.json"));
+    await act(async () => resolveSecond?.({ ...proofResult, artifact_count: 2 }));
+    await act(async () => resolveFirst?.(proofResult));
+
+    expect(container.textContent).toContain("second.proof.json");
+    expect(container.textContent).toContain("2 artifacts");
+    expect(container.textContent).not.toContain("first.proof.json");
+  });
+
+  it("guards an in-flight restore from duplicate submission and archive replacement", async () => {
+    const first = new File(["first"], "first.zip", { type: "application/zip" });
+    const second = new File(["second"], "second.zip", { type: "application/zip" });
+    const noConflict = {
+      ...preview,
+      conflicts: [],
+      requires_replace_confirmation: false,
+      restore_preview_token: "first-token",
+    };
+    vi.mocked(previewPersonalArchive).mockResolvedValueOnce(noConflict);
+    let resolveRestore: ((value: typeof preview & { restored: true; replaced_conflicts: true }) => void) | null = null;
+    vi.mocked(restorePersonalArchive).mockImplementationOnce(() => new Promise((resolve) => {
+      resolveRestore = resolve as typeof resolveRestore;
+    }));
+    await renderCenter();
+    await selectArchive(first);
+    const restore = [...container.querySelectorAll("button")].find(
+      (button) => button.textContent === "Restore verified files",
+    )!;
+    act(() => { restore.click(); restore.click(); });
+    expect(restorePersonalArchive).toHaveBeenCalledTimes(1);
+    expect(container.querySelectorAll<HTMLInputElement>('input[type="file"]')[1].disabled).toBe(true);
+    await selectArchive(second);
+    expect(previewPersonalArchive).toHaveBeenCalledTimes(1);
+    await act(async () => resolveRestore?.({
+      ...noConflict,
+      restored: true,
+      replaced_conflicts: true,
+    }));
+    expect(restorePersonalArchive).toHaveBeenCalledWith(first, false, "first-token");
   });
 });

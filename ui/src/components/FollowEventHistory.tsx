@@ -2,7 +2,7 @@ import type { FollowEvent, FollowedMatch } from "../lib/contract";
 import { utc } from "../lib/format";
 import { useFollows } from "../lib/follow-context";
 
-const EVENT_LABELS: Record<FollowEvent["event_type"], string> = {
+export const FOLLOW_EVENT_LABELS: Record<FollowEvent["event_type"], string> = {
   followed: "Started following",
   unfollowed: "Stopped following",
   refollowed: "Started following again",
@@ -19,7 +19,7 @@ const EVENT_LABELS: Record<FollowEvent["event_type"], string> = {
   source_recovered: "Source recovered",
 };
 
-function eventDetail(event: FollowEvent): string | null {
+export function followEventDetail(event: FollowEvent): string | null {
   if (event.event_type === "kickoff_changed") {
     const value = event.after?.kickoff_utc;
     return typeof value === "string" ? `Source-backed kickoff: ${utc(value)}` : null;
@@ -67,10 +67,10 @@ export function FollowEventHistory({ followed }: { followed: FollowedMatch }) {
         {followed.events.map((event) => (
           <li key={event.event_id} className="follow-history__event">
             <div>
-              <b>{EVENT_LABELS[event.event_type]}</b>
+              <b>{FOLLOW_EVENT_LABELS[event.event_type]}</b>
               <span className="small dim">{utc(event.detected_at_utc)}</span>
             </div>
-            {eventDetail(event) && <p>{eventDetail(event)}</p>}
+            {followEventDetail(event) && <p>{followEventDetail(event)}</p>}
             <p className="small dim">
               Source: <code>{event.source.source_id}</code>
               {event.source.checked_at_utc ? ` · checked ${utc(event.source.checked_at_utc)}` : ""}

@@ -58,6 +58,12 @@ Alongside it, each club's **projected points** is the mean final points across t
 voice's runs. The run-in table bands upcoming opponents by that same projected finish
 rather than joining in a second rating source, so one table never mixes two models.
 
+For a top-five fixture, Match Cockpit can show the same certified current-season context
+for both clubs: exact table position and points, one named voice's projected points and
+season chances, and the fixture's guarded stakes when its exact match id is in the remaining
+schedule. It carries the outlook's as-of time, source ids, and index hash and remains a
+descriptive simulation—not a sealed match forecast.
+
 ## My Teams
 
 Source `main` can collect exact competition-and-club favorites in a local-only **My Teams**

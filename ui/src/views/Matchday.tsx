@@ -29,6 +29,7 @@ import { TournamentOutlook } from "../components/TournamentOutlook";
 import { useDataGenerationRevision, useDataRefresh } from "../lib/data-refresh-context";
 import { FollowButton } from "../components/FollowButton";
 import { FollowedMatchesPanel } from "../components/FollowedMatchesPanel";
+import { FollowUpdatesInbox } from "../components/FollowUpdatesInbox";
 import { useFollows } from "../lib/follow-context";
 import { CorrectionButton } from "../components/CorrectionButton";
 import { annotationIsCurrent, useCorrections } from "../lib/correction-context";
@@ -115,6 +116,8 @@ export function MatchdayHome() {
       <WelcomeCard />
 
       <FollowedMatchesPanel />
+
+      <FollowUpdatesInbox />
 
       <LocalMissingFixturesPanel />
 
