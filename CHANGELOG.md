@@ -8,9 +8,14 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Checkpoint continuity and rehearsed recovery.** Checkpoint format `0.2.0` can extend
+  a verified `0.1.0` head without rewriting its hashed history. Forecast-ledger archive
+  `0.2.0` includes only the verified head-reachable checkpoint records, accepts legacy
+  `0.1.0` archives, and rebuilds the forecast/checkpoint state in a disposable directory
+  before restore. A restore that would leave the local chain invalid is withheld.
 - **Trust Center local integrity tools.** The source app can now verify an exported
   forecast proof without persisting it, preview and restore a checksummed allowlisted
-  archive of forecasts/picks/follow state, create and verify local forecast-ledger
+  archive of forecasts/picks/follow/checkpoint state, create and verify local forecast-ledger
   checkpoints, and inspect data-generation application/rollback receipts. The UI keeps
   descriptor-only source bytes, local-only timing limits, archive exclusions, and receipt
   gaps explicit instead of upgrading them into stronger proof.

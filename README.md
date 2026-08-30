@@ -233,7 +233,7 @@ that is not yet in the v0.18.0 desktop installers.
 | **Approved-source refresh** | Consent-gated manual, launch, and while-open checks across eight fixed repositories: martj42, World Cup/football JSON, and five country Football.TXT sources. Current domestic schedules/results activate only from exact allowlisted paths after validation; failures keep the last-known-good generation. Source `main` adds checksummed local application receipts with explicit secondary-append gap reporting in Trust Center. |
 | **Followed matches** | Local follow/unfollow, targeted source checks, deduplicated kickoff/venue/score/settlement history, and optional desktop notifications. Source `main` adds a static calendar export for exact kickoff times. No account, cloud sync, daemon, Login Item, or LaunchAgent. |
 | **Forward calibration** | Real sealed→resolved chains stay separate from backtests. Source `main` adds predeclared competition/model-family cuts held back below 30 scored seals; reliability needs 100 seals and three populated bins of at least 20, and remains descriptive rather than comparative. |
-| **Forecast-ledger archive** *(source on `main` after v0.18.0)* | Checksummed export, preview, named conflict confirmation, durable recovery journal, retained pre-restore backup, and an explicit allowlist limited to forecasts, picks, and followed-match state. Browser team favorites, credentials, providers, overlays, weather, research captures, refresh generations, checkpoints, and caches are excluded. |
+| **Forecast-ledger archive** *(source on `main` after v0.18.0)* | Checksummed export, preview, named conflict confirmation, durable recovery journal, retained pre-restore backup, and an explicit allowlist limited to forecasts, picks, followed-match state, and a verified head-reachable checkpoint chain when present. Preview rehearses that chain in a disposable ledger; legacy archives remain readable. Browser team favorites, credentials, providers, overlays, weather, research captures, refresh generations, and caches are excluded. |
 | **License-isolated overlay** | OpenLigaDB Bundesliga 1/2/3, DFB-Pokal, and current Frauen-Bundesliga (`ffb1`) context is optional, ODbL-attributed, display-only, stored under a separate overlay root, and removable. Exact source identities are used without fuzzy or automatic CC0 merging. |
 | **Outside signals** | Sportmonks Football API v3 is optional, paid BYOK, and foreground-click-only. Exact team/kickoff identity is required; responses remain in memory and cannot enter model inputs, verdicts, seals, settlement, calibration, scoring, AI evidence, or exports. No logos, bookmaker links, affiliate tracking, advice, or bet placement. |
 | **Corrections** | Local append-only proposals for fixtures, kickoff, aliases, venues, and scores. Evidence and source URL are mandatory before validation; conflicts fail closed; exports require an explicit final action. Nothing enters packs, training, calibration, or seals. |
@@ -243,7 +243,7 @@ that is not yet in the v0.18.0 desktop installers.
 | **AI Deep Read** | Implemented, off by default, and additive; local Ollama/llama.cpp and BYOK reads pass schema, citation, numeric-whitelist, grounding, and betting-language guards that fail closed to deterministic analysis only |
 | **Desktop** | Tauri 2 shell supervising a PyInstaller/FastAPI sidecar on an ephemeral loopback port with a fresh per-launch token |
 | **Distribution** | macOS DMG and Windows MSI/EXE builds, signed updater payloads, signed aggregate checksums, and signed active pack manifests; OS signing/notarization still gated on real credentials |
-| **Not yet shipped** | Confirmed-lineup/model-input data adapters, live event feeds, cups, leakage-safe historical weather forecasts, cross-version checkpoint migration/disaster-recovery proof, optional external checkpoint anchoring, OS-signed/notarized installers |
+| **Not yet shipped** | Confirmed-lineup/model-input data adapters, live event feeds, cups, leakage-safe historical weather forecasts, optional external checkpoint anchoring, OS-signed/notarized installers |
 
 </details>
 
@@ -573,7 +573,8 @@ deterministic explanation surfaces, the Commentator's Notebook, exact-score grid
 Cockpit, Model Lab, and My Season.
 
 Repository `main` after v0.18.0 adds My Teams, exact-time calendar export, Trust Center
-proof/archive/checkpoint tools, data-application receipts, and guarded calibration slices.
+proof/archive/checkpoint tools, backward-compatible checkpoint recovery drills,
+data-application receipts, and guarded calibration slices.
 Those are verified source capabilities, not packaged v0.18.0 features or future roadmap items.
 
 | Remaining workstream | What remains | Gate |
@@ -582,7 +583,7 @@ Those are verified source capabilities, not packaged v0.18.0 features or future 
 | **League Outlook continuity** | refresh future schedules only after they pass the same complete, gap-free certificate as 2026–27 | lawful complete season state |
 | **Observed match data** | optional verified lineups, injuries, xG, scorers, corners, and cups | lawful licensed source; typed provenance-safe adapters |
 | **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | real platform signing credentials and release-matrix validation |
-| **Checkpoint continuity** | prove cross-version checkpoint migration and disaster recovery, then consider optional external anchoring | fixture-led migration drills, recovery tests, explicit privacy/retention policy, and an independent anchor design |
+| **External checkpoint anchoring** | decide whether an opt-in independent anchor adds enough value beyond local recovery | explicit provider/privacy/retention design, revocation, and proof that local-only operation remains complete |
 | **Product reach** | team/player/manager dossiers, community packs, and i18n | source-specific review and isolation tests |
 
 Entry criteria, kill switches, and the less photogenic details live in the

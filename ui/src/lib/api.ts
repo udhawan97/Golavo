@@ -581,9 +581,10 @@ export function previewPersonalArchive(file: File): Promise<ArchivePreview> {
 export async function restorePersonalArchive(
   file: File,
   replace: boolean,
+  previewToken: string,
 ): Promise<ArchivePreview> {
   const restored = await postFile<ArchivePreview>(
-    `/api/v1/personal/archive/restore?replace=${replace ? "true" : "false"}`,
+    `/api/v1/personal/archive/restore?replace=${replace ? "true" : "false"}&preview_token=${encodeURIComponent(previewToken)}`,
     file,
   );
   clearApiCache();
@@ -600,7 +601,11 @@ export async function fetchRefreshReceipts(): Promise<RefreshReceiptList> {
 }
 
 export async function fetchCheckpointStatus(): Promise<CheckpointStatus> {
-  if (!API_BASE) return { schema_version: "0.1.0", verified: true, checkpoint_count: 0, head: null, missing_artifacts: [], uncheckpointed_artifacts: [], limits: [] };
+  if (!API_BASE) return {
+    schema_version: "0.2.0", verified: true, checkpoint_count: 0, head: null,
+    head_schema_version: null, checkpoint_schema_versions: [], legacy_checkpoint_count: 0,
+    migration_required: false, missing_artifacts: [], uncheckpointed_artifacts: [], limits: [],
+  };
   return getJson("/api/v1/ledger/checkpoints") as Promise<CheckpointStatus>;
 }
 

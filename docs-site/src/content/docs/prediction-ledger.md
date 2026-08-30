@@ -95,11 +95,13 @@ A checkpoint records the ids and file hashes of every verified `fa_*.json` artif
 then links that snapshot to the previous local checkpoint. Verification detects changed bytes,
 cycles, explicitly missing artifacts, and new artifacts not yet in the current head. It does
 not prove external authenticity, when an artifact was created, or that a later explicit removal
-cannot happen. Cross-version migration, disaster recovery, and optional external anchoring are
-still separate gates.
+cannot happen. Format `0.2.0` can extend a verified `0.1.0` head without rewriting its hashed
+history. Optional external anchoring remains a separate gate.
 
-The Trust Center archive is a different tool. It can export, preview, and restore only
-forecast artifacts, picks, and followed-match state. Team favorites, credentials, providers,
-licensed overlays, weather, research captures, refresh generations, checkpoints, and caches
-are deliberately excluded. See [Trust Center](/Golavo/trust-center/) for the conflict and
-recovery path.
+The Trust Center archive can export, preview, and restore forecast artifacts, picks,
+followed-match state, and the verified head-reachable checkpoint chain when present. It
+accepts legacy archives, stages the archived forecast/checkpoint bytes in a disposable ledger,
+and withholds restore if the resulting chain would be invalid. Team favorites, credentials,
+providers, licensed overlays, weather, research captures, refresh generations, and caches are
+deliberately excluded. See [Trust Center](/Golavo/trust-center/) for the conflict and recovery
+path.

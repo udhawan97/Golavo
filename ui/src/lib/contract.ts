@@ -1640,24 +1640,43 @@ export interface ProofVerificationResult {
 }
 
 export interface ArchivePreview {
-  schema_version: "0.1.0";
+  schema_version: "0.1.0" | "0.2.0";
   verified: true;
   file_count: number;
   total_bytes: number;
   conflicts: string[];
   requires_replace_confirmation: boolean;
+  restore_preview_token: string;
   excluded_categories: string[];
+  checkpoint_recovery: CheckpointRecovery;
+  restore_blocked_reason: string | null;
   restored?: boolean;
   replaced_conflicts?: boolean;
   pre_restore_backup?: string;
   pre_restore_backup_verified?: boolean;
 }
 
+export interface CheckpointRecovery {
+  available: boolean;
+  recovery_drill_verified: boolean;
+  checkpoint_count: number;
+  head: string | null;
+  head_schema_version: string | null;
+  checkpoint_schema_versions: string[];
+  legacy_checkpoint_count: number;
+  missing_artifacts: string[];
+  uncheckpointed_artifacts: string[];
+}
+
 export interface CheckpointStatus {
-  schema_version: "0.1.0";
+  schema_version: "0.2.0";
   verified: true;
   checkpoint_count: number;
   head: string | null;
+  head_schema_version: string | null;
+  checkpoint_schema_versions: string[];
+  legacy_checkpoint_count: number;
+  migration_required: boolean;
   missing_artifacts: string[];
   uncheckpointed_artifacts: string[];
   limits: string[];

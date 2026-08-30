@@ -10,9 +10,9 @@ and your ledger is backed up before anything is touched.
 :::note[Two different backups]
 The updater's pre-install backup is automatic, short-lived, and tied to one update health
 check. Trust Center's source-on-`main` archive is user-requested, portable, checksummed,
-previewed before restore, and limited to forecasts, picks, and followed-match state. It
-does not include preferences, credentials, providers, overlays, weather, research,
-refresh generations, checkpoints, or caches.
+previewed before restore, and limited to forecasts, picks, followed-match state, and a
+verified linked checkpoint chain when present. It does not include preferences,
+credentials, providers, overlays, weather, research, refresh generations, or caches.
 :::
 
 :::note[Which builds update in-app]

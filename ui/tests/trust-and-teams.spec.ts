@@ -5,6 +5,7 @@ test("Trust Center exposes bounded local verification tools", async ({ page }) =
   await expect(page.getByRole("heading", { level: 1, name: "Trust Center" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Verify a forecast proof" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Forecast-ledger archive" })).toBeVisible();
+  await expect(page.getByText(/verified linked checkpoint chain when one exists/)).toBeVisible();
   await expect(page.getByRole("heading", { name: "Ledger checkpoints" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Data application receipts" })).toBeVisible();
 });

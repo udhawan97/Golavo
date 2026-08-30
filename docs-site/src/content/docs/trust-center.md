@@ -34,32 +34,40 @@ forecast accuracy; it proves only the bytes included in that proof.
 **Download verified backup** writes a ZIP with fixed entry metadata and a checksummed
 manifest that records the export time.
 **Preview restore** validates its paths, sizes, hashes, contracts, SQLite follow database,
-and named conflicts before any replacement can occur.
+and named conflicts before any replacement can occur. Archive format `0.2.0` also copies
+only the verified head-reachable checkpoint records and rebuilds them with the forecast
+files in a disposable ledger. Legacy `0.1.0` archives remain readable without inventing a
+checkpoint chain they never contained.
 
 | Included | Excluded |
 |---|---|
 | Forecast artifacts | Team favorites in browser preferences |
 | Picks and pick audit | Credentials and provider settings |
 | Followed-match state | Licensed overlays and provider responses |
-| | Weather and research captures |
-| | Refresh generations, checkpoints, and derived caches |
+| Verified linked checkpoint chain, when present | Weather and research captures |
+| | Refresh generations and derived caches |
 
 Archives are bounded to 5,000 files and 64 MiB uncompressed. Unsafe, duplicate, symlink,
 or out-of-allowlist paths fail closed. A conflicting restore stays disabled until you
 confirm replacement of the exact listed files. The restore uses a durable recovery journal
-and retains a pre-restore backup or quarantine copy so interruption does not silently leave
-a half-applied ledger.
+bound to the previewed local file hashes; if any covered path changes, the confirmation
+expires and a new preview is required. It retains a pre-restore backup or quarantine copy
+so interruption does not silently leave a half-applied ledger. Restore is withheld if the
+rehearsed post-restore state would leave the local checkpoint chain invalid.
 
 ## Ledger checkpoints
 
 A checkpoint hashes every verified `fa_*.json` artifact present at creation time and links
 to the previous local checkpoint. Status walks the chain, detects cycles or changed bytes,
 reports explicitly missing artifacts, and lists artifacts not yet in the current head.
+Format `0.2.0` can append to a verified `0.1.0` head while retaining the legacy checkpoint's
+exact hashed bytes. The archive carries both formats and runs the same verifier against a
+disposable recovery directory before offering restore.
 
 The limit is important: this detects change relative to an earlier checkpoint on the same
 installation. It does not prove external authenticity, prove that a forecast predates a
-real-world event, prevent explicit deletion, or establish cross-version disaster recovery.
-Migration drills, recovery proof, and optional external anchoring remain future gates.
+real-world event, prevent explicit deletion, or recover artifact bytes that were already
+absent when the archive was created. Optional external anchoring remains a future gate.
 
 ## Data-application receipts
 

@@ -2487,10 +2487,15 @@ async def preview_personal_archive(request: Request) -> dict[str, Any]:
 
 
 @app.post("/api/v1/personal/archive/restore")
-async def restore_personal_archive(request: Request, replace: bool = False) -> dict[str, Any]:
+async def restore_personal_archive(
+    request: Request, replace: bool = False, preview_token: str | None = None
+) -> dict[str, Any]:
     try:
         return personal_archive.restore_archive(
-            await _bounded_archive_body(request), ledger=ARTIFACT_DIR, replace=replace
+            await _bounded_archive_body(request),
+            ledger=ARTIFACT_DIR,
+            replace=replace,
+            preview_token=preview_token,
         )
     except FileExistsError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc

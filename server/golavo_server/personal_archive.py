@@ -19,9 +19,11 @@ from typing import Any
 from golavo_core.artifacts import verify_artifact_integrity
 from golavo_core.picks import validate_user_pick, verify_pick_integrity
 
-from golavo_server import follows, refresh_sources, runtime
+from golavo_server import follows, ledger_checkpoints, refresh_sources, runtime
 
-SCHEMA_VERSION = "0.1.0"
+SCHEMA_VERSION = "0.2.0"
+LEGACY_SCHEMA_VERSION = "0.1.0"
+SUPPORTED_SCHEMA_VERSIONS = frozenset({LEGACY_SCHEMA_VERSION, SCHEMA_VERSION})
 MAX_FILES = 5000
 MAX_UNCOMPRESSED = 64 * 1024 * 1024
 MAX_JSON_DEPTH = 64
@@ -45,13 +47,17 @@ _SNAPSHOT_FIELDS = {
 }
 _ALLOWED = (
     re.compile(r"^ledger/fa_[0-9a-f]{20}\.json$"),
-    re.compile(r"^ledger/picks/(?:drafts/[^/]+\.json|pk_[0-9a-f]{20}\.json|audit\.jsonl)$"),
+    re.compile(r"^ledger/checkpoints/head\.json$"),
+    re.compile(r"^ledger/checkpoints/lc_[0-9a-f]{64}\.json$"),
+    re.compile(
+        r"^ledger/picks/(?:drafts/[A-Za-z0-9_.-]+\.json|pk_[0-9a-f]{20}\.json|audit\.jsonl)$"
+    ),
     re.compile(r"^ledger/follows/follows\.sqlite3$"),
 )
 
 
 def _allowed(name: str) -> bool:
-    return any(pattern.fullmatch(name) for pattern in _ALLOWED)
+    return "\\" not in name and any(pattern.fullmatch(name) for pattern in _ALLOWED)
 
 
 def _sha(data: bytes) -> str:
@@ -401,7 +407,10 @@ def _validate_content(name: str, data: bytes) -> None:
         verify_pick_integrity(_json(data), expected_id=Path(name).stem)
         return
     if "/picks/drafts/" in name:
-        validate_user_pick(_json(data))
+        value = _json(data)
+        validate_user_pick(value)
+        if value["match"]["match_id"] != PurePosixPath(name).stem:
+            raise ValueError("pick draft path does not match its recorded match identity")
         return
     if name.endswith("/picks/audit.jsonl"):
         for line in data.splitlines():
@@ -410,13 +419,19 @@ def _validate_content(name: str, data: bytes) -> None:
         return
     if name.endswith("/follows/follows.sqlite3"):
         _validate_follow_database(data)
+        return
+    if name.startswith("ledger/checkpoints/") and not isinstance(_json(data), dict):
+        raise ValueError("checkpoint archive entry is not an object")
 
 
 def _safe_destination(ledger: Path, name: str) -> Path:
     ledger = Path(ledger)
     if ledger.is_symlink():
         raise ValueError("ledger root must not be a symlink")
-    relative = Path(*PurePosixPath(name).relative_to("ledger").parts)
+    portable = PurePosixPath(name)
+    if "\\" in name or portable.as_posix() != name:
+        raise ValueError(f"restore destination is not a canonical portable path: {name}")
+    relative = Path(*portable.relative_to("ledger").parts)
     destination = ledger / relative
     cursor = ledger
     for part in relative.parts:
@@ -443,19 +458,59 @@ def _snapshot_follow_database(path: Path) -> bytes:
         return Path(handle.name).read_bytes()
 
 
-def _files(ledger: Path) -> list[tuple[str, Path]]:
+def _files(ledger: Path, *, validate_checkpoints: bool = True) -> list[tuple[str, Path]]:
     candidates = [*Path(ledger).glob("fa_*.json"), *Path(ledger).glob("picks/**/*.json")]
     audit = Path(ledger) / "picks" / "audit.jsonl"
     follows = Path(ledger) / "follows" / "follows.sqlite3"
     candidates.extend(path for path in (audit, follows) if path.is_file())
+    if validate_checkpoints:
+        candidates.extend(ledger_checkpoints.recovery_files(ledger))
+    else:
+        checkpoint_root = Path(ledger) / "checkpoints"
+        candidates.extend(
+            path
+            for path in [checkpoint_root / "head.json", *checkpoint_root.glob("lc_*.json")]
+            if path.is_file()
+        )
     result = []
     for path in candidates:
-        if not path.is_file() or path.is_symlink():
+        if path.is_symlink():
+            raise ValueError("archive-owned files must not be symlinks")
+        if not path.is_file():
             continue
         name = "ledger/" + path.relative_to(ledger).as_posix()
         if _allowed(name) and _safe_destination(ledger, name) == path:
             result.append((name, path))
     return sorted(result)
+
+
+def _checkpoint_recovery_summary(status: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "available": status["head"] is not None,
+        "recovery_drill_verified": True,
+        "checkpoint_count": status["checkpoint_count"],
+        "head": status["head"],
+        "head_schema_version": status["head_schema_version"],
+        "checkpoint_schema_versions": status["checkpoint_schema_versions"],
+        "legacy_checkpoint_count": status["legacy_checkpoint_count"],
+        "missing_artifacts": status["missing_artifacts"],
+        "uncheckpointed_artifacts": status["uncheckpointed_artifacts"],
+    }
+
+
+def _raw_checkpoint_recovery(ledger: Path) -> dict[str, Any]:
+    checkpoint_root = Path(ledger) / "checkpoints"
+    return {
+        "available": (checkpoint_root / "head.json").is_file(),
+        "recovery_drill_verified": False,
+        "checkpoint_count": len(list(checkpoint_root.glob("lc_*.json"))),
+        "head": None,
+        "head_schema_version": None,
+        "checkpoint_schema_versions": [],
+        "legacy_checkpoint_count": 0,
+        "missing_artifacts": [],
+        "uncheckpointed_artifacts": [],
+    }
 
 
 def _export_archive_unlocked(
@@ -464,7 +519,7 @@ def _export_archive_unlocked(
     entries: list[dict[str, Any]] = []
     content: dict[str, bytes] = {}
     total = 0
-    files = _files(ledger)
+    files = _files(ledger, validate_checkpoints=validate_content)
     if len(files) > MAX_FILES:
         raise ValueError("ledger contains too many archive-owned files")
     for name, path in files:
@@ -481,18 +536,29 @@ def _export_archive_unlocked(
         content[name] = data
         entries.append({"path": name, "bytes": len(data), "sha256": _sha(data)})
     created = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    checkpoint_recovery = (
+        _checkpoint_recovery_summary(_checkpoint_overlay_status(content))
+        if validate_content
+        else _raw_checkpoint_recovery(ledger)
+    )
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "created_at_utc": created,
         "files": entries,
-        "included": ["forecast artifacts", "picks", "followed-match state"],
+        "included": [
+            "forecast artifacts",
+            "picks",
+            "followed-match state",
+            "verified linked ledger checkpoints when available",
+        ],
         "excluded": [
             "team favorites stored in browser preferences",
             "credentials and provider settings",
             "licensed overlays and provider responses",
             "weather captures and research data",
-            "refresh generations, checkpoints, and derived caches",
+            "refresh generations and derived caches",
         ],
+        "checkpoint_recovery": checkpoint_recovery,
         "integrity": "verified" if validate_content else "unverified-preservation",
     }
     content["manifest.json"] = json.dumps(manifest, indent=2, sort_keys=True).encode() + b"\n"
@@ -620,6 +686,60 @@ def export_archive(ledger: Path) -> tuple[bytes, dict[str, Any]]:
         return _export_archive_unlocked(Path(ledger))
 
 
+def _checkpoint_overlay_status(
+    content: dict[str, bytes], *, ledger: Path | None = None
+) -> dict[str, Any]:
+    """Run the recovered checkpoint state in a disposable ledger directory."""
+
+    with tempfile.TemporaryDirectory(prefix="golavo-checkpoint-drill-") as directory:
+        staging = Path(directory)
+        if ledger is not None:
+            # Validate path ownership before copying local bytes. Content may be
+            # corrupt specifically because this archive is intended to repair it;
+            # only the fully overlaid staging ledger must pass chain verification.
+            ledger_checkpoints.validate_paths(ledger)
+            local_files = [*Path(ledger).glob("fa_*.json")]
+            checkpoint_root = Path(ledger) / "checkpoints"
+            local_files.extend(
+                path
+                for path in [checkpoint_root / "head.json", *checkpoint_root.glob("lc_*.json")]
+                if path.exists()
+            )
+            for path in local_files:
+                if not path.is_file() or path.is_symlink():
+                    raise ValueError("local checkpoint state contains an unsafe path")
+                relative = path.relative_to(ledger)
+                destination = staging / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(path.read_bytes())
+        for name, value in content.items():
+            if not (name.startswith("ledger/fa_") or name.startswith("ledger/checkpoints/")):
+                continue
+            relative = Path(*PurePosixPath(name).relative_to("ledger").parts)
+            destination = staging / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(value)
+        return ledger_checkpoints.status(staging)
+
+
+def _restore_preview_token(content: dict[str, bytes], *, ledger: Path) -> str:
+    """Bind replace approval to both archive bytes and the previewed local state."""
+
+    state: list[dict[str, str | None]] = []
+    for name, archived in sorted(content.items()):
+        destination = _safe_destination(ledger, name)
+        local_sha = _sha(destination.read_bytes()) if destination.exists() else None
+        state.append(
+            {
+                "path": name,
+                "archive_sha256": _sha(archived),
+                "local_sha256": local_sha,
+            }
+        )
+    encoded = json.dumps(state, sort_keys=True, separators=(",", ":")).encode()
+    return _sha(encoded)
+
+
 def _inspect_archive_unlocked(
     data: bytes, *, ledger: Path
 ) -> tuple[dict[str, Any], dict[str, bytes]]:
@@ -648,8 +768,17 @@ def _inspect_archive_unlocked(
                     f"archive path is outside the forecast-ledger allowlist: {item.filename}"
                 )
         manifest = _json(archive.read("manifest.json"))
-        if not isinstance(manifest, dict) or manifest.get("schema_version") != SCHEMA_VERSION:
+        if (
+            not isinstance(manifest, dict)
+            or manifest.get("schema_version") not in SUPPORTED_SCHEMA_VERSIONS
+        ):
             raise ValueError("unsupported archive manifest")
+        manifest_version = str(manifest["schema_version"])
+        checkpoint_names = {
+            name for name in names if name.startswith("ledger/checkpoints/")
+        }
+        if manifest_version == LEGACY_SCHEMA_VERSION and checkpoint_names:
+            raise ValueError("legacy archives cannot declare checkpoint files")
         declared = manifest.get("files")
         if not isinstance(declared, list):
             raise ValueError("archive file manifest is invalid")
@@ -673,14 +802,34 @@ def _inspect_archive_unlocked(
                 conflicts.append(name)
         if declared_names != set(names) - {"manifest.json"}:
             raise ValueError("archive contents do not match its manifest")
+        archive_checkpoint_status = _checkpoint_overlay_status(content)
+        checkpoint_record_count = sum(
+            name.startswith("ledger/checkpoints/lc_") for name in content
+        )
+        if checkpoint_record_count != archive_checkpoint_status["checkpoint_count"]:
+            raise ValueError("archive contains checkpoint records outside the linked chain")
+        checkpoint_recovery = _checkpoint_recovery_summary(archive_checkpoint_status)
+        if manifest_version == SCHEMA_VERSION:
+            if manifest.get("checkpoint_recovery") != checkpoint_recovery:
+                raise ValueError("archive checkpoint recovery declaration is invalid")
+        restore_blocked_reason = None
+        try:
+            _checkpoint_overlay_status(content, ledger=ledger)
+        except (OSError, ValueError, KeyError) as exc:
+            restore_blocked_reason = (
+                "restore would leave the local checkpoint chain invalid: " + str(exc)
+            )
         preview = {
-            "schema_version": SCHEMA_VERSION,
+            "schema_version": manifest_version,
             "verified": True,
             "file_count": len(content),
             "total_bytes": sum(len(value) for value in content.values()),
             "conflicts": sorted(conflicts),
             "requires_replace_confirmation": bool(conflicts),
+            "restore_preview_token": _restore_preview_token(content, ledger=ledger),
             "excluded_categories": manifest.get("excluded", []),
+            "checkpoint_recovery": checkpoint_recovery,
+            "restore_blocked_reason": restore_blocked_reason,
         }
         return preview, content
 
@@ -691,15 +840,29 @@ def inspect_archive(data: bytes, *, ledger: Path) -> tuple[dict[str, Any], dict[
         return _inspect_archive_unlocked(data, ledger=Path(ledger))
 
 
-def restore_archive(data: bytes, *, ledger: Path, replace: bool = False) -> dict[str, Any]:
+def restore_archive(
+    data: bytes,
+    *,
+    ledger: Path,
+    replace: bool = False,
+    preview_token: str | None = None,
+) -> dict[str, Any]:
     ledger = Path(ledger)
     with runtime.USER_STATE_LOCK:
         _recover_unlocked(ledger)
         preview, content = _inspect_archive_unlocked(data, ledger=ledger)
+        if preview["restore_blocked_reason"] is not None:
+            raise ValueError(preview["restore_blocked_reason"])
         if preview["conflicts"] and not replace:
             raise FileExistsError(
                 "restore has conflicts; preview and explicitly confirm replacement"
             )
+        if (
+            preview["conflicts"]
+            and replace
+            and preview_token != preview["restore_preview_token"]
+        ):
+            raise ValueError("restore preview changed; preview again before replacing files")
         ledger.mkdir(parents=True, exist_ok=True)
 
         # Keep valid state as a verified escape hatch. If the current ledger is
@@ -753,6 +916,7 @@ def restore_archive(data: bytes, *, ledger: Path, replace: bool = False) -> dict
                 _fsync_dir(destination.parent)
                 journal["applied_count"] = index
                 _write_journal(root, journal)
+            final_checkpoint_status = ledger_checkpoints.status(ledger)
             journal["phase"] = "committed"
             _write_journal(root, journal)
         except BaseException:
@@ -765,4 +929,5 @@ def restore_archive(data: bytes, *, ledger: Path, replace: bool = False) -> dict
             "replaced_conflicts": bool(preview["conflicts"]),
             "pre_restore_backup": backup_name,
             "pre_restore_backup_verified": backup_verified,
+            "checkpoint_recovery": _checkpoint_recovery_summary(final_checkpoint_status),
         }

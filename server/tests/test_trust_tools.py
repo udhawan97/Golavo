@@ -22,6 +22,87 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SAMPLE_ARTIFACT = sorted((REPO_ROOT / "data/fixtures/sample_artifacts").glob("fa_*.json"))[0]
 
 
+def _write_legacy_checkpoint(ledger: Path) -> str:
+    artifact_data = SAMPLE_ARTIFACT.read_bytes()
+    artifact_id = SAMPLE_ARTIFACT.stem
+    body = {
+        "schema_version": ledger_checkpoints.LEGACY_SCHEMA_VERSION,
+        "created_at_utc": "2026-08-25T12:00:00Z",
+        "previous_checkpoint_sha256": None,
+        "artifacts": [
+            {"artifact_id": artifact_id, "sha256": hashlib.sha256(artifact_data).hexdigest()}
+        ],
+        "limits": ["Legacy local checkpoint limits remain part of its hashed bytes."],
+    }
+    digest = ledger_checkpoints._digest(body)
+    root = ledger / "checkpoints"
+    root.mkdir(parents=True)
+    (root / f"lc_{digest}.json").write_text(
+        json.dumps({**body, "checkpoint_sha256": digest}, indent=2, sort_keys=True) + "\n"
+    )
+    (root / "head.json").write_text(
+        json.dumps(
+            {
+                "schema_version": ledger_checkpoints.LEGACY_SCHEMA_VERSION,
+                "checkpoint_sha256": digest,
+            },
+            sort_keys=True,
+        )
+        + "\n"
+    )
+    return digest
+
+
+def _checkpoint_archive(artifact_id: str) -> tuple[bytes, str]:
+    artifact_sha = hashlib.sha256(b"not-present").hexdigest()
+    body = {
+        "schema_version": ledger_checkpoints.SCHEMA_VERSION,
+        "created_at_utc": "2026-08-25T12:00:00Z",
+        "previous_checkpoint_sha256": None,
+        "previous_schema_version": None,
+        "artifact_count": 1,
+        "artifacts": [{"artifact_id": artifact_id, "sha256": artifact_sha}],
+        "limits": [],
+    }
+    digest = ledger_checkpoints._digest(body)
+    files = {
+        "ledger/checkpoints/head.json": json.dumps(
+            {
+                "schema_version": ledger_checkpoints.SCHEMA_VERSION,
+                "checkpoint_sha256": digest,
+            },
+            sort_keys=True,
+        ).encode(),
+        f"ledger/checkpoints/lc_{digest}.json": json.dumps(
+            {**body, "checkpoint_sha256": digest}, sort_keys=True
+        ).encode(),
+    }
+    manifest = {
+        "schema_version": personal_archive.SCHEMA_VERSION,
+        "files": [
+            {"path": name, "bytes": len(value), "sha256": hashlib.sha256(value).hexdigest()}
+            for name, value in sorted(files.items())
+        ],
+        "checkpoint_recovery": {
+            "available": True,
+            "recovery_drill_verified": True,
+            "checkpoint_count": 1,
+            "head": digest,
+            "head_schema_version": ledger_checkpoints.SCHEMA_VERSION,
+            "checkpoint_schema_versions": [ledger_checkpoints.SCHEMA_VERSION],
+            "legacy_checkpoint_count": 0,
+            "missing_artifacts": [artifact_id],
+            "uncheckpointed_artifacts": [],
+        },
+    }
+    stream = BytesIO()
+    with zipfile.ZipFile(stream, "w") as archive:
+        archive.writestr("manifest.json", json.dumps(manifest))
+        for name, value in files.items():
+            archive.writestr(name, value)
+    return stream.getvalue(), digest
+
+
 def _draft(match_id: str, home_goals: int) -> dict[str, object]:
     return {
         "schema_version": "0.1.0",
@@ -96,7 +177,7 @@ def test_archive_round_trip_is_allowlisted_and_conflicts_require_confirmation(
         "pick_id": None,
         "status": "draft",
         "match": {
-            "match_id": "m1",
+            "match_id": "match",
             "kickoff_utc": "2026-09-01T18:30:00Z",
             "kickoff_time_known": True,
             "home_team": "A",
@@ -144,8 +225,131 @@ def test_archive_round_trip_is_allowlisted_and_conflicts_require_confirmation(
     )
     with pytest.raises(FileExistsError):
         personal_archive.restore_archive(data, ledger=target)
-    replaced = personal_archive.restore_archive(data, ledger=target, replace=True)
+    replace_preview, _ = personal_archive.inspect_archive(data, ledger=target)
+    replaced = personal_archive.restore_archive(
+        data,
+        ledger=target,
+        replace=True,
+        preview_token=replace_preview["restore_preview_token"],
+    )
     assert (target.parent / "target-archive-backups" / replaced["pre_restore_backup"]).is_file()
+
+
+def test_historical_archive_inspects_and_restores_without_checkpoint_declarations(
+    tmp_path: Path,
+) -> None:
+    artifact_name = f"ledger/{SAMPLE_ARTIFACT.name}"
+    artifact = SAMPLE_ARTIFACT.read_bytes()
+    manifest = {
+        "schema_version": personal_archive.LEGACY_SCHEMA_VERSION,
+        "files": [
+            {
+                "path": artifact_name,
+                "bytes": len(artifact),
+                "sha256": hashlib.sha256(artifact).hexdigest(),
+            }
+        ],
+    }
+    stream = BytesIO()
+    with zipfile.ZipFile(stream, "w") as archive:
+        archive.writestr("manifest.json", json.dumps(manifest))
+        archive.writestr(artifact_name, artifact)
+
+    target = tmp_path / "target"
+    preview, _ = personal_archive.inspect_archive(stream.getvalue(), ledger=target)
+    assert preview["schema_version"] == personal_archive.LEGACY_SCHEMA_VERSION
+    assert preview["checkpoint_recovery"]["available"] is False
+    restored = personal_archive.restore_archive(stream.getvalue(), ledger=target)
+    assert restored["restored"] is True
+    assert (target / SAMPLE_ARTIFACT.name).read_bytes() == artifact
+
+
+@pytest.mark.parametrize("artifact_id", ["/tmp/fa_0123456789abcdef0123", "../outside", "fa_nope"])
+def test_archive_rejects_checkpoint_artifact_ids_that_are_not_canonical(
+    tmp_path: Path, artifact_id: str
+) -> None:
+    archive, _ = _checkpoint_archive(artifact_id)
+    with pytest.raises(ValueError, match="artifact ID is invalid"):
+        personal_archive.inspect_archive(archive, ledger=tmp_path / "target")
+
+
+def test_archive_reports_a_canonical_checkpoint_artifact_that_is_missing(
+    tmp_path: Path,
+) -> None:
+    artifact_id = "fa_0123456789abcdef0123"
+    archive, digest = _checkpoint_archive(artifact_id)
+    preview, _ = personal_archive.inspect_archive(archive, ledger=tmp_path / "target")
+    assert preview["checkpoint_recovery"]["head"] == digest
+    assert preview["checkpoint_recovery"]["missing_artifacts"] == [artifact_id]
+
+
+def test_archive_fails_closed_on_a_symlinked_forecast_artifact(tmp_path: Path) -> None:
+    outside = tmp_path / "outside.json"
+    outside.write_bytes(SAMPLE_ARTIFACT.read_bytes())
+    ledger = tmp_path / "ledger"
+    ledger.mkdir()
+    (ledger / SAMPLE_ARTIFACT.name).symlink_to(outside)
+
+    with pytest.raises(ValueError, match="must not be symlinks"):
+        personal_archive.export_archive(ledger)
+    with pytest.raises(ValueError, match="path is unsafe"):
+        ledger_checkpoints.create(ledger)
+
+
+def test_archive_replace_confirmation_expires_when_any_previewed_path_changes(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    drafts = source / "picks" / "drafts"
+    drafts.mkdir(parents=True)
+    for name in ("a", "b"):
+        (drafts / f"{name}.json").write_text(json.dumps(_draft(name, 1)) + "\n")
+    archive, _ = personal_archive.export_archive(source)
+
+    target_drafts = tmp_path / "target" / "picks" / "drafts"
+    target_drafts.mkdir(parents=True)
+    first = target_drafts / "a.json"
+    first.write_text(json.dumps(_draft("a", 2)) + "\n")
+    preview, _ = personal_archive.inspect_archive(archive, ledger=tmp_path / "target")
+    assert preview["conflicts"] == ["ledger/picks/drafts/a.json"]
+
+    second = target_drafts / "b.json"
+    second.write_text(json.dumps(_draft("b", 3)) + "\n")
+    before = {path: path.read_bytes() for path in (first, second)}
+    with pytest.raises(ValueError, match="preview changed"):
+        personal_archive.restore_archive(
+            archive,
+            ledger=tmp_path / "target",
+            replace=True,
+            preview_token=preview["restore_preview_token"],
+        )
+    assert {path: path.read_bytes() for path in (first, second)} == before
+
+
+def test_archive_rejects_windows_separator_aliases_before_destination_mapping(
+    tmp_path: Path,
+) -> None:
+    name = "ledger/picks/drafts/..\\pk_0123456789abcdef0123.json"
+    value = (json.dumps(_draft("pk_0123456789abcdef0123", 1)) + "\n").encode()
+    manifest = {
+        "schema_version": personal_archive.LEGACY_SCHEMA_VERSION,
+        "files": [
+            {
+                "path": name,
+                "bytes": len(value),
+                "sha256": hashlib.sha256(value).hexdigest(),
+            }
+        ],
+    }
+    stream = BytesIO()
+    with zipfile.ZipFile(stream, "w") as archive:
+        archive.writestr("manifest.json", json.dumps(manifest))
+        archive.writestr(name, value)
+
+    with pytest.raises(ValueError, match="allowlist"):
+        personal_archive.inspect_archive(stream.getvalue(), ledger=tmp_path / "target")
+    with pytest.raises(ValueError, match="canonical portable path"):
+        personal_archive._safe_destination(tmp_path / "target", name)
 
 
 def test_archive_rejects_paths_outside_allowlist(tmp_path: Path) -> None:
@@ -296,7 +500,13 @@ def test_archive_restore_repairs_corrupt_state_and_labels_its_quarantine_copy(
     target.mkdir()
     (target / SAMPLE_ARTIFACT.name).write_text("{corrupt")
 
-    restored = personal_archive.restore_archive(archive, ledger=target, replace=True)
+    preview, _ = personal_archive.inspect_archive(archive, ledger=target)
+    restored = personal_archive.restore_archive(
+        archive,
+        ledger=target,
+        replace=True,
+        preview_token=preview["restore_preview_token"],
+    )
 
     assert restored["restored"] is True
     assert restored["pre_restore_backup_verified"] is False
@@ -498,8 +708,14 @@ def test_archive_recovers_an_interruption_after_a_live_replacement(
         return real_replace(source_path, destination_path)
 
     monkeypatch.setattr(personal_archive.os, "replace", fail_second_live_replace)
+    preview, _ = personal_archive.inspect_archive(archive, ledger=target)
     with pytest.raises(OSError, match="injected"):
-        personal_archive.restore_archive(archive, ledger=target, replace=True)
+        personal_archive.restore_archive(
+            archive,
+            ledger=target,
+            replace=True,
+            preview_token=preview["restore_preview_token"],
+        )
     assert failed is True
     assert {path: path.read_bytes() for path in originals} == originals
     assert not personal_archive._recovery_root(target).exists()
@@ -665,15 +881,202 @@ def test_checkpoint_chain_is_created_and_verified(tmp_path: Path) -> None:
     status = ledger_checkpoints.status(tmp_path)
     assert status["verified"] is True
     assert status["checkpoint_count"] == 0
+    assert status["schema_version"] == "0.2.0"
+    assert status["migration_required"] is False
     (tmp_path / SAMPLE_ARTIFACT.name).write_bytes(SAMPLE_ARTIFACT.read_bytes())
     created = ledger_checkpoints.create(tmp_path)
+    assert created["schema_version"] == "0.2.0"
+    assert created["artifact_count"] == 1
     assert created["artifacts"][0]["artifact_id"] == SAMPLE_ARTIFACT.stem
     status = ledger_checkpoints.status(tmp_path)
     assert status["checkpoint_count"] == 1
+    assert status["head_schema_version"] == "0.2.0"
+    assert status["checkpoint_schema_versions"] == ["0.2.0"]
     assert status["missing_artifacts"] == []
     assert status["uncheckpointed_artifacts"] == []
     (tmp_path / SAMPLE_ARTIFACT.name).unlink()
     assert ledger_checkpoints.status(tmp_path)["missing_artifacts"] == [SAMPLE_ARTIFACT.stem]
+
+
+def test_checkpoint_migrates_legacy_chain_and_archive_recovers_it(tmp_path: Path) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / SAMPLE_ARTIFACT.name).write_bytes(SAMPLE_ARTIFACT.read_bytes())
+    legacy_head = _write_legacy_checkpoint(source)
+    legacy_bytes = (source / "checkpoints" / f"lc_{legacy_head}.json").read_bytes()
+
+    legacy_status = ledger_checkpoints.status(source)
+    assert legacy_status["head"] == legacy_head
+    assert legacy_status["head_schema_version"] == "0.1.0"
+    assert legacy_status["legacy_checkpoint_count"] == 1
+    assert legacy_status["migration_required"] is True
+
+    migrated = ledger_checkpoints.create(source)
+    assert (source / "checkpoints" / f"lc_{legacy_head}.json").read_bytes() == legacy_bytes
+    assert migrated["previous_checkpoint_sha256"] == legacy_head
+    assert migrated["previous_schema_version"] == "0.1.0"
+    migrated_status = ledger_checkpoints.status(source)
+    assert migrated_status["checkpoint_count"] == 2
+    assert migrated_status["checkpoint_schema_versions"] == ["0.1.0", "0.2.0"]
+    assert migrated_status["legacy_checkpoint_count"] == 1
+    assert migrated_status["migration_required"] is False
+
+    archive, manifest = personal_archive.export_archive(source)
+    archived_paths = {entry["path"] for entry in manifest["files"]}
+    assert "ledger/checkpoints/head.json" in archived_paths
+    assert sum(path.startswith("ledger/checkpoints/lc_") for path in archived_paths) == 2
+    assert manifest["checkpoint_recovery"] == {
+        "available": True,
+        "recovery_drill_verified": True,
+        "checkpoint_count": 2,
+        "head": migrated_status["head"],
+        "head_schema_version": "0.2.0",
+        "checkpoint_schema_versions": ["0.1.0", "0.2.0"],
+        "legacy_checkpoint_count": 1,
+        "missing_artifacts": [],
+        "uncheckpointed_artifacts": [],
+    }
+
+    recovered = tmp_path / "recovered"
+    preview, _ = personal_archive.inspect_archive(archive, ledger=recovered)
+    assert preview["checkpoint_recovery"]["recovery_drill_verified"] is True
+    assert preview["restore_blocked_reason"] is None
+    restored = personal_archive.restore_archive(archive, ledger=recovered)
+    assert restored["checkpoint_recovery"]["checkpoint_count"] == 2
+    assert (recovered / "checkpoints" / f"lc_{legacy_head}.json").read_bytes() == legacy_bytes
+    assert ledger_checkpoints.status(recovered) == migrated_status
+
+
+def test_checkpoint_archive_rolls_back_an_interrupted_head_replacement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / SAMPLE_ARTIFACT.name).write_bytes(SAMPLE_ARTIFACT.read_bytes())
+    ledger_checkpoints.create(source)
+    archive, _ = personal_archive.export_archive(source)
+
+    target = tmp_path / "target"
+    real_replace = personal_archive.os.replace
+    failed = False
+
+    def fail_live_head(source_path, destination_path):
+        nonlocal failed
+        if Path(destination_path) == target / "checkpoints" / "head.json" and not failed:
+            failed = True
+            raise OSError("injected checkpoint-head interruption")
+        return real_replace(source_path, destination_path)
+
+    monkeypatch.setattr(personal_archive.os, "replace", fail_live_head)
+    with pytest.raises(OSError, match="checkpoint-head interruption"):
+        personal_archive.restore_archive(archive, ledger=target)
+    assert failed is True
+    assert ledger_checkpoints.status(target)["checkpoint_count"] == 0
+    assert not (target / SAMPLE_ARTIFACT.name).exists()
+    assert not personal_archive._recovery_root(target).exists()
+
+
+def test_checkpoint_archive_rolls_back_after_the_live_head_was_replaced(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / SAMPLE_ARTIFACT.name).write_bytes(SAMPLE_ARTIFACT.read_bytes())
+    ledger_checkpoints.create(source)
+    archive, _ = personal_archive.export_archive(source)
+
+    target = tmp_path / "target"
+    real_replace = personal_archive.os.replace
+    failed = False
+
+    def replace_then_fail_on_live_head(source_path, destination_path):
+        nonlocal failed
+        result = real_replace(source_path, destination_path)
+        if Path(destination_path) == target / "checkpoints" / "head.json" and not failed:
+            failed = True
+            raise OSError("injected interruption after checkpoint-head replacement")
+        return result
+
+    monkeypatch.setattr(personal_archive.os, "replace", replace_then_fail_on_live_head)
+    with pytest.raises(OSError, match="after checkpoint-head replacement"):
+        personal_archive.restore_archive(archive, ledger=target)
+    assert failed is True
+    assert ledger_checkpoints.status(target)["checkpoint_count"] == 0
+    assert not (target / SAMPLE_ARTIFACT.name).exists()
+    assert not personal_archive._recovery_root(target).exists()
+
+
+def test_checkpoint_archive_excludes_records_outside_the_head_reachable_chain(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / SAMPLE_ARTIFACT.name).write_bytes(SAMPLE_ARTIFACT.read_bytes())
+    ledger_checkpoints.create(source)
+    orphan = source / "checkpoints" / f"lc_{'0' * 64}.json"
+    orphan.write_text("not a linked checkpoint")
+
+    archive, manifest = personal_archive.export_archive(source)
+    paths = {entry["path"] for entry in manifest["files"]}
+    assert f"ledger/checkpoints/{orphan.name}" not in paths
+    preview, _ = personal_archive.inspect_archive(archive, ledger=tmp_path / "target")
+    assert preview["verified"] is True
+    assert preview["checkpoint_recovery"]["checkpoint_count"] == 1
+
+
+def test_archive_blocks_a_restore_that_would_break_an_existing_chain(tmp_path: Path) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    archive, _ = personal_archive.export_archive(source)
+
+    target = tmp_path / "target"
+    target.mkdir()
+    (target / SAMPLE_ARTIFACT.name).write_bytes(SAMPLE_ARTIFACT.read_bytes())
+    ledger_checkpoints.create(target)
+    (target / SAMPLE_ARTIFACT.name).write_text("corrupt")
+    preview, _ = personal_archive.inspect_archive(archive, ledger=target)
+    assert preview["restore_blocked_reason"].startswith(
+        "restore would leave the local checkpoint chain invalid"
+    )
+    with pytest.raises(ValueError, match="checkpoint chain invalid"):
+        personal_archive.restore_archive(archive, ledger=target, replace=True)
+    assert (target / SAMPLE_ARTIFACT.name).read_text() == "corrupt"
+
+
+@pytest.mark.parametrize("corrupt_target", ["artifact", "head", "record"])
+def test_checkpoint_archive_repairs_corrupt_bytes_covered_by_the_archive(
+    tmp_path: Path, corrupt_target: str
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / SAMPLE_ARTIFACT.name).write_bytes(SAMPLE_ARTIFACT.read_bytes())
+    checkpoint = ledger_checkpoints.create(source)
+    archive, _ = personal_archive.export_archive(source)
+
+    target = tmp_path / "target"
+    personal_archive.restore_archive(archive, ledger=target)
+    paths = {
+        "artifact": target / SAMPLE_ARTIFACT.name,
+        "head": target / "checkpoints" / "head.json",
+        "record": target
+        / "checkpoints"
+        / f"lc_{checkpoint['checkpoint_sha256']}.json",
+    }
+    paths[corrupt_target].write_text("corrupt")
+
+    preview, _ = personal_archive.inspect_archive(archive, ledger=target)
+    assert preview["restore_blocked_reason"] is None
+    assert preview["conflicts"] == [
+        "ledger/" + paths[corrupt_target].relative_to(target).as_posix()
+    ]
+    restored = personal_archive.restore_archive(
+        archive,
+        ledger=target,
+        replace=True,
+        preview_token=preview["restore_preview_token"],
+    )
+    assert restored["restored"] is True
+    assert ledger_checkpoints.status(target)["verified"] is True
 
 
 def test_checkpoint_refuses_to_extend_a_corrupt_chain_without_writing(tmp_path: Path) -> None:
@@ -700,3 +1103,61 @@ def test_checkpoint_refuses_an_orphaned_chain_when_head_was_removed(tmp_path: Pa
     with pytest.raises(ValueError, match="head is missing"):
         ledger_checkpoints.create(tmp_path)
     assert {path: path.read_bytes() for path in (tmp_path / "checkpoints").iterdir()} == before
+
+
+def test_checkpoint_rejects_symlinked_roots_and_directories_without_writing(
+    tmp_path: Path,
+) -> None:
+    outside_ledger = tmp_path / "outside-ledger"
+    outside_ledger.mkdir()
+    linked_ledger = tmp_path / "linked-ledger"
+    linked_ledger.symlink_to(outside_ledger, target_is_directory=True)
+    with pytest.raises(ValueError, match="ledger root"):
+        ledger_checkpoints.status(linked_ledger)
+
+    ledger = tmp_path / "ledger"
+    ledger.mkdir()
+    outside_checkpoints = tmp_path / "outside-checkpoints"
+    outside_checkpoints.mkdir()
+    (ledger / "checkpoints").symlink_to(outside_checkpoints, target_is_directory=True)
+    with pytest.raises(ValueError, match="checkpoint directory"):
+        ledger_checkpoints.create(ledger)
+    assert list(outside_checkpoints.iterdir()) == []
+
+
+@pytest.mark.parametrize("linked_name", ["head.json", "record"])
+def test_checkpoint_rejects_linked_head_and_record_symlinks(
+    tmp_path: Path, linked_name: str
+) -> None:
+    ledger = tmp_path / "ledger"
+    ledger.mkdir()
+    (ledger / SAMPLE_ARTIFACT.name).write_bytes(SAMPLE_ARTIFACT.read_bytes())
+    created = ledger_checkpoints.create(ledger)
+    name = (
+        "head.json"
+        if linked_name == "head.json"
+        else f"lc_{created['checkpoint_sha256']}.json"
+    )
+    path = ledger / "checkpoints" / name
+    outside = tmp_path / f"outside-{linked_name}.json"
+    path.replace(outside)
+    path.symlink_to(outside)
+
+    with pytest.raises(ValueError, match="checkpoint path"):
+        ledger_checkpoints.status(ledger)
+
+
+def test_archive_preview_blocks_a_symlinked_local_checkpoint_directory(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    archive, _ = personal_archive.export_archive(source)
+    target = tmp_path / "target"
+    target.mkdir()
+    outside = tmp_path / "outside-checkpoints"
+    outside.mkdir()
+    (target / "checkpoints").symlink_to(outside, target_is_directory=True)
+
+    preview, _ = personal_archive.inspect_archive(archive, ledger=target)
+    assert "checkpoint directory is unsafe" in preview["restore_blocked_reason"]

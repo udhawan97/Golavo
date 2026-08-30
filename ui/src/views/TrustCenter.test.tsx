@@ -23,13 +23,21 @@ vi.mock("../lib/api", () => ({
 let container: HTMLDivElement;
 let root: Root;
 const preview = {
-  schema_version: "0.1.0" as const,
+  schema_version: "0.2.0" as const,
   verified: true as const,
   file_count: 2,
   total_bytes: 2048,
   conflicts: ["ledger/picks/drafts/match.json"],
   requires_replace_confirmation: true,
+  restore_preview_token: "preview-token",
   excluded_categories: ["credentials"],
+  checkpoint_recovery: {
+    available: true, recovery_drill_verified: true, checkpoint_count: 2,
+    head: "a".repeat(64), head_schema_version: "0.2.0",
+    checkpoint_schema_versions: ["0.1.0", "0.2.0"], legacy_checkpoint_count: 1,
+    missing_artifacts: [], uncheckpointed_artifacts: [],
+  },
+  restore_blocked_reason: null,
 };
 
 beforeEach(() => {
@@ -38,8 +46,9 @@ beforeEach(() => {
   document.body.appendChild(container);
   root = createRoot(container);
   vi.mocked(fetchCheckpointStatus).mockResolvedValue({
-    schema_version: "0.1.0", verified: true, checkpoint_count: 0, head: null,
-    missing_artifacts: [], uncheckpointed_artifacts: [], limits: [],
+    schema_version: "0.2.0", verified: true, checkpoint_count: 0, head: null,
+    head_schema_version: null, checkpoint_schema_versions: [], legacy_checkpoint_count: 0,
+    migration_required: false, missing_artifacts: [], uncheckpointed_artifacts: [], limits: [],
   });
   vi.mocked(fetchRefreshReceipts).mockResolvedValue({ items: [], application_gap: null });
   vi.mocked(previewPersonalArchive).mockResolvedValue(preview);
@@ -74,6 +83,7 @@ describe("TrustCenter archive restore", () => {
     await renderCenter();
     const file = await selectArchive();
     expect(container.textContent).toContain("ledger/picks/drafts/match.json");
+    expect(container.textContent).toContain("Recovery drill passed for 2 linked checkpoint(s)");
     const restore = [...container.querySelectorAll("button")].find(
       (button) => button.textContent === "Restore verified files",
     ) as HTMLButtonElement;
@@ -85,7 +95,7 @@ describe("TrustCenter archive restore", () => {
     await act(async () => confirm.click());
     expect(restore.disabled).toBe(false);
     await act(async () => restore.click());
-    expect(restorePersonalArchive).toHaveBeenCalledWith(file, true);
+    expect(restorePersonalArchive).toHaveBeenCalledWith(file, true, "preview-token");
     expect(fetchCheckpointStatus).toHaveBeenCalledTimes(2);
     expect(generationEvents).toHaveBeenCalledTimes(1);
     expect(container.textContent).toContain("Restore complete");
@@ -128,6 +138,21 @@ describe("TrustCenter archive restore", () => {
 
     expect(container.textContent).toContain("Restore complete");
     expect(container.textContent).toContain("Restored bytes no longer match the checkpoint");
-    expect(container.textContent).not.toContain("linked checkpoint(s)");
+    expect(container.textContent).not.toContain("Create checkpoint now");
+  });
+
+  it("shows a failed post-restore checkpoint drill and withholds the restore action", async () => {
+    vi.mocked(previewPersonalArchive).mockResolvedValueOnce({
+      ...preview,
+      restore_blocked_reason: "restore would leave the local checkpoint chain invalid",
+    });
+    await renderCenter();
+    await selectArchive();
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+      "checkpoint chain invalid",
+    );
+    expect([...container.querySelectorAll("button")].some(
+      (button) => button.textContent === "Restore verified files",
+    )).toBe(false);
   });
 });

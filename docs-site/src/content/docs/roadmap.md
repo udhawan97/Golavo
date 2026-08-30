@@ -17,7 +17,8 @@ The women-first World Cup history archive and current Frauen-Bundesliga OpenLiga
 display overlay are also current product behavior, not future promises. Source `main`
 additionally has My Teams, exact-time followed-match calendar export, Trust Center proof
 inspection and allowlisted archive/restore, data-application receipts, local ledger
-checkpoints, and guarded calibration slices. These post-v0.18.0 tools remain unreleased
+checkpoints, guarded calibration slices, and a checkpoint-continuity archive that accepts
+legacy backups and rehearses recovery before mutation. These post-v0.18.0 tools remain unreleased
 until a later packaged version contains them.
 
 ## Remaining work
@@ -27,7 +28,7 @@ until a later packaged version contains them.
 | **Live club settlement** | Add a second independent result source so club seals can grade automatically | Eight approved repositories now refresh international and current big-five league state while the app is open. One domestic Football.TXT result remains one source; settlement stays pending until an independent source agrees. |
 | **Future league continuity** | Carry the allowlisted country-repository adapters into each genuinely published season | Every new season must pass the same exact-path, license, provenance, identity, result, and complete-schedule gates. Absence or partial publication remains last-known-good, never inferred completeness. |
 | **Observed match data** | Optional lineups, injuries, xG, scorers, corners, and cups as typed features | Every field needs a lawful licensed source, retrieval timestamp, provenance record, and evidence that it improves forward metrics. Otherwise defer it. |
-| **Checkpoint continuity** | Prove cross-version checkpoint migration and disaster recovery, then decide whether optional external anchoring is worthwhile | Local checkpoints now detect changes relative to earlier local heads. Future work must preserve/recover real ledgers, define privacy and retention, and never upgrade a local chain into external authenticity or timing proof. |
+| **Optional external checkpoint anchoring** | Decide whether an independent, opt-in anchor is worthwhile beyond local migration and recovery | Requires a provider-independent design, explicit privacy/retention/revocation policy, and proof that local-only operation remains complete. A local chain must never be described as external authenticity or timing proof. |
 | **Distribution trust** | OS-signed Windows installers and signed/notarized macOS releases | Requires real credentials plus a green install/update/rollback matrix on both platforms. |
 | **Product reach** | Team/player/manager dossiers, community packs, and i18n | Each source and pack format needs its own license review, isolation boundary, signature policy, and failure tests. Current-manager claims stay absent until a revision-pinned tenure source exists. |
 | **Closed-app monitoring** | Optional, user-visible helper architecture, if users actually want it | Separate approval, explicit install/remove UX, power/network budgets, OS permission review, and no impact on the honest while-open v1. |
