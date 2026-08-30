@@ -110,12 +110,13 @@ export function scenarioRequest(
 
 function Table({ rows }: { rows: SeasonStandingRow[] }) {
   return (
-    <ScrollableTable label="Current season table" cue="More: points and recent form">
+    <ScrollableTable label="Current season table" cue="More: full current table">
       <table className="grid season-table">
         <thead>
           <tr>
             <th scope="col">#</th><th scope="col">Team</th><th scope="col">P</th>
-            <th scope="col">GD</th><th scope="col">Pts</th>
+            <th scope="col">W</th><th scope="col">D</th><th scope="col">L</th>
+            <th scope="col">GF</th><th scope="col">GA</th><th scope="col">GD</th><th scope="col">Pts</th>
           </tr>
         </thead>
         <tbody>
@@ -123,6 +124,11 @@ function Table({ rows }: { rows: SeasonStandingRow[] }) {
             <tr key={row.team}>
               <td className="num">{row.position}</td><th scope="row">{row.team}</th>
               <td className="num">{row.played}</td>
+              <td className="num">{row.won}</td>
+              <td className="num">{row.drawn}</td>
+              <td className="num">{row.lost}</td>
+              <td className="num">{row.goals_for}</td>
+              <td className="num">{row.goals_against}</td>
               <td className="num">{row.goal_difference > 0 ? "+" : ""}{row.goal_difference}</td>
               <td className="num"><strong>{row.points}</strong></td>
             </tr>
@@ -386,6 +392,18 @@ export function SeasonOutlookBody({
   canonical?: Outlook;
 }) {
   const [voiceId, setVoiceId] = useState<SeasonOutlookVoice["voice_id"]>("elo_ordlogit");
+  const currentTable = outlook.current_table.length > 0 ? (
+    <section className="stack season-current-table" style={{ ["--gap" as string]: ".45rem" }}>
+      <div>
+        <span className="upper">Current results</span>
+        <h3 style={{ margin: 0 }}>Live table · {outlook.season.replace("-", "–")}</h3>
+        <p className="small dim" style={{ margin: ".2rem 0 0" }}>
+          Played matches only. Projections appear separately below.
+        </p>
+      </div>
+      <Table rows={outlook.current_table} />
+    </section>
+  ) : null;
   if (outlook.status !== "available") {
     const title = outlook.status === "complete"
       ? "Season complete"
@@ -397,7 +415,7 @@ export function SeasonOutlookBody({
         <div className="callout callout--info" role="status">
           <div><div className="callout__title">{title}</div><p>{outlook.reason}</p></div>
         </div>
-        {outlook.current_table.length > 0 && <Table rows={outlook.current_table} />}
+        {currentTable}
       </>
     );
   }
@@ -406,6 +424,11 @@ export function SeasonOutlookBody({
     ?? voiceSource.voices[0];
   return (
     <>
+      {currentTable}
+      <div className="season-projection-intro">
+        <span className="upper">Forward model</span>
+        <h3>How the rest of the season could move</h3>
+      </div>
       <div className="outlook-voices" role="group" aria-label="Model voice">
         {voiceSource.voices.map((voice) => (
           <button

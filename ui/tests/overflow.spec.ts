@@ -48,6 +48,7 @@ for (const width of WIDTHS) {
 test("long club names wrap only between words inside match cards", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/#/");
+  await page.getByRole("button", { name: "Recent 30 days", exact: true }).click();
   const card = page.locator(".game-card:has(.game-card__score)").first();
   await card.waitFor();
   const teams = card.locator(".game-card__team");

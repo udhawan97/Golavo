@@ -4,6 +4,7 @@ import {
   configureSportmonks,
   deleteSportmonksCredential,
   fetchSportmonksStatus,
+  resetSportmonksClientState,
   saveSportmonksCredential,
 } from "../lib/sportmonks";
 import type { SportmonksCapability, SportmonksStatus } from "../lib/sportmonks";
@@ -75,6 +76,7 @@ export function SportmonksSettings() {
     if (!window.confirm(
       "Disable Sportmonks and remove its Keychain token? Golavo forecasts and local data are unaffected.",
     )) return;
+    resetSportmonksClientState();
     const disabled = await run(() => configureSportmonks({ enabled: false }));
     if (disabled && status.credential.source === "keychain") {
       await run(deleteSportmonksCredential);
@@ -205,7 +207,10 @@ export function SportmonksSettings() {
           </div>
 
           <div className="settings__row" style={{ justifyContent: "flex-start", gap: ".6rem" }}>
-            <button type="button" className="btn btn--ghost" disabled={busy} onClick={() => void run(() => configureSportmonks({ enabled: false }))}>
+            <button type="button" className="btn btn--ghost" disabled={busy} onClick={() => {
+              resetSportmonksClientState();
+              void run(() => configureSportmonks({ enabled: false }));
+            }}>
               Disable
             </button>
             <button type="button" className="btn btn--ghost" disabled={busy} onClick={() => void disconnect()}>
@@ -218,7 +223,7 @@ export function SportmonksSettings() {
       {error && <p className="settings__hint" role="alert">Sportmonks: {error}</p>}
 
       <p className="settings__hint" style={{ margin: 0 }}>
-        Terms reviewed {status.provider.terms_reviewed_date}. Subscription and the Odds &amp;
+        Terms reviewed {status.provider.terms_reviewed_date} · pinned content SHA {status.provider.terms_content_sha256.slice(0, 12)}. Subscription and the Odds &amp;
         Predictions, player-stat coverage, and any required add-ons are purchased directly from
         Sportmonks. No logos or player images are requested.{" "}
         <a href={status.provider.docs_url} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>API docs</a>

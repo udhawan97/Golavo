@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
 from subprocess import CompletedProcess
@@ -135,6 +137,9 @@ def test_consent_defaults_off_and_requires_current_terms(monkeypatch, tmp_path) 
     configured = sportmonks.configure({"enabled": True, "accept_terms": True})
     assert configured["enabled"] is True
     assert configured["terms_acceptance_version"] == sportmonks.TERMS_ACCEPTANCE_VERSION
+    assert configured["provider"]["terms_content_sha256"] == sportmonks.TERMS_CONTENT_SHA256
+    assert len(sportmonks.TERMS_CONTENT_SHA256) == 64
+    assert sportmonks.TERMS_CONTENT_SHA256 in sportmonks.TERMS_ACCEPTANCE_VERSION
     assert configured["storage_policy"] == "derived_response_memory_only"
     assert configured["usage"]["model_input"] is False
 
@@ -157,6 +162,7 @@ def test_exact_match_returns_separate_prediction_and_odds_without_persistence(
     assert result["player_lens"]["lineup_state"] == "confirmed"
     assert result["player_lens"]["players"][0]["player_id"] == 601
     assert result["player_lens"]["players"][0]["metrics"][0]["value"] == 1
+    assert result["player_lens"]["players"][0]["metrics"][0]["unit"] == "count"
     assert result["identity"]["provider_league_id"] == 8
     assert result["identity"]["provider_season_id"] == 202627
     assert result["provenance"]["raw_response_storage"] == "not_persisted"
@@ -516,6 +522,145 @@ def test_player_lens_quarantines_duplicate_metric_identity() -> None:
     assert digest is None
 
 
+@pytest.mark.parametrize(
+    ("mutation", "expected_message"),
+    [
+        ("unknown_type", "outside Golavo's pinned schema"),
+        ("developer_name", "metadata no longer matches"),
+        ("negative_count", "invalid value or unit"),
+        ("string_count", "invalid value or unit"),
+    ],
+)
+def test_player_lens_quarantines_metric_schema_drift(
+    mutation: str, expected_message: str
+) -> None:
+    base = _fake_fetcher([])
+
+    def drifted(path: str, token: str):
+        payload, digest = base(path, token)
+        detail = payload["data"]["lineups"][0]["details"][0]
+        if mutation == "unknown_type":
+            detail["type_id"] = 999999
+            detail["type"]["id"] = 999999
+        elif mutation == "developer_name":
+            detail["type"]["developer_name"] = "GOAL_TOTAL"
+        elif mutation == "negative_count":
+            detail["data"]["value"] = -1
+        else:
+            detail["data"]["value"] = "1"
+        return payload, digest
+
+    value, digest = sportmonks._player_lens(
+        19427573, 14, 9, "English Premier League", "secret", drifted
+    )
+    assert value["status"] == "unavailable"
+    assert value["reason_code"] == "player_metric_schema_drift"
+    assert expected_message in value["message"]
+    assert digest is None
+
+
+@pytest.mark.parametrize(
+    ("competition", "type_id", "value", "expected_unit"),
+    [
+        ("English Premier League", 52, 2, "count"),
+        ("Bundesliga", 82, 76.5, "percent"),
+        ("La Liga", 119, 90, "minutes"),
+        ("Serie A", 40, True, "boolean"),
+        ("Ligue 1", 118, 7.4, "provider_score"),
+    ],
+)
+def test_player_lens_accepts_typed_metrics_across_all_top_five_leagues(
+    competition: str, type_id: int, value: int | float | bool, expected_unit: str
+) -> None:
+    base = _fake_fetcher([])
+
+    def typed(path: str, token: str):
+        payload, digest = base(path, token)
+        detail = payload["data"]["lineups"][0]["details"][0]
+        developer_name, label, _unit = sportmonks.PLAYER_METRIC_SCHEMA[type_id]
+        detail["type_id"] = type_id
+        detail["data"]["value"] = value
+        detail["type"].update({
+            "id": type_id,
+            "name": label,
+            "developer_name": developer_name,
+        })
+        return payload, digest
+
+    result, digest = sportmonks._player_lens(
+        19427573, 14, 9, competition, "secret", typed
+    )
+    metric = result["players"][0]["metrics"][0]
+    assert result["status"] == "available"
+    assert metric["type_id"] == type_id
+    assert metric["unit"] == expected_unit
+    assert metric["value"] == value
+    assert digest == "d" * 64
+
+
+@pytest.mark.parametrize(
+    ("type_id", "value"),
+    [(82, 100.1), (119, 1.5), (40, 1), (118, -0.1)],
+)
+def test_player_lens_rejects_invalid_values_for_every_unit(
+    type_id: int, value: int | float
+) -> None:
+    base = _fake_fetcher([])
+
+    def invalid(path: str, token: str):
+        payload, digest = base(path, token)
+        detail = payload["data"]["lineups"][0]["details"][0]
+        developer_name, label, _unit = sportmonks.PLAYER_METRIC_SCHEMA[type_id]
+        detail["type_id"] = type_id
+        detail["data"]["value"] = value
+        detail["type"].update({
+            "id": type_id,
+            "name": label,
+            "developer_name": developer_name,
+        })
+        return payload, digest
+
+    result, digest = sportmonks._player_lens(
+        19427573, 14, 9, "English Premier League", "secret", invalid
+    )
+    assert result["status"] == "unavailable"
+    assert result["reason_code"] == "player_metric_schema_drift"
+    assert digest is None
+
+
+def test_disable_cancels_sidecar_work_before_another_provider_request(
+    monkeypatch, tmp_path
+) -> None:
+    _wire_settings(monkeypatch, tmp_path)
+    monkeypatch.setattr(sportmonks, "load_api_token", lambda: ("secret-token-value", "keychain"))
+    prediction_started = threading.Event()
+    release_prediction = threading.Event()
+    calls: list[str] = []
+    base = _fake_fetcher([])
+
+    def blocking(path: str, token: str):
+        calls.append(path)
+        if "/predictions/" in path:
+            prediction_started.set()
+            assert release_prediction.wait(timeout=5)
+        return base(path, token)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(sportmonks.fetch_outside_signals, MATCH, fetcher=blocking)
+        assert prediction_started.wait(timeout=5)
+        configured = sportmonks.configure({"enabled": False})
+        release_prediction.set()
+        with pytest.raises(sportmonks.SportmonksError) as exc:
+            future.result(timeout=5)
+
+    assert configured["enabled"] is False
+    assert exc.value.code == "request_cancelled"
+    assert any("/predictions/" in path for path in calls)
+    assert not any("/odds/" in path for path in calls)
+    assert not any("lineups.details" in path for path in calls)
+    assert sportmonks.cancel_pending_requests() == 0
+
+
 @pytest.mark.parametrize("ambiguity", ["player_across_teams", "lineup_across_players"])
 def test_player_lens_quarantines_cross_fixture_identity_reuse(ambiguity: str) -> None:
     base = _fake_fetcher([])
@@ -650,6 +795,10 @@ def test_request_allowlist_rejects_arbitrary_paths() -> None:
 
 def test_request_allowlist_accepts_only_the_bounded_player_lens_shape() -> None:
     assert sportmonks._ALLOWED_PATH.fullmatch(
+        "/v3/football/fixtures/19427573?include=lineups.details.type;metadata.type"
+        f"&filters=lineupDetailTypes:{sportmonks.PLAYER_METRIC_FILTER}"
+    )
+    assert not sportmonks._ALLOWED_PATH.fullmatch(
         "/v3/football/fixtures/19427573?include=lineups.details.type;metadata.type"
     )
     assert not sportmonks._ALLOWED_PATH.fullmatch(

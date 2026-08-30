@@ -1,15 +1,14 @@
 /**
  * Matchday — the default landing surface.
  *
- * Analytics-first, results-first: it opens on real matches from the local index
- * (finished results in the last week by default), grouped by competition with the
+ * Current-season first: it opens on upcoming real matches from the local index,
+ * grouped by competition with the
  * bundled club competitions and major internationals surfaced first. Every card links to
  * its Match Cockpit — the analytics showcase. Sealing is a small side feature now,
  * explained in its own guide, not the front door.
  *
- * The default "last week" is anchored to the freshest result in the snapshot, so a
- * stale bundle degrades to "the most recent week of results" rather than an empty
- * page; the range and any staleness are labelled honestly.
+ * Historical result windows stay one click away and remain explicit model input,
+ * not the product headline.
  */
 import { useState } from "react";
 import type { MatchRow, MatchWindow, MatchesWindowResponse, PickView } from "../lib/contract";
@@ -25,7 +24,6 @@ import { WarmupHero } from "../components/EngineWarmup";
 import { usePicks } from "../lib/picks";
 import { PickChip, pickChipLabel } from "../components/PickChip";
 import { nationalFlag, teamMonogram, teamNameDensity } from "../lib/teamIdentity";
-import { TournamentOutlook } from "../components/TournamentOutlook";
 import { useDataGenerationRevision, useDataRefresh } from "../lib/data-refresh-context";
 import { FollowButton } from "../components/FollowButton";
 import { FollowedMatchesPanel } from "../components/FollowedMatchesPanel";
@@ -35,6 +33,7 @@ import { CorrectionButton } from "../components/CorrectionButton";
 import { annotationIsCurrent, useCorrections } from "../lib/correction-context";
 
 const WELCOME_KEY = "golavo-welcome-dismissed";
+const MATCHDAY_WINDOW_KEY = "golavo-matchday-window";
 
 /** A one-time, dismissible orientation card — what Golavo is for, in three lines.
  *  Sealing is mentioned as an option (with a link to its guide), not the headline. */
@@ -76,36 +75,74 @@ function WelcomeCard() {
 }
 
 const WINDOWS: { value: MatchWindow; label: string }[] = [
-  { value: "week", label: "Last week" },
-  { value: "month", label: "Last month" },
   { value: "upcoming", label: "Upcoming" },
+  { value: "week", label: "Recent 7 days" },
+  { value: "month", label: "Recent 30 days" },
 ];
+
+function initialMatchdayWindow(): MatchWindow {
+  try {
+    const saved = sessionStorage.getItem(MATCHDAY_WINDOW_KEY);
+    return WINDOWS.some((window) => window.value === saved) ? saved as MatchWindow : "upcoming";
+  } catch {
+    return "upcoming";
+  }
+}
 
 export function MatchdayHome() {
   const warmup = useWarmupStatus();
   const dataRefresh = useDataRefresh();
   const follows = useFollows();
+  const refreshRunning = dataRefresh.job?.state === "queued" || dataRefresh.job?.state === "running";
+  const premierLeagueSource = dataRefresh.status?.sources.find(
+    (source) => source.source_id === "openfootball-england",
+  );
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.5rem" }}>
-      <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
-        <h1>Matchday</h1>
-        <p className="measure dim" style={{ margin: 0 }}>
-          Every game gets the full treatment — two deterministic voices plus disclosed references, how each side attacks and
-          defends, and the facts worth knowing. Open any match for its deep analytics read. No
-          account, offline by default, no invented certainty.
-        </p>
+      <header className="matchday-hero">
+        <div className="matchday-hero__copy">
+          <span className="upper">2026–27 prediction desk</span>
+          <h1>Make the score call.<br /><em>Then face the models.</em></h1>
+          <p className="measure dim" style={{ margin: 0 }}>
+            Current fixtures lead. Open a match for two deterministic forecast voices, exact-score
+            distributions, current form and source-backed context—then save your score before kickoff
+            and see who read it better.
+          </p>
+          <div className="matchday-hero__actions">
+            <a className="btn" href="#/league/premier-league">Premier League desk</a>
+            <a className="btn btn--ghost" href="#/season">My scorecard</a>
+          </div>
+        </div>
+        <div className="matchday-hero__instrument" aria-label="Golavo prediction workflow">
+          <span className="matchday-hero__live"><i aria-hidden /> Current-season fixtures</span>
+          <div><strong>01</strong><span>Read two model voices</span></div>
+          <div><strong>02</strong><span>Inspect score + fair line</span></div>
+          <div><strong>03</strong><span>Lock your score call</span></div>
+          <p>History trains the models. It no longer owns the screen.</p>
+        </div>
       </header>
 
       {dataRefresh.status && (
-        <p className="small dim" role="status" style={{ margin: 0 }}>
-          {dataRefresh.status.active_generation
-            ? `Approved-source generation ${dataRefresh.status.active_generation.generation_id.slice(0, 10)} is active.`
-            : "Using the bundled offline data generation."}{" "}
-          {dataRefresh.status.sources.find((source) => source.source_id === "openfootball-football-json")?.capability === "absent" &&
-            "The approved club source has not published current-season files."}{" "}
-          <a href="#/settings">Data source health ›</a>
-        </p>
+        <div className="current-data-strip" role="status">
+          <div>
+            <span className="current-data-strip__signal" aria-hidden />
+            <span>
+              <strong>{dataRefresh.status.active_generation ? "Approved generation active" : "Bundled generation active"}</strong>
+              <small>
+                Premier League source: {premierLeagueSource?.capability ?? premierLeagueSource?.health ?? "checking"}
+              </small>
+            </span>
+          </div>
+          <span className="current-data-strip__actions">
+            <button className="btn btn--compact btn--ghost" type="button" disabled={refreshRunning} onClick={() => void dataRefresh.refreshNow()}>
+              {refreshRunning ? "Refreshing…" : "Refresh approved sources"}
+            </button>
+            <a href="#/settings">Source health ›</a>
+          </span>
+        </div>
       )}
+
+      {dataRefresh.error && <p className="correction-error small" role="alert">Refresh held back: {dataRefresh.error.message}</p>}
 
       {follows.error && (
         <p className="small correction-error" role="alert" style={{ margin: 0 }}>
@@ -123,7 +160,7 @@ export function MatchdayHome() {
 
       <a className="search-cta" href="#/matches">
         <SearchIcon />
-        <span>Search 100,000+ matches — internationals, big-five leagues, and UEFA clubs</span>
+        <span>Search current fixtures plus 100,000+ historical model inputs</span>
         <ChevronRight size={16} />
       </a>
 
@@ -134,8 +171,6 @@ export function MatchdayHome() {
           </a>
         ))}
       </nav>
-
-      <TournamentOutlook />
 
       {/* Hold the window query until the index is warm — firing it early blocks
           ~25s inside pandas' import lock. The store flips to ready the moment the
@@ -152,10 +187,18 @@ export function MatchdayHome() {
 
 /** Owns the window state + fetch — mounted only once the index is warm. */
 function MatchdayFeed() {
-  const [window, setWindow] = useState<MatchWindow>("week");
+  const [window, setWindow] = useState<MatchWindow>(initialMatchdayWindow);
   const generationRevision = useDataGenerationRevision();
   const state = useAsync(() => fetchMatchesWindow(window), [window, generationRevision]);
   const picks = usePicks();
+  const selectWindow = (value: MatchWindow) => {
+    setWindow(value);
+    try {
+      sessionStorage.setItem(MATCHDAY_WINDOW_KEY, value);
+    } catch {
+      // A restricted session still works; only back-navigation continuity is lost.
+    }
+  };
   return (
     <section className="stack" style={{ ["--gap" as string]: ".9rem" }} aria-label="Matchday feed">
       <div className="mv-filter-chips" role="group" aria-label="Time window">
@@ -165,13 +208,13 @@ function MatchdayFeed() {
             type="button"
             className={`mv-filter-chip${window === w.value ? " is-active" : ""}`}
             aria-pressed={window === w.value}
-            onClick={() => setWindow(w.value)}
+            onClick={() => selectWindow(w.value)}
           >
             {w.label}
           </button>
         ))}
       </div>
-      <WindowBody window={window} state={state} picks={picks.byMatch} />
+      <WindowBody key={window} window={window} state={state} picks={picks.byMatch} />
     </section>
   );
 }
@@ -201,7 +244,7 @@ function WindowMeta({ data }: { data: MatchesWindowResponse }) {
   );
 }
 
-function WindowBody({
+export function WindowBody({
   window,
   state,
   picks,
@@ -210,6 +253,8 @@ function WindowBody({
   state: AsyncState<MatchesWindowResponse>;
   picks: ReadonlyMap<string, PickView>;
 }) {
+  const initialGroupCount = window === "upcoming" ? 3 : 4;
+  const [visibleGroupCount, setVisibleGroupCount] = useState(initialGroupCount);
   if (state.status === "loading") return <BlockSkeleton lines={6} />;
   if (state.status === "error") return <ErrorState error={state.error} />;
   const data = state.data;
@@ -234,10 +279,12 @@ function WindowBody({
   }
 
   const groups = groupMatchesByCompetition(data.matches);
+  const shownGroups = groups.slice(0, visibleGroupCount);
+  const remainingGroups = Math.max(0, groups.length - shownGroups.length);
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.5rem" }}>
       <WindowMeta data={data} />
-      {groups.map((g, i) => (
+      {shownGroups.map((g, i) => (
         <CompetitionSection
           key={`${g.competition}|${g.sourceKind}`}
           competition={g.competition}
@@ -245,30 +292,40 @@ function WindowBody({
           matches={g.matches}
           anchorFirst={i === 0}
           picks={picks}
+          initialCap={window === "upcoming" ? 4 : 6}
         />
       ))}
+      {remainingGroups > 0 && (
+        <button
+          type="button"
+          className="comp-section__more comp-section__more--groups small"
+          onClick={() => setVisibleGroupCount((count) => Math.min(count + initialGroupCount, groups.length))}
+        >
+          Show {Math.min(initialGroupCount, remainingGroups)} more competitions · {remainingGroups} remaining ›
+        </button>
+      )}
     </div>
   );
 }
 
-const SECTION_CAP = 12;
-
-function CompetitionSection({
+export function CompetitionSection({
   competition,
   sourceKind,
   matches,
   anchorFirst = false,
   picks,
+  initialCap = 4,
 }: {
   competition: string;
   sourceKind: MatchRow["source_kind"];
   matches: MatchRow[];
   anchorFirst?: boolean;
   picks: ReadonlyMap<string, PickView>;
+  initialCap?: number;
 }) {
   const [expanded, setExpanded] = useState(false);
   const slug = leagueSlugFor(competition, sourceKind);
-  const shown = expanded ? matches : matches.slice(0, SECTION_CAP);
+  const shown = expanded ? matches : matches.slice(0, initialCap);
   const overflow = matches.length - shown.length;
   return (
     <section className="stack" style={{ ["--gap" as string]: ".6rem" }} aria-label={competition}>
@@ -303,24 +360,43 @@ export function Rail({
   title,
   matches,
   emptyNote,
+  pageSize = 12,
 }: {
   title: string;
   matches: MatchRow[];
   emptyNote: string;
+  pageSize?: number;
 }) {
+  const [visibleCount, setVisibleCount] = useState(pageSize);
+  const shown = matches.slice(0, visibleCount);
+  const remaining = Math.max(0, matches.length - shown.length);
   return (
     <section className="stack" style={{ ["--gap" as string]: ".6rem" }} aria-label={title}>
-      <h2 className="rail__title">{title}</h2>
+      <div className="comp-section__head">
+        <h2 className="rail__title">{title}</h2>
+        {matches.length > 0 && <span className="comp-section__count small muted">{matches.length}</span>}
+      </div>
       {matches.length === 0 ? (
         <p className="small dim measure" style={{ margin: 0 }}>
           {emptyNote}
         </p>
       ) : (
-        <div className="game-grid">
-          {matches.map((m) => (
-            <GameCard key={m.match_id} match={m} />
-          ))}
-        </div>
+        <>
+          <div className="game-grid">
+            {shown.map((m) => (
+              <GameCard key={m.match_id} match={m} />
+            ))}
+          </div>
+          {remaining > 0 && (
+            <button
+              type="button"
+              className="comp-section__more small"
+              onClick={() => setVisibleCount((count) => Math.min(count + pageSize, matches.length))}
+            >
+              Show {Math.min(pageSize, remaining)} more · {remaining} remaining ›
+            </button>
+          )}
+        </>
       )}
     </section>
   );
@@ -355,7 +431,7 @@ export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anc
       <a
         className="game-card"
         href={`#/match/${encodeURIComponent(match.match_id)}`}
-        aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}.${pickChipLabel(match, pick) ? ` ${pickChipLabel(match, pick)}.` : ""} Open analytics.`}
+        aria-label={`${match.home_team} versus ${match.away_team}, ${match.competition}, ${state}, ${utcDate(match.kickoff_utc)}.${pickChipLabel(match, pick) ? ` ${pickChipLabel(match, pick)}.` : ""} ${match.is_complete ? "Open analysis." : "Predict and compare."}`}
       >
         <div className="game-card__meta">
           <span className="game-card__state">{match.is_complete ? "Final" : "Upcoming"}</span>
@@ -390,7 +466,7 @@ export function GameCard({ match, anchor = false, pick }: { match: MatchRow; anc
             <MatchLocation match={match} />
           </span>
           <span className="game-card__analyze" aria-hidden>
-            Open analysis <ChevronRight size={13} />
+            {match.is_complete ? "Open analysis" : "Predict & compare"} <ChevronRight size={13} />
           </span>
         </div>
         <PickChip match={match} pick={pick} />

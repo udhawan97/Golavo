@@ -19,6 +19,7 @@ export interface SportmonksStatus {
     privacy_url: string;
     pricing_url: string;
     terms_reviewed_date: string;
+    terms_content_sha256: string;
     terms_acceptance_version: string;
   };
   credential: {
@@ -115,7 +116,8 @@ export interface OutsideSignals {
             developer_name: string;
             label: string;
             group: string | null;
-            value: number | string | boolean;
+            unit: "count" | "percent" | "minutes" | "boolean" | "provider_score";
+            value: number | boolean;
           }>;
         }>;
         coverage: {
@@ -207,11 +209,31 @@ export function deleteSportmonksCredential(): Promise<SportmonksStatus> {
   });
 }
 
-export function fetchOutsideSignals(matchId: string): Promise<OutsideSignals> {
+export const SPORTMONKS_RESET_EVENT = "golavo:sportmonks-reset";
+const activeOutsideSignalRequests = new Set<AbortController>();
+
+export function resetSportmonksClientState(): void {
+  for (const controller of activeOutsideSignalRequests) controller.abort();
+  activeOutsideSignalRequests.clear();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(SPORTMONKS_RESET_EVENT));
+}
+
+export function fetchOutsideSignals(
+  matchId: string,
+  externalSignal?: AbortSignal,
+): Promise<OutsideSignals> {
   // Deliberately bypasses api.ts's GET cache. A click is one fresh provider
   // capture; opening a match never starts this request.
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  if (externalSignal?.aborted) abort();
+  else externalSignal?.addEventListener("abort", abort, { once: true });
+  activeOutsideSignalRequests.add(controller);
   return request<OutsideSignals>(
     `/api/v1/matches/${encodeURIComponent(matchId)}/outside-signals`,
-    { cache: "no-store" },
-  );
+    { cache: "no-store", signal: controller.signal },
+  ).finally(() => {
+    externalSignal?.removeEventListener("abort", abort);
+    activeOutsideSignalRequests.delete(controller);
+  });
 }

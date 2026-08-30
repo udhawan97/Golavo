@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MatchAnalysis } from "../lib/contract";
 import { pct } from "../lib/format";
 import { analysisHistorySupport } from "../lib/analysisPresentation";
-import { doubleChanceMarkets, goalThresholds, totalGoalBands } from "../lib/markets";
+import { doubleChanceMarkets, fairDecimal, goalThresholds, totalGoalBands } from "../lib/markets";
 import { ChevronDown, DistributionIcon, MatrixIcon, ScaleIcon, ShieldCheckIcon } from "./icons";
 import { HistorySupportTag, StatTile } from "./primitives";
 import { ScoreMatrixHeatmap } from "./ScoreMatrixHeatmap";
@@ -77,6 +77,11 @@ export function ScoreOutlook({
   const over25 = thresholds.find((t) => t.line === 2.5);
   const markets = analysis.derived_markets ?? null;
   const doubleChance = goal.probs ? doubleChanceMarkets(goal.probs) : null;
+  const fairLine = goal.probs ? [
+    { label: home, probability: goal.probs.home },
+    { label: "Draw", probability: goal.probs.draw },
+    { label: away, probability: goal.probs.away },
+  ].map((item) => ({ ...item, decimal: fairDecimal(item.probability) })) : [];
   const bands = totalGoalBands(sm);
   const balancedLine = thresholds.reduce((best, current) =>
     Math.abs(current.over - 0.5) < Math.abs(best.over - 0.5) ? current : best,
@@ -167,6 +172,25 @@ export function ScoreOutlook({
             label="Training coverage"
           />
         </div>
+
+        {fairLine.length > 0 && (
+          <div className="fair-line" role="group" aria-label="Model-implied fair decimal equivalents">
+            <div className="fair-line__intro">
+              <span className="upper">Model fair line</span>
+              <strong>Probability, translated</strong>
+              <small>Pure 1 ÷ probability. No bookmaker margin; information only, not advice.</small>
+            </div>
+            <div className="fair-line__outcomes">
+              {fairLine.map((item) => (
+                <div className="fair-line__outcome" key={item.label}>
+                  <span title={item.label}>{item.label}</span>
+                  <strong className="num">{item.decimal?.toFixed(2) ?? "—"}</strong>
+                  <small className="num">{pct(item.probability)}</small>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Markets — re-bucketed from the same score grid (over/under) and the
             goal voice's full matrix (BTTS / clean sheets). Same numbers, no new

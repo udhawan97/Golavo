@@ -47,6 +47,15 @@ function round(value: number, dp: number): number {
   return Math.round(value * factor) / factor;
 }
 
+/** Mathematical decimal equivalent of a probability (1 / p).
+ *  This is not a bookmaker price: it carries no margin, market movement or
+ *  external signal. Invalid and zero probabilities abstain instead of emitting
+ *  infinity or a misleading number. */
+export function fairDecimal(probability: number): number | null {
+  if (!Number.isFinite(probability) || probability <= 0 || probability > 1) return null;
+  return round(1 / probability, 2);
+}
+
 export function deriveMarkets(forecast: ForecastBlock): DerivedMarkets {
   const probs = forecast.probs;
   const doubleChance = probs ? doubleChanceMarkets(probs) : null;

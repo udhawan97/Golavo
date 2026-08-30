@@ -1,14 +1,19 @@
 /**
  * Leagues — a browse hub over bundled domestic and UEFA club competitions + internationals.
  *
- * Domestic leagues also expose their verified standings/simulation gate. The
- * 2026-27 fixture lists now certify complete, so the seeded season outlook runs;
- * it still renders its blocked state per request if a certificate ever fails.
+ * Domestic leagues also expose their verified standings/simulation gate. A
+ * complete fixture certificate is necessary but not sufficient: the outlook
+ * remains blocked whenever the approved source has past-result gaps.
  */
 import { useState } from "react";
-import type { CompetitionAnalytics, ScheduleDifficulty, StrengthPoint } from "../lib/contract";
+import type {
+  CompetitionAnalytics,
+  CurrentSeasonPulse,
+  ScheduleDifficulty,
+  StrengthPoint,
+} from "../lib/contract";
 import { fetchCompetitionAnalytics, fetchRecentMatches } from "../lib/api";
-import { num, utcDate } from "../lib/format";
+import { num, pct, utcDate } from "../lib/format";
 import { LEAGUES, leagueHubCategory } from "../lib/leagues";
 import { useAsync } from "../lib/hooks";
 import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
@@ -24,13 +29,8 @@ export { LEAGUES } from "../lib/leagues";
 export function LeaguesHub() {
   const groups = [
     {
-      id: "international-competitions",
-      title: "International tournaments",
-      leagues: LEAGUES.filter((league) => leagueHubCategory(league) === "international"),
-    },
-    {
       id: "domestic-leagues",
-      title: "Domestic leagues",
+      title: "Live domestic seasons · 2026–27",
       leagues: LEAGUES.filter((league) => leagueHubCategory(league) === "domestic"),
     },
     {
@@ -38,14 +38,20 @@ export function LeaguesHub() {
       title: "UEFA club competitions",
       leagues: LEAGUES.filter((league) => leagueHubCategory(league) === "uefa-club"),
     },
+    {
+      id: "international-competitions",
+      title: "Internationals & archives",
+      leagues: LEAGUES.filter((league) => leagueHubCategory(league) === "international"),
+    },
   ];
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <header className="stack" style={{ ["--gap" as string]: ".4rem" }}>
-        <h1>Leagues &amp; Europe</h1>
+        <span className="upper">Current season first</span>
+        <h1>Leagues &amp; 2026–27</h1>
         <p className="measure dim" style={{ margin: 0 }}>
-          Browse recent matches and open any one for the model council. Domestic standings rules are
-          verified; season projections stay visibly blocked until every fixture is certified.
+          Start with live domestic fixtures, tables, form and model projections. Historical seasons
+          stay available as training context, while completed tournaments sit in the archive.
         </p>
       </header>
       {groups.map((group) => (
@@ -102,6 +108,8 @@ export function LeagueView({ slug }: { slug: string }) {
       </EmptyState>
     );
 
+  const category = leagueHubCategory(league);
+  const isLiveDomestic = category === "domestic";
   return (
     <div className="stack" style={{ ["--gap" as string]: "1.25rem" }}>
       <nav className="breadcrumb" aria-label="Breadcrumb">
@@ -109,45 +117,102 @@ export function LeagueView({ slug }: { slug: string }) {
         <ChevronRight size={14} />
         <span aria-current="page">{league.name}</span>
       </nav>
-      <header className="stack" style={{ ["--gap" as string]: ".3rem" }}>
-        <h1>{league.name}</h1>
-        <p className="small dim" style={{ margin: 0 }}>{league.note}</p>
+      <header className={`league-hero${isLiveDomestic ? " league-hero--live" : ""}`}>
+        <div className="stack" style={{ ["--gap" as string]: ".35rem" }}>
+          <span className="upper">
+            {isLiveDomestic ? "2026–27 live season desk" : league.archived ? "Completed tournament archive" : "Competition desk"}
+          </span>
+          <h1>{league.name}</h1>
+          <p className="measure dim" style={{ margin: 0 }}>{league.note}</p>
+          {isLiveDomestic && (
+            <div className="league-hero__actions">
+              <a className="btn" href="#current-fixtures">Predict the next match</a>
+              <a className="btn btn--ghost" href="#current-form">Current form</a>
+            </div>
+          )}
+        </div>
+        {isLiveDomestic && (
+          <aside className="league-hero__source" aria-label="Current-season data coverage">
+            <strong>Current data lane</strong>
+            <span>CC0 fixtures + results</span>
+            <span>Cutoff-safe table and form</span>
+            <span>Optional BYOK match player lens</span>
+            <a href="#/settings">Sources &amp; player data ›</a>
+          </aside>
+        )}
       </header>
       {league.slug === "world-cup-2026" && <TournamentOutlook />}
-      {league.scorers && league.competitionId && (
-        <ScorersPanel competitionId={league.competitionId} />
+      {league.competitionId && isLiveDomestic && (
+        <div id="current-form">
+          {analyticsState.status === "loading" ? (
+            <BlockSkeleton lines={3} />
+          ) : analyticsState.status === "error" ? (
+            <ErrorState error={analyticsState.error} />
+          ) : analyticsState.data ? (
+            <CurrentSeasonPulsePanel pulse={analyticsState.data.current_season} />
+          ) : null}
+        </div>
       )}
+      <div id="current-fixtures">
+        {state.status === "loading" ? (
+          <BlockSkeleton lines={6} />
+        ) : state.status === "error" ? (
+          <ErrorState error={state.error} />
+        ) : (
+          <div className="stack" style={{ ["--gap" as string]: "1.5rem" }}>
+            <Rail
+              key={`${league.slug}-upcoming`}
+              title="Upcoming · predict & compare"
+              matches={state.data.upcoming}
+              emptyNote="No forward fixtures for this competition in the current snapshot."
+              pageSize={6}
+            />
+            <Rail
+              key={`${league.slug}-recent`}
+              title="Latest results"
+              matches={state.data.recent}
+              emptyNote="No matches for this competition in the snapshot."
+              pageSize={6}
+            />
+          </div>
+        )}
+      </div>
       {league.seasonOutlook && league.competitionId && (
         <SeasonOutlook competitionId={league.competitionId} />
       )}
-      {league.researchAnalytics && league.competitionId && (
-        <ResearchTeamAnalytics competitionId={league.competitionId} />
-      )}
       {league.competitionId &&
         (analyticsState.status === "loading" ? (
-          <BlockSkeleton lines={5} />
+          isLiveDomestic ? null : <BlockSkeleton lines={5} />
         ) : analyticsState.status === "error" ? (
-          <ErrorState error={analyticsState.error} />
+          isLiveDomestic ? null : <ErrorState error={analyticsState.error} />
         ) : analyticsState.data ? (
-          <CompetitionAnalyticsPanel data={analyticsState.data} />
+          isLiveDomestic ? (
+            <details className="history-archive">
+              <summary>
+                <span><strong>Historical model inputs</strong><small>Strength, workload and run-in context derived from older results</small></span>
+                <span aria-hidden>+</span>
+              </summary>
+              <div className="history-archive__body">
+                <CompetitionAnalyticsPanel data={analyticsState.data} />
+              </div>
+            </details>
+          ) : (
+            <CompetitionAnalyticsPanel data={analyticsState.data} />
+          )
         ) : null)}
-      {state.status === "loading" ? (
-        <BlockSkeleton lines={6} />
-      ) : state.status === "error" ? (
-        <ErrorState error={state.error} />
-      ) : (
-        <div className="stack" style={{ ["--gap" as string]: "1.5rem" }}>
-          <Rail
-            title="Upcoming"
-            matches={state.data.upcoming}
-            emptyNote="No forward fixtures for this competition in the current snapshot."
-          />
-          <Rail
-            title="Recent results"
-            matches={state.data.recent}
-            emptyNote="No matches for this competition in the snapshot."
-          />
-        </div>
+      {league.scorers && league.competitionId && (
+        <ScorersPanel competitionId={league.competitionId} />
+      )}
+      {league.researchAnalytics && league.competitionId && (
+        <details className="history-archive">
+          <summary>
+            <span><strong>Historical research archive</strong><small>Older event data · model context, not the live-season headline</small></span>
+            <span aria-hidden>+</span>
+          </summary>
+          <div className="history-archive__body">
+            <ResearchTeamAnalytics competitionId={league.competitionId} />
+          </div>
+        </details>
       )}
     </div>
   );
@@ -163,10 +228,10 @@ function CompetitionAnalyticsPanel({ data }: { data: CompetitionAnalytics }) {
     <section className="stack league-analytics" style={{ ["--gap" as string]: "1rem" }}>
       <div className="hgroup">
         <div>
-          <h2 className="upper muted" style={{ marginBottom: ".25rem" }}>Team analytics</h2>
+          <span className="upper">Historical model input</span>
+          <h2 style={{ marginBottom: ".25rem" }}>Strength, workload &amp; run-in</h2>
           <p className="small dim" style={{ margin: 0 }}>
-            Model-estimated strength inside this competition only. Context is descriptive and does
-            not enter a forecast.
+            Old results estimate competition-local strength. This context sits below the current record and never replaces it.
           </p>
         </div>
         {data.strength_trends.data_through_utc && (
@@ -245,6 +310,86 @@ function CompetitionAnalyticsPanel({ data }: { data: CompetitionAnalytics }) {
       <ScheduleDifficultySection difficulty={data.schedule_difficulty} />
     </section>
   );
+}
+
+function CurrentSeasonPulsePanel({ pulse }: { pulse: CurrentSeasonPulse }) {
+  if (pulse.status !== "available") {
+    return (
+      <div className="callout callout--info" role="status">
+        <div>
+          <div className="callout__title">Current-season pulse unavailable</div>
+          <p>{pulse.reason}</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <section className="season-pulse stack" style={{ ["--gap" as string]: ".8rem" }} aria-labelledby="season-pulse-title">
+      <div className="hgroup">
+        <div>
+          <span className="upper">Live record</span>
+          <h3 id="season-pulse-title">{pulse.season.replace("-", "–")} season pulse</h3>
+        </div>
+        <span className={`chip ${pulse.fixture_list_complete ? "chip--ok" : "chip--neutral"}`}>
+          {pulse.fixture_list_complete ? "Fixture list certified" : "Partial fixture list"}
+        </span>
+      </div>
+      <div className="season-pulse__metrics" aria-label="Current season league statistics">
+        <PulseMetric label="Played" value={`${pulse.matches_played ?? 0} / ${pulse.expected_matches ?? "—"}`} />
+        <PulseMetric label="Future" value={String(pulse.matches_remaining ?? 0)} />
+        <PulseMetric label="Result gaps" value={String(pulse.past_result_gaps ?? 0)} />
+        <PulseMetric label="Goals / match" value={num(pulse.goals_per_match ?? 0, 2)} />
+        <PulseMetric label="Home wins" value={pct(pulse.home_win_rate ?? 0)} />
+        <PulseMetric label="Draws" value={pct(pulse.draw_rate ?? 0)} />
+        <PulseMetric label="Both scored" value={pct(pulse.both_teams_scored_rate ?? 0)} />
+        <PulseMetric label="Over 2.5" value={pct(pulse.over_2_5_rate ?? 0)} />
+      </div>
+      {pulse.teams.length > 0 && (
+        <details className="season-pulse__details">
+          <summary>
+            <span><strong>Open the {pulse.teams.length}-team form board</strong><small>Last five, points rate, scoring, clean sheets and BTTS</small></span>
+            <span aria-hidden>+</span>
+          </summary>
+          <div className="table-wrap">
+            <table className="grid season-pulse__table">
+              <thead><tr>
+                <th scope="col">Team</th><th scope="col">Form</th><th scope="col">PPG</th>
+                <th scope="col">GF / match</th><th scope="col">GA / match</th>
+                <th scope="col">Clean sheets</th><th scope="col">BTTS</th>
+              </tr></thead>
+              <tbody>
+                {pulse.teams.map((team) => (
+                  <tr key={team.team}>
+                    <th scope="row">{team.team}</th>
+                    <td><span className="form-strip" role="img" aria-label={`${team.team} last ${team.recent_form.length}: ${team.recent_form.join(", ")}`}>
+                      {team.recent_form.length > 0 ? team.recent_form.map((result, index) => (
+                        <span className={`form-dot form-dot--${result.toLowerCase()}`} key={`${result}-${index}`} aria-hidden>{result}</span>
+                      )) : <span className="dim">—</span>}
+                    </span></td>
+                    <td className="num">{num(team.points_per_game, 2)}</td>
+                    <td className="num">{num(team.goals_for_per_match, 2)}</td>
+                    <td className="num">{num(team.goals_against_per_match, 2)}</td>
+                    <td className="num">{team.clean_sheets}</td>
+                    <td className="num">{team.both_teams_scored}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      )}
+      <p className="small dim" style={{ margin: 0 }}>
+        Completed matches only, cut off at {pulse.data_through_utc ? utcDate(pulse.data_through_utc) : "the current snapshot"}.
+        {pulse.past_result_gaps ? ` ${pulse.past_result_gaps} past result gap${pulse.past_result_gaps === 1 ? " is" : "s are"} held back, not counted as future fixtures.` : ""}
+        {" "}Counts are descriptive and never alter a sealed forecast.
+        {pulse.source_ids?.length ? ` Sources: ${pulse.source_ids.join(", ")}.` : ""}
+      </p>
+    </section>
+  );
+}
+
+function PulseMetric({ label, value }: { label: string; value: string }) {
+  return <div className="season-pulse__metric"><span>{label}</span><strong className="num">{value}</strong></div>;
 }
 
 /** The remaining run-in, hardest first — or the honest reason there isn't one. */

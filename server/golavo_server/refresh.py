@@ -577,9 +577,7 @@ def build_domestic_runtime_pack(
     loaded = load_openfootball_table(output_dir)
     start = pd.Timestamp(f"{season[:4]}-07-01")
     current = loaded.loc[pd.to_datetime(loaded["date"]) >= start]
-    certificate = certify_schedule(
-        current, expected_teams=expected_teams, as_of_utc=as_of_utc
-    )
+    certificate = certify_schedule(current, expected_teams=expected_teams, as_of_utc=as_of_utc)
     capability = (
         "complete"
         if certificate["complete_fixture_list"] and certificate["past_result_gaps"] == 0
@@ -699,6 +697,29 @@ def merge_refresh_generation(
     fresh = pd.read_parquet(target_index)
     base = _upgrade_legacy_columns(pd.read_parquet(base_index_path))
     fresh, retained_completed = _reconcile_international_history(fresh, base)
+
+    # A domestic runtime pack must retain the signed football.json history so
+    # it can be validated as a complete pack, but only its current-season slice
+    # is new generation input.  The active index remains authoritative for all
+    # earlier club seasons.  Keeping both copies here produces identical
+    # match-id collisions as soon as a country repository publishes a current
+    # schedule (and would also risk replacing locally preserved history).
+    #
+    # Filter before splicing the active club history back in.  Contradictory or
+    # missing current-season facts still pass through assert_safe_change below
+    # and fail closed; this only removes the known, verified overlap.
+    refreshed_competitions: set[str] = set()
+    for pack in club_packs:
+        manifest = json.loads((Path(pack) / "manifest.json").read_text(encoding="utf-8"))
+        refreshed_competitions.add(str(manifest["competition"]))
+    if refreshed_competitions:
+        fresh_dates = pd.to_datetime(fresh["date"])
+        retained_in_fresh = fresh["source_kind"].astype("string").eq(_INTERNATIONAL_KIND) | (
+            fresh["competition"].astype("string").isin(refreshed_competitions)
+            & (fresh_dates >= pd.Timestamp(season_start))
+        )
+        fresh = fresh.loc[retained_in_fresh].copy()
+
     carry = pd.concat(
         [base[base["source_kind"] != _INTERNATIONAL_KIND], retained_completed],
         ignore_index=True,

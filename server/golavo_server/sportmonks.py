@@ -15,12 +15,15 @@ import json
 import math
 import os
 import re
+import socket
 import ssl
 import subprocess
 import sys
 import tempfile
+import threading
 import unicodedata
 from collections.abc import Callable
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -37,8 +40,9 @@ TERMS_URL = "https://www.sportmonks.com/terms-of-service/"
 PRIVACY_URL = "https://www.sportmonks.com/privacy-policy/"
 PRICING_URL = "https://www.sportmonks.com/football-api/plans-pricing/"
 DOCS_URL = "https://docs.sportmonks.com/v3/"
-TERMS_REVIEWED_DATE = "2026-08-29"
-TERMS_ACCEPTANCE_VERSION = "sportmonks-terms-reviewed-2026-08-29"
+TERMS_REVIEWED_DATE = "2026-08-30"
+TERMS_CONTENT_SHA256 = "43901aed7fd5e36e36205e814a064d5851ecb66df8387f0079a586bed6df8aeb"
+TERMS_ACCEPTANCE_VERSION = f"sportmonks-terms-sha256:{TERMS_CONTENT_SHA256}"
 SCHEMA_VERSION = "0.1.0"
 CAPABILITIES = ("external_prediction", "external_odds", "player_lens")
 ENV_KEY = "SPORTMONKS_API_TOKEN"
@@ -63,7 +67,58 @@ SPORTMONKS_COMPETITION_NAMES = {
     "Ligue 1": "Ligue 1",
 }
 MAX_LINEUP_PLAYERS = 60
-MAX_PLAYER_METRICS = 40
+PLAYER_METRIC_SCHEMA: dict[int, tuple[str, str, str]] = {
+    # Pinned from Sportmonks' official fixture-player statistics definition.
+    # (developer_name, Golavo display label, unit)
+    40: ("CAPTAIN", "Captain", "boolean"),
+    41: ("SHOTS_OFF_TARGET", "Shots off target", "count"),
+    42: ("SHOTS_TOTAL", "Total shots", "count"),
+    52: ("GOALS", "Goals", "count"),
+    56: ("FOULS", "Fouls", "count"),
+    57: ("SAVES", "Saves", "count"),
+    58: ("SHOTS_BLOCKED", "Shots blocked", "count"),
+    64: ("HIT_WOODWORK", "Hit woodwork", "count"),
+    78: ("TACKLES", "Tackles", "count"),
+    79: ("ASSISTS", "Assists", "count"),
+    80: ("PASSES", "Passes", "count"),
+    82: ("SUCCESSFUL_PASSES_PERCENTAGE", "Successful passes", "percent"),
+    83: ("REDCARDS", "Red cards", "count"),
+    84: ("YELLOWCARDS", "Yellow cards", "count"),
+    85: ("YELLOWRED_CARDS", "Second-yellow red cards", "count"),
+    86: ("SHOTS_ON_TARGET", "Shots on target", "count"),
+    88: ("GOALS_CONCEDED", "Goals conceded", "count"),
+    94: ("DISPOSSESSED", "Dispossessed", "count"),
+    96: ("PLAYER_FOULS_DRAWN", "Fouls drawn", "count"),
+    98: ("TOTAL_CROSSES", "Crosses", "count"),
+    99: ("ACCURATE_CROSSES", "Accurate crosses", "count"),
+    100: ("INTERCEPTIONS", "Interceptions", "count"),
+    101: ("CLEARANCES", "Clearances", "count"),
+    104: ("SAVES_INSIDE_BOX", "Saves inside box", "count"),
+    105: ("TOTAL_DUELS", "Duels", "count"),
+    106: ("DUELS_WON", "Duels won", "count"),
+    107: ("AERIALS_WON", "Aerials won", "count"),
+    108: ("DRIBBLE_ATTEMPTS", "Dribble attempts", "count"),
+    109: ("SUCCESSFUL_DRIBBLES", "Successful dribbles", "count"),
+    110: ("DRIBBLED_PAST", "Dribbled past", "count"),
+    116: ("ACCURATE_PASSES", "Accurate passes", "count"),
+    117: ("KEY_PASSES", "Key passes", "count"),
+    118: ("RATING", "Provider rating", "provider_score"),
+    119: ("MINUTES_PLAYED", "Minutes played", "minutes"),
+    120: ("TOUCHES", "Touches", "count"),
+    122: ("LONG_BALLS", "Long balls", "count"),
+    123: ("LONG_BALLS_WON", "Accurate long balls", "count"),
+    581: ("BIG_CHANCES_MISSED", "Big chances missed", "count"),
+    1491: ("DUELS_LOST", "Duels lost", "count"),
+    1584: ("ACCURATE_PASSES_PERCENTAGE", "Accurate passes", "percent"),
+    1605: ("SUCCESSFUL_DRIBBLES_PERCENTAGE", "Successful dribbles", "percent"),
+}
+PLAYER_METRIC_FILTER = ",".join(str(value) for value in sorted(PLAYER_METRIC_SCHEMA))
+MAX_PLAYER_METRICS = len(PLAYER_METRIC_SCHEMA)
+
+_REQUEST_LOCAL = threading.local()
+_ACTIVE_REQUEST_LOCK = threading.Lock()
+_ACTIVE_REQUESTS: set[threading.Event] = set()
+_ACTIVE_CONNECTIONS: dict[threading.Event, set[http.client.HTTPSConnection]] = {}
 
 
 class SportmonksError(Exception):
@@ -77,6 +132,73 @@ class SportmonksError(Exception):
 
 
 Fetcher = Callable[[str, str], tuple[dict[str, Any], str]]
+
+
+def _active_cancel_event() -> threading.Event | None:
+    value = getattr(_REQUEST_LOCAL, "cancel_event", None)
+    return value if isinstance(value, threading.Event) else None
+
+
+def _ensure_request_active() -> None:
+    event = _active_cancel_event()
+    if event is not None and event.is_set():
+        raise SportmonksError(
+            "request_cancelled",
+            "Sportmonks request was cancelled after the connector was disabled",
+            status=409,
+        )
+
+
+@contextmanager
+def _request_scope(event: threading.Event):
+    previous = getattr(_REQUEST_LOCAL, "cancel_event", None)
+    with _ACTIVE_REQUEST_LOCK:
+        _ACTIVE_REQUESTS.add(event)
+        _ACTIVE_CONNECTIONS[event] = set()
+    _REQUEST_LOCAL.cancel_event = event
+    try:
+        yield
+    finally:
+        with _ACTIVE_REQUEST_LOCK:
+            connections = _ACTIVE_CONNECTIONS.pop(event, set())
+            _ACTIVE_REQUESTS.discard(event)
+        for connection in connections:
+            connection.close()
+        if previous is None:
+            delattr(_REQUEST_LOCAL, "cancel_event")
+        else:
+            _REQUEST_LOCAL.cancel_event = previous
+
+
+def cancel_pending_requests() -> int:
+    """Stop connector work already running in sidecar worker threads."""
+    with _ACTIVE_REQUEST_LOCK:
+        events = list(_ACTIVE_REQUESTS)
+        connections = [
+            connection
+            for event in events
+            for connection in _ACTIVE_CONNECTIONS.get(event, set())
+        ]
+        for event in events:
+            event.set()
+    for connection in connections:
+        try:
+            if connection.sock is not None:
+                connection.sock.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+        connection.close()
+    return len(events)
+
+
+def _cancellable_transport(fetcher: Fetcher) -> Fetcher:
+    def fetch(path: str, token: str) -> tuple[dict[str, Any], str]:
+        _ensure_request_active()
+        result = fetcher(path, token)
+        _ensure_request_active()
+        return result
+
+    return fetch
 
 
 def _utc_z(value: datetime | None = None) -> str:
@@ -196,6 +318,8 @@ def configure(value: dict[str, Any]) -> dict[str, Any]:
             )
         accepted_at = _utc_z()
         accepted_version = TERMS_ACCEPTANCE_VERSION
+    if not enabled or capabilities != current["capabilities"]:
+        cancel_pending_requests()
     payload = {
         "schema_version": SCHEMA_VERSION,
         "enabled": enabled,
@@ -270,6 +394,7 @@ def save_api_token(token: str) -> dict[str, Any]:
 
 
 def delete_api_token() -> dict[str, Any]:
+    cancel_pending_requests()
     if runtime.launch_token() is None:
         raise RuntimeError("credential changes require the private desktop app")
     if os.environ.get(ENV_KEY):
@@ -300,6 +425,7 @@ def status() -> dict[str, Any]:
             "privacy_url": PRIVACY_URL,
             "pricing_url": PRICING_URL,
             "terms_reviewed_date": TERMS_REVIEWED_DATE,
+            "terms_content_sha256": TERMS_CONTENT_SHA256,
             "terms_acceptance_version": TERMS_ACCEPTANCE_VERSION,
         },
         "connector_supported": runtime.sportmonks_dir() is not None,
@@ -327,7 +453,7 @@ def status() -> dict[str, Any]:
 _ALLOWED_PATH = re.compile(
     r"/v3/football/(?:"
     r"fixtures/date/\d{4}-\d{2}-\d{2}\?include=participants;league;season&per_page=50&page=[1-4]"
-    r"|fixtures/\d+\?include=lineups\.details\.type;metadata\.type"
+    rf"|fixtures/\d+\?include=lineups\.details\.type;metadata\.type&filters=lineupDetailTypes:{re.escape(PLAYER_METRIC_FILTER)}"
     r"|predictions/probabilities/fixtures/\d+\?include=type"
     r"|odds/pre-match/fixtures/\d+/markets/1\?include=bookmaker;market"
     r")\Z"
@@ -335,12 +461,20 @@ _ALLOWED_PATH = re.compile(
 
 
 def _request_json(path: str, token: str) -> tuple[dict[str, Any], str]:
+    _ensure_request_active()
     if _ALLOWED_PATH.fullmatch(path) is None:
         raise SportmonksError(
             "path_rejected", "provider request path was not allowlisted", status=500
         )
     context = ssl.create_default_context(cafile=certifi.where())
     connection = http.client.HTTPSConnection(API_HOST, timeout=12, context=context)
+    event = _active_cancel_event()
+    if event is not None:
+        with _ACTIVE_REQUEST_LOCK:
+            if event.is_set():
+                connection.close()
+                _ensure_request_active()
+            _ACTIVE_CONNECTIONS.setdefault(event, set()).add(connection)
     try:
         connection.request(
             "GET",
@@ -355,6 +489,7 @@ def _request_json(path: str, token: str) -> tuple[dict[str, Any], str]:
         response = connection.getresponse()
         body = response.read(MAX_RESPONSE_BYTES + 1)
     except (OSError, TimeoutError, http.client.HTTPException) as exc:
+        _ensure_request_active()
         raise SportmonksError(
             "provider_unavailable",
             "Sportmonks did not answer in time",
@@ -362,7 +497,11 @@ def _request_json(path: str, token: str) -> tuple[dict[str, Any], str]:
             retryable=True,
         ) from exc
     finally:
+        if event is not None:
+            with _ACTIVE_REQUEST_LOCK:
+                _ACTIVE_CONNECTIONS.get(event, set()).discard(connection)
         connection.close()
+    _ensure_request_active()
     if len(body) > MAX_RESPONSE_BYTES:
         raise SportmonksError(
             "response_too_large", "Sportmonks response exceeded the safe size limit", status=502
@@ -712,6 +851,7 @@ def _prediction(
             "plan_missing",
             "rate_limited",
             "provider_unavailable",
+            "request_cancelled",
         }:
             raise
         return _unavailable(exc), None
@@ -823,6 +963,7 @@ def _odds(
             "plan_missing",
             "rate_limited",
             "provider_unavailable",
+            "request_cancelled",
         }:
             raise
         return _unavailable(exc), None
@@ -860,19 +1001,28 @@ def _lineup_confirmed(fixture: dict[str, Any]) -> bool | None:
     return values[0] if len(values) == 1 else None
 
 
-def _metric_value(detail: dict[str, Any]) -> int | float | str | bool | None:
+def _metric_value(detail: dict[str, Any], unit: str) -> int | float | bool | None:
     data = detail.get("data")
     if not isinstance(data, dict):
         return None
     value = data.get("value")
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, int):
-        return value
-    if isinstance(value, float):
-        return value if math.isfinite(value) else None
-    if isinstance(value, str) and 0 < len(value) <= 80:
-        return value
+    if unit == "boolean":
+        return value if isinstance(value, bool) else None
+    if unit in {"count", "minutes"}:
+        return (
+            value
+            if isinstance(value, int) and not isinstance(value, bool) and value >= 0
+            else None
+        )
+    if unit in {"percent", "provider_score"}:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return None
+        numeric = float(value)
+        if not math.isfinite(numeric) or numeric < 0:
+            return None
+        if unit == "percent" and numeric > 100:
+            return None
+        return numeric
     return None
 
 
@@ -893,7 +1043,8 @@ def _player_lens(
     try:
         payload, digest = fetcher(
             f"/v3/football/fixtures/{fixture_id}"
-            "?include=lineups.details.type;metadata.type",
+            "?include=lineups.details.type;metadata.type"
+            f"&filters=lineupDetailTypes:{PLAYER_METRIC_FILTER}",
             token,
         )
         fixture = payload.get("data")
@@ -965,7 +1116,6 @@ def _player_lens(
                         continue
                     type_id = detail.get("type_id")
                     kind = detail.get("type")
-                    value = _metric_value(detail)
                     if (
                         isinstance(type_id, int)
                         and not isinstance(type_id, bool)
@@ -976,27 +1126,54 @@ def _player_lens(
                             "Sportmonks repeated a player metric identity",
                             status=502,
                         )
-                    if (
+                    identity_mismatch = (
                         detail.get("fixture_id") != fixture_id
                         or detail.get("player_id") != player_id
                         or detail.get("team_id") != team_id
                         or detail.get("lineup_id") != lineup_id
-                        or not isinstance(type_id, int)
+                    )
+                    if identity_mismatch:
+                        continue
+                    if (
+                        not isinstance(type_id, int)
                         or isinstance(type_id, bool)
                         or not isinstance(kind, dict)
-                        or kind.get("id") != type_id
-                        or not isinstance(kind.get("name"), str)
-                        or not isinstance(kind.get("developer_name"), str)
-                        or value is None
                     ):
-                        continue
+                        raise SportmonksError(
+                            "player_metric_schema_drift",
+                            "Sportmonks returned an untyped player metric",
+                            status=502,
+                        )
+                    schema = PLAYER_METRIC_SCHEMA.get(type_id)
+                    if schema is None:
+                        raise SportmonksError(
+                            "player_metric_schema_drift",
+                            "Sportmonks returned a player metric outside Golavo's pinned schema",
+                            status=502,
+                        )
+                    developer_name, label, unit = schema
+                    if kind.get("id") != type_id or kind.get("developer_name") != developer_name:
+                        raise SportmonksError(
+                            "player_metric_schema_drift",
+                            "Sportmonks player metric metadata no longer matches "
+                            "Golavo's pinned schema",
+                            status=502,
+                        )
+                    value = _metric_value(detail, unit)
+                    if value is None:
+                        raise SportmonksError(
+                            "player_metric_schema_drift",
+                            "Sportmonks returned a player metric with an invalid value or unit",
+                            status=502,
+                        )
                     seen_types.add(type_id)
                     metrics.append({
                         "type_id": type_id,
-                        "developer_name": kind["developer_name"],
-                        "label": kind["name"],
+                        "developer_name": developer_name,
+                        "label": label,
                         "group": kind.get("stat_group")
                         if isinstance(kind.get("stat_group"), str) else None,
+                        "unit": unit,
                         "value": value,
                     })
             players.append({
@@ -1051,12 +1228,13 @@ def _player_lens(
             "plan_missing",
             "rate_limited",
             "provider_unavailable",
+            "request_cancelled",
         }:
             raise
         return _unavailable(exc), None
 
 
-def fetch_outside_signals(
+def _fetch_outside_signals(
     match: dict[str, Any], *, fetcher: Fetcher | None = None, now_utc: datetime | None = None
 ) -> dict[str, Any]:
     settings = load_settings()
@@ -1084,7 +1262,7 @@ def fetch_outside_signals(
         raise SportmonksError(
             "credential_missing", "Add your Sportmonks API token in Settings", status=409
         )
-    transport = fetcher or _request_json
+    transport = _cancellable_transport(fetcher or _request_json)
     fixture, fixture_hashes, match_method = _find_fixture(match, token, transport)
     fixture_id = int(fixture["id"])
     hashes: dict[str, Any] = {"fixture_pages": fixture_hashes}
@@ -1186,3 +1364,11 @@ def fetch_outside_signals(
             "model_input": False,
         },
     }
+
+
+def fetch_outside_signals(
+    match: dict[str, Any], *, fetcher: Fetcher | None = None, now_utc: datetime | None = None
+) -> dict[str, Any]:
+    cancel_event = threading.Event()
+    with _request_scope(cancel_event):
+        return _fetch_outside_signals(match, fetcher=fetcher, now_utc=now_utc)

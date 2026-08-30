@@ -29,7 +29,7 @@ describe("league analytics identities", () => {
   it("enables historical research only where a bundled competition-era artifact exists", () => {
     const research = LEAGUES.filter((league) => league.researchAnalytics);
     expect(research.map((league) => league.slug)).toEqual([
-      "world-cup-2026", "premier-league", "la-liga", "bundesliga", "serie-a", "ligue-1",
+      "premier-league", "la-liga", "bundesliga", "serie-a", "ligue-1", "world-cup-2026",
     ]);
     expect(research.every((league) => league.competitionId)).toBe(true);
   });

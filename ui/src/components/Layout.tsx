@@ -9,6 +9,7 @@ import { ReadingComfort } from "./ReadingComfort";
 import { ActivityCenter } from "./ActivityCenter";
 import { UpdatePill } from "./updates";
 import { DOCS_URL } from "../lib/links";
+import { PageGuide } from "./PageGuide";
 
 function isActive(path: string, section: "games" | "leagues" | "season" | "lab"): boolean {
   if (section === "leagues") return path === "/leagues" || path.startsWith("/league/");
@@ -124,6 +125,7 @@ export function Layout({
             >
               <SearchIcon />
             </a>
+            <PageGuide path={path} />
             <ReadingComfort prefs={prefs} onChange={onChangePrefs} />
             <a
               className="icon-btn"

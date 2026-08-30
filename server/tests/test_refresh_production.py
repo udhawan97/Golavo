@@ -138,6 +138,42 @@ def test_completed_score_rewrite_is_quarantined(tmp_path: Path) -> None:
         refresh.assert_safe_change(old_index, candidate, tmp_path / "ledger")
 
 
+def test_refresh_uses_active_history_and_only_current_slice_from_domestic_pack(
+    tmp_path: Path,
+) -> None:
+    """A validated club pack contains history, but must not duplicate it in the index."""
+    root = Path(__file__).resolve().parents[2]
+    candidate = refresh.merge_refresh_generation(
+        root / "packs" / "martj42-internationals",
+        [root / "packs" / "openfootball-eng-pl"],
+        root / "data" / "index" / "matches_index.parquet",
+        tmp_path / "candidate",
+        season_start="2026-07-01",
+    )
+    frame = pd.read_parquet(candidate)
+    premier_league = frame.loc[frame["competition"].eq("English Premier League")]
+    active = pd.read_parquet(root / "data" / "index" / "matches_index.parquet")
+    cutoff = pd.Timestamp("2026-07-01", tz="UTC")
+    active_dates = pd.to_datetime(active["kickoff_utc"], utc=True)
+    candidate_dates = pd.to_datetime(frame["kickoff_utc"], utc=True)
+    active_history = active.loc[
+        active["competition"].eq("English Premier League") & active_dates.lt(cutoff)
+    ].sort_values("match_id", kind="mergesort").reset_index(drop=True)
+    candidate_history = frame.loc[
+        frame["competition"].eq("English Premier League") & candidate_dates.lt(cutoff)
+    ].sort_values("match_id", kind="mergesort").reset_index(drop=True)
+
+    assert not frame["match_id"].duplicated().any()
+    assert pd.to_datetime(premier_league["date"]).min() < pd.Timestamp("2026-07-01")
+    assert pd.to_datetime(premier_league["date"]).max() >= pd.Timestamp("2026-07-01")
+    pd.testing.assert_frame_equal(
+        active_history,
+        candidate_history[active_history.columns],
+        check_dtype=False,
+        check_like=False,
+    )
+
+
 def test_refresh_retains_removed_results_and_stabilizes_fixture_rekeys(tmp_path: Path) -> None:
     old_ref, new_ref, worldcup_ref = "1" * 40, "3" * 40, "2" * 40
     _raw_snapshot(tmp_path / "old-raw", old_ref, worldcup_ref)

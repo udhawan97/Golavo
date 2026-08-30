@@ -229,6 +229,16 @@ rights, disable fetching until the new text is reviewed and the registry entry
 is updated. A provider recheck date is a maximum review interval, not permission
 to continue after a detected change.
 
+Implementation review record (2026-08-30): the reviewed terms HTML at the URL
+above had SHA-256
+`43901aed7fd5e36e36205e814a064d5851ecb66df8387f0079a586bed6df8aeb`.
+`golavo_server.sportmonks.TERMS_ACCEPTANCE_VERSION` embeds that digest, so a
+future reviewed text requires a new version and prior consent no longer enables
+the connector. The first Player Lens also narrows the proposal below to 41
+pinned fixture-player metric IDs with explicit developer names and units.
+Unknown IDs, metadata drift and invalid units fail closed; injury detail and xG
+remain outside the initial allowlist.
+
 ### Minimal `Player Lens` proposal
 
 For a selected match, one attributed panel may show:

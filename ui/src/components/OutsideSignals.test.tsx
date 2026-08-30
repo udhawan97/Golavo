@@ -6,12 +6,14 @@ import { OutsideSignals } from "./OutsideSignals";
 import {
   fetchOutsideSignals,
   fetchSportmonksStatus,
+  SPORTMONKS_RESET_EVENT,
   SportmonksApiError,
 } from "../lib/sportmonks";
 
 vi.mock("../lib/sportmonks", () => ({
   fetchSportmonksStatus: vi.fn(),
   fetchOutsideSignals: vi.fn(),
+  SPORTMONKS_RESET_EVENT: "golavo:sportmonks-reset",
   SportmonksApiError: class extends Error {
     constructor(
       message: string,
@@ -90,7 +92,36 @@ const response = {
         developer_name: "GOALS",
         label: "Goals",
         group: "offensive",
+        unit: "count",
         value: 1,
+      }, {
+        type_id: 82,
+        developer_name: "SUCCESSFUL_PASSES_PERCENTAGE",
+        label: "Successful passes",
+        group: "passing",
+        unit: "percent",
+        value: 76.5,
+      }, {
+        type_id: 119,
+        developer_name: "MINUTES_PLAYED",
+        label: "Minutes played",
+        group: null,
+        unit: "minutes",
+        value: 90,
+      }, {
+        type_id: 40,
+        developer_name: "CAPTAIN",
+        label: "Captain",
+        group: null,
+        unit: "boolean",
+        value: true,
+      }, {
+        type_id: 118,
+        developer_name: "RATING",
+        label: "Provider rating",
+        group: null,
+        unit: "provider_score",
+        value: 7.4,
       }],
     }],
     coverage: { player_count: 1, players_with_metrics: 1, missing_stat_is_zero: false },
@@ -138,10 +169,15 @@ describe("OutsideSignals", () => {
     await act(async () => button?.click());
 
     expect(fetchOutsideSignals).toHaveBeenCalledOnce();
-    expect(fetchOutsideSignals).toHaveBeenCalledWith("m_1");
+    expect(fetchOutsideSignals).toHaveBeenCalledWith("m_1", expect.any(AbortSignal));
     expect(container.textContent).toContain("45.0%");
     expect(container.textContent).toContain("Example Book");
     expect(container.textContent).toContain("Ada Forward");
+    expect(container.textContent).toContain("1 count");
+    expect(container.textContent).toContain("76.5%");
+    expect(container.textContent).toContain("90 min");
+    expect(container.textContent).toContain("Yes");
+    expect(container.textContent).toContain("7.4 provider score");
     expect(container.textContent).toContain("Confirmed lineup");
     expect(container.textContent).toContain("No identity-safe lineup rows were supplied for this team");
     expect(container.textContent).toContain("Missing means unavailable");
@@ -188,12 +224,28 @@ describe("OutsideSignals", () => {
       (candidate) => candidate.textContent === "Fetch outside signals",
     );
     act(() => button?.click());
+    const signal = vi.mocked(fetchOutsideSignals).mock.calls[0][1];
+    expect(signal?.aborted).toBe(false);
 
     await renderPanel("m_2", "Second Home", "Second Away");
+    expect(signal?.aborted).toBe(true);
     await act(async () => resolveFirst?.(response));
 
     expect(container.textContent).not.toContain("Ada Forward");
     expect(container.textContent).toContain("Fetch outside signals");
     expect(container.textContent).toContain("Second Home, Second Away");
+  });
+
+  it("clears in-memory provider state when the connector is reset", async () => {
+    await renderPanel();
+    const button = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Fetch outside signals",
+    );
+    await act(async () => button?.click());
+    expect(container.textContent).toContain("Ada Forward");
+
+    act(() => window.dispatchEvent(new Event(SPORTMONKS_RESET_EVENT)));
+
+    expect(container.innerHTML).toBe("");
   });
 });

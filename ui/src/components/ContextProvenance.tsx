@@ -89,7 +89,7 @@ export function ContextProvenance({ snapshot }: { snapshot: ConditionsSnapshot }
           <h3 id="context-sources-title">Pinned sources</h3>
           <ul className="context-provenance__sources">
             {snapshot.sources.map((source) => (
-              <li key={source.source_id}>
+              <li key={`${source.source_id}:${source.upstream_ref}:${source.manifest_sha256}`}>
                 <b>{contextSourceLabel(source.source_id)}</b>
                 <span>{source.attribution}</span>
                 <span className="muted">{source.license} · revision {source.upstream_ref}</span>

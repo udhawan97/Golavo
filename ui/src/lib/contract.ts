@@ -273,6 +273,49 @@ export interface TeamWorkload {
   congestion: "normal" | "elevated" | "high";
 }
 
+export interface CurrentSeasonTeamPulse {
+  team: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goals_for: number;
+  goals_against: number;
+  clean_sheets: number;
+  both_teams_scored: number;
+  recent_form: Array<"W" | "D" | "L">;
+  points_per_game: number;
+  goals_for_per_match: number;
+  goals_against_per_match: number;
+}
+
+export interface CurrentSeasonPulse {
+  status: "available" | "unavailable";
+  reason: string | null;
+  season: string;
+  data_through_utc?: string | null;
+  fixture_list_complete?: boolean;
+  observed_matches?: number;
+  matches_played?: number;
+  expected_matches?: number;
+  matches_remaining?: number;
+  past_result_gaps?: number;
+  goals?: number;
+  goals_per_match?: number;
+  home_wins?: number;
+  draws?: number;
+  away_wins?: number;
+  home_win_rate?: number;
+  draw_rate?: number;
+  away_win_rate?: number;
+  both_teams_scored?: number;
+  both_teams_scored_rate?: number;
+  over_2_5?: number;
+  over_2_5_rate?: number;
+  source_ids?: string[];
+  teams: CurrentSeasonTeamPulse[];
+}
+
 export interface CompetitionAnalytics {
   schema_version: string;
   competition_id: string;
@@ -284,6 +327,7 @@ export interface CompetitionAnalytics {
     model_input: false;
   };
   provenance: { source_ids: string[]; index_sha256?: string };
+  current_season: CurrentSeasonPulse;
   strength_trends: {
     status: AnalyticsStatus;
     reason: string | null;

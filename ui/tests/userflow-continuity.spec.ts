@@ -1,4 +1,39 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+
+test("Matchday leads with current fixtures and keeps the World Cup in the archive", async ({ page }) => {
+  await page.goto("/#/");
+
+  await expect(page.getByRole("heading", { level: 1, name: /Make the score call/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Upcoming", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".tournament-outlook")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Premier League", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "World Cup 2026 archive" })).toBeVisible();
+});
+
+test("Premier League keeps live modules ahead of historical research", async ({ page }) => {
+  await page.goto("/#/league/premier-league");
+
+  await expect(page.getByText("2026–27 live season desk", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "2026–27 season pulse" })).toBeVisible();
+  await expect(page.getByLabel("Current season league statistics")).toContainText("Played10 / 380");
+  await expect(page.getByLabel("Current season league statistics")).toContainText("Future361");
+  await expect(page.getByLabel("Current season league statistics")).toContainText("Result gaps9");
+  await expect(page.getByText(/9 past result gaps are held back/)).toBeVisible();
+  await expect(page.getByText(/Sources: golavo-synthetic-contract-fixtures/)).toBeVisible();
+  await page.getByText("Open the 2-team form board").click();
+  await expect(page.getByRole("rowheader", { name: "Example Athletic" })).toBeVisible();
+  await expect(page.getByLabel("Example Athletic last 1: W")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Season outlook" })).toBeVisible();
+  const archive = page.locator("details.history-archive").filter({ hasText: "Historical research archive" });
+  await expect(archive).not.toHaveAttribute("open", "");
+  await expect(archive.getByText("Older event data · model context, not the live-season headline")).toBeVisible();
+  expect(await page.evaluate(() => {
+    const fixtures = document.querySelector("#current-fixtures");
+    const history = Array.from(document.querySelectorAll("details.history-archive")).at(-1) ?? null;
+    return Boolean(fixtures && history && (fixtures.compareDocumentPosition(history) & Node.DOCUMENT_POSITION_FOLLOWING));
+  })).toBe(true);
+});
 
 test("320px primary navigation stays legible at M and XL reading sizes", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
@@ -35,6 +70,7 @@ test("320px primary navigation stays legible at M and XL reading sizes", async (
 test("Back restores the Matchday card that opened the cockpit", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/#/");
+  await page.getByRole("button", { name: "Recent 30 days", exact: true }).click();
 
   const card = page.getByRole("link", { name: /Example Home 4 versus Example Away 4/ });
   await card.scrollIntoViewIfNeeded();
@@ -51,7 +87,7 @@ test("Back restores the Matchday card that opened the cockpit", async ({ page })
 
   await page.goBack();
   await page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Leagues" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Leagues & Europe" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Leagues & 2026–27" })).toBeVisible();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(10);
 });
 
@@ -68,6 +104,65 @@ test("Escape closes Reading Comfort and restores focus to its trigger", async ({
   await expect(page.locator(".rc__panel")).toHaveCount(0);
   await expect(trigger).toBeFocused();
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
+});
+
+test("the page guide follows the route and restores focus on Escape", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/#/settings");
+
+  const trigger = page.getByRole("button", { name: /guide for this page/i });
+  await trigger.click();
+  const guide = page.getByRole("dialog", { name: /tune golavo without crossing a boundary/i });
+  await expect(guide).toBeVisible();
+  await expect(guide).toBeFocused();
+  await expect(guide.getByText("Set theme, text size, spacing, and contrast first.")).toBeVisible();
+  await page.keyboard.press("Tab");
+  const close = guide.getByRole("button", { name: "Close page guide" });
+  await expect(close).toBeFocused();
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .analyze();
+  expect(results.violations.filter(
+    (violation) => violation.impact === "serious" || violation.impact === "critical",
+  )).toEqual([]);
+  await close.click();
+
+  await expect(guide).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+  await trigger.click();
+  await expect(guide).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(guide).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+
+  await page.goto("/#/match/m_synthetic_played_01");
+  await trigger.click();
+  await expect(page.getByRole("dialog", { name: /read the match from headline to source/i })).toBeVisible();
+});
+
+test("Settings jump controls and in-page guide keep orientation intact", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto("/#/settings");
+
+  await page.getByRole("button", { name: "Sources", exact: true }).click();
+  const sources = page.getByRole("heading", { name: "Data & local history" });
+  await expect(sources).toBeFocused();
+  await expect(sources).toBeInViewport();
+
+  await page.getByRole("button", { name: "Reading", exact: true }).click();
+  const appearance = page.getByRole("heading", { name: "Appearance" });
+  await expect(appearance).toBeFocused();
+  await expect(appearance).toBeInViewport();
+
+  await page.getByRole("button", { name: "Open this page’s guide" }).click();
+  const guide = page.getByRole("dialog", { name: /tune golavo without crossing a boundary/i });
+  await expect(guide).toBeVisible();
+  await expect(guide).toBeFocused();
+  await guide.getByRole("link", { name: "Open the Trust Center" }).click();
+  await expect(page).toHaveURL(/#\/trust$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Trust Center" })).toBeVisible();
 });
 
 test("destructive settings confirmations expose Cancel and disarm with Escape", async ({ page }) => {

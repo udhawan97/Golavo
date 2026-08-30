@@ -100,6 +100,27 @@ describe("ScoreOutlook market dashboard", () => {
     expect(html).not.toContain("Clean-sheet edge");
   });
 
+  it("renders the model probabilities as margin-free fair decimal equivalents", () => {
+    const html = renderToStaticMarkup(createElement(ScoreOutlook, {
+      analysis,
+      home: "France",
+      away: "Spain",
+    }));
+
+    expect(html).toContain("Model fair line");
+    expect(html).toContain("Pure 1 ÷ probability");
+    expect(html).toContain("No bookmaker margin; information only, not advice.");
+    expect(html).toContain(
+      '<span title="France">France</span><strong class="num">2.94</strong><small class="num">34.0%</small>',
+    );
+    expect(html).toContain(
+      '<span title="Draw">Draw</span><strong class="num">2.78</strong><small class="num">36.0%</small>',
+    );
+    expect(html).toContain(
+      '<span title="Spain">Spain</span><strong class="num">3.33</strong><small class="num">30.0%</small>',
+    );
+  });
+
   it("reveals exact double-chance and outcome-tail rows only in expert mode", () => {
     const casual = renderToStaticMarkup(createElement(ScoreOutlook, {
       analysis,

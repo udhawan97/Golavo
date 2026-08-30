@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type {
+  CompetitionAnalytics,
   SeasonFixtureImportance,
   SeasonForcedResult,
   SeasonOutlook,
@@ -7,6 +8,8 @@ import type {
 } from "./contract";
 import {
   assertSeasonScenarioResponse,
+  assertCompetitionAnalytics,
+  fetchCompetitionAnalytics,
   importanceViolation,
   narrativeJobWasLost,
   refreshMatchWeather,
@@ -127,6 +130,47 @@ describe("narrative job polling", () => {
 
   it("stops immediately when a previously visible job disappears", () => {
     expect(narrativeJobWasLost(true, 1)).toBe(true);
+  });
+});
+
+describe("current-season analytics contract", () => {
+  it("validates and returns the available Premier League pulse in mock mode", async () => {
+    const value = await fetchCompetitionAnalytics("england-premier-league");
+
+    expect(value.current_season).toMatchObject({
+      status: "available",
+      season: "2026-27",
+      observed_matches: 380,
+      matches_played: 10,
+      matches_remaining: 361,
+      past_result_gaps: 9,
+      source_ids: ["golavo-synthetic-contract-fixtures"],
+    });
+    expect(value.current_season.teams.map((team) => team.team)).toEqual([
+      "Example Athletic",
+      "Sample City",
+    ]);
+  });
+
+  it("rejects invalid statuses, counts, rates, partitions, teams and provenance", async () => {
+    const valid = await fetchCompetitionAnalytics("england-premier-league");
+    const mutations: Array<(value: CompetitionAnalytics) => void> = [
+      (value) => { value.current_season.status = "stale" as never; },
+      (value) => { value.current_season.matches_remaining = -1; },
+      (value) => { value.current_season.home_win_rate = 1.1; },
+      (value) => { value.current_season.observed_matches = 379; },
+      (value) => { value.current_season.home_wins = 8; },
+      (value) => { value.current_season.teams[0].played = -1; },
+      (value) => { value.current_season.teams[0].points_per_game = 2.5; },
+      (value) => { value.current_season.source_ids = []; },
+      (value) => { value.current_season.source_ids = ["test", "test"]; },
+    ];
+
+    for (const mutate of mutations) {
+      const invalid = structuredClone(valid);
+      mutate(invalid);
+      expect(() => assertCompetitionAnalytics(invalid, "invalid pulse")).toThrow();
+    }
   });
 });
 

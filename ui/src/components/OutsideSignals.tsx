@@ -3,6 +3,7 @@ import { handleExternalLinkClick } from "../lib/external-links";
 import {
   fetchOutsideSignals,
   fetchSportmonksStatus,
+  SPORTMONKS_RESET_EVENT,
   SportmonksApiError,
 } from "../lib/sportmonks";
 import type { OutsideSignals as OutsideSignalsResponse, SportmonksStatus } from "../lib/sportmonks";
@@ -30,10 +31,13 @@ export function OutsideSignals({
   const [error, setError] = useState<{ message: string; status: number } | null>(null);
   const activeMatchId = useRef(matchId);
   const requestGeneration = useRef(0);
+  const activeRequest = useRef<AbortController | null>(null);
   activeMatchId.current = matchId;
 
   useEffect(() => {
     let live = true;
+    activeRequest.current?.abort();
+    activeRequest.current = null;
     requestGeneration.current += 1;
     setSignals(null);
     setError(null);
@@ -42,14 +46,35 @@ export function OutsideSignals({
       (value) => { if (live) setSettings(value); },
       () => { if (live) setSettings(null); },
     );
-    return () => { live = false; };
+    return () => {
+      live = false;
+      activeRequest.current?.abort();
+      activeRequest.current = null;
+    };
   }, [matchId]);
+
+  useEffect(() => {
+    const reset = () => {
+      requestGeneration.current += 1;
+      activeRequest.current?.abort();
+      activeRequest.current = null;
+      setSignals(null);
+      setError(null);
+      setLoading(false);
+      setSettings(null);
+    };
+    window.addEventListener(SPORTMONKS_RESET_EVENT, reset);
+    return () => window.removeEventListener(SPORTMONKS_RESET_EVENT, reset);
+  }, []);
 
   if (!settings?.enabled) return null;
 
   const fetchNow = async () => {
     const requestedMatchId = matchId;
     const generation = ++requestGeneration.current;
+    activeRequest.current?.abort();
+    const controller = new AbortController();
+    activeRequest.current = controller;
     const isCurrent = () => (
       activeMatchId.current === requestedMatchId
       && requestGeneration.current === generation
@@ -57,9 +82,10 @@ export function OutsideSignals({
     setLoading(true);
     setError(null);
     try {
-      const value = await fetchOutsideSignals(requestedMatchId);
+      const value = await fetchOutsideSignals(requestedMatchId, controller.signal);
       if (isCurrent()) setSignals(value);
     } catch (reason) {
+      if (controller.signal.aborted) return;
       const value = reason instanceof SportmonksApiError
         ? { message: reason.message, status: reason.status }
         : { message: reason instanceof Error ? reason.message : String(reason), status: 0 };
@@ -69,6 +95,7 @@ export function OutsideSignals({
       }
       setError(value);
     } finally {
+      if (activeRequest.current === controller) activeRequest.current = null;
       if (isCurrent()) setLoading(false);
     }
   };
@@ -221,11 +248,23 @@ function PlayerLens({
       {teamPlayers.length === 0 ? <p className="small dim">No identity-safe lineup rows were supplied for this team.</p> : <ol className="plain-list">{teamPlayers.map((player) => <li key={player.player_id}>
         <details>
           <summary><strong>{player.jersey_number === null ? "" : `${player.jersey_number} · `}{player.name}</strong> <span className="small dim">{player.participation === "starter" ? "starter" : "bench"} · {player.metrics.length} stats</span></summary>
-          {player.metrics.length > 0 ? <dl className="outside-signal-values">{player.metrics.map((metric) => <div key={metric.type_id}><dt>{metric.label}</dt><dd className="num">{typeof metric.value === "boolean" ? (metric.value ? "Yes" : "No") : metric.value}</dd></div>)}</dl> : <p className="small dim">No player statistics supplied for this fixture.</p>}
+          {player.metrics.length > 0 ? <dl className="outside-signal-values">{player.metrics.map((metric) => <div key={metric.type_id}><dt>{metric.label}</dt><dd className="num">{formatPlayerMetric(metric.value, metric.unit)}</dd></div>)}</dl> : <p className="small dim">No player statistics supplied for this fixture.</p>}
         </details>
       </li>)}</ol>}
     </div>;
     })}</div>
     <p className="small dim">Missing means unavailable, never zero. Sportmonks player IDs and metric type IDs are preserved; no cross-league ranking or Golavo inference is made.</p>
   </article>;
+}
+
+function formatPlayerMetric(
+  value: number | boolean,
+  unit: "count" | "percent" | "minutes" | "boolean" | "provider_score",
+): string {
+  if (unit === "boolean") return value ? "Yes" : "No";
+  if (typeof value !== "number") return "Unavailable";
+  if (unit === "percent") return `${value.toFixed(1)}%`;
+  if (unit === "minutes") return `${value} min`;
+  if (unit === "provider_score") return `${value} provider score`;
+  return `${value} count`;
 }

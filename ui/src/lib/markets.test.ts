@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { doubleChanceMarkets, goalThresholds, totalGoalBands } from "./markets";
+import { doubleChanceMarkets, fairDecimal, goalThresholds, totalGoalBands } from "./markets";
 import type { ScoreMatrix } from "./contract";
 
 /** A tiny 2×2 grid (max_goals=1) with a small tail, used to check the exact
@@ -43,5 +43,19 @@ describe("totalGoalBands", () => {
     expect(sum).toBeCloseTo(1, 9);
     // 0 goals = 0-0 = 0.30.
     expect(bands.find((b) => b.total === "0")!.probability).toBeCloseTo(0.30, 9);
+  });
+});
+
+describe("fairDecimal", () => {
+  it("translates a valid model probability without adding a margin", () => {
+    expect(fairDecimal(0.5)).toBe(2);
+    expect(fairDecimal(0.4)).toBe(2.5);
+  });
+
+  it("abstains for invalid probabilities", () => {
+    expect(fairDecimal(0)).toBeNull();
+    expect(fairDecimal(-0.1)).toBeNull();
+    expect(fairDecimal(1.1)).toBeNull();
+    expect(fairDecimal(Number.NaN)).toBeNull();
   });
 });

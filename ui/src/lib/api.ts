@@ -315,7 +315,7 @@ function assertEval(x: unknown, ctx: string): EvalSummary {
   return e;
 }
 
-function assertCompetitionAnalytics(x: unknown, ctx: string): CompetitionAnalytics {
+export function assertCompetitionAnalytics(x: unknown, ctx: string): CompetitionAnalytics {
   const data = x as CompetitionAnalytics;
   if (!data || typeof data !== "object") throw new ContractError(`${ctx}: not an object`);
   if (typeof data.competition_id !== "string")
@@ -324,6 +324,128 @@ function assertCompetitionAnalytics(x: unknown, ctx: string): CompetitionAnalyti
     throw new ContractError(`${ctx}: strength_trends.teams is not an array`);
   if (!Array.isArray(data.rest_congestion?.teams))
     throw new ContractError(`${ctx}: rest_congestion.teams is not an array`);
+  if (
+    !data.current_season
+    || !["available", "unavailable"].includes(data.current_season.status)
+    || !Array.isArray(data.current_season.teams)
+  )
+    throw new ContractError(`${ctx}: missing current_season state`);
+  if (data.current_season.status === "available") {
+    const pulse = data.current_season;
+    const requiredCounts = [
+      "observed_matches", "matches_played", "expected_matches", "matches_remaining",
+      "past_result_gaps", "goals", "home_wins", "draws", "away_wins",
+      "both_teams_scored", "over_2_5",
+    ] as const;
+    for (const field of requiredCounts) {
+      if (!Number.isInteger(pulse[field]) || (pulse[field] ?? -1) < 0)
+        throw new ContractError(`${ctx}: current_season.${field} is not a non-negative integer`);
+    }
+    for (const field of [
+      "home_win_rate", "draw_rate", "away_win_rate", "both_teams_scored_rate",
+      "over_2_5_rate",
+    ] as const) {
+      if (
+        typeof pulse[field] !== "number"
+        || !Number.isFinite(pulse[field])
+        || pulse[field] < 0
+        || pulse[field] > 1
+      ) {
+        throw new ContractError(`${ctx}: current_season.${field} is outside 0..1`);
+      }
+    }
+    if (
+      typeof pulse.goals_per_match !== "number"
+      || !Number.isFinite(pulse.goals_per_match)
+      || pulse.goals_per_match < 0
+    ) {
+      throw new ContractError(`${ctx}: current_season.goals_per_match is invalid`);
+    }
+    if (pulse.home_wins! + pulse.draws! + pulse.away_wins! !== pulse.matches_played) {
+      throw new ContractError(`${ctx}: current_season outcomes do not sum to matches_played`);
+    }
+    if (
+      pulse.matches_played! + pulse.matches_remaining! + pulse.past_result_gaps!
+      !== pulse.observed_matches
+    ) {
+      throw new ContractError(`${ctx}: current_season observed partition is inconsistent`);
+    }
+    if (pulse.observed_matches! > pulse.expected_matches!) {
+      throw new ContractError(`${ctx}: current_season observed_matches exceeds expected_matches`);
+    }
+    if (typeof pulse.fixture_list_complete !== "boolean") {
+      throw new ContractError(`${ctx}: current_season.fixture_list_complete is not boolean`);
+    }
+    if (
+      !Array.isArray(pulse.source_ids)
+      || pulse.source_ids.length === 0
+      || !pulse.source_ids.every((id) => typeof id === "string" && id.trim().length > 0)
+      || new Set(pulse.source_ids).size !== pulse.source_ids.length
+    ) {
+      throw new ContractError(`${ctx}: current_season.source_ids is not a string array`);
+    }
+    const matchCount = pulse.matches_played!;
+    const expectedRates = [
+      ["home_win_rate", pulse.home_wins!],
+      ["draw_rate", pulse.draws!],
+      ["away_win_rate", pulse.away_wins!],
+      ["both_teams_scored_rate", pulse.both_teams_scored!],
+      ["over_2_5_rate", pulse.over_2_5!],
+    ] as const;
+    for (const [field, count] of expectedRates) {
+      const expected = matchCount ? count / matchCount : 0;
+      if (Math.abs(pulse[field]! - expected) > 0.0005001) {
+        throw new ContractError(`${ctx}: current_season.${field} does not match its count`);
+      }
+    }
+    const expectedGoalsRate = matchCount ? pulse.goals! / matchCount : 0;
+    if (Math.abs(pulse.goals_per_match! - expectedGoalsRate) > 0.0050001) {
+      throw new ContractError(`${ctx}: current_season.goals_per_match does not match goals`);
+    }
+    const teamNames = new Set<string>();
+    for (const [index, team] of pulse.teams.entries()) {
+      if (!team || typeof team.team !== "string" || !Array.isArray(team.recent_form))
+        throw new ContractError(`${ctx}: current_season.teams[${index}] is malformed`);
+      if (!team.team.trim() || teamNames.has(team.team))
+        throw new ContractError(`${ctx}: current_season.teams[${index}].team is invalid`);
+      teamNames.add(team.team);
+      if (!team.recent_form.every((value) => value === "W" || value === "D" || value === "L"))
+        throw new ContractError(`${ctx}: current_season.teams[${index}].recent_form is malformed`);
+      for (const field of [
+        "played", "won", "drawn", "lost", "goals_for", "goals_against",
+        "clean_sheets", "both_teams_scored",
+      ] as const) {
+        if (!Number.isInteger(team[field]) || team[field] < 0)
+          throw new ContractError(`${ctx}: current_season.teams[${index}].${field} is not a non-negative integer`);
+      }
+      if (team.recent_form.length !== Math.min(5, team.played))
+        throw new ContractError(`${ctx}: current_season.teams[${index}].recent_form is incomplete`);
+      if (team.won + team.drawn + team.lost !== team.played)
+        throw new ContractError(`${ctx}: current_season.teams[${index}] outcomes are inconsistent`);
+      if (team.clean_sheets > team.played || team.both_teams_scored > team.played)
+        throw new ContractError(`${ctx}: current_season.teams[${index}] match counts exceed played`);
+      for (const field of [
+        "points_per_game", "goals_for_per_match", "goals_against_per_match",
+      ] as const) {
+        if (typeof team[field] !== "number" || !Number.isFinite(team[field]) || team[field] < 0) {
+          throw new ContractError(`${ctx}: current_season.teams[${index}].${field} is invalid`);
+        }
+      }
+      const divisor = team.played || 1;
+      const rateExpectations = [
+        ["points_per_game", (3 * team.won + team.drawn) / divisor],
+        ["goals_for_per_match", team.goals_for / divisor],
+        ["goals_against_per_match", team.goals_against / divisor],
+      ] as const;
+      for (const [field, expected] of rateExpectations) {
+        if (Math.abs(team[field] - expected) > 0.0050001) {
+          throw new ContractError(
+            `${ctx}: current_season.teams[${index}].${field} does not match its count`,
+          );
+        }
+      }
+    }
+  }
   if (!data.schedule_difficulty?.status)
     throw new ContractError(`${ctx}: missing schedule_difficulty state`);
   return data;
@@ -647,7 +769,7 @@ export async function fetchCompetitionAnalytics(
 ): Promise<CompetitionAnalytics> {
   if (!API_BASE) {
     return {
-      schema_version: "0.1.0",
+      schema_version: "0.2.0",
       competition_id: competitionId,
       competition_name: competitionId,
       as_of_utc: asOfUtc ?? new Date().toISOString(),
@@ -657,6 +779,50 @@ export async function fetchCompetitionAnalytics(
         model_input: false,
       },
       provenance: { source_ids: [] },
+      current_season: competitionId === "england-premier-league" ? {
+        status: "available",
+        reason: null,
+        season: "2026-27",
+        data_through_utc: "2026-08-24T19:00:00Z",
+        fixture_list_complete: true,
+        observed_matches: 380,
+        matches_played: 10,
+        expected_matches: 380,
+        matches_remaining: 361,
+        past_result_gaps: 9,
+        goals: 30,
+        goals_per_match: 3,
+        home_wins: 7,
+        draws: 1,
+        away_wins: 2,
+        home_win_rate: .7,
+        draw_rate: .1,
+        away_win_rate: .2,
+        both_teams_scored: 4,
+        both_teams_scored_rate: .4,
+        over_2_5: 7,
+        over_2_5_rate: .7,
+        source_ids: ["golavo-synthetic-contract-fixtures"],
+        teams: [
+          {
+            team: "Example Athletic", played: 1, won: 1, drawn: 0, lost: 0,
+            goals_for: 3, goals_against: 0, clean_sheets: 1, both_teams_scored: 0,
+            recent_form: ["W"], points_per_game: 3, goals_for_per_match: 3,
+            goals_against_per_match: 0,
+          },
+          {
+            team: "Sample City", played: 1, won: 0, drawn: 0, lost: 1,
+            goals_for: 0, goals_against: 3, clean_sheets: 0, both_teams_scored: 0,
+            recent_form: ["L"], points_per_game: 0, goals_for_per_match: 0,
+            goals_against_per_match: 3,
+          },
+        ],
+      } : {
+        status: "unavailable",
+        reason: "Connect the Golavo engine to calculate the current-season pulse.",
+        season: "current",
+        teams: [],
+      },
       strength_trends: {
         status: "unavailable",
         reason: "Connect the Golavo engine to calculate strengths from the local index.",

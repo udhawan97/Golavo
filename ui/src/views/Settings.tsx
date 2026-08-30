@@ -23,13 +23,14 @@ import { ProgressBar, ReleaseNotes } from "../components/updates";
 import { DOCS_URL, RELEASES_URL } from "../lib/links";
 import { handleExternalLinkClick } from "../lib/external-links";
 import { replayTours, tourEnabled } from "../lib/tour";
+import { openPageGuide } from "../lib/guides";
 import {
   LOCAL_MODELS_CHANGED_EVENT,
   OllamaModelGuide,
 } from "../components/ai/OllamaModelGuide";
 import { OpenLigaDBSettings } from "../components/OpenLigaDBSettings";
 import { useFollows } from "../lib/follow-context";
-import { BellIcon } from "../components/icons";
+import { BellIcon, CheckIcon, PitchIcon } from "../components/icons";
 import { useCorrections } from "../lib/correction-context";
 import { ResearchSettingsPanel } from "../components/ResearchSettings";
 import { SportmonksSettings } from "../components/SportmonksSettings";
@@ -42,6 +43,34 @@ function appVersionLabel(statusVersion: string | undefined): string {
   if (statusVersion) return statusVersion;
   const injected = window.__GOLAVO_RUNTIME__?.appVersion;
   return injected ?? `source build (contract v${SCHEMA_VERSION})`;
+}
+
+function SettingsSectionHead({
+  id,
+  eyebrow,
+  title,
+  summary,
+}: {
+  id: string;
+  eyebrow: string;
+  title: string;
+  summary: string;
+}) {
+  return (
+    <div className="settings__section-head">
+      <p>{eyebrow}</p>
+      <h2 id={id} tabIndex={-1}>{title}</h2>
+      <span>{summary}</span>
+    </div>
+  );
+}
+
+function jumpToSettingsSection(id: string): void {
+  const heading = document.getElementById(id);
+  if (!heading) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  heading.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  heading.focus({ preventScroll: true });
 }
 
 const REFRESH_SOURCE_LABELS: Record<string, string> = {
@@ -155,81 +184,99 @@ export function Settings({
 
   return (
     <div className="stack settings">
-      <header>
-        <h1>Settings</h1>
-        <p className="dim">About this install, and how it stays current.</p>
+      <header className="settings__hero" aria-labelledby="settings-title">
+        <div className="settings__hero-copy">
+          <p className="settings__eyebrow"><PitchIcon size={16} /> Control room</p>
+          <h1 id="settings-title">Settings</h1>
+          <p>
+            Shape how Golavo reads, refreshes, and connects. Every optional network lane stays
+            visible, bounded, and off until you choose it.
+          </p>
+        </div>
+        <div className="settings__boundary" role="note" aria-label="Golavo's permanent boundaries">
+          <p>Local by default</p>
+          <ul>
+            <li><CheckIcon size={15} /> No account required</li>
+            <li><CheckIcon size={15} /> Network choices are opt-in</li>
+            <li><CheckIcon size={15} /> Sealed forecasts never change</li>
+          </ul>
+        </div>
       </header>
 
-      <section className="panel" aria-labelledby="settings-about">
-        <div className="panel__head"><h2 id="settings-about">About</h2></div>
-        <div className="panel__body stack settings__rows">
-          <div className="settings__row">
-            <span>Version</span>
-            <span className="chip chip--neutral">Golavo {version}</span>
-          </div>
-          <div className="settings__row">
-            <span>Build</span>
-            <span className="mono dim" title={buildSha}>
-              {buildSha ? buildSha.slice(0, 12) : "source build"}
-            </span>
-          </div>
-          <div className="settings__row">
-            <span>Data source</span>
-            <span className="dim">{sourceDescription()}</span>
-          </div>
-          <div className="settings__row">
-            <span>Links</span>
-            <span>
-              <a href={RELEASES_URL} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Releases</a>
-              {" · "}
-              <a href={DOCS_URL} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Documentation</a>
-            </span>
-          </div>
-        </div>
-      </section>
+      <nav className="settings__nav" aria-label="Settings sections">
+        <span>Jump to</span>
+        <button type="button" onClick={() => jumpToSettingsSection("settings-appearance")}>Reading</button>
+        <button type="button" onClick={() => jumpToSettingsSection("settings-data")}>Sources</button>
+        <button type="button" onClick={() => jumpToSettingsSection("settings-ai")}>Intelligence</button>
+        <button type="button" onClick={() => jumpToSettingsSection("settings-updates")}>Updates</button>
+        <button type="button" onClick={() => jumpToSettingsSection("settings-about")}>Install</button>
+      </nav>
 
-      {prefs && onChangePrefs && (
-        <section className="panel" aria-labelledby="settings-appearance">
-          <div className="panel__head"><h2 id="settings-appearance">Appearance</h2></div>
+      <div className="settings__intro-grid">
+        {prefs && onChangePrefs && (
+          <section className="panel settings__panel settings__panel--reading" aria-labelledby="settings-appearance">
+            <div className="panel__head">
+              <SettingsSectionHead
+                id="settings-appearance"
+                eyebrow="Reading"
+                title="Appearance"
+                summary="Make every page comfortable without changing its data."
+              />
+            </div>
+            <div className="panel__body stack" style={{ ["--gap" as string]: "var(--space-3)" }}>
+              <p className="small dim" style={{ margin: 0 }}>
+                These are the same controls as the <span aria-hidden>“Aa”</span> button in the
+                header. Choices apply everywhere and stay on this device.
+              </p>
+              <ReadingControls prefs={prefs} onChange={onChangePrefs} />
+            </div>
+          </section>
+        )}
+
+        <section className="panel settings__panel settings__panel--guide" aria-labelledby="settings-tour">
+          <div className="panel__head">
+            <SettingsSectionHead
+              id="settings-tour"
+              eyebrow="Guidance"
+              title="Help that follows the page"
+              summary="Open a short, contextual guide whenever you need your next step."
+            />
+          </div>
           <div className="panel__body stack" style={{ ["--gap" as string]: "var(--space-3)" }}>
-            <p className="small dim" style={{ margin: 0 }}>
-              The same theme and reading controls as the <span aria-hidden>“Aa”</span> button in the
-              header. Choices apply everywhere and are remembered on this device.
+            <p className="settings__hint">
+              The book button in the header explains the page you are on, what to do first, and
+              where to go next. It never changes a setting or starts a network request.
             </p>
-            <ReadingControls prefs={prefs} onChange={onChangePrefs} />
-          </div>
-        </section>
-      )}
-
-      {tourEnabled() && (
-        <section className="panel" aria-labelledby="settings-tour">
-          <div className="panel__head"><h2 id="settings-tour">Getting started</h2></div>
-          <div className="panel__body stack" style={{ ["--gap" as string]: "var(--space-3)" }}>
-            <div className="settings__row">
-              <div>
-                <label>Show the guided tour again</label>
-                <p className="settings__hint" style={{ margin: ".2rem 0 0" }}>
-                  Replays the short spotlight tour of the home and a match’s cockpit.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn btn--ghost"
-                onClick={() => {
-                  // Land on the home first so the tour's first anchor exists.
-                  window.location.hash = "#/";
-                  replayTours();
-                }}
-              >
-                Replay tour
+            <div className="controls">
+              <button type="button" className="btn btn--primary" onClick={openPageGuide}>
+                Open this page’s guide
               </button>
+              {tourEnabled() && (
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => {
+                    window.location.hash = "#/";
+                    replayTours();
+                  }}
+                >
+                  Replay spotlight tour
+                </button>
+              )}
             </div>
           </div>
         </section>
-      )}
+      </div>
 
-      <section className="panel" aria-labelledby="settings-data">
-        <div className="panel__head"><h2 id="settings-data">Data</h2></div>
+      <section className="panel settings__panel" aria-labelledby="settings-data">
+        <div className="panel__head">
+          <SettingsSectionHead
+            id="settings-data"
+            eyebrow="Sources"
+            title="Data &amp; local history"
+            summary="Choose what may refresh, what remains separate, and what to remove."
+          />
+        </div>
         <div className="panel__body stack settings__rows">
           <div className="settings__field">
             <div className="settings__row">
@@ -410,8 +457,15 @@ export function Settings({
         </div>
       </section>
 
-      <section id="local-ai-setup" className="panel" aria-labelledby="settings-ai">
-        <div className="panel__head"><h2 id="settings-ai">Local intelligence</h2></div>
+      <section id="local-ai-setup" className="panel settings__panel settings__panel--intelligence" aria-labelledby="settings-ai">
+        <div className="panel__head">
+          <SettingsSectionHead
+            id="settings-ai"
+            eyebrow="Analysis"
+            title="Local intelligence"
+            summary="Add explanation around the sealed numbers without giving AI the whistle."
+          />
+        </div>
         <div className="panel__body stack settings__rows">
           <div className="settings__field">
             <div className="settings__row">
@@ -467,8 +521,15 @@ export function Settings({
         </div>
       </section>
 
-      <section className="panel" aria-labelledby="settings-updates">
-        <div className="panel__head"><h2 id="settings-updates">Updates</h2></div>
+      <section className="panel settings__panel" aria-labelledby="settings-updates">
+        <div className="panel__head">
+          <SettingsSectionHead
+            id="settings-updates"
+            eyebrow="Maintenance"
+            title="Updates"
+            summary="Keep the application current through the path this build actually supports."
+          />
+        </div>
         <div className="panel__body stack settings__rows">
           {!u.isDesktop && (
             <p className="dim">
@@ -542,6 +603,41 @@ export function Settings({
               </p>
             </>
           )}
+        </div>
+      </section>
+
+      <section className="panel settings__panel settings__panel--about" aria-labelledby="settings-about">
+        <div className="panel__head">
+          <SettingsSectionHead
+            id="settings-about"
+            eyebrow="Install"
+            title="About this build"
+            summary="The exact version, engine, and public reference links for this install."
+          />
+        </div>
+        <div className="panel__body stack settings__rows">
+          <div className="settings__row">
+            <span>Version</span>
+            <span className="chip chip--neutral">Golavo {version}</span>
+          </div>
+          <div className="settings__row">
+            <span>Build</span>
+            <span className="mono dim" title={buildSha}>
+              {buildSha ? buildSha.slice(0, 12) : "source build"}
+            </span>
+          </div>
+          <div className="settings__row">
+            <span>Data source</span>
+            <span className="dim">{sourceDescription()}</span>
+          </div>
+          <div className="settings__row">
+            <span>Links</span>
+            <span>
+              <a href={RELEASES_URL} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Releases</a>
+              {" · "}
+              <a href={DOCS_URL} target="_blank" rel="noreferrer" onClick={handleExternalLinkClick}>Documentation</a>
+            </span>
+          </div>
         </div>
       </section>
     </div>

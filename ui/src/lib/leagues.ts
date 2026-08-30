@@ -26,6 +26,8 @@ export interface League {
   researchAnalytics?: boolean;
   /** Internationals-only scorer/shootout side tables cover this competition. */
   scorers?: boolean;
+  /** Kept for historical context, but intentionally de-emphasized in current-season browse. */
+  archived?: boolean;
   note: string;
 }
 
@@ -43,27 +45,21 @@ export function leagueHubCategory(league: League): LeagueHubCategory {
 /** Bundled club competitions + internationals — used by the Leagues hub and
  *  the Matchday home's quick-browse chips. */
 export const LEAGUES: League[] = [
-  { slug: "internationals", name: "Internationals", sourceKind: "international",
-    note: "Men’s senior internationals — the one surface that refreshes on demand." },
-  { slug: "world-cup-2026", name: "World Cup 2026", competition: "FIFA World Cup",
-    competitionId: "fifa-world-cup", sourceKind: "international", researchAnalytics: true,
-    scorers: true,
-    note: "Men’s World Cup · exact semifinal bracket and model outlook." },
   { slug: "premier-league", name: "Premier League", competition: "English Premier League",
     competitionId: "england-premier-league", seasonOutlook: true, researchAnalytics: true,
-    note: "England · bundled 2010–11 onward (historical)." },
+    note: "England · 2026–27 current season first; history powers the models." },
   { slug: "la-liga", name: "La Liga", competition: "La Liga", competitionId: "spain-la-liga",
     seasonOutlook: true, researchAnalytics: true,
-    note: "Spain · bundled 2012–13 onward (historical)." },
+    note: "Spain · 2026–27 fixtures, results, form and season model." },
   { slug: "bundesliga", name: "Bundesliga", competition: "Bundesliga",
     competitionId: "germany-bundesliga", seasonOutlook: true, researchAnalytics: true,
-    note: "Germany · bundled 2010–11 onward (historical)." },
+    note: "Germany · 2026–27 fixtures, results, form and season model." },
   { slug: "serie-a", name: "Serie A", competition: "Serie A", competitionId: "italy-serie-a",
     seasonOutlook: true, researchAnalytics: true,
-    note: "Italy · bundled 2013–14 onward (historical)." },
+    note: "Italy · 2026–27 fixtures, results, form and season model." },
   { slug: "ligue-1", name: "Ligue 1", competition: "Ligue 1",
     competitionId: "france-ligue-1", seasonOutlook: true, researchAnalytics: true,
-    note: "France · bundled 2014–15 onward (historical)." },
+    note: "France · 2026–27 fixtures, results, form and season model." },
   { slug: "champions-league", name: "Champions League", competition: "UEFA Champions League",
     competitionId: "uefa-champions-league",
     note: "UEFA · main-competition results from 2020–21 through 2025–26." },
@@ -73,6 +69,12 @@ export const LEAGUES: League[] = [
   { slug: "conference-league", name: "Conference League", competition: "UEFA Conference League",
     competitionId: "uefa-conference-league",
     note: "UEFA · main-competition results from 2021–22 through 2024–25." },
+  { slug: "internationals", name: "Internationals", sourceKind: "international",
+    note: "Men’s senior international results and scheduled fixtures." },
+  { slug: "world-cup-2026", name: "World Cup 2026 archive", competition: "FIFA World Cup",
+    competitionId: "fifa-world-cup", sourceKind: "international", researchAnalytics: true,
+    scorers: true, archived: true,
+    note: "Completed tournament · retained as an archive, not the live-season headline." },
 ];
 
 /** The bundled club competitions, in curated order (index strings). */

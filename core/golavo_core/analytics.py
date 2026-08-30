@@ -24,7 +24,7 @@ from golavo_core.ingest.snapshot import (
 from golavo_core.models.candidates import PoissonModel
 from golavo_core.trends import month_end_checkpoints
 
-ANALYTICS_SCHEMA_VERSION = "0.1.0"
+ANALYTICS_SCHEMA_VERSION = "0.2.0"
 MIN_STRENGTH_MATCHES = 8
 DIFFICULTY_METHOD = "mean-remaining-opponent-elo-v1"
 
@@ -157,6 +157,195 @@ def _workload(frame: pd.DataFrame, teams: list[str], as_of: pd.Timestamp) -> dic
     }
 
 
+def _current_season_pulse(
+    frame: pd.DataFrame, competition_id: str, as_of: pd.Timestamp
+) -> dict[str, Any]:
+    """Describe the live domestic season without letting future rows leak in.
+
+    The complete schedule identifies the season and clubs; every performance
+    number comes only from completed rows at or before ``as_of``.  This block is
+    descriptive context, never a model input, and remains typed when a
+    competition has no verified domestic standings rule.
+    """
+    from golavo_core.season_outlook import certify_schedule
+    from golavo_core.standings import football_season, league_rule
+
+    season_id = football_season(as_of)
+    try:
+        rule = league_rule(competition_id)
+    except ValueError as exc:
+        return {
+            "status": "unavailable",
+            "reason": str(exc),
+            "season": season_id,
+            "teams": [],
+        }
+
+    competition_rows = frame.loc[frame["competition"].astype("string").eq(rule.source_name)].copy()
+    if competition_rows.empty:
+        return {
+            "status": "unavailable",
+            "reason": "No fixtures for the current season are present in Golavo's local index.",
+            "season": season_id,
+            "teams": [],
+        }
+    row_seasons = pd.to_datetime(competition_rows["kickoff_utc"], utc=True).map(football_season)
+    schedule = competition_rows.loc[row_seasons.eq(season_id)].copy()
+    if schedule.empty:
+        return {
+            "status": "unavailable",
+            "reason": "No fixtures for the current season are present in Golavo's local index.",
+            "season": season_id,
+            "teams": [],
+        }
+
+    certificate = certify_schedule(schedule, expected_teams=rule.expected_teams, as_of_utc=as_of)
+    kickoff = pd.to_datetime(schedule["kickoff_utc"], utc=True)
+    complete_mask = schedule["is_complete"].astype("boolean").fillna(False)
+    past_result_gaps = int((~complete_mask & kickoff.le(as_of)).sum())
+    future_fixtures = int((~complete_mask & kickoff.gt(as_of)).sum())
+    completed = completed_view(schedule, as_of_utc=as_of).rows.sort_values(
+        [ORDER_INSTANT, "match_id"], kind="mergesort"
+    )
+    teams = sorted(
+        str(value)
+        for value in pd.concat([schedule["home_team"], schedule["away_team"]], ignore_index=True)
+        .dropna()
+        .unique()
+    )
+    team_rows: dict[str, dict[str, Any]] = {
+        team: {
+            "team": team,
+            "played": 0,
+            "won": 0,
+            "drawn": 0,
+            "lost": 0,
+            "goals_for": 0,
+            "goals_against": 0,
+            "clean_sheets": 0,
+            "both_teams_scored": 0,
+            "recent_form": [],
+        }
+        for team in teams
+    }
+    home_wins = draws = away_wins = both_scored = over_2_5 = goals = 0
+    for row in completed.itertuples(index=False):
+        home, away = str(row.home_team), str(row.away_team)
+        home_goals, away_goals = int(row.home_score), int(row.away_score)
+        goals += home_goals + away_goals
+        if home_goals > away_goals:
+            home_wins += 1
+            home_form, away_form = "W", "L"
+        elif home_goals < away_goals:
+            away_wins += 1
+            home_form, away_form = "L", "W"
+        else:
+            draws += 1
+            home_form = away_form = "D"
+        if home_goals > 0 and away_goals > 0:
+            both_scored += 1
+        if home_goals + away_goals >= 3:
+            over_2_5 += 1
+
+        for team, scored, conceded, form in (
+            (home, home_goals, away_goals, home_form),
+            (away, away_goals, home_goals, away_form),
+        ):
+            state = team_rows.setdefault(
+                team,
+                {
+                    "team": team,
+                    "played": 0,
+                    "won": 0,
+                    "drawn": 0,
+                    "lost": 0,
+                    "goals_for": 0,
+                    "goals_against": 0,
+                    "clean_sheets": 0,
+                    "both_teams_scored": 0,
+                    "recent_form": [],
+                },
+            )
+            state["played"] += 1
+            state["won"] += int(form == "W")
+            state["drawn"] += int(form == "D")
+            state["lost"] += int(form == "L")
+            state["goals_for"] += scored
+            state["goals_against"] += conceded
+            state["clean_sheets"] += int(conceded == 0)
+            state["both_teams_scored"] += int(scored > 0 and conceded > 0)
+            state["recent_form"].append(form)
+
+    matches_played = int(len(completed))
+    for state in team_rows.values():
+        played_count = int(state["played"])
+        state["recent_form"] = state["recent_form"][-5:]
+        state["points_per_game"] = (
+            round((3 * int(state["won"]) + int(state["drawn"])) / played_count, 2)
+            if played_count
+            else 0.0
+        )
+        state["goals_for_per_match"] = (
+            round(int(state["goals_for"]) / played_count, 2) if played_count else 0.0
+        )
+        state["goals_against_per_match"] = (
+            round(int(state["goals_against"]) / played_count, 2) if played_count else 0.0
+        )
+
+    ranked_teams = sorted(
+        team_rows.values(),
+        key=lambda item: (-float(item["points_per_game"]), -int(item["goals_for"]), item["team"]),
+    )
+    expected_matches = int(certificate["expected_matches"])
+    provenance_columns = [
+        column
+        for column in (
+            "source_id",
+            "identity_source_id",
+            "result_source_id",
+            "kickoff_source_id",
+            "training_source_id",
+        )
+        if column in schedule.columns
+    ]
+    source_ids = sorted(
+        str(value)
+        for value in pd.concat(
+            [schedule[column] for column in provenance_columns], ignore_index=True
+        )
+        .dropna()
+        .unique()
+    )
+    return {
+        "status": "available",
+        "reason": None,
+        "season": season_id,
+        "data_through_utc": (iso_utc(completed[ORDER_INSTANT].max()) if matches_played else None),
+        "fixture_list_complete": bool(certificate["complete_fixture_list"]),
+        "observed_matches": int(len(schedule)),
+        "matches_played": matches_played,
+        "expected_matches": expected_matches,
+        # "Remaining" means genuinely future fixtures. Past-dated rows without
+        # a result are a separate source gap, never mislabeled as future work.
+        "matches_remaining": future_fixtures,
+        "past_result_gaps": past_result_gaps,
+        "goals": goals,
+        "goals_per_match": round(goals / matches_played, 2) if matches_played else 0.0,
+        "home_wins": home_wins,
+        "draws": draws,
+        "away_wins": away_wins,
+        "home_win_rate": round(home_wins / matches_played, 3) if matches_played else 0.0,
+        "draw_rate": round(draws / matches_played, 3) if matches_played else 0.0,
+        "away_win_rate": round(away_wins / matches_played, 3) if matches_played else 0.0,
+        "both_teams_scored": both_scored,
+        "both_teams_scored_rate": round(both_scored / matches_played, 3) if matches_played else 0.0,
+        "over_2_5": over_2_5,
+        "over_2_5_rate": round(over_2_5 / matches_played, 3) if matches_played else 0.0,
+        "source_ids": source_ids,
+        "teams": ranked_teams,
+    }
+
+
 def _difficulty_blocked(reason: str, *, required_capability: str) -> dict[str, Any]:
     return {
         "status": "blocked",
@@ -212,9 +401,7 @@ def schedule_difficulty(
         }
     row_seasons = pd.to_datetime(competition_rows["kickoff_utc"], utc=True).map(football_season)
     schedule = competition_rows.loc[row_seasons.eq(season_id)].copy()
-    certificate = certify_schedule(
-        schedule, expected_teams=rule.expected_teams, as_of_utc=as_of
-    )
+    certificate = certify_schedule(schedule, expected_teams=rule.expected_teams, as_of_utc=as_of)
     if not certificate["complete_fixture_list"]:
         return {
             **_difficulty_blocked(
@@ -310,6 +497,7 @@ def competition_analytics(
     workload_rows = played.loc[
         played["home_team"].isin(active_teams) | played["away_team"].isin(active_teams)
     ]
+    current_season = _current_season_pulse(frame, competition_id, as_of)
     source_ids = sorted(
         {
             str(value)
@@ -318,6 +506,7 @@ def competition_analytics(
                 ignore_index=True,
             ).dropna()
         }
+        | set(current_season.get("source_ids", []))
     )
     return {
         "schema_version": ANALYTICS_SCHEMA_VERSION,
@@ -330,6 +519,7 @@ def competition_analytics(
             "model_input": False,
         },
         "provenance": {"source_ids": source_ids},
+        "current_season": current_season,
         "strength_trends": strength,
         "rest_congestion": workload,
         "schedule_difficulty": schedule_difficulty(frame, competition_id, as_of_utc=as_of),
