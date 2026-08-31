@@ -109,6 +109,10 @@ The optional Sportmonks panel remains outside that read. On completed fixtures i
 uses **Fetch final player stats** / **Refresh final player stats** wording. One fixture's player
 metrics are not relabelled as a multi-match form series. Provider predictions, prices, lineups, and
 statistics remain no-store context and cannot verify, alter, or replace a Golavo probability.
+In source `main` (**Unreleased**), any identity-safe player row can open a selected-match dossier
+from that same in-memory response. The dossier exposes the exact provider player, lineup, team,
+fixture, position, and metric-type ids without another request. It disappears with the response
+and is not a career profile, form series, player ranking, Golavo assessment, AI read, or export.
 
 ## My Season
 

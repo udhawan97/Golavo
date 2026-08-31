@@ -8,6 +8,10 @@ import {
 } from "../lib/sportmonks";
 import type { OutsideSignals as OutsideSignalsResponse, SportmonksStatus } from "../lib/sportmonks";
 
+type AvailablePlayerLens = Extract<OutsideSignalsResponse["player_lens"], { status: "available" }>;
+type PlayerLensPlayer = AvailablePlayerLens["players"][number];
+type PlayerMetric = PlayerLensPlayer["metrics"][number];
+
 function percent(value: number): string {
   return `${value.toFixed(1)}%`;
 }
@@ -28,7 +32,11 @@ export function OutsideSignals({
   complete?: boolean;
 }) {
   const [settings, setSettings] = useState<SportmonksStatus | null>(null);
-  const [signals, setSignals] = useState<OutsideSignalsResponse | null>(null);
+  const [signalsState, setSignalsState] = useState<{
+    value: OutsideSignalsResponse;
+    generation: number;
+  } | null>(null);
+  const signals = signalsState?.value ?? null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ message: string; status: number } | null>(null);
   const activeMatchId = useRef(matchId);
@@ -41,7 +49,7 @@ export function OutsideSignals({
     activeRequest.current?.abort();
     activeRequest.current = null;
     requestGeneration.current += 1;
-    setSignals(null);
+    setSignalsState(null);
     setError(null);
     setLoading(false);
     void fetchSportmonksStatus().then(
@@ -60,7 +68,7 @@ export function OutsideSignals({
       requestGeneration.current += 1;
       activeRequest.current?.abort();
       activeRequest.current = null;
-      setSignals(null);
+      setSignalsState(null);
       setError(null);
       setLoading(false);
       setSettings(null);
@@ -120,7 +128,12 @@ export function OutsideSignals({
     setError(null);
     try {
       const value = await fetchOutsideSignals(requestedMatchId, controller.signal);
-      if (isCurrent()) setSignals(value);
+      if (isCurrent()) {
+        setSignalsState((current) => ({
+          value,
+          generation: (current?.generation ?? 0) + 1,
+        }));
+      }
     } catch (reason) {
       if (controller.signal.aborted) return;
       const value = reason instanceof SportmonksApiError
@@ -128,7 +141,7 @@ export function OutsideSignals({
         : { message: reason instanceof Error ? reason.message : String(reason), status: 0 };
       if (!isCurrent()) return;
       if (value.status === 401 || value.status === 403 || value.status === 429) {
-        setSignals(null);
+        setSignalsState(null);
       }
       setError(value);
     } finally {
@@ -221,11 +234,12 @@ export function OutsideSignals({
               </article>
 
               <PlayerLens
+                key={`${signals.identity.provider_fixture_id}:${signalsState?.generation ?? 0}`}
                 value={signals.player_lens}
                 home={home}
                 away={away}
-                homeTeamId={signals.identity.provider_home_team_id}
-                awayTeamId={signals.identity.provider_away_team_id}
+                identity={signals.identity}
+                fetchedAtUtc={signals.provenance.fetched_at_utc}
               />
             </div>
 
@@ -262,39 +276,211 @@ function PlayerLens({
   value,
   home,
   away,
-  homeTeamId,
-  awayTeamId,
+  identity,
+  fetchedAtUtc,
 }: {
   value: OutsideSignalsResponse["player_lens"];
   home: string;
   away: string;
-  homeTeamId: number;
-  awayTeamId: number;
+  identity: OutsideSignalsResponse["identity"];
+  fetchedAtUtc: string;
 }) {
   if (value.status !== "available") return <article className="outside-signal-card outside-signal-card--wide" aria-labelledby="sportmonks-player-lens"><span className="upper">Provider player data</span><h3 id="sportmonks-player-lens">Player Lens</h3><p className="small dim">{unavailableMessage(value)}</p></article>;
+  return (
+    <AvailablePlayerLens
+      value={value}
+      home={home}
+      away={away}
+      identity={identity}
+      fetchedAtUtc={fetchedAtUtc}
+    />
+  );
+}
+
+function AvailablePlayerLens({
+  value,
+  home,
+  away,
+  identity,
+  fetchedAtUtc,
+}: {
+  value: AvailablePlayerLens;
+  home: string;
+  away: string;
+  identity: OutsideSignalsResponse["identity"];
+  fetchedAtUtc: string;
+}) {
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
+  const selectedPlayerButtonRef = useRef<HTMLButtonElement | null>(null);
+  const focusAfterCloseRef = useRef<HTMLButtonElement | null>(null);
+  const selectedPlayer = value.players.find((player) => player.player_id === selectedPlayerId) ?? null;
   const state = value.lineup_state === "confirmed"
     ? "Confirmed lineup"
     : value.lineup_state === "predicted"
       ? "Provider-predicted lineup"
       : "Lineup confirmation unavailable";
-  return <article className="outside-signal-card outside-signal-card--wide" aria-labelledby="sportmonks-player-lens">
-    <span className="upper">Provider player data</span>
-    <h3 id="sportmonks-player-lens">Player Lens</h3>
-    <p className="small"><strong>{state}</strong> · {value.coverage.players_with_metrics} of {value.coverage.player_count} players have supplied match statistics.</p>
-    <div className="two-col">{[[home, homeTeamId], [away, awayTeamId]].map(([team, teamId]) => {
+  const teamEntries = [
+    { localName: home, providerName: identity.provider_home_team, teamId: identity.provider_home_team_id },
+    { localName: away, providerName: identity.provider_away_team, teamId: identity.provider_away_team_id },
+  ];
+  const selectedTeam = selectedPlayer
+    ? teamEntries.find(({ teamId }) => teamId === selectedPlayer.team_id)?.providerName ?? null
+    : null;
+
+  useEffect(() => {
+    if (selectedPlayerId !== null || !focusAfterCloseRef.current) return;
+    focusAfterCloseRef.current.focus();
+    focusAfterCloseRef.current = null;
+  }, [selectedPlayerId]);
+
+  const closeDossier = () => {
+    focusAfterCloseRef.current = selectedPlayerButtonRef.current;
+    setSelectedPlayerId(null);
+  };
+
+  return <article className="outside-signal-card outside-signal-card--wide player-lens" aria-labelledby="sportmonks-player-lens">
+    <div className="player-lens__intro">
+      <div>
+        <span className="upper">Provider player data</span>
+        <h3 id="sportmonks-player-lens">Player Lens</h3>
+        <p className="small"><strong>{state}</strong> · {value.coverage.players_with_metrics} of {value.coverage.player_count} players have supplied match statistics.</p>
+      </div>
+      <p className="player-lens__instruction small dim">Choose a player to open a selected-match dossier. Nothing is fetched or saved when it opens.</p>
+    </div>
+    <div className="two-col player-lens__teams">{teamEntries.map(({ localName, teamId }) => {
       const teamPlayers = value.players.filter((player) => player.team_id === teamId);
-      return <div key={teamId}>
-      <h4>{team}</h4>
-      {teamPlayers.length === 0 ? <p className="small dim">No identity-safe lineup rows were supplied for this team.</p> : <ol className="plain-list">{teamPlayers.map((player) => <li key={player.player_id}>
-        <details>
-          <summary><strong>{player.jersey_number === null ? "" : `${player.jersey_number} · `}{player.name}</strong> <span className="small dim">{player.participation === "starter" ? "starter" : "bench"} · {player.metrics.length} stats</span></summary>
-          {player.metrics.length > 0 ? <dl className="outside-signal-values">{player.metrics.map((metric) => <div key={metric.type_id}><dt>{metric.label}</dt><dd className="num">{formatPlayerMetric(metric.value, metric.unit)}</dd></div>)}</dl> : <p className="small dim">No player statistics supplied for this fixture.</p>}
-        </details>
-      </li>)}</ol>}
-    </div>;
+      return <section key={teamId} aria-labelledby={`player-lens-team-${teamId}`}>
+      <h4 id={`player-lens-team-${teamId}`}>{localName}</h4>
+      {teamPlayers.length === 0 ? <p className="small dim">No identity-safe lineup rows were supplied for this team.</p> : <ol className="plain-list player-lens__roster">{teamPlayers.map((player) => {
+        const selected = player.player_id === selectedPlayerId;
+        return <li key={player.player_id}>
+          <button
+            type="button"
+            className={`player-lens__player${selected ? " is-selected" : ""}`}
+            aria-expanded={selected}
+            aria-controls={`player-match-dossier-${player.player_id}`}
+            ref={selected ? selectedPlayerButtonRef : null}
+            onClick={() => setSelectedPlayerId(selected ? null : player.player_id)}
+          >
+            <span className="player-lens__number num" aria-hidden>{player.jersey_number ?? "—"}</span>
+            <span className="player-lens__player-copy">
+              <strong>{player.name}</strong>
+              <span className="small dim">{player.participation === "starter" ? "Starter" : "Bench"} · {player.metrics.length} supplied stats</span>
+            </span>
+            <span className="player-lens__open small">{selected ? "Close" : "Open dossier"}</span>
+          </button>
+        </li>;
+      })}</ol>}
+    </section>;
     })}</div>
-    <p className="small dim">Missing means unavailable, never zero. Sportmonks player IDs and metric type IDs are preserved; no cross-league ranking or Golavo inference is made.</p>
+    {selectedPlayer && selectedTeam ? (
+      <PlayerMatchDossier
+        player={selectedPlayer}
+        team={selectedTeam}
+        lineupState={value.lineup_state}
+        fixtureId={identity.provider_fixture_id}
+        fetchedAtUtc={fetchedAtUtc}
+        onClose={closeDossier}
+      />
+    ) : null}
+    <p className="small dim player-lens__boundary">Missing means unavailable, never zero. Sportmonks player IDs and metric type IDs are preserved; no cross-league ranking or Golavo inference is made.</p>
   </article>;
+}
+
+function PlayerMatchDossier({
+  player,
+  team,
+  lineupState,
+  fixtureId,
+  fetchedAtUtc,
+  onClose,
+}: {
+  player: PlayerLensPlayer;
+  team: string;
+  lineupState: AvailablePlayerLens["lineup_state"];
+  fixtureId: number;
+  fetchedAtUtc: string;
+  onClose: () => void;
+}) {
+  const groups = groupPlayerMetrics(player.metrics);
+  const lineupLabel = lineupState === "confirmed"
+    ? "Confirmed lineup"
+    : lineupState === "predicted"
+      ? "Provider-predicted lineup"
+      : "Confirmation unavailable";
+  return (
+    <section
+      id={`player-match-dossier-${player.player_id}`}
+      className="player-dossier"
+      aria-labelledby={`player-match-dossier-title-${player.player_id}`}
+    >
+      <header className="player-dossier__hero">
+        <div className="player-dossier__shirt" aria-label={player.jersey_number === null ? "Jersey number unavailable" : `Jersey number ${player.jersey_number}`}>
+          <span aria-hidden>{player.jersey_number ?? "—"}</span>
+        </div>
+        <div className="player-dossier__title">
+          <span className="upper">Selected-match dossier · exact provider identity</span>
+          <h4 id={`player-match-dossier-title-${player.player_id}`}>{player.name}</h4>
+          <p>{team} · {player.participation === "starter" ? "Starter" : "Bench"}</p>
+        </div>
+        <button type="button" className="btn btn--ghost player-dossier__close" onClick={onClose}>Close dossier</button>
+      </header>
+
+      <dl className="player-dossier__identity" aria-label="Provider identity">
+        <IdentityField label="Player ID" value={player.player_id} />
+        <IdentityField label="Lineup ID" value={player.lineup_id} />
+        <IdentityField label="Team ID" value={player.team_id} />
+        <IdentityField label="Fixture ID" value={fixtureId} />
+        <IdentityField label="Position ID" value={player.position_id ?? "Unavailable"} />
+        <IdentityField label="Lineup state" value={lineupLabel} />
+      </dl>
+
+      <div className="player-dossier__evidence">
+        <div className="player-dossier__evidence-head">
+          <div>
+            <span className="upper">Provider-supplied record</span>
+            <h5>This fixture only</h5>
+          </div>
+          <span className="chip chip--neutral">Fetched {new Date(fetchedAtUtc).toLocaleString()}</span>
+        </div>
+        {groups.length > 0 ? (
+          <div className="player-dossier__groups">{groups.map(([group, metrics]) => (
+            <section key={group} className="player-dossier__group" aria-labelledby={`player-${player.player_id}-${group.replaceAll(" ", "-")}`}>
+              <h6 id={`player-${player.player_id}-${group.replaceAll(" ", "-")}`}>{group}</h6>
+              <dl>{metrics.map((metric) => (
+                <div key={metric.type_id}>
+                  <dt>{metric.label}<small>Type {metric.type_id}</small></dt>
+                  <dd className="num">{formatPlayerMetric(metric.value, metric.unit)}</dd>
+                </div>
+              ))}</dl>
+            </section>
+          ))}</div>
+        ) : (
+          <p className="small dim">No match statistics were supplied for this player. Their absence is not a zero.</p>
+        )}
+      </div>
+
+      <div className="player-dossier__limits">
+        <strong>One match, held in memory</strong>
+        <p className="small">This is not a career profile, current-form series, player ranking, or Golavo assessment. The response is not persisted and cannot enter a model, forecast, seal, settlement, score, calibration, AI read, or export.</p>
+      </div>
+    </section>
+  );
+}
+
+function IdentityField({ label, value }: { label: string; value: string | number }) {
+  return <div><dt>{label}</dt><dd className="mono">{value}</dd></div>;
+}
+
+function groupPlayerMetrics(metrics: PlayerMetric[]): Array<[string, PlayerMetric[]]> {
+  const groups = new Map<string, PlayerMetric[]>();
+  for (const metric of metrics) {
+    const group = metric.group ? `${metric.group[0].toUpperCase()}${metric.group.slice(1)}` : "Match summary";
+    const current = groups.get(group);
+    if (current) current.push(metric);
+    else groups.set(group, [metric]);
+  }
+  return [...groups];
 }
 
 function formatPlayerMetric(

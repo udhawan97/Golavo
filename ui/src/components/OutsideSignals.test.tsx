@@ -48,8 +48,8 @@ const response = {
     provider_fixture_id: 42,
     provider_home_team_id: 1,
     provider_away_team_id: 2,
-    provider_home_team: "Home",
-    provider_away_team: "Away",
+    provider_home_team: "Provider Home FC",
+    provider_away_team: "Provider Away FC",
     provider_league_id: 8,
     provider_league: "Premier League",
     provider_season_id: 202627,
@@ -197,16 +197,103 @@ describe("OutsideSignals", () => {
     expect(container.textContent).toContain("45.0%");
     expect(container.textContent).toContain("Example Book");
     expect(container.textContent).toContain("Ada Forward");
-    expect(container.textContent).toContain("1 count");
-    expect(container.textContent).toContain("76.5%");
-    expect(container.textContent).toContain("90 min");
-    expect(container.textContent).toContain("Yes");
-    expect(container.textContent).toContain("7.4 provider score");
     expect(container.textContent).toContain("Confirmed lineup");
     expect(container.textContent).toContain("No identity-safe lineup rows were supplied for this team");
     expect(container.textContent).toContain("Missing means unavailable");
     expect(container.textContent).toContain("Not a Golavo forecast");
     expect(container.textContent).toContain("raw response not stored");
+    expect(container.textContent).toContain("Open dossier");
+    expect(container.textContent).not.toContain("Selected-match dossier");
+
+    const player = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent?.includes("Ada Forward"),
+    );
+    await act(async () => player?.click());
+
+    expect(fetchOutsideSignals).toHaveBeenCalledOnce();
+    expect(player?.getAttribute("aria-expanded")).toBe("true");
+    expect(container.textContent).toContain("Selected-match dossier · exact provider identity");
+    expect(container.textContent).toContain("Player ID20");
+    expect(container.textContent).toContain("Lineup ID10");
+    expect(container.textContent).toContain("Team ID1");
+    expect(container.textContent).toContain("Fixture ID42");
+    expect(container.textContent).toContain("Position ID27");
+    expect(container.textContent).toContain("Provider Home FC · Starter");
+    expect(container.textContent).toContain("Type 52");
+    expect(container.textContent).toContain("Type 82");
+    expect(container.textContent).toContain("1 count");
+    expect(container.textContent).toContain("76.5%");
+    expect(container.textContent).toContain("90 min");
+    expect(container.textContent).toContain("Yes");
+    expect(container.textContent).toContain("7.4 provider score");
+    expect(container.textContent).toContain("This fixture only");
+    expect(container.textContent).toContain("not a career profile, current-form series, player ranking, or Golavo assessment");
+    expect(container.textContent).toContain("cannot enter a model, forecast, seal, settlement, score, calibration, AI read, or export");
+  });
+
+  it("closes a selected-match dossier without discarding the fetched roster", async () => {
+    await renderPanel();
+    const fetchButton = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
+    );
+    await act(async () => fetchButton?.click());
+    const player = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent?.includes("Ada Forward"),
+    );
+    await act(async () => player?.click());
+    expect(container.textContent).toContain("Selected-match dossier");
+
+    const close = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Close dossier",
+    );
+    act(() => close?.focus());
+    await act(async () => close?.click());
+
+    expect(container.textContent).not.toContain("Selected-match dossier");
+    expect(container.textContent).toContain("Ada Forward");
+    expect(fetchOutsideSignals).toHaveBeenCalledOnce();
+    expect(document.activeElement).toBe(player);
+  });
+
+  it("clears the selected dossier on a same-timestamp foreground refresh", async () => {
+    await renderPanel();
+    const fetchButton = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
+    );
+    await act(async () => fetchButton?.click());
+    const player = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent?.includes("Ada Forward"),
+    );
+    await act(async () => player?.click());
+    expect(container.textContent).toContain("Selected-match dossier");
+
+    const refresh = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Refresh outside signals & player data",
+    );
+    await act(async () => refresh?.click());
+
+    expect(fetchOutsideSignals).toHaveBeenCalledTimes(2);
+    expect(container.textContent).not.toContain("Selected-match dossier");
+    expect(container.textContent).toContain("Open dossier");
+  });
+
+  it("clears an open dossier when navigation selects a different match", async () => {
+    await renderPanel();
+    const fetchButton = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
+    );
+    await act(async () => fetchButton?.click());
+    const player = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent?.includes("Ada Forward"),
+    );
+    await act(async () => player?.click());
+    expect(container.textContent).toContain("Selected-match dossier");
+
+    await renderPanel("m_2", "Second Home", "Second Away");
+
+    expect(container.textContent).not.toContain("Selected-match dossier");
+    expect(container.textContent).not.toContain("Ada Forward");
+    expect(container.textContent).toContain("Second Home, Second Away");
   });
 
   it("does not render a provider panel while the connector is disabled", async () => {
@@ -267,6 +354,11 @@ describe("OutsideSignals", () => {
     );
     await act(async () => button?.click());
     expect(container.textContent).toContain("Ada Forward");
+    const player = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent?.includes("Ada Forward"),
+    );
+    await act(async () => player?.click());
+    expect(container.textContent).toContain("Selected-match dossier");
 
     act(() => window.dispatchEvent(new Event(SPORTMONKS_RESET_EVENT)));
 

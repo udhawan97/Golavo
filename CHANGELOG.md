@@ -8,6 +8,12 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Exact-identity selected-match player dossiers.** The foreground-only Sportmonks Player
+  Lens can open one in-memory player reading from the already-fetched fixture response. It
+  preserves player, lineup, team, fixture, position, and metric-type identities; groups only
+  provider-supplied match values; and keeps missing values unavailable. Opening and closing a
+  dossier performs no request or write, and the reading is explicitly not a career profile,
+  form series, ranking, model input, AI evidence, or export.
 - **Exact-identity team dossiers.** Current domestic form tables and My Teams now open a
   dedicated club reading that keeps observed record, separate season-model voices, and
   competition-scoped ratings, strength, workload, and run-in evidence in three explicit
