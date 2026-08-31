@@ -358,7 +358,7 @@ function AvailablePlayerLens({
             type="button"
             className={`player-lens__player${selected ? " is-selected" : ""}`}
             aria-expanded={selected}
-            aria-controls={`player-match-dossier-${player.player_id}`}
+            aria-controls={selected ? `player-match-dossier-${player.player_id}` : undefined}
             ref={selected ? selectedPlayerButtonRef : null}
             onClick={() => setSelectedPlayerId(selected ? null : player.player_id)}
           >
@@ -402,20 +402,28 @@ function PlayerMatchDossier({
   fetchedAtUtc: string;
   onClose: () => void;
 }) {
+  const dossierRef = useRef<HTMLElement | null>(null);
   const groups = groupPlayerMetrics(player.metrics);
   const lineupLabel = lineupState === "confirmed"
     ? "Confirmed lineup"
     : lineupState === "predicted"
       ? "Provider-predicted lineup"
       : "Confirmation unavailable";
+
+  useEffect(() => {
+    dossierRef.current?.focus();
+  }, [player.player_id]);
+
   return (
     <section
+      ref={dossierRef}
       id={`player-match-dossier-${player.player_id}`}
       className="player-dossier"
       aria-labelledby={`player-match-dossier-title-${player.player_id}`}
+      tabIndex={-1}
     >
       <header className="player-dossier__hero">
-        <div className="player-dossier__shirt" aria-label={player.jersey_number === null ? "Jersey number unavailable" : `Jersey number ${player.jersey_number}`}>
+        <div className="player-dossier__shirt" role="img" aria-label={player.jersey_number === null ? "Jersey number unavailable" : `Jersey number ${player.jersey_number}`}>
           <span aria-hidden>{player.jersey_number ?? "—"}</span>
         </div>
         <div className="player-dossier__title">
@@ -444,17 +452,20 @@ function PlayerMatchDossier({
           <span className="chip chip--neutral">Fetched {new Date(fetchedAtUtc).toLocaleString()}</span>
         </div>
         {groups.length > 0 ? (
-          <div className="player-dossier__groups">{groups.map(([group, metrics]) => (
-            <section key={group} className="player-dossier__group" aria-labelledby={`player-${player.player_id}-${group.replaceAll(" ", "-")}`}>
-              <h6 id={`player-${player.player_id}-${group.replaceAll(" ", "-")}`}>{group}</h6>
-              <dl>{metrics.map((metric) => (
-                <div key={metric.type_id}>
-                  <dt>{metric.label}<small>Type {metric.type_id}</small></dt>
-                  <dd className="num">{formatPlayerMetric(metric.value, metric.unit)}</dd>
-                </div>
-              ))}</dl>
-            </section>
-          ))}</div>
+          <div className="player-dossier__groups">{groups.map(([group, metrics], groupIndex) => {
+            const headingId = `player-${player.player_id}-metric-group-${groupIndex}`;
+            return (
+              <section key={group} className="player-dossier__group" aria-labelledby={headingId}>
+                <h6 id={headingId}>{group}</h6>
+                <dl>{metrics.map((metric) => (
+                  <div key={metric.type_id}>
+                    <dt>{metric.label}<small>Type {metric.type_id}</small></dt>
+                    <dd className="num">{formatPlayerMetric(metric.value, metric.unit)}</dd>
+                  </div>
+                ))}</dl>
+              </section>
+            );
+          })}</div>
         ) : (
           <p className="small dim">No match statistics were supplied for this player. Their absence is not a zero.</p>
         )}

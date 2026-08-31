@@ -208,10 +208,13 @@ describe("OutsideSignals", () => {
     const player = [...container.querySelectorAll("button")].find(
       (candidate) => candidate.textContent?.includes("Ada Forward"),
     );
+    expect(player?.hasAttribute("aria-controls")).toBe(false);
     await act(async () => player?.click());
 
     expect(fetchOutsideSignals).toHaveBeenCalledOnce();
     expect(player?.getAttribute("aria-expanded")).toBe("true");
+    expect(player?.getAttribute("aria-controls")).toBe("player-match-dossier-20");
+    expect(document.activeElement).toBe(container.querySelector(".player-dossier"));
     expect(container.textContent).toContain("Selected-match dossier · exact provider identity");
     expect(container.textContent).toContain("Player ID20");
     expect(container.textContent).toContain("Lineup ID10");
@@ -229,6 +232,41 @@ describe("OutsideSignals", () => {
     expect(container.textContent).toContain("This fixture only");
     expect(container.textContent).toContain("not a career profile, current-form series, player ranking, or Golavo assessment");
     expect(container.textContent).toContain("cannot enter a model, forecast, seal, settlement, score, calibration, AI read, or export");
+  });
+
+  it("focuses a dossier opened from the start of a full two-team roster", async () => {
+    const players = Array.from({ length: 24 }, (_, index) => ({
+      ...response.player_lens.players[0],
+      lineup_id: 100 + index,
+      player_id: 200 + index,
+      team_id: index < 12 ? 1 : 2,
+      name: `Roster Player ${index + 1}`,
+      jersey_number: index + 1,
+      metrics: index === 0 ? [] : response.player_lens.players[0].metrics,
+    }));
+    vi.mocked(fetchOutsideSignals).mockResolvedValue({
+      ...response,
+      player_lens: {
+        ...response.player_lens,
+        players,
+        coverage: { player_count: 24, players_with_metrics: 23, missing_stat_is_zero: false },
+      },
+    } as never);
+    await renderPanel();
+    const fetchButton = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
+    );
+    await act(async () => fetchButton?.click());
+    const firstPlayer = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent?.includes("Roster Player 1"),
+    );
+
+    await act(async () => firstPlayer?.click());
+
+    const dossier = container.querySelector<HTMLElement>(".player-dossier");
+    expect(document.activeElement).toBe(dossier);
+    expect(dossier?.textContent).toContain("No match statistics were supplied for this player");
+    expect(dossier?.textContent).toContain("Their absence is not a zero");
   });
 
   it("closes a selected-match dossier without discarding the fetched roster", async () => {

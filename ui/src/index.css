@@ -2015,6 +2015,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .player-lens__player:hover { border-color: var(--border-strong); background: var(--surface-3); }
 .player-lens__player:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .player-lens__player.is-selected { border-color: var(--gold-line); background: var(--gold-soft); }
+.player-lens__player.is-selected .dim { color: var(--text-muted); }
 .player-lens__number {
   display: grid; place-items: center; width: 2.3rem; height: 2.3rem;
   border: 1px solid var(--border); border-radius: 50%; color: var(--gold);
@@ -2034,6 +2035,7 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
     var(--surface-1);
   box-shadow: var(--edge-light);
 }
+.player-dossier:focus { outline: 2px solid var(--focus); outline-offset: 3px; }
 .player-dossier::after {
   content: ""; position: absolute; top: -5.5rem; right: -5.5rem; width: 12rem; height: 12rem;
   border: 1px solid var(--gold-line); border-radius: 50%; pointer-events: none; opacity: .42;
