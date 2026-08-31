@@ -241,22 +241,26 @@ def _result_view(artifact: dict[str, Any]) -> dict[str, Any]:
 def _existing_seal(forecasts_dir: Path, match_id: str, family: str) -> dict[str, Any] | None:
     """A root seal already recorded for this (fixture, family), or None.
 
-    A cheap navigation scan (no integrity verification — the reopen path
-    re-verifies): finds a non-superseded sealed/abstained artifact for this match
-    and family so a repeat request is idempotent instead of minting a duplicate.
+    The canonical artifact reader verifies schema, payload hash,
+    content-addressed id, and filename before the scan trusts any field. A corrupt
+    candidate fails closed before the writer runs, so a repeat cannot report
+    success from untrusted bytes or silently replace them.
     """
-    import json
+    from golavo_core.artifacts import load_verified_artifact
+    from jsonschema import ValidationError
 
     folder = Path(forecasts_dir)
     if not folder.exists():
         return None
     for path in sorted(folder.glob("fa_*.json")):
         try:
-            obj = json.loads(path.read_text(encoding="utf-8"))
-        except (ValueError, OSError):
-            continue
-        if not isinstance(obj, dict):
-            continue
+            obj = load_verified_artifact(path)
+        except (ValueError, KeyError, OSError, ValidationError) as exc:
+            raise SealError(
+                409,
+                "artifact_integrity",
+                "existing seal failed integrity verification",
+            ) from exc
         if (
             "artifact_id" in obj
             and obj.get("match", {}).get("match_id") == match_id

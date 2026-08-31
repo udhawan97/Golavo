@@ -11,14 +11,18 @@ artifact, not a stub.
 
 from __future__ import annotations
 
+import json
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
+from golavo_core.artifacts import payload_sha256
 from golavo_server import main as server_main
 from golavo_server import matches, seal
+from httpx import Response
 
 COLUMNS = [
     "match_id", "date", "kickoff_utc", "home_team", "away_team", "home_norm",
@@ -206,6 +210,100 @@ def test_repeat_seal_is_idempotent_even_as_the_clock_advances(
     assert second.json()["artifact_id"] == first.json()["artifact_id"]
     ledger = server_main.ARTIFACT_DIR
     assert len(list(ledger.glob("fa_*.json"))) == 1  # exactly one artifact, no drift duplicate
+
+
+def test_repeat_seal_rejects_a_tampered_existing_candidate_without_mutating_it(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_now(monkeypatch)
+    created = client.post(f"/api/v1/matches/{_NE_ID}/seal", json={"family": "elo_ordlogit"})
+    assert created.status_code == 201
+
+    ledger = server_main.ARTIFACT_DIR
+    path = ledger / f"{created.json()['artifact_id']}.json"
+    artifact = json.loads(path.read_text(encoding="utf-8"))
+    probs = artifact["forecast"]["probs"]
+    probs["home"], probs["away"] = probs["away"], probs["home"]
+    path.write_text(json.dumps(artifact, sort_keys=True, separators=(",", ":")) + "\n")
+    corrupt_bytes = path.read_bytes()
+
+    repeated = client.post(
+        f"/api/v1/matches/{_NE_ID}/seal", json={"family": "elo_ordlogit"}
+    )
+
+    assert repeated.status_code == 409
+    assert repeated.json()["detail"]["reason_code"] == "artifact_integrity"
+    assert path.read_bytes() == corrupt_bytes
+    assert len(list(ledger.glob("fa_*.json"))) == 1
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    (
+        "invalid_json",
+        "schema_drift",
+        "wrong_payload_hash",
+        "wrong_artifact_id",
+        "filename_mismatch",
+    ),
+)
+def test_repeat_seal_rejects_every_invalid_existing_candidate_without_mutating_it(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, corruption: str
+) -> None:
+    _freeze_now(monkeypatch)
+    created = client.post(f"/api/v1/matches/{_NE_ID}/seal", json={"family": "elo_ordlogit"})
+    assert created.status_code == 201
+
+    ledger = server_main.ARTIFACT_DIR
+    path = ledger / f"{created.json()['artifact_id']}.json"
+    artifact = json.loads(path.read_text(encoding="utf-8"))
+    if corruption == "invalid_json":
+        path.write_bytes(b"{")
+    elif corruption == "schema_drift":
+        artifact.pop("evaluation")
+    elif corruption == "wrong_payload_hash":
+        artifact["provenance"]["payload_sha256"] = "0" * 64
+    elif corruption == "wrong_artifact_id":
+        artifact["artifact_id"] = "fa_deadbeefdeadbeefdead"
+        artifact["provenance"]["payload_sha256"] = payload_sha256(artifact)
+    else:
+        wrong_path = path.with_name("fa_deadbeefdeadbeefdead.json")
+        wrong_path.write_bytes(path.read_bytes())
+        path.unlink()
+        path = wrong_path
+
+    if corruption not in ("invalid_json", "filename_mismatch"):
+        path.write_text(json.dumps(artifact, sort_keys=True, separators=(",", ":")) + "\n")
+    corrupt_bytes = path.read_bytes()
+
+    repeated = client.post(
+        f"/api/v1/matches/{_NE_ID}/seal", json={"family": "elo_ordlogit"}
+    )
+
+    assert repeated.status_code == 409
+    assert repeated.json()["detail"]["reason_code"] == "artifact_integrity"
+    assert path.read_bytes() == corrupt_bytes
+    assert len(list(ledger.glob("fa_*.json"))) == 1
+
+
+def test_concurrent_repeat_seals_return_one_immutable_artifact(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_now(monkeypatch)
+
+    def request_seal() -> Response:
+        return client.post(f"/api/v1/matches/{_NE_ID}/seal")
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        requests = [pool.submit(request_seal), pool.submit(request_seal)]
+        responses = [request.result() for request in requests]
+
+    assert sorted(response.status_code for response in responses) == [200, 201]
+    assert {response.json()["artifact_id"] for response in responses} == {
+        responses[0].json()["artifact_id"]
+    }
+    assert sorted(response.json()["created"] for response in responses) == [False, True]
+    assert len(list(server_main.ARTIFACT_DIR.glob("fa_*.json"))) == 1
 
 
 def test_seal_with_a_non_matrix_family_carries_no_score_grid(
