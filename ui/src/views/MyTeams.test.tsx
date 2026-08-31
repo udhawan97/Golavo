@@ -104,6 +104,7 @@ describe("MyTeams", () => {
     expect(container.textContent).toContain("Follow m_run_in");
     expect(container.textContent).toContain("Pick 2–1");
     expect(container.querySelector('a[href="#/match/m_run_in"]')).not.toBeNull();
+    expect(container.querySelector('a[href="#/team/england-premier-league/Exact%20Club"]')).not.toBeNull();
     const importInput = container.querySelector<HTMLInputElement>('input[type="file"]');
     expect(importInput?.classList.contains("visually-hidden")).toBe(true);
     expect(importInput?.hasAttribute("hidden")).toBe(false);

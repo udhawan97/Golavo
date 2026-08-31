@@ -12,7 +12,9 @@ import { DOCS_URL } from "../lib/links";
 import { PageGuide } from "./PageGuide";
 
 function isActive(path: string, section: "games" | "leagues" | "season" | "lab"): boolean {
-  if (section === "leagues") return path === "/leagues" || path.startsWith("/league/");
+  if (section === "leagues") {
+    return path === "/leagues" || path.startsWith("/league/") || path.startsWith("/team/");
+  }
   if (section === "season") return path.startsWith("/season");
   // Model Lab owns the relocated audit surface, sealed-forecast detail, and the
   // legacy /ledger and /eval addresses that redirect into it.

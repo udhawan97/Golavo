@@ -848,10 +848,15 @@ export async function fetchCompetitionAnalytics(
     };
   }
   const query = asOfUtc ? `?as_of_utc=${encodeURIComponent(asOfUtc)}` : "";
-  return assertCompetitionAnalytics(
+  const data = assertCompetitionAnalytics(
     await getJson(`/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}${query}`),
     `analytics/competitions/${competitionId}`,
   );
+  if (data.competition_id !== competitionId)
+    throw new ContractError(`analytics/competitions/${competitionId}: response competition does not match the request`);
+  if (asOfUtc && data.as_of_utc !== asOfUtc)
+    throw new ContractError(`analytics/competitions/${competitionId}: response cutoff does not match the request`);
+  return data;
 }
 
 function assertResearchTeamAnalytics(x: unknown, ctx: string): ResearchTeamAnalytics {
@@ -1208,12 +1213,17 @@ export async function fetchSeasonOutlook(competitionId: string): Promise<SeasonO
       provenance: { source_ids: [], index_sha256: "0".repeat(64) },
     };
   }
-  return assertSeasonOutlook(
+  const data = assertSeasonOutlook(
     await getJson(
       `/api/v1/analytics/competitions/${encodeURIComponent(competitionId)}/season-outlook`,
     ),
     `analytics/competitions/${competitionId}/season-outlook`,
   );
+  if (data.competition_id !== competitionId)
+    throw new ContractError(`analytics/competitions/${competitionId}/season-outlook: response competition does not match the request`);
+  if (data.scenario !== null)
+    throw new ContractError(`analytics/competitions/${competitionId}/season-outlook: canonical response may not contain a hypothetical scenario`);
+  return data;
 }
 
 /** Run a conditional season simulation without writing to the forecast ledger
@@ -1297,12 +1307,12 @@ function assertRatingsTable(x: unknown, ctx: string): RatingsTable {
   return data;
 }
 
-function disconnectedRatings(scope: string): RatingsTable {
+function disconnectedRatings(scope: string, asOfUtc?: string): RatingsTable {
   return {
     schema_version: "0.1.0",
     method: "elo-goal-weighted-v1",
     label: "Golavo Ratings — connect the engine to read the table.",
-    as_of_utc: new Date().toISOString(),
+    as_of_utc: asOfUtc ?? new Date().toISOString(),
     scope,
     matches_counted: 0,
     teams: [],
@@ -1325,14 +1335,24 @@ export async function fetchInternationalRatings(
  *  clubs against each other on almost no evidence connecting them. */
 export async function fetchClubRatings(
   competitionId: string,
-  options: { topN?: number } = {},
+  options: { topN?: number; asOfUtc?: string; indexSha256?: string } = {},
 ): Promise<RatingsTable> {
-  if (!API_BASE) return disconnectedRatings(competitionId);
-  const query = options.topN ? `?top_n=${encodeURIComponent(options.topN)}` : "";
-  return assertRatingsTable(
+  if (!API_BASE) return disconnectedRatings(competitionId, options.asOfUtc);
+  const params = new URLSearchParams();
+  if (options.topN) params.set("top_n", String(options.topN));
+  if (options.asOfUtc) params.set("as_of_utc", options.asOfUtc);
+  const query = params.size > 0 ? `?${params.toString()}` : "";
+  const data = assertRatingsTable(
     await getJson(`/api/v1/ratings/club/${encodeURIComponent(competitionId)}${query}`),
     `ratings/club/${competitionId}`,
   );
+  if (data.scope !== competitionId)
+    throw new ContractError(`ratings/club/${competitionId}: response scope does not match the request`);
+  if (options.asOfUtc && data.as_of_utc !== options.asOfUtc)
+    throw new ContractError(`ratings/club/${competitionId}: response cutoff does not match the request`);
+  if (options.indexSha256 && data.provenance?.index_sha256 !== options.indexSha256)
+    throw new ContractError(`ratings/club/${competitionId}: response index fingerprint does not match the canonical outlook`);
+  return data;
 }
 
 export async function fetchCalibration(): Promise<CalibrationSummary> {

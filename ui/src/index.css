@@ -3158,6 +3158,114 @@ table.grid.heatmap { min-width: 480px; font-size: .82rem; }
 .follow-history__list {
   display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--border);
 }
+
+/* Team dossier ------------------------------------------------------------- */
+.team-dossier { max-width: 1040px; margin-inline: auto; }
+.team-dossier__hero {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(19rem, .85fr); gap: var(--space-6);
+  padding: clamp(1.35rem, 4vw, 2.5rem);
+  border: 1px solid var(--gold-line); border-radius: var(--radius);
+  background:
+    radial-gradient(75% 120% at 100% 0%, var(--gold-soft), transparent 62%),
+    linear-gradient(135deg, color-mix(in srgb, var(--surface-2) 92%, transparent), var(--surface-1));
+  box-shadow: var(--edge-light), var(--shadow-sm);
+}
+.team-dossier__hero::after {
+  content: ""; position: absolute; inset: auto -3.5rem -5rem auto; pointer-events: none;
+  width: 15rem; height: 15rem; border: 1px solid var(--gold-line); border-radius: 50%; opacity: .16;
+  box-shadow: inset 0 0 0 2.8rem var(--surface-1), inset 0 0 0 2.9rem var(--gold-line);
+}
+.team-dossier__hero h1 {
+  max-width: 15ch; margin: .3rem 0 .2rem;
+  font: 600 clamp(2.3rem, 6vw, 4.8rem)/.98 var(--font-serif); letter-spacing: -.045em; text-wrap: balance;
+}
+.team-dossier__standing { color: var(--gold); font: 700 var(--text-lg)/1.25 var(--font-mono); }
+.team-dossier__hero-record {
+  position: relative; z-index: 1; align-self: end;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
+  background: color-mix(in srgb, var(--surface-1) 78%, transparent);
+}
+.team-dossier__hero-record > span { display: grid; gap: .1rem; padding: .8rem; color: var(--text-muted); font-size: var(--text-xs); border: solid var(--border); border-width: 0 1px 1px 0; }
+.team-dossier__hero-record > span:nth-child(even) { border-right: 0; }
+.team-dossier__hero-record > span strong { color: var(--text); font: 700 var(--text-lg)/1 var(--font-mono); }
+.team-dossier__hero-record .team-dossier__form { grid-column: 1 / -1; grid-template-columns: 1fr auto; align-items: center; border-right: 0; border-bottom: 0; }
+.team-dossier__form small { text-transform: uppercase; letter-spacing: .08em; }
+.team-dossier__form strong { letter-spacing: .18em; }
+
+.team-dossier__spine { display: grid; gap: 0; }
+.team-dossier__layer {
+  --layer-accent: var(--wave);
+  display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: var(--space-5);
+  border-top: 1px solid var(--border);
+}
+.team-dossier__layer:last-child { border-bottom: 1px solid var(--border); }
+.team-dossier__layer--record { --layer-accent: var(--green); }
+.team-dossier__layer--models { --layer-accent: var(--gold); }
+.team-dossier__layer--evidence { --layer-accent: var(--wave); }
+.team-dossier__layer-index {
+  display: flex; justify-content: center; padding-top: 2rem;
+  border-right: 1px solid color-mix(in srgb, var(--layer-accent) 45%, var(--border));
+  color: var(--layer-accent); font: 700 var(--text-sm)/1 var(--font-mono); letter-spacing: .08em;
+}
+.team-dossier__layer-body { min-width: 0; padding: 1.8rem 0 2rem; }
+.team-dossier__layer-body > .upper { color: var(--layer-accent); }
+.team-dossier__layer-body > h2 { margin: .2rem 0 .35rem; font-size: clamp(1.55rem, 3vw, 2.25rem); letter-spacing: -.025em; }
+.team-dossier__metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.4rem, 1fr)); gap: var(--space-2); margin-top: var(--space-4); }
+.team-dossier__metrics--wide { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.team-dossier__metric { min-width: 0; display: grid; align-content: start; gap: .2rem; padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius-xs); background: color-mix(in srgb, var(--surface-2) 78%, transparent); }
+.team-dossier__metric > span { color: var(--text-dim); font-size: var(--text-xs); }
+.team-dossier__metric > strong { overflow-wrap: anywhere; color: var(--text); font: 700 var(--text-md)/1.2 var(--font-mono); }
+.team-dossier__metric > small { color: var(--text-dim); font-size: .68rem; text-transform: capitalize; }
+.team-dossier__voices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-5); }
+.team-dossier__voice { padding: var(--space-4); border: 1px solid var(--gold-line); border-radius: var(--radius-sm); background: linear-gradient(150deg, var(--gold-soft), transparent 42%), var(--surface-1); }
+.team-dossier__voice h3 { margin: .15rem 0 0; }
+.team-dossier__voice > p { margin: var(--space-3) 0 0; }
+.team-dossier__context-group { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+.team-dossier__context-group h3 { margin: 0; font-size: var(--text-base); }
+.team-dossier__context-group > p { margin: var(--space-2) 0 0; }
+.team-dossier__unavailable { margin-top: var(--space-3); padding: .7rem .8rem; border-left: 2px solid var(--border-strong); background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+
+.team-dossier__run-in { padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-1); }
+.team-dossier__fixtures { display: grid; gap: var(--space-2); counter-reset: dossier-fixture; }
+.team-dossier__fixtures > li {
+  counter-increment: dossier-fixture;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3);
+  padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2);
+}
+.team-dossier__fixtures > li::before { content: counter(dossier-fixture, decimal-leading-zero); color: var(--text-dim); font: 650 var(--text-xs)/1 var(--font-mono); }
+.team-dossier__fixture { display: grid; min-width: 0; gap: .12rem; color: inherit; text-decoration: none; }
+.team-dossier__fixture:hover strong { color: var(--gold); }
+.team-dossier__fixture:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 2px; }
+.team-dossier__fixture .upper { color: var(--text-dim); }
+.team-dossier__fixture strong { overflow-wrap: anywhere; font-size: var(--text-base); }
+.team-dossier__fixture small, .team-dossier__fixture-pick { color: var(--text-muted); }
+.team-dossier__fixture-pick { font-size: var(--text-xs); white-space: nowrap; }
+.team-dossier__provenance { padding: var(--space-4); border-left: 2px solid var(--gold-line); background: color-mix(in srgb, var(--surface-1) 82%, transparent); }
+.team-dossier__provenance p { margin: .35rem 0 0; color: var(--text-muted); font-size: var(--text-xs); overflow-wrap: anywhere; }
+.team-dossier__provenance code { color: var(--text); font-family: var(--font-mono); }
+
+@media (max-width: 760px) {
+  .team-dossier__hero { grid-template-columns: 1fr; gap: var(--space-5); }
+  .team-dossier__hero-record { max-width: 30rem; }
+  .team-dossier__voices { grid-template-columns: 1fr; }
+  .team-dossier__metrics--wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .team-dossier__fixtures > li { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .team-dossier__fixture-pick { grid-column: 2; }
+}
+@media (max-width: 520px) {
+  .team-dossier__layer { grid-template-columns: 2.4rem minmax(0, 1fr); gap: var(--space-3); }
+  .team-dossier__layer-index { padding-top: 1.75rem; font-size: .68rem; writing-mode: vertical-rl; }
+  .team-dossier__layer-body { padding-right: .1rem; }
+  .team-dossier__metrics, .team-dossier__metrics--wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .team-dossier__fixtures > li { grid-template-columns: auto minmax(0, 1fr); }
+  .team-dossier__fixtures .follow-button { grid-column: 2; justify-self: start; }
+}
+@media (forced-colors: active) {
+  .team-dossier__hero, .team-dossier__layer, .team-dossier__metric,
+  .team-dossier__voice, .team-dossier__run-in, .team-dossier__fixtures > li { border-color: CanvasText; }
+}
 .follow-history__event { padding: .75rem .9rem; border-bottom: 1px solid var(--border); }
 .follow-history__event:last-child { border-bottom: 0; }
 .follow-history__event > div { display: flex; justify-content: space-between; gap: .75rem; }

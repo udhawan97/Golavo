@@ -11,6 +11,7 @@ describe("guideForPath", () => {
     ["/league/premier-league", "Competition guide"],
     ["/season", "My Season guide"],
     ["/teams", "My Teams guide"],
+    ["/team/england-premier-league/Exact%20Club", "Team dossier guide"],
     ["/transfers", "Transfer Desk guide"],
     ["/lab/track-record", "Model Lab guide"],
     ["/trust", "Trust Center guide"],

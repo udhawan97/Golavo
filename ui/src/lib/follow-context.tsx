@@ -49,6 +49,7 @@ export interface FollowController {
   settings: FollowSettings;
   permission: LocalNotificationPermission;
   loading: boolean;
+  listStatus: "loading" | "ready" | "error";
   markingRead: boolean;
   changingMatchId: string | null;
   error: Error | null;
@@ -90,26 +91,35 @@ export function useFollowController(backendReady: boolean): FollowController {
   const [settings, setSettings] = useState<FollowSettings>(EMPTY_SETTINGS);
   const [permission, setPermission] = useState<LocalNotificationPermission>("unsupported");
   const [loading, setLoading] = useState(false);
+  const [listStatus, setListStatus] = useState<FollowController["listStatus"]>(
+    backendReady ? "loading" : "ready",
+  );
   const [markingRead, setMarkingRead] = useState(false);
   const [changingMatchId, setChangingMatchId] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [markReadError, setMarkReadError] = useState<Error | null>(null);
   const reconciling = useRef<Promise<void> | null>(null);
   const markingReadRef = useRef(false);
+  const changingRef = useRef(false);
 
   const reload = useCallback(async () => {
     if (!backendReady) return;
-    const [nextList, nextSettings, nextPermission] = await Promise.all([
-      fetchAllActiveFollows(),
-      fetchFollowSettings(),
-      localNotificationPermission(),
-    ]);
+    const nextList = await fetchAllActiveFollows();
     setList(nextList);
-    setSettings(nextSettings);
-    setPermission(nextPermission);
-    if (nextSettings.notifications_opt_in && nextPermission !== "granted") {
-      const disabled = await updateFollowSettings(false);
-      setSettings(disabled);
+    setListStatus("ready");
+    try {
+      const [nextSettings, nextPermission] = await Promise.all([
+        fetchFollowSettings(),
+        localNotificationPermission(),
+      ]);
+      setSettings(nextSettings);
+      setPermission(nextPermission);
+      if (nextSettings.notifications_opt_in && nextPermission !== "granted") {
+        const disabled = await updateFollowSettings(false);
+        setSettings(disabled);
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause : new Error(String(cause)));
     }
   }, [backendReady]);
 
@@ -160,6 +170,7 @@ export function useFollowController(backendReady: boolean): FollowController {
         await reload();
       } catch (cause) {
         setError(cause instanceof Error ? cause : new Error(String(cause)));
+        setListStatus((current) => current === "ready" ? current : "error");
       }
     })();
     reconciling.current = work;
@@ -173,6 +184,7 @@ export function useFollowController(backendReady: boolean): FollowController {
   useEffect(() => {
     if (!backendReady) return;
     setLoading(true);
+    setListStatus("loading");
     void reconcile().finally(() => setLoading(false));
     const onGeneration = () => void reconcile();
     window.addEventListener(DATA_GENERATION_CHANGED_EVENT, onGeneration);
@@ -180,27 +192,39 @@ export function useFollowController(backendReady: boolean): FollowController {
   }, [backendReady, reconcile]);
 
   const follow = useCallback(async (matchId: string) => {
+    if (changingRef.current) return;
+    changingRef.current = true;
     setChangingMatchId(matchId);
     setError(null);
+    let changed = false;
     try {
       await followMatch(matchId);
+      changed = true;
       await reload();
     } catch (cause) {
       setError(cause instanceof Error ? cause : new Error(String(cause)));
+      if (changed) setListStatus("error");
     } finally {
+      changingRef.current = false;
       setChangingMatchId(null);
     }
   }, [reload]);
 
   const unfollow = useCallback(async (followId: string, matchId?: string) => {
+    if (changingRef.current) return;
+    changingRef.current = true;
     setChangingMatchId(matchId ?? followId);
     setError(null);
+    let changed = false;
     try {
       await unfollowMatch(followId);
+      changed = true;
       await reload();
     } catch (cause) {
       setError(cause instanceof Error ? cause : new Error(String(cause)));
+      if (changed) setListStatus("error");
     } finally {
+      changingRef.current = false;
       setChangingMatchId(null);
     }
   }, [reload]);
@@ -271,6 +295,7 @@ export function useFollowController(backendReady: boolean): FollowController {
     settings,
     permission,
     loading,
+    listStatus,
     markingRead,
     changingMatchId,
     error,

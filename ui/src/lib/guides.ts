@@ -131,6 +131,20 @@ const GUIDES = {
       { label: "Manage local data", href: "#/settings" },
     ],
   },
+  teamDossier: {
+    eyebrow: "Team dossier guide",
+    title: "Read the club from record to evidence",
+    summary: "The dossier keeps observed facts, model projections, and competition-scoped context in three separate layers.",
+    steps: [
+      "Confirm the exact competition and team identity at the top.",
+      "Read each model voice separately; Golavo never blends them into a consensus.",
+      "Use the evidence layer and run-in to inspect scope, workload, ratings, and sources.",
+    ],
+    links: [
+      { label: "Open My Teams", href: "#/teams" },
+      { label: "Browse leagues", href: "#/leagues" },
+    ],
+  },
   lab: {
     eyebrow: "Model Lab guide",
     title: "Judge the methods before trusting the headline",
@@ -184,6 +198,7 @@ export function openPageGuide(): void {
 export function guideForPath(path: string): PageGuide {
   if (path === "/settings") return GUIDES.settings;
   if (path === "/trust") return GUIDES.trust;
+  if (path.startsWith("/team/")) return GUIDES.teamDossier;
   if (path === "/teams") return GUIDES.teams;
   if (path === "/transfers") return GUIDES.transfers;
   if (path.startsWith("/season")) return GUIDES.season;

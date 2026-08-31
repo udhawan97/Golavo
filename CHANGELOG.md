@@ -6,6 +6,15 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Exact-identity team dossiers.** Current domestic form tables and My Teams now open a
+  dedicated club reading that keeps observed record, separate season-model voices, and
+  competition-scoped ratings, strength, workload, and run-in evidence in three explicit
+  layers. Missing or changed team identities, hypothetical responses, and partial voice sets
+  fail closed; optional context is snapshot-bound and separately attributed without erasing
+  the certified table record. Reading the dossier does not load or settle local pick records.
+
 ## [0.19.0] - 2026-08-30
 
 ### Added

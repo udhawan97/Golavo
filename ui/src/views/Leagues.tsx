@@ -23,6 +23,7 @@ import { TournamentOutlook } from "../components/TournamentOutlook";
 import { SeasonOutlook } from "../components/SeasonOutlook";
 import { ScorersPanel } from "../components/ScorersPanel";
 import { ResearchTeamAnalytics } from "../components/ResearchTeamAnalytics";
+import { teamDossierHref } from "../lib/team-route";
 
 export { LEAGUES } from "../lib/leagues";
 
@@ -155,7 +156,10 @@ export function LeagueView({ slug }: { slug: string }) {
           ) : analyticsState.status === "error" ? (
             <ErrorState error={analyticsState.error} />
           ) : analyticsState.data ? (
-            <CurrentSeasonPulsePanel pulse={analyticsState.data.current_season} />
+            <CurrentSeasonPulsePanel
+              pulse={analyticsState.data.current_season}
+              competitionId={league.competitionId}
+            />
           ) : null}
         </div>
       )}
@@ -318,7 +322,13 @@ function CompetitionAnalyticsPanel({ data }: { data: CompetitionAnalytics }) {
   );
 }
 
-function CurrentSeasonPulsePanel({ pulse }: { pulse: CurrentSeasonPulse }) {
+export function CurrentSeasonPulsePanel({
+  pulse,
+  competitionId,
+}: {
+  pulse: CurrentSeasonPulse;
+  competitionId: string;
+}) {
   if (pulse.status !== "available") {
     return (
       <div className="callout callout--info" role="status">
@@ -366,7 +376,7 @@ function CurrentSeasonPulsePanel({ pulse }: { pulse: CurrentSeasonPulse }) {
               <tbody>
                 {pulse.teams.map((team) => (
                   <tr key={team.team}>
-                    <th scope="row">{team.team}</th>
+                    <th scope="row"><a href={teamDossierHref(competitionId, team.team)}>{team.team}</a></th>
                     <td><span className="form-strip" role="img" aria-label={`${team.team} last ${team.recent_form.length}: ${team.recent_form.join(", ")}`}>
                       {team.recent_form.length > 0 ? team.recent_form.map((result, index) => (
                         <span className={`form-dot form-dot--${result.toLowerCase()}`} key={`${result}-${index}`} aria-hidden>{result}</span>

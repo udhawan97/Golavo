@@ -21,6 +21,7 @@ import { FollowButton } from "../components/FollowButton";
 import { TeamProjectionChange } from "../components/TeamProjectionChange";
 import { useFollows } from "../lib/follow-context";
 import { usePicks } from "../lib/picks";
+import { teamDossierHref } from "../lib/team-route";
 
 const AVAILABLE = LEAGUES.filter((league) => league.seasonOutlook && league.competitionId);
 
@@ -227,7 +228,7 @@ function TeamCard({ favorite, outlook, picks, onRemove }: {
   const missing = available && (!standing || !projection);
   const unavailable = outlook && !available;
   return <article className="card card--pad stack">
-    <div className="controls" style={{ justifyContent: "space-between" }}><div><h3>{favorite.team}</h3><a className="small" href={`#/league/${favorite.leagueSlug}`}>{favorite.leagueName} ›</a></div><button type="button" className="btn btn--ghost" onClick={onRemove}>Remove</button></div>
+    <div className="controls" style={{ justifyContent: "space-between" }}><div><h3><a href={teamDossierHref(favorite.competitionId, favorite.team)}>{favorite.team}</a></h3><a className="small" href={`#/league/${favorite.leagueSlug}`}>{favorite.leagueName} ›</a></div><button type="button" className="btn btn--ghost" onClick={onRemove}>Remove</button></div>
     {!outlook && <p className="small dim">Loading local season outlook…</p>}
     {unavailable && <div className="callout callout--info"><div><div className="callout__title">Season outlook unavailable</div><p className="small">{outlook.reason ?? "Golavo cannot certify the local season outlook yet."} Your exact saved club identity was preserved.</p></div></div>}
     {missing && <div className="callout callout--info"><div><div className="callout__title">Exact team identity not present</div><p className="small">The active season no longer contains this exact club name. Golavo will not guess through a rename, promotion, or relegation; remove it and select the current identity.</p></div></div>}

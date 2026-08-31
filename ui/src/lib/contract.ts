@@ -864,6 +864,7 @@ export interface RatingsTable {
   scope: string;
   matches_counted: number;
   data_through_utc?: string;
+  provenance?: { index_sha256?: string };
   teams: RatingRow[];
 }
 

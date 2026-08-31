@@ -35,6 +35,7 @@ const SealingGuide = lazy(() => import("./views/SealingGuide").then((m) => ({ de
 const PicksGuide = lazy(() => import("./views/PicksGuide").then((m) => ({ default: m.PicksGuide })));
 const MySeason = lazy(() => import("./views/MySeason").then((m) => ({ default: m.MySeason })));
 const MyTeams = lazy(() => import("./views/MyTeams").then((m) => ({ default: m.MyTeams })));
+const TeamDossier = lazy(() => import("./views/TeamDossier").then((m) => ({ default: m.TeamDossier })));
 const TrustCenter = lazy(() => import("./views/TrustCenter").then((m) => ({ default: m.TrustCenter })));
 const Transfers = lazy(() => import("./views/Transfers").then((m) => ({ default: m.Transfers })));
 import { UpdaterContext } from "./lib/updater-context";
@@ -58,6 +59,7 @@ import { FollowContext, useFollowController } from "./lib/follow-context";
 import { CorrectionContext, useCorrectionController } from "./lib/correction-context";
 import { CORRECTIONS_BACKEND_AVAILABLE } from "./lib/corrections";
 import { SportmonksWelcomeCard } from "./components/SportmonksWelcomeCard";
+import { parseTeamDossierPath } from "./lib/team-route";
 
 /** Longest we hold the splash on stage 2 (index warm) before releasing to the
  *  home's own warming card. A wedged index can never strand the user: search and
@@ -246,6 +248,15 @@ function Route({
   if (path === "/transfers") return <Transfers />;
   const league = path.match(/^\/league\/(.+)$/);
   if (league) return <LeagueView slug={safeDecode(league[1])} />;
+  const teamDossier = parseTeamDossierPath(path);
+  if (teamDossier) {
+    return (
+      <TeamDossier
+        competitionId={teamDossier.competitionId}
+        team={teamDossier.team}
+      />
+    );
+  }
   if (path === "/season") return <MySeason />;
   if (path === "/teams") return <MyTeams />;
 
