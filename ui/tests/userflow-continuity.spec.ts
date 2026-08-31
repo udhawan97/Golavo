@@ -77,9 +77,12 @@ test("Back restores the Matchday card that opened the cockpit", async ({ page })
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(300);
   await card.click();
   await expect(page.locator("h1").first()).toBeVisible();
+  await expect(page.locator("main#main")).toBeFocused();
+  await expect(page).toHaveTitle("Match cockpit · Golavo");
 
   await page.goBack();
   await expect(card).toBeInViewport();
+  await expect(page).toHaveTitle("Matchday · Golavo");
 
   await page.goForward();
   await expect(page.locator("h1").first()).toBeVisible();
@@ -88,6 +91,9 @@ test("Back restores the Matchday card that opened the cockpit", async ({ page })
   await page.goBack();
   await page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Leagues" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Leagues & 2026–27" })).toBeVisible();
+  await expect(page.locator("main#main")).toBeFocused();
+  await expect(page).toHaveTitle("Leagues & Europe · Golavo");
+  await expect(page.locator('[role="status"]').filter({ hasText: "Leagues & Europe" })).toBeAttached();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(10);
 });
 

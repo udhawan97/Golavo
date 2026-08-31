@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type {
   CompetitionAnalytics,
   SeasonFixtureImportance,
@@ -9,7 +9,9 @@ import type {
 import {
   assertSeasonScenarioResponse,
   assertCompetitionAnalytics,
+  clearApiCache,
   fetchCompetitionAnalytics,
+  getJson,
   importanceViolation,
   narrativeJobWasLost,
   refreshMatchWeather,
@@ -130,6 +132,49 @@ describe("narrative job polling", () => {
 
   it("stops immediately when a previously visible job disappears", () => {
     expect(narrativeJobWasLost(true, 1)).toBe(true);
+  });
+});
+
+describe("GET cache invalidation", () => {
+  it("keeps a pre-clear response out of the new epoch and preserves the newer in-flight request", async () => {
+    const oldValue = { generation: "old" };
+    const newValue = { generation: "new" };
+    let resolveOld!: (value: typeof oldValue) => void;
+    let resolveNew!: (value: typeof newValue) => void;
+    const bodies = [
+      new Promise<typeof oldValue>((resolve) => { resolveOld = resolve; }),
+      new Promise<typeof newValue>((resolve) => { resolveNew = resolve; }),
+    ];
+    const fetchMock = vi.fn(() => Promise.resolve({
+      ok: true,
+      json: () => bodies.shift()!,
+    } as Response));
+
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      clearApiCache();
+      const oldRequest = getJson("/cache-epoch-probe");
+      await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+      clearApiCache();
+      const newRequest = getJson("/cache-epoch-probe");
+      await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+      resolveOld(oldValue);
+      await expect(oldRequest).resolves.toEqual(oldValue);
+
+      const coalescedAfterOldSettles = getJson("/cache-epoch-probe");
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      resolveNew(newValue);
+
+      await expect(newRequest).resolves.toEqual(newValue);
+      await expect(coalescedAfterOldSettles).resolves.toEqual(newValue);
+      await expect(getJson("/cache-epoch-probe")).resolves.toEqual(newValue);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+      clearApiCache();
+    }
   });
 });
 

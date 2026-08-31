@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Layout } from "./components/Layout";
-import { useHashRoute, useReadingPrefs } from "./lib/hooks";
-import type { ReadingPrefs } from "./lib/hooks";
+import { useHashRoute, useReadingPrefs, useRouteArrival } from "./lib/hooks";
+import type { HashRouteState, ReadingPrefs, RouteAnnouncement } from "./lib/hooks";
 import { BlockSkeleton, EmptyState, Loading } from "./components/states";
 // The Matchday home is the default landing, so it stays in the main bundle. Every
 // other view is split out and loaded on first navigation — the initial download
@@ -88,6 +88,10 @@ export default function App() {
   const openLigaDB = useOpenLigaDBController(backendReady && !holdForIndex);
   const [updateNoticeVisible, setUpdateNoticeVisible] = useState(false);
   const [sportmonksNoticeVisible, setSportmonksNoticeVisible] = useState(false);
+  const [routeAnnouncement, setRouteAnnouncement] = useState<RouteAnnouncement>({
+    entryKey: "",
+    text: "",
+  });
 
   // First-launch orientation. Seed returning users as "done" once so an update
   // never replays the newcomer tour. The home tour yields to the update-consent
@@ -165,6 +169,7 @@ export default function App() {
                 prefs={prefs}
                 onChangePrefs={setPrefs}
                 forecastSource={forecastSource}
+                routeAnnouncement={routeAnnouncement}
               >
                 <ErrorBoundary resetKey={path}>
                   <Suspense
@@ -176,6 +181,7 @@ export default function App() {
                     }
                   >
                     <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
+                    <RouteArrival route={route} announce={setRouteAnnouncement} />
                   </Suspense>
                 </ErrorBoundary>
               </Layout>
@@ -194,6 +200,17 @@ export default function App() {
       </CorrectionContext.Provider>
     </DataRefreshContext.Provider>
   );
+}
+
+function RouteArrival({
+  route,
+  announce,
+}: {
+  route: HashRouteState;
+  announce: (value: RouteAnnouncement) => void;
+}) {
+  useRouteArrival(route, announce);
+  return null;
 }
 
 /** Hash-route redirect: replaces the current entry so Back doesn't loop. Used to

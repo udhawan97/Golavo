@@ -2,14 +2,27 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchClubRatings, fetchCompetitionAnalytics, fetchSeasonOutlook } from "../lib/api";
+import {
+  clearApiCache,
+  fetchClubRatings,
+  fetchCompetitionAnalytics,
+  fetchSeasonOutlook,
+} from "../lib/api";
 import type { CompetitionAnalytics, RatingsTable, SeasonOutlook } from "../lib/contract";
+import { DATA_GENERATION_CHANGED_EVENT } from "../lib/data-refresh-context";
 import { TeamDossier } from "./TeamDossier";
 
 vi.mock("../lib/api", () => ({
+  cancelDataRefresh: vi.fn(),
+  clearApiCache: vi.fn(),
   fetchClubRatings: vi.fn(),
   fetchCompetitionAnalytics: vi.fn(),
+  fetchDataRefreshJob: vi.fn(),
+  fetchDataRefreshStatus: vi.fn(),
+  fetchFollows: vi.fn(),
   fetchSeasonOutlook: vi.fn(),
+  rollbackDataRefresh: vi.fn(),
+  startDataRefresh: vi.fn(),
 }));
 vi.mock("../components/FollowButton", () => ({
   FollowButton: ({ matchId }: { matchId: string }) => <button type="button">Follow {matchId}</button>,
@@ -293,6 +306,61 @@ describe("TeamDossier", () => {
     expect(container.textContent).toContain("Model projections are withheld");
     expect(container.textContent).not.toContain("Projected points74.2");
     expect(container.textContent).not.toContain("Projected points72.8");
+  });
+
+  it("retries one failed exact-identity request once without reusing its prior read", async () => {
+    vi.mocked(fetchSeasonOutlook)
+      .mockRejectedValueOnce(new Error("local dossier read failed"))
+      .mockResolvedValueOnce(structuredClone(OUTLOOK));
+
+    await act(async () => root.render(
+      <TeamDossier competitionId="england-premier-league" team="Exact Club" />,
+    ));
+
+    const retry = [...container.querySelectorAll("button")].find(
+      (button) => button.textContent === "Try again",
+    );
+    expect(retry).toBeDefined();
+    expect(fetchSeasonOutlook).toHaveBeenCalledOnce();
+
+    await act(async () => retry?.click());
+
+    expect(clearApiCache).toHaveBeenCalledOnce();
+    expect(fetchSeasonOutlook).toHaveBeenCalledTimes(2);
+    expect(container.querySelector("h1")?.textContent).toBe("Exact Club");
+    await act(async () => Promise.resolve());
+    expect(fetchSeasonOutlook).toHaveBeenCalledTimes(2);
+  });
+
+  it("refetches one exact fingerprint when the active data generation changes", async () => {
+    await act(async () => root.render(
+      <TeamDossier competitionId="england-premier-league" team="Exact Club" />,
+    ));
+    expect(container.textContent).toContain("2nd · 60 points");
+
+    const refreshedOutlook = structuredClone(OUTLOOK);
+    refreshedOutlook.current_table[0].points = 61;
+    refreshedOutlook.provenance.index_sha256 = "b".repeat(64);
+    const refreshedAnalytics = structuredClone(ANALYTICS);
+    refreshedAnalytics.provenance.index_sha256 = "b".repeat(64);
+    const refreshedRatings = structuredClone(RATINGS);
+    refreshedRatings.provenance!.index_sha256 = "b".repeat(64);
+    vi.mocked(fetchSeasonOutlook).mockResolvedValue(refreshedOutlook);
+    vi.mocked(fetchCompetitionAnalytics).mockResolvedValue(refreshedAnalytics);
+    vi.mocked(fetchClubRatings).mockResolvedValue(refreshedRatings);
+
+    await act(async () => window.dispatchEvent(new Event(DATA_GENERATION_CHANGED_EVENT)));
+
+    expect(container.textContent).toContain("2nd · 61 points");
+    expect(fetchSeasonOutlook).toHaveBeenCalledTimes(2);
+    expect(fetchCompetitionAnalytics).toHaveBeenCalledTimes(2);
+    expect(fetchClubRatings).toHaveBeenCalledTimes(2);
+    expect(fetchClubRatings).toHaveBeenLastCalledWith("england-premier-league", {
+      asOfUtc: OUTLOOK.as_of_utc,
+      indexSha256: "b".repeat(64),
+    });
+    await act(async () => Promise.resolve());
+    expect(fetchSeasonOutlook).toHaveBeenCalledTimes(2);
   });
 
 });

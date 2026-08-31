@@ -315,6 +315,28 @@ describe("OutsideSignals", () => {
     expect(container.textContent).toContain("Open dossier");
   });
 
+  it("clears prior provider evidence when a foreground refresh fails", async () => {
+    await renderPanel();
+    const fetchButton = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Fetch outside signals & player data",
+    );
+    await act(async () => fetchButton?.click());
+    expect(container.textContent).toContain("45.0%");
+    expect(container.textContent).toContain("Ada Forward");
+
+    vi.mocked(fetchOutsideSignals).mockRejectedValueOnce(new Error("provider transport failed"));
+    const refresh = [...container.querySelectorAll("button")].find(
+      (candidate) => candidate.textContent === "Refresh outside signals & player data",
+    );
+    await act(async () => refresh?.click());
+
+    expect(fetchOutsideSignals).toHaveBeenCalledTimes(2);
+    expect(container.textContent).not.toContain("45.0%");
+    expect(container.textContent).not.toContain("Ada Forward");
+    expect(container.textContent).toContain("Outside signals unavailable: provider transport failed");
+    expect(container.textContent).toContain("Fetch outside signals & player data");
+  });
+
   it("clears an open dossier when navigation selects a different match", async () => {
     await renderPanel();
     const fetchButton = [...container.querySelectorAll("button")].find(

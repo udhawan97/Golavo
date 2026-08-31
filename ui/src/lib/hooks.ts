@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { parseTeamDossierPath } from "./team-route";
 
 const ROUTE_ENTRY_KEY = "__golavoRouteEntry";
 let routeEntrySequence = 0;
@@ -7,6 +8,12 @@ export interface HashRouteState {
   path: string;
   entryKey: string;
   restoreScrollY: number;
+  arrival: "initial" | "new" | "history";
+}
+
+export interface RouteAnnouncement {
+  entryKey: string;
+  text: string;
 }
 
 function routeEntryKey(): string {
@@ -39,6 +46,7 @@ export function useHashRoute(): [HashRouteState, (to: string) => void] {
       path: read(),
       entryKey,
       restoreScrollY: 0,
+      arrival: "initial",
     };
   }
   const [route, setRoute] = useState<HashRouteState>(initial.current);
@@ -61,6 +69,7 @@ export function useHashRoute(): [HashRouteState, (to: string) => void] {
         path: read(),
         entryKey,
         restoreScrollY: revisiting ? (scrollByEntry.current.get(entryKey) ?? 0) : 0,
+        arrival: revisiting ? "history" : "new",
       };
       current.current = next;
       setRoute(next);
@@ -76,6 +85,53 @@ export function useHashRoute(): [HashRouteState, (to: string) => void] {
     window.location.hash = to.startsWith("/") ? to : `/${to}`;
   }, []);
   return [route, navigate];
+}
+
+/** Stable, user-facing route names for the document title and live arrival
+ *  announcement. Dynamic ids remain private; exact team identity is safe and
+ *  useful orientation on the dossier route. */
+export function routePageTitle(path: string): string {
+  if (path === "/" || path === "" || path === "/games") return "Matchday";
+  if (path === "/matches") return "Search matches";
+  if (path.startsWith("/match/")) return "Match cockpit";
+  if (path === "/corrections") return "Corrections queue";
+  if (path.startsWith("/corrections/")) return "Correction review";
+  if (path.startsWith("/forecast/")) return "Forecast evidence";
+  if (path === "/leagues") return "Leagues & Europe";
+  if (path.startsWith("/league/")) return "League dossier";
+  const teamDossier = parseTeamDossierPath(path);
+  if (teamDossier) return `${teamDossier.team} · Team dossier`;
+  if (path === "/season") return "My Season";
+  if (path === "/teams") return "My Teams";
+  if (path === "/transfers") return "Transfer Desk";
+  if (path === "/lab") return "Model Lab";
+  if (path === "/lab/track-record" || path === "/ledger") return "Prediction ledger";
+  if (path === "/lab/backtests" || path === "/eval") return "Backtests";
+  if (path === "/lab/methods") return "Model methods";
+  if (path === "/lab/forecasts") return "Forecast archive";
+  if (path === "/lab/worldcup-2026") return "World Cup 2026 archive";
+  if (path === "/lab/ratings") return "Golavo Ratings";
+  if (path === "/trust") return "Trust Center";
+  if (path === "/settings") return "Settings";
+  if (path === "/guide/sealing") return "Sealing guide";
+  if (path === "/guide/picks") return "Picks guide";
+  return "Page not found";
+}
+
+/** Run after a Suspense-backed route resolves. New entries receive an explicit
+ *  content focus and live announcement; history entries keep their existing
+ *  focus while App restores the exact remembered scroll position. */
+export function useRouteArrival(
+  route: HashRouteState,
+  announce: (value: RouteAnnouncement) => void,
+): void {
+  useEffect(() => {
+    const title = routePageTitle(route.path);
+    document.title = `${title} · Golavo`;
+    if (route.arrival !== "new") return;
+    announce({ entryKey: route.entryKey, text: title });
+    document.getElementById("main")?.focus({ preventScroll: true });
+  }, [announce, route.arrival, route.entryKey, route.path]);
 }
 
 export type AsyncState<T> =

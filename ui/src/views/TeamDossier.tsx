@@ -1,5 +1,5 @@
 import { FollowButton } from "../components/FollowButton";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   clubImportance,
   projectionCoverageCaveat,
@@ -7,8 +7,14 @@ import {
   topStake,
 } from "../components/SeasonOutlook";
 import { BlockSkeleton, EmptyState, ErrorState } from "../components/states";
-import { fetchClubRatings, fetchCompetitionAnalytics, fetchSeasonOutlook } from "../lib/api";
+import {
+  clearApiCache,
+  fetchClubRatings,
+  fetchCompetitionAnalytics,
+  fetchSeasonOutlook,
+} from "../lib/api";
 import type { CompetitionAnalytics, RatingsTable, SeasonOutlook } from "../lib/contract";
+import { useDataGenerationRevision } from "../lib/data-refresh-context";
 import { num, pctWhole, utc, utcDate } from "../lib/format";
 import { useAsync } from "../lib/hooks";
 import { LEAGUES } from "../lib/leagues";
@@ -133,9 +139,11 @@ function ratingsMatchOutlook(data: RatingsTable, outlook: SeasonOutlook): boolea
 
 export function TeamDossier({ competitionId, team }: { competitionId: string; team: string }) {
   const league = LEAGUES.find((item) => item.competitionId === competitionId && item.seasonOutlook);
+  const dataGenerationRevision = useDataGenerationRevision();
+  const [retryRevision, setRetryRevision] = useState(0);
   const outlookState = useAsync(
     () => league ? fetchSeasonOutlook(competitionId) : Promise.reject(new Error("unknown competition")),
-    [competitionId],
+    [competitionId, dataGenerationRevision, retryRevision],
   );
   const canonicalOutlook = outlookState.status === "ready" && outlookState.data.status === "available"
     ? outlookState.data
@@ -144,7 +152,12 @@ export function TeamDossier({ competitionId, team }: { competitionId: string; te
     () => league && canonicalOutlook
       ? fetchCompetitionAnalytics(competitionId, canonicalOutlook.as_of_utc)
       : Promise.resolve(null),
-    [competitionId, canonicalOutlook?.as_of_utc],
+    [
+      competitionId,
+      canonicalOutlook?.as_of_utc,
+      canonicalOutlook?.season,
+      canonicalOutlook?.provenance.index_sha256,
+    ],
   );
   const ratingsState = useAsync<RatingsTable | null>(
     () => league && canonicalOutlook
@@ -153,7 +166,12 @@ export function TeamDossier({ competitionId, team }: { competitionId: string; te
           indexSha256: canonicalOutlook.provenance.index_sha256,
         })
       : Promise.resolve(null),
-    [competitionId, canonicalOutlook?.as_of_utc],
+    [
+      competitionId,
+      canonicalOutlook?.as_of_utc,
+      canonicalOutlook?.season,
+      canonicalOutlook?.provenance.index_sha256,
+    ],
   );
   if (!league) {
     return (
@@ -164,7 +182,16 @@ export function TeamDossier({ competitionId, team }: { competitionId: string; te
   }
   if (outlookState.status === "loading") return <BlockSkeleton lines={7} />;
   if (outlookState.status === "error") {
-    return <ErrorState title="Team dossier unavailable" error={outlookState.error} />;
+    return (
+      <ErrorState
+        title="Team dossier unavailable"
+        error={outlookState.error}
+        onRetry={() => {
+          clearApiCache();
+          setRetryRevision((value) => value + 1);
+        }}
+      />
+    );
   }
 
   const outlook = outlookState.data;

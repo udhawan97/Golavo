@@ -3,7 +3,7 @@ import { SCHEMA_VERSION } from "../lib/contract";
 import { DATA_SOURCE, sourceDescription } from "../lib/api";
 import type { ForecastSource } from "../lib/api";
 import { AI_PROVIDERS, lastAiProvider, useAiProvider } from "../lib/ai";
-import type { ReadingPrefs } from "../lib/hooks";
+import type { ReadingPrefs, RouteAnnouncement } from "../lib/hooks";
 import { GearIcon, SearchIcon } from "./icons";
 import { ReadingComfort } from "./ReadingComfort";
 import { ActivityCenter } from "./ActivityCenter";
@@ -67,12 +67,13 @@ function AiQuickToggle() {
 }
 
 export function Layout({
-  path, prefs, onChangePrefs, forecastSource, children,
+  path, prefs, onChangePrefs, forecastSource, routeAnnouncement, children,
 }: {
   path: string;
   prefs: ReadingPrefs;
   onChangePrefs: (patch: Partial<ReadingPrefs>) => void;
   forecastSource?: ForecastSource | null;
+  routeAnnouncement: RouteAnnouncement;
   children: ReactNode;
 }) {
   // Light uses the light lockup; dark and warm are both dark surfaces. The header
@@ -156,6 +157,10 @@ export function Layout({
           </div>
         </div>
       )}
+
+      <div className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        <span key={routeAnnouncement.entryKey}>{routeAnnouncement.text}</span>
+      </div>
 
       <main id="main" className="page" tabIndex={-1}>
         <div className="container">{children}</div>

@@ -36,6 +36,11 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+function activateDataGeneration(): void {
+  clearApiCache();
+  window.dispatchEvent(new Event(DATA_GENERATION_CHANGED_EVENT));
+}
+
 export function useDataRefreshController(backendReady: boolean): DataRefreshController {
   const [policy, setPolicy] = useDataRefreshPolicy();
   const [status, setStatus] = useState<DataRefreshStatus | null>(null);
@@ -78,8 +83,7 @@ export function useDataRefreshController(backendReady: boolean): DataRefreshCont
           throw new Error(current.error?.message ?? "Approved-source refresh failed");
         }
         if (current.state === "done" && current.result?.activated === true) {
-          clearApiCache();
-          window.dispatchEvent(new Event(DATA_GENERATION_CHANGED_EVENT));
+          activateDataGeneration();
         }
         await reloadStatus();
       } catch (cause) {

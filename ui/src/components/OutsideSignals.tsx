@@ -140,9 +140,9 @@ export function OutsideSignals({
         ? { message: reason.message, status: reason.status }
         : { message: reason instanceof Error ? reason.message : String(reason), status: 0 };
       if (!isCurrent()) return;
-      if (value.status === 401 || value.status === 403 || value.status === 429) {
-        setSignalsState(null);
-      }
+      // A failed foreground refresh cannot leave the prior revision presented
+      // as current provider evidence. Keep no stale fallback in memory.
+      setSignalsState(null);
       setError(value);
     } finally {
       if (activeRequest.current === controller) activeRequest.current = null;

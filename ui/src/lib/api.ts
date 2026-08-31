@@ -561,34 +561,45 @@ export function apiHeaders(): Record<string, string> {
  *  via `clearApiCache()`. */
 const GET_TTL_MS = 30_000;
 const GET_CACHE_MAX = 60;
-const getCache = new Map<string, { at: number; value: unknown }>();
-const getInflight = new Map<string, Promise<unknown>>();
+let getCacheEpoch = 0;
+const getCache = new Map<string, { epoch: number; at: number; value: unknown }>();
+const getInflight = new Map<string, { epoch: number; request: Promise<unknown> }>();
 
 /** Drop all cached GETs — call after a write so stale reads can't survive it. */
 export function clearApiCache(): void {
+  getCacheEpoch += 1;
   getCache.clear();
   getInflight.clear();
 }
 
-async function getJson(path: string): Promise<unknown> {
+/** Internal cached GET primitive, exported so its invalidation contract can be
+ *  exercised deterministically without invoking a live provider or sidecar. */
+export async function getJson(path: string): Promise<unknown> {
+  const epoch = getCacheEpoch;
   const hit = getCache.get(path);
-  if (hit && performance.now() - hit.at < GET_TTL_MS) return hit.value;
+  if (hit && hit.epoch === epoch && performance.now() - hit.at < GET_TTL_MS) return hit.value;
   const inflight = getInflight.get(path);
-  if (inflight) return inflight;
+  if (inflight?.epoch === epoch) return inflight.request;
 
   const request = (async () => {
     const res = await fetch(`${API_BASE}${path}`, { headers: apiHeaders() });
     if (!res.ok) throw new Error(`GET ${path} → HTTP ${res.status}`);
     return res.json();
   })();
-  getInflight.set(path, request);
+  const entry = { epoch, request };
+  getInflight.set(path, entry);
   try {
     const value = await request;
-    if (getCache.size >= GET_CACHE_MAX) getCache.clear(); // crude LRU: bounded memory
-    getCache.set(path, { at: performance.now(), value });
+    // A response that crossed an invalidation boundary still belongs to its
+    // original caller, but can never refill the current epoch's shared cache.
+    if (getCacheEpoch === epoch && getInflight.get(path) === entry) {
+      if (getCache.size >= GET_CACHE_MAX) getCache.clear(); // crude LRU: bounded memory
+      getCache.set(path, { epoch, at: performance.now(), value });
+    }
     return value;
   } finally {
-    getInflight.delete(path);
+    // A superseded request must not delete the newer promise for the same path.
+    if (getInflight.get(path) === entry) getInflight.delete(path);
   }
 }
 
