@@ -243,8 +243,9 @@ def _existing_seal(forecasts_dir: Path, match_id: str, family: str) -> dict[str,
 
     The canonical artifact reader verifies schema, payload hash,
     content-addressed id, and filename before the scan trusts any field. A corrupt
-    candidate fails closed before the writer runs, so a repeat cannot report
-    success from untrusted bytes or silently replace them.
+    candidate fails closed before the writer runs. The full ledger is scanned
+    before reuse, and more than one valid matching root also fails closed, so a
+    repeat cannot hide later corruption or an already-split immutable history.
     """
     from golavo_core.artifacts import load_verified_artifact
     from jsonschema import ValidationError
@@ -252,6 +253,7 @@ def _existing_seal(forecasts_dir: Path, match_id: str, family: str) -> dict[str,
     folder = Path(forecasts_dir)
     if not folder.exists():
         return None
+    matching_roots = []
     for path in sorted(folder.glob("fa_*.json")):
         try:
             obj = load_verified_artifact(path)
@@ -268,8 +270,14 @@ def _existing_seal(forecasts_dir: Path, match_id: str, family: str) -> dict[str,
             and obj.get("status") in ("sealed", "abstained")
             and obj.get("supersedes") is None
         ):
-            return obj
-    return None
+            matching_roots.append(obj)
+    if len(matching_roots) > 1:
+        raise SealError(
+            409,
+            "artifact_integrity",
+            "multiple existing root seals violate the immutable seal history",
+        )
+    return matching_roots[0] if matching_roots else None
 
 
 def _write_notebook_best_effort(artifact: dict[str, Any], pack_dir: Path, ledger: Path) -> None:

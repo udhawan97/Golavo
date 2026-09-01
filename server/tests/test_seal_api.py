@@ -19,7 +19,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
-from golavo_core.artifacts import payload_sha256
+from golavo_core.artifacts import payload_sha256, seal_forecast
 from golavo_server import main as server_main
 from golavo_server import matches, seal
 from httpx import Response
@@ -235,6 +235,67 @@ def test_repeat_seal_rejects_a_tampered_existing_candidate_without_mutating_it(
     assert repeated.json()["detail"]["reason_code"] == "artifact_integrity"
     assert path.read_bytes() == corrupt_bytes
     assert len(list(ledger.glob("fa_*.json"))) == 1
+
+
+def test_repeat_seal_rejects_a_later_corrupt_candidate_after_a_valid_match(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_now(monkeypatch)
+    created = client.post(f"/api/v1/matches/{_NE_ID}/seal", json={"family": "elo_ordlogit"})
+    assert created.status_code == 201
+
+    ledger = server_main.ARTIFACT_DIR
+    valid_path = ledger / f"{created.json()['artifact_id']}.json"
+    valid_bytes = valid_path.read_bytes()
+    corrupt_path = ledger / "fa_zzzzzzzzzzzzzzzzzzzz.json"
+    artifact = json.loads(valid_bytes)
+    probs = artifact["forecast"]["probs"]
+    probs["home"], probs["away"] = probs["away"], probs["home"]
+    corrupt_path.write_text(json.dumps(artifact, sort_keys=True, separators=(",", ":")) + "\n")
+    corrupt_bytes = corrupt_path.read_bytes()
+    assert valid_path.name < corrupt_path.name
+
+    repeated = client.post(
+        f"/api/v1/matches/{_NE_ID}/seal", json={"family": "elo_ordlogit"}
+    )
+
+    assert repeated.status_code == 409
+    assert repeated.json()["detail"]["reason_code"] == "artifact_integrity"
+    assert valid_path.read_bytes() == valid_bytes
+    assert corrupt_path.read_bytes() == corrupt_bytes
+    assert len(list(ledger.glob("fa_*.json"))) == 2
+
+
+def test_repeat_seal_rejects_multiple_valid_matching_roots_without_mutation(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_now(monkeypatch)
+    created = client.post(f"/api/v1/matches/{_NE_ID}/seal", json={"family": "elo_ordlogit"})
+    assert created.status_code == 201
+
+    ledger = server_main.ARTIFACT_DIR
+    pack = seal.resolve_pack_dir(_INTL, "international", "FIFA World Cup")
+    assert pack is not None
+    seal_forecast(
+        pack_dir=pack,
+        output_dir=ledger,
+        date="2026-07-11",
+        home_team="Norway",
+        away_team="England",
+        as_of_utc="2026-07-10T20:00:05Z",
+        family="elo_ordlogit",
+        match_id=_NE_ID,
+    )
+    before = {path.name: path.read_bytes() for path in ledger.glob("fa_*.json")}
+    assert len(before) == 2
+
+    repeated = client.post(
+        f"/api/v1/matches/{_NE_ID}/seal", json={"family": "elo_ordlogit"}
+    )
+
+    assert repeated.status_code == 409
+    assert repeated.json()["detail"]["reason_code"] == "artifact_integrity"
+    assert {path.name: path.read_bytes() for path in ledger.glob("fa_*.json")} == before
 
 
 @pytest.mark.parametrize(
