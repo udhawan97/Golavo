@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
+import shutil
 import sqlite3
+import tempfile
 import zipfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -222,6 +227,43 @@ def health() -> dict[str, str]:
     return {"status": "ok", "app": "golavo", "version": __version__}
 
 
+@contextmanager
+def _open_sqlite_snapshot(path: Path) -> Iterator[sqlite3.Connection]:
+    """Open a private DB/WAL snapshot so SQLite cannot touch protected lock bytes."""
+
+    with tempfile.TemporaryDirectory(prefix="golavo-readiness-") as folder:
+        snapshot = Path(folder) / path.name
+        for suffix in ("", "-journal", "-wal", "-shm"):
+            source = path.with_name(path.name + suffix)
+            if not source.exists():
+                continue
+            if source.is_symlink() or not source.is_file():
+                raise OSError("protected SQLite state contains an unsafe journal")
+            shutil.copyfile(source, snapshot.with_name(snapshot.name + suffix))
+        connection = sqlite3.connect(
+            f"{snapshot.resolve().as_uri()}?mode=ro", uri=True, timeout=5.0
+        )
+        try:
+            yield connection
+        finally:
+            connection.close()
+
+
+def _check_sqlite_connection(
+    connection: sqlite3.Connection, *, maximum_version: int | None = None
+) -> None:
+    check = connection.execute("PRAGMA quick_check").fetchone()
+    if check is None or check[0] != "ok":
+        raise sqlite3.DatabaseError("integrity check failed")
+    foreign_key_error = connection.execute("PRAGMA foreign_key_check").fetchone()
+    if foreign_key_error is not None:
+        raise sqlite3.DatabaseError("foreign-key check failed")
+    if maximum_version is not None:
+        version = int(connection.execute("PRAGMA user_version").fetchone()[0])
+        if version > maximum_version:
+            raise sqlite3.DatabaseError("store was created by a newer application version")
+
+
 def _check_readable_sqlite(path: Path, *, maximum_version: int | None = None) -> None:
     """Open an existing user database read-only and prove its bytes/schema are usable.
 
@@ -230,20 +272,8 @@ def _check_readable_sqlite(path: Path, *, maximum_version: int | None = None) ->
     newer binary that cannot read the previous store leaves rollback armed.
     """
 
-    connection = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True, timeout=5.0)
-    try:
-        check = connection.execute("PRAGMA quick_check").fetchone()
-        if check is None or check[0] != "ok":
-            raise sqlite3.DatabaseError("integrity check failed")
-        foreign_key_error = connection.execute("PRAGMA foreign_key_check").fetchone()
-        if foreign_key_error is not None:
-            raise sqlite3.DatabaseError("foreign-key check failed")
-        if maximum_version is not None:
-            version = int(connection.execute("PRAGMA user_version").fetchone()[0])
-            if version > maximum_version:
-                raise sqlite3.DatabaseError("store was created by a newer application version")
-    finally:
-        connection.close()
+    with _open_sqlite_snapshot(path) as connection:
+        _check_sqlite_connection(connection, maximum_version=maximum_version)
 
 
 def _check_readable_json(path: Path) -> None:
@@ -256,7 +286,238 @@ def _check_readable_json(path: Path) -> None:
     json.loads(path.read_text(encoding="utf-8"))
 
 
-def _check_store_root(root: Path | None, *, include_json: bool) -> int:
+def _check_ledger_json(root: Path, path: Path) -> None:
+    """Apply the same canonical validators used by normal ledger read paths."""
+
+    relative = path.relative_to(root)
+    if len(relative.parts) == 1 and path.name.startswith("fa_"):
+        _load_artifact(path)
+        return
+    if relative.parts[:2] == ("picks", "drafts"):
+        from golavo_core.picks import validate_user_pick
+
+        value = json.loads(path.read_text(encoding="utf-8"))
+        validate_user_pick(value)
+        if value["match"]["match_id"] != path.stem:
+            raise ValueError("pick draft path does not match its recorded match identity")
+        return
+    if relative.parts[:1] == ("picks",) and path.name.startswith("pk_"):
+        from golavo_core.picks import verify_pick_integrity
+
+        value = json.loads(path.read_text(encoding="utf-8"))
+        verify_pick_integrity(value, expected_id=path.stem)
+        return
+    _check_readable_json(path)
+
+
+def _check_correction_database(path: Path, root: Path) -> None:
+    """Verify the append-only correction hash chain without migrating user data."""
+
+    namespace = path.parent.name
+    if namespace not in correction_policy.KNOWN_NAMESPACES:
+        raise ValueError("correction database is outside a known license namespace")
+    with _open_sqlite_snapshot(path) as connection:
+        _check_sqlite_connection(connection, maximum_version=correction_store.DATABASE_VERSION)
+        connection.row_factory = sqlite3.Row
+        proposals = {
+            str(row["proposal_id"]): row
+            for row in connection.execute(
+                """SELECT proposal_id, license_namespace, target_json, original_json,
+                          proposed_json, validation_json, head_event_id
+                   FROM proposals"""
+            )
+        }
+        previous_by_proposal: dict[str, str | None] = {}
+        sequence_by_proposal: dict[str, int] = {}
+        last_event_by_proposal: dict[str, str] = {}
+        for row in connection.execute(
+            """SELECT event_id, proposal_id, sequence, event_type, recorded_at_utc,
+                      previous_event_hash, payload_json, payload_sha256, event_sha256
+               FROM proposal_events ORDER BY proposal_id, sequence"""
+        ):
+            proposal_id = str(row["proposal_id"])
+            if proposal_id not in proposals:
+                raise ValueError("correction event has no owning proposal")
+            sequence = int(row["sequence"])
+            expected_sequence = sequence_by_proposal.get(proposal_id, 0) + 1
+            previous_hash = previous_by_proposal.get(proposal_id)
+            if sequence != expected_sequence or row["previous_event_hash"] != previous_hash:
+                raise ValueError("correction event chain is discontinuous")
+            payload = json.loads(str(row["payload_json"]))
+            if not isinstance(payload, dict) or correction_store.canonical(payload) != row[
+                "payload_json"
+            ]:
+                raise ValueError("correction event payload is not canonical")
+            payload_hash = hashlib.sha256(
+                str(row["payload_json"]).encode("utf-8")
+            ).hexdigest()
+            if row["payload_sha256"] != payload_hash:
+                raise ValueError("correction event payload hash mismatch")
+            event_material = correction_store.canonical(
+                {
+                    "schema_version": correction_store.SCHEMA_VERSION,
+                    "proposal_id": proposal_id,
+                    "sequence": sequence,
+                    "event_type": row["event_type"],
+                    "recorded_at_utc": row["recorded_at_utc"],
+                    "previous_event_hash": previous_hash,
+                    "payload_sha256": payload_hash,
+                }
+            )
+            event_hash = hashlib.sha256(event_material.encode("utf-8")).hexdigest()
+            if row["event_sha256"] != event_hash or row["event_id"] != f"ce_{event_hash}":
+                raise ValueError("correction event integrity mismatch")
+            sequence_by_proposal[proposal_id] = sequence
+            previous_by_proposal[proposal_id] = event_hash
+            last_event_by_proposal[proposal_id] = str(row["event_id"])
+
+        for proposal_id, row in proposals.items():
+            if row["license_namespace"] != namespace:
+                raise ValueError("correction proposal crosses its license namespace")
+            for field in ("target_json", "proposed_json", "validation_json"):
+                if not isinstance(json.loads(str(row[field])), dict):
+                    raise ValueError("correction proposal contains invalid structured data")
+            if row["original_json"] is not None and not isinstance(
+                json.loads(str(row["original_json"])), dict
+            ):
+                raise ValueError("correction proposal contains invalid original evidence")
+            if row["head_event_id"] != last_event_by_proposal.get(proposal_id):
+                raise ValueError("correction proposal head does not match its event chain")
+
+        for row in connection.execute(
+            """SELECT evidence_id, proposal_id, source_url, license_namespace, raw_sha256,
+                      raw_bytes, sanitized_text, sanitized_sha256, redacted
+               FROM evidence"""
+        ):
+            if row["license_namespace"] != namespace:
+                raise ValueError("correction evidence crosses its license namespace")
+            digest = str(row["raw_sha256"])
+            expected_id = "ev_" + hashlib.sha256(
+                f"{row['proposal_id']}\n{row['source_url']}\n{digest}".encode()
+            ).hexdigest()
+            if row["evidence_id"] != expected_id:
+                raise ValueError("correction evidence identity mismatch")
+            if not bool(row["redacted"]):
+                evidence_path = root / namespace / "evidence" / f"{digest}.txt"
+                if evidence_path.is_symlink() or not evidence_path.is_file():
+                    raise ValueError("correction evidence bytes are unavailable")
+                raw = evidence_path.read_bytes()
+                if (
+                    len(raw) != int(row["raw_bytes"])
+                    or hashlib.sha256(raw).hexdigest() != digest
+                ):
+                    raise ValueError("correction evidence hash mismatch")
+                sanitized_hash = hashlib.sha256(
+                    str(row["sanitized_text"]).encode("utf-8")
+                ).hexdigest()
+                if row["sanitized_sha256"] != sanitized_hash:
+                    raise ValueError("correction sanitized evidence hash mismatch")
+
+
+def _check_research_database(path: Path, root: Path) -> None:
+    """Verify research receipts and raw captures through read-only connections."""
+
+    with _open_sqlite_snapshot(path) as connection:
+        _check_sqlite_connection(connection)
+        connection.row_factory = sqlite3.Row
+        if path.name == "control.sqlite3":
+            for row in connection.execute(
+                """SELECT state, selected_urls_json, counts_json, reasons_json FROM runs"""
+            ):
+                selected = json.loads(str(row["selected_urls_json"]))
+                counts = json.loads(str(row["counts_json"]))
+                reasons = json.loads(str(row["reasons_json"]))
+                if (
+                    row["state"] not in research_store.RUN_STATES
+                    or not isinstance(selected, list)
+                    or not isinstance(counts, dict)
+                    or not isinstance(reasons, list)
+                    or research_store.canonical(selected) != row["selected_urls_json"]
+                    or research_store.canonical(counts) != row["counts_json"]
+                    or research_store.canonical(reasons) != row["reasons_json"]
+                ):
+                    raise ValueError("research control record is not canonical")
+            return
+
+        if path.name != "research.sqlite3":
+            return
+        namespace = path.parent.name
+        if namespace not in research_store.KNOWN_NAMESPACES:
+            raise ValueError("research database is outside a known license namespace")
+        captures: dict[str, dict[str, Any]] = {}
+        for row in connection.execute(
+            """SELECT capture_id, run_id, raw_sha256, payload_json FROM captures"""
+        ):
+            payload = json.loads(str(row["payload_json"]))
+            if (
+                not isinstance(payload, dict)
+                or research_store.canonical(payload) != row["payload_json"]
+                or payload.get("capture_id") != row["capture_id"]
+                or payload.get("run_id") != row["run_id"]
+                or payload.get("raw_sha256") != row["raw_sha256"]
+                or payload.get("license_namespace") != namespace
+            ):
+                raise ValueError("research capture record is not canonical")
+            raw_path = root / namespace / "captures" / f"{row['raw_sha256']}.bin"
+            if raw_path.is_symlink() or not raw_path.is_file():
+                raise ValueError("research capture bytes are unavailable")
+            raw = raw_path.read_bytes()
+            raw_hash = hashlib.sha256(raw).hexdigest()
+            text = payload.get("canonical_text")
+            document_url = payload.get("document_url")
+            entity_id = payload.get("entity_id")
+            if (
+                raw_hash != row["raw_sha256"]
+                or payload.get("raw_bytes") != len(raw)
+                or not isinstance(text, str)
+                or not isinstance(document_url, str)
+                or not document_url
+                or (entity_id is not None and not isinstance(entity_id, str))
+                or payload.get("canonical_text_sha256")
+                != hashlib.sha256(text.encode("utf-8")).hexdigest()
+                or not research_store._capture_identity_matches(payload, raw)
+            ):
+                raise ValueError("research capture hash mismatch")
+            expected_id = research_store.capture_id_for(
+                run_id=str(payload.get("run_id") or ""),
+                source_id=str(payload.get("source_id") or ""),
+                canonical_url=str(payload.get("canonical_url") or ""),
+                document_url=document_url,
+                entity_id=entity_id,
+                raw_sha256=raw_hash,
+            )
+            if row["capture_id"] != expected_id:
+                raise ValueError("research capture identity mismatch")
+            captures[expected_id] = payload
+
+        policies = research_policy.source_policies()
+        for row in connection.execute(
+            """SELECT candidate_id, run_id, capture_id, state, queued_proposal_id,
+                      payload_json FROM candidates"""
+        ):
+            candidate = json.loads(str(row["payload_json"]))
+            capture = captures.get(str(row["capture_id"]))
+            if (
+                not isinstance(candidate, dict)
+                or research_store.canonical(candidate) != row["payload_json"]
+                or candidate.get("candidate_id") != row["candidate_id"]
+                or candidate.get("run_id") != row["run_id"]
+                or candidate.get("state") != row["state"]
+                or candidate.get("queued_proposal_id") != row["queued_proposal_id"]
+                or capture is None
+            ):
+                raise ValueError("research candidate record is not canonical")
+            policy = policies.get(str(capture.get("source_id") or ""))
+            if policy is None:
+                raise ValueError("research candidate source is no longer allowlisted")
+            research_extract.validate_stored_candidate(
+                candidate, policy=policy, namespace=namespace, capture=capture
+            )
+
+
+def _check_store_root(
+    root: Path | None, *, include_json: bool, store_kind: str | None = None
+) -> int:
     if root is None or not root.exists():
         return 0
     if root.is_symlink() or not root.is_dir():
@@ -275,10 +536,26 @@ def _check_store_root(root: Path | None, *, include_json: bool) -> int:
                 maximum_version = follows.DATABASE_VERSION
             elif path.name == correction_store.DATABASE_NAME:
                 maximum_version = correction_store.DATABASE_VERSION
-            _check_readable_sqlite(path, maximum_version=maximum_version)
+            if store_kind == "corrections" and path.name == correction_store.DATABASE_NAME:
+                _check_correction_database(path, root)
+            elif store_kind == "research":
+                _check_research_database(path, root)
+            elif store_kind == "ledger" and path.name == follows.DATABASE_NAME:
+                personal_archive._validate_content(
+                    f"ledger/follows/{follows.DATABASE_NAME}", path.read_bytes()
+                )
+            else:
+                _check_readable_sqlite(path, maximum_version=maximum_version)
             checked += 1
         elif include_json and path.suffix in {".json", ".jsonl"}:
-            _check_readable_json(path)
+            if store_kind == "ledger" and path.suffix == ".json":
+                _check_ledger_json(root, path)
+            elif store_kind == "research" and path == root / "settings.json":
+                value = json.loads(path.read_text(encoding="utf-8"))
+                if value != research_settings.read(root):
+                    raise ValueError("research settings are not canonical")
+            else:
+                _check_readable_json(path)
             checked += 1
         else:
             # Raw captures and other immutable evidence need not be parsed here,
@@ -294,19 +571,21 @@ def _protected_state_readiness() -> dict[str, Any]:
 
     with runtime.USER_STATE_LOCK:
         # The updater snapshots the entire ledger, not only follows and picks.
-        # Parse every JSON/JSONL store and open every remaining file so a new
-        # sidecar cannot retire rollback after proving only a convenient subset.
-        # Forecast artifact integrity still receives its stronger seal check on
-        # the normal read path.
+        # Apply each canonical ledger validator, parse every remaining JSON/JSONL
+        # store, and open every raw file so a new sidecar cannot retire rollback
+        # after proving only a convenient subset.
         mutable_ledger = Path(ARTIFACT_DIR)
-        checked = _check_store_root(mutable_ledger, include_json=True)
+        checked = _check_store_root(mutable_ledger, include_json=True, store_kind="ledger")
+        ledger_checkpoints.status(mutable_ledger)
         checked += _check_store_root(
             Path(CORRECTIONS_DIR) if CORRECTIONS_DIR is not None else None,
             include_json=True,
+            store_kind="corrections",
         )
         checked += _check_store_root(
             Path(RESEARCH_DIR) if RESEARCH_DIR is not None else None,
             include_json=True,
+            store_kind="research",
         )
     return {"status": "ready", "protected_files_checked": checked}
 
@@ -317,7 +596,15 @@ def update_readiness() -> dict[str, Any]:
 
     try:
         return _protected_state_readiness()
-    except (OSError, UnicodeError, ValueError, sqlite3.DatabaseError, json.JSONDecodeError) as exc:
+    except (
+        OSError,
+        UnicodeError,
+        ValueError,
+        KeyError,
+        ValidationError,
+        sqlite3.DatabaseError,
+        json.JSONDecodeError,
+    ) as exc:
         raise HTTPException(
             status_code=503,
             detail={

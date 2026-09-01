@@ -89,3 +89,16 @@ def test_release_lock_hashes_registry_artifacts_and_includes_local_packages() ->
 def test_rust_toolchain_is_exact() -> None:
     toolchain = tomllib.loads((ROOT / "rust-toolchain.toml").read_text(encoding="utf-8"))
     assert toolchain["toolchain"]["channel"] == "1.97.0"
+
+
+def test_signed_tauri_build_forwards_locked_to_the_cargo_runner() -> None:
+    build = (ROOT / "packaging" / "build.sh").read_text(encoding="utf-8")
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    invocations = re.findall(
+        r"^[ \t]*\( cd desktop && npx tauri .*\)[ \t]*$", build, re.MULTILINE
+    )
+
+    assert invocations == ['( cd desktop && npx tauri "${BUILD_ARGS[@]}" -- --locked )']
+    assert build.index('BUILD_ARGS+=(--features updater') < build.index(invocations[0])
+    assert "uv run --project packaging --frozen bash packaging/build.sh" in workflow
+    assert "TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" in workflow

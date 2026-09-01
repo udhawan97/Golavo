@@ -163,7 +163,10 @@ if [ -n "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
 else
   echo "    no updater signing key -> no updater artifacts"
 fi
-( cd desktop && npx tauri "${BUILD_ARGS[@]}" )
+# Arguments after `--` are forwarded by the pinned Tauri CLI to its Cargo
+# runner. Refuse lockfile drift on the exact bundle/signing path, not only in a
+# separate CI test invocation.
+( cd desktop && npx tauri "${BUILD_ARGS[@]}" -- --locked )
 
 # Tauri re-signs bundled external binaries after the standalone PyInstaller
 # smoke job has run. Verify the final macOS bundle itself: a signature can be
