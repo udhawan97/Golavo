@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 import { Layout } from "./components/Layout";
 import { useHashRoute, useReadingPrefs, useRouteArrival } from "./lib/hooks";
 import type { HashRouteState, ReadingPrefs, RouteAnnouncement } from "./lib/hooks";
@@ -171,19 +171,18 @@ export default function App() {
                 forecastSource={forecastSource}
                 routeAnnouncement={routeAnnouncement}
               >
-                <ErrorBoundary resetKey={path}>
-                  <Suspense
-                    fallback={
-                      <>
-                        <Loading label="Loading view" />
-                        <BlockSkeleton />
-                      </>
-                    }
-                  >
+                <Suspense
+                  fallback={
+                    <>
+                      <Loading label="Loading view" />
+                      <BlockSkeleton />
+                    </>
+                  }
+                >
+                  <ResolvedRoute route={route} announce={setRouteAnnouncement}>
                     <Route path={path} prefs={prefs} onChangePrefs={setPrefs} />
-                    <RouteArrival route={route} announce={setRouteAnnouncement} />
-                  </Suspense>
-                </ErrorBoundary>
+                  </ResolvedRoute>
+                </Suspense>
               </Layout>
               <UpdateSheet />
               <UpdateConsentCard />
@@ -199,6 +198,23 @@ export default function App() {
         </FollowContext.Provider>
       </CorrectionContext.Provider>
     </DataRefreshContext.Provider>
+  );
+}
+
+export function ResolvedRoute({
+  route,
+  announce,
+  children,
+}: {
+  route: HashRouteState;
+  announce: (value: RouteAnnouncement) => void;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      <ErrorBoundary key={route.entryKey} resetKey={route.entryKey}>{children}</ErrorBoundary>
+      <RouteArrival route={route} announce={announce} />
+    </>
   );
 }
 

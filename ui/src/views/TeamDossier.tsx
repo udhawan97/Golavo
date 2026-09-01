@@ -137,13 +137,42 @@ function ratingsMatchOutlook(data: RatingsTable, outlook: SeasonOutlook): boolea
     && data.provenance?.index_sha256 === outlook.provenance.index_sha256;
 }
 
-export function TeamDossier({ competitionId, team }: { competitionId: string; team: string }) {
-  const league = LEAGUES.find((item) => item.competitionId === competitionId && item.seasonOutlook);
+interface TeamDossierProps {
+  competitionId: string;
+  team: string;
+}
+
+export function TeamDossier({ competitionId, team }: TeamDossierProps) {
   const dataGenerationRevision = useDataGenerationRevision();
   const [retryRevision, setRetryRevision] = useState(0);
+  const generationKey = JSON.stringify([
+    competitionId,
+    team,
+    dataGenerationRevision,
+    retryRevision,
+  ]);
+  return (
+    <TeamDossierGeneration
+      key={generationKey}
+      competitionId={competitionId}
+      team={team}
+      onRetry={() => {
+        clearApiCache();
+        setRetryRevision((value) => value + 1);
+      }}
+    />
+  );
+}
+
+function TeamDossierGeneration({
+  competitionId,
+  team,
+  onRetry,
+}: TeamDossierProps & { onRetry: () => void }) {
+  const league = LEAGUES.find((item) => item.competitionId === competitionId && item.seasonOutlook);
   const outlookState = useAsync(
     () => league ? fetchSeasonOutlook(competitionId) : Promise.reject(new Error("unknown competition")),
-    [competitionId, dataGenerationRevision, retryRevision],
+    [competitionId],
   );
   const canonicalOutlook = outlookState.status === "ready" && outlookState.data.status === "available"
     ? outlookState.data
@@ -186,10 +215,7 @@ export function TeamDossier({ competitionId, team }: { competitionId: string; te
       <ErrorState
         title="Team dossier unavailable"
         error={outlookState.error}
-        onRetry={() => {
-          clearApiCache();
-          setRetryRevision((value) => value + 1);
-        }}
+        onRetry={onRetry}
       />
     );
   }

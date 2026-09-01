@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act } from "react";
+import { act, Profiler } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -153,6 +153,12 @@ const RATINGS = {
 
 let container: HTMLDivElement;
 let root: Root;
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((next) => { resolve = next; });
+  return { promise, resolve };
+}
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -332,26 +338,70 @@ describe("TeamDossier", () => {
     expect(fetchSeasonOutlook).toHaveBeenCalledTimes(2);
   });
 
-  it("refetches one exact fingerprint when the active data generation changes", async () => {
+  it("removes the prior dossier synchronously while a new exact generation is pending", async () => {
+    const commits: string[] = [];
     await act(async () => root.render(
-      <TeamDossier competitionId="england-premier-league" team="Exact Club" />,
+      <Profiler id="team-dossier" onRender={() => commits.push(container.textContent ?? "")}>
+        <TeamDossier competitionId="england-premier-league" team="Exact Club" />
+      </Profiler>,
     ));
     expect(container.textContent).toContain("2nd · 60 points");
+    expect(container.textContent).toContain("Overall strength118.4");
+    expect(container.textContent).toContain("Competition rank3rd");
 
     const refreshedOutlook = structuredClone(OUTLOOK);
     refreshedOutlook.current_table[0].points = 61;
     refreshedOutlook.provenance.index_sha256 = "b".repeat(64);
     const refreshedAnalytics = structuredClone(ANALYTICS);
     refreshedAnalytics.provenance.index_sha256 = "b".repeat(64);
+    refreshedAnalytics.strength_trends.teams[0].current.overall_index = 130.7;
     const refreshedRatings = structuredClone(RATINGS);
     refreshedRatings.provenance!.index_sha256 = "b".repeat(64);
-    vi.mocked(fetchSeasonOutlook).mockResolvedValue(refreshedOutlook);
-    vi.mocked(fetchCompetitionAnalytics).mockResolvedValue(refreshedAnalytics);
-    vi.mocked(fetchClubRatings).mockResolvedValue(refreshedRatings);
+    refreshedRatings.teams[0].rank = 1;
+    const nextOutlook = deferred<SeasonOutlook>();
+    const nextAnalytics = deferred<CompetitionAnalytics>();
+    const nextRatings = deferred<RatingsTable>();
+    vi.mocked(fetchSeasonOutlook).mockReturnValue(nextOutlook.promise);
+    vi.mocked(fetchCompetitionAnalytics).mockReturnValue(nextAnalytics.promise);
+    vi.mocked(fetchClubRatings).mockReturnValue(nextRatings.promise);
 
-    await act(async () => window.dispatchEvent(new Event(DATA_GENERATION_CHANGED_EVENT)));
+    commits.length = 0;
+    act(() => window.dispatchEvent(new Event(DATA_GENERATION_CHANGED_EVENT)));
+
+    expect(commits[0]).not.toContain("2nd · 60 points");
+    expect(commits[0]).not.toContain("Overall strength118.4");
+    expect(commits[0]).not.toContain("Competition rank3rd");
+    expect(container.querySelector("h1")).toBeNull();
+    expect(container.querySelector(".skeleton")).not.toBeNull();
+    expect(container.textContent).not.toContain("2nd · 60 points");
+    expect(container.textContent).not.toContain("Overall strength118.4");
+    expect(container.textContent).not.toContain("Competition rank3rd");
+    expect(fetchSeasonOutlook).toHaveBeenCalledTimes(2);
+    expect(fetchCompetitionAnalytics).toHaveBeenCalledOnce();
+    expect(fetchClubRatings).toHaveBeenCalledOnce();
+
+    await act(async () => {
+      nextOutlook.resolve(refreshedOutlook);
+      await nextOutlook.promise;
+    });
 
     expect(container.textContent).toContain("2nd · 61 points");
+    expect(container.textContent).not.toContain("Overall strength118.4");
+    expect(container.textContent).not.toContain("Competition rank3rd");
+    expect(container.textContent).toContain("Loading competition ratings…");
+    expect(container.textContent).toContain("Loading competition context…");
+    expect(fetchCompetitionAnalytics).toHaveBeenCalledTimes(2);
+    expect(fetchClubRatings).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      nextAnalytics.resolve(refreshedAnalytics);
+      nextRatings.resolve(refreshedRatings);
+      await Promise.all([nextAnalytics.promise, nextRatings.promise]);
+    });
+
+    expect(container.textContent).toContain("2nd · 61 points");
+    expect(container.textContent).toContain("Overall strength130.7");
+    expect(container.textContent).toContain("Competition rank1st");
     expect(fetchSeasonOutlook).toHaveBeenCalledTimes(2);
     expect(fetchCompetitionAnalytics).toHaveBeenCalledTimes(2);
     expect(fetchClubRatings).toHaveBeenCalledTimes(2);
