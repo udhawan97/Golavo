@@ -22,9 +22,14 @@ def test_sidecar_bundles_contracts_but_no_correction_data() -> None:
 
 def test_desktop_update_backup_includes_isolated_correction_root() -> None:
     updater = (ROOT / "desktop/src-tauri/src/updater.rs").read_text(encoding="utf-8")
-    assert 'join("corrections")' in updater
-    assert 'backup.join("corrections")' in updater
-    assert 'recover_component(app, corrections, "corrections")' in updater
+    assert 'copy_dir(&corrections, &backup.join("corrections"))' in updater
+    assert 'verify_dir_copy(&corrections, &backup.join("corrections"), None)' in updater
+    assert """recover_component(
+        corrections_dir(app)?,
+        backup.join("corrections"),
+        "corrections",
+        has_pending,
+    )?;""" in updater
 
 
 def test_native_export_bridge_rejects_odbl_namespace() -> None:
