@@ -49,6 +49,10 @@ const HEALTH_TIMEOUT_FIRST: Duration = Duration::from_secs(150);
 /// is actually wrong and the recoverable failure tier should appear sooner.
 const HEALTH_TIMEOUT_RETURNING: Duration = Duration::from_secs(90);
 
+/// A live sidecar gets a separate bounded window to open every protected store
+/// read-only before an update is allowed to retire rollback.
+const UPDATE_READINESS_TIMEOUT: Duration = Duration::from_secs(30);
+
 /// How long stop_sidecar_for_install waits for a graceful exit before the hard
 /// kill. The sidecar's uvicorn + PyInstaller child normally exit in well under
 /// a second after the shutdown POST.
@@ -104,7 +108,7 @@ pub fn run() {
             // Finish any restore that a crash interrupted mid-swap BEFORE creating
             // the dir, so we never fabricate an empty ledger over a real one.
             let ledger = updater::ledger_dir(&handle).map_err(std::io::Error::other)?;
-            updater::recover_interrupted_restore(&handle);
+            updater::recover_interrupted_restore(&handle).map_err(std::io::Error::other)?;
             std::fs::create_dir_all(&ledger)?;
             let ledger_str = ledger.to_string_lossy().to_string();
 
@@ -227,11 +231,11 @@ mod external_url_tests {
 /// pending update, and emits `backend://ready`. On any failure — a crash before
 /// /health (`Exited`) or a slow generation that never answered (`TimedOut`) — it
 /// cleans up and emits `backend://failed` with a human message, then RETURNS,
-/// leaving the window alive. It never kills a slow-but-alive sidecar to "retry",
-/// and it never exits the process: recovery is the UI's job (a silent single
-/// retry via `restart_sidecar`, then a manual "Try again"). `first_launch`
-/// widens the patience because a cold self-extract + AV rescan is legitimately
-/// slow the very first time.
+/// leaving the window alive. An ordinary slow launch remains running; a pending
+/// update is stopped before its protected stores can be restored. The process
+/// stays alive: recovery is the UI's job (a silent single retry via
+/// `restart_sidecar`, then a manual "Try again"). `first_launch` widens the
+/// patience because a cold self-extract + AV rescan is legitimately slow.
 fn supervise_launch(app: AppHandle, port: u16, token: String, first_launch: bool) {
     let Some(state) = app.try_state::<SidecarState>() else {
         return;
@@ -248,8 +252,51 @@ fn supervise_launch(app: AppHandle, port: u16, token: String, first_launch: bool
     match health::wait_for_health_or_exit(port, &token, &terminated, timeout) {
         health::HealthOutcome::Healthy(elapsed) => {
             eprintln!("[golavo] sidecar healthy on 127.0.0.1:{port} after {elapsed:?}");
+            if let Err(message) = updater::pending_version_matches(&app) {
+                stop_current_sidecar(&app);
+                eprintln!("[golavo] update version gate failed: {message}");
+                let _ = app.emit("backend://failed", FailedPayload { message });
+                return;
+            }
+            if updater::read_pending(&app).is_some() {
+                match health::wait_for_update_readiness_or_exit(
+                    port,
+                    &token,
+                    &terminated,
+                    UPDATE_READINESS_TIMEOUT,
+                ) {
+                    health::HealthOutcome::Healthy(readiness_elapsed) => {
+                        eprintln!("[golavo] protected stores ready after {readiness_elapsed:?}");
+                    }
+                    health::HealthOutcome::Exited => {
+                        kill_sidecar(&app);
+                        let message = updater::repair_failed_launch(
+                            &app,
+                            "the updated local engine stopped during protected-state readiness",
+                        );
+                        let _ = app.emit("backend://failed", FailedPayload { message });
+                        return;
+                    }
+                    health::HealthOutcome::TimedOut => {
+                        // The readiness endpoint may hold databases open. Stop it
+                        // before copy-then-rename recovery touches user state.
+                        stop_current_sidecar(&app);
+                        let message = updater::repair_failed_launch(
+                            &app,
+                            "the updated local engine could not open protected state in time",
+                        );
+                        let _ = app.emit("backend://failed", FailedPayload { message });
+                        return;
+                    }
+                }
+            }
+            if let Err(message) = updater::finalize_update_if_pending(&app) {
+                stop_current_sidecar(&app);
+                eprintln!("[golavo] update finalization failed: {message}");
+                let _ = app.emit("backend://failed", FailedPayload { message });
+                return;
+            }
             mark_launched_ok(&app);
-            updater::finalize_update_if_pending(&app);
             let _ = app.emit("backend://ready", ());
         }
         health::HealthOutcome::Exited => {
@@ -262,9 +309,12 @@ fn supervise_launch(app: AppHandle, port: u16, token: String, first_launch: bool
         }
         health::HealthOutcome::TimedOut => {
             let why = "the local engine did not answer in time";
-            // Do NOT kill a slow-but-alive sidecar here. A local model call can
-            // hold the server busy; killing it would discard the in-flight AI job.
-            // The retry command still stops the current generation before respawn.
+            // A pending update may need to restore databases, so it cannot leave
+            // a slow sidecar running across the filesystem swap. Marker-less slow
+            // launches preserve the existing non-destructive retry behavior.
+            if updater::read_pending(&app).is_some() {
+                stop_current_sidecar(&app);
+            }
             let message = updater::repair_failed_launch(&app, why);
             eprintln!("[golavo] launch not ready: {message}");
             let _ = app.emit("backend://failed", FailedPayload { message });

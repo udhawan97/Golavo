@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import sqlite3
 import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
@@ -219,6 +220,111 @@ def _notebook_evidence(artifact_id: str) -> tuple[list[Any], list[Any]]:
 def health() -> dict[str, str]:
     """Liveness probe used by the desktop shell and CI smoke tests."""
     return {"status": "ok", "app": "golavo", "version": __version__}
+
+
+def _check_readable_sqlite(path: Path, *, maximum_version: int | None = None) -> None:
+    """Open an existing user database read-only and prove its bytes/schema are usable.
+
+    The updater calls this only after the sidecar is live and before retiring the
+    pre-update backup.  It must not migrate or otherwise rewrite user state: a
+    newer binary that cannot read the previous store leaves rollback armed.
+    """
+
+    connection = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True, timeout=5.0)
+    try:
+        check = connection.execute("PRAGMA quick_check").fetchone()
+        if check is None or check[0] != "ok":
+            raise sqlite3.DatabaseError("integrity check failed")
+        foreign_key_error = connection.execute("PRAGMA foreign_key_check").fetchone()
+        if foreign_key_error is not None:
+            raise sqlite3.DatabaseError("foreign-key check failed")
+        if maximum_version is not None:
+            version = int(connection.execute("PRAGMA user_version").fetchone()[0])
+            if version > maximum_version:
+                raise sqlite3.DatabaseError("store was created by a newer application version")
+    finally:
+        connection.close()
+
+
+def _check_readable_json(path: Path) -> None:
+    if path.suffix == ".jsonl":
+        with path.open(encoding="utf-8") as stream:
+            for line in stream:
+                if line.strip():
+                    json.loads(line)
+        return
+    json.loads(path.read_text(encoding="utf-8"))
+
+
+def _check_store_root(root: Path | None, *, include_json: bool) -> int:
+    if root is None or not root.exists():
+        return 0
+    if root.is_symlink() or not root.is_dir():
+        raise OSError("protected store root is not a safe directory")
+    checked = 0
+    for path in root.rglob("*"):
+        if path.is_symlink():
+            raise OSError("protected store contains a symbolic link")
+        if path.is_dir():
+            continue
+        if not path.is_file():
+            raise OSError("protected store contains an unsupported entry")
+        if path.suffix == ".sqlite3":
+            maximum_version = None
+            if path.name == follows.DATABASE_NAME:
+                maximum_version = follows.DATABASE_VERSION
+            elif path.name == correction_store.DATABASE_NAME:
+                maximum_version = correction_store.DATABASE_VERSION
+            _check_readable_sqlite(path, maximum_version=maximum_version)
+            checked += 1
+        elif include_json and path.suffix in {".json", ".jsonl"}:
+            _check_readable_json(path)
+            checked += 1
+        else:
+            # Raw captures and other immutable evidence need not be parsed here,
+            # but they must still be openable before the backup is retired.
+            with path.open("rb") as stream:
+                stream.read(1)
+            checked += 1
+    return checked
+
+
+def _protected_state_readiness() -> dict[str, Any]:
+    """Non-mutating readiness proof for state the desktop updater protects."""
+
+    with runtime.USER_STATE_LOCK:
+        # The updater snapshots the entire ledger, not only follows and picks.
+        # Parse every JSON/JSONL store and open every remaining file so a new
+        # sidecar cannot retire rollback after proving only a convenient subset.
+        # Forecast artifact integrity still receives its stronger seal check on
+        # the normal read path.
+        mutable_ledger = Path(ARTIFACT_DIR)
+        checked = _check_store_root(mutable_ledger, include_json=True)
+        checked += _check_store_root(
+            Path(CORRECTIONS_DIR) if CORRECTIONS_DIR is not None else None,
+            include_json=True,
+        )
+        checked += _check_store_root(
+            Path(RESEARCH_DIR) if RESEARCH_DIR is not None else None,
+            include_json=True,
+        )
+    return {"status": "ready", "protected_files_checked": checked}
+
+
+@app.get("/api/v1/update-readiness")
+def update_readiness() -> dict[str, Any]:
+    """Prove protected stores are readable before update rollback is retired."""
+
+    try:
+        return _protected_state_readiness()
+    except (OSError, UnicodeError, ValueError, sqlite3.DatabaseError, json.JSONDecodeError) as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "reason_code": "protected_state_not_ready",
+                "message": "protected local state could not be opened safely",
+            },
+        ) from exc
 
 
 @app.get("/api/v1/meta")

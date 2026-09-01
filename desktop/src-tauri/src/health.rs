@@ -40,7 +40,7 @@ pub fn wait_for_health_or_exit(
         "GET /health HTTP/1.1\r\nHost: 127.0.0.1\r\nx-golavo-token: {token}\r\nConnection: close\r\n\r\n"
     );
     while Instant::now() < deadline {
-        if let Ok(true) = probe(&addr, &request) {
+        if let Ok(true) = probe(&addr, &request, "\"status\":\"ok\"", Duration::from_secs(3)) {
             return HealthOutcome::Healthy(started.elapsed());
         }
         // Only trust `terminated` as an early-exit signal once /health has had a
@@ -52,6 +52,36 @@ pub fn wait_for_health_or_exit(
         std::thread::sleep(Duration::from_millis(250));
     }
     HealthOutcome::TimedOut
+}
+
+/// After ordinary liveness, a pending update must also prove that every
+/// protected mutable store can be opened read-only by the new sidecar. This is
+/// a separate token-gated endpoint so source/dev health remains fast and an
+/// update cannot retire rollback on process liveness alone.
+pub fn wait_for_update_readiness_or_exit(
+    port: u16,
+    token: &str,
+    terminated: &AtomicBool,
+    timeout: Duration,
+) -> HealthOutcome {
+    let started = Instant::now();
+    let deadline = started + timeout;
+    let Ok(addr) = format!("127.0.0.1:{port}").parse::<SocketAddr>() else {
+        return HealthOutcome::TimedOut;
+    };
+    let request = format!(
+        "GET /api/v1/update-readiness HTTP/1.1\r\nHost: 127.0.0.1\r\n\
+         x-golavo-token: {token}\r\nConnection: close\r\n\r\n"
+    );
+    let remaining = deadline.saturating_duration_since(Instant::now());
+    if let Ok(true) = probe(&addr, &request, "\"status\":\"ready\"", remaining) {
+        return HealthOutcome::Healthy(started.elapsed());
+    }
+    if terminated.load(Ordering::SeqCst) {
+        HealthOutcome::Exited
+    } else {
+        HealthOutcome::TimedOut
+    }
 }
 
 /// Ask the OS for a free TCP port on loopback, then release it. There is an
@@ -95,11 +125,16 @@ pub fn post_shutdown(port: u16, token: &str) -> Result<(), String> {
     Ok(())
 }
 
-fn probe(addr: &SocketAddr, request: &str) -> Result<bool, String> {
+fn probe(
+    addr: &SocketAddr,
+    request: &str,
+    expected_body: &str,
+    read_timeout: Duration,
+) -> Result<bool, String> {
     let mut stream =
         TcpStream::connect_timeout(addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;
     stream
-        .set_read_timeout(Some(Duration::from_secs(3)))
+        .set_read_timeout(Some(read_timeout))
         .map_err(|e| e.to_string())?;
     stream
         .write_all(request.as_bytes())
@@ -111,6 +146,6 @@ fn probe(addr: &SocketAddr, request: &str) -> Result<bool, String> {
         .read_to_string(&mut response)
         .map_err(|e| e.to_string())?;
     let status_ok = response.starts_with("HTTP/1.1 200") || response.starts_with("HTTP/1.0 200");
-    let body_ok = response.contains("\"status\":\"ok\"");
+    let body_ok = response.contains(expected_body);
     Ok(status_ok && body_ok)
 }

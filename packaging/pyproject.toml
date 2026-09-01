@@ -1,0 +1,17 @@
+[project]
+name = "golavo-release-environment"
+version = "0.0.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "golavo-core[dev]",
+  "golavo-server[dev]",
+  "pyinstaller==6.22.2",
+]
+
+[tool.uv]
+package = false
+required-version = "==0.11.30"
+
+[tool.uv.sources]
+golavo-core = { path = "../core", editable = true }
+golavo-server = { path = "../server", editable = true }

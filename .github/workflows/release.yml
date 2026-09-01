@@ -14,17 +14,18 @@ on:
         options: [beta, stable]
         default: beta
 
-permissions:
-  contents: write
-
 jobs:
   prepare:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.meta.outputs.version }}
       channel: ${{ steps.meta.outputs.channel }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with: { python-version: "3.12.14" }
       - id: meta
         name: Resolve version & channel
         run: |
@@ -44,34 +45,35 @@ jobs:
 
   preflight:
     needs: prepare
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12"
-          cache: pip
-      - uses: actions/setup-node@v7
-        with: { node-version: "22" }
-      - name: Install test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e "core[dev]" -e "server[dev]"
+          python-version: "3.12.14"
+      - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with: { version: "0.11.30" }
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with: { node-version: "22.23.2" }
+      - name: Sync hash-locked release and test environment
+        run: uv sync --project packaging --frozen --python 3.12.14
       - name: Guard release version and notes
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          python3 scripts/bump_version.py --check "$VERSION"
+          uv run --project packaging --frozen python scripts/bump_version.py --check "$VERSION"
           test -s "docs/releases/v${VERSION}.md"
       - name: Python, determinism, provenance and isolation gates
         run: |
-          ruff check .
-          make validate
-          bash scripts/check_license_isolation.sh
-          python scripts/gen_third_party_notices.py --check
-          python -m golavo_core index --output /tmp/rebuilt_index.parquet
-          python - <<'PY'
+          uv run --project packaging --frozen ruff check .
+          uv run --project packaging --frozen make validate
+          uv run --project packaging --frozen bash scripts/check_license_isolation.sh
+          uv run --project packaging --frozen python scripts/gen_third_party_notices.py --check
+          uv run --project packaging --frozen python -m golavo_core index --output /tmp/rebuilt_index.parquet
+          uv run --project packaging --frozen python - <<'PY'
           import hashlib, json, pathlib, sys
 
           def sha256(path):
@@ -86,7 +88,7 @@ jobs:
               print("::error::match index drift — committed copy is not a clean rebuild")
               sys.exit(1)
           PY
-          pytest -q
+          PYTHONPATH="$PWD" uv run --project packaging --frozen pytest -q
       - name: UI and public docs gates
         run: |
           npm --prefix ui ci
@@ -103,6 +105,8 @@ jobs:
 
   build:
     needs: [prepare, preflight]
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -113,7 +117,7 @@ jobs:
             target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Guard — desktop shell present?
         id: guard
         shell: bash
@@ -141,26 +145,49 @@ jobs:
             echo "::error::tauri.updater.conf.json still holds the placeholder pubkey — updates built now could never be verified."
             exit 1
           fi
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         if: steps.guard.outputs.ready == 'true'
-        with: { python-version: "3.12" }  # core pins scipy 1.18.0, which requires >=3.12
-      - uses: actions/setup-node@v7
+        with: { python-version: "3.12.14" }
+      - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         if: steps.guard.outputs.ready == 'true'
-        with: { node-version: "22" }
-      - uses: dtolnay/rust-toolchain@stable
+        with: { version: "0.11.30" }
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         if: steps.guard.outputs.ready == 'true'
-        with:
-          targets: ${{ matrix.target }}
-      - name: Install Python build deps (sidecar)
+        with: { node-version: "22.23.2" }
+      - name: Activate repository-pinned Rust toolchain
         if: steps.guard.outputs.ready == 'true'
         shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
         run: |
-          python -m pip install --upgrade pip
-          pip install -e core -e server pyinstaller
+          test "$(rustc --version | awk '{print $2}')" = "1.97.0"
+          rustup target add "$TARGET"
+      - name: Sync hash-locked sidecar build environment
+        if: steps.guard.outputs.ready == 'true'
+        shell: bash
+        run: uv sync --project packaging --frozen --python 3.12.14
+      - name: Export SBOM, inventory, and verify inputs entering the signer
+        if: steps.guard.outputs.ready == 'true'
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          mkdir -p packaging/out
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          SBOM="packaging/out/release-sbom-${TARGET}.cdx.json"
+          uv export --project packaging --frozen --format cyclonedx1.5 > "$SBOM"
+          uv run --project packaging --frozen python scripts/release_inventory.py generate \
+            --source-sha "$SOURCE_SHA" --target "$TARGET" \
+            --sbom "$SBOM" \
+            --output "packaging/out/release-inventory-${TARGET}.json"
+          uv run --project packaging --frozen python scripts/release_inventory.py validate \
+            --source-sha "$SOURCE_SHA" --target "$TARGET" \
+            --sbom "$SBOM" \
+            --input "packaging/out/release-inventory-${TARGET}.json"
       - name: Build sidecar (PyInstaller) + Tauri bundle
         if: steps.guard.outputs.ready == 'true'
         shell: bash
-        run: bash packaging/build.sh "${{ matrix.target }}"
+        run: uv run --project packaging --frozen bash packaging/build.sh "${{ matrix.target }}"
         env:
           # Updater signing is REQUIRED for stable tags (guard above); Apple
           # code-signing/notarization stays optional — Tauri skips each step
@@ -175,7 +202,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       - name: Upload build artifacts
         if: steps.guard.outputs.ready == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: golavo-${{ matrix.target }}
           path: packaging/out/**
@@ -183,6 +210,8 @@ jobs:
 
   publish:
     needs: [prepare, build]
+    permissions:
+      contents: write
     # Tag-gated AND requires every build leg green: a half-shipped release would
     # publish a latest.json whose missing platform makes update checks error out
     # on that platform (the plugin resolves URLs for the current platform
@@ -190,11 +219,29 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with: { node-version: "22" }
-      - uses: actions/download-artifact@v8
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with: { python-version: "3.12.14" }
+      - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with: { version: "0.11.30" }
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with: { node-version: "22.23.2" }
+      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with: { path: dist, merge-multiple: true }
+      - name: Sync hash-locked publication verifier
+        run: uv sync --project packaging --frozen --python 3.12.14
+      - name: Verify platform inventories before signing and publication
+        shell: bash
+        run: |
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          uv run --project packaging --frozen python scripts/release_inventory.py validate \
+            --source-sha "$SOURCE_SHA" --target aarch64-apple-darwin \
+            --sbom dist/release-sbom-aarch64-apple-darwin.cdx.json \
+            --input dist/release-inventory-aarch64-apple-darwin.json
+          uv run --project packaging --frozen python scripts/release_inventory.py validate \
+            --source-sha "$SOURCE_SHA" --target x86_64-pc-windows-msvc \
+            --sbom dist/release-sbom-x86_64-pc-windows-msvc.cdx.json \
+            --input dist/release-inventory-x86_64-pc-windows-msvc.json
       - name: Assemble + validate updater manifest (latest.json)
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
@@ -202,10 +249,10 @@ jobs:
           TAG="${GITHUB_REF#refs/tags/}"
           # Per-leg checksum files are superseded by the merged SHA256SUMS.txt.
           rm -f dist/SHA256SUMS-*
-          python3 scripts/make_update_manifest.py generate \
+          uv run --project packaging --frozen python scripts/make_update_manifest.py generate \
             --dist dist --version "$VERSION" --tag "$TAG" --repo "${{ github.repository }}" \
             --notes-file "docs/releases/v${VERSION}.md"
-          python3 scripts/make_update_manifest.py validate \
+          uv run --project packaging --frozen python scripts/make_update_manifest.py validate \
             --manifest dist/latest.json --dist dist --tag "$TAG"
       - name: Checksums
         env:
@@ -219,7 +266,7 @@ jobs:
           npm --prefix desktop exec tauri signer sign -- dist/SHA256SUMS.txt
           test -s dist/SHA256SUMS.txt.sig
       - name: Publish GitHub Release (draft until every asset is uploaded)
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           # Draft first: releases/latest must never point at a release whose
           # latest.json or installers are still uploading. The undraft below

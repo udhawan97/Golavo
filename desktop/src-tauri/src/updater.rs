@@ -37,6 +37,8 @@
 //! backups and restore are always compiled — a default build must still finish
 //! or repair an update installed by a previous updater-enabled run.
 
+use std::fs::{File, OpenOptions};
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -70,7 +72,7 @@ pub struct StatusInfo {
     pub just_updated: Option<JustUpdated>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct PendingUpdate {
     pub from: String,
@@ -207,24 +209,181 @@ fn read_json_file<T: for<'de> Deserialize<'de>, R: Runtime>(
     serde_json::from_str(&text).ok()
 }
 
-fn write_json_file<T: Serialize, R: Runtime>(app: &AppHandle<R>, name: &str, value: &T) {
-    if let Ok(dir) = updates_dir(app) {
-        if let Ok(text) = serde_json::to_string_pretty(value) {
-            let _ = std::fs::write(dir.join(name), text);
-        }
+fn unique_suffix() -> String {
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|duration| duration.as_nanos())
+        .unwrap_or(0);
+    format!("{}-{nanos}", std::process::id())
+}
+
+#[cfg(unix)]
+fn sync_directory(path: &Path) -> std::io::Result<()> {
+    File::open(path)?.sync_all()
+}
+
+#[cfg(windows)]
+fn sync_directory(_path: &Path) -> std::io::Result<()> {
+    // Windows directory handles cannot be portably flushed through std. Every
+    // trust-critical rename uses MOVEFILE_WRITE_THROUGH below instead.
+    Ok(())
+}
+
+#[cfg(not(any(unix, windows)))]
+fn sync_directory(_path: &Path) -> std::io::Result<()> {
+    Ok(())
+}
+
+#[cfg(windows)]
+fn durable_rename(from: &Path, to: &Path) -> std::io::Result<()> {
+    use std::os::windows::ffi::OsStrExt;
+
+    #[link(name = "Kernel32")]
+    extern "system" {
+        fn MoveFileExW(existing: *const u16, replacement: *const u16, flags: u32) -> i32;
     }
+    const MOVEFILE_WRITE_THROUGH: u32 = 0x0000_0008;
+    let existing = from
+        .as_os_str()
+        .encode_wide()
+        .chain(Some(0))
+        .collect::<Vec<_>>();
+    let replacement = to
+        .as_os_str()
+        .encode_wide()
+        .chain(Some(0))
+        .collect::<Vec<_>>();
+    // SAFETY: both pointers are valid, NUL-terminated UTF-16 buffers for the
+    // duration of the call; the destination is deliberately required absent.
+    let moved = unsafe {
+        MoveFileExW(
+            existing.as_ptr(),
+            replacement.as_ptr(),
+            MOVEFILE_WRITE_THROUGH,
+        )
+    };
+    if moved == 0 {
+        Err(std::io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+
+#[cfg(not(windows))]
+fn durable_rename(from: &Path, to: &Path) -> std::io::Result<()> {
+    std::fs::rename(from, to)
+}
+
+#[cfg(windows)]
+fn durable_create(from: &Path, to: &Path) -> std::io::Result<()> {
+    // MoveFileExW without MOVEFILE_REPLACE_EXISTING is an atomic no-clobber
+    // create and WRITE_THROUGH asks Windows to flush the move before returning.
+    durable_rename(from, to)
+}
+
+#[cfg(not(windows))]
+fn durable_create(from: &Path, to: &Path) -> std::io::Result<()> {
+    // POSIX rename replaces a destination that appears in the final existence-
+    // check race. A same-directory hard link atomically fails if the pending
+    // marker already exists; unlinking the temporary name leaves the exact
+    // synced inode at the durable target name.
+    std::fs::hard_link(from, to)?;
+    std::fs::remove_file(from)
+}
+
+fn read_json_path<T: for<'de> Deserialize<'de>>(path: &Path) -> Result<T, String> {
+    let text = std::fs::read_to_string(path).map_err(|error| error.to_string())?;
+    serde_json::from_str(&text).map_err(|error| error.to_string())
+}
+
+fn write_json_atomic<T: Serialize>(
+    dir: &Path,
+    name: &str,
+    value: &T,
+    replace: bool,
+) -> Result<(), String> {
+    std::fs::create_dir_all(dir).map_err(|error| error.to_string())?;
+    let target = dir.join(name);
+    if !replace && target.exists() {
+        return Err(format!("{} already exists", target.display()));
+    }
+    let temporary = dir.join(format!(".{name}.tmp-{}", unique_suffix()));
+    let result = (|| -> Result<(), String> {
+        let mut stream = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)
+            .map_err(|error| error.to_string())?;
+        let bytes = serde_json::to_vec_pretty(value).map_err(|error| error.to_string())?;
+        stream
+            .write_all(&bytes)
+            .map_err(|error| error.to_string())?;
+        stream.write_all(b"\n").map_err(|error| error.to_string())?;
+        stream.sync_all().map_err(|error| error.to_string())?;
+        drop(stream);
+
+        if !replace && target.exists() {
+            return Err(format!("{} appeared while writing", target.display()));
+        }
+        #[cfg(windows)]
+        if replace && target.exists() {
+            // The trust-critical pending marker never takes this branch. Windows
+            // rename cannot replace an existing file; just-updated is a toast
+            // receipt and can safely be replaced after its new bytes are synced.
+            std::fs::remove_file(&target).map_err(|error| error.to_string())?;
+        }
+        if replace {
+            durable_rename(&temporary, &target).map_err(|error| error.to_string())?;
+        } else {
+            durable_create(&temporary, &target).map_err(|error| error.to_string())?;
+        }
+        OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&target)
+            .and_then(|stream| stream.sync_all())
+            .map_err(|error| error.to_string())?;
+        sync_directory(dir).map_err(|error| error.to_string())?;
+        Ok(())
+    })();
+    if result.is_err() {
+        let _ = std::fs::remove_file(&temporary);
+    }
+    result
 }
 
 const PENDING_FILE: &str = "pending-update.json";
 const JUST_UPDATED_FILE: &str = "just-updated.json";
 
 pub fn read_pending<R: Runtime>(app: &AppHandle<R>) -> Option<PendingUpdate> {
-    read_json_file(app, PENDING_FILE)
+    read_pending_checked(app).ok().flatten()
 }
 
-fn clear_pending<R: Runtime>(app: &AppHandle<R>) {
-    if let Ok(dir) = updates_dir(app) {
-        let _ = std::fs::remove_file(dir.join(PENDING_FILE));
+fn read_pending_checked<R: Runtime>(app: &AppHandle<R>) -> Result<Option<PendingUpdate>, String> {
+    let path = updates_dir(app)?.join(PENDING_FILE);
+    if !path.exists() {
+        return Ok(None);
+    }
+    read_json_path(&path).map(Some)
+}
+
+#[cfg_attr(not(feature = "updater"), allow(dead_code))]
+fn write_pending<R: Runtime>(app: &AppHandle<R>, pending: &PendingUpdate) -> Result<(), String> {
+    let dir = updates_dir(app)?;
+    write_json_atomic(&dir, PENDING_FILE, pending, false)?;
+    let observed: PendingUpdate = read_json_path(&dir.join(PENDING_FILE))?;
+    if observed != *pending {
+        return Err("pending update marker failed its readback verification".into());
+    }
+    Ok(())
+}
+
+fn clear_pending<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+    let dir = updates_dir(app)?;
+    match std::fs::remove_file(dir.join(PENDING_FILE)) {
+        Ok(()) => sync_directory(&dir).map_err(|error| error.to_string()),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(error.to_string()),
     }
 }
 
@@ -249,6 +408,9 @@ pub fn backup_user_state<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, Stri
         Ok(()) => Ok(backup),
         Err(e) => {
             let _ = std::fs::remove_dir_all(&backup);
+            if let Some(parent) = backup.parent() {
+                let _ = sync_directory(parent);
+            }
             Err(e)
         }
     }
@@ -256,26 +418,50 @@ pub fn backup_user_state<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, Stri
 
 fn backup_user_state_inner<R: Runtime>(app: &AppHandle<R>, backup: &Path) -> Result<(), String> {
     if backup.exists() {
-        std::fs::remove_dir_all(backup).map_err(|e| e.to_string())?;
+        let parent = backup
+            .parent()
+            .ok_or_else(|| "backup directory has no parent".to_string())?;
+        let preserved = parent.join(format!("preserved-unarmed-{}", unique_suffix()));
+        durable_rename(backup, &preserved).map_err(|error| error.to_string())?;
+        sync_directory(parent).map_err(|error| error.to_string())?;
     }
     std::fs::create_dir_all(backup).map_err(|e| e.to_string())?;
     let ledger = ledger_dir(app)?;
     if ledger.exists() {
         copy_dir(&ledger, &backup.join("ledger")).map_err(|e| e.to_string())?;
+        verify_dir_copy(&ledger, &backup.join("ledger"), None)?;
     }
     let corrections = corrections_dir(app)?;
     if corrections.exists() {
         copy_dir(&corrections, &backup.join("corrections")).map_err(|e| e.to_string())?;
+        verify_dir_copy(&corrections, &backup.join("corrections"), None)?;
     }
     let research = research_dir(app)?;
     if research.exists() {
         copy_dir(&research, &backup.join("research")).map_err(|e| e.to_string())?;
-        let _ = std::fs::remove_dir_all(backup.join("research").join("tmp"));
+        let temporary = backup.join("research").join("tmp");
+        if temporary.exists() {
+            std::fs::remove_dir_all(&temporary).map_err(|error| error.to_string())?;
+            sync_directory(&backup.join("research")).map_err(|error| error.to_string())?;
+        }
+        verify_dir_copy(&research, &backup.join("research"), Some("tmp"))?;
+    }
+    sync_directory(backup).map_err(|error| error.to_string())?;
+    if let Some(parent) = backup.parent() {
+        sync_directory(parent).map_err(|error| error.to_string())?;
     }
     Ok(())
 }
 
-fn restore_component(backup: &Path, live: &Path, name: &str) -> Result<bool, String> {
+fn restore_component_with_rename<F>(
+    backup: &Path,
+    live: &Path,
+    name: &str,
+    rename: &mut F,
+) -> Result<bool, String>
+where
+    F: FnMut(&Path, &Path) -> std::io::Result<()>,
+{
     if !backup.exists() {
         return Ok(false);
     }
@@ -283,21 +469,38 @@ fn restore_component(backup: &Path, live: &Path, name: &str) -> Result<bool, Str
         .parent()
         .ok_or_else(|| format!("{name} dir has no parent"))?
         .to_path_buf();
-    let staging = parent.join(format!("{name}.restoring"));
-    if staging.exists() {
-        std::fs::remove_dir_all(&staging).map_err(|e| e.to_string())?;
-    }
+    let staging = parent.join(format!("{name}.restoring-{}", unique_suffix()));
     copy_dir(backup, &staging).map_err(|e| e.to_string())?;
+    verify_dir_copy(backup, &staging, None)?;
+    let mut aside = None;
     if live.exists() {
-        // Keep only the newest displaced copy: prune older pre-restore dirs
-        // before creating this one so repeated failed updates can't accumulate
-        // full user-state copies without bound.
-        prune_pre_restore(&parent, name);
-        let aside = parent.join(format!("{name}.pre-restore-{}", now_epoch()));
-        std::fs::rename(live, &aside).map_err(|e| e.to_string())?;
+        let displaced = parent.join(format!("{name}.pre-restore-{}", unique_suffix()));
+        rename(live, &displaced).map_err(|error| error.to_string())?;
+        if let Err(error) = sync_directory(&parent) {
+            let compensation = rename(&displaced, live);
+            return Err(format!(
+                "could not durably move {name} aside: {error}; compensation: {compensation:?}"
+            ));
+        }
+        aside = Some(displaced);
     }
-    std::fs::rename(&staging, live).map_err(|e| e.to_string())?;
+    if let Err(error) = rename(&staging, live) {
+        let compensation = aside.as_ref().map(|displaced| rename(displaced, live));
+        return Err(format!(
+            "could not activate restored {name}: {error}; compensation: {compensation:?}; staged copy: {}",
+            staging.display()
+        ));
+    }
+    sync_directory(&parent).map_err(|error| {
+        format!(
+            "restored {name} is canonical but its directory sync failed: {error}; recovery remains armed"
+        )
+    })?;
     Ok(true)
+}
+
+fn restore_component(backup: &Path, live: &Path, name: &str) -> Result<bool, String> {
+    restore_component_with_rename(backup, live, name, &mut durable_rename)
 }
 
 /// Restore every backed-up user-state component with copy-then-rename swaps.
@@ -313,64 +516,130 @@ pub fn restore_backup<R: Runtime>(app: &AppHandle<R>) -> Result<bool, String> {
     Ok(ledger || corrections || research)
 }
 
-/// Remove every `<name>.pre-restore-*` under `parent`. Called right before a
-/// new one is minted, so at most one displaced generation survives at a time.
-fn prune_pre_restore(parent: &Path, name: &str) {
-    let Ok(entries) = std::fs::read_dir(parent) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        if entry
-            .file_name()
-            .to_string_lossy()
-            .starts_with(&format!("{name}.pre-restore-"))
-        {
-            let _ = std::fs::remove_dir_all(entry.path());
-        }
-    }
-}
-
-fn prune_retired(parent: &Path, keep: &Path) {
-    let Ok(entries) = std::fs::read_dir(parent) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path != keep && entry.file_name().to_string_lossy().starts_with("retired-") {
-            let _ = std::fs::remove_dir_all(path);
-        }
-    }
-}
-
 /// After the first healthy boot on a new version, the pre-update backup has done
 /// its job: move it out of the armed location so it can never be restored over
-/// newer data, keeping exactly one retired generation around for forensics.
-fn retire_backup<R: Runtime>(app: &AppHandle<R>, to_version: &str) {
-    let Ok(armed) = backup_root(app) else { return };
+/// newer data. Existing forensic generations are never overwritten.
+fn retire_backup<R: Runtime>(app: &AppHandle<R>, to_version: &str) -> Result<(), String> {
+    let armed = backup_root(app)?;
     if !armed.exists() {
-        return;
+        return Ok(());
     }
-    let Some(parent) = armed.parent().map(Path::to_path_buf) else {
-        return;
-    };
-    let retired = parent.join(format!("retired-{to_version}"));
-    if retired.exists() {
-        let _ = std::fs::remove_dir_all(&retired);
-    }
-    if std::fs::rename(&armed, &retired).is_ok() {
-        prune_retired(&parent, &retired);
-    }
+    let parent = armed
+        .parent()
+        .ok_or_else(|| "backup directory has no parent".to_string())?;
+    let retired = parent.join(format!("retired-{to_version}-{}", unique_suffix()));
+    durable_rename(&armed, &retired).map_err(|error| error.to_string())?;
+    sync_directory(parent).map_err(|error| error.to_string())
 }
 
 fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
+    if from.is_symlink() {
+        return Err(std::io::Error::other(
+            "refusing to copy a symbolic-link store",
+        ));
+    }
     std::fs::create_dir_all(to)?;
     for entry in std::fs::read_dir(from)? {
         let entry = entry?;
         let target = to.join(entry.file_name());
-        if entry.file_type()?.is_dir() {
+        let file_type = entry.file_type()?;
+        if file_type.is_symlink() {
+            return Err(std::io::Error::other(
+                "refusing to copy a symbolic-link entry",
+            ));
+        }
+        if file_type.is_dir() {
             copy_dir(&entry.path(), &target)?;
-        } else {
+        } else if file_type.is_file() {
             std::fs::copy(entry.path(), &target)?;
+            OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(&target)?
+                .sync_all()?;
+        } else {
+            return Err(std::io::Error::other("unsupported user-state entry"));
+        }
+    }
+    sync_directory(to)
+}
+
+fn files_equal(left: &Path, right: &Path) -> Result<bool, String> {
+    if left.metadata().map_err(|error| error.to_string())?.len()
+        != right.metadata().map_err(|error| error.to_string())?.len()
+    {
+        return Ok(false);
+    }
+    let mut left_stream = File::open(left).map_err(|error| error.to_string())?;
+    let mut right_stream = File::open(right).map_err(|error| error.to_string())?;
+    let mut left_buffer = [0_u8; 64 * 1024];
+    let mut right_buffer = [0_u8; 64 * 1024];
+    loop {
+        let left_read = left_stream
+            .read(&mut left_buffer)
+            .map_err(|error| error.to_string())?;
+        let right_read = right_stream
+            .read(&mut right_buffer)
+            .map_err(|error| error.to_string())?;
+        if left_read != right_read || left_buffer[..left_read] != right_buffer[..right_read] {
+            return Ok(false);
+        }
+        if left_read == 0 {
+            return Ok(true);
+        }
+    }
+}
+
+fn verify_dir_copy(from: &Path, to: &Path, ignore_top_level: Option<&str>) -> Result<(), String> {
+    let mut source_entries = Vec::new();
+    for entry in std::fs::read_dir(from).map_err(|error| error.to_string())? {
+        let entry = entry.map_err(|error| error.to_string())?;
+        if ignore_top_level.is_some_and(|ignored| entry.file_name() == ignored) {
+            continue;
+        }
+        source_entries.push(entry.file_name());
+    }
+    let mut target_entries = std::fs::read_dir(to)
+        .map_err(|error| error.to_string())?
+        .map(|entry| {
+            entry
+                .map(|value| value.file_name())
+                .map_err(|error| error.to_string())
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    source_entries.sort();
+    target_entries.sort();
+    if source_entries != target_entries {
+        return Err(format!(
+            "backup directory listing differs for {}",
+            from.display()
+        ));
+    }
+    for name in source_entries {
+        let source = from.join(&name);
+        let target = to.join(&name);
+        let source_type = source
+            .symlink_metadata()
+            .map_err(|error| error.to_string())?
+            .file_type();
+        let target_type = target
+            .symlink_metadata()
+            .map_err(|error| error.to_string())?
+            .file_type();
+        if source_type.is_symlink() || target_type.is_symlink() {
+            return Err("backup verification refuses symbolic links".into());
+        }
+        if source_type.is_dir() && target_type.is_dir() {
+            verify_dir_copy(&source, &target, None)?;
+        } else if source_type.is_file() && target_type.is_file() {
+            if !files_equal(&source, &target)? {
+                return Err(format!("backup bytes differ for {}", source.display()));
+            }
+        } else {
+            return Err(format!(
+                "backup entry type differs for {}",
+                source.display()
+            ));
         }
     }
     Ok(())
@@ -379,10 +648,10 @@ fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
 /// Complete a restore that was interrupted mid-swap, BEFORE the launch path
 /// fabricates an empty ledger over the gap.
 ///
-/// `restore_backup` stages as: copy backup -> `ledger.restoring`, move live ->
+/// `restore_backup` stages as: copy backup -> `ledger.restoring-*`, move live ->
 /// `ledger.pre-restore-<epoch>`, rename `ledger.restoring` -> `ledger`. A crash
 /// between the last two renames leaves NO canonical `ledger` while a full staged
-/// copy sits at `ledger.restoring`. Left alone, `create_dir_all(ledger)` at
+/// copy sits at `ledger.restoring-*`. Left alone, `create_dir_all(ledger)` at
 /// launch would fabricate an EMPTY ledger, the sidecar would pass its health
 /// gate serving nothing, and the user's data would appear lost. This detects
 /// that exact state and finishes the swap so the correct ledger is in place.
@@ -393,49 +662,86 @@ fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
 /// marker-less orphan (e.g. a `ledger.restoring` left by a crash whose retry
 /// boot already succeeded) if the live ledger is later lost by external means.
 /// No-op when a canonical ledger already exists (the common case).
-fn recover_component<R: Runtime>(app: &AppHandle<R>, live: PathBuf, name: &str) {
-    if live.exists() {
-        return;
-    }
-    if read_pending(app).is_none() {
-        return;
-    }
-    let Some(parent) = live.parent().map(Path::to_path_buf) else {
-        return;
-    };
-    let staging = parent.join(format!("{name}.restoring"));
-    if !staging.exists() {
-        return;
-    }
-    // The staged copy is complete (copy_dir finished before the live-move);
-    // finishing the swap lands exactly what the restore intended. Prefer a
-    // rename; if it fails (AV lock, odd FS state) fall back to a copy rather
-    // than let the caller's create_dir_all mask the staged data with an empty
-    // ledger — the whole point of this function.
-    if std::fs::rename(&staging, &live).is_ok() {
-        eprintln!("[golavo] completed an interrupted {name} restore (rename)");
-    } else if copy_dir(&staging, &live).is_ok() {
-        let _ = std::fs::remove_dir_all(&staging);
-        eprintln!("[golavo] completed an interrupted {name} restore (copy fallback)");
-    } else {
-        eprintln!(
-            "[golavo] WARNING: could not complete an interrupted restore; your data is safe at \
-             {}",
-            staging.display()
-        );
-    }
+fn newest_recovery_candidate(parent: &Path, prefix: &str) -> Result<Option<PathBuf>, String> {
+    let mut candidates = std::fs::read_dir(parent)
+        .map_err(|error| error.to_string())?
+        .filter_map(|entry| entry.ok())
+        .filter(|entry| entry.file_name().to_string_lossy().starts_with(prefix))
+        .map(|entry| entry.path())
+        .collect::<Vec<_>>();
+    candidates.sort();
+    Ok(candidates.pop())
 }
 
-pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) {
-    if let Ok(ledger) = ledger_dir(app) {
-        recover_component(app, ledger, "ledger");
+fn recover_component(
+    live: PathBuf,
+    backup: PathBuf,
+    name: &str,
+    has_pending: bool,
+) -> Result<bool, String> {
+    if live.exists() {
+        return Ok(false);
     }
-    if let Ok(corrections) = corrections_dir(app) {
-        recover_component(app, corrections, "corrections");
+    if !has_pending {
+        return Ok(false);
     }
-    if let Ok(research) = research_dir(app) {
-        recover_component(app, research, "research");
-    }
+    let parent = live
+        .parent()
+        .ok_or_else(|| format!("{name} directory has no parent"))?;
+    let candidate = if backup.exists() {
+        // A crash can leave a partially copied `restoring-*` directory. Always
+        // rebuild and byte-verify from the durable backup instead of trusting an
+        // orphaned staging name merely because it exists.
+        let staging = parent.join(format!("{name}.restoring-{}", unique_suffix()));
+        copy_dir(&backup, &staging).map_err(|error| error.to_string())?;
+        verify_dir_copy(&backup, &staging, None)?;
+        Some(staging)
+    } else {
+        // A pre-restore entry was once the canonical live directory and moved
+        // atomically. It is safe recovery evidence even if the backup vanished.
+        newest_recovery_candidate(parent, &format!("{name}.pre-restore-"))?
+    };
+    let Some(candidate) = candidate else {
+        if newest_recovery_candidate(parent, &format!("{name}.restoring-"))?.is_some() {
+            return Err(format!(
+                "refusing to activate an unverifiable partial {name} staging copy; recovery evidence remains preserved"
+            ));
+        }
+        return Ok(false);
+    };
+    durable_rename(&candidate, &live).map_err(|error| {
+        format!(
+            "could not recover {name}; preserved recoverable copy at {}: {error}",
+            candidate.display()
+        )
+    })?;
+    sync_directory(parent).map_err(|error| error.to_string())?;
+    eprintln!("[golavo] completed an interrupted {name} restore");
+    Ok(true)
+}
+
+pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+    let has_pending = read_pending_checked(app)?.is_some();
+    let backup = backup_root(app)?;
+    recover_component(
+        ledger_dir(app)?,
+        backup.join("ledger"),
+        "ledger",
+        has_pending,
+    )?;
+    recover_component(
+        corrections_dir(app)?,
+        backup.join("corrections"),
+        "corrections",
+        has_pending,
+    )?;
+    recover_component(
+        research_dir(app)?,
+        backup.join("research"),
+        "research",
+        has_pending,
+    )?;
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -444,26 +750,30 @@ pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) {
 
 /// Healthy boot: if the previous run installed an update, the new version just
 /// proved it can serve — retire the backup and record the success.
-pub fn finalize_update_if_pending<R: Runtime>(app: &AppHandle<R>) {
-    let Some(pending) = read_pending(app) else {
-        return;
+pub fn pending_version_matches<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+    let Some(pending) = read_pending_checked(app)? else {
+        return Ok(());
     };
-    // Only claim success if the promised version is actually what is running.
-    // If the install silently didn't land (e.g. relaunched into the old
-    // binary), consume the marker without recording an update — the data is
-    // untouched, so just disarm quietly.
     let running = app.package_info().version.to_string();
     if pending.to != running {
-        eprintln!(
-            "[golavo] pending update said {} but {} is running; disarming without a record",
+        return Err(format!(
+            "the pending update expected version {} but version {} is running; recovery remains armed",
             pending.to, running
-        );
-        retire_backup(app, &pending.to);
-        clear_pending(app);
-        return;
+        ));
     }
-    write_json_file(
-        app,
+    Ok(())
+}
+
+/// Retire recovery only after liveness, protected-state readiness, and exact
+/// running-version checks have all passed in the desktop supervisor.
+pub fn finalize_update_if_pending<R: Runtime>(app: &AppHandle<R>) -> Result<bool, String> {
+    let Some(pending) = read_pending_checked(app)? else {
+        return Ok(false);
+    };
+    pending_version_matches(app)?;
+    let updates = updates_dir(app)?;
+    write_json_atomic(
+        &updates,
         JUST_UPDATED_FILE,
         &JustUpdated {
             from: pending.from.clone(),
@@ -471,53 +781,69 @@ pub fn finalize_update_if_pending<R: Runtime>(app: &AppHandle<R>) {
             at_epoch: now_epoch(),
             backup_taken: pending.backup_taken,
         },
-    );
-    retire_backup(app, &pending.to);
-    clear_pending(app);
+        true,
+    )?;
+    retire_backup(app, &pending.to)?;
+    clear_pending(app)?;
     eprintln!(
-        "[golavo] update {} -> {} verified healthy; backup retired",
+        "[golavo] update {} -> {} verified ready; backup retired",
         pending.from, pending.to
     );
+    Ok(true)
 }
 
 /// Failed health gate: build the message for the native error dialog, restoring
 /// the pre-update backup ONLY when this boot is the first one after an install
-/// (marker present). The marker is consumed either way so a restore can never
-/// run twice, and a marker-less failure never touches the ledger.
+/// (marker present). The marker is consumed only after a complete restore; any
+/// failed half-swap keeps both the marker and every recovery copy armed.
 pub fn repair_failed_launch<R: Runtime>(app: &AppHandle<R>, health_err: &str) -> String {
-    match read_pending(app) {
-        Some(pending) => {
-            // Only a VERIFIED backup may overwrite the live ledger. When the
-            // pre-install backup didn't complete (backup_taken == false) it is not
-            // trustworthy — and the install never touches the live ledger anyway —
-            // so restoring a half-copy would trade good data for bad. Leave it.
-            let data_note = if pending.backup_taken {
-                match restore_backup(app) {
-                    Ok(true) => "Your local user data was restored from the pre-update backup.",
-                    _ => {
-                        "The pre-update backup could not be restored automatically; \
-                         it is preserved on disk under backups/pre-update."
-                    }
-                }
-            } else {
-                "Your ledger was not modified."
-            };
-            // Consume the marker only AFTER the restore attempt returns: a crash
-            // mid-restore keeps the marker and leaves a `ledger.restoring` staging
-            // dir, which recover_interrupted_restore completes on next boot.
-            clear_pending(app);
-            format!(
-                "Golavo {} could not start after the update.\n\n{}\n\nPlease download the \
-                 previous version from:\n{}\n\n(Details: {})",
-                pending.to, data_note, RELEASES_URL, health_err
-            )
-        }
-        None => format!(
+    match read_pending_checked(app) {
+        Err(error) => format!(
+            "Golavo could not verify its pending update recovery marker. Your data and recovery \
+             files were left untouched.\n\nPlease download a fresh copy from:\n{}\n\n(Details: {}; {})",
+            RELEASES_URL, health_err, error
+        ),
+        Ok(None) => format!(
             "Golavo's local engine failed to start.\n\nYour data is untouched. Try launching \
              Golavo again; if this keeps happening, download a fresh copy from:\n{}\n\n\
              (Details: {})",
             RELEASES_URL, health_err
         ),
+        Ok(Some(pending)) => {
+            // Only a VERIFIED backup may overwrite the live ledger. When the
+            // pre-install backup didn't complete (backup_taken == false) it is not
+            // trustworthy — and the install never touches the live ledger anyway —
+            // so restoring a half-copy would trade good data for bad. Leave it.
+            let (data_note, restored) = if pending.backup_taken {
+                match restore_backup(app) {
+                    Ok(true) => (
+                        "Your local user data was restored from the pre-update backup.",
+                        true,
+                    ),
+                    Ok(false) => ("The protected stores were empty before the update.", true),
+                    Err(_) => (
+                        "The pre-update backup could not be restored automatically; it and all \
+                         staging/aside copies remain preserved for the next recovery attempt.",
+                        false,
+                    ),
+                }
+            } else {
+                ("No verified pre-update backup is available; recovery remains armed.", false)
+            };
+            let marker_note = if restored {
+                match clear_pending(app) {
+                    Ok(()) => "",
+                    Err(_) => " The recovery marker could not be cleared and remains armed.",
+                }
+            } else {
+                " The recovery marker remains armed."
+            };
+            format!(
+                "Golavo {} could not start after the update.\n\n{}{}\n\nPlease download the \
+                 previous version from:\n{}\n\n(Details: {})",
+                pending.to, data_note, marker_note, RELEASES_URL, health_err
+            )
+        }
     }
 }
 
@@ -884,6 +1210,20 @@ pub async fn updater_install_and_restart<R: Runtime>(app: AppHandle<R>) -> Resul
         let Some(update) = inner.update.clone() else {
             return Err(other_error("No update metadata staged.".into()));
         };
+        match read_pending_checked(&app) {
+            Ok(None) => {}
+            Ok(Some(_)) => {
+                return Err(other_error(
+                    "A previous update still has recovery armed; refusing to replace its evidence."
+                        .into(),
+                ));
+            }
+            Err(error) => {
+                return Err(other_error(format!(
+                    "The existing update recovery marker is unreadable; refusing to install: {error}"
+                )));
+            }
+        }
         let Some(bytes) = inner.bytes.take() else {
             return Err(other_error(
                 "Downloaded bytes were lost — download again.".into(),
@@ -904,21 +1244,40 @@ pub async fn updater_install_and_restart<R: Runtime>(app: AppHandle<R>) -> Resul
         crate::stop_sidecar_for_install(&app);
 
         let from = app.package_info().version.to_string();
-        let backup_taken = backup_user_state(&app).is_ok();
-        write_json_file(
-            &app,
-            PENDING_FILE,
-            &PendingUpdate {
+        let protection = (|| -> Result<(), UpdateError> {
+            backup_user_state(&app).map_err(|error| {
+                other_error(format!(
+                    "The update was not installed because protected user data could not be backed up and verified: {error}"
+                ))
+            })?;
+            let pending = PendingUpdate {
                 from,
                 to: update.version.clone(),
                 at_epoch: now_epoch(),
-                backup_taken,
-            },
-        );
+                backup_taken: true,
+            };
+            write_pending(&app, &pending).map_err(|error| {
+                other_error(format!(
+                    "The update was not installed because its durable recovery marker could not be verified: {error}"
+                ))
+            })
+        })();
+        if let Err(error) = protection {
+            let _ = app.emit(
+                "updater://state",
+                StatePayload {
+                    phase: "error",
+                    error: Some(error.clone()),
+                    version: Some(update.version.clone()),
+                },
+            );
+            return Err(error);
+        }
 
         if let Err(e) = update.install(bytes) {
-            // No update landed: the marker must not survive to claim one did.
-            clear_pending(&app);
+            // The updater API can report an error after touching application
+            // files. Keep the verified backup and marker armed until a running
+            // version plus protected-store readiness prove what actually landed.
             let error = UpdateError {
                 kind: "install_failed",
                 message: e.to_string(),
@@ -949,27 +1308,204 @@ pub fn updater_relaunch<R: Runtime>(app: AppHandle<R>) -> Result<(), UpdateError
 
 #[cfg(test)]
 mod tests {
-    use super::prune_retired;
+    use std::cell::Cell;
+    use std::path::{Path, PathBuf};
+
+    use super::{
+        read_json_path, recover_component, restore_component_with_rename, unique_suffix,
+        write_json_atomic, PendingUpdate,
+    };
+
+    fn test_root(label: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!("golavo-updater-{label}-{}", unique_suffix()));
+        std::fs::create_dir_all(&root).unwrap();
+        root
+    }
+
+    fn write_state(root: &Path, value: &str) {
+        std::fs::create_dir_all(root).unwrap();
+        std::fs::write(root.join("state.txt"), value).unwrap();
+    }
 
     #[test]
-    fn retired_backup_pruning_keeps_only_the_current_generation() {
-        let root = std::env::temp_dir().join(format!(
-            "golavo-updater-retired-{}-{}",
-            std::process::id(),
-            super::now_epoch()
-        ));
-        let keep = root.join("retired-0.14.0");
-        std::fs::create_dir_all(root.join("retired-0.2.3")).unwrap();
-        std::fs::create_dir_all(root.join("retired-0.13.0")).unwrap();
-        std::fs::create_dir_all(&keep).unwrap();
-        std::fs::create_dir_all(root.join("unrelated")).unwrap();
+    fn pending_marker_is_durable_readable_and_never_overwritten() {
+        let root = test_root("pending");
+        let pending = PendingUpdate {
+            from: "0.19.0".into(),
+            to: "0.20.0".into(),
+            at_epoch: 42,
+            backup_taken: true,
+        };
 
-        prune_retired(&root, &keep);
+        write_json_atomic(&root, "pending-update.json", &pending, false).unwrap();
+        let first_bytes = std::fs::read(root.join("pending-update.json")).unwrap();
+        assert_eq!(
+            read_json_path::<PendingUpdate>(&root.join("pending-update.json")).unwrap(),
+            pending
+        );
+        assert!(write_json_atomic(&root, "pending-update.json", &pending, false).is_err());
+        assert_eq!(
+            std::fs::read(root.join("pending-update.json")).unwrap(),
+            first_bytes
+        );
+        std::fs::remove_dir_all(root).unwrap();
+    }
 
-        assert!(keep.is_dir());
-        assert!(!root.join("retired-0.2.3").exists());
-        assert!(!root.join("retired-0.13.0").exists());
-        assert!(root.join("unrelated").is_dir());
-        let _ = std::fs::remove_dir_all(root);
+    #[test]
+    fn marker_failure_is_deterministic_and_leaves_no_marker() {
+        let root = test_root("marker-failure");
+        let blocker = root.join("not-a-directory");
+        std::fs::write(&blocker, "block").unwrap();
+        let pending = PendingUpdate {
+            from: "0.19.0".into(),
+            to: "0.20.0".into(),
+            at_epoch: 42,
+            backup_taken: true,
+        };
+
+        assert!(write_json_atomic(&blocker, "pending-update.json", &pending, false).is_err());
+        assert!(!blocker.join("pending-update.json").exists());
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn failed_activation_compensates_back_to_the_original_canonical_store() {
+        let root = test_root("restore-compensates");
+        let backup = root.join("backup");
+        let live = root.join("ledger");
+        write_state(&backup, "backup");
+        write_state(&live, "original");
+        let calls = Cell::new(0_u8);
+        let mut rename = |from: &Path, to: &Path| {
+            calls.set(calls.get() + 1);
+            if calls.get() == 2 {
+                return Err(std::io::Error::other("injected activation failure"));
+            }
+            std::fs::rename(from, to)
+        };
+
+        assert!(restore_component_with_rename(&backup, &live, "ledger", &mut rename).is_err());
+        assert_eq!(
+            std::fs::read_to_string(live.join("state.txt")).unwrap(),
+            "original"
+        );
+        assert!(root.read_dir().unwrap().flatten().any(|entry| entry
+            .file_name()
+            .to_string_lossy()
+            .starts_with("ledger.restoring-")));
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn failed_displacement_leaves_original_canonical_and_staging_recoverable() {
+        let root = test_root("restore-displacement-fails");
+        let backup = root.join("backup");
+        let live = root.join("ledger");
+        write_state(&backup, "backup");
+        write_state(&live, "original");
+        let mut rename =
+            |_from: &Path, _to: &Path| Err(std::io::Error::other("injected displacement failure"));
+
+        assert!(restore_component_with_rename(&backup, &live, "ledger", &mut rename).is_err());
+        assert_eq!(
+            std::fs::read_to_string(live.join("state.txt")).unwrap(),
+            "original"
+        );
+        assert!(root.read_dir().unwrap().flatten().any(|entry| entry
+            .file_name()
+            .to_string_lossy()
+            .starts_with("ledger.restoring-")));
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn double_rename_failure_keeps_two_recovery_copies_then_recovers() {
+        let root = test_root("restore-recoverable");
+        let backup = root.join("backup");
+        let live = root.join("ledger");
+        write_state(&backup, "backup");
+        write_state(&live, "original");
+        let calls = Cell::new(0_u8);
+        let mut rename = |from: &Path, to: &Path| {
+            calls.set(calls.get() + 1);
+            if calls.get() == 2 || calls.get() == 3 {
+                return Err(std::io::Error::other("injected rename failure"));
+            }
+            std::fs::rename(from, to)
+        };
+
+        assert!(restore_component_with_rename(&backup, &live, "ledger", &mut rename).is_err());
+        assert!(!live.exists());
+        let names = root
+            .read_dir()
+            .unwrap()
+            .flatten()
+            .map(|entry| entry.file_name().to_string_lossy().to_string())
+            .collect::<Vec<_>>();
+        assert!(names
+            .iter()
+            .any(|name| name.starts_with("ledger.restoring-")));
+        assert!(names
+            .iter()
+            .any(|name| name.starts_with("ledger.pre-restore-")));
+
+        assert!(recover_component(live.clone(), backup.clone(), "ledger", true).unwrap());
+        assert_eq!(
+            std::fs::read_to_string(live.join("state.txt")).unwrap(),
+            "backup"
+        );
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn interrupted_restore_uses_verified_backup_before_empty_creation() {
+        let root = test_root("recover-from-backup");
+        let backup = root.join("backup");
+        let live = root.join("ledger");
+        write_state(&backup, "backup");
+
+        assert!(recover_component(live.clone(), backup, "ledger", true).unwrap());
+        assert_eq!(
+            std::fs::read_to_string(live.join("state.txt")).unwrap(),
+            "backup"
+        );
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn interrupted_restore_ignores_partial_staging_when_backup_is_available() {
+        let root = test_root("recover-ignores-partial");
+        let backup = root.join("backup");
+        let live = root.join("ledger");
+        let partial = root.join("ledger.restoring-partial");
+        write_state(&backup, "verified");
+        write_state(&partial, "partial");
+
+        assert!(recover_component(live.clone(), backup, "ledger", true).unwrap());
+        assert_eq!(
+            std::fs::read_to_string(live.join("state.txt")).unwrap(),
+            "verified"
+        );
+        assert_eq!(
+            std::fs::read_to_string(partial.join("state.txt")).unwrap(),
+            "partial"
+        );
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn interrupted_restore_never_activates_unverifiable_staging() {
+        let root = test_root("recover-refuses-unverified");
+        let live = root.join("ledger");
+        let partial = root.join("ledger.restoring-partial");
+        write_state(&partial, "partial");
+
+        assert!(recover_component(live.clone(), root.join("missing"), "ledger", true).is_err());
+        assert!(!live.exists());
+        assert_eq!(
+            std::fs::read_to_string(partial.join("state.txt")).unwrap(),
+            "partial"
+        );
+        std::fs::remove_dir_all(root).unwrap();
     }
 }
