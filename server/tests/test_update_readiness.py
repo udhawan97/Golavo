@@ -34,7 +34,9 @@ def _roots(tmp_path, monkeypatch):
     return ledger, corrections, research
 
 
-def _research_capture(root: Path) -> Path:
+def _research_capture(
+    root: Path, *, schema_version: str = research_store.SCHEMA_VERSION
+) -> Path:
     raw = b"France v Spain: 18:00 UTC"
     raw_hash = hashlib.sha256(raw).hexdigest()
     text = raw.decode("utf-8")
@@ -52,7 +54,7 @@ def _research_capture(root: Path) -> Path:
     research_store.add_capture(
         root,
         {
-            "schema_version": research_store.SCHEMA_VERSION,
+            "schema_version": schema_version,
             "capture_id": capture_id,
             "run_id": "rr_test",
             "source_id": source_id,
@@ -292,6 +294,20 @@ def test_update_readiness_rejects_tampered_research_capture_without_mutation(
     _ledger, _corrections, research = _roots(tmp_path, monkeypatch)
     raw_path = _research_capture(research)
     raw_path.write_bytes(b"tampered")
+    before = {path: path.read_bytes() for path in research.rglob("*") if path.is_file()}
+
+    response = TestClient(server_main.app).get("/api/v1/update-readiness")
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["reason_code"] == "protected_state_not_ready"
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_update_readiness_rejects_unsupported_research_schema_without_mutation(
+    tmp_path, monkeypatch
+) -> None:
+    _ledger, _corrections, research = _roots(tmp_path, monkeypatch)
+    _research_capture(research, schema_version="999.0.0")
     before = {path: path.read_bytes() for path in research.rglob("*") if path.is_file()}
 
     response = TestClient(server_main.app).get("/api/v1/update-readiness")

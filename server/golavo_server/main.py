@@ -452,6 +452,7 @@ def _check_research_database(path: Path, root: Path) -> None:
             if (
                 not isinstance(payload, dict)
                 or research_store.canonical(payload) != row["payload_json"]
+                or payload.get("schema_version") != research_store.SCHEMA_VERSION
                 or payload.get("capture_id") != row["capture_id"]
                 or payload.get("run_id") != row["run_id"]
                 or payload.get("raw_sha256") != row["raw_sha256"]

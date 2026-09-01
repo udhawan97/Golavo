@@ -81,6 +81,16 @@ pub struct PendingUpdate {
     pub backup_taken: bool,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+struct PendingBackupRetirement {
+    from: String,
+    to: String,
+    at_epoch: u64,
+    backup_taken: bool,
+    retired_name: String,
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct JustUpdated {
@@ -353,6 +363,7 @@ fn write_json_atomic<T: Serialize>(
 }
 
 const PENDING_FILE: &str = "pending-update.json";
+const RETIREMENT_FILE: &str = "pending-backup-retirement.json";
 const JUST_UPDATED_FILE: &str = "just-updated.json";
 
 pub fn read_pending<R: Runtime>(app: &AppHandle<R>) -> Option<PendingUpdate> {
@@ -378,13 +389,44 @@ fn write_pending<R: Runtime>(app: &AppHandle<R>, pending: &PendingUpdate) -> Res
     Ok(())
 }
 
-fn clear_pending<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+fn clear_update_file<R: Runtime>(app: &AppHandle<R>, name: &str) -> Result<(), String> {
     let dir = updates_dir(app)?;
-    match std::fs::remove_file(dir.join(PENDING_FILE)) {
+    match std::fs::remove_file(dir.join(name)) {
         Ok(()) => sync_directory(&dir).map_err(|error| error.to_string()),
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
         Err(error) => Err(error.to_string()),
     }
+}
+
+fn clear_pending<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+    clear_update_file(app, PENDING_FILE)
+}
+
+fn read_retirement_checked<R: Runtime>(
+    app: &AppHandle<R>,
+) -> Result<Option<PendingBackupRetirement>, String> {
+    let path = updates_dir(app)?.join(RETIREMENT_FILE);
+    if !path.exists() {
+        return Ok(None);
+    }
+    read_json_path(&path).map(Some)
+}
+
+fn write_retirement<R: Runtime>(
+    app: &AppHandle<R>,
+    retirement: &PendingBackupRetirement,
+) -> Result<(), String> {
+    let dir = updates_dir(app)?;
+    write_json_atomic(&dir, RETIREMENT_FILE, retirement, false)?;
+    let observed: PendingBackupRetirement = read_json_path(&dir.join(RETIREMENT_FILE))?;
+    if observed != *retirement {
+        return Err("backup retirement marker failed its readback verification".into());
+    }
+    Ok(())
+}
+
+fn clear_retirement<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+    clear_update_file(app, RETIREMENT_FILE)
 }
 
 pub fn read_just_updated<R: Runtime>(app: &AppHandle<R>) -> Option<JustUpdated> {
@@ -503,9 +545,36 @@ fn restore_component(backup: &Path, live: &Path, name: &str) -> Result<bool, Str
     restore_component_with_rename(backup, live, name, &mut durable_rename)
 }
 
+fn verified_backup_root_exists(backup: &Path) -> Result<bool, String> {
+    match std::fs::symlink_metadata(backup) {
+        Ok(metadata) if metadata.file_type().is_dir() => Ok(true),
+        Ok(_) => Err(format!(
+            "verified pre-update backup root is not a directory: {}",
+            backup.display()
+        )),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
+        Err(error) => Err(format!(
+            "could not inspect pre-update backup root {}: {error}",
+            backup.display()
+        )),
+    }
+}
+
+fn require_verified_backup_root(backup: &Path) -> Result<(), String> {
+    if verified_backup_root_exists(backup)? {
+        Ok(())
+    } else {
+        Err(format!(
+            "the pending update records a verified backup, but its root is missing: {}; recovery remains armed",
+            backup.display()
+        ))
+    }
+}
+
 /// Restore every backed-up user-state component with copy-then-rename swaps.
 pub fn restore_backup<R: Runtime>(app: &AppHandle<R>) -> Result<bool, String> {
     let backup = backup_root(app)?;
+    require_verified_backup_root(&backup)?;
     let ledger = restore_component(&backup.join("ledger"), &ledger_dir(app)?, "ledger")?;
     let corrections = restore_component(
         &backup.join("corrections"),
@@ -519,17 +588,155 @@ pub fn restore_backup<R: Runtime>(app: &AppHandle<R>) -> Result<bool, String> {
 /// After the first healthy boot on a new version, the pre-update backup has done
 /// its job: move it out of the armed location so it can never be restored over
 /// newer data. Existing forensic generations are never overwritten.
-fn retire_backup<R: Runtime>(app: &AppHandle<R>, to_version: &str) -> Result<(), String> {
-    let armed = backup_root(app)?;
-    if !armed.exists() {
+fn retire_backup_path(armed: &Path, to_version: &str) -> Result<(), String> {
+    if !verified_backup_root_exists(armed)? {
         return Ok(());
     }
     let parent = armed
         .parent()
         .ok_or_else(|| "backup directory has no parent".to_string())?;
-    let retired = parent.join(format!("retired-{to_version}-{}", unique_suffix()));
-    durable_rename(&armed, &retired).map_err(|error| error.to_string())?;
+    let label = safe_backup_label(to_version);
+    let retired = parent.join(format!("retired-{label}-{}", unique_suffix()));
+    retire_backup_to(armed, &retired)
+}
+
+fn safe_backup_label(value: &str) -> String {
+    value
+        .chars()
+        .map(|value| {
+            if value.is_ascii_alphanumeric() || matches!(value, '.' | '-' | '_') {
+                value
+            } else {
+                '_'
+            }
+        })
+        .collect()
+}
+
+fn retire_backup_to(armed: &Path, retired: &Path) -> Result<(), String> {
+    require_verified_backup_root(armed)?;
+    if verified_backup_root_exists(retired)? {
+        return Err(format!(
+            "refusing to overwrite forensic backup generation {}",
+            retired.display()
+        ));
+    }
+    let parent = armed
+        .parent()
+        .ok_or_else(|| "backup directory has no parent".to_string())?;
+    if retired.parent() != Some(parent) {
+        return Err("forensic backup generation is outside the backup directory".into());
+    }
+    durable_rename(armed, retired).map_err(|error| error.to_string())?;
     sync_directory(parent).map_err(|error| error.to_string())
+}
+
+fn recover_retired_backup_with<F>(
+    armed: &Path,
+    retired: &Path,
+    rename: &mut F,
+) -> Result<(), String>
+where
+    F: FnMut(&Path, &Path) -> std::io::Result<()>,
+{
+    let armed_exists = verified_backup_root_exists(armed)?;
+    let retired_exists = verified_backup_root_exists(retired)?;
+    match (armed_exists, retired_exists) {
+        (true, false) => {
+            let parent = armed
+                .parent()
+                .ok_or_else(|| "backup directory has no parent".to_string())?;
+            sync_directory(parent).map_err(|error| error.to_string())
+        }
+        (false, true) => {
+            rename(retired, armed).map_err(|error| {
+                format!(
+                    "could not re-arm retired backup {}; recovery receipt remains preserved: {error}",
+                    retired.display()
+                )
+            })?;
+            let parent = armed
+                .parent()
+                .ok_or_else(|| "backup directory has no parent".to_string())?;
+            sync_directory(parent).map_err(|error| error.to_string())
+        }
+        (true, true) => Err(
+            "both armed and retired recovery generations exist; refusing to overwrite either"
+                .into(),
+        ),
+        (false, false) => Err(
+            "the retirement receipt references no recoverable backup generation; recovery remains armed"
+                .into(),
+        ),
+    }
+}
+
+fn recover_retired_backup(armed: &Path, retired: &Path) -> Result<(), String> {
+    recover_retired_backup_with(armed, retired, &mut durable_rename)
+}
+
+fn retirement_target(
+    armed: &Path,
+    retirement: &PendingBackupRetirement,
+) -> Result<PathBuf, String> {
+    let name = Path::new(&retirement.retired_name);
+    if !retirement.retired_name.starts_with("retired-")
+        || name.components().count() != 1
+        || name.file_name() != Some(name.as_os_str())
+    {
+        return Err("backup retirement receipt contains an unsafe generation name".into());
+    }
+    let parent = armed
+        .parent()
+        .ok_or_else(|| "backup directory has no parent".to_string())?;
+    Ok(parent.join(name))
+}
+
+fn retirement_matches_pending(
+    retirement: &PendingBackupRetirement,
+    pending: &PendingUpdate,
+) -> bool {
+    retirement.from == pending.from
+        && retirement.to == pending.to
+        && retirement.at_epoch == pending.at_epoch
+        && retirement.backup_taken == pending.backup_taken
+}
+
+fn retirement_for_pending(pending: &PendingUpdate) -> PendingBackupRetirement {
+    PendingBackupRetirement {
+        from: pending.from.clone(),
+        to: pending.to.clone(),
+        at_epoch: pending.at_epoch,
+        backup_taken: pending.backup_taken,
+        retired_name: format!(
+            "retired-{}-{}",
+            safe_backup_label(&pending.to),
+            unique_suffix()
+        ),
+    }
+}
+
+/// Retire the backup under a durable receipt before consuming the pending
+/// marker. If marker clearing fails, compensate by moving that exact generation
+/// back to the armed name. A crash at either boundary is repaired from the same
+/// receipt on the next launch without guessing among historical generations.
+fn finalize_backup_retirement_with<C>(armed: &Path, retired: &Path, clear: C) -> Result<(), String>
+where
+    C: FnOnce() -> Result<(), String>,
+{
+    retire_backup_to(armed, retired).map_err(|error| {
+        let compensation = recover_retired_backup(armed, retired);
+        format!(
+            "could not durably retire the armed backup: {error}; compensation: {compensation:?}"
+        )
+    })?;
+    if let Err(error) = clear() {
+        let compensation = recover_retired_backup(armed, retired);
+        return Err(format!(
+            "could not clear the pending update marker: {error}; compensation: {compensation:?}"
+        ));
+    }
+    Ok(())
 }
 
 fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
@@ -720,9 +927,62 @@ fn recover_component(
     Ok(true)
 }
 
+fn reconcile_backup_retirement<R: Runtime>(
+    app: &AppHandle<R>,
+    pending: Option<&PendingUpdate>,
+) -> Result<(), String> {
+    let Some(retirement) = read_retirement_checked(app)? else {
+        return Ok(());
+    };
+    if let Some(pending) = pending {
+        if !retirement_matches_pending(&retirement, pending) {
+            return Err(
+                "backup retirement receipt does not match the pending update; recovery evidence remains preserved"
+                    .into(),
+            );
+        }
+    }
+    let armed = backup_root(app)?;
+    let retired = retirement_target(&armed, &retirement)?;
+    if pending.is_some() {
+        recover_retired_backup(&armed, &retired)?;
+    } else {
+        let armed_exists = verified_backup_root_exists(&armed)?;
+        let retired_exists = verified_backup_root_exists(&retired)?;
+        match (armed_exists, retired_exists) {
+            (false, true) => {}
+            (true, false) => retire_backup_to(&armed, &retired)?,
+            (true, true) => {
+                return Err(
+                    "both armed and retired recovery generations exist; refusing to overwrite either"
+                        .into(),
+                );
+            }
+            (false, false) => {
+                return Err("backup retirement receipt references no preserved generation".into());
+            }
+        }
+    }
+    clear_retirement(app)
+}
+
 pub fn recover_interrupted_restore<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
-    let has_pending = read_pending_checked(app)?.is_some();
+    let pending = read_pending_checked(app)?;
+    reconcile_backup_retirement(app, pending.as_ref())?;
     let backup = backup_root(app)?;
+    let Some(pending) = pending else {
+        // The marker was durably cleared but the process may have exited before
+        // post-commit retirement. Preserve the bytes under a unique forensic
+        // generation so a future backup can never replace them.
+        if let Err(error) = retire_backup_path(&backup, "unarmed") {
+            eprintln!("[golavo] deferred retirement of an unarmed pre-update backup: {error}");
+        }
+        return Ok(());
+    };
+    if pending.backup_taken {
+        require_verified_backup_root(&backup)?;
+    }
+    let has_pending = true;
     recover_component(
         ledger_dir(app)?,
         backup.join("ledger"),
@@ -771,6 +1031,7 @@ pub fn finalize_update_if_pending<R: Runtime>(app: &AppHandle<R>) -> Result<bool
         return Ok(false);
     };
     pending_version_matches(app)?;
+    reconcile_backup_retirement(app, Some(&pending))?;
     let updates = updates_dir(app)?;
     write_json_atomic(
         &updates,
@@ -783,8 +1044,29 @@ pub fn finalize_update_if_pending<R: Runtime>(app: &AppHandle<R>) -> Result<bool
         },
         true,
     )?;
-    retire_backup(app, &pending.to)?;
-    clear_pending(app)?;
+    if pending.backup_taken {
+        let backup = backup_root(app)?;
+        require_verified_backup_root(&backup)?;
+        let retirement = retirement_for_pending(&pending);
+        write_retirement(app, &retirement)?;
+        let retired = retirement_target(&backup, &retirement)?;
+        if let Err(error) =
+            finalize_backup_retirement_with(&backup, &retired, || clear_pending(app))
+        {
+            let recovery = recover_retired_backup(&backup, &retired);
+            let cleanup = recovery.as_ref().ok().map(|_| clear_retirement(app));
+            return Err(format!(
+                "{error}; final recovery: {recovery:?}; receipt cleanup: {cleanup:?}"
+            ));
+        }
+        if let Err(error) = clear_retirement(app) {
+            eprintln!(
+                "[golavo] backup retired and recovery marker cleared; transition receipt cleanup deferred: {error}"
+            );
+        }
+    } else {
+        clear_pending(app)?;
+    }
     eprintln!(
         "[golavo] update {} -> {} verified ready; backup retired",
         pending.from, pending.to
@@ -815,15 +1097,18 @@ pub fn repair_failed_launch<R: Runtime>(app: &AppHandle<R>, health_err: &str) ->
             // trustworthy — and the install never touches the live ledger anyway —
             // so restoring a half-copy would trade good data for bad. Leave it.
             let (data_note, restored) = if pending.backup_taken {
-                match restore_backup(app) {
+                match reconcile_backup_retirement(app, Some(&pending))
+                    .and_then(|()| restore_backup(app))
+                {
                     Ok(true) => (
                         "Your local user data was restored from the pre-update backup.",
                         true,
                     ),
                     Ok(false) => ("The protected stores were empty before the update.", true),
                     Err(_) => (
-                        "The pre-update backup could not be restored automatically; it and all \
-                         staging/aside copies remain preserved for the next recovery attempt.",
+                        "The verified pre-update backup is missing or could not be restored \
+                         automatically; the recovery marker and any remaining staging/aside \
+                         copies remain preserved for the next recovery attempt.",
                         false,
                     ),
                 }
@@ -1312,8 +1597,9 @@ mod tests {
     use std::path::{Path, PathBuf};
 
     use super::{
-        read_json_path, recover_component, restore_component_with_rename, unique_suffix,
-        write_json_atomic, PendingUpdate,
+        finalize_backup_retirement_with, read_json_path, recover_component, recover_retired_backup,
+        recover_retired_backup_with, require_verified_backup_root, restore_component_with_rename,
+        retire_backup_to, unique_suffix, write_json_atomic, PendingUpdate,
     };
 
     fn test_root(label: &str) -> PathBuf {
@@ -1365,6 +1651,89 @@ mod tests {
 
         assert!(write_json_atomic(&blocker, "pending-update.json", &pending, false).is_err());
         assert!(!blocker.join("pending-update.json").exists());
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn retirement_clear_failure_keeps_marker_and_backup_armed() {
+        let root = test_root("retirement-clear-fails");
+        let marker = root.join("pending-update.json");
+        let backup = root.join("pre-update");
+        let retired = root.join("retired-0.20.0-injected");
+        std::fs::write(&marker, "pending").unwrap();
+        write_state(&backup, "backup");
+
+        let result = finalize_backup_retirement_with(&backup, &retired, || {
+            Err("injected clear failure".into())
+        });
+
+        assert!(result.is_err());
+        assert_eq!(std::fs::read_to_string(&marker).unwrap(), "pending");
+        assert_eq!(
+            std::fs::read_to_string(backup.join("state.txt")).unwrap(),
+            "backup"
+        );
+        assert!(!retired.exists());
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn crash_after_retirement_is_rearmed_from_the_exact_generation() {
+        let root = test_root("retirement-crash-boundary");
+        let marker = root.join("pending-update.json");
+        let backup = root.join("pre-update");
+        let retired = root.join("retired-0.20.0-recorded");
+        std::fs::write(&marker, "pending").unwrap();
+        write_state(&backup, "backup");
+
+        retire_backup_to(&backup, &retired).unwrap();
+        assert!(marker.exists());
+        assert!(!backup.exists());
+        assert_eq!(
+            std::fs::read_to_string(retired.join("state.txt")).unwrap(),
+            "backup"
+        );
+
+        recover_retired_backup(&backup, &retired).unwrap();
+        assert!(marker.exists());
+        assert!(!retired.exists());
+        assert_eq!(
+            std::fs::read_to_string(backup.join("state.txt")).unwrap(),
+            "backup"
+        );
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn failed_rearm_preserves_retired_generation_and_marker() {
+        let root = test_root("retirement-rearm-fails");
+        let marker = root.join("pending-update.json");
+        let backup = root.join("pre-update");
+        let retired = root.join("retired-0.20.0-recorded");
+        std::fs::write(&marker, "pending").unwrap();
+        write_state(&retired, "backup");
+        let mut rename =
+            |_from: &Path, _to: &Path| Err(std::io::Error::other("injected re-arm failure"));
+
+        assert!(recover_retired_backup_with(&backup, &retired, &mut rename).is_err());
+        assert!(marker.exists());
+        assert!(!backup.exists());
+        assert_eq!(
+            std::fs::read_to_string(retired.join("state.txt")).unwrap(),
+            "backup"
+        );
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn verified_empty_backup_is_distinct_from_a_missing_backup() {
+        let root = test_root("verified-empty-backup");
+        let empty = root.join("pre-update");
+        std::fs::create_dir(&empty).unwrap();
+
+        assert!(require_verified_backup_root(&empty).is_ok());
+        assert!(require_verified_backup_root(&root.join("missing")).is_err());
+        assert!(empty.read_dir().unwrap().next().is_none());
         std::fs::remove_dir_all(root).unwrap();
     }
 
