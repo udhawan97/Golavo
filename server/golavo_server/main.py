@@ -576,7 +576,9 @@ def _protected_state_readiness() -> dict[str, Any]:
         # after proving only a convenient subset.
         mutable_ledger = Path(ARTIFACT_DIR)
         checked = _check_store_root(mutable_ledger, include_json=True, store_kind="ledger")
-        ledger_checkpoints.status(mutable_ledger)
+        checkpoint_status = ledger_checkpoints.status(mutable_ledger)
+        if checkpoint_status["missing_artifacts"]:
+            raise ValueError("checkpoint chain references missing forecast artifacts")
         checked += _check_store_root(
             Path(CORRECTIONS_DIR) if CORRECTIONS_DIR is not None else None,
             include_json=True,

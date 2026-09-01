@@ -9,7 +9,13 @@ import sqlite3
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from golavo_server import correction_sanitize, correction_store, follows, runtime
+from golavo_server import (
+    correction_sanitize,
+    correction_store,
+    follows,
+    ledger_checkpoints,
+    runtime,
+)
 from golavo_server import main as server_main
 from golavo_server.research import store as research_store
 
@@ -172,6 +178,24 @@ def test_update_readiness_accepts_a_canonical_forecast_without_mutation(
     assert response.status_code == 200
     assert response.json()["protected_files_checked"] == 1
     assert target.read_bytes() == before
+
+
+def test_update_readiness_rejects_checkpoint_with_missing_artifact_without_mutation(
+    tmp_path, monkeypatch
+) -> None:
+    ledger, _corrections, _research = _roots(tmp_path, monkeypatch)
+    target = ledger / SAMPLE_FORECAST.name
+    shutil.copyfile(SAMPLE_FORECAST, target)
+    ledger_checkpoints.create(ledger)
+    target.unlink()
+    remaining = {path: path.read_bytes() for path in ledger.rglob("*") if path.is_file()}
+
+    response = TestClient(server_main.app).get("/api/v1/update-readiness")
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["reason_code"] == "protected_state_not_ready"
+    assert ledger_checkpoints.status(ledger)["missing_artifacts"] == [target.stem]
+    assert {path: path.read_bytes() for path in remaining} == remaining
 
 
 def test_update_readiness_rejects_tampered_forecast_hash_without_mutation(
