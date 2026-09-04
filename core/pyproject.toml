@@ -19,7 +19,7 @@ dependencies = [
 golavo = "golavo_core.cli:main"
 
 [project.optional-dependencies]
-dev = ["pytest==9.1.1", "ruff==0.16.3", "mypy==2.3.1", "hypothesis==6.165.10"]
+dev = ["pytest==9.1.1", "ruff==0.16.3", "mypy==2.3.1", "hypothesis==6.167.1"]
 
 [build-system]
 requires = ["hatchling"]
