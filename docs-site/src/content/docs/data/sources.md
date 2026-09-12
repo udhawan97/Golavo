@@ -90,7 +90,7 @@ provider ids. Other supported matches retain exact-team and exact-kickoff matchi
 receive Player Lens. A Football.TXT day-precision fixture can promote only one same-calendar-
 date candidate. Ambiguous candidates, remaps, and conflicts remain unavailable.
 
-Source `main` (**Unreleased**) can expand one already-fetched, identity-safe player row into a
+Golavo can expand one already-fetched, identity-safe player row into a
 selected-match dossier. That interaction makes no additional provider request and adds no storage:
 it groups only the supplied fixture metrics, shows their provider type ids, and clears with the
 in-memory response. It does not turn one match into a persistent biography, form series, ranking,

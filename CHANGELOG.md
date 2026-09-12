@@ -6,6 +6,8 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-09-12
+
 ### Added
 
 - **Exact-identity selected-match player dossiers.** The foreground-only Sportmonks Player
@@ -20,6 +22,22 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   layers. Missing or changed team identities, hypothetical responses, and partial voice sets
   fail closed; optional context is snapshot-bound and separately attributed without erasing
   the certified table record. Reading the dossier does not load or settle local pick records.
+
+### Fixed
+
+- **Safer route and data handoffs.** Team and player dossiers now wait for the exact route,
+  fixture, and provider identities they were opened from. Late or replaced responses cannot
+  populate a newer selection, and unavailable or partial inputs stay visibly unavailable.
+- **Updater recovery continuity.** Release bundles now lock their source inventory, verify
+  every existing seal candidate before reuse, and preserve a recoverable journal across
+  interrupted restore, checkpoint-retirement, and missing-seal paths instead of accepting a
+  partially verified state.
+
+### Maintenance
+
+- Refreshed release actions, runtime libraries, UI tooling, and documentation dependencies.
+  The deterministic match index was rebuilt with the release environment and remained
+  byte-identical.
 
 ## [0.19.0] - 2026-08-30
 
@@ -1629,7 +1647,8 @@ signed or notarized artifact is produced or claimed. The calibration record ship
   `ui/` (React + Vite), plus `desktop/`, `packaging/`, and `packs/` placeholders.
 - ADR-0001: desktop architecture decision (Tauri 2 + FastAPI/Python sidecar).
 
-[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/udhawan97/Golavo/compare/v0.20.0...HEAD
+[0.20.0]: https://github.com/udhawan97/Golavo/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/udhawan97/Golavo/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/udhawan97/Golavo/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/udhawan97/Golavo/compare/v0.17.0...v0.17.1

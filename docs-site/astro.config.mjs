@@ -109,7 +109,7 @@ export default defineConfig({
           label: "Trust & safety",
           items: [
             { label: "Privacy & security", slug: "privacy-security" },
-            { label: "Trust Center · source main", slug: "trust-center" },
+            { label: "Trust Center", slug: "trust-center" },
             { label: "Updates & rollback", slug: "updates-rollback" },
             { label: "Legal & brand use", slug: "legal" },
           ],

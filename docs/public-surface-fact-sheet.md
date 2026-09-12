@@ -1,9 +1,9 @@
 # Golavo public-surface fact sheet
 
-Verified against the published stable v0.19.0 release and the product source. The
-release tag resolves to `15aa063fa31d58b1bc86c080171d708f7cba6504`; use that tag
-commit as the packaged-product authority and the containing Git commit as the authority
-for later documentation reads. This ledger exists to keep the README,
+Prepared against the v0.20.0 release candidate and the product source. Publication,
+hosted artifacts, signatures, updater metadata, the installed app, and the live site still
+require post-tag verification; until then, the newest verified packaged authority remains
+v0.19.0. This ledger exists to keep the README,
 documentation site, download paths, and release notes from collapsing source behavior,
 packaged-release behavior, and future work into one claim.
 
@@ -11,8 +11,9 @@ packaged-release behavior, and future work into one claim.
 
 | Claim | Status | Evidence | Public wording |
 |---|---|---|---|
-| Published packaged release | v0.19.0; tag commit `15aa063fa31d58b1bc86c080171d708f7cba6504` | Stable GitHub release verified with Apple Silicon DMG/app updater payload, Windows x64 EXE/MSI, `latest.json`, aggregate checksums, and detached signatures | v0.19.0 is published; retain the OS-unsigned warning |
-| Repository source | The containing documentation commit; packaged authority is the v0.19.0 tag | Git history plus the current source, tests, and contract files | Claims below describe the published v0.19.0 product unless their boundary says otherwise |
+| Release candidate | v0.20.0 | Local version, documentation, dependency, deterministic-index, and release-script gates; hosted release verification pending | Describe v0.20.0 as the release target until the published assets pass the release gate |
+| Last verified packaged release | v0.19.0; tag commit `15aa063fa31d58b1bc86c080171d708f7cba6504` | Stable GitHub release verified with Apple Silicon DMG/app updater payload, Windows x64 EXE/MSI, `latest.json`, aggregate checksums, and detached signatures | Retain the OS-unsigned warning and do not transfer v0.20.0 verification claims before they are observed |
+| Repository source | The containing documentation commit; packaged authority changes only after post-tag verification | Git history plus the current source, tests, and contract files | Claims below describe the v0.20.0 candidate unless their boundary says otherwise |
 | Public website | GitHub Pages from `docs-site/` on `main` | `.github/workflows/pages.yml`, `docs-site/astro.config.mjs` | The site may document source behavior, but every download surface must retain the release boundary |
 
 ## Current product claims
@@ -26,19 +27,21 @@ packaged-release behavior, and future work into one claim.
 | Forecast-ledger archive/restore | `server/golavo_server/personal_archive.py` | Includes forecast artifacts, picks, followed-match state, and the verified head-reachable checkpoint chain when present; accepts legacy archives and rehearses recovery in a disposable ledger before mutation; excludes team favorites, credentials, providers, overlays, weather, research, refresh generations, and caches |
 | Data-application receipts | `server/golavo_server/refresh_receipts.py`, `server/golavo_server/refresh_jobs.py` | Local append-only application history, not a tamper-proof external audit; stable-identity comparisons never guess unresolved rekeys |
 | My Teams | `ui/src/views/MyTeams.tsx`, `ui/src/lib/favorite-teams.ts` | Local browser preference keyed by exact competition/team identity; one named outlook voice; descriptive simulation, not advice or a seal |
+| Team dossier | `ui/src/views/TeamDossier.tsx`, `ui/src/lib/team-route.ts` | Exact competition/team identity; observed record, complete separate model voices, and competition-scoped context remain distinct; incomplete voice identity withholds the comparison |
+| Selected-match player dossier | `ui/src/components/OutsideSignals.tsx`, `ui/src/lib/sportmonks.ts` | Opens only from an already-fetched exact provider fixture/player identity; no new request or persistence; one fixture is not a career profile, form series, ranking, model input, AI evidence, or export |
 | Follow calendar | `server/golavo_server/calendar_export.py` | RFC 5545 static export; only exact UTC kickoffs; date-only or unknown times are omitted |
 | Guarded calibration slices | `core/golavo_core/calibration.py`, `ui/src/views/PredictionLedger.tsx` | Metrics begin at 30 scored seals; reliability needs 100 scored seals and three bins of at least 20; descriptive local cuts, not comparisons |
 | Match Study Desk | `ui/src/components/MatchStudyDesk.tsx`, `ui/src/lib/markets.ts` | Fixed, unranked engine-owned lenses; mathematical `1/p` equivalence is not a recommendation; missing card/corner/scorer models remain unavailable |
 | Optional providers and AI | `server/golavo_server/ai_gateway.py`, `server/golavo_server/sportmonks.py`, `ui/src/views/Settings.tsx` | Separate consent; AI cannot author or verify a number; Sportmonks stays attributed no-store context and never enters a Golavo forecast |
 | Transfer Desk | `server/golavo_server/sportmonks.py`, `ui/src/views/Transfers.tsx` | Exact top-five club identity, four-page/365-day bounds, visible partial coverage, free-text provider amount and no invented payment components; fixture-tested until a credentialed smoke succeeds |
-| v0.19 product captures | `docs-site/public/screenshots/match-study-desk.png`, `docs-site/public/screenshots/transfer-desk.png` | Captured from the live local engine source flow; the Transfer Desk image intentionally shows the no-fetch installed-app boundary rather than fabricated provider rows |
+| Product captures | `docs-site/public/screenshots/match-study-desk.png`, `docs-site/public/screenshots/transfer-desk.png`, `docs-site/public/screenshots/my-teams-source-main.png` | Captured from local engine flows; the Transfer Desk image intentionally shows the no-fetch installed-app boundary rather than fabricated provider rows |
 
 ## Installation paths
 
 | Path | Requirements | Availability |
 |---|---|---|
-| macOS desktop | Apple Silicon, unsigned DMG | Published in v0.19.0; checksum and updater signatures verified against the pinned release identity |
-| Windows desktop | x64 Windows 10/11, unsigned EXE or MSI | Published in v0.19.0; checksum and updater signatures verified against the pinned release identity |
+| macOS desktop | Apple Silicon, unsigned DMG | v0.20.0 candidate; publication, checksum, updater-signature, bundle-signature, embedded-SHA, and sidecar checks pending |
+| Windows desktop | x64 Windows 10/11, unsigned EXE or MSI | v0.20.0 candidate; publication, checksum, updater-signature, and manifest checks pending |
 | Browser/source mode | Python 3.12+, Node 22+, source checkout | Read paths; archive restore, checkpoints, and OS-keychain provider setup require a desktop build with its private launch token |
 
 ## Explicit non-claims

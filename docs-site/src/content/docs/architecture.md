@@ -11,9 +11,9 @@ the packaged processes. Optional AI is a replaceable explanation client over a
 restricted evidence bundle — never a second forecasting engine.
 
 The diagrams below describe the implemented architecture. SQLite now owns followed-match
-state, and source `main` has local hash-chained checkpoints over immutable forecast files.
+state, and the packaged product has local hash-chained checkpoints over immutable forecast files.
 Those checkpoints detect changes relative to earlier local heads; they do not prove external
-authenticity or creation time. Source `main` can extend the legacy format and rehearse a
+authenticity or creation time. The packaged product can extend the legacy format and rehearse a
 checkpoint-bearing archive in a disposable ledger before restore. Optional external
 anchoring, DuckDB views, and a canonical entity graph remain broader work in
 [ADR-0001](https://github.com/udhawan97/Golavo/blob/main/docs/adr/0001-architecture.md).

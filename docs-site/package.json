@@ -1,7 +1,7 @@
 {
   "name": "golavo-docs",
   "type": "module",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -10,9 +10,9 @@
     "check": "astro check"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.41.7",
-    "astro": "^7.2.3",
-    "sharp": "^0.35.3"
+    "@astrojs/starlight": "^0.41.11",
+    "astro": "^7.3.2",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",

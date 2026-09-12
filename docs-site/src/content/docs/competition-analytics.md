@@ -66,7 +66,7 @@ descriptive simulation—not a sealed match forecast.
 
 ## My Teams
 
-Source `main` can collect exact competition-and-club favorites in a local-only **My Teams**
+Golavo can collect exact competition-and-club favorites in a local-only **My Teams**
 room. Each available club card reuses the current table and one disclosed outlook voice to
 show current/projected points, season stakes, and the next five fixtures with guarded
 importance plus follow/pick state. It does not blend voices or create a new simulation.

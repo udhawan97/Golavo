@@ -1,6 +1,6 @@
 ---
 title: My Teams
-description: Keep exact club favorites locally; source main adds an Unreleased dossier that separates observed record, model voices, and competition-scoped evidence.
+description: Keep exact club favorites locally and open a dossier that separates observed record, model voices, and competition-scoped evidence.
 ---
 
 My Teams is a local club room, not an account or a new forecast. It reuses the season
@@ -33,10 +33,9 @@ When the local outlook is available, a card can show:
   competition, season, team, voice, rule, seed, and iteration count still match;
 - direct links to the league and match views.
 
-In source `main` (**Unreleased**), the club name opens a dedicated **team dossier**.
+The club name opens a dedicated **team dossier**.
 Current-season form boards on league pages use the same exact-identity route, so both entry
-points resolve the same competition and club pair. The installed v0.19.0 release does not yet
-include this page.
+points resolve the same competition and club pair.
 
 ## Read the team dossier
 
