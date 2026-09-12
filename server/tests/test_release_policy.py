@@ -69,6 +69,11 @@ def test_release_lock_hashes_registry_artifacts_and_includes_local_packages() ->
     assert packages["pyinstaller"]["version"] == "6.22.2"
     assert packages["golavo-core"]["source"] == {"editable": "../core"}
     assert packages["golavo-server"]["source"] == {"editable": "../server"}
+    for directory, package_name in (("core", "golavo-core"), ("server", "golavo-server")):
+        project = tomllib.loads(
+            (ROOT / directory / "pyproject.toml").read_text(encoding="utf-8")
+        )
+        assert packages[package_name]["version"] == project["project"]["version"]
 
     registry_packages = [
         entry for entry in lock["package"] if "registry" in entry.get("source", {})

@@ -205,7 +205,7 @@ wheels = [
 
 [[package]]
 name = "golavo-core"
-version = "0.19.0"
+version = "0.20.0"
 source = { editable = "../core" }
 dependencies = [
     { name = "cryptography" },
@@ -258,7 +258,7 @@ requires-dist = [
 
 [[package]]
 name = "golavo-server"
-version = "0.19.0"
+version = "0.20.0"
 source = { editable = "../server" }
 dependencies = [
     { name = "certifi" },
