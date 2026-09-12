@@ -31,7 +31,7 @@ def test_release_actions_and_runtime_versions_are_exactly_pinned() -> None:
                 node_versions.append(step["with"]["node-version"])
             elif action.startswith("astral-sh/setup-uv@"):
                 uv_versions.append(step["with"]["version"])
-    assert python_versions and set(python_versions) == {"3.12.14"}
+    assert python_versions and set(python_versions) == {"3.12.10"}
     assert node_versions and set(node_versions) == {"22.23.2"}
     assert uv_versions and set(uv_versions) == {"0.11.30"}
 
@@ -52,7 +52,7 @@ def test_release_permissions_are_job_local_and_least_privilege() -> None:
 def test_release_workflow_uses_frozen_lock_and_verifies_sbom_before_signing() -> None:
     text = WORKFLOW_PATH.read_text(encoding="utf-8")
     assert "pip install" not in text
-    assert text.count("uv sync --project packaging --frozen --python 3.12.14") == 3
+    assert text.count("uv sync --project packaging --frozen --python 3.12.10") == 3
     assert "uv export --project packaging --frozen --format cyclonedx1.5" in text
     assert text.count("--sbom ") == 4
     assert text.index("Verify platform inventories before signing and publication") < text.index(

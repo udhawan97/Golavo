@@ -191,8 +191,8 @@ def validate_inventory(
         raise ValueError("release inventory schema is unsupported")
     if payload.get("source_sha") != source_sha or payload.get("target") != target:
         raise ValueError("release inventory identity does not match this build")
-    if payload.get("python") != "3.12.14":
-        raise ValueError("release inventory must come from pinned Python 3.12.14")
+    if payload.get("python") != "3.12.10":
+        raise ValueError("release inventory must come from pinned Python 3.12.10")
     if payload.get("locks") != lock_inventory(repo):
         raise ValueError("release inputs changed after inventory generation")
     if payload.get("sbom") != sbom_identity(sbom, target=target):

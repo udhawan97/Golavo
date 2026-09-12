@@ -49,7 +49,7 @@ def _payload(repo, sbom):
         "schema_version": release_inventory.SCHEMA_VERSION,
         "source_sha": SOURCE_SHA,
         "target": TARGET,
-        "python": "3.12.14",
+        "python": "3.12.10",
         "locks": release_inventory.lock_inventory(repo),
         "sbom": release_inventory.sbom_identity(sbom, target=TARGET),
         "packages": _packages(),
@@ -75,7 +75,7 @@ def test_build_inventory_proves_installed_environment_matches_sbom(
     repo = _repo(tmp_path)
     sbom = _sbom(repo)
     monkeypatch.setattr(release_inventory, "package_inventory", _packages)
-    monkeypatch.setattr(release_inventory.platform, "python_version", lambda: "3.12.14")
+    monkeypatch.setattr(release_inventory.platform, "python_version", lambda: "3.12.10")
 
     payload = release_inventory.build_inventory(
         repo, source_sha=SOURCE_SHA, target=TARGET, sbom=sbom
@@ -92,7 +92,7 @@ def test_build_inventory_rejects_installed_environment_sbom_mismatch(
     installed = _packages()
     installed[0]["version"] = "9.9.9"
     monkeypatch.setattr(release_inventory, "package_inventory", lambda: installed)
-    monkeypatch.setattr(release_inventory.platform, "python_version", lambda: "3.12.14")
+    monkeypatch.setattr(release_inventory.platform, "python_version", lambda: "3.12.10")
 
     with pytest.raises(ValueError, match="does not match the release SBOM"):
         release_inventory.build_inventory(
@@ -172,7 +172,7 @@ def test_sbom_inventory_applies_target_platform_markers(tmp_path) -> None:
     )
 
     assert release_inventory.sbom_inventory(
-        path, target=TARGET, python_version="3.12.14"
+        path, target=TARGET, python_version="3.12.10"
     ) == [{"name": "mac-only", "version": "1"}]
 
 
