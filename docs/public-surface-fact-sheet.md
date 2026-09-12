@@ -1,9 +1,10 @@
 # Golavo public-surface fact sheet
 
-Prepared against the v0.20.0 release candidate and the product source. Publication,
-hosted artifacts, signatures, updater metadata, the installed app, and the live site still
-require post-tag verification; until then, the newest verified packaged authority remains
-v0.19.0. This ledger exists to keep the README,
+Prepared against the published v0.20.0 release at
+`0b188f6d9fc973f8f97d3347aafa0c75300fb866` and the product source. The hosted
+artifacts, signatures, updater metadata, mounted macOS app, and frozen sidecar were verified
+after publication; Windows artifacts were authenticated and structurally validated but were
+not executed on macOS. This ledger exists to keep the README,
 documentation site, download paths, and release notes from collapsing source behavior,
 packaged-release behavior, and future work into one claim.
 
@@ -11,9 +12,8 @@ packaged-release behavior, and future work into one claim.
 
 | Claim | Status | Evidence | Public wording |
 |---|---|---|---|
-| Release candidate | v0.20.0 | Local version, documentation, dependency, deterministic-index, and release-script gates; hosted release verification pending | Describe v0.20.0 as the release target until the published assets pass the release gate |
-| Last verified packaged release | v0.19.0; tag commit `15aa063fa31d58b1bc86c080171d708f7cba6504` | Stable GitHub release verified with Apple Silicon DMG/app updater payload, Windows x64 EXE/MSI, `latest.json`, aggregate checksums, and detached signatures | Retain the OS-unsigned warning and do not transfer v0.20.0 verification claims before they are observed |
-| Repository source | The containing documentation commit; packaged authority changes only after post-tag verification | Git history plus the current source, tests, and contract files | Claims below describe the v0.20.0 candidate unless their boundary says otherwise |
+| Published stable release | v0.20.0; tag commit `0b188f6d9fc973f8f97d3347aafa0c75300fb866` | Stable GitHub release verified with Apple Silicon DMG/app updater payload, Windows x64 EXE/MSI, `latest.json`, aggregate checksums, detached signatures, SBOMs, and release inventories | Retain the OS-unsigned warning; Windows packages were not executed during the macOS verification pass |
+| Repository source | The containing documentation commit; packaged authority remains the exact v0.20.0 tag | Git history plus the current source, tests, and contract files | Distinguish current source documentation from the tagged packaged release |
 | Public website | GitHub Pages from `docs-site/` on `main` | `.github/workflows/pages.yml`, `docs-site/astro.config.mjs` | The site may document source behavior, but every download surface must retain the release boundary |
 
 ## Current product claims
@@ -40,8 +40,8 @@ packaged-release behavior, and future work into one claim.
 
 | Path | Requirements | Availability |
 |---|---|---|
-| macOS desktop | Apple Silicon, unsigned DMG | v0.20.0 candidate; publication, checksum, updater-signature, bundle-signature, embedded-SHA, and sidecar checks pending |
-| Windows desktop | x64 Windows 10/11, unsigned EXE or MSI | v0.20.0 candidate; publication, checksum, updater-signature, and manifest checks pending |
+| macOS desktop | Apple Silicon, unsigned DMG | v0.20.0 published; checksum, updater signature, deep ad-hoc bundle signature, embedded SHA, and frozen-sidecar smoke verified |
+| Windows desktop | x64 Windows 10/11, unsigned EXE or MSI | v0.20.0 published; checksums, updater signatures, manifest, SBOM, and inventory verified; installers not executed on macOS |
 | Browser/source mode | Python 3.12+, Node 22+, source checkout | Read paths; archive restore, checkpoints, and OS-keychain provider setup require a desktop build with its private launch token |
 
 ## Explicit non-claims

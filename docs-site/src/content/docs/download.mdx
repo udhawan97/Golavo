@@ -9,9 +9,10 @@ Golavo runs on your computer in all three modes. There is no hosted forecasting
 service and no account requirement.
 
 <Aside type="note" title="Stable release boundary">
-The desktop links install the newest published stable release. v0.20.0 is the release target;
-its tag must complete the installer, updater, checksum, signature, and hosted-artifact gates
-before publication is treated as verified. **Run in your browser** covers read
+The desktop links install the newest published stable release. v0.20.0 is published from exact
+tag `v0.20.0` at `0b188f6d9fc973f8f97d3347aafa0c75300fb866`; its installers,
+updater metadata, checksums, signatures, SBOMs, inventories, and hosted assets passed the release
+gate. The installers remain OS-unsigned and macOS is not notarized. **Run in your browser** covers read
 paths; archive restore, checkpoint creation, and OS-keychain provider setup require a desktop
 build with its private launch token.
 </Aside>

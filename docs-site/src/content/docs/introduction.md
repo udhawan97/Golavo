@@ -13,8 +13,9 @@ Golavo is a local-first, open-source football forecasting project. It implements
 - A **local integrity workbench**: proof inspection, an allowlisted ledger archive/restore path with checkpoint recovery rehearsal, application receipts, and checkpoints that detect changes relative to earlier local heads without claiming external authenticity or timing.
 
 :::note[Release boundary]
-v0.20.0 is the stable desktop milestone described here; its hosted publication remains subject to
-the release gate. Provider-backed panels still require
+v0.20.0 is the published stable desktop milestone from tag `v0.20.0` at
+`0b188f6d9fc973f8f97d3347aafa0c75300fb866`; its hosted installers, updater metadata,
+checksums, signatures, SBOMs, and inventories passed the release gate. Provider-backed panels still require
 the user's own account, token, entitlement, and foreground fetch. Trust Center restore or checkpoint
 creation specifically requires the installed desktop app's private launch token.
 :::
