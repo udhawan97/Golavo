@@ -29,7 +29,7 @@ Golavo code is licensed under Apache-2.0; data packs carry separate licenses. By
 ```bash
 git clone https://github.com/udhawan97/Golavo.git && cd Golavo
 cp .env.example .env          # optional; Golavo runs local with no keys
-make setup                    # install core + server + ui dev deps
+make setup                    # install core + server + ui + docs-site dev deps
 make dev                      # run the FastAPI core + Vite UI
 make test                     # run the test suite
 make lint                     # ruff (python) + oxlint (ui)
