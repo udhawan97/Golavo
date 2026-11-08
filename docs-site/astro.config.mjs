@@ -13,8 +13,6 @@ export default defineConfig({
       favicon: "/favicon.svg",
       description:
         "Local-first, open-source soccer match intelligence. A deterministic engine owns every probability; AI only cites and explains. Eligible forecasts can be sealed before kickoff and scored or voided later when validated results are available.",
-      tagline:
-        "The numbers remember everything. The beautiful game still keeps the last word.",
       logo: {
         light: "./src/assets/golavo-lockup-light.svg",
         dark: "./src/assets/golavo-lockup-dark.svg",
