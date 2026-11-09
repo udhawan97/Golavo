@@ -57,10 +57,11 @@ runners should use the same repository queue when assigned Golavo.
    less than one phase; it must not start a second substantial implementation slice.
    Set a time budget at run start and reserve its last quarter for validation,
    review, and handoff. Time pressure never waives a gate.
-3. **Establish exclusive ownership before editing.** Verify exclusive repository/
-   scope ownership through an existing shared coordinator or serialized runner.
-   A checkout-local engineering-log entry is evidence, not a lock. If exclusivity
-   cannot be established, defer overlapping work. Then record the run, branch/PR,
+3. **Establish scope ownership before editing.** Serialize ownership among
+   participating scheduled runners through the named coordinator below.
+   This is a cooperative contract, not exclusion of unknown external writers.
+   A checkout-local engineering-log entry is evidence, not a lock. If ownership
+   is ambiguous, defer overlapping work. Then record the run, branch/PR,
    base SHA, phase and slice, and touched surfaces in the log. A stale claim
    requires evidence the prior run ended before takeover. Preserve isolated
    worktrees and serialize integration with a fresh remote-head check.
@@ -85,6 +86,55 @@ failed approach. On the next run, a blocker without new evidence is retained whi
 an independent ready slice is selected.
 Lettered steps can be intermediate checkpoints: for example, P1a and P1b do not
 make a dependency family mergeable until P1c and candidate review are complete.
+
+### Named serialized coordinator
+
+On 2026-11-08 the owner delegated the coordinator choice to CAPO. The existing
+chat attached to the Weekly CAPO automation named above is the serialized
+coordinator and sole scheduled writer of `engineering-log.md` and this queue.
+The coordinator also owns changes to the scheduled-work routing in `CLAUDE.md`.
+This selects an existing runner; it creates no new schedule, service, lock
+branch, credential or access grant and does not retroactively certify old work.
+
+1. Resolve that existing automation/chat through authenticated app metadata,
+   retaining its concrete identity in the private run receipt. A matching title
+   alone is not an assignment; if resolution is ambiguous, stop. Do not publish
+   private chat identifiers or create a substitute chat. Before editing, bring
+   the proposed packet and affected paths to that same chat. The coordinator reads current claims, remote main, worktree state and
+   affected-file fingerprints, then records the owner/run, branch, base SHA,
+   bounded scope and `IN_PROGRESS` decision in the chat. Its log/PR receipt is
+   evidence of that decision, not an independent claim mechanism. Only one
+   participating writer may own an overlapping scope. Council reviewers are
+   read-only unless explicitly assigned a separate non-overlapping scope.
+2. Other runs and hosts retain proposed canonical updates for this coordinator;
+   they do not independently edit these planning files. If the chat cannot be
+   reached, or the current owner is unclear, preserve the proposal and stop
+   canonical writes. The repository owner may explicitly reassign coordination, with a
+   recorded handoff and evidence that the previous run ended; never infer that
+   handoff from an idle status, silence, elapsed time or a stale timestamp.
+3. Before the first write and again before integration, recheck the affected
+   fingerprints, remote base and overlapping claims. Unexpected changes hold
+   the edit or integration for reconciliation and any affected review; do not
+   overwrite, absorb other work or take over automatically. Normal protections,
+   exact-head checks and the separate plan/candidate councils still apply.
+4. On completion, blockage or deferral, record the terminal state and whether
+   the bounded claim is released or retained in this chat and the linked PR.
+   An interrupted or uncertain run retains its claim until its end and an
+   explicit release/reassignment are established. The next run reads that
+   decision before claiming work; a merge alone is not a claim-release record.
+
+Procedure checks for every handoff:
+
+| Observed case | Required response |
+|---|---|
+| Overlapping active claim | Defer the overlap; only the coordinator may assign non-overlapping work. |
+| Coordinator unavailable | Retain the proposal; no canonical write. |
+| Prior run interrupted or ownership uncertain | No automatic expiry; establish that it ended and obtain explicit release/reassignment. |
+| Remote head or affected-file fingerprint changed | Stop, reconcile and repeat affected review before writing or integrating. |
+
+These are checks of the coordination procedure, not a platform lock test or
+proof that an uncoordinated external writer cannot act. Preserve dirty/active
+work and hold on observed drift even after a claim was granted.
 
 ## Ordered phases
 

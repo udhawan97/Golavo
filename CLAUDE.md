@@ -3,6 +3,17 @@
 Local-first, provenance-bearing football forecaster. Python core + FastAPI sidecar + React UI in a Tauri shell.
 Read [CONTEXT.md](CONTEXT.md) first — it defines the domain words (pack, snapshot, seal, settlement, name fold, leak-safe cutoff) that the code is named after.
 
+## Scheduled work
+
+Before scheduled material edits, read [engineering-log.md](engineering-log.md)
+and its [canonical queue](docs/handoff/scheduled-update-plan-2026-10.md).
+The chat already attached to the existing Weekly CAPO automation for this
+GitHub account coordinates scope ownership and is the sole scheduled writer of those two
+planning files. Other runs retain proposed updates for that coordinator.
+Follow the queue's cooperative ownership, interruption and drift stops;
+an idle chat or local log entry does not grant a claim. Complete the separate
+pre-edit plan council and final-candidate council before advancing work.
+
 ## Commands
 
 ```bash
