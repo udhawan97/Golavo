@@ -15,9 +15,9 @@
 - This handoff starts from `5fd260ac9c4bf1e582304a4c41bb217a1620ff90` on
   `docs/capo-ownership-handoff-2026-11-08`. Two prospective plan-council rounds,
   four actual roles each, completed before these edits. The containing commit
-  identifies this record; its delivery PR will bind the final candidate SHA,
-  candidate council, source/security checks, integration and explicit claim
-  release. Those later gates are not asserted passed by this source snapshot.
+  identifies this record; [the delivery PR](https://github.com/udhawan97/Golavo/pull/147) binds
+  the final candidate SHA, candidate council, source/security checks, integration
+  and explicit claim release. Those later gates are not asserted passed by this source snapshot.
 - Earlier docs delivery: [PR #146](https://github.com/udhawan97/Golavo/pull/146)
   reviewed `2317f2398d19e5e91f11679cb2ae2e6ad233355d`, then integrated by signed-off
   squash `5fd260ac9c4bf1e582304a4c41bb217a1620ff90`; reviewed/integrated tree
